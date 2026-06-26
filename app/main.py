@@ -34034,6 +34034,87 @@ def _apply_campaign_binding(db, user, page, body):
             page.capture_sequence_id = None
 
 
+def _sanitize_gjs_html(gjs_html: str) -> str:
+    """Strip <script>, inline on* handlers, and javascript: URLs from member
+    page HTML before storing. Single source of truth: both the editor save
+    (/api/funnels/save) and the kitchen-sink test-page generator call this, so
+    the test page is sanitised identically to a real publish — what you fetch
+    matches what a member actually gets served. Forms lose their onsubmit here;
+    funnel-render.html re-wires them with its own handler."""
+    import re
+    if gjs_html is None:
+        return gjs_html
+    gjs_html = re.sub(r'<script\b[^>]*>[\s\S]*?</script>', '', gjs_html, flags=re.IGNORECASE)
+    gjs_html = re.sub(r'\bon[a-z]+\s*=\s*"[^"]*"', '', gjs_html, flags=re.IGNORECASE)
+    gjs_html = re.sub(r"\bon[a-z]+\s*=\s*'[^']*'", '', gjs_html, flags=re.IGNORECASE)
+    gjs_html = re.sub(r'\bon[a-z]+\s*=\s*[^\s>]+', '', gjs_html, flags=re.IGNORECASE)
+    gjs_html = re.sub(r'((?:href|src)\s*=\s*["\']?)\s*javascript:[^"\'\s>]*', r'\1#', gjs_html, flags=re.IGNORECASE)
+    return gjs_html
+
+
+@app.get("/admin/api/generate-test-page")
+def admin_generate_test_page(request: Request,
+                             user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """One-tap: (re)generate and publish the kitchen-sink element test page.
+
+    Creates/updates a published SuperPage containing one of every interactive
+    element, so the published output can be smoke-tested. The HTML is the REAL
+    exportHTML.js output (tools/gen_kitchen_sink.mjs → app/fixtures/kitchen_sink.html),
+    run through the SAME sanitiser as a member save, so the page matches a real
+    publish exactly. The countdown target is refreshed to now+7d on every tap so
+    it's always live. Idempotent — re-tapping refreshes in place."""
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    import os, re as _re
+    fixture = os.path.join(os.path.dirname(__file__), "fixtures", "kitchen_sink.html")
+    try:
+        with open(fixture, "r", encoding="utf-8") as fh:
+            html = fh.read()
+    except FileNotFoundError:
+        return JSONResponse({"error": "kitchen_sink.html fixture missing — run tools/gen_kitchen_sink.mjs"}, status_code=500)
+
+    # Refresh the countdown target to +7 days, local "YYYY-MM-DDTHH:mm" (matches
+    # the editor's datetime-local format that new Date() parses on the live page).
+    f = datetime.now() + timedelta(days=7)
+    fresh = f.strftime("%Y-%m-%dT%H:%M")
+    html = _re.sub(r'data-target="[^"]*"', f'data-target="{fresh}"', html)
+
+    # Sanitise identically to a real save so the test page == a real publish.
+    html = _sanitize_gjs_html(html)
+
+    uname = (user.username or "").lower()
+    slug = f"{uname}/test-kitchen"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == slug,
+                                       FunnelPage.user_id == user.id).first()
+    created = page is None
+    if created:
+        page = FunnelPage(user_id=user.id, slug=slug)
+        db.add(page)
+    page.title = "Kitchen Sink — Element Test"
+    page.status = "published"
+    page.gjs_html = html
+    page.body_copy = None          # mirror a real canvas page (the null body_copy case)
+    page.color_scheme = "custom"
+    page.accent_color = "#00d4ff"
+    page.custom_bg = "#0b1020"
+    page.updated_at = datetime.utcnow()
+    db.commit()
+
+    base = str(request.base_url).rstrip("/")
+    url = f"{base}/p/{slug}"
+    return JSONResponse({
+        "ok": True,
+        "created": created,
+        "url": url,
+        "countdown_target": fresh,
+        "note": "Published. Fetch this URL to smoke-test the elements.",
+    })
+
+
 @app.post("/api/funnels/save")
 async def funnel_save(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -34140,24 +34221,11 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     gjs_html = body.get("gjs_html")
     if gjs_html is not None:
         # Strip script tags, inline event handlers, and javascript: URLs to
-        # prevent XSS. The React editor's exportHTML adds onsubmit="return true"
-        # to forms, which gets stripped here — that's fine, the published
-        # template (funnel-render.html) re-wires forms with its own submit
-        # handler. Members generally don't write raw HTML, but template
-        # imports / embed blocks could carry hostile markup.
-        #
-        # 14 May 2026: tightened the regex set to catch handlers the prior
-        # version missed: unquoted handlers (onclick=alert(1)) and handlers
-        # with mismatched quotes inside attribute values.
-        import re
-        gjs_html = re.sub(r'<script\b[^>]*>[\s\S]*?</script>', '', gjs_html, flags=re.IGNORECASE)
-        # Inline handlers: on* = "..." | '...' | unquoted-until-space-or->
-        gjs_html = re.sub(r'\bon[a-z]+\s*=\s*"[^"]*"', '', gjs_html, flags=re.IGNORECASE)
-        gjs_html = re.sub(r"\bon[a-z]+\s*=\s*'[^']*'", '', gjs_html, flags=re.IGNORECASE)
-        gjs_html = re.sub(r'\bon[a-z]+\s*=\s*[^\s>]+', '', gjs_html, flags=re.IGNORECASE)
-        # javascript: URLs inside href/src
-        gjs_html = re.sub(r'((?:href|src)\s*=\s*["\']?)\s*javascript:[^"\'\s>]*', r'\1#', gjs_html, flags=re.IGNORECASE)
-        page.gjs_html = gjs_html
+        # prevent XSS. Shared with the kitchen-sink generator via the helper
+        # so both paths sanitise identically. The React editor's exportHTML
+        # adds onsubmit="return true" to forms, which gets stripped here —
+        # that's fine, funnel-render.html re-wires forms with its own handler.
+        page.gjs_html = _sanitize_gjs_html(gjs_html)
     gjs_css = body.get("gjs_css")
     if gjs_css is not None:
         # gjs_css from the React editor is a JSON blob like:
