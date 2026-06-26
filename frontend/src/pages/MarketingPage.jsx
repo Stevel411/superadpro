@@ -7,6 +7,7 @@ import CategoryShell from '../components/CategoryShell';
 
 const CSS = `
 .cat .tile .t5{background:linear-gradient(135deg,#0e7490,#16a34a);}
+.cat .tile .t6{background:linear-gradient(135deg,#0a1438,#0ea5e9);}
 .cat .linkbox{margin-top:20px;background:rgba(255,255,255,.08);border:1px solid rgba(103,232,249,.35);border-radius:13px;padding:13px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:560px;}
 .cat .linkbox .lk{flex:1;min-width:200px;font-family:'JetBrains Mono';font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cat .linkbox .cpy{background:#fff;color:#0a1438;font-family:'Sora';font-weight:700;font-size:14px;padding:11px 18px;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px;}
@@ -15,6 +16,7 @@ const CSS = `
 
 const MATS = [
   { to:'/marketing/lead-magnets', cls:'t5', name:'Lead magnets', desc:'Free done-for-you courses — share the page and grow your list on autopilot.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15a6 6 0 0 0 12 0V3h-4v12a2 2 0 1 1-4 0V3H6z"/><line x1="6" y1="7" x2="10" y2="7"/><line x1="14" y1="7" x2="18" y2="7"/></svg> },
+  { ext:'video', cls:'t6', name:'Personal sales video', desc:'Your branded video sales page — share the link with prospects.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z" fill="#fff"/></svg> },
   { to:'/brand-posters', cls:'t3', name:'Brand posters', desc:'Ready-made designs, sized for every platform.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg> },
   { to:'/email-swipes', cls:'t2', name:'Email swipes', desc:'Proven copy — paste, personalise and send.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> },
   { to:'/link-tools', cls:'t1', name:'Link tools', desc:'Smart links and trackers for your promotions.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg> },
@@ -44,16 +46,17 @@ export default function MarketingPage() {
         </div>
       </div>
 
-      <div className="sect"><h3>Ready-made materials</h3><span>lead magnets, posters, swipes &amp; links</span></div>
+      <div className="sect"><h3>Ready-made materials</h3><span>lead magnets, sales video, posters &amp; swipes</span></div>
       <div className="grid">
         {MATS.map(function (m) {
+          var inner = (<><div className={'ti ' + m.cls}>{m.icon}</div><h4>{m.name}</h4><p>{m.desc}</p><span className="go">Open &rarr;</span></>);
+          if (m.ext === 'video') {
+            return (
+              <a className="tile" href={refLink + '/video'} target="_blank" rel="noopener noreferrer" key={m.name}>{inner}</a>
+            );
+          }
           return (
-            <Link className="tile" to={m.to} key={m.to}>
-              <div className={'ti ' + m.cls}>{m.icon}</div>
-              <h4>{m.name}</h4>
-              <p>{m.desc}</p>
-              <span className="go">Open &rarr;</span>
-            </Link>
+            <Link className="tile" to={m.to} key={m.to}>{inner}</Link>
           );
         })}
       </div>
