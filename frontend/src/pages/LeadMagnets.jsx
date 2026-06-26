@@ -9,10 +9,15 @@ import { Copy, Check, SlidersHorizontal, Lock, Library } from 'lucide-react';
 // page + leads list + nurture sequence. Reached from the Marketing Hub.
 
 function Cover({ m, height }) {
-  if (m.cover === 'traffic') {
+  if (m.cover_title) {
+    const email = m.cover === 'email';
+    const grad = email
+      ? 'linear-gradient(150deg,#0a1438 0%,#163a66 52%,#16a34a 145%)'
+      : 'linear-gradient(150deg,#0a1438 0%,#15346b 55%,#0ea5e9 135%)';
+    const blob = email ? 'rgba(56,189,248,0.18)' : 'rgba(125,211,238,0.16)';
     return (
-      <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: 'linear-gradient(150deg,#0a1438 0%,#15346b 55%,#0ea5e9 135%)' }}>
-        <div style={{ position: 'absolute', top: -34, right: -30, width: 110, height: 110, borderRadius: '50%', background: 'rgba(125,211,238,0.16)' }} />
+      <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: grad }}>
+        <div style={{ position: 'absolute', top: -34, right: -30, width: 110, height: 110, borderRadius: '50%', background: blob }} />
         {m.badge && <span style={{ position: 'absolute', top: 12, left: 14, fontFamily: 'var(--sap-font-mono)', fontSize: 9, letterSpacing: '0.08em', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.28)', padding: '3px 9px', borderRadius: 999 }}>{m.badge}</span>}
         <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 21, lineHeight: 1.03, position: 'relative', zIndex: 1 }}>{m.cover_title}</div>
       </div>
@@ -67,7 +72,7 @@ export default function LeadMagnets() {
   const live = magnets.filter((m) => m.status === 'live');
   const totalLeads = live.reduce((s, m) => s + (m.lead_count || 0), 0);
 
-  const comingSoon = [0, 1];
+  const comingSoon = [0];
 
   return (
     <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}

@@ -64846,6 +64846,92 @@ def _provision_course_funnel(db, user):
 # a magnet = append an entry here once its page + provisioner exist. Only the
 # Traffic Course is live today; more get appended as they're built.
 # "provision" returns the member's shareable page URL.
+# ── Email List Course lead magnet (magnet #2) ───────────────
+_EMAIL_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/email-list-course.pdf"
+
+EMAIL_COURSE_SEQUENCE_EMAILS = [
+    {"subject": "Your Email List Course is here",
+     "send_delay_days": 0,
+     "body_html": "<p>Hi {{lead_name}}, your copy of <strong>The Complete Email List Course</strong> is ready.</p>"
+        + _course_btn(_EMAIL_COURSE_PDF_URL, "Download the course \u2192")
+        + "<p>Inside: the lead magnets that actually convert in 2026, one-page opt-ins that capture the email, "
+          "a welcome sequence that warms people up, the deliverability rules that keep you out of spam, and a "
+          "30/60/90-day plan you can start this week.</p>"
+        + "<p>Enjoy \u2014 I\u2019ll send a few of my favourite list-building ideas over the next few days.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "The lead magnet mistake that kills lists",
+     "send_delay_days": 2,
+     "body_html": "<p>Quick one, {{lead_name}}.</p>"
+        + "<p>Most people give away a vague \u201cultimate guide\u201d and wonder why nobody signs up. The fix in "
+          "the course: one audience, one problem, one quick win. Specific always beats impressive \u2014 a focused "
+          "checklist out-converts a 50-page ebook every time.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "Give, give, give \u2014 then ask",
+     "send_delay_days": 4,
+     "body_html": "<p>{{lead_name}} \u2014 the money isn\u2019t in the signup, it\u2019s in the follow-up.</p>"
+        + "<p>About 8 in 10 leads never convert without it. The welcome sequence in the course is built on a "
+          "simple shape: deliver, add value, tell a story, show proof, then make one clear ask. Build it once "
+          "and it runs on autopilot.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "You just used SuperAdPro",
+     "send_delay_days": 6,
+     "body_html": "<p>Quick reveal, {{lead_name}}.</p>"
+        + "<p>The page you signed up on, this email, the course you downloaded \u2014 all of it runs on one "
+          "platform: <strong>SuperAdPro</strong>. It\u2019s the toolkit I use to build a list: capture pages, an "
+          "email autoresponder (yes, this), a link-in-bio hub, plus AI content and image tools \u2014 all in one "
+          "place for $20/month instead of juggling five subscriptions.</p>"
+        + _course_btn("{{referral_link}}", "See SuperAdPro \u2192")
+        + "<p>{{member_name}}</p>"},
+    {"subject": "Get your own free lead magnet, like this one",
+     "send_delay_days": 9,
+     "body_html": "<p>{{lead_name}}, the simplest way to put the course into practice is to do exactly what you "
+          "just experienced: get your own free lead magnet, put it behind a capture page, and let an "
+          "autoresponder build your list \u2014 all with SuperAdPro, alongside me.</p>"
+        + "<p>No hype, no income promises \u2014 just the tools and a plan.</p>"
+        + _course_btn("{{referral_link}}", "Build your list with SuperAdPro \u2192")
+        + "<p>{{member_name}}</p>"},
+]
+
+
+def _provision_email_course_funnel(db, user):
+    """Idempotently create the member's Email List Course funnel (list +
+    sequence + page) and return the public page URL. Mirrors the Traffic
+    Course provisioner; binds to the generic /api/capture/{user}/{slug} flow."""
+    from .database import LeadList, EmailSequence, FunnelPage
+    import json as _jc
+    slug = f"{user.username}/email-list-course"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
+    if page and page.capture_sequence_id and page.default_list_id:
+        return f"https://www.superadpro.com/email-course/{user.username}"
+
+    lst = db.query(LeadList).filter(LeadList.user_id == user.id,
+                                    LeadList.name == "Email List Course leads").first()
+    if not lst:
+        lst = LeadList(user_id=user.id, name="Email List Course leads",
+                       description="Leads from your free Email List Course page", color="#16a34a")
+        db.add(lst); db.flush()
+
+    seq = db.query(EmailSequence).filter(EmailSequence.user_id == user.id,
+                                         EmailSequence.title == "The Email List Course \u2014 Welcome").first()
+    if not seq:
+        seq = EmailSequence(user_id=user.id, title="The Email List Course \u2014 Welcome",
+                            niche="email-list", tone="straight-talking",
+                            num_emails=len(EMAIL_COURSE_SEQUENCE_EMAILS),
+                            emails_json=_jc.dumps(EMAIL_COURSE_SEQUENCE_EMAILS), is_active=True)
+        db.add(seq); db.flush()
+    lst.sequence_id = seq.id
+
+    if not page:
+        page = FunnelPage(user_id=user.id, slug=slug, title="The Complete Email List Course",
+                          template_type="optin", status="published")
+        db.add(page)
+    page.capture_sequence_id = seq.id
+    page.default_list_id = lst.id
+    page.status = "published"
+    db.commit()
+    return f"https://www.superadpro.com/email-course/{user.username}"
+
+
 LEAD_MAGNETS = [
     {
         "key": "traffic-course",
@@ -64860,6 +64946,20 @@ LEAD_MAGNETS = [
         "list_name": "Traffic Course leads",
         "status": "live",
         "provision": _provision_course_funnel,
+    },
+    {
+        "key": "email-list-course",
+        "title": "The Complete Email List Course",
+        "desc": "Build an email list that actually pays \u2014 lead magnets that convert, "
+                "one-page opt-ins, a welcome sequence, the 2026 deliverability rules, and a "
+                "30/60/90-day plan. No income claims.",
+        "cover": "email",
+        "cover_title": "Email List Course.",
+        "badge": "22-PAGE PDF \u00b7 FREE",
+        "pdf_url": _EMAIL_COURSE_PDF_URL,
+        "list_name": "Email List Course leads",
+        "status": "live",
+        "provision": _provision_email_course_funnel,
     },
 ]
 
@@ -64988,6 +65088,168 @@ def course_page(username: str, db: Session = Depends(get_db)):
         logger.warning(f"course funnel provision failed for {username}: {e}")
     member_name = owner.first_name or owner.username
     html = _COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    return HTMLResponse(html)
+
+
+_EMAIL_COURSE_PAGE_TMPL = r"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Complete Email List Course — free</title><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;
+ background:#eef4fb;background:linear-gradient(180deg,#e9f1fb 0%,#f5f8fc 46%,#eef4fb 100%);
+ min-height:100vh;-webkit-font-smoothing:antialiased}
+.blob{position:fixed;top:-160px;right:-120px;width:520px;height:520px;border-radius:50%;
+ background:radial-gradient(circle at 35% 35%,rgba(56,189,248,.16),rgba(30,58,138,.10) 60%,transparent 72%);z-index:0}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:26px 22px 46px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
+.brand{font-family:'Sora';font-weight:800;font-size:18px;color:#0a1438;display:flex;align-items:center;gap:9px}
+.brand .mk{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#22d3ee,#1e3a8a)}
+.brand .dot{color:#0ea5e9}
+.shared{font-family:'DM Sans';font-weight:600;font-size:12px;color:#1e3a8a;background:#dCEaFb;
+ background:rgba(30,58,138,.08);border:1px solid rgba(30,58,138,.16);padding:6px 13px;border-radius:999px}
+.hero{display:grid;gap:30px 40px;grid-template-columns:1fr 1fr;
+ grid-template-areas:"top form" "rest rest";align-items:start}
+.p-top{grid-area:top;align-self:center}.p-rest{grid-area:rest;margin-top:8px}.f-col{grid-area:form}
+.eyebrow{font-family:'DM Sans';font-weight:700;font-size:12px;letter-spacing:.16em;
+ text-transform:uppercase;color:#0284c7;margin-bottom:12px}
+.eyebrow .pip{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16a34a;margin-right:8px;vertical-align:middle}
+h1{font-family:'Sora';font-weight:800;font-size:42px;line-height:1.05;color:#0a1438;letter-spacing:-1px}
+h1 .g{background:linear-gradient(92deg,#0ea5e9,#16a34a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:17px;line-height:1.55;color:#475569;margin-top:16px;font-weight:500;max-width:440px}
+.bens{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px auto 0;max-width:900px}
+.ben{background:#fff;border:1px solid #e2e9f3;border-radius:12px;padding:11px 13px;display:flex;gap:9px;align-items:flex-start;
+ box-shadow:0 1px 2px rgba(16,42,90,.04)}
+.ben .ck{width:21px;height:21px;flex:none;border-radius:6px;background:#e6f7ef;color:#16a34a;font-weight:800;
+ font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ben span{font-size:13.5px;line-height:1.35;color:#1f2d44;font-weight:500}
+.ben b{color:#0a1438;font-weight:700}
+.how{margin:18px auto 0;max-width:540px;background:rgba(255,255,255,.55);border:1px dashed #c7d6ea;border-radius:13px;
+ padding:13px 15px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.how .st{display:flex;gap:9px;align-items:center}
+.how .n{width:24px;height:24px;border-radius:50%;background:#0a1438;color:#fff;font-family:'Sora';font-weight:800;
+ font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.how .t{font-size:12.5px;color:#334155;font-weight:600;line-height:1.2}
+.how .ar{color:#94a3b8;font-size:14px}
+/* form column */
+.minicover{position:relative;margin:0 auto -22px;width:170px;height:226px;border-radius:13px;overflow:hidden;
+ transform:rotate(-3deg);box-shadow:0 18px 36px -16px rgba(10,20,56,.5);background:#0a1438;z-index:2}
+.minicover .c1{position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:#15346b}
+.minicover .c2{position:absolute;top:10px;right:-18px;width:80px;height:80px;border-radius:50%;background:#0ea5e9;opacity:.3}
+.minicover .mk{position:absolute;top:13px;left:14px;font-family:'Sora';font-weight:800;font-size:9px;color:#fff}
+.minicover .pill{position:absolute;left:14px;top:96px;font-family:'DM Sans';font-weight:700;font-size:6.5px;
+ letter-spacing:.08em;color:#9ff0ff;border:1px solid rgba(125,211,238,.5);padding:2px 7px;border-radius:20px}
+.minicover .tt{position:absolute;left:14px;top:116px;right:12px;font-family:'Sora';font-weight:800;font-size:17px;
+ line-height:1.04;color:#fff;letter-spacing:-.4px}
+.minicover .tt .d{color:#38bdf8}
+.minicover .rl{position:absolute;left:14px;top:188px;width:34px;height:4px;border-radius:3px;background:#0ea5e9}
+.card{background:#fff;border:1px solid #e4ebf4;border-radius:18px;padding:38px 24px 22px;
+ box-shadow:0 24px 60px -28px rgba(16,42,90,.4)}
+.fh{font-family:'Sora';font-weight:800;font-size:22px;color:#0a1438;text-align:center}
+.fhs{font-size:13.5px;color:#64748b;text-align:center;margin:5px 0 18px;font-weight:500}
+.field{width:100%;border:1.6px solid #d7e0ee;border-radius:11px;padding:14px 15px;font-family:'DM Sans';
+ font-size:15.5px;color:#0a1438;background:#f9fbfe;margin-bottom:12px}
+.field:focus{outline:none;border-color:#0ea5e9;background:#fff}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:2px 0 16px;cursor:pointer}
+.consent input{width:19px;height:19px;flex:none;margin-top:1px;accent-color:#16a34a}
+.consent span{font-size:12px;color:#5a6b82;line-height:1.45}
+.cta{width:100%;border:none;border-radius:12px;padding:16px;font-family:'Sora';font-weight:800;font-size:16.5px;
+ color:#fff;background:#1e3a8a;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);cursor:pointer;
+ box-shadow:0 12px 22px -10px rgba(14,116,180,.7)}
+.cta:hover{filter:brightness(1.05)}
+.micro{text-align:center;font-size:10.5px;letter-spacing:.05em;color:#94a3b8;margin-top:12px;font-weight:600}
+.msg{text-align:center;font-size:13px;margin-top:10px;min-height:15px}
+.trust{display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.trust .ti{font-size:11.5px;color:#64748b;font-weight:600;display:flex;gap:5px;align-items:center}
+.trust .ti b{color:#16a34a}
+.foot{margin-top:34px;text-align:center;font-size:11.5px;color:#8597ad;line-height:1.7;
+ border-top:1px solid #e2e9f3;padding-top:18px}
+.foot .pw{font-size:10px;color:#aab8cb;margin-top:7px}
+@media(max-width:760px){
+ .hero{grid-template-columns:1fr;grid-template-areas:"top" "form" "rest"}
+ .p-top{align-self:auto}
+ .bens{grid-template-columns:1fr 1fr;max-width:none;margin-top:22px}
+ h1{font-size:32px}.sub{font-size:16px}
+ .minicover{width:150px;height:200px;margin-bottom:-20px}
+ .bens{max-width:none}.how{max-width:none;flex-wrap:wrap;gap:12px}
+ .card{padding:34px 18px 20px}
+}
+</style></head><body><div class="blob"></div><div class="wrap">
+<div class="top"><div class="brand"><span class="mk"></span>SuperAdPro<span class="dot">.</span></div>
+<div class="shared">shared by __MEMBER__</div></div>
+<div class="hero">
+ <div class="p-top">
+  <div class="eyebrow"><span class="pip"></span>Free &middot; 22-page course</div>
+  <h1>Build an email list that <span class="g">actually pays.</span></h1>
+  <div class="sub">The complete, no-fluff playbook &mdash; lead magnets, opt-in pages, welcome
+   emails and deliverability. Yours free, in one click.</div>
+ </div>
+ <div class="f-col">
+  <div class="minicover"><div class="c1"></div><div class="c2"></div>
+   <div class="mk">SuperAdPro.</div><div class="pill">THE COMPLETE COURSE</div>
+   <div class="tt">Email List<br>Course<span class="d">.</span></div><div class="rl"></div></div>
+  <div class="card" id="formwrap">
+   <div class="fh">Get the free course</div>
+   <div class="fhs">Email-only &mdash; instant access to your inbox.</div>
+   <input class="field" id="em" type="email" placeholder="Your best email" autocomplete="email">
+   <label class="consent"><input type="checkbox" id="cs"><span>Email me the free course and the
+    occasional list-building tip. I can unsubscribe anytime.</span></label>
+   <button class="cta" id="btn" onclick="submitCourse()">Send me the course &rarr;</button>
+   <div class="msg" id="msg"></div>
+   <div class="micro">22-PAGE PDF &middot; INSTANT ACCESS &middot; NO SPAM</div>
+  </div>
+  <div class="trust">
+   <div class="ti"><b>&#10003;</b> No income claims</div>
+   <div class="ti"><b>&#10003;</b> Unsubscribe anytime</div>
+   <div class="ti"><b>&#10003;</b> Read in 30 min</div>
+  </div>
+ </div>
+ <div class="p-rest">
+  <div class="bens">
+   <div class="ben"><span class="ck">&#10003;</span><span><b>Lead magnets</b> that convert &mdash; with 2026 benchmarks</span></div>
+   <div class="ben"><span class="ck">&#10003;</span><span><b>One-page opt-ins</b> that capture the email</span></div>
+   <div class="ben"><span class="ck">&#10003;</span><span><b>Welcome emails</b> that warm up &amp; sell</span></div>
+   <div class="ben"><span class="ck">&#10003;</span><span><b>Inbox, not spam</b> &mdash; the 2026 rules made simple</span></div>
+  </div>
+  <div class="how">
+   <div class="st"><span class="n">1</span><span class="t">Enter<br>your email</span></div>
+   <span class="ar">&rarr;</span>
+   <div class="st"><span class="n">2</span><span class="t">Check<br>your inbox</span></div>
+   <span class="ar">&rarr;</span>
+   <div class="st"><span class="n">3</span><span class="t">Read in<br>~30 min</span></div>
+  </div>
+ </div>
+</div>
+<div class="foot">You're joining __MEMBER__'s email list. We respect your privacy &mdash; unsubscribe in
+ one click, anytime.<br>&copy; SuperAdPro &middot; The Email List Course<div class="pw">Powered by SuperAdPro</div></div>
+</div>
+<script>
+function submitCourse(){
+ var em=document.getElementById('em').value.trim();
+ var cs=document.getElementById('cs').checked;
+ var msg=document.getElementById('msg');
+ if(!em||em.indexOf('@')<1){msg.textContent='Please enter a valid email.';msg.style.color='#e11d48';return;}
+ if(!cs){msg.textContent='Please tick the box to continue.';msg.style.color='#e11d48';return;}
+ var btn=document.getElementById('btn');btn.textContent='Sending\u2026';btn.style.pointerEvents='none';msg.textContent='';
+ fetch('/api/capture/__USERNAME__/email-list-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,name:'',consent:true})})
+ .then(function(r){return r.json()}).then(function(d){
+   document.getElementById('formwrap').innerHTML='<div style="text-align:center;padding:30px 6px"><div style="font-family:Sora;font-weight:800;font-size:22px;color:#0a1438">Check your inbox.</div><p style="color:#475569;margin-top:9px;font-size:14px">Your course is on its way to '+em+'.<br>(Peek in spam if it\'s not there in a minute.)</p></div>';
+ }).catch(function(){msg.textContent='Something went wrong \u2014 please try again.';msg.style.color='#e11d48';btn.textContent='Send me the course \u2192';btn.style.pointerEvents='auto';});
+}
+</script></body></html>"""
+
+
+@app.get("/email-course/{username}")
+def email_course_page(username: str, db: Session = Depends(get_db)):
+    """Public per-member Email List Course lead-magnet page. Auto-provisions the
+    member's funnel on first view, then renders the opt-in. Posts to /api/capture/."""
+    uname = (username or "").strip().lstrip("@")
+    owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
+    if not owner:
+        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+    try:
+        _provision_email_course_funnel(db, owner)
+    except Exception as e:
+        logger.warning(f"email course funnel provision failed for {username}: {e}")
+    member_name = owner.first_name or owner.username
+    html = _EMAIL_COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
     return HTMLResponse(html)
 
 
