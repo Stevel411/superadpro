@@ -114,10 +114,11 @@ export default function PartnerPayment() {
 
   // Derived state
   var isActive = !!user?.is_active;
-  // A member already paying by card auto-renews via Stripe (invoice.paid).
-  // payment_method is set to 'stripe' on any card payment. In renew mode we
-  // show "auto-renewal is on" for these members instead of a duplicate CTA.
-  var onCardAutoRenew = isActive && (user?.payment_method === 'stripe');
+  // A member already on a card subscription auto-renews via Stripe
+  // (invoice.paid). has_card_subscription is true ONLY for a real membership
+  // subscription — not a one-time card purchase — so the renew flow shows
+  // "auto-renewal is on" for these members instead of a duplicate CTA.
+  var onCardAutoRenew = isActive && (user?.has_card_subscription === true);
   var tier = (user?.membership_tier || 'free').toLowerCase();
   // Founding status lives on a dedicated boolean field, not the tier
   // string (tier is just 'partner' or 'free' under flat-pricing).

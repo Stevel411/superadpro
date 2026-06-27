@@ -3425,6 +3425,12 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         # the "Manage Subscription" card (Stripe Customer Portal link) for
         # card-paying members. Defaults to 'crypto' for all legacy members.
         "payment_method": getattr(user, "payment_method", None) or "crypto",
+        # Accurate "is on card auto-renew" signal: a subscription id is set ONLY
+        # for membership subscriptions (not one-time card purchases like campaign
+        # tiers), so the renew flow can tell genuine auto-renewers apart from
+        # members who merely paid for something once by card. Exposed as a bool;
+        # the id itself stays server-side.
+        "has_card_subscription": bool(getattr(user, "stripe_subscription_id", None)),
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "campaign_withdrawable": _campaign_withdrawable,
         "available_total": _available_total,
