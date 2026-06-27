@@ -44068,60 +44068,102 @@ def admin_sponsor_settlement_check(
     STRIPE_MEM = ("membership_signup", "founder_signup",
                   "membership_renewal", "founder_renewal")
 
+    def spec_sponsor(amount):
+        """Spec membership sponsor commission for one referral payment of
+        `amount` USD. docs/commission-spec.md: 50% of what the referral pays,
+        founder $15 is a flat $10/$5 split. Tolerant match on the sticker."""
+        a = round(float(amount or 0), 2)
+        if abs(a - 15.0) <= 0.75:
+            return 10.0, "founder_monthly"
+        if abs(a - 20.0) <= 0.75:
+            return 10.0, "basic_monthly"
+        if abs(a - 35.0) <= 0.75:
+            return 17.5, "pro_monthly"
+        if abs(a - 200.0) <= 3.0:
+            return 100.0, "basic_annual"
+        if abs(a - 350.0) <= 4.0:
+            return 175.0, "pro_annual"
+        return round(a * 0.5, 2), "other_50pct"
+
     referrals = db.query(User).filter(User.sponsor_id == user_id).all()
     rows = []
     total_events = 0
+    settled_gross = 0.0
+    spec_sponsor_total = 0.0
+    plan_mix = {}
     for r in referrals:
-        wc = int(db.query(func.count(_WC.id)).filter(
-            _WC.user_id == r.id, _WC.product_type == "membership",
-            _WC.status == "confirmed", _WC.confirmed_at.isnot(None),
-            _WC.confirmed_at < cutoff_dt).scalar() or 0)
-        npc = int(db.query(func.count(_NP.id)).filter(
-            _NP.user_id == r.id, _NP.product_type == "membership",
-            _NP.status.in_(["confirmed", "fulfilled"]),
-            _NP.confirmed_at.isnot(None),
-            _NP.confirmed_at < cutoff_dt).scalar() or 0)
-        sc = int(db.query(func.count(_SC.id)).filter(
-            _SC.user_id == r.id, _SC.kind == "charge",
-            _SC.product.in_(STRIPE_MEM), _SC.amount_cents > 0,
-            _SC.created_at < cutoff_dt).scalar() or 0)
-        events = wc + npc + sc
+        pays = []  # (rail, amount_usd)
+        for o in db.query(_WC).filter(
+                _WC.user_id == r.id, _WC.product_type == "membership",
+                _WC.status == "confirmed", _WC.confirmed_at.isnot(None),
+                _WC.confirmed_at < cutoff_dt).all():
+            pays.append(("wc", round(float(o.base_amount or 0), 2)))
+        for o in db.query(_NP).filter(
+                _NP.user_id == r.id, _NP.product_type == "membership",
+                _NP.status.in_(["confirmed", "fulfilled"]),
+                _NP.confirmed_at.isnot(None),
+                _NP.confirmed_at < cutoff_dt).all():
+            pays.append(("nowpayments", round(float(o.price_usd or 0), 2)))
+        for c in db.query(_SC).filter(
+                _SC.user_id == r.id, _SC.kind == "charge",
+                _SC.product.in_(STRIPE_MEM), _SC.amount_cents > 0,
+                _SC.created_at < cutoff_dt).all():
+            pays.append(("stripe", round((c.amount_cents or 0) / 100.0, 2)))
+        events = len(pays)
         total_events += events
+        ref_sponsor = 0.0
+        detail = []
+        for rail, amt in pays:
+            comm, plan = spec_sponsor(amt)
+            ref_sponsor += comm
+            settled_gross += amt
+            spec_sponsor_total += comm
+            plan_mix[plan] = plan_mix.get(plan, 0) + 1
+            detail.append({"rail": rail, "paid_usd": amt,
+                           "plan": plan, "sponsor_usd": comm})
         if events or (r.activated_at and r.activated_at < cutoff_dt):
             rows.append({
                 "user_id": r.id, "username": r.username or "",
                 "is_active": bool(r.is_active),
                 "tier": r.membership_tier,
                 "activated_at": r.activated_at.isoformat() if r.activated_at else None,
-                "settled_membership_payments_pre_cutoff": events,
-                "by_rail": {"wc": wc, "nowpayments": npc, "stripe": sc},
+                "settled_payments_pre_cutoff": events,
+                "sponsor_usd_spec": round(ref_sponsor, 2),
+                "payments": detail,
             })
-    rows.sort(key=lambda x: x["settled_membership_payments_pre_cutoff"], reverse=True)
-    expected = total_events * PER_PAYMENT
+    rows.sort(key=lambda x: x["sponsor_usd_spec"], reverse=True)
+    spec_sponsor_total = round(spec_sponsor_total, 2)
+    flat10_total = total_events * PER_PAYMENT
 
     out = {
         "sponsor_user_id": user_id,
         "cutoff": cutoff,
         "direct_referrals_total": len(referrals),
         "referrals_paid_membership_pre_cutoff":
-            sum(1 for x in rows if x["settled_membership_payments_pre_cutoff"] > 0),
+            sum(1 for x in rows if x["settled_payments_pre_cutoff"] > 0),
         "settled_membership_payment_events_pre_cutoff": total_events,
-        "expected_membership_sponsor_usd_lower_bound": expected,
-        "note": ("Settled rails only (on-chain + Stripe). Balance/gift "
-                 "activations also pay $10 sponsor but leave no order row, so "
-                 "this is a LOWER BOUND. expected >= reconstructed means the "
-                 "residual is fully backed by settled money."),
+        "settled_gross_usd": round(settled_gross, 2),
+        "plan_mix": plan_mix,
+        "membership_sponsor_usd_SPEC": spec_sponsor_total,
+        "membership_sponsor_usd_flat10": flat10_total,
+        "note": ("SPEC total applies docs/commission-spec.md rates per actual "
+                 "settled amount (founder/basic $10, pro $17.50, basic-annual "
+                 "$100, pro-annual $175). Settled rails only (on-chain+Stripe); "
+                 "balance/gift activations leave no order row so SPEC is a LOWER "
+                 "BOUND. pro_annual to a non-pro sponsor is capped at $100 in "
+                 "real code — flag if plan_mix shows pro_annual."),
         "referrals": rows,
     }
     if compare_usd and compare_usd > 0:
-        diff = round(expected - compare_usd, 2)
+        diff = round(spec_sponsor_total - compare_usd, 2)
         out["compare_usd"] = compare_usd
-        out["settled_minus_reconstructed"] = diff
+        out["settled_SPEC_minus_reconstructed"] = diff
         out["verdict"] = (
-            "BACKED - settled money meets or exceeds the reconstructed residual"
-            if diff >= -0.01 else
-            "SHORTFALL - settled rails below reconstructed; remainder is "
-            "balance/gift activations OR possible inflation, investigate")
+            "BACKED - settled money (spec rates) meets/exceeds the reconstructed "
+            "residual" if diff >= -0.01 else
+            f"SHORTFALL ${abs(diff):.2f} - settled spec earnings below the "
+            "reconstructed residual; remainder is balance/gift activations OR "
+            "phantom value absorbed by the residual, investigate")
     return JSONResponse(out)
 
 
