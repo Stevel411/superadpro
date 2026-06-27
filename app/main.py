@@ -23694,7 +23694,21 @@ def _nowpayments_activate_product(db, user, order, meta):
         tier = "partner"
         billing = "annual" if "annual" in product_key else "monthly"
         is_upgrade = meta.get("is_upgrade", False)
-        _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade, billing=billing)
+        # Renewal: a 'renew' product paid by an ALREADY-ACTIVE member must NOT
+        # go through activation. _activate_membership bails for active members
+        # (anti-double-sponsor) and would re-run fresh-activation work (grid,
+        # founding-spot claim). Route to the shared renewal engine, which pays
+        # the sponsor exactly once per member-month (idempotent) and extends the
+        # membership window. Both crypto rails (BSC self-custody + NOWPayments)
+        # land here, so this covers them all.
+        if "renew" in (product_key or "") and getattr(user, "is_active", False):
+            from .payment import process_membership_renewal
+            _oid = (getattr(order, "internal_order_id", None)
+                    or getattr(order, "np_payment_id", None)
+                    or f"order:{getattr(order, 'id', '?')}")
+            process_membership_renewal(db, user, rail="crypto", source_event_id=str(_oid))
+        else:
+            _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade, billing=billing)
 
     # ── Grid / Campaign Tier ──
     elif order.product_type == "grid":

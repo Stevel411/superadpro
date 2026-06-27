@@ -339,9 +339,33 @@ export default function PartnerPayment() {
                     ? t('partner.renewStarting', { defaultValue: 'Starting\u2026' })
                     : t('partner.renewCardCta', { defaultValue: 'Turn on card auto-renew \u2192' })}
                 </button>
-                <div style={{ fontSize: 12, opacity: 0.7, lineHeight: 1.5, marginTop: 14, textAlign: 'center' }}>
-                  {t('partner.renewCryptoSoon', { defaultValue: 'Prefer to renew with crypto each month? That option is coming right behind this \u2014 card is live now.' })}
+                {/* Crypto fallback — one month in USDT at the locked price.
+                    Monthly only: annual pays the sponsor 10x up front, so crypto
+                    renewal stays monthly. 'membership_renew' is priced at the
+                    locked rate server-side and routes to the renewal engine. */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 14px', opacity: 0.7 }}>
+                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.18)' }} />
+                  <span style={{ fontSize: 12, color: '#cbd5e1' }}>{t('partner.or', { defaultValue: 'or' })}</span>
+                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.18)' }} />
                 </div>
+                <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5, marginBottom: 10, textAlign: 'center' }}>
+                  {t('partner.renewCryptoLabel', { defaultValue: 'Renew one month with crypto (USDT $' + renewMonthly + ')' })}
+                </div>
+                <Suspense fallback={<div style={{ textAlign: 'center', fontSize: 13, opacity: 0.7 }}>{t('partner.loadingWallet', { defaultValue: 'Loading wallet…' })}</div>}>
+                  <WalletConnectProvider onBeforeClick={ensureConsent}>
+                    <WalletConnectGate
+                      hideWhenConnected
+                      label={t('partner.connectWalletRenew', { defaultValue: 'Connect wallet to pay $' + renewMonthly })}
+                      style={{ width: '100%', padding: '13px 22px', borderRadius: 10, border: 'none', fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #ea580c, #f97316)', fontFamily: 'Sora, sans-serif', cursor: 'pointer' }}
+                    />
+                    <WalletPayLink
+                      productType="membership"
+                      productKey="membership_renew"
+                      label={t('partner.renewWithWallet', { defaultValue: 'Renew with USDT ($' + renewMonthly + ')' })}
+                      style={{ width: '100%', padding: '13px 22px', borderRadius: 10, border: 'none', fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%)', fontFamily: 'Sora, sans-serif', cursor: 'pointer', marginTop: 8 }}
+                    />
+                  </WalletConnectProvider>
+                </Suspense>
               </div>
             )}
           </div>

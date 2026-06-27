@@ -399,6 +399,95 @@ def pay_renewal_commission(db, member, *, period_key: str, rail: str):
     return paid
 
 
+def process_membership_renewal(db, user, *, rail, source_event_id=None):
+    """Renew an ALREADY-ACTIVE member's MONTHLY membership on a non-subscription
+    rail (crypto self-custody / NOWPayments). This is the crypto-side mirror of
+    the Stripe invoice.paid renewal: card renews itself via the subscription
+    webhook; crypto has no recurring charge, so a confirmed renewal payment
+    lands here.
+
+    Why a dedicated path (not _activate_membership): activation bails for an
+    already-active member (anti-double-sponsor) and re-runs fresh-activation
+    work — grid placement, founding-spot claim. A renewal must do NONE of that.
+    It only: extends the membership window by a month, pays the sponsor via the
+    ONE shared engine (pay_renewal_commission, idempotent per member-month —
+    NEVER duplicated here), clears grace, and rolls the renewal record forward.
+
+    MONTHLY ONLY. The flat $10 sponsor share is correct for a monthly renewal;
+    annual pays 10x up front at activation, so annual crypto renewal is out of
+    scope for this path (the renew UI only offers a monthly crypto product).
+
+    Mirrors the Stripe handler's expiry semantics, including the invariant guard
+    that refuses to write an expiry earlier than activation. Does NOT commit —
+    the caller (the crypto confirmation chokepoint) owns the transaction.
+    """
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+
+    # Extend from the LATER of (current expiry, now): paying early adds time
+    # onto the remaining window; paying late (overdue/grace) renews from now.
+    current = getattr(user, "membership_expires_at", None)
+    base = current if (current and current > now) else now
+    new_expiry = base + timedelta(days=30)
+
+    # Invariant guard (mirrors the Stripe renewal handler): never write an
+    # expiry before activation — catches any future state-corruption class.
+    activated = getattr(user, "activated_at", None) or now
+    if new_expiry >= activated:
+        user.membership_expires_at = new_expiry
+    user.is_active = True
+    user.low_balance_warned = False
+
+    # Sponsor commission via the ONE shared engine. period_key makes it
+    # idempotent per member-month across every rail (wallet cron, Stripe, this),
+    # so a duplicate confirmation or a cross-rail collision pays the sponsor
+    # exactly once. A commission failure must not strand the expiry write.
+    period_key = f"renewal:{user.id}:{now.strftime('%Y-%m')}"
+    paid = None
+    try:
+        paid = pay_renewal_commission(db, user, period_key=period_key, rail=rail)
+    except Exception:
+        logger.exception(
+            f"Renewal commission FAILED for user {getattr(user,'id','?')} "
+            f"({rail}) — expiry still extended; integrity cron will surface it"
+        )
+
+    # Roll the renewal record forward so the wallet cron + dashboard reflect the
+    # new period and a crypto-renewing member on the wallet track is not
+    # re-graced. Create one if it's somehow missing (off-rail activations).
+    renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user.id).first()
+    if renewal:
+        renewal.last_renewed_at   = now
+        renewal.next_renewal_date = user.membership_expires_at or new_expiry
+        renewal.renewal_source    = rail
+        renewal.total_renewals    = (renewal.total_renewals or 0) + 1
+        renewal.in_grace_period   = False
+        renewal.grace_period_start = None
+    else:
+        db.add(MembershipRenewal(
+            user_id                 = user.id,
+            activated_at            = getattr(user, "activated_at", None) or now,
+            last_renewed_at         = now,
+            next_renewal_date       = user.membership_expires_at or new_expiry,
+            renewal_source          = rail,
+            total_renewals          = 1,
+            in_grace_period         = False,
+            grace_period_start      = None,
+            auto_renew_from_balance = False,
+        ))
+
+    logger.info(
+        f"Membership renewed (crypto rail={rail}) user={getattr(user,'id','?')} "
+        f"new_expiry={(user.membership_expires_at or new_expiry).isoformat()} "
+        f"sponsor_paid={paid} source={source_event_id}"
+    )
+    return {
+        "renewed": True,
+        "new_expiry": (user.membership_expires_at or new_expiry).isoformat(),
+        "sponsor_paid": (str(paid) if paid is not None else None),
+    }
+
+
 def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     """
     Activate/renew membership after $20 USDT payment on Base Chain.

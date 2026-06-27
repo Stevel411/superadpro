@@ -104,6 +104,12 @@ PRODUCT_PRICES = {
     # checkout pages but now resolve to the standard partner price.
     "membership_partner":         Decimal("20.00"),
     "membership_partner_annual":  Decimal("200.00"),
+    # Monthly RENEWAL for an already-active member. Placeholder price only —
+    # create_payment_intent overrides it with the member's locked price
+    # (Founder $15) via membership_price_for_user, and the 'renew' in the key
+    # routes the confirmation to the renewal engine (not activation). Monthly
+    # only by design: annual pays the sponsor 10x up front at activation.
+    "membership_renew":           Decimal("20.00"),
     # Legacy keys — both now resolve to standard partner price. They'll be
     # removed in a future cleanup sprint once no active flow references them.
     "membership_basic":           Decimal("20.00"),
@@ -873,7 +879,25 @@ def create_payment_intent(db, user_id: int, product_type: str, product_key: str,
     # gesture (the locked price is set during the claim attempt regardless).
     # In practice this is vanishingly rare (15-min order expiry, 85 spots
     # remaining at launch).
-    if product_type == "membership":
+    if product_type == "membership" and "renew" in product_key:
+        # ── Renewal price (locked-price source of truth) ────────────────────
+        # An already-active member renewing pays their locked price (Founder
+        # $15) — overriding the catalog placeholder. Monthly only; the 'renew'
+        # key routes the confirmation to the renewal engine, not activation.
+        try:
+            from app.database import User as _User
+            from app.payment import membership_price_for_user
+            buyer = db.query(_User).filter(_User.id == user_id).first()
+            base_price = membership_price_for_user(buyer, "monthly")
+            logger.info(
+                f"Renewal price ${base_price} quoted to user {user_id} ({product_key})"
+            )
+        except Exception as e:
+            logger.error(
+                f"Renewal price resolve failed for user {user_id}: {e} — "
+                f"using catalog price ${base_price}"
+            )
+    elif product_type == "membership":
         try:
             from app.database import User as _User
             buyer = db.query(_User).filter(_User.id == user_id).first()
