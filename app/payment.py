@@ -1015,7 +1015,13 @@ def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dic
     commit=False → preview only (returns what WOULD be created, writes nothing).
     """
     from datetime import timedelta
+    import os
     now = datetime.utcnow()
+    # Option B (Steve, 27 Jun 2026): members already past expiry get a fresh
+    # runway counted from now — i.e. from when this runs at go-live, after the
+    # pay path is fixed — instead of their past expiry date. Gives a fair,
+    # clearly-communicated window before any grace/lapse. Tunable via env.
+    runway_days = int(os.environ.get("RENEWAL_BACKFILL_RUNWAY_DAYS", "7") or "7")
 
     missing = (
         db.query(User)
@@ -1033,19 +1039,23 @@ def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dic
     for u in missing:
         expires   = u.membership_expires_at
         activated = u.activated_at or (expires - timedelta(days=30))
+        overdue   = bool(expires and now > expires)
+        # Overdue -> fresh runway from now; future-dated -> keep real date.
+        next_due  = (now + timedelta(days=runway_days)) if overdue else expires
         created.append({
             "user_id": u.id,
             "username": u.username,
             "membership_expires_at": expires.isoformat() if expires else None,
-            "overdue_days": (now - expires).days if expires and now > expires else 0,
+            "overdue_days": (now - expires).days if overdue else 0,
+            "next_renewal_date": next_due.isoformat() if next_due else None,
         })
         if commit:
             db.add(MembershipRenewal(
                 user_id                 = u.id,
                 activated_at            = activated,
-                next_renewal_date       = expires,
+                next_renewal_date       = next_due,
                 last_renewed_at         = activated,
-                renewal_source          = "backfill",
+                renewal_source          = "backfill_runway" if overdue else "backfill",
                 in_grace_period         = False,
                 grace_period_start      = None,
                 total_renewals          = 1,
