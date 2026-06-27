@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from .database import User, Payment, Commission, Withdrawal, GRID_PACKAGES, MembershipRenewal, P2PTransfer
 from .grid import place_member_in_grid, get_or_create_active_grid
 from datetime import datetime
+from decimal import Decimal  # module-level: required by membership_price_for_user's return annotation (evaluated at import)
 
 logger = logging.getLogger("superadpro.payment")
 
