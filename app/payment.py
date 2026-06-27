@@ -1092,12 +1092,22 @@ def process_auto_renewals(db: Session) -> dict:
     # (e.g. off-rail NOWPayments) would otherwise stay invisible to this cron
     # forever — no warning, no grace, no lapse. Backfill them keyed off
     # membership_expires_at so they are tracked from this run on.
-    try:
-        _bf = backfill_missing_renewal_records(db, commit=True)
-        results["backfilled"] = [r["user_id"] for r in _bf.get("records", [])]
-    except Exception as _bfe:
-        import logging
-        logging.getLogger(__name__).warning(f"Renewal self-heal backfill failed: {_bfe}")
+    # SAFETY BRAKE — gated OFF by default. Backfilling + processing the
+    # existing cohort of untracked members (112 as of 27 Jun, ~44 already
+    # overdue) would push every overdue member into grace and lapse them in
+    # 5 days. That must NOT fire until the member-facing pay path is fixed
+    # (locked Founder price honoured in /upgrade + a Renew button), or we
+    # would notify and then deactivate paying members who cannot yet renew.
+    # Enable with RENEWAL_SELFHEAL_ENABLED=true in Railway once the pay path
+    # is live and the cohort policy is decided.
+    import os
+    if os.environ.get("RENEWAL_SELFHEAL_ENABLED", "").strip().lower() in ("1", "true", "yes"):
+        try:
+            _bf = backfill_missing_renewal_records(db, commit=True)
+            results["backfilled"] = [r["user_id"] for r in _bf.get("records", [])]
+        except Exception as _bfe:
+            import logging
+            logging.getLogger(__name__).warning(f"Renewal self-heal backfill failed: {_bfe}")
 
     renewals = db.query(MembershipRenewal).all()
 
