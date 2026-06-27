@@ -44034,6 +44034,97 @@ th{{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase}}
     return HTMLResponse(html_out)
 
 
+@app.get("/admin/api/sponsor-settlement-check")
+def admin_sponsor_settlement_check(
+    user_id: int = 0,
+    cutoff: str = "2026-06-07",
+    compare_usd: float = 0.0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Read-only settled-money validation of a sponsor's PRE-cutoff membership
+    earnings. Every confirmed membership PAYMENT by a direct referral pays this
+    sponsor a flat $10. Counts settled rails only — WalletConnect/BSC +
+    NOWPayments confirmed orders + Stripe membership charges — dated before the
+    cutoff. Balance/gift activations also pay the sponsor $10 but leave no
+    order/charge row, so the total here is a LOWER BOUND on settled earnings.
+    Use to validate a reconstructed membership_sponsor residual (e.g. the
+    2026-06-07 ledger rebuild) against money actually received.
+    """
+    from fastapi.responses import JSONResponse
+    from datetime import datetime as _dt
+    _require_admin(user)
+    if not user_id:
+        return JSONResponse({"error": "pass ?user_id=N"}, status_code=400)
+    from .database import (WalletConnectPaymentOrder as _WC,
+                           NowPaymentsOrder as _NP, StripeCharge as _SC)
+    try:
+        cutoff_dt = _dt.fromisoformat(cutoff)
+    except Exception:
+        return JSONResponse({"error": "cutoff must be ISO date, e.g. 2026-06-07"}, status_code=400)
+
+    PER_PAYMENT = 10
+    STRIPE_MEM = ("membership_signup", "founder_signup",
+                  "membership_renewal", "founder_renewal")
+
+    referrals = db.query(User).filter(User.sponsor_id == user_id).all()
+    rows = []
+    total_events = 0
+    for r in referrals:
+        wc = int(db.query(func.count(_WC.id)).filter(
+            _WC.user_id == r.id, _WC.product_type == "membership",
+            _WC.status == "confirmed", _WC.confirmed_at.isnot(None),
+            _WC.confirmed_at < cutoff_dt).scalar() or 0)
+        npc = int(db.query(func.count(_NP.id)).filter(
+            _NP.user_id == r.id, _NP.product_type == "membership",
+            _NP.status.in_(["confirmed", "fulfilled"]),
+            _NP.confirmed_at.isnot(None),
+            _NP.confirmed_at < cutoff_dt).scalar() or 0)
+        sc = int(db.query(func.count(_SC.id)).filter(
+            _SC.user_id == r.id, _SC.kind == "charge",
+            _SC.product.in_(STRIPE_MEM), _SC.amount_cents > 0,
+            _SC.created_at < cutoff_dt).scalar() or 0)
+        events = wc + npc + sc
+        total_events += events
+        if events or (r.activated_at and r.activated_at < cutoff_dt):
+            rows.append({
+                "user_id": r.id, "username": r.username or "",
+                "is_active": bool(r.is_active),
+                "tier": r.membership_tier,
+                "activated_at": r.activated_at.isoformat() if r.activated_at else None,
+                "settled_membership_payments_pre_cutoff": events,
+                "by_rail": {"wc": wc, "nowpayments": npc, "stripe": sc},
+            })
+    rows.sort(key=lambda x: x["settled_membership_payments_pre_cutoff"], reverse=True)
+    expected = total_events * PER_PAYMENT
+
+    out = {
+        "sponsor_user_id": user_id,
+        "cutoff": cutoff,
+        "direct_referrals_total": len(referrals),
+        "referrals_paid_membership_pre_cutoff":
+            sum(1 for x in rows if x["settled_membership_payments_pre_cutoff"] > 0),
+        "settled_membership_payment_events_pre_cutoff": total_events,
+        "expected_membership_sponsor_usd_lower_bound": expected,
+        "note": ("Settled rails only (on-chain + Stripe). Balance/gift "
+                 "activations also pay $10 sponsor but leave no order row, so "
+                 "this is a LOWER BOUND. expected >= reconstructed means the "
+                 "residual is fully backed by settled money."),
+        "referrals": rows,
+    }
+    if compare_usd and compare_usd > 0:
+        diff = round(expected - compare_usd, 2)
+        out["compare_usd"] = compare_usd
+        out["settled_minus_reconstructed"] = diff
+        out["verdict"] = (
+            "BACKED - settled money meets or exceeds the reconstructed residual"
+            if diff >= -0.01 else
+            "SHORTFALL - settled rails below reconstructed; remainder is "
+            "balance/gift activations OR possible inflation, investigate")
+    return JSONResponse(out)
+
+
 @app.get("/admin/restore-backup")
 def admin_restore_backup(
     user: User = Depends(get_current_user),
