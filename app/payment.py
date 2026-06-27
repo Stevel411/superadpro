@@ -1110,20 +1110,24 @@ def process_auto_renewals(db: Session) -> dict:
     """
     from datetime import timedelta
     now       = datetime.utcnow()
-    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": []}
+    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": [], "errors": []}
+
+    # Renewal emails are QUEUED here and dispatched on a daemon thread AFTER all
+    # DB work commits (see end of function). Sending inline, inside the per-member
+    # loop, means dozens of synchronous SES calls on a cron that runs behind
+    # Cloudflare's ~100s ceiling — the documented "synchronous bulk send -> 502"
+    # failure mode. Queue now, send later, off the request thread.
+    email_queue = []
 
     def _renewal_email(u, subject, html_body):
-        """Best-effort email alongside the in-app notification. Crypto members
-        who don't log in daily would otherwise never see a renewal reminder —
-        and the manual-renewal crowd are exactly the ones who need warning.
-        Never raises: an email failure must not break the renewal cron."""
+        """Queue a renewal email. The address is captured now as a plain string so
+        the background sender never touches a detached ORM object. Never raises."""
         try:
-            from app.email_utils import send_email
-            if u and getattr(u, "email", None):
-                send_email(to_email=u.email, subject=subject, html_body=html_body)
-        except Exception as _ee:
-            import logging
-            logging.getLogger(__name__).warning(f"Renewal email to user {getattr(u,'id','?')} failed: {_ee}")
+            em = getattr(u, "email", None)
+            if em:
+                email_queue.append((em, subject, html_body))
+        except Exception:
+            pass
 
     def _wrap(inner):
         return (f'<div style="font-family:sans-serif;max-width:560px;margin:0 auto;'
@@ -1155,10 +1159,13 @@ def process_auto_renewals(db: Session) -> dict:
 
     renewals = db.query(MembershipRenewal).all()
 
-    for renewal in renewals:
+    def _process_one(renewal):
+        """Process one renewal row. `return` here is the old `continue`. Raised
+        exceptions are isolated per-member by the driver loop below so a single
+        bad row can never abort the batch or roll back other members' work."""
         user = db.query(User).filter(User.id == renewal.user_id).first()
         if not user or not user.is_active:
-            continue
+            return
 
         # Stripe-rail members renew through their Stripe subscription (the
         # invoice.paid webhook), NOT this wallet cron. Skipping them here is
@@ -1166,7 +1173,7 @@ def process_auto_renewals(db: Session) -> dict:
         # cron would otherwise ALSO deduct the fee from their wallet balance.
         # payment_method is the canonical renewal-routing field (User model).
         if getattr(user, "payment_method", None) == "stripe" or getattr(user, "stripe_subscription_id", None):
-            continue
+            return
 
         # Admin/owner accounts never expire — skip renewal processing
         if user.is_admin:
@@ -1176,14 +1183,14 @@ def process_auto_renewals(db: Session) -> dict:
                 renewal.next_renewal_date = now + timedelta(days=30)
                 renewal.total_renewals = (renewal.total_renewals or 0) + 1
                 renewal.in_grace_period = False
-            continue
+            return
 
         # Annual members don't auto-renew monthly — they expire after 365 days
         # When their membership_expires_at passes, they lapse like anyone else
         if getattr(user, 'membership_billing', 'monthly') == 'annual':
             # Check if annual membership has expired
             if user.membership_expires_at and now < user.membership_expires_at:
-                continue  # Still active, skip
+                return  # still active, skip
             # If expired, fall through to lapse logic below
 
         # ── 3-day low balance warning ──────────────────────────
@@ -1342,7 +1349,46 @@ def process_auto_renewals(db: Session) -> dict:
                     ),
                 )
 
-    db.commit()
+    for renewal in renewals:
+        try:
+            _process_one(renewal)
+            db.commit()                      # persist THIS member only
+        except Exception as _me:
+            db.rollback()                    # discard only the failed member
+            results["errors"].append({
+                "user_id": getattr(renewal, "user_id", None),
+                "error": str(_me)[:200],
+            })
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Renewal processing failed for renewal {getattr(renewal,'id','?')} "
+                f"(user {getattr(renewal,'user_id','?')}): {_me}"
+            )
+
+    # Every member's DB work is now durably committed. Dispatch the queued
+    # renewal emails on a daemon thread so SES latency/failures can never stall
+    # this cron or trip a Cloudflare 502. Fire-and-forget: the DB is the source
+    # of truth; a missed email is logged, never fatal. Pacing stays under the
+    # SES rate cap.
+    if email_queue:
+        def _dispatch_renewal_emails(jobs):
+            try:
+                from app.email_utils import send_email
+            except Exception:
+                return
+            import time, logging
+            for to_email, subject, html_body in jobs:
+                try:
+                    send_email(to_email=to_email, subject=subject, html_body=html_body)
+                except Exception as _se:
+                    logging.getLogger(__name__).warning(f"Renewal email to {to_email} failed: {_se}")
+                time.sleep(0.1)
+        import threading
+        threading.Thread(
+            target=_dispatch_renewal_emails, args=(list(email_queue),), daemon=True
+        ).start()
+
+    results["email_queued"] = len(email_queue)
     return results
 
 
