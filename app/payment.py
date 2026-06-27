@@ -1058,6 +1058,16 @@ def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dic
           .all()
     )
 
+    # Exclude Stripe-rail members: they renew via Stripe's subscription, so a
+    # wallet renewal record would let process_auto_renewals deduct from their
+    # balance on top of Stripe's charge (double charge). payment_method is the
+    # canonical routing field; also guard on an active subscription id.
+    missing = [
+        u for u in missing
+        if getattr(u, "payment_method", None) != "stripe"
+        and not getattr(u, "stripe_subscription_id", None)
+    ]
+
     created = []
     for u in missing:
         expires   = u.membership_expires_at
@@ -1147,6 +1157,14 @@ def process_auto_renewals(db: Session) -> dict:
     for renewal in renewals:
         user = db.query(User).filter(User.id == renewal.user_id).first()
         if not user or not user.is_active:
+            continue
+
+        # Stripe-rail members renew through their Stripe subscription (the
+        # invoice.paid webhook), NOT this wallet cron. Skipping them here is
+        # what prevents a double charge: Stripe bills their card, and this
+        # cron would otherwise ALSO deduct the fee from their wallet balance.
+        # payment_method is the canonical renewal-routing field (User model).
+        if getattr(user, "payment_method", None) == "stripe" or getattr(user, "stripe_subscription_id", None):
             continue
 
         # Admin/owner accounts never expire — skip renewal processing
