@@ -33,6 +33,8 @@ export default function Wallet() {
   // pendingWithdrawal holds the validated request payload until the
   // member clicks "Confirm Withdrawal" or "Cancel".
   const [pendingWithdrawal, setPendingWithdrawal] = useState(null);
+  // Tabbed layout: the overview hero stays pinned; this switches the panel below.
+  const [tab, setTab] = useState('withdraw');
 
   // Build the right block-explorer URL for a withdrawal's tx hash. The
   // network field comes back from the API when the withdrawal was sent
@@ -205,13 +207,9 @@ export default function Wallet() {
   return (
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('wallet.title')} subtitle={t('wallet.subtitle')}
     >
-      {/* 4 Stat Pills */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-        <StatPill value={`$${formatMoney(d.balance)}`} label={t("wallet.affiliateWallet")} gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
-        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label={t("wallet.campaignWallet")} gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
-        <StatPill value={`$${formatMoney(d.total_earned)}`} label={t("wallet.totalEarned")} gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
-        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label={t("wallet.totalWithdrawn")} gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
-      </div>
+      {/* Overview hero + tab bar */}
+      <WalletOverview d={d} t={t} />
+      <WalletTabs tab={tab} setTab={setTab} t={t} />
 
       {/* Earnings Breakdown — each card reads a clean field directly from
           /api/wallet, which derives every figure from the live commission
@@ -227,17 +225,19 @@ export default function Wallet() {
           uni-level earnings showing up twice. Fixed by exposing
           membership_earnings + nexus_earnings directly from the backend
           and dropping the level_earnings stale-counter read entirely. */}
-      {((d.grid_earnings || 0) > 0 || (d.membership_earnings || 0) > 0 || (d.nexus_earnings || 0) > 0 || (d.course_earnings || 0) > 0) && (
+      {tab === 'earnings' && (((d.grid_earnings || 0) > 0 || (d.membership_earnings || 0) > 0 || (d.nexus_earnings || 0) > 0 || (d.course_earnings || 0) > 0) ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
           <EarningsCard icon="👥" label={t("wallet.membership")} value={d.membership_earnings || 0} color="var(--sap-green-bright)" />
           <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
           <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Creator Credits' })} value={d.nexus_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
           <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={d.course_earnings || 0} color="var(--sap-amber)" />
         </div>
-      )}
+      ) : (
+        <div style={{ textAlign:'center', padding:'40px 20px', color:'#7b91a8', fontSize:15 }}>{t('wallet.noEarningsYet', { defaultValue: 'No earnings yet \u2014 your commission breakdown appears here once you start earning.' })}</div>
+      ))}
 
-      {/* Row 1: Two wallet cards side by side */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
+      {tab === 'withdraw' && (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
           {/* Affiliate Wallet Withdraw */}
           <Card title={t("wallet.affiliateWallet")} dotColor="var(--sap-green)">
             {d.watched_today === false ? (
@@ -382,8 +382,9 @@ export default function Wallet() {
             )}
           </Card>
       </div>
+      )}
 
-      {/* Row 2: Transaction History full-width */}
+      {tab === 'history' && (
       <div style={{ marginBottom: 18 }}>
         <Card title={t("wallet.transactionHistory")} dotColor="#0284c7">
           {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
@@ -451,9 +452,10 @@ export default function Wallet() {
           )}
         </Card>
       </div>
+      )}
 
-      {/* Row 2: Membership Renewal | Send Funds */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
+      {tab === 'renewal' && (
+      <div style={{ marginBottom: 18 }}>
         {/* Membership Renewal */}
         <Card title={t("wallet.membershipRenewal")}
           dotColor={renewal.in_grace_period ? 'var(--sap-red)' : renewal.status === 'warning' ? 'var(--sap-amber)' : 'var(--sap-green-mid)'}
@@ -485,7 +487,11 @@ export default function Wallet() {
             <div style={{ padding: 20, textAlign: 'center', fontSize: 16, color: '#7b91a8' }}>{t('wallet.noRenewalData')}</div>
           )}
         </Card>
+      </div>
+      )}
 
+      {tab === 'send' && (
+      <div style={{ marginBottom: 18 }}>
         {/* Send Funds */}
         <Card title={t("wallet.sendFunds")} dotColor="var(--sap-accent)">
           <p style={{ fontSize: 16, color: '#3d5068', marginBottom: 16 }}>{t('wallet.sendFundsDesc')}</p>
@@ -517,7 +523,6 @@ export default function Wallet() {
             }}>{p2pResult.msg}</div>
           )}
         </Card>
-      </div>
 
       {/* P2P Transfer History */}
       {(d.p2p_history || []).length > 0 && (
@@ -546,6 +551,41 @@ export default function Wallet() {
           </Card>
         </div>
       )}
+      </div>
+      )}
+
+      {tab === 'payout' && (
+      <div style={{ marginBottom: 18 }}>
+        <Card title={t('wallet.payoutSettings', { defaultValue: 'Payout settings' })} dotColor="var(--sap-amber)">
+          {d.wallet_address ? (
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <div style={{ padding:'12px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#15803d', textTransform:'uppercase', letterSpacing:0.5 }}>{t('wallet.payoutWallet', { defaultValue: 'Payout wallet' })}</div>
+                  <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.change', { defaultValue: 'Change' })}</Link>
+                </div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#15803d', marginBottom:2 }}>{d.wallet_network === 'bsc' ? 'USDT · BEP-20 (BNB Chain)' : d.wallet_network === 'tron' ? 'USDT · TRC-20 (Tron)' : 'USDT'}</div>
+                <div style={{ fontSize:13, fontFamily:'monospace', color:'var(--sap-text-secondary)', wordBreak:'break-all', lineHeight:1.4 }}>{d.wallet_address}</div>
+              </div>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10 }}>
+                <div style={{ paddingRight:12 }}>
+                  <div style={{ fontWeight:700, fontSize:14, color:'var(--sap-text-primary)' }}>{t('wallet.twoFAWithdrawals', { defaultValue: 'Two-factor on withdrawals' })}</div>
+                  <div style={{ fontSize:13, color:'#7b91a8' }}>{user?.totp_enabled ? t('wallet.twoFAOn', { defaultValue: 'Enabled — a 6-digit code is required for every payout.' }) : t('wallet.twoFAOff', { defaultValue: 'Not enabled. Turn it on in Account settings for safer payouts.' })}</div>
+                </div>
+                <span style={user?.totp_enabled ? badgeGreen : badgeAmber}>{user?.totp_enabled ? t('wallet.on', { defaultValue: 'On' }) : t('wallet.off', { defaultValue: 'Off' })}</span>
+              </div>
+              <Link to="/account" style={{ ...btnPrimary, textAlign:'center' }}>{t('wallet.manageInAccount', { defaultValue: 'Manage in Account settings' })}</Link>
+            </div>
+          ) : (
+            <div style={{ textAlign:'center', padding:'10px 0' }}>
+              <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
+              <Link to="/account" style={{ ...btnPrimary, textAlign:'center', display:'inline-block' }}>{t('wallet.addWalletSettings')}</Link>
+            </div>
+          )}
+        </Card>
+      </div>
+      )}
+
       {/* First-withdrawal confirmation modal — only ever shown to a member
           on their first-ever withdrawal (total_withdrawn === 0). After a
           successful first withdrawal the gate is permanently passed.
@@ -641,6 +681,64 @@ export default function Wallet() {
 }
 
 // ── Shared sub-components ──
+function WalletOverview({ d, t }) {
+  const available = (Number(d.balance) || 0) + (Number(d.campaign_balance) || 0);
+  const chip = { background:'rgba(255,255,255,0.1)', border:'1px solid rgba(125,211,238,0.35)', borderRadius:9, padding:'7px 13px', fontSize:14 };
+  return (
+    <div style={{ display:'flex', gap:16, marginBottom:18, alignItems:'stretch', flexWrap:'wrap' }}>
+      <div style={{ flex:'1.6 1 340px', background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:'22px 24px', color:'#fff', position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', top:-30, right:-20, width:120, height:120, borderRadius:'50%', background:'rgba(255,255,255,0.06)', pointerEvents:'none' }} />
+        <div style={{ fontSize:12, fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase', color:'#7dd3fc' }}>{t('wallet.availableToWithdraw', { defaultValue: 'Available to withdraw' })}</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:40, letterSpacing:-1, margin:'4px 0 14px' }}>${formatMoney(available)}</div>
+        <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+          <div style={chip}><span style={{ color:'#bae6fd' }}>{t('wallet.affiliate', { defaultValue: 'Affiliate' })} </span><b>${formatMoney(d.balance)}</b></div>
+          <div style={chip}><span style={{ color:'#bae6fd' }}>{t('wallet.campaign', { defaultValue: 'Campaign' })} </span><b>${formatMoney(d.campaign_balance || 0)}</b></div>
+          {d.watched_today === false ? (
+            <div style={{ background:'rgba(245,158,11,0.18)', border:'1px solid rgba(245,158,11,0.45)', borderRadius:9, padding:'7px 13px', fontSize:13, fontWeight:700, color:'#fde68a' }}>🔒 {t('wallet.watchToUnlock', { defaultValue: 'Watch today to unlock' })}</div>
+          ) : (
+            <div style={{ background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.4)', borderRadius:9, padding:'7px 13px', fontSize:13, fontWeight:700, color:'#bbf7d0' }}>✓ {t('wallet.unlockedToday', { defaultValue: 'Unlocked for today' })}</div>
+          )}
+        </div>
+      </div>
+      <div style={{ flex:'1 1 200px', display:'flex', flexDirection:'column', gap:16 }}>
+        <div style={{ background:'#fff', border:'1px solid #e8ecf2', borderRadius:16, padding:'16px 18px', boxShadow:'0 2px 8px rgba(0,0,0,0.04)', flex:1 }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:0.5 }}>{t('wallet.totalEarned')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:24, color:'#0ea5e9' }}>${formatMoney(d.total_earned)}</div>
+        </div>
+        <div style={{ background:'#fff', border:'1px solid #e8ecf2', borderRadius:16, padding:'16px 18px', boxShadow:'0 2px 8px rgba(0,0,0,0.04)', flex:1 }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:0.5 }}>{t('wallet.totalWithdrawn')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontWeight:800, fontSize:24, color:'#d97706' }}>${formatMoney(d.total_withdrawn)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WalletTabs({ tab, setTab, t }) {
+  const tabs = [
+    ['withdraw', t('wallet.tabWithdraw', { defaultValue: 'Withdraw' })],
+    ['earnings', t('wallet.tabEarnings', { defaultValue: 'Earnings' })],
+    ['history', t('wallet.tabHistory', { defaultValue: 'History' })],
+    ['send', t('wallet.tabSend', { defaultValue: 'Send funds' })],
+    ['renewal', t('wallet.tabRenewal', { defaultValue: 'Renewal' })],
+    ['payout', t('wallet.tabPayout', { defaultValue: 'Payout settings' })],
+  ];
+  return (
+    <div style={{ display:'flex', gap:2, borderBottom:'2px solid #e8ecf2', margin:'0 0 18px', overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+      {tabs.map(function(item) {
+        var key = item[0], label = item[1], active = tab === key;
+        return (
+          <button key={key} onClick={function(){ setTab(key); }} style={{
+            padding:'11px 16px', fontFamily:'Sora,sans-serif', fontWeight: active ? 800 : 600, fontSize:14,
+            color: active ? '#0ea5e9' : '#5b6b7d', background:'none', border:'none', cursor:'pointer',
+            borderBottom: '2px solid ' + (active ? '#0ea5e9' : 'transparent'), marginBottom:-2, whiteSpace:'nowrap',
+          }}>{label}</button>
+        );
+      })}
+    </div>
+  );
+}
+
 function Card({ title, dotColor, badge, headerRight, flex, children }) {
   return (
     <div style={{
