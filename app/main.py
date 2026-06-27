@@ -39472,6 +39472,7 @@ async def cron_daily_briefing(
                     f"\n  low-bal warned: {len(_rr.get('warned', []))}"
                     f"\n  grace started:  {len(_rr.get('grace_extended', []))}"
                     f"\n  lapsed:         {len(_rr.get('lapsed', []))}"
+                    f"\n  backfilled:     {len(_rr.get('backfilled', []))}"
                 )
             except Exception as _re:
                 logger.error(f"[daily-briefing] renewal processing FAILED: {_re}")
@@ -49860,6 +49861,33 @@ def admin_audit_double_pays(
             "list rather than a blanket reversal — keeps the cleanup auditable)."
         ),
     }
+
+
+@app.get("/admin/api/backfill-renewal-records")
+def admin_backfill_renewal_records(
+    commit: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot backfill of MembershipRenewal rows for active members that
+    never got one (off-rail NOWPayments / early activations). Those members
+    are invisible to the renewal cron — no warning, grace, lapse, or
+    notification — so they sit Active past their expiry forever.
+
+    Default (no args): PREVIEW — lists who would be backfilled, writes nothing.
+    ?commit=1: actually create the records.
+
+    Idempotent and safe to re-run. After committing, run the renewal cron
+    (/cron/process-renewals?secret=…) to immediately start grace + notify
+    the now-overdue members rather than waiting for the daily pass.
+    """
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .payment import backfill_missing_renewal_records
+    result = backfill_missing_renewal_records(db, commit=bool(commit))
+    result["mode"] = "committed" if commit else "preview — add &commit=1 to write"
+    return result
 
 
 @app.get("/admin/api/stuck-lapsed-members")

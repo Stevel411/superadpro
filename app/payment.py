@@ -997,6 +997,67 @@ def initialise_renewal_record(db: Session, user_id: int, source: str = "referral
         logger.warning(f"Lead attribution failed for user {user_id}: {e}")
 
 
+def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dict:
+    """Create MembershipRenewal rows for active members that never got one.
+
+    Some activation paths — notably off-rail NOWPayments credits and early
+    pre-renewal-system activations — activated a member without calling
+    initialise_renewal_record. Those members have NO MembershipRenewal row,
+    so process_auto_renewals (which iterates the renewals table) never sees
+    them: no 3-day warning, no grace period, no lapse, no notification. They
+    sit "Active" past their membership_expires_at indefinitely.
+
+    This finds every active, non-admin member with a membership_expires_at
+    but no renewal row and creates one keyed off membership_expires_at, so
+    the renewal cron picks them up on its next pass. Idempotent — only
+    creates where a row is missing, safe to re-run.
+
+    commit=False → preview only (returns what WOULD be created, writes nothing).
+    """
+    from datetime import timedelta
+    now = datetime.utcnow()
+
+    missing = (
+        db.query(User)
+          .outerjoin(MembershipRenewal, MembershipRenewal.user_id == User.id)
+          .filter(
+              MembershipRenewal.id.is_(None),
+              User.is_active.is_(True),
+              User.is_admin.isnot(True),
+              User.membership_expires_at.isnot(None),
+          )
+          .all()
+    )
+
+    created = []
+    for u in missing:
+        expires   = u.membership_expires_at
+        activated = u.activated_at or (expires - timedelta(days=30))
+        created.append({
+            "user_id": u.id,
+            "username": u.username,
+            "membership_expires_at": expires.isoformat() if expires else None,
+            "overdue_days": (now - expires).days if expires and now > expires else 0,
+        })
+        if commit:
+            db.add(MembershipRenewal(
+                user_id                 = u.id,
+                activated_at            = activated,
+                next_renewal_date       = expires,
+                last_renewed_at         = activated,
+                renewal_source          = "backfill",
+                in_grace_period         = False,
+                grace_period_start      = None,
+                total_renewals          = 1,
+                auto_renew_from_balance = True,
+            ))
+
+    if commit and created:
+        db.commit()
+
+    return {"scanned_missing": len(missing), "committed": bool(commit), "records": created}
+
+
 def process_auto_renewals(db: Session) -> dict:
     """
     Called daily (via scheduler or admin endpoint).
@@ -1005,7 +1066,7 @@ def process_auto_renewals(db: Session) -> dict:
     """
     from datetime import timedelta
     now       = datetime.utcnow()
-    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": []}
+    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": []}
 
     def _renewal_email(u, subject, html_body):
         """Best-effort email alongside the in-app notification. Crypto members
@@ -1025,6 +1086,18 @@ def process_auto_renewals(db: Session) -> dict:
                 f'background:#0a1438;color:#e8f0fe;border-radius:12px;padding:32px">{inner}'
                 f'<p style="color:#64748b;font-size:12px;margin-top:24px">SuperAdPro · '
                 f'<a href="https://www.superadpro.com" style="color:#22d3ee">superadpro.com</a></p></div>')
+
+    # Self-heal: ensure every active member has a renewal record before we
+    # iterate. Members activated via paths that skipped initialise_renewal_record
+    # (e.g. off-rail NOWPayments) would otherwise stay invisible to this cron
+    # forever — no warning, no grace, no lapse. Backfill them keyed off
+    # membership_expires_at so they are tracked from this run on.
+    try:
+        _bf = backfill_missing_renewal_records(db, commit=True)
+        results["backfilled"] = [r["user_id"] for r in _bf.get("records", [])]
+    except Exception as _bfe:
+        import logging
+        logging.getLogger(__name__).warning(f"Renewal self-heal backfill failed: {_bfe}")
 
     renewals = db.query(MembershipRenewal).all()
 
