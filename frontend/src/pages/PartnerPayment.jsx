@@ -25,7 +25,7 @@
  */
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
@@ -45,6 +45,11 @@ export default function PartnerPayment() {
   var { t } = useTranslation();
   var { user, setUser } = useAuth();
   var navigate = useNavigate();
+  var [searchParams] = useSearchParams();
+  // Renew mode (?renew=1): reached by an active/in-grace member who wants to
+  // renew or set up auto-renewal, NOT a free user activating for the first
+  // time. It deliberately bypasses the "you're already active" wall below.
+  var renewMode = searchParams.get('renew') === '1';
 
   // Founding-status state — polled every 60s so the count is always fresh
   var [status, setStatus] = useState(null);
@@ -109,6 +114,10 @@ export default function PartnerPayment() {
 
   // Derived state
   var isActive = !!user?.is_active;
+  // A member already paying by card auto-renews via Stripe (invoice.paid).
+  // payment_method is set to 'stripe' on any card payment. In renew mode we
+  // show "auto-renewal is on" for these members instead of a duplicate CTA.
+  var onCardAutoRenew = isActive && (user?.payment_method === 'stripe');
   var tier = (user?.membership_tier || 'free').toLowerCase();
   // Founding status lives on a dedicated boolean field, not the tier
   // string (tier is just 'partner' or 'free' under flat-pricing).
@@ -200,8 +209,39 @@ export default function PartnerPayment() {
     setLoading(false);
   }
 
+  // ── Card auto-renew (renew mode) ───────────────────────────────
+  // Turns on a recurring Stripe subscription so the member never lapses.
+  // Reuses the same checkout endpoint as activation: the backend forces the
+  // Founder lock ($15) server-side for existing founders, records the
+  // subscription on the completed-checkout webhook WITHOUT re-paying the
+  // sponsor (active-member guard), and renews monthly via invoice.paid.
+  async function handleCardRenew() {
+    if (loading) return;
+    setError('');
+    var ok = await ensureConsent();
+    if (!ok) return;
+    setLoading(true);
+    // tier is advisory — backend forces 'founding' for existing founders.
+    var tierForStripe = isFounder ? 'founding' : 'partner';
+    apiPost('/api/stripe/checkout/membership', { tier: tierForStripe, billing: cadence })
+      .then(function(d) {
+        setLoading(false);
+        if (d.already_subscribed) {
+          // Safety backstop: they already have auto-renew. Refresh and bounce
+          // to the wallet renewal view rather than starting a 2nd subscription.
+          refreshUser();
+          navigate('/wallet?tab=renewal');
+          return;
+        }
+        if (d.checkout_url) { window.location.href = d.checkout_url; }
+        else { setError(d.error || t('partner.errorCardCheckout', { defaultValue: "We couldn't start card renewal. Please try again." })); }
+      })
+      .catch(function(e) { setLoading(false); setError(e.message || t('partner.errorCardFailed', { defaultValue: 'Card renewal failed. Please try again.' })); });
+  }
+
   // ── Already-active member: skip the checkout entirely ──────────
-  if (isActive) {
+  // ...unless they came here in renew mode (?renew=1) to set up auto-renewal.
+  if (isActive && !renewMode) {
     return (
       <AppLayout title={t('partner.title', { defaultValue: 'Partner Membership' })}>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 20px' }}>
@@ -237,6 +277,77 @@ export default function PartnerPayment() {
               color: isFounder ? '#fbbf24' : 'var(--sap-cobalt-deep)',
               fontFamily: 'Sora, sans-serif', fontSize: 14, fontWeight: 800,
               cursor: 'pointer',
+            }}>
+              {t('partner.backToDashboard', { defaultValue: 'Back to Dashboard' })}
+            </button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // ── Renew mode: an active/in-grace member setting up renewal ───
+  // Card-first (recurring Stripe = the only rail that auto-renews, so the
+  // member never lapses). Crypto fallback lands in the next phase.
+  if (isActive && renewMode) {
+    var renewMonthly = isFounder ? '15' : '20';   // backend is the price source of truth
+    return (
+      <AppLayout title={t('partner.renewTitle', { defaultValue: 'Renew Membership' })}>
+        <div style={{ maxWidth: 560, margin: '0 auto', padding: '40px 20px', fontFamily: 'DM Sans, sans-serif' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
+            borderRadius: 18, padding: 32, color: '#fff', boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }}>
+            {onCardAutoRenew ? (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
+                <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Sora, sans-serif', marginBottom: 8 }}>
+                  {t('partner.renewOnTitle', { defaultValue: 'Auto-renewal is on' })}
+                </div>
+                <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6, marginBottom: 20 }}>
+                  {t('partner.renewOnDesc', { defaultValue: 'Your membership renews automatically by card at $' + renewMonthly + '/month. Nothing to do — you won\u2019t lapse.' })}
+                </div>
+                <Link to="/wallet?tab=renewal" style={{
+                  display: 'inline-block', padding: '12px 24px', borderRadius: 10,
+                  background: '#fff', color: 'var(--sap-cobalt-deep)', textDecoration: 'none',
+                  fontFamily: 'Sora, sans-serif', fontSize: 14, fontWeight: 800,
+                }}>
+                  {t('partner.manageRenewal', { defaultValue: 'View renewal status' })}
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Sora, sans-serif', marginBottom: 8, textAlign: 'center' }}>
+                  {t('partner.renewSetupTitle', { defaultValue: 'Never lapse again' })}
+                </div>
+                <div style={{ fontSize: 14, opacity: 0.92, lineHeight: 1.6, marginBottom: 20, textAlign: 'center' }}>
+                  {t('partner.renewSetupDesc', { defaultValue: 'Turn on automatic card renewal at $' + renewMonthly + '/month' + (isFounder ? ' \u2014 your locked Founder rate' : '') + '. We renew it for you each month \u2014 no manual payments, no missed grace periods.' })}
+                </div>
+                {error && (
+                  <div style={{ background: 'rgba(239,68,68,.15)', border: '1px solid rgba(239,68,68,.4)', color: '#fecaca', borderRadius: 10, padding: '10px 14px', fontSize: 13, marginBottom: 14 }}>{error}</div>
+                )}
+                <button onClick={handleCardRenew} disabled={loading} style={{
+                  width: '100%', padding: '14px 22px', borderRadius: 10, border: 'none',
+                  background: 'var(--sap-cyan, #0ea5e9)', color: '#0a1438',
+                  fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 800,
+                  cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1,
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}>
+                  {!loading && <CreditCard size={18} />}
+                  {loading
+                    ? t('partner.renewStarting', { defaultValue: 'Starting\u2026' })
+                    : t('partner.renewCardCta', { defaultValue: 'Turn on card auto-renew \u2192' })}
+                </button>
+                <div style={{ fontSize: 12, opacity: 0.7, lineHeight: 1.5, marginTop: 14, textAlign: 'center' }}>
+                  {t('partner.renewCryptoSoon', { defaultValue: 'Prefer to renew with crypto each month? That option is coming right behind this \u2014 card is live now.' })}
+                </div>
+              </div>
+            )}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button onClick={function() { navigate('/dashboard'); }} style={{
+              background: 'none', border: 'none', color: '#7b91a8', fontSize: 13,
+              cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
             }}>
               {t('partner.backToDashboard', { defaultValue: 'Back to Dashboard' })}
             </button>

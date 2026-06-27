@@ -487,6 +487,18 @@ export default function Wallet() {
             <div style={{ padding: 20, textAlign: 'center', fontSize: 16, color: '#7b91a8' }}>{t('wallet.noRenewalData')}</div>
           )}
         </Card>
+        {/* Renewal entry → card-first renewal flow. The renew page itself
+            decides whether to offer auto-renew setup or show that auto-renewal
+            is already on, so this single button is correct in every state. */}
+        <Link to="/upgrade?renew=1" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          marginTop: 12, padding: '13px 20px', borderRadius: 12,
+          background: 'linear-gradient(135deg, var(--sap-cobalt-mid), var(--sap-cyan, #0ea5e9))',
+          color: '#fff', textDecoration: 'none', fontFamily: 'Sora, sans-serif',
+          fontSize: 15, fontWeight: 800,
+        }}>
+          {t('wallet.setupAutoRenew', { defaultValue: 'Set up auto-renewal →' })}
+        </Link>
       </div>
       )}
 

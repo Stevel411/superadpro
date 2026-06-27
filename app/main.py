@@ -21536,6 +21536,18 @@ async def stripe_checkout_membership(
     if billing not in ("monthly", "annual", "yearly", "year"):
         billing = "monthly"
 
+    # Renewal/duplicate guard: a member who already holds a card subscription
+    # must not create a SECOND one — that would double-bill them. Their existing
+    # subscription already auto-renews via the invoice.paid webhook, so send a
+    # clear signal back and let the UI show "auto-renewal is on" instead of
+    # starting another checkout. (Crypto/balance members have no subscription
+    # id, so this never blocks a crypto member switching to card auto-renew.)
+    if getattr(user, "stripe_subscription_id", None) and user.is_active:
+        return JSONResponse({
+            "already_subscribed": True,
+            "detail": "Card auto-renewal is already active on this account.",
+        }, status_code=200)
+
     # An EXISTING Founder renewing/subscribing keeps their locked $15 rate.
     # They already hold a founder spot, so the 100-cap / deadline fallback
     # (which exists to stop NEW members claiming founder pricing after the
