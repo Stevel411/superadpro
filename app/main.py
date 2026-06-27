@@ -21536,8 +21536,16 @@ async def stripe_checkout_membership(
     if billing not in ("monthly", "annual", "yearly", "year"):
         billing = "monthly"
 
-    if tier in ("founder", "founding"):
-        # Check the founder cap before sending the member to Stripe with a
+    # An EXISTING Founder renewing/subscribing keeps their locked $15 rate.
+    # They already hold a founder spot, so the 100-cap / deadline fallback
+    # (which exists to stop NEW members claiming founder pricing after the
+    # offer closes) must NOT downgrade them to $20. Force founding + skip cap.
+    existing_founder = bool(getattr(user, "is_founding_member", False))
+    if existing_founder:
+        tier = "founding"
+
+    if tier in ("founder", "founding") and not existing_founder:
+        # Check the founder cap before sending a NEW member to Stripe with a
         # $15 price — if the cap is full, send them to the $20 Partner
         # checkout instead and surface the change in metadata so the
         # frontend can show a friendly notice.
@@ -21552,6 +21560,8 @@ async def stripe_checkout_membership(
         elif not _founder_offer_still_open(db):
             tier = "partner"
 
+    from .payment import membership_price_for_user
+    _expected_membership_price = membership_price_for_user(user, billing)
     price_id = _stripe.get_price_id_for_tier(tier, billing=billing)
     if not price_id:
         return JSONResponse({
@@ -21569,7 +21579,7 @@ async def stripe_checkout_membership(
             price_id=price_id,
             success_path="/payment-success",
             cancel_path="/partner-payment",
-            extra_metadata={"tier_requested": tier, "billing": billing},
+            extra_metadata={"tier_requested": tier, "billing": billing, "expected_price_usd": str(_expected_membership_price)},
         )
         return result
     except Exception as e:

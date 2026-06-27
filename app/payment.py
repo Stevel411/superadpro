@@ -997,6 +997,29 @@ def initialise_renewal_record(db: Session, user_id: int, source: str = "referral
         logger.warning(f"Lead attribution failed for user {user_id}: {e}")
 
 
+def membership_price_for_user(user, cadence: str = "monthly") -> Decimal:
+    """Single source of truth for what a member pays to activate OR renew.
+
+    Founders carry membership_price_locked ($15) — locked for life across
+    activation and renewal. Partners have it NULL and pay the standard fee.
+    Every rail (card, WalletConnect, NOWPayments, balance) must price from
+    THIS function, server-side — never a client-supplied amount — so a
+    Founder can't be charged $20 on one rail and $15 on another.
+
+    cadence 'annual' = monthly x 10 (two months free), matching the public
+    $150 Founder / $200 Partner annual pricing.
+    """
+    locked = getattr(user, "membership_price_locked", None)
+    is_founder = bool(getattr(user, "is_founding_member", False))
+    if locked is not None:
+        monthly = Decimal(str(locked))
+    else:
+        monthly = Decimal("15.00") if is_founder else Decimal(str(MEMBERSHIP_FEE))
+    if str(cadence or "monthly").lower() in ("annual", "yearly", "year"):
+        return monthly * Decimal("10")
+    return monthly
+
+
 def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dict:
     """Create MembershipRenewal rows for active members that never got one.
 
