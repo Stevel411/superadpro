@@ -71,11 +71,44 @@ PAID_REQUIRED_PREFIXES = (
     "/api/vip",
     "/api/wallet",
     "/api/watch",
+    # ── Tools that were guarded on the frontend (RequireTier route guard)
+    #    but missing from this server-side gate, leaving direct API calls
+    #    (outside the UI) ungated. Added 28 Jun 2026. Visitor-facing
+    #    sub-paths are exempted in GATE_EXEMPT_PREFIXES below. ──
+    "/api/funnels",
+    "/api/leads",
+    "/api/niche-finder",
+    "/api/posters",
+    "/api/pro/",
+    "/api/proseller",
+    "/api/social-posts",
+    "/api/superseller",
+    "/api/swipe-file",
+    "/api/video-scripts",
+)
+
+
+# Visitor-facing / portability sub-paths under gated prefixes that MUST stay
+# reachable. Published-page interactions are hit by logged-OUT visitors —
+# gating them would 401 real visitors and break members' live pages. Data
+# export stays open for portability (a lapsed member can take their own leads).
+# Checked BEFORE the gate so a more-specific exempt prefix wins.
+GATE_EXEMPT_PREFIXES = (
+    "/api/funnels/track-click",       # visitor click tracking on published pages
+    "/api/leads/capture",             # visitor lead-form submit
+    "/api/leads/export",              # data portability (kept open intentionally)
+    "/api/superseller/lead-capture",  # visitor lead capture
+    "/api/superseller/chat",          # visitor chat on published SuperSeller pages
+    "/api/posters/generation",        # public poster RESULT view/serve/download
 )
 
 
 def _requires_paid_membership(path: str) -> bool:
-    """True if the path requires a paid (is_active) member."""
+    """True if the path requires a paid (is_active) member. Exempt prefixes
+    (visitor-facing + data export) win over the gate."""
+    for ex in GATE_EXEMPT_PREFIXES:
+        if path.startswith(ex):
+            return False
     for prefix in PAID_REQUIRED_PREFIXES:
         if path.startswith(prefix):
             return True
