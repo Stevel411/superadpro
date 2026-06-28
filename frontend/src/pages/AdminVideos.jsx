@@ -14,6 +14,7 @@
  * is already safe in R2.
  */
 import { useState, useEffect } from 'react';
+import AdminPageHeader from '../components/admin/AdminPageHeader';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiPatch, apiDelete } from '../utils/api';
@@ -300,8 +301,9 @@ export default function AdminVideos() {
   }
 
   return (
-    <AppLayout title="Video Library — Admin" subtitle="Upload and manage explainer videos for members">
+    <AppLayout categoryChrome title="Video Library — Admin" subtitle="Upload and manage explainer videos for members">
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+        <AdminPageHeader title="Video Library" subtitle="Upload and manage explainer videos for members" />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <Link to="/videos" style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,

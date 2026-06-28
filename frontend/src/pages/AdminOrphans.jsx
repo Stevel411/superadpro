@@ -91,10 +91,10 @@ export default function AdminOrphans() {
   }
 
   if (!auth || !auth.user) {
-    return <AppLayout title="Admin · Orphans"><div style={{ padding: 40 }}>Checking access…</div></AppLayout>;
+    return <AppLayout categoryChrome title="Admin · Orphans"><div style={{ padding: 40 }}>Checking access…</div></AppLayout>;
   }
   if (!auth.user.is_admin) {
-    return <AppLayout title="Admin · Orphans">
+    return <AppLayout categoryChrome title="Admin · Orphans">
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-muted)' }}>
         Admin access required.
       </div>
@@ -102,7 +102,7 @@ export default function AdminOrphans() {
   }
 
   return (
-    <AppLayout title="Admin · Onchain Orphans" subtitle="Treasury transfers the auto-scanner couldn't match">
+    <AppLayout categoryChrome title="Admin · Onchain Orphans" subtitle="Treasury transfers the auto-scanner couldn't match">
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
 
       {/* Header strip */}

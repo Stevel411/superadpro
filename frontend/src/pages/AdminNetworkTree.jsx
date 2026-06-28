@@ -19,6 +19,7 @@
 // shapes vary by which root the admin picks.
 
 import { useState, useEffect, useMemo } from 'react';
+import AdminPageHeader from '../components/admin/AdminPageHeader';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { ChevronDown, ChevronRight, Search, Users, Filter } from 'lucide-react';
@@ -119,15 +120,16 @@ export default function AdminNetworkTree() {
     return { total: nodes.length, active, inactive, withBalance, totalBalance };
   }, [nodes]);
 
-  if (loading) return <AppLayout title="Network Tree" subtitle="Loading…"><Spin /></AppLayout>;
+  if (loading) return <AppLayout categoryChrome title="Network Tree" subtitle="Loading…"><Spin /></AppLayout>;
 
   const root = indices.byId[rootId];
 
   return (
-    <AppLayout
+    <AppLayout categoryChrome
       title="Network Tree"
       subtitle="Full downline graph across all members"
     >
+      <AdminPageHeader title="Network Tree" subtitle="Full downline graph across all members" />
       {/* ── Summary strip ── */}
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20,

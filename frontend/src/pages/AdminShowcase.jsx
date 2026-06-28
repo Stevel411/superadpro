@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import AdminPageHeader from '../components/admin/AdminPageHeader';
 import { useAuth } from '../hooks/useAuth';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
@@ -303,17 +304,18 @@ export default function AdminShowcase() {
 
   if (auth && auth.user && !auth.user.is_admin) {
     return (
-      <AppLayout title="Admin — Showcase">
+      <AppLayout categoryChrome title="Admin — Showcase">
         <div style={{ padding:40, textAlign:'center', color:'#475569' }}>Admin access required.</div>
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout
+    <AppLayout categoryChrome
       title="Showcase Moderation"
       subtitle="Approve featured artifacts submitted by members for /explore tab 3"
     >
+      <AdminPageHeader title="Showcase Moderation" subtitle="Approve featured artifacts submitted by members for the /explore tab" />
       {error && (
         <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.25)', color:'#b91c1c', padding:'12px 16px', borderRadius:10, marginBottom:16, fontSize:14 }}>
           <AlertCircle size={18}/><span>{error}</span>

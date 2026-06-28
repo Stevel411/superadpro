@@ -14,6 +14,7 @@
  * an empty queue.
  */
 import { useEffect, useState, useCallback } from 'react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AppLayout from '../../components/layout/AppLayout';
 import { apiGet, apiPost } from '../../utils/api';
 
@@ -48,11 +49,11 @@ export default function AdminRotatorState() {
   }
 
   if (loading) {
-    return <AppLayout title="Rotator state"><div style={{padding:24}}>Loading rotator state…</div></AppLayout>;
+    return <AppLayout categoryChrome title="Rotator state"><div style={{padding:24}}>Loading rotator state…</div></AppLayout>;
   }
   if (error) {
     return (
-      <AppLayout title="Rotator state">
+      <AppLayout categoryChrome title="Rotator state">
         <div style={{padding:24,color:'#dc2626'}}>
           <strong>Failed to load:</strong> {error}
           <div><button onClick={load} style={btnStyle}>Try again</button></div>
@@ -69,8 +70,9 @@ export default function AdminRotatorState() {
     : { text: 'Rotator is BROKEN — signups falling to house account', color: '#dc2626', bg: '#fef2f2' };
 
   return (
-    <AppLayout title="Rotator state">
+    <AppLayout categoryChrome title="Rotator state">
       <div style={{padding:24,maxWidth:1200,margin:'0 auto'}}>
+        <AdminPageHeader title="Rotator State" subtitle="Founder queue rotation health and diagnostics" />
 
         {/* ── Verdict banner ── */}
         <div style={{background:verdict.bg,border:'1px solid '+verdict.color,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>

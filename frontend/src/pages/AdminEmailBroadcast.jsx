@@ -7,6 +7,7 @@
 // Route: /admin/email-broadcast
 // ============================================================================
 import { useState, useEffect, useMemo } from 'react';
+import AdminPageHeader from '../components/admin/AdminPageHeader';
 import { List } from 'react-window';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
@@ -22,8 +23,9 @@ export default function AdminEmailBroadcast() {
   var [tab, setTab] = useState('members');
 
   return (
-    <AppLayout title="Email Broadcast" subtitle="Send mass emails to members — list is always live">
+    <AppLayout categoryChrome title="Email Broadcast" subtitle="Send mass emails to members — list is always live">
       <div style={{ padding: '20px 24px', maxWidth: 1200, margin: '0 auto' }}>
+        <AdminPageHeader title="Email Broadcast" subtitle="Send mass emails to members — the recipient list is always live" />
 
         {/* Tab bar */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 24, borderBottom: '1px solid #e5e7eb' }}>
