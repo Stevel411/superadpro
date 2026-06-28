@@ -60407,145 +60407,137 @@ def admin_health_ui(request: Request, db: Session = Depends(get_db)):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Platform Health — SuperAdPro Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a1438;
-    --card: #1c223d;
-    --border: #2d3754;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
+    --bg: #f0f3f9;
+    --card: #ffffff;
+    --border: #e6ebf3;
+    --text: #0f1c3f;
+    --muted: #64748b;
+    --faint: #94a3b8;
     --accent: #0ea5e9;
-    --ok: #22c55e;
-    --warn: #f59e0b;
-    --critical: #ef4444;
+    --cyan: #06b6d4;
+    --ok: #16a34a;
+    --warn: #b45309;
+    --critical: #dc2626;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 32px 24px;
+    margin: 0; padding: 24px;
     background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; }
-  h1 {
-    font-size: 24px; font-weight: 800; margin: 0 0 8px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-  .top-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
-  }
-  .overall {
-    padding: 10px 18px; border-radius: 10px; font-weight: 800;
-    font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .overall.ok { background: rgba(34,197,94,.18); color: var(--ok); border: 1px solid rgba(34,197,94,.35); }
-  .overall.warning { background: rgba(245,158,11,.18); color: var(--warn); border: 1px solid rgba(245,158,11,.35); }
-  .overall.critical { background: rgba(239,68,68,.2); color: var(--critical); border: 1px solid rgba(239,68,68,.4); }
-  .btn {
-    background: var(--accent); color: white; border: none;
-    padding: 10px 18px; border-radius: 8px; cursor: pointer;
-    font-weight: 700; font-size: 13px; font-family: inherit;
-  }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-secondary {
-    background: transparent; color: var(--accent);
-    border: 1px solid var(--accent);
-  }
-  .tier-section { margin-bottom: 28px; }
-  .tier-header {
-    font-size: 11px; font-weight: 800; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 10px; padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-  }
-  .grid {
-    display: grid; gap: 12px;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-  .scan-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px;
-    transition: border-color 0.15s;
-  }
-  .scan-card.ok { border-left: 4px solid var(--ok); }
-  .scan-card.warning { border-left: 4px solid var(--warn); }
-  .scan-card.critical { border-left: 4px solid var(--critical); }
-  .scan-card.pending { border-left: 4px solid var(--muted); opacity: 0.7; }
-  .scan-card-head {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; margin-bottom: 8px;
-  }
-  .scan-label { font-weight: 700; font-size: 14px; }
-  .scan-badge {
-    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .scan-badge.ok { background: rgba(34,197,94,.18); color: var(--ok); }
-  .scan-badge.warning { background: rgba(245,158,11,.18); color: var(--warn); }
-  .scan-badge.critical { background: rgba(239,68,68,.2); color: var(--critical); }
-  .scan-badge.pending { background: rgba(148,163,184,.18); color: var(--muted); }
-  .scan-headline { font-size: 13px; color: var(--muted); margin-bottom: 12px; min-height: 18px; }
-  .scan-meta { font-size: 11px; color: var(--muted); display: flex; gap: 10px; justify-content: space-between; }
-  .scan-actions { margin-top: 10px; display: flex; gap: 6px; }
-  .mini-btn {
-    background: rgba(14,165,233,.15); color: var(--accent);
-    border: 1px solid rgba(14,165,233,.3);
-    padding: 5px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 11px; font-weight: 700; font-family: inherit;
-  }
-  .mini-btn:hover { background: rgba(14,165,233,.25); }
+  .wrap { max-width: 1200px; margin: 0 auto; }
 
-  .modal-bg {
-    position: fixed; inset: 0; background: rgba(0,0,0,.7);
-    display: none; align-items: center; justify-content: center;
-    padding: 20px; z-index: 100;
-  }
-  .modal-bg.open { display: flex; }
-  .modal {
-    background: var(--card); border-radius: 14px; padding: 24px;
-    max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto;
-  }
-  .modal h2 { margin: 0 0 4px; font-size: 18px; }
-  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
-  .issue {
-    background: rgba(255,255,255,.03); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px; margin-bottom: 8px;
-  }
-  .issue-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .issue-subject { font-weight: 700; font-size: 13px; }
-  .issue-details {
-    font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace;
-    white-space: pre-wrap; word-break: break-all; margin-top: 6px;
-    background: rgba(0,0,0,.2); padding: 8px; border-radius: 4px;
-  }
-  .issue-suggestion {
-    font-size: 12px; color: var(--accent); margin-top: 8px;
-    padding: 6px 10px; background: rgba(14,165,233,.1); border-radius: 6px;
-  }
-  .close-btn {
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 20px; padding: 0;
-  }
-  .empty-state {
-    padding: 40px 20px; text-align: center; color: var(--muted);
-    background: var(--card); border: 1px dashed var(--border);
-    border-radius: 12px;
+  /* Top chrome strip — mirrors CategoryTopBar */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand .lm { width:30px; height:30px; border-radius:50%; background:#0ea5e9; display:flex; align-items:center; justify-content:center; flex:0 0 auto; box-shadow:0 4px 12px rgba(14,165,233,.35); }
+  .brand .wm { font-family:'Sora','DM Sans',sans-serif; font-weight:800; font-size:20px; color:#0a1438; letter-spacing:-.3px; line-height:1; }
+  .brand .wm .pro { color:#0ea5e9; }
+  .backpill { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid #e4eaf3; border-radius:999px; padding:8px 15px; font-size:13px; font-weight:600; color:#1e3a8a; box-shadow:0 10px 30px rgba(10,20,56,.08); text-decoration:none; transition:gap .2s,border-color .2s; }
+  .backpill:hover { gap:9px; border-color:#22d3ee; }
+
+  /* Cobalt hero — mirrors AdminPageHeader */
+  .hero { position:relative; overflow:hidden; border-radius:18px; padding:22px 26px; color:#fff;
+    background:linear-gradient(135deg,#0a1438 0%,#15275f 60%,#0e7490 150%);
+    box-shadow:0 14px 34px rgba(10,20,56,.14); margin-bottom:22px; }
+  .hero::after { content:''; position:absolute; right:-50px; top:-70px; width:260px; height:260px; border-radius:50%;
+    background:radial-gradient(circle,rgba(34,211,238,.18),transparent 66%); pointer-events:none; }
+  .hero-row { position:relative; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .hero-l { display:flex; align-items:center; gap:14px; }
+  .hero-ico { width:46px; height:46px; border-radius:13px; background:rgba(34,211,238,.16); display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:24px; }
+  .hero h1 { font-family:'Sora',sans-serif; font-weight:800; font-size:23px; letter-spacing:-.4px; line-height:1.1; margin:0; }
+  .hero .subtitle { color:#bcd0f0; font-size:13.5px; margin-top:4px; }
+  .hero-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+  .overall { padding:9px 16px; border-radius:999px; font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:.5px; }
+  .overall.ok { background:rgba(34,197,94,.20); color:#4ade80; border:1px solid rgba(34,197,94,.4); }
+  .overall.warning { background:rgba(245,158,11,.20); color:#fbbf24; border:1px solid rgba(245,158,11,.4); }
+  .overall.critical { background:rgba(239,68,68,.22); color:#f87171; border:1px solid rgba(239,68,68,.45); }
+  .overall.pending { background:rgba(148,163,184,.2); color:#cbd5e1; border:1px solid rgba(148,163,184,.4); }
+
+  .btn { background:#fff; color:#0a1438; border:none; padding:11px 18px; border-radius:11px; cursor:pointer;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:13.5px; box-shadow:0 8px 22px rgba(0,0,0,.22); }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  /* Tiers + cards — mirrors light admin cards */
+  .tier-section { margin-bottom:26px; }
+  .tier-header { font-family:'Sora',sans-serif; font-size:12px; font-weight:800; color:var(--muted);
+    text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); }
+  .scan-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px;
+    box-shadow:0 2px 8px rgba(10,20,56,.05); transition:box-shadow .15s;
+    border-left-width:4px; border-left-style:solid; border-left-color:var(--faint); }
+  .scan-card:hover { box-shadow:0 10px 26px rgba(10,20,56,.10); }
+  .scan-card.ok { border-left-color:var(--ok); }
+  .scan-card.warning { border-left-color:#f59e0b; }
+  .scan-card.critical { border-left-color:var(--critical); }
+  .scan-card.pending { border-left-color:var(--faint); opacity:0.65; }
+  .scan-card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .scan-label { font-family:'Sora',sans-serif; font-weight:700; font-size:14.5px; color:var(--text); }
+  .scan-badge { font-size:10px; font-weight:800; padding:3px 9px; border-radius:6px; text-transform:uppercase; letter-spacing:.5px; }
+  .scan-badge.ok { background:rgba(22,163,74,.12); color:var(--ok); }
+  .scan-badge.warning { background:rgba(245,158,11,.16); color:#b45309; }
+  .scan-badge.critical { background:rgba(220,38,38,.12); color:var(--critical); }
+  .scan-badge.pending { background:rgba(100,116,139,.14); color:var(--muted); }
+  .scan-headline { font-size:13px; color:var(--muted); margin-bottom:12px; min-height:18px; }
+  .scan-meta { font-size:11.5px; color:var(--faint); display:flex; gap:10px; justify-content:space-between; }
+  .scan-actions { margin-top:12px; display:flex; gap:8px; }
+  .mini-btn { background:rgba(14,165,233,.1); color:var(--accent); border:1px solid rgba(14,165,233,.25);
+    padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:11.5px; font-weight:700; }
+  .mini-btn:hover { background:rgba(14,165,233,.2); }
+
+  /* Modal — light */
+  .modal-bg { position:fixed; inset:0; background:rgba(10,20,56,.55); backdrop-filter:blur(2px);
+    display:none; align-items:center; justify-content:center; padding:20px; z-index:100; }
+  .modal-bg.open { display:flex; }
+  .modal { background:#fff; border:1px solid var(--border); border-radius:16px; padding:24px;
+    max-width:900px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 30px 70px rgba(10,20,56,.3); }
+  .modal h2 { font-family:'Sora',sans-serif; margin:0 0 4px; font-size:18px; color:var(--text); }
+  .modal-sub { color:var(--muted); font-size:13px; margin-bottom:16px; }
+  .issue { background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:8px; }
+  .issue-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .issue-subject { font-weight:700; font-size:13px; color:var(--text); }
+  .issue-details { font-size:12px; color:var(--muted); font-family:'JetBrains Mono', ui-monospace, monospace;
+    white-space:pre-wrap; word-break:break-all; margin-top:6px; background:#f1f5f9; padding:10px; border-radius:6px; }
+  .issue-suggestion { font-size:12px; color:#0369a1; margin-top:8px; padding:8px 12px; background:rgba(14,165,233,.08); border-radius:8px; }
+  .close-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:20px; padding:0; }
+  .empty-state { padding:40px 20px; text-align:center; color:var(--muted); background:#f8fafc; border:1px dashed var(--border); border-radius:12px; }
+
+  @media(max-width:560px){
+    body { padding:16px; }
+    .hero h1 { font-size:20px; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top-bar">
-    <div>
-      <h1>🩺 Platform Health</h1>
-      <div class="subtitle">Read-only diagnostic scanners. Click any card to see details.</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <a href="/admin" class="btn btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">← Back to Admin</a>
-      <div id="overallBadge" class="overall ok">Loading…</div>
-      <button id="rescanBtn" class="btn">Run all scans</button>
+  <div class="topbar">
+    <a class="brand" href="/home-preview">
+      <span class="lm"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="wm">SuperAd<span class="pro">Pro</span></span>
+    </a>
+    <a class="backpill" href="/admin"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg> Admin</a>
+  </div>
+
+  <div class="hero">
+    <div class="hero-row">
+      <div class="hero-l">
+        <div class="hero-ico">🩺</div>
+        <div>
+          <h1>Platform Health</h1>
+          <div class="subtitle">Read-only diagnostic scanners — tap any card for detail.</div>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <div id="overallBadge" class="overall pending">Loading…</div>
+        <button id="rescanBtn" class="btn">Run all scans</button>
+      </div>
     </div>
   </div>
 
