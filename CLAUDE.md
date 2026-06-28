@@ -26,6 +26,21 @@ Default mental model: "Would Webflow / Leadpages / ConvertKit ship this?" If no,
 
 Steve will call out any patch-shaped suggestion. Engineering instincts borrowed from other products (e.g. Webflow's "component overrides survive theme changes") must be tested against "what would a SuperAdPro member — an affiliate marketer, not a designer — actually expect."
 
+## 🔒 Membership Gate — SINGLE SOURCE OF TRUTH (28 Jun 2026)
+
+**`app/tier_gate.py` is the one place that decides which API endpoints require an active paid membership.** Do NOT scatter `if not user.is_active` checks into individual handlers — add/remove a prefix in `PAID_REQUIRED_PREFIXES` instead. This list drifted once (SuperPages/SuperLeads/SuperSeller/Pro/Posters were frontend-guarded but missing from the server gate, so direct API calls bypassed it); keeping it central is what prevents that recurring.
+
+How the gate works (two layers, both needed):
+- **Frontend** — `RequireTier` in `frontend/src/App.jsx` redirects lapsed members off tool *pages* to `/upgrade` (the UX layer). Every gated tool route must be wrapped in it.
+- **Backend** — `TierGateMiddleware` (tier_gate.py) is the hard 403 backstop for direct API calls. Prefix-match on `/api/*`; admins bypass; user-less requests get 401.
+
+Rules when touching it:
+- The gate is **prefix-only and 401s user-less requests** → any visitor-facing endpoint (hit by logged-OUT visitors on members' published pages) under a gated prefix MUST be added to `GATE_EXEMPT_PREFIXES` (checked first, wins over the gate) or you'll 401 real visitors and break live pages. Current exemptions: `funnels/track-click`, `leads/capture`, `superseller/lead-capture`, `superseller/chat`, `posters/generation` (public results), plus `leads/export` (data portability — kept open on purpose).
+- Behaviour is **hard-lock** (all methods, reads included) — consistent across every tool. We deliberately did NOT do a "reads-visible / actions-gated" model; that would mean loosening 30+ already-gated tools and is a deliberate platform-wide decision, not a per-tool bolt-on.
+- **Payment / reactivation endpoints must never be gated** (`/api/stripe/*`, `/api/onchain/create-intent`, `/api/nowpayments/*`, `/api/purchase-consent`) — a lapsed member must be able to pay to come back. They live under non-gated prefixes by construction; keep it that way.
+
+**Campaign Tier wallet withdrawal** is gated separately, in `app/withdrawals.py::_validate_campaign_structural` (active membership activates the campaign wallet; lapsed = campaign earnings locked). The affiliate wallet stays always-withdrawable. The retry path passes `check_membership=False` so an in-flight payout completes even if membership lapses mid-retry. `withdraw()` is `POST /withdraw` (NOT under `/api/wallet`), so the tier gate doesn't touch it — the withdrawals.py check is the only campaign gate.
+
 ## 🎯 Most Recent Session (24 May 2026) — Matt recovery + BSC scanner Layers 4-6 + Stripe gap fix
 
 Sunday session, ~5 hours. Started with a stuck-payment customer recovery (Matt, user 374), turned into a deep dive on the BSC scanner's residual failure mode that the May 17 reliability work didn't cover. Shipped three commits, all live, all verified end-to-end on production.
