@@ -286,15 +286,30 @@ def validate_campaign_withdrawal_structural(db, user):
 
     Returns {"valid": True} or {"valid": False, "error": "reason"}
     """
-    return _validate_campaign_structural(db, user)
+    # Retry: funds are already deducted and earmarked in the withdrawal row —
+    # skip the membership gate so an in-flight payout still completes if the
+    # membership lapses during the retry window. It's a committed withdrawal,
+    # not a new one.
+    return _validate_campaign_structural(db, user, check_membership=False)
 
 
-def _validate_campaign_structural(db, user):
-    """Shared structural checks: active tier + watch quota. No balance.
-    Used by both the initial validator (after its balance check) and
-    the retry validator (which skips balance entirely).
+def _validate_campaign_structural(db, user, check_membership=True):
+    """Shared structural checks: active membership + active tier + watch quota.
+    No balance. Used by the initial validator (after its balance check), the
+    retry validator (which skips balance entirely), and the withdrawable-balance
+    display badge.
+
+    check_membership gates on active paid membership — campaign earnings can
+    only be withdrawn while the membership that activates the Campaign Tier
+    wallet is active. Passed False on RETRY only (funds already committed).
     """
     from .database import Grid, WatchQuota
+
+    # Active paid membership is what activates the Campaign Tier wallet. No
+    # active membership = campaign earnings are locked until renewal. Admins
+    # bypass. Retries bypass (funds already committed — see caller above).
+    if check_membership and not user.is_active and not user.is_admin:
+        return {"valid": False, "error": "Active membership required to withdraw campaign earnings. Renew your membership to unlock your Campaign Tier wallet."}
 
     # Must have at least one active (non-complete) grid
     active_grid = db.query(Grid).filter(
