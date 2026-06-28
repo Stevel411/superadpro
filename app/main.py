@@ -38254,7 +38254,18 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return JSONResponse({"error": "Unauthorised"}, status_code=401)
     try:
         results = process_auto_renewals(db)
-        return {"ok": True, "renewed": len(results.get("renewed", [])), "failed": len(results.get("failed", []))}
+        errs = results.get("errors", []) or []
+        return {
+            "ok": True,
+            "renewed": len(results.get("renewed", [])),
+            "warned": len(results.get("warned", [])),
+            "grace_started": len(results.get("grace_extended", [])),
+            "lapsed": len(results.get("lapsed", [])),
+            "backfilled": len(results.get("backfilled", [])),
+            "email_queued": len(results.get("email_queued", [])),
+            "errors": len(errs),
+            "error_detail": errs[:10],
+        }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
