@@ -38254,17 +38254,19 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return JSONResponse({"error": "Unauthorised"}, status_code=401)
     try:
         results = process_auto_renewals(db)
+        def _cnt(v):
+            return v if isinstance(v, int) else len(v or [])
         errs = results.get("errors", []) or []
         return {
             "ok": True,
-            "renewed": len(results.get("renewed", [])),
-            "warned": len(results.get("warned", [])),
-            "grace_started": len(results.get("grace_extended", [])),
-            "lapsed": len(results.get("lapsed", [])),
-            "backfilled": len(results.get("backfilled", [])),
-            "email_queued": len(results.get("email_queued", [])),
-            "errors": len(errs),
-            "error_detail": errs[:10],
+            "renewed": _cnt(results.get("renewed", [])),
+            "warned": _cnt(results.get("warned", [])),
+            "grace_started": _cnt(results.get("grace_extended", [])),
+            "lapsed": _cnt(results.get("lapsed", [])),
+            "backfilled": _cnt(results.get("backfilled", [])),
+            "email_queued": _cnt(results.get("email_queued", 0)),
+            "errors": _cnt(errs),
+            "error_detail": errs[:10] if isinstance(errs, list) else [],
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
