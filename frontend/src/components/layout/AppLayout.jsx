@@ -25,7 +25,7 @@ function useIsMobile() {
 
 var MOBILE_TABS = ['/watch', '/dashboard', '/wallet', '/'];
 
-export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar, categoryBack }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar, categoryBack, categoryChrome }) {
   var [sidebarOpen, setSidebarOpen] = useState(false);
   var closeSidebar = useCallback(function() { setSidebarOpen(false); }, []);
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
@@ -39,7 +39,11 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   // track). Full-screen surfaces opt out via hideSidebar. A page's specific
   // categoryBack still sets its back-target when provided.
   var isAdminRoute = location.pathname.indexOf('/admin') === 0;
-  var catMode = !isAdminRoute && !hideSidebar;
+  // categoryChrome lets an admin page opt INTO the no-sidebar CategoryTopBar
+  // chrome (the rest of the platform's layout). Without it, admin routes keep
+  // their legacy Sidebar+Topbar. Added 28 Jun 2026 for the Admin Dashboard
+  // redesign so admin stops being the one route left on the retired sidebar.
+  var catMode = (categoryChrome || !isAdminRoute) && !hideSidebar;
   var backTarget = categoryBack || { to: '/home-preview', label: 'Dashboard' };
 
   // Desktop collapse state — persisted in localStorage so the user's preference

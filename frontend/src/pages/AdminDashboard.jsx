@@ -53,18 +53,18 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AppLayout title="Admin Dashboard" subtitle="Platform Management — Owner Access">
-      <div className="admin-tabs" style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
+    <AppLayout categoryChrome categoryBack={{to:'/home-preview',label:'Dashboard'}}>
+      <div className="admin-tabs" style={{display:'flex',gap:4,marginBottom:18,background:'#fff',border:'1px solid var(--sap-border-light)',borderRadius:9999,padding:5,boxShadow:'0 2px 8px rgba(10,20,56,.05)',overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
           var on = tab === t.key;
           return (
             <button key={t.key} onClick={function() { handleTabClick(t.key); }}
-              style={{display:'flex',alignItems:'center',gap:5,padding:'10px 16px',fontSize:12,fontWeight:on?800:600,
-                border:'none',borderBottom:on?'3px solid #dc2626':'3px solid transparent',
-                cursor:'pointer',fontFamily:'inherit',background:on?'rgba(220,38,38,.04)':'transparent',
-                color:on?'var(--sap-red)':'var(--sap-text-faint)',marginBottom:-2,borderRadius:'6px 6px 0 0',transition:'all .15s'}}>
-              <Icon size={13}/>{t.label}
+              style={{flex:'0 0 auto',display:'inline-flex',alignItems:'center',gap:6,padding:'9px 15px',fontSize:13,fontWeight:on?700:600,
+                border:'none',borderRadius:9999,cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
+                background:on?'linear-gradient(120deg,#0ea5e9,#06b6d4)':'transparent',
+                color:on?'#fff':'var(--sap-text-faint)',boxShadow:on?'0 4px 14px rgba(14,165,233,.32)':'none',transition:'all .15s'}}>
+              <Icon size={14}/>{t.label}
             </button>
           );
         })}
@@ -258,69 +258,127 @@ function OverviewTab() {
   }, []);
   if (!data) return <Spin/>;
 
-  var stats = [
-    {label:'Total Members',value:data.total_users||0,color:'var(--sap-accent)',icon:Users},
-    {label:'Active Members',value:data.active_users||0,color:'var(--sap-green)',icon:CheckCircle},
-    {label:'Total Revenue',value:'$'+(data.total_revenue||0).toLocaleString(),color:'var(--sap-purple)',icon:DollarSign},
-    {label:'Commissions Paid',value:'$'+(data.total_commissions_paid||0).toLocaleString(),color:'var(--sap-amber)',icon:TrendingUp},
-    {label:'Pending Withdrawals',value:data.pending_withdrawals_count||0,color:'var(--sap-red)',icon:Clock},
-    {label:'Active Grids',value:data.active_grids||0,color:'var(--sap-accent)',icon:Activity},
+  var totalU = data.total_users||0;
+  var activeU = data.active_users||0;
+  var rev = data.total_revenue||0;
+  var comm = data.total_commissions_paid||0;
+  var pendW = data.pending_withdrawals_count||0;
+  var grids = data.active_grids||0;
+  var activePct = totalU ? Math.round(activeU/totalU*100) : 0;
+  var commPct = rev ? Math.round(comm/rev*100) : 0;
+
+  var toneBg = {blue:'rgba(14,165,233,.12)',green:'rgba(34,197,94,.13)',amber:'rgba(245,158,11,.13)',red:'rgba(220,38,38,.10)',violet:'rgba(124,58,237,.12)'};
+  var toneFg = {blue:'#0ea5e9',green:'#16a34a',amber:'#f59e0b',red:'#dc2626',violet:'#7c3aed'};
+
+  var moneyTiles = [
+    {label:'Total Revenue',value:'$'+rev.toLocaleString(),Icon:DollarSign,sub:commPct?(commPct+'% paid to members'):'all-time'},
+    {label:'Commissions Paid',value:'$'+comm.toLocaleString(),Icon:TrendingUp,sub:commPct?(commPct+'% of revenue'):'paid to members'},
+  ];
+  var countTiles = [
+    {label:'Total Members',value:totalU,Icon:Users,tone:'blue',sub:'platform total'},
+    {label:'Active Members',value:activeU,Icon:CheckCircle,tone:'green',sub:activePct+'% of total'},
+    {label:'Pending Withdrawals',value:pendW,Icon:Clock,tone:'amber',sub:pendW===0?'Queue clear':(pendW+' awaiting')},
+    {label:'Active Grids',value:grids,Icon:Activity,tone:'violet',sub:'across '+activeU+' members'},
+  ];
+  var quickActions = [
+    {label:'Withdrawals queue',tone:'amber',Icon:Clock,go:'/admin/withdrawals-queue',count:pendW},
+    {label:'System Health',tone:'blue',Icon:Activity,go:'/admin/health'},
+    {label:'Story moderation',tone:'violet',Icon:Sparkles,go:'/admin/stories'},
+    {label:'Send broadcast',tone:'blue',Icon:Send,go:'/admin/email-broadcast'},
   ];
 
   return (
     <div>
-      <MaintenancePanel/>
-
-      {/* Quick actions — high-frequency admin tasks, one click away */}
-      <div style={{display:'flex',gap:10,marginBottom:18,flexWrap:'wrap'}}>
-        <button
-          onClick={function() { ovNavigate('/admin/email-broadcast'); }}
-          style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 18px',
-            background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',
-            border:'none',borderRadius:10,fontSize:13,fontWeight:700,fontFamily:'inherit',
-            cursor:'pointer',boxShadow:'0 2px 8px rgba(14,165,233,.25)'}}>
-          <Send size={15}/>
-          Send broadcast email
-        </button>
+      {/* HERO — mirrors the member dashboard cobalt hero */}
+      <div style={{position:'relative',overflow:'hidden',borderRadius:20,padding:'26px 30px',color:'#fff',
+        background:'linear-gradient(135deg,#0a1438 0%,#15275f 50%,#0e7490 130%)',boxShadow:'0 22px 50px rgba(10,20,56,.16)',marginBottom:16}}>
+        <div style={{position:'absolute',right:-70,top:-90,width:360,height:360,borderRadius:'50%',background:'radial-gradient(circle,rgba(34,211,238,.20),transparent 65%)',pointerEvents:'none'}}/>
+        <div style={{position:'relative',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:20,flexWrap:'wrap'}}>
+          <div>
+            <span style={{display:'inline-flex',alignItems:'center',gap:8,fontFamily:'JetBrains Mono,monospace',fontSize:11.5,letterSpacing:.6,textTransform:'uppercase',color:'#67e8f9',background:'rgba(34,211,238,.12)',border:'1px solid rgba(34,211,238,.28)',padding:'5px 11px',borderRadius:9999}}><Shield size={12}/>Owner Access</span>
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:32,letterSpacing:'-.6px',marginTop:14,lineHeight:1.05}}>Admin Dashboard</div>
+            <div style={{color:'#bcd0f0',fontSize:14.5,marginTop:8}}>Platform management &amp; oversight — everything in one place.</div>
+            <div style={{display:'inline-flex',alignItems:'center',gap:9,marginTop:18,background:'rgba(255,255,255,.07)',border:'1px solid rgba(34,211,238,.32)',borderRadius:9999,padding:'9px 15px',fontSize:13.5,fontWeight:600}}>
+              <span style={{width:9,height:9,borderRadius:'50%',background:'#22d3ee',boxShadow:'0 0 0 4px rgba(34,211,238,.2)'}}/>Platform live — all systems operational
+            </div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:10,alignItems:'flex-end'}}>
+            <button onClick={function(){ ovNavigate('/admin/email-broadcast'); }} style={{display:'inline-flex',alignItems:'center',gap:9,background:'#fff',color:'#0a1438',fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:14,padding:'12px 20px',borderRadius:12,border:'none',cursor:'pointer',boxShadow:'0 8px 22px rgba(0,0,0,.22)'}}><Send size={16}/>Send broadcast</button>
+            <button onClick={function(){ window.location.href='/admin/health'; }} style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(255,255,255,.08)',color:'#fff',border:'1px solid rgba(255,255,255,.22)',fontFamily:'Sora,sans-serif',fontWeight:600,fontSize:13.5,padding:'11px 18px',borderRadius:12,cursor:'pointer'}}><Activity size={15}/>System Health</button>
+          </div>
+        </div>
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
-        {stats.map(function(s,i) {
-          var Icon = s.icon;
+      <MaintenancePanel/>
+
+      {/* STAT GRID */}
+      <div className="admin-stat-grid" style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:14,marginTop:16,marginBottom:16,alignItems:'stretch'}}>
+        {moneyTiles.map(function(m,i) {
+          var Icon = m.Icon;
           return (
-            <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',top:12,right:12,width:36,height:36,borderRadius:10,background:s.color+'12',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <Icon size={18} color={s.color}/>
-              </div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)',marginTop:2}}>{s.label}</div>
+            <div key={'m'+i} style={{position:'relative',overflow:'hidden',background:'linear-gradient(155deg,#0d1a44,#1e3a8a)',color:'#fff',borderRadius:16,padding:'18px 18px 16px',boxShadow:'0 22px 50px rgba(10,20,56,.16)',display:'flex',flexDirection:'column',minHeight:150}}>
+              <div style={{position:'absolute',right:-40,bottom:-50,width:180,height:180,borderRadius:'50%',background:'radial-gradient(circle,rgba(34,211,238,.16),transparent 66%)'}}/>
+              <div style={{width:38,height:38,borderRadius:11,background:'rgba(34,211,238,.16)',color:'#67e8f9',display:'flex',alignItems:'center',justifyContent:'center',flex:'0 0 auto'}}><Icon size={19}/></div>
+              <div style={{color:'#bcd0f0',fontSize:12,fontWeight:600,marginTop:13}}>{m.label}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:24,letterSpacing:'-.6px',marginTop:3}}>{m.value}</div>
+              <div style={{fontSize:11.5,color:'#67e8f9',marginTop:'auto',fontWeight:600,paddingTop:10}}>{m.sub}</div>
+            </div>
+          );
+        })}
+        {countTiles.map(function(s,i) {
+          var Icon = s.Icon;
+          return (
+            <div key={'c'+i} style={{position:'relative',background:'#fff',border:'1px solid var(--sap-border-light)',borderRadius:16,padding:18,boxShadow:'0 2px 8px rgba(10,20,56,.05)',display:'flex',flexDirection:'column',minHeight:150}}>
+              <div style={{width:38,height:38,borderRadius:11,background:toneBg[s.tone],color:toneFg[s.tone],display:'flex',alignItems:'center',justifyContent:'center',flex:'0 0 auto'}}><Icon size={19}/></div>
+              <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:27,color:'#0a1438',letterSpacing:'-.7px',marginTop:13,lineHeight:1}}>{s.value}</div>
+              <div style={{color:'var(--sap-text-muted)',fontSize:12,fontWeight:600,marginTop:6}}>{s.label}</div>
+              <div style={{fontSize:11.5,color:'var(--sap-text-faint)',marginTop:'auto',fontWeight:600,paddingTop:10}}>{s.sub}</div>
             </div>
           );
         })}
       </div>
 
-      {/* System health quick view */}
-      {health && (
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-          <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px'}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>System Health</div>
+      {/* HEALTH + QUICK ACTIONS */}
+      <div className="admin-two-col" style={{display:'grid',gridTemplateColumns:'1.5fr 1fr',gap:14,alignItems:'stretch'}}>
+        <div style={{background:'#fff',border:'1px solid var(--sap-border-light)',borderRadius:16,boxShadow:'0 2px 8px rgba(10,20,56,.05)',padding:'18px 20px',display:'flex',flexDirection:'column'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#0a1438',display:'flex',alignItems:'center',gap:9}}><Activity size={16} color="var(--sap-accent)"/>System Health</div>
+            {health && <span style={{fontSize:11.5,fontWeight:700,color:'var(--sap-green)',background:'#f0fdf4',padding:'3px 9px',borderRadius:9999}}>All operational</span>}
           </div>
-          <div style={{padding:'16px 20px'}}>
-            {(health.checks || []).map(function(c,i) {
-              var color = c.status === 'ok' ? 'var(--sap-green)' : c.status === 'warn' ? 'var(--sap-amber)' : 'var(--sap-red)';
-              return (
-                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:i<(health.checks||[]).length-1?'1px solid #f5f6f8':'none'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:8,height:8,borderRadius:'50%',background:color}}/>
-                    <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)'}}>{c.name}</span>
-                  </div>
-                  <span style={{fontSize:13,fontWeight:700,color:color,textTransform:'uppercase'}}>{c.detail || c.status}</span>
+          {!health && <div style={{padding:'14px 0',color:'var(--sap-text-faint)',fontSize:13}}>Loading checks…</div>}
+          {health && (health.checks || []).map(function(c,i) {
+            var ok = c.status === 'ok', warn = c.status === 'warn';
+            var color = ok ? '#22c55e' : warn ? '#f59e0b' : '#dc2626';
+            var last = i === (health.checks||[]).length - 1;
+            return (
+              <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'13px 0',borderBottom:last?'none':'1px solid var(--sap-border-light)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:11,fontWeight:600,fontSize:14,color:'var(--sap-text-primary)'}}>
+                  <span style={{width:9,height:9,borderRadius:'50%',background:color,boxShadow:'0 0 0 4px '+color+'26',flex:'0 0 auto'}}/>{c.name}
                 </div>
+                <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:12,color:'var(--sap-text-muted)'}}>{c.detail || c.status}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{background:'#fff',border:'1px solid var(--sap-border-light)',borderRadius:16,boxShadow:'0 2px 8px rgba(10,20,56,.05)',padding:'18px 20px',display:'flex',flexDirection:'column'}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#0a1438',display:'flex',alignItems:'center',gap:9,marginBottom:12}}><Sparkles size={16} color="var(--sap-accent)"/>Quick actions</div>
+          <div style={{display:'flex',flexDirection:'column',gap:9}}>
+            {quickActions.map(function(q,i) {
+              var Icon = q.Icon;
+              return (
+                <a key={i} href={q.go} style={{display:'flex',alignItems:'center',gap:12,padding:'13px 14px',borderRadius:12,background:'var(--sap-bg-elevated)',border:'1px solid var(--sap-border-light)',textDecoration:'none',color:'var(--sap-text-primary)',fontWeight:600,fontSize:13.5}}>
+                  <span style={{width:34,height:34,borderRadius:10,background:toneBg[q.tone],color:toneFg[q.tone],display:'flex',alignItems:'center',justifyContent:'center',flex:'0 0 auto'}}><Icon size={17}/></span>
+                  {q.label}
+                  {(q.count !== undefined && q.count !== null) && <span style={{marginLeft:'auto',fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:14,color:'#0a1438'}}>{q.count}</span>}
+                  <ChevronRight size={16} style={{marginLeft:q.count!==undefined&&q.count!==null?6:'auto',color:'var(--sap-text-ghost)'}}/>
+                </a>
               );
             })}
           </div>
         </div>
-      )}
+      </div>
+
+      <style>{'@media(max-width:980px){.admin-stat-grid{grid-template-columns:repeat(3,1fr)!important}}@media(max-width:560px){.admin-stat-grid{grid-template-columns:repeat(2,1fr)!important}}@media(max-width:900px){.admin-two-col{grid-template-columns:1fr!important}}'}</style>
     </div>
   );
 }
