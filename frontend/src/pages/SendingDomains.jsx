@@ -213,7 +213,10 @@ export default function SendingDomains() {
               <div>
                 <strong>Tip:</strong> use a <strong>subdomain</strong> like <code style={codeInline}>mail.yourbrand.com</code> rather
                 than your main domain. It keeps your website email and your marketing email separate, which protects
-                your reputation. Don&rsquo;t have a domain? Any from GoDaddy or Namecheap (~$10/yr) works.
+                your reputation.{' '}
+                <Link to="/help/sending-domain" style={{ color: '#0284c7', fontWeight: 700 }}>
+                  Don&rsquo;t have a domain? Get one in 5 minutes &rarr;
+                </Link>
               </div>
             </div>
 

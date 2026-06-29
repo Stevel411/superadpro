@@ -102,6 +102,39 @@ export default function HelpSendingDomain() {
           </div>
         </div>
 
+        {/* Don't have a domain yet? */}
+        <div style={{ ...cardStyle, marginBottom: 16 }}>
+          <h2 style={sectionTitle}>Don&rsquo;t have a domain yet?</h2>
+          <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7 }}>
+            No problem &mdash; you can get one in about 5 minutes. A domain is just your own web
+            address (like <code style={codeInline}>janesmith.com</code>). You buy it once a year, usually
+            around <strong>$10&ndash;15</strong>, from a &ldquo;domain registrar&rdquo;. Here&rsquo;s the whole thing:
+            <ol style={{ margin: '12px 0 0', paddingLeft: 20 }}>
+              <li style={{ marginBottom: 6 }}>
+                Go to a registrar &mdash; <strong>Namecheap</strong>, <strong>GoDaddy</strong>, or
+                <strong> Cloudflare</strong> are all reputable. (Namecheap is often the cheapest and simplest.)
+              </li>
+              <li style={{ marginBottom: 6 }}>
+                Type the name you want in their search box. If <code style={codeInline}>yourname.com</code> is
+                taken, try a variation, or a different ending like <code style={codeInline}>.co</code> or
+                <code style={codeInline}> .net</code>. A <code style={codeInline}>.com</code> is best if it&rsquo;s available.
+              </li>
+              <li style={{ marginBottom: 6 }}>
+                Add it to your basket and check out. That&rsquo;s it &mdash; you own the domain.
+              </li>
+              <li>
+                Come back here. You don&rsquo;t need to build a website &mdash; you only need the domain so your
+                emails can send from it. Use a subdomain like <code style={codeInline}>mail.yourname.com</code>
+                (you create that for free in the next step, just by adding the DNS records we show you).
+              </li>
+            </ol>
+            <div style={{ marginTop: 12, padding: '10px 13px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9, fontSize: 13, color: '#166534', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <CheckCircle2 size={15} color="#16a34a" style={{ flexShrink: 0, marginTop: 1 }} />
+              <span>One domain is all you need &mdash; it powers your emails, and you can use it for your pages and links too. It&rsquo;s the one thing that&rsquo;s truly <strong>yours</strong>.</span>
+            </div>
+          </div>
+        </div>
+
         {/* The simple idea */}
         <div style={{ ...cardStyle, marginBottom: 16 }}>
           <h2 style={sectionTitle}>The whole job, in plain English</h2>
@@ -170,6 +203,7 @@ export default function HelpSendingDomain() {
 
 const cardStyle = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' };
 const sectionTitle = { margin: '0 0 14px', fontSize: 14, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b' };
+const codeInline = { background: '#f1f5f9', color: '#0f172a', padding: '1px 6px', borderRadius: 4, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, fontWeight: 600 };
 const backLinkStyle = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: 16 };
 const accordionHead = { display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '13px 0', cursor: 'pointer', textAlign: 'left' };
 const qBlock = { padding: '12px 0', borderTop: '1px solid #f1f5f9' };
