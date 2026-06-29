@@ -176,6 +176,59 @@ def send_welcome_email(to_email, first_name, username):
     return send_email(to_email, f"Welcome to SuperAdPro, {first_name}!", _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body), f"Welcome to SuperAdPro, {first_name}! Username: {username}. Login: {SITE_URL}/dashboard")
 
 
+def send_welcome_free_email(to_email, first_name, username):
+    """Welcome email for a FREE signup (register_process path).
+
+    Deliberately distinct from send_welcome_email: a free signup is NOT
+    active and cannot open the is_pro-gated tools, so this copy never
+    claims 'Active' and never lists tools they can't use. It tells the
+    truth about the free state and points at the one real next step —
+    activating the $20/mo Partner tier — which is the conversion the
+    funnel is currently losing at 0%.
+    """
+    hero = (
+        '<div style="font-size:48px;margin-bottom:14px">&#128075;</div>'
+        f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
+        f'Welcome to SuperAdPro, <span style="color:#0ea5e9">{first_name}!</span></p>'
+        '<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+        'Your free account is created. Here&rsquo;s what it is, and how to switch on the full toolkit.</p>'
+    )
+    creds = (
+        '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr>'
+        '<td style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:14px;padding:22px 26px">'
+        '<table width="100%" cellpadding="0" cellspacing="0">'
+        '<tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr>'
+        '<td style="font-size:14px;color:rgba(255,255,255,0.6)">Username</td>'
+        f'<td align="right" style="font-size:14px;color:#fff;font-weight:700">{username}</td></tr></table></td></tr>'
+        '<tr><td style="padding:9px 0"><table width="100%"><tr>'
+        '<td style="font-size:14px;color:rgba(255,255,255,0.6)">Plan</td>'
+        '<td align="right" style="font-size:14px;color:#fbbf24;font-weight:700">Free &mdash; tools locked</td>'
+        '</tr></table></td></tr></table></td></tr></table>'
+    )
+    body = (
+        creds
+        + _card(
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">'
+            'Activate Partner &mdash; $20/month, every tool</p>'
+            + _check(
+                'SuperPages &mdash; build landing pages and funnels',
+                'SuperLeads &mdash; capture leads and follow up automatically',
+                'Creative Studio &mdash; generate images and video with AI',
+                'Ad Studio &mdash; turn them into ad creative ready to run',
+            ),
+            bg='#f0f9ff', border='#bae6fd',
+        )
+        + _btn(f"{SITE_URL}/pay-membership", "Activate my account &rarr;")
+    )
+    return send_email(
+        to_email,
+        f"Welcome to SuperAdPro, {first_name} — here's how to get started",
+        _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
+        f"Welcome to SuperAdPro, {first_name}! Your free account ({username}) is created. "
+        f"Activate Partner for $20/month to unlock every tool: {SITE_URL}/pay-membership",
+    )
+
+
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 2: COMMISSION EARNED
 # ═══════════════════════════════════════════════════════════════

@@ -6624,6 +6624,16 @@ def register_process(
 
     # ── Post-registration notifications ──
 
+    # 0. Welcome the NEW MEMBER by email (was missing on this path — only
+    #    api_register sent it, so free signups via register_process got
+    #    silence. Fires the free-signup-accurate welcome. Fails silently so
+    #    a send error never breaks registration.)
+    try:
+        from app.email_utils import send_welcome_free_email
+        send_welcome_free_email(email, first_name, username)
+    except Exception as e:
+        logger.warning(f"Free welcome email failed for {email}: {e}")
+
     # 1. Email the sponsor: "New member joined your team!"
     if sponsor_id:
         try:
