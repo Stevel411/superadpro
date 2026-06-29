@@ -273,7 +273,14 @@ export default function Watch() {
   // Tier-locked screen — Watch-to-Earn requires an active Campaign Tier.
   // Admins and existing tier holders bypass; everyone else gets a clear CTA
   // straight to /campaign-tiers rather than a broken / empty video player.
-  if (user && !user.is_admin && !(user.highest_tier && user.highest_tier > 0)) return (
+  // Watch-to-Earn requires an active Campaign Tier. The backend qualifies a
+  // member when get_user_highest_tier >= 0 (so tier 0 = Launchpad counts).
+  // NOTE: must NOT write `highest_tier && highest_tier >= 0` — when the value
+  // is 0, `0 && ...` short-circuits falsy and would wrongly lock Launchpad
+  // members. Test the type + sign explicitly instead.
+  const _ht = user ? user.highest_tier : null;
+  const _hasTier = (typeof _ht === 'number') && _ht >= 0;
+  if (user && !user.is_admin && !_hasTier) return (
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
       <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
         <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
@@ -297,7 +304,22 @@ export default function Watch() {
 
   if (!data) return (
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
-      <div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>{t('watch.unableToLoad')}</div>
+      <div style={{textAlign:'center',padding:'64px 24px',maxWidth:420,margin:'0 auto'}}>
+        <div style={{fontSize:48,marginBottom:12,lineHeight:1}}>📺</div>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>
+          {t('watch.unableToLoad')}
+        </div>
+        <p style={{fontSize:14,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:22}}>
+          We couldn&rsquo;t load your video just now. This is usually a quick hiccup &mdash; tap to try again.
+        </p>
+        <button onClick={() => window.location.reload()} style={{
+          display:'inline-flex',alignItems:'center',gap:8,padding:'12px 26px',borderRadius:11,border:'none',
+          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',fontWeight:800,fontSize:14,
+          fontFamily:'Sora,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(14,165,233,0.35)',
+        }}>
+          ↻ Try again
+        </button>
+      </div>
     </AppLayout>
   );
 
