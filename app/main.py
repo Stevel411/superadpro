@@ -51345,47 +51345,84 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
 @app.get("/admin/api/watch-debug")
 def admin_watch_debug(user_id: int, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
-    """READ-ONLY diagnostic: replay each step of /api/watch for a given user and
-    report exactly which step throws + the traceback, so we can see the real
-    cause of an 'Unable to load' (500) without trawling server logs. Admin-only."""
+    """READ-ONLY diagnostic: faithfully replay the /api/watch body for a given
+    user and return the EXACT exception + full traceback (file:line) so we can
+    see the real cause of an 'Unable to load' (500). Admin-only. Does not write
+    (skips the started-row creation that the real endpoint does)."""
     import traceback as _tb
     _require_admin(user)
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
         return JSONResponse({"error": "user not found"}, status_code=404)
     out = {"user_id": user_id, "username": target.username}
-    # Step 1: tier gate
     try:
         out["highest_tier"] = get_user_highest_tier(db, user_id)
-        out["tier_gate_passes"] = out["highest_tier"] >= 0
-    except Exception as e:
-        out["step1_highest_tier_ERROR"] = repr(e)
-        return JSONResponse(out)
-    # Step 2: quota
-    try:
         quota = get_or_create_quota(db, target)
         db.commit()
-        out["quota_ok"] = {
-            "today_watched": quota.today_watched,
-            "daily_required": quota.daily_required,
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        watched_today = quota.today_watched or 0
+        daily_limit = quota.daily_required if quota.daily_required is not None else 1
+        is_exempt = (daily_limit == 0)
+        quota_reached = is_exempt or (watched_today >= daily_limit)
+        out["watched_today"] = watched_today
+        out["daily_limit"] = daily_limit
+        out["quota_reached"] = quota_reached
+        next_video = None
+        if not quota_reached:
+            existing_started = db.query(VideoWatch).filter(
+                VideoWatch.user_id == target.id,
+                VideoWatch.watch_date == today_str,
+                VideoWatch.is_complete == False,  # noqa: E712
+            ).first()
+            out["has_existing_started_row"] = bool(existing_started)
+            if existing_started:
+                out["existing_started"] = {
+                    "id": existing_started.id,
+                    "campaign_id": existing_started.campaign_id,
+                    "started_at": str(existing_started.started_at),
+                    "started_at_type": type(existing_started.started_at).__name__,
+                }
+                forced_c = db.query(VideoCampaign).filter(
+                    VideoCampaign.id == existing_started.campaign_id,
+                    VideoCampaign.status == "active",
+                ).first()
+                out["forced_campaign_found"] = bool(forced_c)
+                if forced_c:
+                    elapsed = (datetime.utcnow() - existing_started.started_at).total_seconds() if existing_started.started_at else 0
+                    seconds_remaining = max(0, int(WATCH_DURATION - elapsed))
+                    next_video = {
+                        "id": forced_c.id, "title": forced_c.title,
+                        "platform": forced_c.platform or "youtube",
+                        "category": forced_c.category or "General",
+                        "embed_url": forced_c.embed_url,
+                        "cta_url": forced_c.cta_url or None,
+                    }
+                    out["forced_video_built"] = True
+            if not next_video:
+                next_content = get_next_content(db, user_id)
+                out["next_content_type_value"] = next_content.get("type") if isinstance(next_content, dict) else None
+                if next_content and next_content.get("type") == "video":
+                    c = next_content["data"]
+                    out["campaign_data_class"] = type(c).__name__
+                    next_video = {
+                        "id": c.id, "title": c.title, "platform": c.platform or "youtube",
+                        "category": c.category or "General", "embed_url": c.embed_url,
+                        "cta_url": c.cta_url or None,
+                    }
+                    out["rotation_video_built"] = True
+        # Final return-dict attribute access (the bit after the content block)
+        _ = {
+            "tier": (quota.package_tier if quota.package_tier is not None else 1),
+            "streak_days": getattr(quota, 'streak_days', 0) or 0,
+            "total_watched": getattr(quota, 'total_watched', 0) or 0,
+            "commissions_paused": getattr(quota, 'commissions_paused', False),
         }
+        out["return_dict_built"] = True
+        out["verdict"] = "Replay completed WITHOUT error — the 500 may be transient or state-dependent (e.g. a started row that since changed)."
     except Exception as e:
         db.rollback()
-        out["step2_quota_ERROR"] = repr(e)
-        out["step2_traceback"] = _tb.format_exc()[-1500:]
-        return JSONResponse(out)
-    # Step 3: smart content rotation (the most likely culprit)
-    try:
-        nc = get_next_content(db, user_id)
-        out["next_content_ok"] = True
-        out["next_content_type"] = type(nc).__name__
-        out["next_content_keys"] = list(nc.keys()) if isinstance(nc, dict) else None
-    except Exception as e:
-        db.rollback()
-        out["step3_get_next_content_ERROR"] = repr(e)
-        out["step3_traceback"] = _tb.format_exc()[-2000:]
-        return JSONResponse(out)
-    out["verdict"] = "All steps passed — error is elsewhere in /api/watch (forced-video or response build)."
+        out["ERROR"] = repr(e)
+        out["TRACEBACK"] = _tb.format_exc()[-2500:]
     return JSONResponse(out)
 @app.get("/admin/replay-my-badge-toast")
 async def admin_replay_my_badge_toast(
