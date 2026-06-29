@@ -5789,6 +5789,63 @@ class CustomDomain(Base):
     user            = relationship("User", foreign_keys=[user_id])
 
 
+class SendingDomain(Base):
+    """A member's own email sending domain, verified inside our single SES
+    account (per-member-domain isolation — each member sends from their OWN
+    brand; their domain carries their own reputation, never the platform's).
+
+    Distinct from CustomDomain (which is page hosting via Railway). A member
+    can have both — a page domain AND a separate sending domain — so this is
+    its own table, not an extension of CustomDomain.
+
+    Verification uses the SES API (boto3) — see app/sending_domains.py. The
+    member adds 3 DKIM CNAMEs (SES-issued, Easy DKIM) plus an SPF TXT and a
+    DMARC TXT, then SES auto-detects and we poll GetIdentityVerificationAttributes.
+
+    NOTE: SKIP_MIGRATIONS=true on prod means create_all() does NOT build this on
+    deploy — the idempotent admin endpoint /admin/api/setup-sending-domains
+    creates it on production (tap once after deploy).
+    """
+    __tablename__ = "sending_domains"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # The sending domain the member is bringing — e.g. "mail.janesmith.com".
+    # Lowercased/stripped at write time. Unique across the platform: no two
+    # members can claim the same sending identity in our SES account.
+    domain          = Column(String, nullable=False, unique=True, index=True)
+    # Optional display name + the from-address local part the member sends as.
+    # e.g. from_name="Jane Smith", from_local="jane" -> jane@mail.janesmith.com
+    from_name       = Column(String, nullable=True)
+    from_local      = Column(String, nullable=True, default="hello")
+    # pending  — records not yet detected by SES
+    # verified — SES reports the domain identity verified AND DKIM verified;
+    #            member may send from this domain
+    # failed   — verification cron retried N times and gave up; member can
+    #            re-trigger by re-saving
+    status          = Column(String, default="pending", index=True)
+    # Sub-statuses from SES so we can show granular progress in the UI
+    # (the "don't panic" verifying screen ticks these off individually).
+    identity_status = Column(String, nullable=True)   # SES VerificationStatus: Pending/Success/Failed
+    dkim_status     = Column(String, nullable=True)   # SES DkimVerificationStatus
+    # Raw DKIM tokens SES returns from VerifyDomainDkim (3 tokens -> 3 CNAMEs).
+    # Stored so we can rebuild the member's records without re-calling SES.
+    dkim_tokens_json = Column(Text, nullable=True)
+    # JSON list of the DNS records we surface to the member, verbatim, so the
+    # UI always shows the latest without re-querying SES on every load. Shape:
+    # [{"kind":"DKIM","recordType":"CNAME","name":"...","value":"...","status":"PENDING"},
+    #  {"kind":"SPF","recordType":"TXT","name":"...","value":"v=spf1 include:amazonses.com ~all"},
+    #  {"kind":"DMARC","recordType":"TXT","name":"_dmarc...","value":"v=DMARC1; p=none; ..."}]
+    dns_records_json = Column(Text, nullable=True)
+    # Last error from the verification cron / SES call, shown to the member so
+    # they can self-fix (mirrors CustomDomain.last_error).
+    last_error      = Column(Text, nullable=True)
+    last_checked_at = Column(DateTime, nullable=True)
+    verified_at     = Column(DateTime, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user            = relationship("User", foreign_keys=[user_id])
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # MEMBER SITE & BLOG PLATFORM  (flagship — 23 Jun 2026)
 # One-click member website + blog. Gated to is_pro() (Partner/Founder).

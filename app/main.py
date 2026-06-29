@@ -55688,6 +55688,45 @@ def admin_setup_blog_tables(
     })
 
 
+@app.get("/admin/api/setup-sending-domains")
+def admin_setup_sending_domains(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: create the `sending_domains` table on production. Needed
+    because SKIP_MIGRATIONS=true means create_all() doesn't build it on deploy.
+    Idempotent — uses checkfirst=True, a no-op if the table already exists.
+    Admin-only, GET (phone-friendly). Tap once after the deploy lands.
+
+    Also reports whether the SES *API* credentials are configured, so we can
+    confirm in one tap whether domain verification can actually run yet."""
+    from fastapi.responses import JSONResponse
+    from .database import engine, SendingDomain
+    from . import sending_domains as _sd
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    out = {}
+    try:
+        SendingDomain.__table__.create(bind=engine, checkfirst=True)
+        out["table"] = "ok (created or already present)"
+    except Exception as e:
+        return JSONResponse({"ok": False, "table_error": str(e)}, status_code=500)
+
+    out["ses_api_configured"] = _sd.is_configured()
+    out["ses_region"] = _sd.AWS_SES_REGION
+    out["note"] = (
+        "sending_domains table ready."
+        if _sd.is_configured()
+        else "Table ready, BUT SES API credentials are NOT set — add "
+             "AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_SES_REGION in "
+             "Railway before domain verification can run."
+    )
+    return JSONResponse({"ok": True, "results": out})
+
+
 # ── Member Site & Blog platform — public rendering engine ────────────────────
 # Server-rendered HTML (NOT React) for SEO. See app/blog_render.py.
 from . import blog_render as _blogrender
