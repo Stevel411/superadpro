@@ -46847,6 +46847,42 @@ def admin_email_clicks(user: User = Depends(get_current_user), db: Session = Dep
     )
     return HTMLResponse(html)
 
+def _member_sender_identity(db, user_id):
+    """Resolve a member's verified sending identity for outbound email.
+
+    Returns (sender_email, sender_name) from the member's most-recently-verified
+    SendingDomain — e.g. ('steve@mail.directmailpro.net', 'Steve') — so their
+    autoresponder mail sends from THEIR OWN brand, not the platform default.
+
+    Returns (None, None) if the member has no verified sending domain, in which
+    case callers fall back to the platform sender. SES will only accept the
+    member-domain From because the domain identity is verified in our SES account
+    (that's exactly what the /sending-domains verification flow establishes).
+
+    This is the bridge between the sending-domain feature and the actual send
+    path — without it, verified domains are decorative and mail still goes out
+    as noreply@superadpro.com.
+    """
+    try:
+        from .database import SendingDomain
+        row = (db.query(SendingDomain)
+                 .filter(SendingDomain.user_id == user_id,
+                         SendingDomain.status == "verified")
+                 .order_by(SendingDomain.verified_at.desc())
+                 .first())
+        if row and row.domain:
+            local = (row.from_local or "hello").strip() or "hello"
+            email = f"{local}@{row.domain}"
+            name = (row.from_name or "").strip() or None
+            return email, name
+    except Exception as _e:
+        # Never let identity resolution break a send — fall back to platform.
+        try:
+            logger.warning(f"_member_sender_identity failed for user {user_id}: {_e}")
+        except Exception:
+            pass
+    return None, None
+
 def _send_sequence_email(db, lead, email_index: int):
     """Send a specific email from the lead's assigned sequence."""
     from .database import EmailSequence, EmailSendLog
@@ -46925,9 +46961,11 @@ def _send_sequence_email(db, lead, email_index: int):
     body_html = _rewrite_email_links(body_html, lead.id, lead.email_sequence_id, email_index, site_url)
 
     from .email_utils import send_email
+    _m_email, _m_name = _member_sender_identity(db, lead.user_id)
     send_result = send_email(lead.email, subject, body_html, return_message_id=True,
                              member_bulk=True, category="marketing", list_unsubscribe=_unsub_url,
-                             from_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
+                             from_email=_m_email or (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None),
+                             from_name=_m_name)
     if isinstance(send_result, tuple):
         success, brevo_msg_id = send_result
     else:
@@ -52485,9 +52523,11 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
         _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
         wrapped = wrap_email_html(body_html, member_name).replace("{{unsubscribe_url}}", _unsub_url)
 
+        _m_email, _m_name = _member_sender_identity(db, user.id)
         result = await send_email(lead.email, lead.name or "", subject, wrapped, member_bulk=True,
                                   category="marketing", list_unsubscribe=_unsub_url,
-                                  sender_email=(os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
+                                  sender_name=_m_name,
+                                  sender_email=_m_email or (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None))
         if result.get("ok"):
             lead.emails_sent = (lead.emails_sent or 0) + 1
             log = EmailSendLog(
@@ -52558,7 +52598,9 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
             job["status"] = "error"; job["error"] = "user not found"; return
         member_name = owner.first_name or owner.username or "SuperAdPro Member"
         wrapped = wrap_email_html(html_content, member_name)
-        sender_email = (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None)
+        sender_email, sender_name = _member_sender_identity(db, user_id)
+        if not sender_email:
+            sender_email = (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None)
 
         q = db.query(MemberLead).filter(MemberLead.user_id == user_id,
                                         MemberLead.status != "unsubscribed")
@@ -52583,7 +52625,8 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
                 result = await send_email(
                     lead.email, lead.name or "", subject, wrapped_lead,
                     member_bulk=True, category="marketing",
-                    list_unsubscribe=_unsub_url, sender_email=sender_email)
+                    list_unsubscribe=_unsub_url, sender_email=sender_email,
+                    sender_name=sender_name)
             except Exception as e:
                 result = {"ok": False, "error": f"send exception: {e}"}
 
