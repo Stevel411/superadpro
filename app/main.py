@@ -9248,6 +9248,49 @@ def admin_api_rotator_reenrol_founders(
         )
 
 
+@app.get("/admin/api/test-email")
+def admin_api_test_email(
+    request: Request,
+    to: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin diagnostic: send the real free-signup welcome email to a chosen
+    address and report the result, so we can verify the live email provider
+    end-to-end (replaces the old secret-gated /admin/test-email removed in the
+    security cleanup). Session-admin-gated. Usage while logged in as admin:
+        /admin/api/test-email?to=you@example.com
+    Returns which provider is live (so EMAIL_PROVIDER=ses is confirmed) and
+    whether the send succeeded.
+    """
+    _require_admin(user)
+    from . import mailer
+    target = (to or "").strip() or (user.email or "")
+    out = {
+        "provider": mailer.provider(),
+        "member_bulk_provider": mailer.member_bulk_provider(),
+        "from_email": os.getenv("FROM_EMAIL", "noreply@superadpro.com"),
+        "ses_smtp_host_set": bool(os.getenv("SES_SMTP_HOST", "").strip()),
+        "target": target,
+    }
+    if not target:
+        out["sent"] = False
+        out["error"] = "No target address (pass ?to=you@example.com)"
+        return JSONResponse(out)
+    try:
+        from app.email_utils import send_welcome_free_email
+        result = send_welcome_free_email(target, "Steve", "SuperAdPro")
+        # send_email returns bool or (bool, message_id) depending on call site
+        ok = result[0] if isinstance(result, tuple) else bool(result)
+        out["sent"] = ok
+        if not ok:
+            out["error"] = "send_email returned falsy — provider rejected or not configured (check logs)"
+    except Exception as e:
+        out["sent"] = False
+        out["error"] = str(e)[:500]
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/diag-member-leads")
 def admin_api_diag_member_leads(
     request: Request,
