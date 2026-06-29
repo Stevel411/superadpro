@@ -8816,6 +8816,20 @@ def custom_domain_page(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/sending-domains")
+def sending_domains_page(request: Request):
+    """Sending Domain setup — per-member email sending domains verified in
+    our SES account so members send from their own brand. React shell;
+    paid-tier gating happens server-side on POST /api/sending-domains."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/help/sending-domain")
+def help_sending_domain_page(request: Request):
+    """Step-by-step DNS setup guide for sending domains (per-provider)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/labs/pagebuilder/custom-domain")
 def labs_pagebuilder_custom_domain_legacy_redirect(request: Request):
     """Legacy path — Custom Domain was promoted out of /labs to
