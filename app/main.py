@@ -52224,16 +52224,21 @@ def _lead_limit(user):
     if getattr(user, 'is_active', False):
         return 5000
     return 0  # Free members cannot use leads/autoresponder
-DAILY_EMAIL_LIMIT = 100  # Free emails per day for active paying members.
-                         # Dropped from 200 on 14 May 2026 — Brevo cost analysis
-                         # showed 200/day × heavy Pro members could saturate the
-                         # 20k Starter plan budget. 100/day still covers typical
-                         # campaign volumes; Boost packs available for big sends.
+DAILY_EMAIL_LIMIT = 100  # Legacy daily counter constant — retained for the
+                         # admin detail view. The live free allowance is now
+                         # MONTHLY (see below) so members can send a full
+                         # broadcast to their list in one go.
+MONTHLY_EMAIL_LIMIT = 5000  # Free emails per month included for active paying
+                            # members. Set 29 Jun 2026 when sending moved to
+                            # per-member verified domains on Amazon SES (~$0.10
+                            # per 1,000 sent, so 5k/member/mo ≈ $0.50 cost).
+                            # Monthly (not daily) so a 2-3k list can be mailed
+                            # in a single broadcast.
 EMAIL_BOOST_PACKS = [
-    {"id": "boost_1k", "credits": 1000, "price": 5.00, "label": "🚀 1,000 Emails", "desc": "Perfect for a targeted campaign"},
-    {"id": "boost_5k", "credits": 5000, "price": 19.00, "label": "⚡ 5,000 Emails", "desc": "Run multiple sequences"},
-    {"id": "boost_10k", "credits": 10000, "price": 29.00, "label": "🔥 10,000 Emails", "desc": "Scale your outreach"},
-    {"id": "boost_50k", "credits": 50000, "price": 99.00, "label": "💎 50,000 Emails", "desc": "Enterprise-level volume"},
+    {"id": "boost_1k", "credits": 1000, "price": 3.75, "label": "🚀 1,000 Emails", "desc": "Perfect for a targeted campaign"},
+    {"id": "boost_5k", "credits": 5000, "price": 14.25, "label": "⚡ 5,000 Emails", "desc": "Run multiple sequences"},
+    {"id": "boost_10k", "credits": 10000, "price": 21.75, "label": "🔥 10,000 Emails", "desc": "Scale your outreach"},
+    {"id": "boost_50k", "credits": 50000, "price": 74.25, "label": "💎 50,000 Emails", "desc": "Enterprise-level volume"},
 ]
 def _check_email_allowance(user, db, count=1):
     """Check if user can send emails. Returns (allowed, reason).
@@ -55937,6 +55942,34 @@ def admin_setup_sending_domains(
              "Railway before domain verification can run."
     )
     return JSONResponse({"ok": True, "results": out})
+
+
+@app.get("/admin/api/setup-monthly-email-allowance")
+def admin_setup_monthly_email_allowance(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot: add the monthly email-allowance columns to users on production.
+    Needed because SKIP_MIGRATIONS=true means run_migrations() doesn't apply them
+    on deploy. Idempotent (ADD COLUMN IF NOT EXISTS). Admin-only, GET. Tap once
+    after the deploy lands, BEFORE the monthly-allowance logic goes live."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _text
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    out = {}
+    for col, ddl in [
+        ("emails_sent_month", "ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_month INTEGER DEFAULT 0"),
+        ("emails_sent_month_key", "ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_month_key VARCHAR"),
+    ]:
+        try:
+            db.execute(_text(ddl)); db.commit(); out[col] = "ok"
+        except Exception as e:
+            db.rollback(); out[col] = f"error: {e}"
+            return JSONResponse({"ok": False, "results": out}, status_code=500)
+    return JSONResponse({"ok": True, "results": out,
+                         "note": "Monthly email-allowance columns ready. Safe to deploy the monthly-allowance logic now."})
 
 
 # ── Member Site & Blog platform — public rendering engine ────────────────────

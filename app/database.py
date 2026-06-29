@@ -399,8 +399,13 @@ class User(Base):
     avatar_url              = Column(Text, nullable=True)                  # profile photo URL or base64
     # Email credits for autoresponder boost
     email_credits           = Column(Integer, default=0)                    # purchased boost credits
-    emails_sent_today       = Column(Integer, default=0)                    # daily counter (resets daily)
+    emails_sent_today       = Column(Integer, default=0)                    # daily counter (legacy; retained)
     emails_sent_today_date  = Column(String, nullable=True)                 # date string for reset check
+    # NOTE: emails_sent_month / emails_sent_month_key are added to this model in
+    # a SECOND deploy — only AFTER /admin/api/setup-monthly-email-allowance has
+    # created the columns on production. Declaring them here before the DB has
+    # them would make every users-table SELECT fail (get_current_user runs on
+    # every request), so the model declaration is intentionally deferred.
     # Stripe
     # 23 May 2026: full Stripe re-integration alongside crypto rail.
     # stripe_subscription_id existed since the old (now-dead) Stripe code;
@@ -3533,6 +3538,8 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_credits INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today_date VARCHAR"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_month INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_month_key VARCHAR"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS copilot_asks_today INTEGER DEFAULT 0"))
         # ── Co-Pilot ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS copilot_briefings (
