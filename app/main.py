@@ -4436,6 +4436,161 @@ def cron_verify_custom_domains(request: Request):
 
 
 # ════════════════════════════════════════════════════════════════════
+# SENDING DOMAINS — per-member email sending domains (29 Jun 2026)
+# Members verify their OWN domain inside our SES account so they send
+# from their own brand. Mirrors the custom-domains endpoints above.
+# Gated to active paid members (is_active) — part of the autoresponder
+# toolkit. See app/sending_domains.py for the SES verification engine.
+# ════════════════════════════════════════════════════════════════════
+
+def _sendingdomain_row_dict(row):
+    """Serialise a SendingDomain row for the member UI."""
+    import json as _json
+    try:
+        records = _json.loads(row.dns_records_json or "[]")
+    except Exception:
+        records = []
+    return {
+        "id": row.id,
+        "domain": row.domain,
+        "from_name": row.from_name,
+        "from_local": row.from_local or "hello",
+        "from_address": f"{row.from_local or 'hello'}@{row.domain}",
+        "status": row.status,
+        "identity_status": row.identity_status,
+        "dkim_status": row.dkim_status,
+        "dns_records": records,
+        "last_error": row.last_error,
+        "verified_at": row.verified_at.isoformat() if row.verified_at else None,
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+    }
+
+
+@app.get("/api/sending-domains")
+def api_sending_domains_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List the member's sending domains + their DNS records and status."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SendingDomain
+    from . import sending_domains as _sd
+    rows = db.query(SendingDomain).filter(
+        SendingDomain.user_id == user.id
+    ).order_by(SendingDomain.created_at.desc()).all()
+    return JSONResponse({
+        "domains": [_sendingdomain_row_dict(r) for r in rows],
+        "ses_ready": _sd.is_configured(),
+    })
+
+
+@app.post("/api/sending-domains")
+def api_sending_domains_create(payload: dict = Body(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Add a new sending domain. Validates, creates the row, then provisions
+    with SES (generates DKIM tokens + the DNS records the member must add).
+    Gated to active paid members.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({
+            "error": "Sending domains are available for active members. Activate your membership to send from your own brand.",
+            "upgrade_required": True,
+        }, status_code=403)
+
+    from .database import SendingDomain
+    from . import sending_domains as _sd
+
+    raw = (payload.get("domain") or "").strip()
+    domain = _sd.normalize_domain(raw)
+    ok, err = _sd.is_valid_sending_domain(domain)
+    if not ok:
+        return JSONResponse({"error": err}, status_code=400)
+
+    # Uniqueness across the platform (one SES identity per domain)
+    existing = db.query(SendingDomain).filter(SendingDomain.domain == domain).first()
+    if existing:
+        if existing.user_id == user.id:
+            return JSONResponse({"error": "You've already added this domain."}, status_code=400)
+        return JSONResponse({"error": "This domain is already in use by another member."}, status_code=400)
+
+    # Per-user soft cap
+    count = db.query(SendingDomain).filter(SendingDomain.user_id == user.id).count()
+    if count >= 3:
+        return JSONResponse({"error": "Maximum 3 sending domains per account."}, status_code=400)
+
+    from_name = (payload.get("from_name") or "").strip() or (user.first_name or user.username)
+    from_local = (payload.get("from_local") or "").strip().lower() or "hello"
+
+    row = SendingDomain(
+        user_id=user.id,
+        domain=domain,
+        from_name=from_name,
+        from_local=from_local,
+        status="pending",
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+
+    # Provision with SES — generates the DKIM tokens + DNS records to show.
+    prov_ok, prov_msg = _sd.provision_domain(row, db)
+    db.refresh(row)
+    resp = _sendingdomain_row_dict(row)
+    resp["provisioned"] = prov_ok
+    resp["message"] = prov_msg
+    if not prov_ok and not _sd.is_configured():
+        resp["ses_not_configured"] = True
+    return JSONResponse(resp, status_code=201)
+
+
+@app.post("/api/sending-domains/{domain_id}/verify")
+def api_sending_domains_verify(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member taps 'Check now' — re-poll SES for this domain's status."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SendingDomain
+    from . import sending_domains as _sd
+    row = db.query(SendingDomain).filter(
+        SendingDomain.id == domain_id, SendingDomain.user_id == user.id
+    ).first()
+    if not row:
+        return JSONResponse({"error": "Domain not found"}, status_code=404)
+    _sd.verify_one(row, db)
+    db.refresh(row)
+    return JSONResponse(_sendingdomain_row_dict(row))
+
+
+@app.delete("/api/sending-domains/{domain_id}")
+def api_sending_domains_delete(domain_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Remove a sending domain (and its SES identity, best-effort)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SendingDomain
+    from . import sending_domains as _sd
+    row = db.query(SendingDomain).filter(
+        SendingDomain.id == domain_id, SendingDomain.user_id == user.id
+    ).first()
+    if not row:
+        return JSONResponse({"error": "Domain not found"}, status_code=404)
+    _sd.delete_domain(row, db)
+    db.delete(row)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.get("/cron/verify-sending-domains")
+def cron_verify_sending_domains(request: Request):
+    """Cron — re-verify all pending sending domains so members who add their
+    DNS records get marked verified automatically. CRON_SECRET-protected."""
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from . import sending_domains as _sd
+    from .database import SessionLocal
+    summary = _sd.verify_all_pending(SessionLocal)
+    return JSONResponse(summary)
+
+
+# ════════════════════════════════════════════════════════════════════
 # Stripe reconciliation diagnostic (25 May 2026)
 #
 # Emergency tool — finds StripeCharge rows from today whose user is
