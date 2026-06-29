@@ -51341,7 +51341,29 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
     except Exception as e:
         import traceback
         traceback.print_exc()
+        # Capture the live traceback so an admin can read the exact cause
+        # (the frontend swallows the error body and just shows 'Unable to load').
+        try:
+            globals().setdefault("_LAST_WATCH_ERRORS", {})[user.id] = {
+                "error": repr(e),
+                "traceback": traceback.format_exc()[-3000:],
+                "at": datetime.utcnow().isoformat(),
+            }
+        except Exception:
+            pass
         return JSONResponse({"error": str(e)}, status_code=500)
+@app.get("/admin/api/watch-last-error")
+def admin_watch_last_error(user_id: int, user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Read the most recent LIVE /api/watch exception captured for a user.
+    Have the affected member load their watch page (triggering the real error),
+    then tap this to see the exact traceback file:line. Read-only, admin-only."""
+    _require_admin(user)
+    store = globals().get("_LAST_WATCH_ERRORS", {})
+    rec = store.get(user_id)
+    if not rec:
+        return JSONResponse({"note": "No captured error for this user yet. Have them load the watch page, then retry this.", "user_id": user_id})
+    return JSONResponse({"user_id": user_id, **rec})
 @app.get("/admin/api/watch-debug")
 def admin_watch_debug(user_id: int, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
