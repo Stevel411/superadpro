@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
@@ -142,6 +143,28 @@ export default function MyLeads() {
           </div>;
         })}
       </div>
+
+      {/* ── Send-from-your-own-brand entry point ── */}
+      <Link to="/sending-domains" style={{textDecoration:'none',display:'block',marginBottom:18}}>
+        <div style={{display:'flex',alignItems:'center',gap:14,padding:'16px 20px',borderRadius:14,
+                     background:'linear-gradient(135deg,#0a1438,#1e3a8a)',border:'1px solid #1e3a8a',
+                     boxShadow:'0 6px 18px rgba(10,20,56,.14)'}}>
+          <div style={{width:42,height:42,borderRadius:11,background:'rgba(103,232,249,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <Mail size={21} color="#67e8f9"/>
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',marginBottom:2}}>
+              Send from your own brand
+            </div>
+            <div style={{fontSize:13,color:'#bcd0f0',lineHeight:1.5}}>
+              Verify your own domain so emails come from <strong style={{color:'#67e8f9'}}>you</strong>, not SuperAdPro. ~5 min, fully guided.
+            </div>
+          </div>
+          <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,color:'#67e8f9',whiteSpace:'nowrap',flexShrink:0}}>
+            Set up &rarr;
+          </div>
+        </div>
+      </Link>
 
       {msg && <div style={{padding:'12px 18px',borderRadius:10,marginBottom:16,fontSize:14,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
 
