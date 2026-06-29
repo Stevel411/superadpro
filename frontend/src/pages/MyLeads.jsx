@@ -129,7 +129,7 @@ export default function MyLeads() {
         {[
           {v:stats.total||0,l:t('myLeads.totalLeadsStat'),c:'#6366f1',icon:UserPlus,bg:'rgba(99,102,241,.1)'},
           {v:sequences.length,l:t('myLeads.sequencesStat'),c:'#0ea5e9',icon:Zap,bg:'rgba(14,165,233,.1)'},
-          {v:emailStats.sent_today||0,l:t('myLeads.sentTodayStat'),c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
+          {v:emailStats.sent_month||0,l:t('myLeads.sentTodayStat'),c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
           {v:stats.hot||0,l:t('myLeads.hotLeadsStat'),c:'#f59e0b',icon:Rocket,bg:'rgba(245,158,11,.1)'},
         ].map(function(s,i){
           var Ic = s.icon;
@@ -309,12 +309,12 @@ function SeqTab({sequences,refresh,flash}) {
 
 function AllowanceBar({emailStats, onBuy}) {
   var es = emailStats || {};
-  var dailyLimit = (es.daily_limit != null) ? es.daily_limit : 100;
-  var sentToday = es.sent_today || 0;
-  var freeRemaining = (es.free_remaining != null) ? es.free_remaining : Math.max(0, dailyLimit - sentToday);
+  var monthlyLimit = (es.monthly_limit != null) ? es.monthly_limit : 5000;
+  var sentMonth = es.sent_month || 0;
+  var freeRemaining = (es.free_remaining != null) ? es.free_remaining : Math.max(0, monthlyLimit - sentMonth);
   var credits = es.boost_credits || 0;
   var totalAvail = (es.total_available != null) ? es.total_available : (freeRemaining + credits);
-  var usedPct = dailyLimit > 0 ? Math.min(100, Math.round((sentToday / dailyLimit) * 100)) : 0;
+  var usedPct = monthlyLimit > 0 ? Math.min(100, Math.round((sentMonth / monthlyLimit) * 100)) : 0;
   return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'18px 22px',marginBottom:22,boxShadow:'0 2px 8px rgba(23,37,84,.04)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
       <div style={{display:'flex',alignItems:'center',gap:18,flexWrap:'wrap'}}>
@@ -324,8 +324,8 @@ function AllowanceBar({emailStats, onBuy}) {
         </div>
         <div style={{width:1,height:46,background:'#e8ecf2'}}/>
         <div>
-          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Free today</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#16a34a'}}>{freeRemaining}<span style={{fontSize:12,color:'#94a3b8',fontWeight:600}}> / {dailyLimit}</span></div>
+          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Free this month</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#16a34a'}}>{freeRemaining.toLocaleString()}<span style={{fontSize:12,color:'#94a3b8',fontWeight:600}}> / {monthlyLimit.toLocaleString()}</span></div>
           <div style={{width:100,height:5,background:'#e7f6ec',borderRadius:3,marginTop:6,overflow:'hidden'}}><div style={{height:'100%',width:usedPct+'%',background:'#16a34a',borderRadius:3,transition:'width .3s'}}/></div>
         </div>
         <div>
@@ -338,7 +338,7 @@ function AllowanceBar({emailStats, onBuy}) {
     </div>
     <div style={{display:'flex',alignItems:'flex-start',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid #f1f5f9',fontSize:12,color:'#64748b',lineHeight:1.5}}>
       <Info size={14} style={{marginTop:1,flexShrink:0}}/>
-      <span>Your {dailyLimit}/day free allowance refills every day. Autoresponder drips and broadcasts both draw from this same balance — top up with credits (they never expire) for bigger sends.</span>
+      <span>Your {monthlyLimit.toLocaleString()} free emails refresh on the 1st of each month. Autoresponder drips and broadcasts both draw from this balance — top up with credits (they never expire) for bigger sends.</span>
     </div>
   </div>;
 }

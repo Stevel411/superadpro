@@ -401,11 +401,8 @@ class User(Base):
     email_credits           = Column(Integer, default=0)                    # purchased boost credits
     emails_sent_today       = Column(Integer, default=0)                    # daily counter (legacy; retained)
     emails_sent_today_date  = Column(String, nullable=True)                 # date string for reset check
-    # NOTE: emails_sent_month / emails_sent_month_key are added to this model in
-    # a SECOND deploy — only AFTER /admin/api/setup-monthly-email-allowance has
-    # created the columns on production. Declaring them here before the DB has
-    # them would make every users-table SELECT fail (get_current_user runs on
-    # every request), so the model declaration is intentionally deferred.
+    emails_sent_month       = Column(Integer, default=0)                    # monthly free-allowance counter
+    emails_sent_month_key   = Column(String, nullable=True)                 # "YYYY-MM" for monthly reset check
     # Stripe
     # 23 May 2026: full Stripe re-integration alongside crypto rail.
     # stripe_subscription_id existed since the old (now-dead) Stripe code;

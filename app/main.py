@@ -9523,7 +9523,7 @@ def admin_api_diag_member_leads(
     # /api/leads/email-stats — email stats
     try:
         today = datetime.utcnow().strftime("%Y-%m-%d")
-        sent = user.emails_sent_today or 0
+        sent = user.emails_sent_month or 0
         creds = user.email_credits or 0
         probes["api_leads_email_stats"] = {"ok": True, "sent_today": sent, "credits": creds}
     except Exception as e:
@@ -52241,37 +52241,44 @@ EMAIL_BOOST_PACKS = [
     {"id": "boost_50k", "credits": 50000, "price": 74.25, "label": "💎 50,000 Emails", "desc": "Enterprise-level volume"},
 ]
 def _check_email_allowance(user, db, count=1):
-    """Check if user can send emails. Returns (allowed, reason).
-    Uses daily free limit first, then boost credits."""
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    # Reset daily counter if new day
-    if getattr(user, 'emails_sent_today_date', None) != today:
-        user.emails_sent_today = 0
-        user.emails_sent_today_date = today
+    """Check if user can send `count` emails. Returns (allowed, reason).
+    Uses the MONTHLY free allowance first, then purchased boost credits.
 
-    sent_today = user.emails_sent_today or 0
-    free_remaining = max(0, DAILY_EMAIL_LIMIT - sent_today)
+    Monthly (not daily) so a member can broadcast to their whole list in one
+    send. Resets on the 1st of each UTC month via the month-key check."""
+    month = datetime.utcnow().strftime("%Y-%m")
+    if getattr(user, 'emails_sent_month_key', None) != month:
+        user.emails_sent_month = 0
+        user.emails_sent_month_key = month
+
+    sent_month = user.emails_sent_month or 0
+    free_remaining = max(0, MONTHLY_EMAIL_LIMIT - sent_month)
     boost_credits = user.email_credits or 0
 
     if free_remaining + boost_credits < count:
-        return False, f"Email limit reached. {sent_today}/{DAILY_EMAIL_LIMIT} free used today, {boost_credits} boost credits remaining. Purchase an Email Boost pack for more."
+        return False, (
+            f"Monthly email limit reached. {sent_month:,}/{MONTHLY_EMAIL_LIMIT:,} free "
+            f"used this month, {boost_credits:,} boost credits remaining. "
+            f"Purchase an Email Boost pack to send more."
+        )
 
     return True, ""
 def _deduct_email_send(user, db, count=1):
-    """Deduct from daily free first, then boost credits."""
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    if getattr(user, 'emails_sent_today_date', None) != today:
-        user.emails_sent_today = 0
-        user.emails_sent_today_date = today
+    """Deduct `count` sends from the monthly free allowance first, then boost
+    credits. Mirrors the reset logic in _check_email_allowance."""
+    month = datetime.utcnow().strftime("%Y-%m")
+    if getattr(user, 'emails_sent_month_key', None) != month:
+        user.emails_sent_month = 0
+        user.emails_sent_month_key = month
 
-    sent_today = user.emails_sent_today or 0
-    free_remaining = max(0, DAILY_EMAIL_LIMIT - sent_today)
+    sent_month = user.emails_sent_month or 0
+    free_remaining = max(0, MONTHLY_EMAIL_LIMIT - sent_month)
 
     if count <= free_remaining:
-        user.emails_sent_today = sent_today + count
+        user.emails_sent_month = sent_month + count
     else:
-        # Use all remaining free, then boost
-        user.emails_sent_today = DAILY_EMAIL_LIMIT
+        # Use all remaining free, then draw the rest from boost credits
+        user.emails_sent_month = MONTHLY_EMAIL_LIMIT
         boost_needed = count - free_remaining
         user.email_credits = max(0, (user.email_credits or 0) - boost_needed)
 @app.get("/api/leads/sequences")
@@ -52808,18 +52815,20 @@ def api_leads_stats(request: Request, user: User = Depends(get_current_user), db
             "tier": getattr(user, 'membership_tier', 'free')}
 @app.get("/api/leads/email-stats")
 def api_email_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get email sending stats + boost credit balance."""
+    """Get email sending stats + boost credit balance. Monthly allowance."""
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    sent_today = user.emails_sent_today or 0
-    if getattr(user, 'emails_sent_today_date', None) != today:
-        sent_today = 0
+    month = datetime.utcnow().strftime("%Y-%m")
+    sent_month = user.emails_sent_month or 0
+    if getattr(user, 'emails_sent_month_key', None) != month:
+        sent_month = 0
+    free_remaining = max(0, MONTHLY_EMAIL_LIMIT - sent_month)
     return {
-        "daily_limit": DAILY_EMAIL_LIMIT,
-        "sent_today": sent_today,
-        "free_remaining": max(0, DAILY_EMAIL_LIMIT - sent_today),
+        "period": "month",
+        "monthly_limit": MONTHLY_EMAIL_LIMIT,
+        "sent_month": sent_month,
+        "free_remaining": free_remaining,
         "boost_credits": user.email_credits or 0,
-        "total_available": max(0, DAILY_EMAIL_LIMIT - sent_today) + (user.email_credits or 0),
+        "total_available": free_remaining + (user.email_credits or 0),
         "wallet_balance": float(user.balance or 0),
         "boost_packs": EMAIL_BOOST_PACKS,
     }
@@ -61488,6 +61497,8 @@ def admin_user_debug(request: Request, db: Session = Depends(get_db),
             "email_credits": target.email_credits or 0,
             "emails_sent_today": target.emails_sent_today or 0,
             "emails_sent_today_date": target.emails_sent_today_date,
+            "emails_sent_month": target.emails_sent_month or 0,
+            "emails_sent_month_key": target.emails_sent_month_key,
         },
         "wallet": {
             "wallet_address": target.wallet_address,
@@ -61500,7 +61511,7 @@ def admin_user_debug(request: Request, db: Session = Depends(get_db),
             "lead_limit": lead_limit_value,
             "email_allowed": email_allowed,
             "email_reason": email_reason,
-            "daily_email_limit": DAILY_EMAIL_LIMIT,
+            "monthly_email_limit": MONTHLY_EMAIL_LIMIT,
         },
         "recent_email_sends": sends_out,
         "recent_commissions": commissions_out,
