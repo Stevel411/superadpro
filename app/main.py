@@ -51342,6 +51342,51 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         import traceback
         traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
+@app.get("/admin/api/watch-debug")
+def admin_watch_debug(user_id: int, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """READ-ONLY diagnostic: replay each step of /api/watch for a given user and
+    report exactly which step throws + the traceback, so we can see the real
+    cause of an 'Unable to load' (500) without trawling server logs. Admin-only."""
+    import traceback as _tb
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    out = {"user_id": user_id, "username": target.username}
+    # Step 1: tier gate
+    try:
+        out["highest_tier"] = get_user_highest_tier(db, user_id)
+        out["tier_gate_passes"] = out["highest_tier"] >= 0
+    except Exception as e:
+        out["step1_highest_tier_ERROR"] = repr(e)
+        return JSONResponse(out)
+    # Step 2: quota
+    try:
+        quota = get_or_create_quota(db, target)
+        db.commit()
+        out["quota_ok"] = {
+            "today_watched": quota.today_watched,
+            "daily_required": quota.daily_required,
+        }
+    except Exception as e:
+        db.rollback()
+        out["step2_quota_ERROR"] = repr(e)
+        out["step2_traceback"] = _tb.format_exc()[-1500:]
+        return JSONResponse(out)
+    # Step 3: smart content rotation (the most likely culprit)
+    try:
+        nc = get_next_content(db, user_id)
+        out["next_content_ok"] = True
+        out["next_content_type"] = type(nc).__name__
+        out["next_content_keys"] = list(nc.keys()) if isinstance(nc, dict) else None
+    except Exception as e:
+        db.rollback()
+        out["step3_get_next_content_ERROR"] = repr(e)
+        out["step3_traceback"] = _tb.format_exc()[-2000:]
+        return JSONResponse(out)
+    out["verdict"] = "All steps passed — error is elsewhere in /api/watch (forced-video or response build)."
+    return JSONResponse(out)
 @app.get("/admin/replay-my-badge-toast")
 async def admin_replay_my_badge_toast(
     request: Request,
