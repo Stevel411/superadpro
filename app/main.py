@@ -21869,6 +21869,56 @@ def admin_stripe_config(request: Request,
     }
 
 
+@app.get("/admin/api/stripe-checkout-debug")
+def admin_stripe_checkout_debug(request: Request, user_id: int = 0, billing: str = "monthly",
+                                user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Replay the membership card-checkout path for ONE user and return the
+    exact outcome — the precise Stripe error if it throws, or confirmation a
+    session was created. No charge happens (a Checkout session is just a URL).
+    Tappable: /admin/api/stripe-checkout-debug?user_id=343
+    """
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "user not found", "user_id": user_id}, status_code=404)
+
+    tier = "founding" if getattr(target, "is_founding_member", False) else "partner"
+    out = {
+        "user_id": user_id,
+        "username": target.username,
+        "tier": tier,
+        "is_active": target.is_active,
+        "stripe_customer_id": getattr(target, "stripe_customer_id", None),
+        "stripe_subscription_id": getattr(target, "stripe_subscription_id", None),
+    }
+    # Mirror the real endpoint's duplicate-subscription guard.
+    if getattr(target, "stripe_subscription_id", None) and target.is_active:
+        out["would_return"] = "already_subscribed (200) — UI shows 'card auto-renewal already active', no checkout starts"
+        return out
+
+    price_id = _stripe.get_price_id_for_tier(tier, billing=billing)
+    out["price_id_resolved"] = bool(price_id)
+    if not price_id:
+        out["would_return"] = f"no_price_for_tier (400) for {tier}/{billing}"
+        return out
+
+    try:
+        res = _stripe.create_checkout_session(
+            user=target, db_session=db,
+            product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
+            price_id=price_id, success_path="/payment-success", cancel_path="/partner-payment",
+            extra_metadata={"diag": "stripe-checkout-debug"},
+        )
+        out["ok"] = True
+        out["checkout_url_created"] = bool(res.get("checkout_url"))
+    except Exception as e:
+        out["ok"] = False
+        out["error_type"] = type(e).__name__
+        out["error_detail"] = str(e)[:700]
+    return out
+
+
 @app.post("/api/stripe/checkout/campaign-tier")
 async def stripe_checkout_campaign_tier(
     request: Request,
