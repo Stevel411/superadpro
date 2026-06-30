@@ -352,19 +352,20 @@ def scan_r2_storage_audit(db: Session) -> dict:
             (len(orphan_keys) / max(len(r2_keys), 1)) * 100
             if r2_keys else 0
         )
-        # Severity ladder:
-        #   < 20% orphan rate AND bucket has known sensitive folders → warning
-        #   20-50% → warning (likely real orphans worth cleaning)
-        #   > 50% → critical (suggests audit coverage gap, NOT pure orphans)
-        # The >50% case is treated as critical because at that point it's
-        # almost always a scanner-side issue rather than genuine waste —
-        # we don't want admin to confidently bulk-delete based on a high
-        # orphan percentage when the more likely explanation is "we're
-        # not auditing the right tables yet."
-        if bucket_orphan_pct > 50:
-            sev = SEV_CRITICAL
-        else:
-            sev = SEV_WARNING
+        # Severity: orphan files (R2 file with no DB reference) are ALWAYS at
+        # most a WARNING. Two reasons, both from this scanner's own design:
+        #   1. Orphans waste storage (pennies) but never break anything for a
+        #      member — nothing in the product reads an unreferenced file.
+        #   2. A high orphan rate is, per the notes below, far more likely a
+        #      scanner coverage gap (we're not querying every URL-storing
+        #      table yet) than genuine waste. Escalating the low-confidence
+        #      case to CRITICAL is backwards: it paints the board red on the
+        #      finding we trust LEAST, burying the genuinely member-facing
+        #      broken-reference critical below it. The orphan_percentage is
+        #      retained in details as a coverage-gap indicator.
+        # The member-facing direction (DB → deleted file = broken images)
+        # stays CRITICAL — see broken_db_keys below.
+        sev = SEV_WARNING
 
         # Identify folders containing sensitive content that should
         # NEVER be deleted on a hunch — kyc/ is legally sensitive,
