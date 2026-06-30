@@ -56521,7 +56521,8 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     blog = db.query(Blog).filter(Blog.member_id == user.id).first()
     if not blog:
-        return {"blog": None, "is_pro": is_pro(user)}
+        return {"blog": None, "is_pro": is_pro(user),
+                "theme_accents": _blogrender.theme_default_accents()}
     posts = (db.query(BlogPost).filter(BlogPost.blog_id == blog.id)
                .order_by(BlogPost.created_at.desc()).all())
     tags_map = _blog_tags_for([p.id for p in posts], db)
@@ -56532,6 +56533,7 @@ def api_blog_me(request: Request, db: Session = Depends(get_db)):
     total_views = sum((p.view_count or 0) for p in posts)
     return {
         "is_pro": is_pro(user),
+        "theme_accents": _blogrender.theme_default_accents(),
         "blog": {
             "id": blog.id, "title": blog.title, "tagline": blog.tagline or "",
             "slug": blog.subdomain_slug, "theme": blog.theme or "banner",

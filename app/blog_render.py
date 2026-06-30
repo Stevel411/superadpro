@@ -1120,3 +1120,34 @@ THEMES.update({
     "cinematic": (render_cn_feed, render_cn_post),
     "glass": (render_gl_feed, render_gl_post),
 })
+
+
+# ── Resolved "default" palette colour per theme ──────────────────────────────
+# The "default" palette is not a fixed colour — it means "use this theme's own
+# built-in accent" (see _palette_css: default returns no override). So the
+# Default swatch in the appearance UI must show whatever the SELECTED theme's
+# accent actually is (green for Banner, violet for Bento, etc.), not a fixed
+# value. We derive it straight from each theme's own CSS so the swatch can
+# never drift from what the theme actually renders.
+_THEME_CSS_FOR_ACCENT = {
+    "banner": _BANNER_CSS,
+    "classic-sidebar": _CS_CSS,
+    "journal": _JN_CSS,
+    "bento": _BN_CSS,
+    "cinematic": _CN_CSS,
+    "glass": _GL_CSS,
+}
+
+
+def theme_default_accent(theme_key: str) -> str:
+    """The colour the 'default' palette resolves to for a given theme,
+    parsed from the theme's own --accent token (single source of truth)."""
+    css = _THEME_CSS_FOR_ACCENT.get(theme_key, _BANNER_CSS)
+    m = _re.search(r"--accent:\s*(#[0-9a-fA-F]{3,8})", css)
+    return m.group(1) if m else "#0f6e4f"
+
+
+def theme_default_accents() -> dict:
+    """{theme_key: accent_hex} for every registered theme — fed to the
+    appearance UI so the Default swatch matches the rendered colour."""
+    return {k: theme_default_accent(k) for k in _THEME_CSS_FOR_ACCENT}

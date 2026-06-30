@@ -90,6 +90,13 @@ export default function MySite() {
   const [previewTheme, setPreviewTheme] = useState('banner');
   const [previewHtml, setPreviewHtml] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
+  // What the "Default" palette actually resolves to per theme (each theme's own
+  // accent). Served by /api/blog/me (derived from the theme CSS, so it can't
+  // drift); this fallback only covers the brief window before load.
+  const [themeAccents, setThemeAccents] = useState({
+    banner: '#0f6e4f', 'classic-sidebar': '#8a1f3d', journal: '#1c1a17',
+    bento: '#7c3aed', cinematic: '#a855f7', glass: '#6d28d9',
+  });
   const [pages, setPages] = useState([]);
   const [menu, setMenu] = useState([]);
   const [savingMenu, setSavingMenu] = useState(false);
@@ -128,6 +135,7 @@ export default function MySite() {
     setLoading(true);
     try {
       const d = await apiGet('/api/blog/me'); setData(d);
+      if (d.theme_accents) setThemeAccents(d.theme_accents);
       if (d.blog) {
         setTheme(d.blog.theme || 'banner'); setPalette(d.blog.palette || 'default');
         setPreviewTheme(d.blog.theme || 'banner');
@@ -579,15 +587,23 @@ export default function MySite() {
               <div style={{ ...cardStyle(), padding: 20, marginBottom: 18 }}>
                 <div style={sectionLabel}>Colour palette</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                  {PALETTES.map((pl) => (
+                  {PALETTES.map((pl) => {
+                    // "Default" = the selected theme's own built-in accent, so
+                    // show that real colour (recolours when the theme changes)
+                    // rather than a fixed swatch that doesn't match the render.
+                    const swatch = pl.key === 'default'
+                      ? (themeAccents[theme] || pl.color)
+                      : pl.color;
+                    return (
                     <div key={pl.key} onClick={() => setPalette(pl.key)} style={{ textAlign: 'center', cursor: 'pointer', width: 54 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: '50%', margin: '0 auto', background: pl.color,
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', margin: '0 auto', background: swatch,
                         border: palette === pl.key ? `3px solid ${C.cy2}` : `2px solid ${C.line}`, display: 'grid', placeItems: 'center' }}>
                         {palette === pl.key && <Check size={15} color="#fff" />}
                       </div>
                       <div style={{ fontSize: 11, color: palette === pl.key ? C.ink : C.dim, marginTop: 5, fontWeight: palette === pl.key ? 600 : 500 }}>{pl.name}</div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               <button onClick={saveAppearance} disabled={savingAppr} style={{ ...btn('primary'), width: '100%', justifyContent: 'center' }}>
