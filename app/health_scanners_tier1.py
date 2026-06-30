@@ -207,15 +207,19 @@ def scan_matrix_integrity(db: Session) -> dict:
 
         # 1e. Cached positions_filled drift vs live count
         # Standing rule: live ledger is truth. Cached counter is auxiliary.
+        #
+        # POST-RETIREMENT (30 May 2026): the matrix is retired. complete_matrix
+        # and the placement engine were removed, so NOTHING in the live payout
+        # path reads positions_filled anymore — these matrices are frozen
+        # historical rows. The drift is therefore purely cosmetic record-keeping
+        # and can never affect money or completion. It used to escalate to
+        # CRITICAL on the theory that the completion check read this counter;
+        # that path no longer exists. Emit a single WARNING for the record, no
+        # critical. (See credit_matrix.py MATRIX_RETIREMENT_DATE.)
         downline_actual = len([p for p in positions if p.level > 0])
         if matrix.positions_filled != downline_actual:
-            # Only emit if cached vs live differ. Severity: warning unless
-            # the drift is large enough to affect completion logic.
-            sev = (SEV_CRITICAL
-                   if abs(matrix.positions_filled - downline_actual) >= MATRIX_MAX_DOWNLINE * 0.1
-                   else SEV_WARNING)
             issues.append(make_issue(
-                severity=sev,
+                severity=SEV_WARNING,
                 kind="positions_filled_drift",
                 subject=subject_base,
                 details={
@@ -225,11 +229,11 @@ def scan_matrix_integrity(db: Session) -> dict:
                     "drift": matrix.positions_filled - downline_actual,
                 },
                 suggested_action=(
-                    "Cached counter is stale. Display layer in "
-                    "get_matrix_tree() already uses live count, so this is "
-                    "cosmetic UNTIL the completion check reads positions_filled "
-                    "(currently it does — risk of silently never completing or "
-                    "completing early). Run repair to recompute."
+                    "Cosmetic only. Matrix retired 30 May 2026 — no completion "
+                    "or payout path reads positions_filled, and the display layer "
+                    "uses the live count. This is a frozen historical row; the "
+                    "stale counter cannot affect money. Safe to leave, or run "
+                    "repair to recompute if you want the cached value tidy."
                 ),
             ))
 
@@ -288,14 +292,74 @@ def scan_commission_routing(db: Session) -> dict:
     positions = {p.id: p for p in db.query(CreditMatrixPosition).all()}
     users = {u.id: u for u in db.query(User).all()}
 
+    # Matrix-era expected rates (apply ONLY to matrix_level / matrix_completion
+    # rows that predate the 30 May 2026 retirement).
     EXPECTED_DIRECT = Decimal("0.15")
     EXPECTED_SPILLOVER = Decimal("0.10")
     EXPECTED_COMPLETION = Decimal("0.10")
+
+    # Live (post-retirement) flat-referral expectation. See credit_matrix.py:
+    # purchase_credit_pack writes commission_type='direct_referral' with
+    # matrix_id=None, from_position_id=None, level=1, rate=0.20.
+    from .credit_matrix import FLAT_REFERRAL_RATE  # canonical 0.20
 
     for c in commissions:
         earner = users.get(c.earner_id)
         earner_name = earner.username if earner else f"user_id={c.earner_id}"
         subject = f"commission #{c.id} (to {earner_name}, ${float(c.amount):.2f})"
+
+        # ── Post-retirement flat-20% direct path (live money) ──────────────
+        # These are NOT matrix commissions. The 3×3 matrix was retired 30 May
+        # 2026; every credit-pack purchase now pays a flat 20% to the buyer's
+        # direct sponsor with no matrix, position, level, or spillover. Auditing
+        # them against the matrix-era invariants (which expect a real matrix_id
+        # and from_position_id) produces permanent false-positive criticals.
+        # Audit them against their OWN invariants so the live path still has
+        # coverage, then skip the matrix-era checks below.
+        if c.commission_type == "direct_referral":
+            flat_issues = []
+            if c.matrix_id is not None:
+                flat_issues.append("matrix_id should be NULL (no matrix post-retirement)")
+            if c.from_position_id is not None:
+                flat_issues.append("from_position_id should be NULL")
+            if c.level != 1:
+                flat_issues.append(f"level should be 1 (got {c.level})")
+            if abs(Decimal(str(c.rate)) - FLAT_REFERRAL_RATE) > Decimal("0.001"):
+                flat_issues.append(
+                    f"rate should be {float(FLAT_REFERRAL_RATE)} (got {float(c.rate)})"
+                )
+            expected_amt = (Decimal(str(c.pack_price)) * FLAT_REFERRAL_RATE)
+            if abs(Decimal(str(c.amount)) - expected_amt) > Decimal("0.01"):
+                flat_issues.append(
+                    f"amount should be pack_price × 0.20 = {float(expected_amt):.2f} "
+                    f"(got {float(c.amount):.2f})"
+                )
+            if not earner:
+                flat_issues.append(f"earner_id {c.earner_id} not found")
+
+            if flat_issues:
+                issues.append(make_issue(
+                    severity=SEV_CRITICAL,
+                    kind="flat_referral_invariant_violation",
+                    subject=subject,
+                    details={
+                        "commission_id": c.id,
+                        "violations": flat_issues,
+                        "rate": float(c.rate),
+                        "amount": float(c.amount),
+                        "pack_price": float(c.pack_price),
+                        "matrix_id": c.matrix_id,
+                        "from_position_id": c.from_position_id,
+                        "level": c.level,
+                    },
+                    suggested_action=(
+                        "Live flat-20% referral row violates the post-retirement "
+                        "invariant (matrix_id NULL / from_position_id NULL / "
+                        "level 1 / rate 0.20 / amount = price×0.20). Check "
+                        "purchase_credit_pack."
+                    ),
+                ))
+            continue
 
         # a) Matrix must exist
         matrix = matrices.get(c.matrix_id)

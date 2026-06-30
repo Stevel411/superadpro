@@ -119,6 +119,17 @@ def get_or_create_active_matrix(db: Session, user_id: int, pack_key: str) -> Cre
 FLAT_REFERRAL_RATE = Decimal("0.20")
 COMPLETION_BONUS_RATE = Decimal("0")    # SCRAPPED 29 May 2026 — no completion bonus (see complete_matrix)
 
+# ── Matrix retirement cutover (canonical) ──
+# The 3×3 forced matrix was retired and replaced by the flat-20% direct path
+# on 30 May 2026 (see purchase_credit_pack + docs/commission-spec.md §3).
+# Single source of truth for "post-retirement" gating: any health scanner or
+# audit that needs to distinguish matrix-era rows from the live flat-20% world
+# imports THIS constant rather than hard-coding the date. After this instant:
+#   • credit-pack purchases correctly create NO matrix (matrix system gone)
+#   • commissions are flat 20% direct_referral (matrix_id=None, from_position_id=None)
+#   • no payout/completion path reads CreditMatrix.positions_filled
+MATRIX_RETIREMENT_DATE = datetime(2026, 5, 30)
+
 
 def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: str = None, payment_method: str = "crypto") -> dict:
     """

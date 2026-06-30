@@ -27,6 +27,7 @@ from .database import (
     CreditMatrix, CreditMatrixCommission, CreditMatrixPosition,
     CreditPackPurchase,
 )
+from .credit_matrix import MATRIX_RETIREMENT_DATE  # canonical 30 May 2026 cutover
 
 # Drift threshold — small rounding diffs (sub-cent) aren't worth flagging.
 DRIFT_CENTS_THRESHOLD = Decimal("0.01")
@@ -472,24 +473,36 @@ def scan_pack_ownership_consistency(db: Session) -> dict:
         active_matrices = [m for m in user_matrices if m.status == "active"]
 
         # ── a) Completed purchase but no matrix at all ────────────
-        if completed_purchases and not user_matrices:
+        # POST-RETIREMENT (30 May 2026): purchase_credit_pack no longer creates
+        # a matrix — the placement engine was removed and credit packs pay a
+        # flat 20% direct with no matrix at all. So a completed purchase with no
+        # matrix is the CORRECT, intended post-retirement state, not a billing
+        # failure. Only pre-cutover completed purchases legitimately expected a
+        # matrix; flag those. (Canonical date: credit_matrix.MATRIX_RETIREMENT_DATE.)
+        pre_cutover_completed = [
+            p for p in completed_purchases
+            if p.created_at and p.created_at < MATRIX_RETIREMENT_DATE
+        ]
+        if pre_cutover_completed and not user_matrices:
             issues.append(make_issue(
                 severity=SEV_CRITICAL,
                 kind="purchase_without_matrix",
                 subject=subject,
                 details={
                     "user_id": user_id, "pack_key": pack_key,
-                    "completed_purchases": len(completed_purchases),
-                    "purchase_ids": [p.id for p in completed_purchases],
+                    "completed_purchases": len(pre_cutover_completed),
+                    "purchase_ids": [p.id for p in pre_cutover_completed],
                     "earliest_purchase": min(
-                        p.created_at for p in completed_purchases
-                    ).isoformat() if completed_purchases else None,
+                        p.created_at for p in pre_cutover_completed
+                    ).isoformat() if pre_cutover_completed else None,
+                    "note": "pre-30-May-2026 purchase that expected a matrix",
                 },
                 suggested_action=(
-                    "Member paid for this pack but no matrix exists. "
-                    "They've been billed without entering the matrix system — "
-                    "no commissions can flow from their downline. Manually "
-                    "create the matrix or refund."
+                    "Pre-retirement member paid for this pack but no matrix "
+                    "exists. They were billed without entering the (then-live) "
+                    "matrix system. Manually create the matrix or refund. "
+                    "(Post-30-May purchases correctly have no matrix and are "
+                    "not flagged.)"
                 ),
             ))
 
