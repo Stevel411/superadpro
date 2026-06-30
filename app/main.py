@@ -21840,6 +21840,35 @@ async def stripe_checkout_membership(
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
+@app.get("/admin/api/stripe-config")
+def admin_stripe_config(request: Request,
+                        user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Read-only Stripe wiring check. Reports is_configured() and WHICH env
+    vars are present (booleans only — never the values). is_configured()
+    requires secret_key + founder_price + partner_price ALL set; if any is
+    missing, /api/stripe/checkout/membership returns stripe_not_configured and
+    card checkout fails for every fresh checkout (e.g. a crypto-only founder
+    renewing by card). Tappable: /admin/api/stripe-config
+    """
+    _require_admin(user)
+    return {
+        "is_configured": _stripe.is_configured(),
+        "env_present": {
+            "STRIPE_SECRET_KEY":              bool(_stripe._api_key()),
+            "STRIPE_WEBHOOK_SECRET":          bool(_stripe._webhook_secret()),
+            "STRIPE_FOUNDER_PRICE_ID":        bool(_stripe._founder_price_id()),
+            "STRIPE_PARTNER_PRICE_ID":        bool(_stripe._partner_price_id()),
+            "STRIPE_FOUNDER_ANNUAL_PRICE_ID": bool(_stripe._founder_annual_price_id()),
+            "STRIPE_PARTNER_ANNUAL_PRICE_ID": bool(_stripe._partner_annual_price_id()),
+        },
+        "note": ("is_configured requires SECRET_KEY + FOUNDER_PRICE_ID + "
+                 "PARTNER_PRICE_ID. Any False among those three = card checkout "
+                 "returns stripe_not_configured (503). Annual price IDs only "
+                 "matter for annual billing."),
+    }
+
+
 @app.post("/api/stripe/checkout/campaign-tier")
 async def stripe_checkout_campaign_tier(
     request: Request,
