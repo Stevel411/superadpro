@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import RenewalPrompt from '../components/RenewalPrompt';
 import { apiGet } from '../utils/api';
 import { formatMoney } from '../utils/money';
 
@@ -231,6 +232,8 @@ export default function NewDashboard() {
     <div className="nd" onClick={function () { if (menuOpen) setMenuOpen(false); }}>
       <style>{CSS}</style>
       <div className="wrap">
+
+        <RenewalPrompt />
 
         <div className="top">
           <div className="brand">

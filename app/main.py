@@ -3405,6 +3405,16 @@ def api_me(request: Request, db: Session = Depends(get_db)):
     # before is not eligible for the $15 lock, so the /upgrade page must quote
     # them $20. False = has activated before (returning/lapsed member).
     _founder_eligible = not _is_returning_member(db, user)
+    # Renewal nudge (30 Jun 2026): an ACTIVE member whose paid window has already
+    # elapsed (the Option-B runway cohort) — drives the dashboard renewal banner
+    # + modal. Admins exempt; lapsed-INACTIVE members are handled by the /upgrade
+    # redirect, not this nudge. membership_expires_at is also exposed so the
+    # banner can name the date without a second request.
+    _membership_overdue = bool(
+        user.is_active and not user.is_admin
+        and getattr(user, "membership_expires_at", None)
+        and user.membership_expires_at < datetime.utcnow()
+    )
     return {
         "id": user.id,
         "username": user.username,
@@ -3413,6 +3423,9 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "last_name": user.last_name,
         "is_admin": user.is_admin,
         "is_active": user.is_active,
+        "membership_expires_at": (user.membership_expires_at.isoformat()
+                                  if getattr(user, "membership_expires_at", None) else None),
+        "membership_overdue": _membership_overdue,
         "membership_tier": user.membership_tier or "free",
         "membership_billing": user.membership_billing or "monthly",
         # Flat-pricing model: founding is a separate dimension from tier.
