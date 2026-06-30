@@ -1033,6 +1033,15 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 ### Logo
 "SuperAd" in white, "Pro" in cyan `#38bdf8` — rendered via `_sidebar.html` across all pages.
 
+### Palette governance — a default, not a straitjacket (30 Jun 2026, Steve)
+Cobalt + cyan + white with Sora/DM Sans is the DEFAULT house style. It is not an absolute ban list. Introducing another colour is acceptable when it is justified and scoped to a specific detail — semantic colour earns its place where meaning matters. Established, accepted examples:
+- **Red** for genuine alerts / urgency (the expired-membership renewal banner + modal; the Grid ignition button).
+- **Yellow + black** for a universal hazard sign on a warning prompt.
+- **Green** for a positive money / "go" action (the renew CTA — matches the live USDT button members land on).
+- **Gold + green** for the direct-vs-auto-place seat encoding on the Grid visualiser (functional encoding, not decoration).
+
+The test for an exception is three-part: it must be (a) **justified** by function, UX, or accessibility — never decoration; (b) **scoped** to the specific component, not sprayed across a surface; and (c) **documented inline** where it's used (a one-line brand note) so it reads as a deliberate choice and never as silent drift. A whole-surface restyle away from cobalt/cyan/white is still a deliberate platform decision, not a per-component call. Brand/taste judgement calls remain Steve's.
+
 ## Compensation Plan — DEFINITIVE (from source code, verified)
 
 ### Stream 1: Membership Commissions
