@@ -473,7 +473,11 @@ def process_membership_renewal(db, user, *, rail, source_event_id=None):
             total_renewals          = 1,
             in_grace_period         = False,
             grace_period_start      = None,
-            auto_renew_from_balance = False,
+            # Default-on, matching the column default + first-activation path:
+            # commissions in the affiliate wallet cover the next renewal when
+            # they reach it. (This branch only fires for an off-rail crypto
+            # renewal with no existing record — the lone place this was False.)
+            auto_renew_from_balance = True,
         ))
 
     logger.info(
