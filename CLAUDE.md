@@ -1138,90 +1138,6 @@ Steve receives a morning email every day summarising platform health, generated 
 - Run E2E tests quarterly
 - Verify Stripe price IDs in Railway vars quarterly
 
-## Steve's Preferences
-
-- Reviews deployed changes on the live URL, gives clear visual feedback
-- Prefers targeted fixes over full rebuilds unless necessary
-- References external products (Stan Store, Linktree, Leadpages, Craigslist) as design benchmarks
-- Design philosophy: simplicity, single colour pickers not preset swatches, font dropdown not card grids
-- No opacity dimming on unselected cards — full vibrancy always
-- Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
-
-## Current Status (Updated: 24 April 2026)
-
-### Most recent session: 24 April 2026 — Deck Replacement
-
-**Completed:**
-- Built new 9-slide "4 Income Streams" deck from scratch (replaced old 5-slide version)
-- All commission numbers verified against `docs/commission-spec.md` (one $45/$540 fabrication caught by Steve and corrected mid-session)
-- Design refinements: two concentric circles per slide in signature stream colour, 30pt titles, consistent ~0.4" bottom breathing room across all 9 slides, no corner ticks, no ambient dots
-- Underlying layout bug fixed on S4 (grid caption was overlapping tier card — affected all languages including EN)
-- Translated deck into 19 other languages (ES, FR, DE, PT, IT, AR, ZH, JA, KO, RU, HI, NL, PL, TR, VI, TH, ID, TL, SW) — all Claude-generated, Spanish + Chinese spot-checked for layout, others built clean but not per-slide verified
-- 20 `.pptx` files deployed to `static/downloads/income-streams/SuperAdPro-4-Income-Streams-{LANG}.pptx`
-- Updated `frontend/src/pages/MarketingMaterials.jsx`: SLIDE_NAMES expanded from 5 to 9, SLIDE_COLORS to 9 matching stream colours, emoji array to 9, label "Preview — 5 Slides" → "Preview — 9 Slides"
-- Frontend bundle rebuilt, committed `static/app/`
-- Commit `9b10d1d` pushed to main, Railway auto-deployed
-
-**New 9-slide structure:**
-1. Cover — 4 Income Streams intro
-2. Membership · Opportunity (50%/UNL/2x, income card shows 3 Basic = $30/mo OR 3 Pro = $52.50/mo — never a single fabricated number)
-3. Membership · Annual vs Monthly (comparison: $175/mo vs $1,750 upfront)
-4. Campaign Grid · Opportunity (40%/6.25%/10%, 6×6 visual)
-5. Grid · Math (tier ladder + per-cycle totals — $117 to $5,850)
-6. Credit Nexus · Opportunity (15%/10%/10%, 3×3 matrix, 8 pack tiers)
-7. Nexus · Repurchase engine (4-step cycle, $200 pack example = $1,590)
-8. Course Academy · Opportunity (100%, 4 pass-ups, uses "Example" tier names because back office will hold real course names)
-9. Course Academy · How 1+Up Pass-Up works (12-cell sales 1-12 visualization)
-
-**Translation caveat to remember:** The 18 non-EN, non-ES, non-ZH languages were translated by Claude and not visually verified per-slide. If members report layout issues in a specific language, it's a fast fix — just need language + slide identified.
-
-**Pending (carried from earlier):**
-- NOWPayments Banxa KYB approval (card payments)
-- Non-www redirect (superadpro.com causes redirect loops)
-- Google Search Console — submit sitemap
-- SuperSeller E2E test
-- SuperScene: convert credit system to real USD wallet (pay-per-use)
-- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
-- Duplicate Jinja2/React route cleanup (15 routes)
-- MaxMind GeoIP update (last: 17 Mar 2026)
-- Course Marketplace (Phase 2)
-- SuperMarket (Phase 2)
-- How It Works videos + screenshots
-
-### Previous session: 30-31 March + 1 April 2026
-
-**Completed:**
-- Stripe removed entirely — all payments via NOWPayments + direct USDT/USDC
-- Annual membership: $200 Basic / $350 Pro, 365-day expiry, flat 50% sponsor commission
-- Upgrade page: monthly/annual toggle with SAVE 17% badge
-- How It Works page: full 7-section public page with pricing
-- SuperScene: 10 video models with real dollar pricing (50% markup), sorted cheapest-first
-- SuperScene credit packs: prices corrected for 50% markup ($8/$25/$83/$198)
-- SuperScene USDT checkout: uses standard CryptoCheckout component
-- SuperScene tabs sync with URL (?tab=packs survives refresh)
-- Grok AI: text API (grok_service.py), video+image direct provider (grok_imagine.py)
-- Free tools: Meme Generator, QR Code Generator, Social Media Banner Creator
-- SEO: sitemap, meta tags, footer links, explore page links
-- Codebase audit: Decimal fixes, XSS sanitisation, rate limiting, orphan cleanup
-- Autoresponder: fully operational, all 6 cron jobs running on cron-job.org
-- Brevo domain auth + FROM_EMAIL configured
-- CreateCampaign page wrapped in AppLayout
-- Explainer video script written
-
-### Platform Stats
-- 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
-- 4 income streams: Membership, Grid/Campaigns, Courses (coming soon), SuperMarket (coming soon)
-- Pricing: Basic $20/mo or $200/yr, Pro $35/mo or $350/yr
-- Payments: WalletConnect (self-custody BSC USDT-BEP-20 via Reown AppKit, primary inbound rail) + NOWPayments (350+ cryptos, parallel-running for ~2 weeks before retirement). Polygon legacy. No Stripe.
-- Main JS bundle: 579KB index + 1,020KB walletconnect chunk lazy-loaded only on /upgrade, /activate-tier, /credit-matrix (266KB gzipped)
-
-## Maintenance Reminders
-
-- MaxMind GeoLite2-Country.mmdb — update monthly from maxmind.com
-- GitHub token "Claude Access" expires mid-Sep 2026
-- GitHub token "SuperAdPro Claude" expires ~Apr 30 2026 — renew before then
-- Run E2E tests quarterly
-
 ### Weekly: API Provider Balance Checks (CRITICAL)
 These providers require prepaid balances. If they run dry, member-facing features break silently:
 - **fal.ai** (fal.ai/dashboard/billing) — Powers: image generation (Flux, Nano Banana), video (Kling, WAN, Hailuo), Reimagine (img2img). Cost: ~$0.03-0.08 per generation.
@@ -1230,3 +1146,12 @@ These providers require prepaid balances. If they run dry, member-facing feature
 - **NOWPayments** — No prepaid balance needed (charges per transaction), but check for any holds or issues.
 - **xAI/Grok** — Check API usage limits and billing status.
 Recommended: Keep at least $50 float in fal.ai and EvoLink at all times. Enable low-balance email alerts in each provider dashboard.
+
+## Steve's Preferences
+
+- Reviews deployed changes on the live URL, gives clear visual feedback
+- Prefers targeted fixes over full rebuilds unless necessary
+- References external products (Stan Store, Linktree, Leadpages, Craigslist) as design benchmarks
+- Design philosophy: simplicity, single colour pickers not preset swatches, font dropdown not card grids
+- No opacity dimming on unselected cards — full vibrancy always
+- Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
