@@ -8,6 +8,27 @@
 
 ---
 
+## Status as of 2026-06-30 — RENEWAL NUDGE + HEALTH-BOARD CLOSED + DOC CLEANUP
+
+HEAD = `d4c2d23c8`. Full detail in `handover-2026-06-30.md`.
+
+**Shipped (all live, verified):**
+- `d4c2d23c8` **Overdue-member renewal banner + once-daily modal** on NewDashboard. `/api/me` now returns `membership_expires_at` + server-computed `membership_overdue` (active && not admin && expired). New `RenewalPrompt.jsx`: persistent red banner + once-per-day modal (yellow/black hazard sign, green "Renew now" CTA), both → `/upgrade?renew=1`. Verified live: shows for overdue founder test12 (correct date/price), modal pops once then suppresses for the day, admin account shows nothing.
+- `75fcda457` **Backup-alert noise fix** — drop alert no longer emails on small non-critical table churn (e.g. a member deleting a funnel page cascade-deletes its `funnel_events`). Non-critical "big drop" now needs baseline ≥100, drop ≥25, ≥25% (env-tunable). Critical tables unchanged (any drop ≥1).
+- `ac5fa351e` / `9072d703e` / `8f2244340` **CLAUDE.md cleanup** — palette governance principle added (cobalt/cyan/white is a default, scoped colour exceptions allowed); stale comp sections + "Current Status (24 Apr)" block removed. **Commission numbers now live ONLY in `docs/commission-spec.md` — do not re-add to CLAUDE.md.**
+
+**Health board investigated + CLOSED — no real money/ledger problems.** The reds were retired-subsystem scanners + intended runway state: `commission_routing` + `pack_ownership` flag the same 2 correct flat-20% credit-pack purchases (matrix retired 30 May; sponsors paid $4 each); `matrix_integrity` is stale counters on inert company matrices; `r2_storage_audit` has `broken_references: 0` (coverage gap, not lost files). Live MCP checks all clean.
+
+**The renew PATH itself was traced end-to-end and is sound** (locked $15 pricing single-source; card production-proven; crypto `process_membership_renewal` idempotent). The nudge was the missing piece — it existed only at a secret `?renew=1` URL.
+
+**Open / next:**
+1. **4-July runway** (~30 overdue non-Stripe founders, mostly $0 balance): the dashboard nudge covers log-ins; still Steve's call whether to **broadcast** before ~1 Jul (⚠️ never resend on Brevo 502) and/or **extend** the runway.
+2. **Retirement-aware scanner cleanup** (engineering, low-risk): make `commission_routing` / `pack_ownership` / `matrix_integrity` treat post-30-May flat-20% / no-matrix state as correct, so the board stops showing false-positive criticals.
+
+**Watch:** renewal banner currently renders above the SuperAdPro logo bar (Steve OK'd; one-line move if wanted under it).
+
+---
+
 ## Status as of 2026-06-25 — BLOG SIDEBAR ARRANGE SYSTEM + THEME AUDIT (0 ISSUES)
 
 HEAD = `d95ab1c66`. Full detail in `handover-2026-06-25.md`.
