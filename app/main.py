@@ -30366,6 +30366,78 @@ def _ensure_broadcast_log_table(db: Session):
         "CREATE INDEX IF NOT EXISTS idx_broadcast_log_user "
         "ON broadcast_log(user_id)"
     ))
+    # ── Uniqueness guarantee (bulletproof double-send protection) ──────────
+    # The endpoints below claim each recipient atomically before sending,
+    # keyed on (broadcast_key, user_id). That claim is only race-proof if the
+    # DB enforces uniqueness — otherwise two concurrent runs (accidental
+    # double-click, 502-resend) could each insert a row for the same person
+    # and both send. Before adding the unique index we must dedupe any rows
+    # the OLD send-then-insert pattern may have left behind, preferring to
+    # KEEP a 'sent' row so a previously-emailed member is never re-mailed:
+    #   1. drop non-'sent' duplicates for anyone who also has a 'sent' row
+    #   2. among the rest, keep the lowest id
+    # Both steps are no-ops when there are no duplicates (safe to re-run).
+    db.execute(text("""
+        DELETE FROM broadcast_log a
+         WHERE a.status <> 'sent'
+           AND EXISTS (SELECT 1 FROM broadcast_log b
+                        WHERE b.broadcast_key = a.broadcast_key
+                          AND b.user_id = a.user_id
+                          AND b.status = 'sent')
+    """))
+    db.execute(text("""
+        DELETE FROM broadcast_log a USING broadcast_log b
+         WHERE a.broadcast_key = b.broadcast_key
+           AND a.user_id = b.user_id
+           AND a.id > b.id
+    """))
+    db.execute(text(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_broadcast_log_key_user "
+        "ON broadcast_log(broadcast_key, user_id)"
+    ))
+    db.commit()
+
+
+def _broadcast_claim_recipient(db: Session, broadcast_key: str, user_id: int, email: str):
+    """Atomically claim ONE recipient for sending.
+
+    Returns the broadcast_log row id if THIS call won the claim — the caller
+    must then send and call _broadcast_mark_sent/_failed. Returns None if the
+    recipient was already claimed or sent by another run — the caller MUST
+    skip and send nothing.
+
+    The claim is a single INSERT ... ON CONFLICT against the
+    uq_broadcast_log_key_user unique index, so it is atomic at the database:
+    if two runs race for the same person, exactly one INSERT wins and the
+    other gets no row back. A prior 'failed' row is re-claimed for retry; a
+    'sent' or in-flight 'sending' row is left untouched (no row returned).
+    This is what makes a double-send physically impossible, independent of
+    any application-level lock.
+    """
+    row = db.execute(text("""
+        INSERT INTO broadcast_log (broadcast_key, user_id, email_address, status)
+        VALUES (:k, :uid, :em, 'sending')
+        ON CONFLICT (broadcast_key, user_id) DO UPDATE
+            SET status = 'sending', error_message = NULL, sent_at = NOW()
+            WHERE broadcast_log.status = 'failed'
+        RETURNING id
+    """), {"k": broadcast_key, "uid": user_id, "em": email}).fetchone()
+    db.commit()
+    return row[0] if row else None
+
+
+def _broadcast_mark_sent(db: Session, log_id: int, msg_id: str | None):
+    db.execute(text(
+        "UPDATE broadcast_log SET status='sent', brevo_message_id=:mid, "
+        "error_message=NULL WHERE id=:id"
+    ), {"mid": msg_id, "id": log_id})
+    db.commit()
+
+
+def _broadcast_mark_failed(db: Session, log_id: int, error: str):
+    db.execute(text(
+        "UPDATE broadcast_log SET status='failed', error_message=:err WHERE id=:id"
+    ), {"err": (error or "")[:500], "id": log_id})
     db.commit()
 
 
@@ -30383,7 +30455,8 @@ def _founder_broadcast_recipients(db: Session, broadcast_key: str):
     today_start_utc = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
     already_sent_user_ids = db.execute(text(
-        "SELECT DISTINCT user_id FROM broadcast_log WHERE broadcast_key = :k"
+        "SELECT DISTINCT user_id FROM broadcast_log "
+        "WHERE broadcast_key = :k AND status IN ('sent','sending')"
     ), {"k": broadcast_key}).fetchall()
     already_sent_set = {row[0] for row in already_sent_user_ids}
 
@@ -30525,11 +30598,21 @@ def admin_broadcast_founder_offer(
             "attempted": len(eligible),
             "sent": 0,
             "failed": 0,
+            "skipped_already_sent": 0,
             "errors": [],
             "triggered_by": user.username,
+            "safety": ("Each recipient is claimed atomically before sending "
+                       "(unique broadcast_key+user_id). A second/concurrent run "
+                       "cannot re-email anyone already sent — double-send is "
+                       "DB-prevented, not just discouraged."),
         }
 
         for u in eligible:
+            # Claim first. None => already sent / in-flight by another run; skip.
+            log_id = _broadcast_claim_recipient(db, BROADCAST_KEY, u.id, u.email)
+            if log_id is None:
+                stats["skipped_already_sent"] += 1
+                continue
             try:
                 ok, msg_id = send_founder_offer_broadcast_one(
                     u.email,
@@ -30538,39 +30621,16 @@ def admin_broadcast_founder_offer(
                     unsubscribe_url=f"https://www.superadpro.com/unsubscribe?token={_ensure_unsubscribe_token(db, u)}",
                 )
                 if ok:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             brevo_message_id, status)
-                        VALUES (:k, :uid, :em, :mid, 'sent')
-                    """), {"k": BROADCAST_KEY, "uid": u.id, "em": u.email,
-                           "mid": msg_id})
-                    db.commit()
+                    _broadcast_mark_sent(db, log_id, msg_id)
                     stats["sent"] += 1
                 else:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             status, error_message)
-                        VALUES (:k, :uid, :em, 'failed', 'Brevo send returned False')
-                    """), {"k": BROADCAST_KEY, "uid": u.id, "em": u.email})
-                    db.commit()
+                    _broadcast_mark_failed(db, log_id, "send returned False")
                     stats["failed"] += 1
                     stats["errors"].append(
-                        f"user {u.id} ({u.email}): Brevo returned False"
+                        f"user {u.id} ({u.email}): send returned False"
                     )
             except Exception as e:
-                try:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             status, error_message)
-                        VALUES (:k, :uid, :em, 'failed', :err)
-                    """), {"k": BROADCAST_KEY, "uid": u.id, "em": u.email,
-                           "err": str(e)[:500]})
-                    db.commit()
-                except Exception:
-                    db.rollback()
+                _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
                 stats["failed"] += 1
                 stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
                 logger.exception(
@@ -30579,7 +30639,8 @@ def admin_broadcast_founder_offer(
 
         logger.warning(
             f"ADMIN_BROADCAST: founder-offer SENT by admin={user.username} "
-            f"sent={stats['sent']} failed={stats['failed']}"
+            f"sent={stats['sent']} failed={stats['failed']} "
+            f"skipped={stats['skipped_already_sent']}"
         )
         return stats
 
@@ -30617,7 +30678,8 @@ def _reengagement_recipients(db: Session, broadcast_key: str):
     since = datetime.utcnow() - _td(hours=REENGAGEMENT_WINDOW_HOURS)
 
     already_sent_user_ids = db.execute(text(
-        "SELECT DISTINCT user_id FROM broadcast_log WHERE broadcast_key = :k"
+        "SELECT DISTINCT user_id FROM broadcast_log "
+        "WHERE broadcast_key = :k AND status IN ('sent','sending')"
     ), {"k": broadcast_key}).fetchall()
     already_sent_set = {row[0] for row in already_sent_user_ids}
 
@@ -30768,11 +30830,21 @@ def admin_broadcast_reengagement(
             "attempted": len(eligible),
             "sent": 0,
             "failed": 0,
+            "skipped_already_sent": 0,
             "errors": [],
             "triggered_by": user.username,
+            "safety": ("Each recipient is claimed atomically before sending "
+                       "(unique broadcast_key+user_id). A second/concurrent run "
+                       "cannot re-email anyone already sent — double-send is "
+                       "DB-prevented, not just discouraged."),
         }
 
         for u in eligible:
+            # Claim first. None => already sent / in-flight by another run; skip.
+            log_id = _broadcast_claim_recipient(db, REENGAGEMENT_BROADCAST_KEY, u.id, u.email)
+            if log_id is None:
+                stats["skipped_already_sent"] += 1
+                continue
             try:
                 ok, msg_id = send_reengagement_broadcast_one(
                     u.email,
@@ -30781,40 +30853,16 @@ def admin_broadcast_reengagement(
                     unsubscribe_url=f"https://www.superadpro.com/unsubscribe?token={_ensure_unsubscribe_token(db, u)}",
                 )
                 if ok:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             brevo_message_id, status)
-                        VALUES (:k, :uid, :em, :mid, 'sent')
-                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
-                           "em": u.email, "mid": msg_id})
-                    db.commit()
+                    _broadcast_mark_sent(db, log_id, msg_id)
                     stats["sent"] += 1
                 else:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             status, error_message)
-                        VALUES (:k, :uid, :em, 'failed', 'Brevo send returned False')
-                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
-                           "em": u.email})
-                    db.commit()
+                    _broadcast_mark_failed(db, log_id, "send returned False")
                     stats["failed"] += 1
                     stats["errors"].append(
-                        f"user {u.id} ({u.email}): Brevo returned False"
+                        f"user {u.id} ({u.email}): send returned False"
                     )
             except Exception as e:
-                try:
-                    db.execute(text("""
-                        INSERT INTO broadcast_log
-                            (broadcast_key, user_id, email_address,
-                             status, error_message)
-                        VALUES (:k, :uid, :em, 'failed', :err)
-                    """), {"k": REENGAGEMENT_BROADCAST_KEY, "uid": u.id,
-                           "em": u.email, "err": str(e)[:500]})
-                    db.commit()
-                except Exception:
-                    db.rollback()
+                _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
                 stats["failed"] += 1
                 stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
                 logger.exception(
@@ -30823,7 +30871,8 @@ def admin_broadcast_reengagement(
 
         logger.warning(
             f"ADMIN_BROADCAST: reengagement SENT by admin={user.username} "
-            f"sent={stats['sent']} failed={stats['failed']}"
+            f"sent={stats['sent']} failed={stats['failed']} "
+            f"skipped={stats['skipped_already_sent']}"
         )
         return stats
 
