@@ -65302,7 +65302,8 @@ def admin_ses_capacity(request: Request,
     cap = snap.get("soft_cap") or 0
     sent = snap.get("sent_today") or 0
     snap["pct_used"] = round(100.0 * sent / cap, 1) if cap else None
-    snap["member_bulk_provider"] = mailer.member_bulk_provider()
+    snap["transactional_provider"] = mailer.provider()        # EMAIL_PROVIDER — governs transactional mail (renewal warn/grace/lapse, notifications)
+    snap["member_bulk_provider"] = mailer.member_bulk_provider()  # MEMBER_BULK_PROVIDER — governs member bulk sends (can be a separate SES account)
     snap["note"] = ("Set SES_DAILY_SOFT_CAP and SES_MAX_PER_SEC in Railway just "
                     "below your live AWS SES account quota (SES console → Account "
                     "dashboard → Sending statistics).")
