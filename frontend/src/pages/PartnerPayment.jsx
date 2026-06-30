@@ -46,10 +46,17 @@ export default function PartnerPayment() {
   var { user, setUser } = useAuth();
   var navigate = useNavigate();
   var [searchParams] = useSearchParams();
-  // Renew mode (?renew=1): reached by an active/in-grace member who wants to
-  // renew or set up auto-renewal, NOT a free user activating for the first
-  // time. It deliberately bypasses the "you're already active" wall below.
-  var renewMode = searchParams.get('renew') === '1';
+  // Renew mode: reached by an active/in-grace member who wants to renew or set
+  // up auto-renewal, NOT a free user activating for the first time. It
+  // deliberately bypasses the "you're already active" wall below.
+  //
+  // Triggered by ?renew=1 OR by being overdue. An overdue member is still
+  // is_active=true (in grace) but their membership has expired — without the
+  // overdue check they'd hit the "you're all set" wall with NO way to pay,
+  // even though they urgently need to renew. membership_overdue comes from
+  // /api/me, so any entry point (not just the ?renew=1 banner) routes an
+  // overdue member to the working renewal view (card + crypto).
+  var renewMode = searchParams.get('renew') === '1' || user?.membership_overdue === true;
 
   // Founding-status state — polled every 60s so the count is always fresh
   var [status, setStatus] = useState(null);
