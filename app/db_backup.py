@@ -252,6 +252,18 @@ CRITICAL_TABLES = {
     "pending_commissions", "withdrawal_approvals", "walletconnect_payment_orders",
     "nowpayments_orders", "onchain_orphan_transfers", "stripe_charges", "p2p_transfers",
 }
+
+# Non-critical "big drop" alert thresholds — tunable via Railway env.
+# Small non-critical tables churn normally (e.g. a member deleting a funnel page
+# cascade-deletes that page's funnel_events rows — main.py:45953), so a
+# non-critical table must have been SUBSTANTIAL and lost a REAL chunk before it
+# warrants an email. Critical tables (users/commissions/withdrawals/payments/...)
+# still alert on ANY drop >= 1 — every row there matters. Defaults: a table that
+# had >= 100 rows lost >= 25 rows AND >= 25% of itself.
+_BIG_MIN_BASELINE = int(os.getenv("BACKUP_ALERT_MIN_BASELINE", "100"))
+_BIG_MIN_DROP     = int(os.getenv("BACKUP_ALERT_MIN_DROP", "25"))
+_BIG_MIN_PCT      = float(os.getenv("BACKUP_ALERT_MIN_PCT", "25"))
+
 _BASELINE_KEY = "last_backup_row_counts"
 
 
@@ -282,7 +294,7 @@ def _alert_on_drops(new_counts: dict) -> list:
                 drop = p - n
                 pct = round((drop / p * 100), 1) if p else 0.0
                 critical = (t in CRITICAL_TABLES and drop >= 1)
-                big = (drop >= 5 and pct >= 20)
+                big = (p >= _BIG_MIN_BASELINE and drop >= _BIG_MIN_DROP and pct >= _BIG_MIN_PCT)
                 if critical or big:
                     flags.append({"table": t, "prev": p, "now": n, "drop": drop, "pct": pct})
         payload = _json.dumps(new_counts)
