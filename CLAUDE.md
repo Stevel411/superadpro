@@ -761,12 +761,14 @@ The spec at `docs/commission-spec.md` supersedes any commission-related content 
 
 Earlier versions of this file and various session memories carried fabricated or stale commission numbers ($28,000+ Grid earnings, $97 course prices, "L1/L2/L3" level-based Nexus rates, "$103,976 per Grid cycle", etc.). Steve had to catch these manually across multiple sessions. The spec file exists so every new session starts from confirmed numbers instead of guessing.
 
-### Quick summary (full detail in spec file)
+### The streams (names only — all numbers live in the spec)
 
-- **Stream 01 Membership (cobalt blue):** 50% commission, capped at sponsor's own tier for both monthly AND annual. Excess retained by company (do not mention in customer-facing copy). Code: `app/main.py::_activate_membership`.
-- **Stream 02 Grid (gold/cyan/purple):** 6×6 grid (36 seats), 40% direct + 6.25% × 8 levels uni-level + 10% completion bonus at seat 36. Requires active campaign at tier or above to earn. Code: `app/grid.py`.
-- **Stream 03 Nexus (purple):** 3×3 matrix per pack (39 positions). **15% direct / 10% spillover** (relationship-based, NOT level-based) + 10% completion bonus. No tier ownership required. 8 independent matrices possible per member. Code: `app/credit_matrix.py`.
-- **Stream 04 Courses (amber/orange):** Tier-ownership required. Odd/even 1+Up pass-up structure. Details partially unconfirmed — check spec and ask Steve before publishing. Code: `app/course_engine.py`.
+Do NOT duplicate rates/prices here; they drift. `docs/commission-spec.md` is the only source.
+
+- **Stream 01 Membership** — `app/main.py::_activate_membership`, `app/payment.py`. Spec §1.
+- **Stream 02 Grid (Campaign Tiers)** — `app/grid.py`. Spec §2.
+- **Stream 03 Creator Credits** — `app/credit_matrix.py` (`purchase_credit_pack`, flat-rate; the 3×3 matrix is RETIRED). Spec §3.
+- **Stream 04 Courses** — `app/course_engine.py`. Spec §4.
 
 ### Cross-stream rules
 
@@ -1042,89 +1044,11 @@ Cobalt + cyan + white with Sora/DM Sans is the DEFAULT house style. It is not an
 
 The test for an exception is three-part: it must be (a) **justified** by function, UX, or accessibility — never decoration; (b) **scoped** to the specific component, not sprayed across a surface; and (c) **documented inline** where it's used (a one-line brand note) so it reads as a deliberate choice and never as silent drift. A whole-surface restyle away from cobalt/cyan/white is still a deliberate platform decision, not a per-component call. Brand/taste judgement calls remain Steve's.
 
-## Compensation Plan — DEFINITIVE (from source code, verified)
+## Compensation Plan — see `docs/commission-spec.md`
 
-### Stream 1: Membership Commissions
-- **Tiers:** Basic $20/mo ($200/year), Pro $35/mo ($350/year). Creator tier abandoned.
-- **Commission:** 50% of the member's fee goes to their direct sponsor
-- **Monthly amounts:** Basic = $10/mo, Pro = $17.50/mo
-- **Annual amounts:** Basic = $100 one-time, Pro = $175 one-time (flat 50%, no tier cap)
-- **Renewal cap:** On monthly renewals, the sponsor's commission is capped by the sponsor's OWN tier. A Basic sponsor earning from a Pro referral gets capped at $10, not $17.50. Annual payments bypass this cap.
-- **Recurring:** Monthly paid every month; annual paid once for 365 days
-- **Depth:** 1 level only — your direct referrals. NOT multi-level.
-- **Source:** `app/payment.py`, `app/main.py` `_activate_membership()`
+Removed 30 Jun 2026. This section duplicated full commission tables and had drifted badly stale — it described Basic/Pro $20/$35 tiers, a 6×6/36-seat grid, 50% membership commission, and the retired 3×3 Nexus matrix, none of which are current. A section literally titled "DEFINITIVE" carrying retired numbers is a trap.
 
-### Stream 2: 6×6 Profit Grid (Campaign Tiers)
-**Structure:** 6 levels × 6 positions per level = 36 positions per visualised grid. The grid is a visualisation of uni-level activity; uni-level commission depth is still 8 (decoupled from grid shape).
-
-**Changed 25 May 2026:** Grid cut from 8×8/64 to 6×6/36. Bonus pool stays at 10%. Lifetime $/year unchanged — same total dollars delivered in tighter cycles (~1.78× more completions/year). Migration was global on deploy; all in-flight grids re-targeted to 36 (Steve verified all live grids were below 36 fills at deploy time).
-
-**Tier prices:**
-| Tier | Name | Price |
-|------|------|-------|
-| 1 | Starter | $20 |
-| 2 | Builder | $50 |
-| 3 | Pro | $100 |
-| 4 | Advanced | $200 |
-| 5 | Premium | $400 |
-| 6 | Elite | $600 |
-| 7 | Master | $800 |
-| 8 | Champion | $1,000 |
-
-**Commission split per purchase (paid immediately when someone buys a tier):**
-- **40% → Direct sponsor** — the person who personally referred the buyer. ONE person gets this.
-- **50% → Uni-level pool** — 6.25% × 8 levels up the buyer's SPONSOR CHAIN (UNILEVEL_DEPTH=8, decoupled from grid visual). If the chain is shorter than 8, remaining levels are absorbed by the platform as recipient of last resort.
-- **10% → Grid completion bonus pool** — accrues per seat fill, paid to grid owner when grid reaches 36/36
-- **0% → Platform** — reallocated to bonus pool 21 May 2026. **100% of every Grid commission now goes to affiliates.**
-
-**CRITICAL: Uni-level commissions and grid visualisation are decoupled.**
-The grid shows 36 seats (6×6). Uni-level still pays 6.25% × 8 levels on every tier purchase up the sponsor chain — the 8-level commission depth is unchanged. The grid is a visualisation of a slice of that activity; when seat 36 fills (completing the visualised grid), the next two levels of uni-level activity "fill" the newly-opened second grid for that owner. From the grid owner's perspective each of the 36 seats in their grid pays them 6.25% × tier_price via uni-level, plus the 10% bonus when seat 36 fills.
-
-**What a completed grid earns the grid owner (uni-level + bonus only, excludes direct referral commissions):**
-| Tier | Price | Uni-level (6.25% × 36) | Completion Bonus (10% × 36) | Total per Grid |
-|------|-------|----------------------|-----------------|---------------|
-| 1 Starter | $20 | $45 | $72 | **$117** |
-| 2 Builder | $50 | $112.50 | $180 | **$292.50** |
-| 3 Pro | $100 | $225 | $360 | **$585** |
-| 4 Advanced | $200 | $450 | $720 | **$1,170** |
-| 5 Premium | $400 | $900 | $1,440 | **$2,340** |
-| 6 Elite | $600 | $1,350 | $2,160 | **$3,510** |
-| 7 Master | $800 | $1,800 | $2,880 | **$4,680** |
-| 8 Champion | $1,000 | $2,250 | $3,600 | **$5,850** |
-
-Per-cycle is 43.75% smaller than the previous 64-grid, but cycles fire ~1.78× more often. Total $/year potential is unchanged.
-
-**Visual identity (locked 25 May 2026):**
-- Gold gradient (#b45309 → #fbbf24 → #fde047) = direct referral tile
-- Cyan gradient (#0891b2 → #06b6d4 → #22d3ee) = spillover tile
-- Royal purple gradient (#4c1d95 → #7c3aed → #c4b5fd) pulsing = completion seat (position 36) and bonus card accent
-- Cobalt header (`linear-gradient(135deg,#172554,#1e3a8a)`) = standard platform card header
-
-Grids auto-renew after completion — a new grid opens immediately and the cycle repeats.
-
-**Spillover model:** When a member purchases a tier, they fill ONE seat in EVERY upline grid at that tier (walking up the full sponsor chain). One person, one seat per grid advance.
-
-**Qualification rule:** To earn commissions at a tier, you must have an active (or in-grace) video campaign at that SAME tier or higher. 14-day grace period after campaign views are fully delivered. If unqualified, commission is absorbed by the platform (does NOT walk up).
-
-**Grid auto-renewal:** When a grid completes (36/36), a new grid opens automatically. If the owner didn't have an active campaign at completion, the bonus rolls over into the next grid's pool.
-
-**Source:** `app/grid.py`, `app/database.py` lines 95-170
-
-### Stream 3: Course Marketplace (Infinite Pass-Up)
-- **Course tiers:** $100 (Starter), $300 (Advanced), $500 (Elite)
-- **Commission:** 100% of the course price on every sale
-- **Single sale counter** per affiliate (all tiers combined)
-- **Keep/pass-up pattern:** Sales 1, 3, 5, 7, 9+ → you KEEP 100%. Sales 2, 4, 6, 8 → passes up to your pass_up_sponsor.
-- **Pass-up sponsor assignment (set at registration):**
-  - If you are your sponsor's 1st, 3rd, 5th referral → your pass_up_sponsor = your direct sponsor
-  - If you are your sponsor's 2nd, 4th, 6th referral → your pass_up_sponsor = your sponsor's pass_up_sponsor
-- **Infinite cascade:** When a pass-up fires, the commission goes to your pass_up_sponsor. If that counts as THEIR 2nd/4th/6th/8th sale, it passes up again to THEIR pass_up_sponsor. This chains infinitely.
-- **Qualification:** Must own the course tier to earn commissions on that tier. If the recipient doesn't own the tier, commission goes to company (does NOT walk up). This creates FOMO.
-- **Source:** `app/course_engine.py`
-
-### Stream 4: SuperMarket (Digital Products)
-- **Split:** Creator 50%, Affiliate 25%, Platform 25%
-- **Source:** `app/main.py` line ~2910
+Commission rates, tier prices, payout mechanics, and stream colours live in ONE place: `docs/commission-spec.md` (the locked ground truth). Do not re-add comp numbers to this file — point to the spec and verify against the source module (`app/grid.py`, `app/credit_matrix.py`, `app/course_engine.py`, `app/payment.py`).
 
 ## Marketing Materials — Downloadable Deck
 
