@@ -1507,8 +1507,11 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
             "total_renewals":     renewal.total_renewals,
             "in_grace_period":    False,
             "status":             "owner",
+            "fee":                float(membership_price_for_user(user)),
             "can_afford":         True,
-            "balance":            round(user.balance or 0, 2),
+            "shortfall":          0.0,
+            "balance":            round(float(user.balance or 0), 2),
+            "auto_renew_from_balance": bool(getattr(renewal, "auto_renew_from_balance", True)),
         }
 
     now  = datetime.utcnow()
@@ -1523,6 +1526,11 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
     elif days_remaining <= 3:
         status = "warning"
 
+    # Coverage must be judged against the member's OWN locked fee
+    # ($15 Founding / $20 Partner), not the flat default — otherwise a
+    # Founder with $15–19 wrongly reads as "can't afford".
+    fee = float(membership_price_for_user(user))
+    bal = round(float(user.balance or 0), 2)
     return {
         "has_renewal":        True,
         "next_renewal_date":  _dt(renewal.next_renewal_date),
@@ -1531,8 +1539,11 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
         "total_renewals":     renewal.total_renewals,
         "in_grace_period":    renewal.in_grace_period,
         "status":             status,
-        "can_afford":         (user.balance or 0) >= MEMBERSHIP_FEE,
-        "balance":            round(user.balance or 0, 2),
+        "fee":                fee,
+        "can_afford":         bal >= fee,
+        "shortfall":          round(max(0.0, fee - bal), 2),
+        "balance":            bal,
+        "auto_renew_from_balance": bool(getattr(renewal, "auto_renew_from_balance", True)),
     }
 
 

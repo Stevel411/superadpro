@@ -36,6 +36,28 @@ export default function Wallet() {
   // Tabbed layout: the overview hero stays pinned; this switches the panel below.
   const [tab, setTab] = useState('withdraw');
 
+  // Auto-pay-from-commission-balance preference (the renewal toggle).
+  // Mirrors renewal.auto_renew_from_balance; optimistic on toggle.
+  const [autoRenew, setAutoRenew] = useState(true);
+  const [autoRenewSaving, setAutoRenewSaving] = useState(false);
+  useEffect(() => {
+    const v = data?.renewal?.auto_renew_from_balance;
+    if (typeof v === 'boolean') setAutoRenew(v);
+  }, [data]);
+  async function toggleAutoRenew() {
+    const next = !autoRenew;
+    setAutoRenew(next);            // optimistic
+    setAutoRenewSaving(true);
+    try {
+      const res = await apiPost('/api/auto-renew-preference', { enabled: next });
+      if (res && typeof res.auto_renew_from_balance === 'boolean') setAutoRenew(res.auto_renew_from_balance);
+    } catch {
+      setAutoRenew(!next);        // revert on failure
+    } finally {
+      setAutoRenewSaving(false);
+    }
+  }
+
   // Build the right block-explorer URL for a withdrawal's tx hash. The
   // network field comes back from the API when the withdrawal was sent
   // on TRC-20 or BEP-20. Legacy Polygon-era rows have no network and
@@ -46,6 +68,14 @@ export default function Wallet() {
     if (net === 'tron') return `https://tronscan.org/#/transaction/${txHash}`;
     if (net === 'bsc')  return `https://bscscan.com/tx/${txHash}`;
     return ''; // unknown network — frontend will not render a link
+  }
+
+  // Friendly renewal date: '4 Jul 2026' from an ISO string; falls back gracefully.
+  function fmtRenewDate(iso) {
+    if (!iso) return 'N/A';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -468,21 +498,57 @@ export default function Wallet() {
             {renewal.in_grace_period && (
               <div style={{ background: 'var(--sap-red-bg)', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 15, color: 'var(--sap-red)', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
             )}
-            {renewal.status === 'warning' && !renewal.in_grace_period && (
-              <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 15, color: '#b45309', fontWeight: 600 }}>⏱ {t('wallet.renewalIn', { days: renewal.days_remaining })} {renewal.can_afford ? t('wallet.youreCovered') : t('wallet.topUpNeeded')}</div>
+            {/* Always-visible commission-coverage band: covered (green) or short (amber). */}
+            {!renewal.in_grace_period && renewal.status !== 'owner' && (
+              renewal.can_afford ? (
+                <div style={{ background: '#ecfdf3', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 13px', marginBottom: 14, fontSize: 14.5, color: '#0f6e4f', lineHeight: 1.55 }}>
+                  <strong>✓ {t('wallet.coverCovered', { defaultValue: 'Your commissions cover this.' })}</strong>{' '}
+                  {t('wallet.coverCoveredDetail', {
+                    defaultValue: '${{fee}} will be taken from your commission balance on {{date}} — nothing to do. ${{rem}} stays withdrawable.',
+                    fee: formatMoney(renewal.fee || 0),
+                    date: fmtRenewDate(renewal.next_renewal_date),
+                    rem: formatMoney(Math.max(0, (renewal.balance || 0) - (renewal.fee || 0))),
+                  })}
+                </div>
+              ) : (
+                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 13px', marginBottom: 14, fontSize: 14.5, color: '#b45309', lineHeight: 1.55 }}>
+                  <strong>⚠ {t('wallet.coverShort', { defaultValue: '${{short}} short.', short: formatMoney(renewal.shortfall || 0) })}</strong>{' '}
+                  {t('wallet.coverShortDetail', {
+                    defaultValue: "Your ${{bal}} commission balance won't cover the ${{fee}} fee yet. Top up or renew before {{date}}, or your membership will lapse.",
+                    bal: formatMoney(renewal.balance || 0),
+                    fee: formatMoney(renewal.fee || 0),
+                    date: fmtRenewDate(renewal.next_renewal_date),
+                  })}
+                </div>
+              )
             )}
             <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
               <MiniStat val={`${renewal.days_remaining || 0}d`} lbl={t('wallet.untilRenewal')} />
-              <MiniStat val={`$${renewal.balance || 0}`} lbl={t('wallet.walletBalance')} />
-              <MiniStat val={renewal.total_renewals || 0} lbl={t('wallet.totalRenewals')} />
+              <MiniStat val={`$${formatMoney(renewal.balance || 0)}`} lbl={t('wallet.walletBalance')} />
+              <MiniStat val={`$${formatMoney(renewal.fee || 0)}`} lbl={t('wallet.monthlyFee', { defaultValue: 'Monthly fee' })} />
             </div>
             <div style={{ height: 5, borderRadius: 999, background: '#eef1f8', overflow: 'hidden', margin: '10px 0' }}>
               <div style={{ height: '100%', borderRadius: 999, width: `${Math.max(5, 100 - ((renewal.days_remaining || 30) / 30 * 100))}%`, background: renewal.in_grace_period ? 'var(--sap-red)' : renewal.status === 'warning' ? 'var(--sap-amber)' : 'var(--sap-green-mid)', transition: 'width 0.4s' }} />
             </div>
-            <div style={{ fontSize: 14, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {renewal.next_renewal_date || 'N/A'}</div>
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(15,25,60,.07)', fontSize: 15, color: '#7b91a8', lineHeight: 1.6 }}>
-              💡 {t('wallet.renewalAutoDeducted')}
+            <div style={{ fontSize: 14, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {fmtRenewDate(renewal.next_renewal_date)}</div>
+            {/* Auto-pay-from-commission-balance toggle + plain-language disclosure. */}
+            {renewal.status !== 'owner' && (
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(15,25,60,.07)', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <button onClick={toggleAutoRenew} disabled={autoRenewSaving} aria-pressed={autoRenew}
+                aria-label={t('wallet.autoPayLabel', { defaultValue: 'Auto-pay from commission balance' })}
+                style={{ flex: 'none', width: 44, height: 26, borderRadius: 999, border: 'none', cursor: autoRenewSaving ? 'default' : 'pointer', padding: 0, position: 'relative', background: autoRenew ? 'var(--sap-cyan, #06b6d4)' : '#cbd5e1', opacity: autoRenewSaving ? 0.6 : 1, transition: 'background .2s' }}>
+                <span style={{ position: 'absolute', top: 3, left: autoRenew ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
+              </button>
+              <div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--sap-cobalt, #0a1438)' }}>{t('wallet.autoPayLabel', { defaultValue: 'Auto-pay from commission balance' })}</div>
+                <div style={{ fontSize: 13, color: '#7b91a8', lineHeight: 1.45, marginTop: 2 }}>
+                  {autoRenew
+                    ? t('wallet.autoPayOnDesc', { defaultValue: 'On — renewals are paid from your commissions whenever they cover the fee. Turn off to always pay by card or crypto.' })
+                    : t('wallet.autoPayOffDesc', { defaultValue: 'Off — your commissions stay in your wallet; you renew manually by card or crypto each month.' })}
+                </div>
+              </div>
             </div>
+            )}
           </>) : (
             <div style={{ padding: 20, textAlign: 'center', fontSize: 16, color: '#7b91a8' }}>{t('wallet.noRenewalData')}</div>
           )}
