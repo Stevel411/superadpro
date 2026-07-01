@@ -748,7 +748,7 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 - **Database:** PostgreSQL on Railway
 - **Storage:** Cloudflare R2 (`superadpro-media` bucket) for avatars/banners
 - **Email:** Brevo (transactional + autoresponder), Zoho (noreply@superadpro.com)
-- **Payments:** NOWPayments (350+ cryptos + card via Banxa) parallel-running with WalletConnect / self-custody BSC USDT-BEP-20 via Reown AppKit. Outbound withdrawals: BSC USDT-BEP-20 (primary) + TRC-20 via Tron. Polygon USDT inbound is DEPRECATED and being retired (`crypto_payments.py` is legacy, will be removed after 2-week parallel run completes). Stripe fully removed.
+- **Payments (canonical status: `docs/PLATFORM_STATE.md`):** Three live rails — **Stripe** (card/subscriptions, $15 Founder / $20 Partner), **NOWPayments** (350+ cryptos + Banxa card), **WalletConnect / self-custody BSC** USDT-BEP-20 via Reown AppKit. Outbound withdrawals: BSC USDT-BEP-20 (primary) + TRC-20 via Tron. Polygon inbound is retired/410-gated (`crypto_payments.py` dormant). *(Corrected 1 Jul 2026 — the earlier "Stripe fully removed" note was stale; Stripe is live and verified working.)*
 - **AI:** Anthropic Claude API (Haiku for cost-optimised generation), xAI Grok API (sales agent, content, prompts), EvoLink + fal.ai (video/image generation)
 
 ## The Four Income Streams — CANONICAL REFERENCE
@@ -972,9 +972,11 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 
 | Rail | Status | Module | Treasury | Inbound? | Outbound? |
 |---|---|---|---|---|---|
-| **WalletConnect / BSC** | **PRIMARY** (live 6 May 2026) | `app/walletconnect_payments.py` | `0xb2Cc...554D` BSC | ✅ self-custody | ✅ via `app/withdrawals.py` |
-| **NOWPayments** | Parallel-running (retiring ~20 May 2026) | `app/nowpayments_service.py` | NOWPayments custodial | ✅ 350+ cryptos + Banxa card | ❌ |
-| **Polygon legacy** | DEPRECATED — do not extend | `app/crypto_payments.py` | `0x7174...0467` (dormant) | ❌ disabled | ❌ |
+| **WalletConnect / BSC** | **LIVE** (primary self-custody) | `app/walletconnect_payments.py` | `0xb2Cc...554D` BSC | ✅ self-custody | ✅ via `app/withdrawals.py` |
+| **Stripe** | **LIVE** (card/subscriptions) | `app/stripe_service.py` | Stripe | ✅ card + subs | ❌ |
+| **NOWPayments** | **LIVE** | `app/nowpayments_service.py` | NOWPayments custodial | ✅ 350+ cryptos + Banxa card | ❌ |
+| **Polygon legacy** | RETIRED — 410-gated, dormant | `app/crypto_payments.py` | `0x7174...0467` (dormant) | ❌ disabled | ❌ |
+<!-- Corrected 1 Jul 2026: Stripe & NOWPayments are both LIVE (see docs/PLATFORM_STATE.md). Prior "Stripe removed / NOWPayments retiring" entries were stale. -->
 
 **WalletConnect rail mechanics:**
 - Member clicks "Pay with Wallet" on `/upgrade`, `/activate-tier/N`, or `/credit-matrix`
