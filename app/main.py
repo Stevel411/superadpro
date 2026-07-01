@@ -57540,6 +57540,13 @@ def my_site_new_shell(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/my-site/domain")
+def my_site_domain_shell(request: Request):
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/my-site/edit/{post_id}")
 def my_site_edit_shell(post_id: int, request: Request):
     if _react_index.exists():

@@ -79,6 +79,7 @@ const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const MySite = React.lazy(() => import('./pages/MySite'));
 const BlogEditor = React.lazy(() => import('./pages/BlogEditor'));
+const BlogDomain = React.lazy(() => import('./pages/BlogDomain'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminNetworkTree = React.lazy(() => import('./pages/AdminNetworkTree'));
 const AdminRotatorState = React.lazy(() => import('./pages/admin/AdminRotatorState'));
@@ -406,6 +407,7 @@ function AppRoutes() {
       <Route path="/linkhub" element={<ProtectedRoute><RequireTier tier="basic"><LinkHubPage /></RequireTier></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><RequireTier tier="pro"><ProSeller /></RequireTier></ProtectedRoute>} />
       <Route path="/my-site" element={<ProtectedRoute><MySite /></ProtectedRoute>} />
+      <Route path="/my-site/domain" element={<ProtectedRoute><BlogDomain /></ProtectedRoute>} />
       <Route path="/my-site/new" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
       <Route path="/my-site/edit/:id" element={<ProtectedRoute><BlogEditor /></ProtectedRoute>} />
       <Route path="/my-site/pages/new" element={<ProtectedRoute><BlogEditor kind="page" /></ProtectedRoute>} />
