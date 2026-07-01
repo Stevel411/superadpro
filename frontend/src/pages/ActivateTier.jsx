@@ -36,9 +36,26 @@ const WALLET_BTN_STYLE = {
   width: '100%', minHeight: 64, padding: '14px 22px', borderRadius: 14,
   background: '#fff', color: '#0a1438', border: '1.5px solid #e2e8f0',
   fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 700,
-  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+  display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 14,
+  textAlign: 'left',
   boxShadow: '0 8px 20px -14px rgba(12,26,56,.3)', marginBottom: 11,
 };
+
+// Matches the .at-btn card/crypto layout: 38x38 icon box + stacked title/subtitle,
+// left-aligned. Passed as the JSX `label` to the wallet buttons so all four
+// payment options line up identically. (.at-btn .ic/.tx CSS is scoped to
+// .at-btn, so the styles are inlined here to apply on the wallet buttons.)
+function _walletBtnLabel(icon, title, sub) {
+  return (
+    <>
+      <div style={{ width: 38, height: 38, borderRadius: 10, display: 'grid', placeItems: 'center', flex: 'none', fontSize: 19, background: '#eef4ff' }}>{icon}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, textAlign: 'left' }}>
+        <b style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 16 }}>{title}</b>
+        <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginTop: 2, opacity: .6 }}>{sub}</span>
+      </div>
+    </>
+  );
+}
 
 const AT_CSS = `
 .at-wrap{max-width:680px;margin:0 auto;font-family:'DM Sans',sans-serif}
@@ -310,7 +327,12 @@ export default function ActivateTier() {
               <Suspense fallback={null}>
                 <WalletConnectGate
                   hideWhenConnected
-                  label={`Connect wallet — $${tier.price.toLocaleString()}`}
+                  label={(
+                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, textAlign: 'left' }}>
+                      <b style={{ fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: 16 }}>{`Connect wallet — $${tier.price.toLocaleString()}`}</b>
+                      <span style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', marginTop: 2, opacity: .6 }}>Pay direct · BSC</span>
+                    </div>
+                  )}
                   restShadow="0 8px 20px -14px rgba(12,26,56,.3)"
                   hoverShadow="0 12px 26px -14px rgba(34,211,238,.45)"
                   style={WALLET_BTN_STYLE}
@@ -318,7 +340,7 @@ export default function ActivateTier() {
                 <WalletPayLink
                   productType="grid"
                   productKey={'grid_' + n}
-                  label={`Pay $${tier.price.toLocaleString()} from your wallet`}
+                  label={_walletBtnLabel('👛', `Pay $${tier.price.toLocaleString()} from your wallet`, 'Direct · USDT on BSC')}
                   style={WALLET_BTN_STYLE}
                 />
               </Suspense>
