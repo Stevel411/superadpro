@@ -247,7 +247,29 @@ export default function PartnerPayment() {
       .catch(function(e) { setLoading(false); setError(e.message || t('partner.errorCardFailed', { defaultValue: 'Card renewal failed. Please try again.' })); });
   }
 
-  // ── Already-active member: skip the checkout entirely ──────────
+  // ── Renew one month straight from wallet balance ───────────────
+  // On-demand version of the auto-renew-from-balance cron: charges the
+  // member's locked fee ($15 Founder / $20 Partner) from their commission
+  // wallet, pays the sponsor via the shared engine, and clears overdue state.
+  // Backend: /api/membership/renew-from-balance (reuses payment.apply_wallet_renewal).
+  async function handleBalanceRenew() {
+    if (loading) return;
+    setError('');
+    var ok = await ensureConsent();
+    if (!ok) return;
+    setLoading(true);
+    apiPost('/api/membership/renew-from-balance', {})
+      .then(function(d) {
+        setLoading(false);
+        if (d.success) {
+          refreshUser();
+          navigate('/wallet?tab=renewal&renewed=1');
+        } else {
+          setError(d.error || t('partner.errorBalanceRenew', { defaultValue: "We couldn't renew from your balance. Please try again." }));
+        }
+      })
+      .catch(function(e) { setLoading(false); setError((e && e.message) || t('partner.errorBalanceRenewFailed', { defaultValue: 'Renewal from balance failed. Please try again.' })); });
+  }
   // ...unless they came here in renew mode (?renew=1) to set up auto-renewal.
   if (isActive && !renewMode) {
     return (
@@ -346,6 +368,45 @@ export default function PartnerPayment() {
                     ? t('partner.renewStarting', { defaultValue: 'Starting\u2026' })
                     : t('partner.renewCardCta', { defaultValue: 'Turn on card auto-renew \u2192' })}
                 </button>
+                {/* Pay one month straight from wallet balance — instant, no card
+                    or crypto. Founder $15 / Partner $20 (renewMonthly). Enabled
+                    only when the affiliate wallet covers the fee; otherwise show
+                    the shortfall. Backend recomputes the locked fee server-side. */}
+                {(function() {
+                  var walletBal = Number(user && user.balance ? user.balance : 0);
+                  var fee = Number(renewMonthly);
+                  var covers = walletBal >= fee;
+                  return (
+                    <div style={{ marginTop: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0 12px', opacity: 0.7 }}>
+                        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.18)' }} />
+                        <span style={{ fontSize: 12, color: '#cbd5e1' }}>{t('partner.or', { defaultValue: 'or' })}</span>
+                        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.18)' }} />
+                      </div>
+                      {covers ? (<>
+                        <button onClick={handleBalanceRenew} disabled={loading} style={{
+                          width: '100%', padding: '13px 22px', borderRadius: 10, border: 'none',
+                          background: 'linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%)',
+                          color: '#fff', fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 800,
+                          cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1,
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        }}>
+                          <Wallet size={17} />
+                          {loading
+                            ? t('partner.renewStarting', { defaultValue: 'Starting\u2026' })
+                            : t('partner.renewBalanceCta', { defaultValue: 'Pay $' + renewMonthly + ' now from wallet balance' })}
+                        </button>
+                        <div style={{ fontSize: 11.5, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>
+                          {t('partner.renewBalanceAvail', { defaultValue: '$' + walletBal.toFixed(2) + ' available \u2014 renews instantly, no card needed' })}
+                        </div>
+                      </>) : (
+                        <div style={{ fontSize: 12.5, color: '#cbd5e1', textAlign: 'center', lineHeight: 1.5 }}>
+                          {t('partner.renewBalanceShort', { defaultValue: 'Wallet balance $' + walletBal.toFixed(2) + ' \u2014 $' + (fee - walletBal).toFixed(2) + ' short of the $' + renewMonthly + ' fee. Earn or top up to pay from balance.' })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 {/* Crypto fallback — one month in USDT at the locked price.
                     Monthly only: annual pays the sponsor 10x up front, so crypto
                     renewal stays monthly. 'membership_renew' is priced at the

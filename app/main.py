@@ -18469,6 +18469,66 @@ def api_membership_balance_offer(
     }
 
 
+@app.post("/api/membership/renew-from-balance")
+def api_membership_renew_from_balance(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Renew an EXISTING member's membership from their affiliate wallet balance,
+    on demand. Charges the member's LOCKED fee (Founder $15 / Partner $20), pays
+    the sponsor + records the company share via the shared engine, rolls the
+    renewal record forward and clears overdue/grace state.
+
+    Distinct from /activate-from-balance (which is free-user first-activation
+    only and hard-blocks active members): this is the RENEWAL path and works for
+    active / in-grace / overdue members. Reuses payment.apply_wallet_renewal —
+    the exact same code the auto-renew cron runs — so the on-demand and
+    automatic rails can never diverge, and the per-member-month idempotency key
+    means clicking this in a month the cron already renewed won't double-charge
+    the sponsor.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .payment import apply_wallet_renewal
+    from .database import MembershipRenewal
+
+    renewal = (db.query(MembershipRenewal)
+                 .filter(MembershipRenewal.user_id == user.id).first())
+    if not renewal:
+        return JSONResponse(
+            {"error": "no_renewal_record",
+             "message": "No renewal record on this account yet — reload and try again."},
+            status_code=400)
+
+    # Money-in consent gate — same as the other balance/activation rails.
+    ok, err = require_fresh_consent(db, user.id, purpose="membership_renew_from_balance")
+    if not ok:
+        return JSONResponse({"error": err or "consent_required"}, status_code=403)
+
+    res = apply_wallet_renewal(db, user, renewal)
+    if not res.get("ok"):
+        db.rollback()
+        return JSONResponse({
+            "error": (f"You need ${res.get('fee', 0):.2f} to renew. Your wallet "
+                      f"balance is ${res.get('balance', 0):.2f} "
+                      f"(${res.get('shortfall', 0):.2f} short)."),
+            "code": "insufficient_balance",
+            "fee": res.get("fee"),
+            "balance": res.get("balance"),
+            "shortfall": res.get("shortfall"),
+        }, status_code=400)
+
+    db.commit()
+    return {
+        "success": True,
+        "fee": res["fee"],
+        "new_balance": res["new_balance"],
+        "next_renewal_date": res["next_renewal_date"],
+        "message": f"Membership renewed — ${res['fee']:.2f} paid from your wallet balance.",
+    }
+
+
 @app.post("/api/membership/activate-from-balance")
 def api_membership_activate_from_balance(
     user: User = Depends(get_current_user),

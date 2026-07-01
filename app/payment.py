@@ -1195,6 +1195,67 @@ def backfill_missing_renewal_records(db: Session, *, commit: bool = True) -> dic
     return {"scanned_missing": len(missing), "committed": bool(commit), "records": created}
 
 
+def apply_wallet_renewal(db: Session, user, renewal, *, now=None) -> dict:
+    """Execute ONE wallet-funded membership renewal — the single shared path
+    used by BOTH the auto-renew cron (process_auto_renewals) and the on-demand
+    /api/membership/renew-from-balance endpoint, so the two can never diverge.
+
+    Steps:
+      1. Locked fee — Founder $15 (membership_price_locked), else Partner $20.
+      2. Balance guard — refuse (no mutation) if the affiliate wallet can't
+         cover the fee; returns the shortfall so the caller can message it.
+      3. Debit the fee from user.balance (the wallet rail's member-side charge).
+      4. Sponsor + company commission via pay_renewal_commission — the shared
+         engine, idempotent per member-month (a member renewed twice in one
+         month — cron + this endpoint — still pays the sponsor exactly once).
+      5. Roll the renewal record forward and clear any grace state.
+      6. Refresh membership_expires_at + is_active so the member is no longer
+         flagged membership_overdue. The cron historically skipped this, which
+         left renewed members stuck showing the renewal prompt — fixed here for
+         both callers.
+
+    Does NOT commit — the caller owns the transaction boundary.
+    Returns {"ok": True, fee, new_balance, next_renewal_date} on success, or
+    {"ok": False, error:"insufficient_balance", fee, balance, shortfall}.
+    """
+    now = now or datetime.utcnow()
+    from datetime import timedelta
+    locked = getattr(user, "membership_price_locked", None)
+    fee = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
+    bal = Decimal(str(user.balance or 0))
+    if bal < fee:
+        return {"ok": False, "error": "insufficient_balance",
+                "fee": float(fee), "balance": float(bal),
+                "shortfall": float(fee - bal)}
+
+    # 1) Member-side debit (wallet rail).
+    user.balance = bal - fee
+    user.low_balance_warned = False
+
+    # 2) Sponsor + company share via the shared engine (idempotent per period).
+    period_key = f"renewal:{user.id}:{now.strftime('%Y-%m')}"
+    pay_renewal_commission(db, user, period_key=period_key, rail="wallet")
+
+    # 3) Roll the renewal record forward; clear grace.
+    renewal.last_renewed_at    = now
+    renewal.next_renewal_date  = now + timedelta(days=30)
+    renewal.renewal_source     = "wallet"
+    renewal.total_renewals     = (renewal.total_renewals or 0) + 1
+    renewal.in_grace_period    = False
+    renewal.grace_period_start = None
+
+    # 4) Clear overdue/lapse state. Extend from the later of now or the current
+    #    expiry so an early renewal doesn't lose remaining paid time, and a
+    #    long-overdue one still lands in the future.
+    exp = getattr(user, "membership_expires_at", None)
+    base = exp if (exp and exp > now) else now
+    user.membership_expires_at = base + timedelta(days=30)
+    user.is_active = True
+
+    return {"ok": True, "fee": float(fee), "new_balance": float(user.balance),
+            "next_renewal_date": renewal.next_renewal_date.isoformat()}
+
+
 def process_auto_renewals(db: Session) -> dict:
     """
     Called daily (via scheduler or admin endpoint).
@@ -1331,42 +1392,16 @@ def process_auto_renewals(db: Session) -> dict:
 
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
-            # Compute the actual fee for THIS user. Founders have
-            # membership_price_locked = $15 (or whatever's set); Partners
-            # have it NULL and pay the standard $20.
-            # The sponsor cut stays a flat $10 regardless of buyer price —
-            # this mirrors the rule already used in main.py's
-            # process_membership_renewal handler (line 7344-7346).
-            locked = getattr(user, 'membership_price_locked', None)
-            user_fee = Decimal(str(locked)) if locked is not None else Decimal(str(MEMBERSHIP_FEE))
-            sponsor_share = Decimal(str(MEMBERSHIP_SPONSOR_SHARE))  # flat $10
-
             # Respect opt-out: if the member has disabled auto-renewal from
-            # balance (set in checkout or via account settings), skip the
-            # deduction and go straight to grace period regardless of
-            # balance. The grace period notification gives them 5 days to
-            # manually renew.
+            # balance, skip the deduction and go straight to grace regardless
+            # of balance. Otherwise apply_wallet_renewal (the shared engine —
+            # same path as the on-demand renew-from-balance endpoint) handles
+            # locked fee, deduction, sponsor/company commission, roll-forward
+            # and expiry refresh. It refuses (no mutation) if balance can't
+            # cover the fee, dropping us into the grace branch.
             auto_renew_enabled = bool(getattr(renewal, 'auto_renew_from_balance', True))
-            if auto_renew_enabled and Decimal(str(user.balance or 0)) >= user_fee:
-                # Sufficient balance — auto-renew. Founder pays $15, Partner
-                # pays $20; sponsor always gets flat $10 on renewal.
-                # The member-side deduction stays here (rail-specific: this is
-                # the wallet rail, so we debit the on-platform balance).
-                user.balance      = Decimal(str(user.balance or 0)) - user_fee
-                user.low_balance_warned = False
-
-                # Sponsor commission + company-share row go through the shared
-                # engine (28 May 2026) so this rail and the Stripe rail can't
-                # diverge. period_key makes it idempotent per member-month
-                # across both rails. The engine handles free-sponsor offer +
-                # cha-ching email exactly like activation.
-                period_key = f"renewal:{user.id}:{now.strftime('%Y-%m')}"
-                pay_renewal_commission(db, user, period_key=period_key, rail="wallet")
-
-                renewal.last_renewed_at   = now
-                renewal.next_renewal_date = now + timedelta(days=30)
-                renewal.renewal_source    = "wallet"
-                renewal.total_renewals    = (renewal.total_renewals or 0) + 1
+            renew_res = apply_wallet_renewal(db, user, renewal, now=now) if auto_renew_enabled else {"ok": False}
+            if renew_res.get("ok"):
                 results["renewed"].append(user.id)
 
             else:
