@@ -32,6 +32,11 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
   var [showAiMenu, setShowAiMenu] = useState(false);
   var [aiBusy, setAiBusy] = useState('');
   var [aiErr, setAiErr] = useState('');
+  // Batch-1 image UX: drag/drop + paste upload, alt-text capture, no base64.
+  var [uploading, setUploading] = useState(false);
+  var [uploadErr, setUploadErr] = useState('');
+  var [showAlt, setShowAlt] = useState(false);
+  var [altText, setAltText] = useState('');
 
   var editor = useEditor({
     extensions: [
@@ -46,6 +51,30 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
       Placeholder.configure({ placeholder: placeholder || 'Start writing your lesson content...' }),
     ],
     content: content || '',
+    editorProps: {
+      // Drag-and-drop image upload → R2 (blog only; gated on onImageUpload so
+      // the SuperLeads email composer, which passes no uploader, is unaffected
+      // and keeps its own behaviour). Non-image drops fall through to default.
+      handleDrop: function(view, event, slice, moved) {
+        if (moved || !onImageUpload) return false;
+        var files = (event.dataTransfer && event.dataTransfer.files) || [];
+        var imgs = Array.prototype.filter.call(files, function(f) { return f.type && f.type.indexOf('image/') === 0; });
+        if (!imgs.length) return false;
+        event.preventDefault();
+        imgs.forEach(function(f) { insertUploadedImage(f); });
+        return true;
+      },
+      // Paste image from clipboard → R2 (blog only). Text/HTML paste unaffected.
+      handlePaste: function(view, event, slice) {
+        if (!onImageUpload) return false;
+        var files = (event.clipboardData && event.clipboardData.files) || [];
+        var imgs = Array.prototype.filter.call(files, function(f) { return f.type && f.type.indexOf('image/') === 0; });
+        if (!imgs.length) return false;
+        event.preventDefault();
+        imgs.forEach(function(f) { insertUploadedImage(f); });
+        return true;
+      },
+    },
     onUpdate: function({ editor }) {
       if (onChange) onChange(editor.getHTML());
     },
@@ -133,20 +162,48 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
     editor.chain().focus().toggleCallout({ type: type }).run();
     setShowCallout(false);
   }
-  async function handleImageUpload(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    setShowImageInput(false);
-    if (onImageUpload) {
-      try {
-        var url = await onImageUpload(file);
-        if (url) editor.chain().focus().setImage({ src: url }).run();
-      } catch (err) { /* surfaced by caller */ }
+  // Upload an image file to R2 (via the caller's onImageUpload) and insert it
+  // with an empty alt (the "needs alt" nudge prompts the author to fill it).
+  // Blog path only: on failure it errors loudly — never falls back to base64
+  // (base64 bloats the post body and skips the CDN). Hoisted for the drop/paste
+  // handlers defined in editorProps above.
+  async function insertUploadedImage(file) {
+    if (!file || !onImageUpload) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      setUploadErr('That file isn\u2019t an image.');
       return;
     }
+    setUploadErr('');
+    setUploading(true);
+    try {
+      var url = await onImageUpload(file);
+      if (url) editor.chain().focus().setImage({ src: url, alt: '' }).run();
+      else setUploadErr('Upload failed — please try again.');
+    } catch (err) {
+      setUploadErr((err && err.message) || 'Image upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleImageUpload(e) {
+    var file = e.target.files[0];
+    e.target.value = '';            // allow re-selecting the same file
+    if (!file) return;
+    setShowImageInput(false);
+    if (onImageUpload) { await insertUploadedImage(file); return; }
+    // Email composer (no uploader wired): keep the inline data-URL behaviour.
     var reader = new FileReader();
     reader.onload = function(ev) { editor.chain().focus().setImage({ src: ev.target.result }).run(); };
     reader.readAsDataURL(file);
+  }
+
+  // Set alt text on the currently-selected image (SEO + accessibility).
+  function applyAlt() {
+    if (editor.isActive('image')) {
+      editor.chain().focus().updateAttributes('image', { alt: altText }).run();
+    }
+    setShowAlt(false);
   }
 
   return (
@@ -191,7 +248,15 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         {/* Link */}
         {btn(editor.isActive('link'), function(){setShowLinkInput(!showLinkInput);setShowImageInput(false);}, LinkIcon, 'Link')}
         {/* Image */}
-        {btn(false, function(){setShowImageInput(!showImageInput);setShowLinkInput(false);}, Image, 'Image')}
+        {btn(false, function(){setShowImageInput(!showImageInput);setShowLinkInput(false);}, Image, 'Image — upload, drag & drop, or paste')}
+        {editor.isActive('image') && (
+          <button onClick={function(){ setAltText(editor.getAttributes('image').alt || ''); setShowAlt(!showAlt); }}
+            title="Alt text (SEO + accessibility)"
+            style={{height:30,padding:'0 8px',borderRadius:6,border:'none',cursor:'pointer',display:'flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,fontFamily:'inherit',
+              background:(editor.getAttributes('image').alt ? '#e0f2fe' : '#fef3c7'),color:(editor.getAttributes('image').alt ? '#0369a1' : '#92400e')}}>
+            {editor.getAttributes('image').alt ? 'ALT ✓' : '⚠ ALT'}
+          </button>
+        )}
 
         {richBlocks && (<>
         <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
@@ -222,18 +287,40 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
 
       {/* Image input popover */}
       {showImageInput && (
-        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#eff6ff',flexWrap:'wrap'}}>
-          <label style={{display:'flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b'}}>
-            📁 Upload Image
-            <input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}}/>
+        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#eff6ff',flexWrap:'wrap',alignItems:'center'}}>
+          <label style={{display:'flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',cursor:uploading?'wait':'pointer',fontSize:11,fontWeight:600,color:'#64748b',opacity:uploading?0.6:1}}>
+            {uploading ? '⏳ Uploading…' : '📁 Upload image'}
+            <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} style={{display:'none'}}/>
           </label>
-          <div style={{display:'flex',gap:4,flex:1}}>
+          {onImageUpload && <span style={{fontSize:11,color:'#7b91a8'}}>or just drag & drop / paste an image into the editor</span>}
+          <div style={{display:'flex',gap:4,flex:1,minWidth:200}}>
             <input value={imageUrl} onChange={function(e){setImageUrl(e.target.value);}} placeholder={t('common.imagePlaceholder')}
               onKeyDown={function(e){if(e.key==='Enter')addImage();}}
               style={{flex:1,padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
             <button onClick={addImage} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('common.addBtn')}</button>
           </div>
           <button onClick={function(){setShowImageInput(false);setImageUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>{t('common.cancel')}</button>
+        </div>
+      )}
+
+      {/* Alt-text popover (image selected) */}
+      {showAlt && (
+        <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#f0f9ff',alignItems:'center',flexWrap:'wrap'}}>
+          <span style={{fontSize:11,fontWeight:700,color:'#0369a1',textTransform:'uppercase',letterSpacing:.4}}>Alt text</span>
+          <input value={altText} onChange={function(e){setAltText(e.target.value);}} autoFocus
+            placeholder="Describe the image (helps SEO + screen readers)"
+            onKeyDown={function(e){if(e.key==='Enter')applyAlt();}}
+            style={{flex:1,minWidth:200,padding:'6px 10px',border:'1px solid #bae6fd',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
+          <button onClick={applyAlt} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Save</button>
+          <button onClick={function(){setShowAlt(false);}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>{t('common.cancel')}</button>
+        </div>
+      )}
+
+      {/* Upload error bar (no silent failures) */}
+      {uploadErr && (
+        <div style={{padding:'8px 12px',borderBottom:'1px solid #fecaca',background:'#fef2f2',color:'#b91c1c',fontSize:12,fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
+          <span>⚠ {uploadErr}</span>
+          <button onClick={function(){setUploadErr('');}} style={{border:'none',background:'transparent',color:'#b91c1c',cursor:'pointer',fontSize:14,fontWeight:700}}>×</button>
         </div>
       )}
 
@@ -318,6 +405,11 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #8b5cf6; }
         .tiptap hr { border: none; border-top: 2px solid #e8ecf2; margin: 16px 0; }
         .tiptap img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+        /* Editor-only nudge: images with no alt text get a dashed amber ring so
+           the author can see (and fix) SEO/accessibility gaps before publishing.
+           Does not affect the public render. */
+        .tiptap img:not([alt]), .tiptap img[alt=""] { outline: 2px dashed #f59e0b; outline-offset: 2px; }
+        .tiptap img.ProseMirror-selectednode { outline: 2px solid #0ea5e9; outline-offset: 2px; }
         .editor-link { color: #0ea5e9; text-decoration: underline; cursor: pointer; }
         .tiptap p.is-editor-empty:first-child::before { color: #94a3b8; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
         .tiptap .bn-callout { display: flex; gap: 11px; padding: 14px 16px; border-radius: 10px; margin: 16px 0; border-left: 4px solid #0ea5e9; background: #f0f9ff; }
