@@ -4448,6 +4448,57 @@ def cron_verify_custom_domains(request: Request):
     return JSONResponse(summary)
 
 
+@app.get("/admin/api/domain-config")
+def admin_domain_config(request: Request,
+                        user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Read-only: is the seamless (auto-TLS) custom-domain path actually
+    configured in production? This one switch governs BOTH the blog
+    (/api/blog/domain) and SuperPages (/api/custom-domains) — they share the
+    same Railway plumbing. Reports only booleans/counts, never secret values.
+    Tappable from an admin session: /admin/api/domain-config
+    """
+    _require_admin(user)
+    from . import railway_api as _rapi
+    cfg = _rapi._config()
+    configured = _rapi.is_configured()
+
+    # Evidence from the DB — has any domain ever actually provisioned?
+    total = db.query(CustomDomain).count()
+    railway_registered = db.query(CustomDomain).filter(CustomDomain.railway_domain_id.isnot(None)).count()
+    tls_issued = db.query(CustomDomain).filter(CustomDomain.tls_status.ilike("%ISSUED%")).count()
+    verified = db.query(CustomDomain).filter(CustomDomain.verification_status == "verified").count()
+
+    if not configured:
+        verdict = ("Seamless HTTPS is NOT configured — both blog and SuperPages are in fallback "
+                   "mode (member sets up TLS themselves). Set the four RAILWAY_* vars in Railway to "
+                   "turn it on, or I'll soften the page copy to match.")
+    elif tls_issued > 0:
+        verdict = ("Seamless HTTPS is configured AND has issued at least one real certificate — "
+                   "the blog page's 'we handle the cert' copy is accurate as-is.")
+    else:
+        verdict = ("Settings are present but no domain has provisioned a certificate yet — "
+                   "configured but unproven. Connecting one test domain would confirm it end-to-end.")
+
+    return {
+        "seamless_certificates": "ON" if configured else "OFF (fallback mode)",
+        "applies_to": "both blog and SuperPages custom domains — same Railway plumbing",
+        "railway_env_vars_present": {
+            "RAILWAY_API_TOKEN":      bool(cfg.get("token")),
+            "RAILWAY_PROJECT_ID":     bool(cfg.get("project_id")),
+            "RAILWAY_SERVICE_ID":     bool(cfg.get("service_id")),
+            "RAILWAY_ENVIRONMENT_ID": bool(cfg.get("environment_id")),
+        },
+        "evidence": {
+            "total_custom_domains":    total,
+            "registered_with_railway": railway_registered,
+            "tls_certificate_issued":  tls_issued,
+            "dns_verified":            verified,
+        },
+        "verdict": verdict,
+    }
+
+
 # ════════════════════════════════════════════════════════════════════
 # SENDING DOMAINS — per-member email sending domains (29 Jun 2026)
 # Members verify their OWN domain inside our SES account so they send
