@@ -22,6 +22,64 @@ const C = {
 const sora = "'Sora',sans-serif";
 const mono = "'JetBrains Mono',monospace";
 
+// Live preview mirroring the PUBLISHED post page exactly: Merriweather body,
+// 720px column, real block styles, and image size/align presets. Breakouts use
+// container-query units (cqw) so the preview pane behaves as "the page" — Wide
+// and Full break out of the text column exactly as they will once published.
+function BlogPreview({ title, cover, html }) {
+  const hasContent = (html && html.replace(/<[^>]+>/g, '').trim().length > 0) || /<img|<iframe|bn-embed/.test(html || '');
+  return (
+    <div style={{ padding: '0 0 60px', minHeight: '100%' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap');
+        .sap-pv{container-type:inline-size;background:#fff;min-height:100%;--accent:#0ea5e9;--hfont:'Inter',sans-serif}
+        .sap-pv-cover{display:block;width:100%;max-height:440px;object-fit:cover}
+        .sap-pv-col{max-width:720px;margin:0 auto;padding:0 32px}
+        .sap-pv-title{font-family:'Merriweather',serif;font-weight:900;font-size:40px;line-height:1.15;color:#1a2b23;margin:40px 0 20px}
+        .sap-pv-body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
+        .sap-pv-body p{margin:26px 0}
+        .sap-pv-body h1{font-size:36px;font-weight:900;margin:44px 0 4px;line-height:1.15}
+        .sap-pv-body h2{font-size:30px;font-weight:900;margin:46px 0 4px;line-height:1.2}
+        .sap-pv-body h3{font-size:23px;font-weight:800;margin:36px 0 2px}
+        .sap-pv-body blockquote{border-left:4px solid var(--accent);padding:6px 0 6px 26px;margin:34px 0;font-size:24px;font-style:italic;line-height:1.5;color:#40514a}
+        .sap-pv-body a{color:var(--accent)}
+        .sap-pv-body ul,.sap-pv-body ol{margin:22px 0;padding-left:26px}
+        .sap-pv-body pre{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:10px;overflow-x:auto;font-size:15px;margin:24px 0}
+        .sap-pv-body img{max-width:100%;height:auto;border-radius:14px;margin:30px auto;display:block}
+        .sap-pv-body img[data-align="left"]{float:left;max-width:min(48%,340px);margin:8px 28px 14px 0}
+        .sap-pv-body img[data-align="right"]{float:right;max-width:min(48%,340px);margin:8px 0 14px 28px}
+        .sap-pv-body img[data-w="wide"]{float:none;width:min(1000px,92cqw);max-width:none;margin-left:calc(50% - min(500px,46cqw))}
+        .sap-pv-body img[data-w="full"]{float:none;width:100cqw;max-width:100cqw;margin-left:calc(50% - 50cqw);border-radius:0}
+        .sap-pv-body::after{content:"";display:table;clear:both}
+        .sap-pv-body h2,.sap-pv-body h3,.sap-pv-body blockquote{clear:both}
+        .sap-pv-body .bn-callout{display:flex;gap:13px;padding:16px 18px;border-radius:12px;margin:22px 0;border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+        .sap-pv-body .bn-callout::before{content:'i';flex:0 0 22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-style:italic;display:grid;place-items:center;font-size:14px;margin-top:1px}
+        .sap-pv-body .bn-callout>*{margin:0}
+        .sap-pv-body .bn-callout[data-type="tip"]{border-left-color:#16a34a;background:color-mix(in srgb,#16a34a 8%,transparent)}
+        .sap-pv-body .bn-callout[data-type="tip"]::before{content:'✦';background:#16a34a;font-style:normal}
+        .sap-pv-body .bn-callout[data-type="warning"]{border-left-color:#d97706;background:color-mix(in srgb,#d97706 9%,transparent)}
+        .sap-pv-body .bn-callout[data-type="warning"]::before{content:'!';background:#d97706;font-style:normal}
+        .sap-pv-body .bn-callout[data-type="success"]{border-left-color:#7c3aed;background:color-mix(in srgb,#7c3aed 8%,transparent)}
+        .sap-pv-body .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
+        .sap-pv-body .bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
+        .sap-pv-body .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+        .sap-pv-body .bn-btn-wrap{margin:26px 0;text-align:center}
+        .sap-pv-body .bn-btn{display:inline-block;padding:13px 30px;background:var(--accent);color:#fff;border-radius:9px;font-weight:700;text-decoration:none;font-family:var(--hfont)}
+        .sap-pv-empty{color:#9aa8a1;font-family:'Merriweather',serif;font-size:18px;line-height:1.7;margin:40px 0}
+      `}</style>
+      <div className="sap-pv">
+        {cover && <img className="sap-pv-cover" src={cover} alt="" />}
+        <div className="sap-pv-col">
+          <h1 className="sap-pv-title">{title || 'Untitled'}</h1>
+          {hasContent
+            ? <div className="sap-pv-body" dangerouslySetInnerHTML={{ __html: html }} />
+            : <div className="sap-pv-empty">This is a live preview of your published post — the same fonts, column width and image sizing your readers will see. Start writing on the left and it appears here exactly as it'll look on the page.</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BlogEditor({ kind = 'post' }) {
   const isPage = kind === 'page';
   const API = isPage ? 'page' : 'post';
@@ -38,6 +96,8 @@ export default function BlogEditor({ kind = 'post' }) {
   const [body, setBody] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [cover, setCover] = useState('');
+  const [view, setView] = useState('split');        // write | split | preview
+  const [previewHtml, setPreviewHtml] = useState('');
   const [coverUploading, setCoverUploading] = useState(false);
   const [slug, setSlug] = useState('');
   const [status, setStatus] = useState('draft');
@@ -58,7 +118,7 @@ export default function BlogEditor({ kind = 'post' }) {
       try {
         const p = await apiGet(`/api/blog/${API}/${id}`);
         setTitle(p.title === 'Untitled' ? '' : p.title);
-        setBody(p.body || ''); bodyRef.current = p.body || '';
+        setBody(p.body || ''); bodyRef.current = p.body || ''; setPreviewHtml(p.body || '');
         setExcerpt(p.excerpt || ''); setCover(p.cover_image || '');
         setSlug(p.slug || ''); setStatus(p.status || 'draft'); setTags(p.tags || []);
         setSeoTitle(p.seo_title || ''); setSeoDescription(p.seo_description || ''); setOgImage(p.og_image || '');
@@ -76,7 +136,7 @@ export default function BlogEditor({ kind = 'post' }) {
     return data.url;
   };
 
-  const onBody = (html) => { bodyRef.current = html; };
+  const onBody = (html) => { bodyRef.current = html; setPreviewHtml(html); };
 
   const save = async (nextStatus) => {
     setSaving(true); setErr('');
@@ -172,43 +232,60 @@ export default function BlogEditor({ kind = 'post' }) {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', minHeight: 'calc(100vh - 64px)' }}>
-        {/* writing surface */}
-        <div style={{ overflow: 'auto' }}>
-          <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 50px 80px' }}>
-            <input
-              value={title} onChange={(e) => setTitle(e.target.value)}
-              placeholder={isPage ? "Page title" : "Post title"}
-              style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
-            />
-            {!isPage && (
-              <div style={{ marginTop: -8, marginBottom: 20 }}>
-                <button onClick={suggestTitles} disabled={aiBusy === 'titles'}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: '#6d28d9', background: '#f5f3ff', border: '1px solid #ede9fe', borderRadius: 8, padding: '7px 12px', cursor: aiBusy === 'titles' ? 'default' : 'pointer' }}>
-                  <Sparkles size={13} /> {aiBusy === 'titles' ? 'Thinking…' : 'Suggest titles'}
-                </button>
-                {aiErr && <span style={{ marginLeft: 10, fontSize: 12, color: '#b42318' }}>{aiErr}</span>}
-                {aiTitles.length > 0 && (
-                  <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {aiTitles.map((tt, i) => (
-                      <div key={i} onClick={() => { setTitle(tt); setAiTitles([]); }}
-                        style={{ cursor: 'pointer', fontSize: 14, color: C.ink2, padding: '9px 13px', background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, transition: 'border-color .12s' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#a78bfa')}
-                        onMouseLeave={(e) => (e.currentTarget.style.borderColor = C.line)}>
-                        {tt}
+        {/* writing surface + live preview */}
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 'calc(100vh - 64px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderBottom: `1px solid ${C.line}`, background: '#fff', flex: 'none' }}>
+            {[['write', '✍ Write'], ['split', '◫ Split'], ['preview', '👁 Preview']].map(([v, lbl]) => (
+              <button key={v} onClick={() => setView(v)} style={{ fontFamily: sora, fontSize: 12.5, fontWeight: 700, padding: '6px 13px', borderRadius: 8, cursor: 'pointer', border: 'none', background: view === v ? C.ink : '#eef2f7', color: view === v ? '#fff' : C.ink2 }}>{lbl}</button>
+            ))}
+            <span style={{ marginLeft: 'auto', fontSize: 12, color: C.dim }}>Preview = exactly how the published page will look</span>
+          </div>
+          <div style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+            {(view === 'write' || view === 'split') && (
+              <div style={{ flex: 1, overflow: 'auto', minWidth: 0, borderRight: view === 'split' ? `1px solid ${C.line}` : 'none' }}>
+                <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 44px 80px' }}>
+                  <input
+                    value={title} onChange={(e) => setTitle(e.target.value)}
+                    placeholder={isPage ? "Page title" : "Post title"}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontFamily: sora, fontSize: 38, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.12, color: C.ink, marginBottom: 20 }}
+                  />
+                  {!isPage && (
+                    <div style={{ marginTop: -8, marginBottom: 20 }}>
+                      <button onClick={suggestTitles} disabled={aiBusy === 'titles'}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: '#6d28d9', background: '#f5f3ff', border: '1px solid #ede9fe', borderRadius: 8, padding: '7px 12px', cursor: aiBusy === 'titles' ? 'default' : 'pointer' }}>
+                        <Sparkles size={13} /> {aiBusy === 'titles' ? 'Thinking…' : 'Suggest titles'}
+                      </button>
+                      {aiErr && <span style={{ marginLeft: 10, fontSize: 12, color: '#b42318' }}>{aiErr}</span>}
+                      {aiTitles.length > 0 && (
+                        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {aiTitles.map((tt, i) => (
+                            <div key={i} onClick={() => { setTitle(tt); setAiTitles([]); }}
+                              style={{ cursor: 'pointer', fontSize: 14, color: C.ink2, padding: '9px 13px', background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, transition: 'border-color .12s' }}
+                              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#a78bfa')}
+                              onMouseLeave={(e) => (e.currentTarget.style.borderColor = C.line)}>
+                              {tt}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {ready && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f0f9ff', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
+                        <ImageIcon size={15} color="#0ea5e9" style={{ flex: 'none' }} />
+                        <span><b>Add images to your post:</b> drag &amp; drop or paste one straight into the writing area, or use the image button. Select an image to set its <b>size &amp; position</b> — watch the Preview to see exactly where it lands.</span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… drag or paste images in, or use the toolbar for headings, callouts, video, buttons and links." />
+                    </>
+                  )}
+                </div>
               </div>
             )}
-            {ready && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f0f9ff', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
-                  <ImageIcon size={15} color="#0ea5e9" style={{ flex: 'none' }} />
-                  <span><b>Add images to your post:</b> drag &amp; drop or paste one straight into the writing area below, or use the image button in the toolbar. It uploads automatically and appears inline.</span>
-                </div>
-                <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… drag or paste images in, or use the toolbar for headings, callouts, video, buttons and links." />
-              </>
+            {(view === 'preview' || view === 'split') && (
+              <div style={{ flex: 1, overflow: 'auto', minWidth: 0, background: '#f4f5f7' }}>
+                <BlogPreview title={title} cover={cover} html={previewHtml} />
+              </div>
             )}
           </div>
         </div>
