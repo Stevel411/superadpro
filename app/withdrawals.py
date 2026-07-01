@@ -212,20 +212,34 @@ def validate_affiliate_withdrawal(db, user, amount):
     """
     Wallet-specific check for affiliate (membership / course / Pay It
     Forward / Creative Studio sponsor) withdrawals. Verifies sufficient
-    balance in the affiliate column.
+    balance in the affiliate column AND the daily Watch-to-Earn gate.
 
-    The affiliate wallet is FREELY WITHDRAWABLE (1 Jul 2026, Steve): no
-    watch-to-earn gate. Watching relates to the CAMPAIGN side — it's how a
-    tier holder unlocks the CAMPAIGN wallet, not the affiliate wallet. The
-    earlier (21 Jun) universal affiliate watch-gate was removed: it was
-    unsatisfiable for tier-less members anyway (watching was itself tier-gated,
-    now opened) and put a daily-video wall in front of affiliate cash-out,
-    which is not the intended model.
+    Watch gate (universal — restored 1 Jul 2026, Steve): EVERY member —
+    membership-only and campaign-tier holders alike — must watch one video
+    TODAY to unlock affiliate withdrawals. This is the load-bearing mechanism
+    of the platform: it guarantees a daily stream of real views to the
+    campaign-tier owners who paid to advertise. Watching itself is open to all
+    (the tier gate on /api/watch was removed) precisely so every member can
+    satisfy this. Admins and watch-exempt members (daily_required == 0) are not
+    gated. Request-time only; the retry/processing path never re-validates
+    affiliate withdrawals, so a withdrawal requested today can't be blocked by
+    a missed watch on a later processing day.
     Returns {"valid": True} or {"valid": False, "error": "reason"}
     """
     amount = Decimal(str(amount))
     if Decimal(str(user.balance or 0)) < amount:
         return {"valid": False, "error": f"Insufficient affiliate balance. Available: ${float(user.balance or 0):.2f}"}
+
+    if not getattr(user, "is_admin", False):
+        from .database import WatchQuota
+        from datetime import date
+        today_str = str(date.today())
+        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+        # daily_required can legitimately be 0 (explicit watch exemption) — honour it.
+        required = 0 if (quota and quota.daily_required == 0) else 1
+        watched = (quota.today_watched or 0) if (quota and quota.today_date == today_str) else 0
+        if watched < required:
+            return {"valid": False, "error": "Watch today's video to unlock withdrawals. One short video keeps your wallet active for the day — head to Watch to Earn."}
 
     return {"valid": True}
 
