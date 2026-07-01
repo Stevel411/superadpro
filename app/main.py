@@ -51389,6 +51389,75 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
 # tables remain in the database for historical data integrity but are no
 # longer written to.
 
+@app.get("/admin/api/watch-pool-debug")
+def admin_watch_pool_debug(user_id: int = 0,
+                           user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Read-only: what the Watch-to-Earn rotation can actually serve, and what a
+    given viewer would get right now. Explains an empty/short pool.
+    Tappable: /admin/api/watch-pool-debug?user_id=293
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from .database import VideoCampaign
+    from sqlalchemy import func as _f
+
+    by_status = dict(db.query(VideoCampaign.status, _f.count(VideoCampaign.id))
+                       .group_by(VideoCampaign.status).all())
+    active = (db.query(VideoCampaign)
+                .filter(VideoCampaign.status == "active",
+                        VideoCampaign.is_completed == False).all())
+    rows, servable = [], 0
+    for c in active:
+        owner = db.query(User).filter(User.id == c.user_id).first()
+        owner_ht = get_user_highest_tier(db, c.user_id) if owner else None
+        reasons = []
+        if not owner:
+            reasons.append("owner missing")
+        else:
+            if not owner.is_active and not owner.is_admin:
+                reasons.append("owner inactive")
+            if not owner.is_admin and owner_ht is not None and owner_ht < 0:
+                reasons.append("owner has no active tier")
+        if c.owner_tier is None or c.owner_tier < 0:
+            reasons.append("campaign.owner_tier unset (<0/None)")
+        if c.grace_expires_at and c.grace_expires_at < datetime.utcnow():
+            reasons.append("grace expired")
+        ok = not reasons
+        servable += 1 if ok else 0
+        rows.append({
+            "id": c.id, "title": c.title, "owner_id": c.user_id,
+            "owner": owner.username if owner else None,
+            "owner_active": (bool(owner.is_active) if owner else None),
+            "owner_highest_tier": owner_ht,
+            "campaign_owner_tier": c.owner_tier,
+            "views": f"{c.views_delivered or 0}/{c.views_target or 0}",
+            "servable": ok, "excluded_because": reasons,
+        })
+
+    next_for_viewer = None
+    if user_id:
+        nc = get_next_content(db, user_id)
+        if nc and nc.get("type") == "video":
+            v = nc["data"]
+            next_for_viewer = {"id": v.id, "title": v.title, "owner_id": v.user_id}
+        else:
+            next_for_viewer = "NONE — rotation returns no video for this viewer"
+
+    return {
+        "campaigns_by_status": by_status,
+        "active_not_completed": len(active),
+        "servable_pool_size": servable,
+        "campaigns": rows,
+        "viewer_user_id": user_id,
+        "next_for_viewer": next_for_viewer,
+        "note": ("servable = active + not completed + owner active + owner has a "
+                 "tier + campaign.owner_tier set + grace not expired. A viewer "
+                 "also never sees their OWN campaigns, and monthly per-campaign "
+                 "view caps can further limit what THEY get."),
+    }
+
+
 @app.get("/api/watch")
 @limiter.limit("30/minute")
 def api_watch_data(request: Request, user: User = Depends(get_current_user),
