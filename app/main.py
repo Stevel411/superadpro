@@ -57549,6 +57549,51 @@ async def api_blog_upload_image(file: UploadFile = File(...), request: Request =
     return JSONResponse({"success": True, "url": url})
 
 
+@app.get("/admin/api/blog-post-debug")
+def admin_blog_post_debug(post_id: int = 0, request: Request = None,
+                          user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Read-only: why a post's image isn't showing. Dumps the stored body's
+    <img> srcs and what survives sanitize (the public render), plus R2 config.
+    Tappable: /admin/api/blog-post-debug?post_id=N  (N from /my-site/edit/N)
+    """
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    import re as _r
+    from . import blog_render as _br
+    p = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if not p:
+        return JSONResponse({"error": "post not found", "post_id": post_id}, status_code=404)
+
+    def _srcs(html):
+        return _r.findall(r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']', html or "", _r.I)
+
+    raw_srcs = _srcs(p.body)
+    sanitized = _br.sanitize_html(p.body or "")
+    san_srcs = _srcs(sanitized)
+
+    def _classify(s):
+        if s.startswith("data:"):   return "data-URL (base64) — STRIPPED by public sanitizer (data: not allowed)"
+        if s.startswith("http"):    return "absolute http(s) — OK"
+        if s.startswith("/"):       return "relative path — renders only if that path is served"
+        return "other/unknown"
+
+    import os as _os
+    return {
+        "post_id": p.id, "status": p.status, "title": p.title,
+        "body_length": len(p.body or ""),
+        "img_count_stored": len(raw_srcs),
+        "stored_img_srcs": [{"src": s[:120], "kind": _classify(s)} for s in raw_srcs[:6]],
+        "img_count_after_sanitize": len(san_srcs),
+        "sanitize_dropped_images": len(raw_srcs) - len(san_srcs),
+        "R2_PUBLIC_URL_set": bool(_os.getenv("R2_PUBLIC_URL", "").strip()),
+        "note": ("If stored=0 → not saved. If a src is data-URL → base64 (old "
+                 "path) gets stripped on render. If relative and R2_PUBLIC_URL "
+                 "is false → uploader returned a pathless URL. If absolute http "
+                 "but still blank → the R2 object itself isn't public/reachable."),
+    }
+
+
 @app.get("/admin/api/blog-sanitize-all")
 def admin_blog_sanitize_all(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """One-time/idempotent: sanitize all stored post bodies and migrate any
