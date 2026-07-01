@@ -575,6 +575,17 @@ export default function Wallet() {
         {/* Send Funds */}
         <Card title={t("wallet.sendFunds")} dotColor="var(--sap-accent)">
           <p style={{ fontSize: 16, color: '#3d5068', marginBottom: 16 }}>{t('wallet.sendFundsDesc')}</p>
+          {/* Your own Member ID — share this (or your username) so others can send you funds. */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '11px 15px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, marginBottom: 14 }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#0369a1', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('wallet.yourMemberId', { defaultValue: 'Your Member ID' })}</div>
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 800, color: 'var(--sap-cobalt-deep, #0a1438)', marginTop: 2 }}>{memberId}</div>
+            </div>
+            <button onClick={copyMemberId} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #0ea5e9', background: memberIdCopied ? '#0ea5e9' : '#fff', color: memberIdCopied ? '#fff' : '#0ea5e9', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+              {memberIdCopied ? t('wallet.copied', { defaultValue: '✓ Copied' }) : t('wallet.copyId', { defaultValue: 'Copy ID' })}
+            </button>
+          </div>
+          <p style={{ fontSize: 14, color: '#7b91a8', marginBottom: 16 }}>{t('wallet.sendFundsIdHint', { defaultValue: 'Share your Member ID (or your username) with another member so they can send you funds. To send, enter their Member ID or username below.' })}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ ...labelStyle, fontSize: 14 }}>{t('wallet.recipientMemberId')}</label>
