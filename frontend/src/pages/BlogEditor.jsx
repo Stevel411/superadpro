@@ -34,7 +34,7 @@ function BlogPreview({ title, cover, html }) {
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap');
         .sap-pv{container-type:inline-size;background:#fff;min-height:100%;--accent:#0ea5e9;--hfont:'Inter',sans-serif}
         .sap-pv-cover{display:block;width:100%;max-height:440px;object-fit:cover}
-        .sap-pv-col{max-width:720px;margin:0 auto;padding:0 32px}
+        .sap-pv-col{max-width:820px;margin:0 auto;padding:0 32px}
         .sap-pv-title{font-family:'Merriweather',serif;font-weight:900;font-size:40px;line-height:1.15;color:#1a2b23;margin:40px 0 20px}
         .sap-pv-body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
         .sap-pv-body p{margin:26px 0}
@@ -61,7 +61,7 @@ function BlogPreview({ title, cover, html }) {
         .sap-pv-body .bn-callout[data-type="warning"]::before{content:'!';background:#d97706;font-style:normal}
         .sap-pv-body .bn-callout[data-type="success"]{border-left-color:#7c3aed;background:color-mix(in srgb,#7c3aed 8%,transparent)}
         .sap-pv-body .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
-        .sap-pv-body .bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
+        .sap-pv-body .bn-embed{position:relative;aspect-ratio:16/9;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
         .sap-pv-body .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
         .sap-pv-body .bn-embed[data-align="left"]{float:left;width:min(48%,340px);margin:8px 28px 14px 0}
         .sap-pv-body .bn-embed[data-align="right"]{float:right;width:min(48%,340px);margin:8px 0 14px 28px}

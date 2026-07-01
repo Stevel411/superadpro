@@ -487,7 +487,7 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap .bn-callout[data-type="warning"]::before { content: '!'; background: #d97706; font-style: normal; }
         .tiptap .bn-callout[data-type="success"] { border-left-color: #7c3aed; background: #faf5ff; }
         .tiptap .bn-callout[data-type="success"]::before { content: '✓'; background: #7c3aed; font-style: normal; }
-        .tiptap .bn-embed { position: relative; padding-bottom: 56.25%; height: 0; margin: 18px 0; border-radius: 10px; overflow: hidden; background: #000; }
+        .tiptap .bn-embed { position: relative; aspect-ratio: 16/9; margin: 18px 0; border-radius: 10px; overflow: hidden; background: #000; }
         .tiptap .bn-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
         /* Video layout: same data-w / data-align model as images, so a video can
            float with text wrapping beside it (left/right) or size up (wide/full). */

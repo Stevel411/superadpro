@@ -404,7 +404,7 @@ _BANNER_CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:inherit}
-.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}.article{max-width:720px;margin:0 auto;padding:0 40px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}.article{max-width:820px;margin:0 auto;padding:0 40px}
 .bhead{border-bottom:1px solid var(--line);background:#fff}.bhead .in{display:flex;align-items:center;height:74px;gap:24px}
 .blogname{font-family:'Merriweather',serif;font-weight:900;font-size:24px;letter-spacing:-.3px}
 .bnav{margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
@@ -665,7 +665,7 @@ _BLOCKS_CSS = """
 .bn-callout[data-type="warning"]::before{content:'!';background:#d97706;font-style:normal}
 .bn-callout[data-type="success"]{border-left-color:#7c3aed;background:#faf5ff;background:color-mix(in srgb,#7c3aed 8%,transparent)}
 .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
-.bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
+.bn-embed{position:relative;aspect-ratio:16/9;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
 .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 /* Video layout mirrors the image data-w / data-align model: float left/right so
    text wraps beside the clip, or size up to wide / full. Same 16:9 aspect box. */
