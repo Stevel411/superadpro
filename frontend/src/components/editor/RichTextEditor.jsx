@@ -15,6 +15,28 @@ import {
   Info, Video, Megaphone, Sparkles
 } from 'lucide-react';
 
+// Custom image node: adds a width preset (normal/wide/full) and alignment
+// (left/center/right) on top of the stock image, rendered as data-w / data-align
+// so the same CSS styles it identically in the editor and on the public post.
+// Defaults (normal/center) render nothing extra, keeping existing images clean.
+const SapImage = ImageExt.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      dataW: {
+        default: 'normal',
+        parseHTML: function(el) { return el.getAttribute('data-w') || 'normal'; },
+        renderHTML: function(attrs) { return (attrs.dataW && attrs.dataW !== 'normal') ? { 'data-w': attrs.dataW } : {}; },
+      },
+      dataAlign: {
+        default: 'center',
+        parseHTML: function(el) { return el.getAttribute('data-align') || 'center'; },
+        renderHTML: function(attrs) { return (attrs.dataAlign && attrs.dataAlign !== 'center') ? { 'data-align': attrs.dataAlign } : {}; },
+      },
+    };
+  },
+});
+
 export default function RichTextEditor({ content, onChange, placeholder, onImageUpload, richBlocks }) {
 
   var { t } = useTranslation();
@@ -44,7 +66,7 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         heading: { levels: [1, 2, 3] },
       }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'editor-link' } }),
-      ImageExt.configure({ inline: false, allowBase64: true }),
+      SapImage.configure({ inline: false, allowBase64: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Underline,
       Callout, VideoEmbed, CtaButton,
@@ -257,6 +279,28 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
             {editor.getAttributes('image').alt ? 'ALT ✓' : '⚠ ALT'}
           </button>
         )}
+        {editor.isActive('image') && (() => {
+          var ia = editor.getAttributes('image');
+          var w = ia.dataW || 'normal';
+          var al = ia.dataAlign || 'center';
+          var setW = function(v){ editor.chain().focus().updateAttributes('image', { dataW: v }).run(); };
+          var setAl = function(v){ editor.chain().focus().updateAttributes('image', { dataAlign: v }).run(); };
+          var pill = function(active){ return {height:30,padding:'0 9px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:3,background:active?'#0ea5e9':'#eef2f7',color:active?'#fff':'#475569'}; };
+          return (
+            <>
+              <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
+              <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Size</span>
+              <button onClick={function(){setW('normal');}} style={pill(w==='normal')} title="Normal — text column width">Normal</button>
+              <button onClick={function(){setW('wide');}} style={pill(w==='wide')} title="Wide — breaks out past the text">Wide</button>
+              <button onClick={function(){setW('full');}} style={pill(w==='full')} title="Full width — edge to edge">Full</button>
+              <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
+              <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Align</span>
+              <button onClick={function(){setAl('left');}} style={pill(al==='left')} title="Float left (text wraps)"><AlignLeft size={13}/></button>
+              <button onClick={function(){setAl('center');}} style={pill(al==='center')} title="Center"><AlignCenter size={13}/></button>
+              <button onClick={function(){setAl('right');}} style={pill(al==='right')} title="Float right (text wraps)"><AlignRight size={13}/></button>
+            </>
+          );
+        })()}
 
         {richBlocks && (<>
         <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
@@ -404,7 +448,16 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap pre { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 8px; font-family: monospace; font-size: 13px; overflow-x: auto; margin: 12px 0; }
         .tiptap code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #8b5cf6; }
         .tiptap hr { border: none; border-top: 2px solid #e8ecf2; margin: 16px 0; }
-        .tiptap img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+        .tiptap img { max-width: 100%; height: auto; border-radius: 8px; margin: 14px auto; display: block; }
+        /* Size presets + alignment mirrored from the public render so the editor
+           is WYSIWYG. 'normal' is capped so 'wide'/'full' visibly differ. */
+        .tiptap img[data-w="normal"], .tiptap img:not([data-w]):not([data-align]) { max-width: min(100%, 560px); }
+        .tiptap img[data-align="left"] { float: left; max-width: min(50%, 340px); margin: 6px 20px 12px 0; }
+        .tiptap img[data-align="right"] { float: right; max-width: min(50%, 340px); margin: 6px 0 12px 20px; }
+        .tiptap img[data-w="wide"] { float: none; max-width: 100%; width: 100%; margin: 16px auto; }
+        .tiptap img[data-w="full"] { float: none; max-width: 100%; width: 100%; margin: 16px auto; border-radius: 4px; }
+        .tiptap::after { content: ""; display: table; clear: both; }
+        .tiptap h2, .tiptap h3, .tiptap blockquote { clear: both; }
         /* Editor-only nudge: images with no alt text get a dashed amber ring so
            the author can see (and fix) SEO/accessibility gaps before publishing.
            Does not affect the public render. */

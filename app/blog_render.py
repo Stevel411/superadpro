@@ -36,7 +36,7 @@ _SANITIZE_TAGS = {
 }
 _SANITIZE_ATTRS = {
     "a": ["href", "title", "target", "rel", "class"],
-    "img": ["src", "alt", "title", "width", "height", "loading"],
+    "img": ["src", "alt", "title", "width", "height", "loading", "data-w", "data-align"],
     "span": ["class"], "p": ["class"], "div": ["class", "data-type"],
     "h1": ["class"], "h2": ["class"], "h3": ["class"],
     "code": ["class"], "pre": ["class"],
@@ -436,7 +436,15 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .cover{aspect-ratio:16/8;border-radius:18px;margin:14px auto 0;max-width:1000px;width:100%;object-fit:cover;display:block;box-shadow:0 28px 60px -32px rgba(20,40,70,.35)}
 .body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
 .body p{margin:26px 0}.body h2{font-size:30px;font-weight:900;margin:46px 0 4px;line-height:1.2}
-.body img{max-width:100%;border-radius:14px;margin:30px 0}
+.body img{max-width:100%;height:auto;border-radius:14px;margin:30px auto;display:block}
+/* Image size presets + alignment (data-w / data-align from the editor). Column
+   is 720px; wide/full break out symmetrically; left/right float with text wrap. */
+.body img[data-align="left"]{float:left;max-width:min(48%,360px);margin:8px 30px 16px 0}
+.body img[data-align="right"]{float:right;max-width:min(48%,360px);margin:8px 0 16px 30px}
+.body img[data-w="wide"]{float:none;width:min(1040px,92vw);max-width:none;margin-left:calc(50% - min(520px,46vw));margin-right:0}
+.body img[data-w="full"]{float:none;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);border-radius:0}
+.body::after{content:"";display:table;clear:both}
+.body h2,.body h3,.body blockquote{clear:both}
 .body blockquote{border-left:4px solid var(--accent);padding:6px 0 6px 26px;margin:34px 0;font-size:24px;font-style:italic;line-height:1.5}
 .share-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;margin:48px 0 0}
 .share-row .btns{display:flex;gap:9px}.share-row .lbl{font-size:13px;color:var(--soft);margin-right:4px}
