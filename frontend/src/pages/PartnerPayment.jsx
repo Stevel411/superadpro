@@ -132,10 +132,13 @@ export default function PartnerPayment() {
   var isFounder = user?.is_founding_member === true;
   var foundingOpen = !!(status && status.is_open && !isActive && (user?.founder_eligible !== false));
   var refreshUser = setUser ? function() {
-    // Re-fetch user state after activation. AuthProvider exposes setUser
-    // but we re-fetch via /api/me to get fresh server-side values.
-    apiGet('/api/me').then(function(r) { if (r && r.user) setUser(r.user); }).catch(function() {});
-  } : function() {};
+    // Re-fetch user state after activation/renewal. /api/me returns the user
+    // fields at the TOP level (matching useAuth's setUser(data)) — NOT nested
+    // under r.user, so check r.id and pass r straight through. Returns the
+    // promise so callers can await before navigating (otherwise the balance
+    // and membership_overdue banner render stale until a manual refresh).
+    return apiGet('/api/me').then(function(r) { if (r && r.id) setUser(r); }).catch(function() {});
+  } : function() { return Promise.resolve(); };
 
   // Price calculation (derived from status; falls back to standard if status
   // hasn't loaded yet so the UI never shows $0)
@@ -259,12 +262,13 @@ export default function PartnerPayment() {
     if (!ok) return;
     setLoading(true);
     apiPost('/api/membership/renew-from-balance', {})
-      .then(function(d) {
-        setLoading(false);
+      .then(async function(d) {
         if (d.success) {
-          refreshUser();
+          await refreshUser();          // land on fresh balance + cleared banner, no manual refresh
+          setLoading(false);
           navigate('/wallet?tab=renewal&renewed=1');
         } else {
+          setLoading(false);
           setError(d.error || t('partner.errorBalanceRenew', { defaultValue: "We couldn't renew from your balance. Please try again." }));
         }
       })
