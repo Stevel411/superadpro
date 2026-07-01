@@ -37,7 +37,7 @@ _SANITIZE_TAGS = {
 _SANITIZE_ATTRS = {
     "a": ["href", "title", "target", "rel", "class"],
     "img": ["src", "alt", "title", "width", "height", "loading", "data-w", "data-align"],
-    "span": ["class"], "p": ["class"], "div": ["class", "data-type"],
+    "span": ["class"], "p": ["class"], "div": ["class", "data-type", "data-w", "data-align"],
     "h1": ["class"], "h2": ["class"], "h3": ["class"],
     "code": ["class"], "pre": ["class"],
     "iframe": ["src", "width", "height", "frameborder", "allow",
@@ -667,6 +667,20 @@ _BLOCKS_CSS = """
 .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
 .bn-embed{position:relative;padding-bottom:56.25%;height:0;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
 .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* Video layout mirrors the image data-w / data-align model: float left/right so
+   text wraps beside the clip, or size up to wide / full. Same 16:9 aspect box. */
+.bn-embed[data-align="left"]{float:left;width:min(48%,360px);margin:8px 30px 16px 0}
+.bn-embed[data-align="right"]{float:right;width:min(48%,360px);margin:8px 0 16px 30px}
+.bn-embed[data-w="wide"]{width:min(1040px,92vw);margin-left:calc(50% - min(520px,46vw));margin-right:0}
+.bn-embed[data-w="full"]{width:100vw;margin-left:calc(50% - 50vw);border-radius:0}
+/* Phones: floated media un-floats to full width so it never becomes a sliver;
+   wide/full collapse to the column. */
+@media (max-width:600px){
+  .body img[data-align="left"],.body img[data-align="right"],
+  .bn-embed[data-align="left"],.bn-embed[data-align="right"]{float:none;width:auto;max-width:100%;margin:22px auto}
+  .body img[data-w="wide"],.body img[data-w="full"],
+  .bn-embed[data-w="wide"],.bn-embed[data-w="full"]{width:100%;max-width:100%;margin-left:auto;margin-right:auto}
+}
 .bn-btn-wrap{margin:26px 0;text-align:center}
 .bn-btn{display:inline-block;padding:13px 30px;background:var(--accent);color:#fff;border-radius:9px;font-weight:700;text-decoration:none;font-family:var(--hfont)}
 .bn-btn:hover{filter:brightness(1.06)}

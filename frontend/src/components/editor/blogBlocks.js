@@ -75,7 +75,23 @@ export const VideoEmbed = Node.create({
   draggable: true,
 
   addAttributes() {
-    return { src: { default: null } };
+    return {
+      src: { default: null },
+      // Size preset (normal/wide/full) + alignment (left/center/right), stored
+      // as data-w / data-align on the wrapper div so the SAME CSS lays the video
+      // out identically in the editor, the live preview, and the public post.
+      // 'normal'/'center' render nothing extra, keeping existing embeds clean.
+      dataW: {
+        default: 'normal',
+        parseHTML: (el) => el.getAttribute('data-w') || 'normal',
+        renderHTML: (attrs) => (attrs.dataW && attrs.dataW !== 'normal') ? { 'data-w': attrs.dataW } : {},
+      },
+      dataAlign: {
+        default: 'center',
+        parseHTML: (el) => el.getAttribute('data-align') || 'center',
+        renderHTML: (attrs) => (attrs.dataAlign && attrs.dataAlign !== 'center') ? { 'data-align': attrs.dataAlign } : {},
+      },
+    };
   },
 
   parseHTML() {
@@ -90,14 +106,18 @@ export const VideoEmbed = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ node }) {
+    const wrap = { class: 'bn-embed' };
+    const w = node.attrs.dataW, a = node.attrs.dataAlign;
+    if (w && w !== 'normal') wrap['data-w'] = w;
+    if (a && a !== 'center') wrap['data-align'] = a;
     return [
       'div',
-      { class: 'bn-embed' },
+      wrap,
       [
         'iframe',
         {
-          src: HTMLAttributes.src || '',
+          src: node.attrs.src || '',
           frameborder: '0',
           allowfullscreen: 'true',
           loading: 'lazy',

@@ -279,25 +279,38 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
             {editor.getAttributes('image').alt ? 'ALT ✓' : '⚠ ALT'}
           </button>
         )}
-        {editor.isActive('image') && (() => {
-          var ia = editor.getAttributes('image');
-          var w = ia.dataW || 'normal';
-          var al = ia.dataAlign || 'center';
-          var setW = function(v){ editor.chain().focus().updateAttributes('image', { dataW: v }).run(); };
-          var setAl = function(v){ editor.chain().focus().updateAttributes('image', { dataAlign: v }).run(); };
-          var pill = function(active){ return {height:30,padding:'0 9px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:3,background:active?'#0ea5e9':'#eef2f7',color:active?'#fff':'#475569'}; };
+        {(editor.isActive('image') || editor.isActive('videoEmbed')) && (() => {
+          // One coherent layout control for the selected media (image OR video).
+          // Left/Right float + shrink so text wraps beside; Normal/Wide/Full are
+          // standalone block sizes. Each choice sets BOTH data-w and data-align
+          // so the two can never conflict (the old Wide+Left bug).
+          var nodeName = editor.isActive('image') ? 'image' : 'videoEmbed';
+          var na = editor.getAttributes(nodeName);
+          var w = na.dataW || 'normal';
+          var al = na.dataAlign || 'center';
+          var cur = (al === 'left') ? 'left'
+                  : (al === 'right') ? 'right'
+                  : (w === 'wide') ? 'wide'
+                  : (w === 'full') ? 'full'
+                  : 'normal';
+          var setLayout = function(key){
+            var attrs = (key === 'left')  ? { dataAlign:'left',   dataW:'normal' }
+                      : (key === 'right') ? { dataAlign:'right',  dataW:'normal' }
+                      : (key === 'wide')  ? { dataAlign:'center', dataW:'wide'   }
+                      : (key === 'full')  ? { dataAlign:'center', dataW:'full'   }
+                      :                     { dataAlign:'center', dataW:'normal' };
+            editor.chain().focus().updateAttributes(nodeName, attrs).run();
+          };
+          var pill = function(active){ return {height:30,padding:'0 9px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4,background:active?'#0ea5e9':'#eef2f7',color:active?'#fff':'#475569'}; };
           return (
             <>
               <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
-              <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Size</span>
-              <button onClick={function(){setW('normal');}} style={pill(w==='normal')} title="Normal — text column width">Normal</button>
-              <button onClick={function(){setW('wide');}} style={pill(w==='wide')} title="Wide — breaks out past the text">Wide</button>
-              <button onClick={function(){setW('full');}} style={pill(w==='full')} title="Full width — edge to edge">Full</button>
-              <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
-              <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Align</span>
-              <button onClick={function(){setAl('left');}} style={pill(al==='left')} title="Float left (text wraps)"><AlignLeft size={13}/></button>
-              <button onClick={function(){setAl('center');}} style={pill(al==='center')} title="Center"><AlignCenter size={13}/></button>
-              <button onClick={function(){setAl('right');}} style={pill(al==='right')} title="Float right (text wraps)"><AlignRight size={13}/></button>
+              <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Layout</span>
+              <button onClick={function(){setLayout('left');}}   style={pill(cur==='left')}   title="Float left — text wraps to the right"><AlignLeft size={13}/>Left</button>
+              <button onClick={function(){setLayout('normal');}} style={pill(cur==='normal')} title="Normal — sits in the text column">Normal</button>
+              <button onClick={function(){setLayout('wide');}}   style={pill(cur==='wide')}   title="Wide — breaks out past the text">Wide</button>
+              <button onClick={function(){setLayout('full');}}   style={pill(cur==='full')}   title="Full — edge to edge">Full</button>
+              <button onClick={function(){setLayout('right');}}  style={pill(cur==='right')}  title="Float right — text wraps to the left">Right<AlignRight size={13}/></button>
             </>
           );
         })()}
@@ -476,6 +489,19 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap .bn-callout[data-type="success"]::before { content: '✓'; background: #7c3aed; font-style: normal; }
         .tiptap .bn-embed { position: relative; padding-bottom: 56.25%; height: 0; margin: 18px 0; border-radius: 10px; overflow: hidden; background: #000; }
         .tiptap .bn-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        /* Video layout: same data-w / data-align model as images, so a video can
+           float with text wrapping beside it (left/right) or size up (wide/full). */
+        .tiptap .bn-embed[data-align="left"] { float: left; width: min(50%, 340px); margin: 6px 20px 12px 0; }
+        .tiptap .bn-embed[data-align="right"] { float: right; width: min(50%, 340px); margin: 6px 0 12px 20px; }
+        .tiptap .bn-embed[data-w="wide"] { float: none; width: 100%; margin: 16px auto; }
+        .tiptap .bn-embed[data-w="full"] { float: none; width: 100%; margin: 16px auto; border-radius: 4px; }
+        .tiptap .bn-embed.ProseMirror-selectednode { outline: 2px solid #0ea5e9; outline-offset: 2px; }
+        /* On narrow editor panes / phones, floated media stops floating and goes
+           full width so it never squeezes into an unreadable sliver. */
+        @media (max-width: 600px) {
+          .tiptap img[data-align="left"], .tiptap img[data-align="right"],
+          .tiptap .bn-embed[data-align="left"], .tiptap .bn-embed[data-align="right"] { float: none; width: auto; max-width: 100%; margin: 14px auto; }
+        }
         .tiptap .bn-btn-wrap { margin: 18px 0; }
         .tiptap .bn-btn { display: inline-block; padding: 11px 22px; background: #0ea5e9; color: #fff; border-radius: 8px; font-weight: 700; text-decoration: none; }
       `}</style>
