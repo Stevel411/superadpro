@@ -272,35 +272,12 @@ export default function Watch() {
 
   // Tier-locked screen — Watch-to-Earn requires an active Campaign Tier.
   // Admins and existing tier holders bypass; everyone else gets a clear CTA
-  // straight to /campaign-tiers rather than a broken / empty video player.
-  // Watch-to-Earn requires an active Campaign Tier. The backend qualifies a
-  // member when get_user_highest_tier >= 0 (so tier 0 = Launchpad counts).
-  // NOTE: must NOT write `highest_tier && highest_tier >= 0` — when the value
-  // is 0, `0 && ...` short-circuits falsy and would wrongly lock Launchpad
-  // members. Test the type + sign explicitly instead.
-  const _ht = user ? user.highest_tier : null;
-  const _hasTier = (typeof _ht === 'number') && _ht >= 0;
-  if (user && !user.is_admin && !_hasTier) return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
-      <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
-        <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
-        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,marginBottom:12,color:'var(--sap-text-primary)'}}>
-          {t('watch.lockedTitle', {defaultValue: 'Watch-to-Earn is locked'})}
-        </h2>
-        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:28,maxWidth:380,margin:'0 auto 28px'}}>
-          {t('watch.lockedDesc', {defaultValue: 'Watch-to-Earn unlocks when you activate a Campaign Tier. Your tier determines how many videos you watch daily and what you earn from each one.'})}
-        </p>
-        <Link to="/campaign-tiers" style={{
-          display:'inline-flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,
-          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',
-          fontWeight:800,fontSize:14,fontFamily:'Sora,sans-serif',
-          textDecoration:'none',boxShadow:'0 6px 20px rgba(14,165,233,0.4)',
-        }}>
-          {t('watch.lockedCta', {defaultValue: 'View Campaign Tiers'})} →
-        </Link>
-      </div>
-    </AppLayout>
-  );
+  // Watch-to-Earn is OPEN TO ALL members (1 Jul 2026, Steve). Watching a video
+  // is how every member — membership-only and tier holders alike — satisfies
+  // the daily gate that unlocks their affiliate wallet, AND it supplies the
+  // views campaign-tier owners paid to advertise. No tier is required to watch;
+  // buying a tier unlocks the CAMPAIGN wallet + campaign creation, not watching.
+  // (Removed the client-side tier lock that dead-ended tier-less members here.)
 
   if (!data) return (
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
