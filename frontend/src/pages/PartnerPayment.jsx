@@ -385,6 +385,11 @@ export default function PartnerPayment() {
             </button>
           </div>
         </div>
+        {/* Consent modal MUST be mounted in this renew branch too — the card
+            and crypto buttons here call ensureConsent(), which shows this modal
+            and awaits accept/decline. Without it mounted the promise never
+            resolves and the buttons silently do nothing. */}
+        {consentModal}
       </AppLayout>
     );
   }
