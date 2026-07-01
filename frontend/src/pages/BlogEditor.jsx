@@ -201,7 +201,15 @@ export default function BlogEditor({ kind = 'post' }) {
                 )}
               </div>
             )}
-            {ready && <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… use the toolbar for headings, callouts, video, buttons, images and links." />}
+            {ready && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f0f9ff', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
+                  <ImageIcon size={15} color="#0ea5e9" style={{ flex: 'none' }} />
+                  <span><b>Add images to your post:</b> drag &amp; drop or paste one straight into the writing area below, or use the image button in the toolbar. It uploads automatically and appears inline.</span>
+                </div>
+                <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… drag or paste images in, or use the toolbar for headings, callouts, video, buttons and links." />
+              </>
+            )}
           </div>
         </div>
 
@@ -250,8 +258,8 @@ export default function BlogEditor({ kind = 'post' }) {
               placeholder={excerpt || 'Defaults to your excerpt — a compelling 1–2 sentence summary.'}
               style={{ ...seoInput, resize: 'vertical', lineHeight: 1.5 }} />
             <div style={seoHint}>{(seoDescription || excerpt || '').length}/160 — the grey summary under the title in search.</div>
-            <div style={{ ...seoLbl, marginTop: 13 }}>Social share image</div>
-            <div style={seoHint}>Shown when your post is shared. Falls back to the cover image.</div>
+            <div style={{ ...seoLbl, marginTop: 13 }}>Social share thumbnail</div>
+            <div style={seoHint}>Only appears when your post <b>link is shared</b> on social media — <b>not on the post page itself</b>. Falls back to the cover. For an image people see <b>on the post</b>, use the Cover image or drop one into the body.</div>
             {ogImage ? (
               <div style={{ marginTop: 7 }}>
                 <div style={{ aspectRatio: '1.91/1', borderRadius: 9, background: `url(${ogImage}) center/cover`, border: `1px solid ${C.line}` }} />
@@ -259,7 +267,7 @@ export default function BlogEditor({ kind = 'post' }) {
               </div>
             ) : (
               <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 7, fontFamily: sora, fontSize: 12.5, fontWeight: 600, color: C.ink2, background: '#fff', border: `1px solid ${C.line}`, borderRadius: 8, padding: '8px 12px', cursor: ogUploading ? 'default' : 'pointer' }}>
-                <ImageIcon size={14} /> {ogUploading ? 'Uploading…' : 'Upload image'}
+                <ImageIcon size={14} /> {ogUploading ? 'Uploading…' : 'Upload thumbnail'}
                 <input type="file" accept="image/*" hidden onChange={onOg} />
               </label>
             )}
