@@ -91,6 +91,11 @@ export const VideoEmbed = Node.create({
         parseHTML: (el) => el.getAttribute('data-align') || 'center',
         renderHTML: (attrs) => (attrs.dataAlign && attrs.dataAlign !== 'center') ? { 'data-align': attrs.dataAlign } : {},
       },
+      dataScale: {
+        default: 'md',
+        parseHTML: (el) => el.getAttribute('data-scale') || 'md',
+        renderHTML: (attrs) => (attrs.dataScale && attrs.dataScale !== 'md') ? { 'data-scale': attrs.dataScale } : {},
+      },
     };
   },
 
@@ -108,9 +113,10 @@ export const VideoEmbed = Node.create({
 
   renderHTML({ node }) {
     const wrap = { class: 'bn-embed' };
-    const w = node.attrs.dataW, a = node.attrs.dataAlign;
+    const w = node.attrs.dataW, a = node.attrs.dataAlign, s = node.attrs.dataScale;
     if (w && w !== 'normal') wrap['data-w'] = w;
     if (a && a !== 'center') wrap['data-align'] = a;
+    if (s && s !== 'md') wrap['data-scale'] = s;
     return [
       'div',
       wrap,

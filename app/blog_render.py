@@ -36,8 +36,8 @@ _SANITIZE_TAGS = {
 }
 _SANITIZE_ATTRS = {
     "a": ["href", "title", "target", "rel", "class"],
-    "img": ["src", "alt", "title", "width", "height", "loading", "data-w", "data-align"],
-    "span": ["class"], "p": ["class"], "div": ["class", "data-type", "data-w", "data-align"],
+    "img": ["src", "alt", "title", "width", "height", "loading", "data-w", "data-align", "data-scale"],
+    "span": ["class"], "p": ["class"], "div": ["class", "data-type", "data-w", "data-align", "data-scale"],
     "h1": ["class"], "h2": ["class"], "h3": ["class"],
     "code": ["class"], "pre": ["class"],
     "iframe": ["src", "width", "height", "frameborder", "allow",
@@ -437,10 +437,17 @@ h1,h2,h3,.serif{font-family:'Merriweather',serif}a{text-decoration:none;color:in
 .body{font-family:'Merriweather',serif;font-size:19px;line-height:1.78;color:#26332c}
 .body p{margin:26px 0}.body h2{font-size:30px;font-weight:900;margin:46px 0 4px;line-height:1.2}
 .body img{max-width:100%;height:auto;border-radius:14px;margin:30px auto;display:block}
+/* Size scale (S/M/L) for in-column media: default (M) 60% of the column, S 40%,
+   L 85%. Floated + wide/full carry their own widths and are excluded. */
+.body img:not([data-align]):not([data-w]){max-width:60%}
+.body img[data-scale="sm"]:not([data-align]):not([data-w]){max-width:40%}
+.body img[data-scale="lg"]:not([data-align]):not([data-w]){max-width:85%}
 /* Image size presets + alignment (data-w / data-align from the editor). Column
-   is 720px; wide/full break out symmetrically; left/right float with text wrap. */
+   is 820px; wide/full break out symmetrically; left/right float with text wrap. */
 .body img[data-align="left"]{float:left;max-width:min(48%,360px);margin:8px 30px 16px 0}
 .body img[data-align="right"]{float:right;max-width:min(48%,360px);margin:8px 0 16px 30px}
+.body img[data-align="left"][data-scale="sm"],.body img[data-align="right"][data-scale="sm"]{max-width:min(32%,240px)}
+.body img[data-align="left"][data-scale="lg"],.body img[data-align="right"][data-scale="lg"]{max-width:min(62%,460px)}
 .body img[data-w="wide"]{float:none;width:min(1040px,92vw);max-width:none;margin-left:calc(50% - min(520px,46vw));margin-right:0}
 .body img[data-w="full"]{float:none;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);border-radius:0}
 .body::after{content:"";display:table;clear:both}
@@ -667,10 +674,16 @@ _BLOCKS_CSS = """
 .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
 .bn-embed{position:relative;aspect-ratio:16/9;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
 .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* Video size scale (S/M/L) for in-column embeds — mirrors the image scale. */
+.bn-embed:not([data-align]):not([data-w]){width:60%;margin:26px auto}
+.bn-embed[data-scale="sm"]:not([data-align]):not([data-w]){width:40%}
+.bn-embed[data-scale="lg"]:not([data-align]):not([data-w]){width:85%}
 /* Video layout mirrors the image data-w / data-align model: float left/right so
    text wraps beside the clip, or size up to wide / full. Same 16:9 aspect box. */
 .bn-embed[data-align="left"]{float:left;width:min(48%,360px);margin:8px 30px 16px 0}
 .bn-embed[data-align="right"]{float:right;width:min(48%,360px);margin:8px 0 16px 30px}
+.bn-embed[data-align="left"][data-scale="sm"],.bn-embed[data-align="right"][data-scale="sm"]{width:min(32%,240px)}
+.bn-embed[data-align="left"][data-scale="lg"],.bn-embed[data-align="right"][data-scale="lg"]{width:min(62%,460px)}
 .bn-embed[data-w="wide"]{width:min(1040px,92vw);margin-left:calc(50% - min(520px,46vw));margin-right:0}
 .bn-embed[data-w="full"]{width:100vw;margin-left:calc(50% - 50vw);border-radius:0}
 /* Phones: floated media un-floats to full width so it never becomes a sliver;

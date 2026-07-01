@@ -46,7 +46,12 @@ function BlogPreview({ title, cover, html }) {
         .sap-pv-body ul,.sap-pv-body ol{margin:22px 0;padding-left:26px}
         .sap-pv-body pre{background:#1e293b;color:#e2e8f0;padding:16px 20px;border-radius:10px;overflow-x:auto;font-size:15px;margin:24px 0}
         .sap-pv-body img{max-width:100%;height:auto;border-radius:14px;margin:30px auto;display:block}
+        .sap-pv-body img:not([data-align]):not([data-w]){max-width:60%}
+        .sap-pv-body img[data-scale="sm"]:not([data-align]):not([data-w]){max-width:40%}
+        .sap-pv-body img[data-scale="lg"]:not([data-align]):not([data-w]){max-width:85%}
         .sap-pv-body img[data-align="left"]{float:left;max-width:min(48%,340px);margin:8px 28px 14px 0}
+        .sap-pv-body img[data-align="left"][data-scale="sm"],.sap-pv-body img[data-align="right"][data-scale="sm"]{max-width:min(32%,240px)}
+        .sap-pv-body img[data-align="left"][data-scale="lg"],.sap-pv-body img[data-align="right"][data-scale="lg"]{max-width:min(62%,460px)}
         .sap-pv-body img[data-align="right"]{float:right;max-width:min(48%,340px);margin:8px 0 14px 28px}
         .sap-pv-body img[data-w="wide"]{float:none;width:min(1000px,92cqw);max-width:none;margin-left:calc(50% - min(500px,46cqw))}
         .sap-pv-body img[data-w="full"]{float:none;width:100cqw;max-width:100cqw;margin-left:calc(50% - 50cqw);border-radius:0}
@@ -62,9 +67,14 @@ function BlogPreview({ title, cover, html }) {
         .sap-pv-body .bn-callout[data-type="success"]{border-left-color:#7c3aed;background:color-mix(in srgb,#7c3aed 8%,transparent)}
         .sap-pv-body .bn-callout[data-type="success"]::before{content:'✓';background:#7c3aed;font-style:normal}
         .sap-pv-body .bn-embed{position:relative;aspect-ratio:16/9;margin:26px 0;border-radius:14px;overflow:hidden;background:#000}
+        .sap-pv-body .bn-embed:not([data-align]):not([data-w]){width:60%;margin:26px auto}
+        .sap-pv-body .bn-embed[data-scale="sm"]:not([data-align]):not([data-w]){width:40%}
+        .sap-pv-body .bn-embed[data-scale="lg"]:not([data-align]):not([data-w]){width:85%}
         .sap-pv-body .bn-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
         .sap-pv-body .bn-embed[data-align="left"]{float:left;width:min(48%,340px);margin:8px 28px 14px 0}
         .sap-pv-body .bn-embed[data-align="right"]{float:right;width:min(48%,340px);margin:8px 0 14px 28px}
+        .sap-pv-body .bn-embed[data-align="left"][data-scale="sm"],.sap-pv-body .bn-embed[data-align="right"][data-scale="sm"]{width:min(32%,240px)}
+        .sap-pv-body .bn-embed[data-align="left"][data-scale="lg"],.sap-pv-body .bn-embed[data-align="right"][data-scale="lg"]{width:min(62%,460px)}
         .sap-pv-body .bn-embed[data-w="wide"]{width:min(1000px,92cqw);margin-left:calc(50% - min(500px,46cqw))}
         .sap-pv-body .bn-embed[data-w="full"]{width:100cqw;margin-left:calc(50% - 50cqw);border-radius:0}
         @container (max-width:600px){

@@ -33,6 +33,11 @@ const SapImage = ImageExt.extend({
         parseHTML: function(el) { return el.getAttribute('data-align') || 'center'; },
         renderHTML: function(attrs) { return (attrs.dataAlign && attrs.dataAlign !== 'center') ? { 'data-align': attrs.dataAlign } : {}; },
       },
+      dataScale: {
+        default: 'md',
+        parseHTML: function(el) { return el.getAttribute('data-scale') || 'md'; },
+        renderHTML: function(attrs) { return (attrs.dataScale && attrs.dataScale !== 'md') ? { 'data-scale': attrs.dataScale } : {}; },
+      },
     };
   },
 });
@@ -301,6 +306,11 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
                       :                     { dataAlign:'center', dataW:'normal' };
             editor.chain().focus().updateAttributes(nodeName, attrs).run();
           };
+          var scale = na.dataScale || 'md';
+          var setScale = function(v){ editor.chain().focus().updateAttributes(nodeName, { dataScale: v }).run(); };
+          // Size only applies to in-column / floated media — Wide & Full are already
+          // their own (breakout) sizes, so we hide it for those.
+          var showSize = (cur === 'left' || cur === 'right' || cur === 'normal');
           var pill = function(active){ return {height:30,padding:'0 9px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4,background:active?'#0ea5e9':'#eef2f7',color:active?'#fff':'#475569'}; };
           return (
             <>
@@ -311,6 +321,13 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
               <button onClick={function(){setLayout('wide');}}   style={pill(cur==='wide')}   title="Wide — breaks out past the text">Wide</button>
               <button onClick={function(){setLayout('full');}}   style={pill(cur==='full')}   title="Full — edge to edge">Full</button>
               <button onClick={function(){setLayout('right');}}  style={pill(cur==='right')}  title="Float right — text wraps to the left">Right<AlignRight size={13}/></button>
+              {showSize && (<>
+                <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 4px'}}/>
+                <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.4,alignSelf:'center'}}>Size</span>
+                <button onClick={function(){setScale('sm');}} style={pill(scale==='sm')} title="Small">S</button>
+                <button onClick={function(){setScale('md');}} style={pill(scale==='md')} title="Medium">M</button>
+                <button onClick={function(){setScale('lg');}} style={pill(scale==='lg')} title="Large">L</button>
+              </>)}
             </>
           );
         })()}
@@ -464,9 +481,18 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
         .tiptap img { max-width: 100%; height: auto; border-radius: 8px; margin: 14px auto; display: block; }
         /* Size presets + alignment mirrored from the public render so the editor
            is WYSIWYG. 'normal' is capped so 'wide'/'full' visibly differ. */
-        .tiptap img[data-w="normal"], .tiptap img:not([data-w]):not([data-align]) { max-width: min(100%, 560px); }
+        .tiptap img[data-w="normal"], .tiptap img:not([data-w]):not([data-align]) { max-width: 60%; }
+        /* Size scale (S/M/L). Normal media default (M) is 60% of the column; S/L
+           step it down/up. Floated media below has its own scaled widths. */
+        .tiptap img[data-scale="sm"]:not([data-align]):not([data-w]) { max-width: 40%; }
+        .tiptap img[data-scale="lg"]:not([data-align]):not([data-w]) { max-width: 85%; }
+        .tiptap .bn-embed:not([data-align]):not([data-w]) { width: 60%; margin: 16px auto; }
+        .tiptap .bn-embed[data-scale="sm"]:not([data-align]):not([data-w]) { width: 40%; }
+        .tiptap .bn-embed[data-scale="lg"]:not([data-align]):not([data-w]) { width: 85%; }
         .tiptap img[data-align="left"] { float: left; max-width: min(50%, 340px); margin: 6px 20px 12px 0; }
         .tiptap img[data-align="right"] { float: right; max-width: min(50%, 340px); margin: 6px 0 12px 20px; }
+        .tiptap img[data-align="left"][data-scale="sm"], .tiptap img[data-align="right"][data-scale="sm"] { max-width: min(32%, 240px); }
+        .tiptap img[data-align="left"][data-scale="lg"], .tiptap img[data-align="right"][data-scale="lg"] { max-width: min(62%, 460px); }
         .tiptap img[data-w="wide"] { float: none; max-width: 100%; width: 100%; margin: 16px auto; }
         .tiptap img[data-w="full"] { float: none; max-width: 100%; width: 100%; margin: 16px auto; border-radius: 4px; }
         .tiptap::after { content: ""; display: table; clear: both; }
@@ -493,6 +519,8 @@ export default function RichTextEditor({ content, onChange, placeholder, onImage
            float with text wrapping beside it (left/right) or size up (wide/full). */
         .tiptap .bn-embed[data-align="left"] { float: left; width: min(50%, 340px); margin: 6px 20px 12px 0; }
         .tiptap .bn-embed[data-align="right"] { float: right; width: min(50%, 340px); margin: 6px 0 12px 20px; }
+        .tiptap .bn-embed[data-align="left"][data-scale="sm"], .tiptap .bn-embed[data-align="right"][data-scale="sm"] { width: min(32%, 240px); }
+        .tiptap .bn-embed[data-align="left"][data-scale="lg"], .tiptap .bn-embed[data-align="right"][data-scale="lg"] { width: min(62%, 460px); }
         .tiptap .bn-embed[data-w="wide"] { float: none; width: 100%; margin: 16px auto; }
         .tiptap .bn-embed[data-w="full"] { float: none; width: 100%; margin: 16px auto; border-radius: 4px; }
         .tiptap .bn-embed.ProseMirror-selectednode { outline: 2px solid #0ea5e9; outline-offset: 2px; }
