@@ -57573,12 +57573,20 @@ def admin_blog_post_debug(post_id: int = 0, request: Request = None,
     san_srcs = _srcs(sanitized)
 
     def _classify(s):
+        if not s:                   return "empty"
         if s.startswith("data:"):   return "data-URL (base64) — STRIPPED by public sanitizer (data: not allowed)"
         if s.startswith("http"):    return "absolute http(s) — OK"
         if s.startswith("/"):       return "relative path — renders only if that path is served"
         return "other/unknown"
 
     import os as _os
+    # Cover + OG are separate fields (not body). A cover base64/data-URL would
+    # render as a broken placeholder at the top of the post even with empty body.
+    cover = getattr(p, "cover_image", None)
+    og = getattr(p, "og_image", None)
+    # All posts in this blog, so we can spot content that's in a different post.
+    siblings = (db.query(BlogPost).filter(BlogPost.blog_id == p.blog_id)
+                  .order_by(BlogPost.id.desc()).limit(20).all())
     return {
         "post_id": p.id, "status": p.status, "title": p.title,
         "body_length": len(p.body or ""),
@@ -57586,11 +57594,19 @@ def admin_blog_post_debug(post_id: int = 0, request: Request = None,
         "stored_img_srcs": [{"src": s[:120], "kind": _classify(s)} for s in raw_srcs[:6]],
         "img_count_after_sanitize": len(san_srcs),
         "sanitize_dropped_images": len(raw_srcs) - len(san_srcs),
+        "cover_image": {"src": (cover or "")[:120], "kind": _classify(cover or "")} if cover else None,
+        "og_image": {"src": (og or "")[:120], "kind": _classify(og or "")} if og else None,
         "R2_PUBLIC_URL_set": bool(_os.getenv("R2_PUBLIC_URL", "").strip()),
-        "note": ("If stored=0 → not saved. If a src is data-URL → base64 (old "
-                 "path) gets stripped on render. If relative and R2_PUBLIC_URL "
-                 "is false → uploader returned a pathless URL. If absolute http "
-                 "but still blank → the R2 object itself isn't public/reachable."),
+        "all_posts_in_blog": [
+            {"id": s.id, "title": s.title, "status": s.status,
+             "body_len": len(s.body or ""),
+             "has_cover": bool(getattr(s, "cover_image", None)),
+             "cover_kind": _classify(getattr(s, "cover_image", "") or "")}
+            for s in siblings
+        ],
+        "note": ("Check cover_image AND stored_img_srcs. data-URL = base64 (added "
+                 "on old bundle) → stripped/broken on render. Use all_posts_in_blog "
+                 "to find which post actually holds your content."),
     }
 
 
