@@ -21845,6 +21845,24 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
             stats["errors"].append(f"cursor: {e}")
             db.rollback()
 
+        # ── Failed-chunk retention (2 Jul 2026) ───────────────────────
+        # Same hook as the cron variant. This in-process loop is the LIVE
+        # scanner — the first hook landed only in the cron path, so the
+        # retention never actually ran on ticks (caught via row counts
+        # not draining). Bounded, best-effort, never fails a scan.
+        try:
+            from .walletconnect_payments import cleanup_failed_chunks
+            pruned = cleanup_failed_chunks(db, keep_days=7, batch=5000)
+            if pruned:
+                db.commit()
+                stats["chunks_pruned"] = pruned
+        except Exception as e:
+            logger.error(f"inproc_bsc_scan: chunk retention cleanup failed: {e}")
+            try:
+                db.rollback()
+            except Exception:
+                pass
+
         # Heartbeat log: only on a successful, non-trivial scan, to keep
         # logs quiet during idle periods. The cron equivalent doesn't log
         # heartbeat either — both rely on errors/matches/orphans to surface.
