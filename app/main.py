@@ -25003,6 +25003,34 @@ def admin_list_backups(user: User = Depends(get_current_user)):
     _require_admin(user)
     from .db_backup import list_backups
     return JSONResponse({"backups": list_backups()})
+@app.get("/admin/api/db-size")
+def admin_db_size(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin, read-only: per-table disk size + live row counts, biggest first.
+    For Railway cost investigation — answers 'what is growing / what is big'
+    directly from pg_stat_user_tables, no backup download needed."""
+    _require_admin(user)
+    rows = db.execute(text("""
+        SELECT relname AS table,
+               pg_total_relation_size(relid) AS total_bytes,
+               pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
+               n_live_tup AS live_rows,
+               n_dead_tup AS dead_rows
+        FROM pg_stat_user_tables
+        ORDER BY pg_total_relation_size(relid) DESC
+        LIMIT 30
+    """)).mappings().all()
+    db_total = db.execute(text(
+        "SELECT pg_size_pretty(pg_database_size(current_database())) AS s,"
+        " pg_database_size(current_database()) AS b")).mappings().first()
+    return JSONResponse({
+        "read_only": True,
+        "database_total": {"size": db_total["s"], "bytes": db_total["b"]},
+        "tables": [dict(r) for r in rows],
+        "note": ("total_bytes includes indexes + TOAST. High dead_rows = bloat "
+                 "(autovacuum lag), not real data. Compare over days to find growth."),
+    })
+
+
 @app.get("/cron/backup")
 def cron_backup(secret: str = ""):
     """Cron endpoint: trigger daily backup. Protected by secret."""

@@ -1,46 +1,34 @@
 #!/usr/bin/env python3
-"""Bind to PORT immediately, then load the app."""
-import sys, os, gc, socket, threading, time, traceback
+"""Load the app fully, THEN bind the port.
 
-port = int(os.environ.get("PORT", 8080))
-print(f"[start.py] Binding port {port}...", flush=True)
+Railway's healthcheck (railway.toml: healthcheckPath=/health, timeout 600s)
+keeps the PREVIOUS deployment serving traffic until this container answers
+200 on /health — that is what gives us zero-downtime deploys.
 
-def health_responder():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("0.0.0.0", port))
-    s.listen(5)
-    s.settimeout(1.0)
-    print(f"[start.py] Health responder ready on :{port}", flush=True)
-    while not getattr(health_responder, 'stop', False):
-        try:
-            conn, _ = s.accept()
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{\"status\":\"ok\"}")
-            conn.close()
-        except socket.timeout:
-            continue
-        except:
-            break
-    s.close()
+Do NOT reintroduce a port-binding stub that answers before the app is ready.
+The old stub here answered EVERY path with 200 {"status":"ok"} during the
+multi-minute app import, which (a) made Railway cut traffic over to a
+container that couldn't serve, giving members broken responses + a 502
+handoff gap on every deploy, and (b) swallowed inbound webhooks (Stripe /
+NOWPayments / SES-SNS) with a 200 during every boot window — the sender
+marks them delivered and never retries, silently losing payment events.
+If boot ever exceeds the healthcheck timeout, the correct fix is raising
+healthcheckTimeout in railway.toml — the old deployment keeps serving
+while this one loads, so slow boot costs nothing.
+"""
+import os
+import sys
+import traceback
 
-t = threading.Thread(target=health_responder, daemon=True)
-t.start()
-
-print("[start.py] Loading app...", flush=True)
-gc.collect()
+print("[start.py] Loading app (previous deployment keeps serving until we pass healthcheck)...", flush=True)
 try:
     from app.main import app
-    gc.collect()
-    print("[start.py] App loaded!", flush=True)
 except Exception as e:
-    print(f"[start.py] FATAL: {e}", flush=True)
+    print(f"[start.py] FATAL during app import: {e}", flush=True)
     traceback.print_exc()
     sys.exit(1)
+print("[start.py] App loaded — starting uvicorn.", flush=True)
 
-health_responder.stop = True
-t.join(timeout=2)
-time.sleep(0.5)
-
-print("[start.py] Starting uvicorn...", flush=True)
 import uvicorn
-uvicorn.run(app, host="0.0.0.0", port=port, timeout_keep_alive=120)
+
+uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)), timeout_keep_alive=120)
