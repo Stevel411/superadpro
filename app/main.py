@@ -26510,6 +26510,79 @@ def _reconcile_grid_payment(db, grid, owner, models):
     }
 
 
+@app.get("/admin/api/wc-orders-near")
+def admin_wc_orders_near(
+    ts: str = "",
+    amount: float = 0.0,
+    window_hours: int = 12,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY. Find candidate WalletConnect orders for an unattributed
+    treasury transfer (from treasury-scan). Two signals, strongest first:
+
+    1. Exact unique-amount match (any age): in-app payers send the order's
+       unique amount to the cent, so amount==unique_amount identifies the
+       order with near-certainty even if the timestamp drifted.
+    2. Time-window candidates: orders CREATED within `window_hours` before
+       the transfer (default 12h — exchange withdrawals can take hours),
+       sorted by |amount - unique_amount|. Catches exchange-sent payments
+       where fees shifted the arriving amount off the unique value.
+
+    Each candidate row includes a ready-made reconcile-wc-order dry-run URL.
+    Built 2 Jul 2026 to identify the owners of 4 payments stranded by the
+    scanner death-spiral outage (25 Jun - 2 Jul)."""
+    _require_admin(user)
+    from .database import WalletConnectPaymentOrder as _WC, User as _U
+    from datetime import datetime as _dt, timedelta as _td
+    try:
+        anchor = _dt.fromisoformat(ts.replace("Z", "")) if ts else None
+    except ValueError:
+        return JSONResponse({"error": "ts not ISO-parseable"}, status_code=200)
+    if not anchor or not amount:
+        return JSONResponse({"error": "ts (ISO) and amount required"}, status_code=200)
+
+    def _row(o, reason):
+        buyer = db.query(_U).filter(_U.id == o.user_id).first()
+        return {
+            "match_reason": reason,
+            "order_id": o.id,
+            "user_id": o.user_id,
+            "username": buyer.username if buyer else None,
+            "product": f"{o.product_type}/{o.product_key}",
+            "unique_amount": float(o.unique_amount or 0),
+            "amount_diff": round(abs(float(o.unique_amount or 0) - amount), 4),
+            "status": o.status,
+            "created_at": str(o.created_at),
+            "reconcile_dry_run": (
+                f"https://www.superadpro.com/admin/api/reconcile-wc-order"
+                f"?order_id={o.id}&tx_hash=TX_HASH_HERE"
+            ),
+        }
+
+    exact = (db.query(_WC)
+             .filter(_WC.unique_amount >= amount - 0.005,
+                     _WC.unique_amount <= amount + 0.005)
+             .order_by(_WC.created_at.desc()).limit(5).all())
+    lo, hi = anchor - _td(hours=window_hours), anchor + _td(hours=1)
+    near = (db.query(_WC)
+            .filter(_WC.created_at >= lo, _WC.created_at <= hi)
+            .all())
+    near.sort(key=lambda o: abs(float(o.unique_amount or 0) - amount))
+    exact_ids = {o.id for o in exact}
+    return JSONResponse({
+        "read_only": True,
+        "transfer": {"ts": ts, "amount": amount},
+        "exact_amount_matches": [_row(o, "exact_unique_amount") for o in exact],
+        "time_window_candidates": [_row(o, "created_in_window") for o in near[:10] if o.id not in exact_ids],
+        "note": ("An exact match = that order's owner, near-certain. For "
+                 "exchange-fee cases, the closest-amount candidate in the "
+                 "window is the lead — verify product price makes sense "
+                 "before reconciling. Replace TX_HASH_HERE with the "
+                 "transfer's tx hash when tapping the reconcile URL."),
+    })
+
+
 @app.get("/admin/api/reconcile-wc-order")
 def admin_reconcile_wc_order(
     order_id: int,
