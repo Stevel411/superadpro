@@ -1888,6 +1888,28 @@ def home(request: Request):
 async def health_check():
     return {"status": "ok"}
 
+@app.get("/health/assets")
+def health_assets(name: str = ""):
+    """Deploy diagnostic (2 Jul 2026): list built asset files on THIS
+    container's disk matching `name`. Asset filenames are already public
+    (referenced by the index bundle), so this leaks nothing. Added while
+    chasing a committed chunk that 404s from origin despite sibling files
+    from the same commit serving fine."""
+    import os as _os
+    d = "static/app/assets"
+    try:
+        files = sorted(_os.listdir(d))
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=200)
+    frag = (name or "").strip()
+    hits = [f for f in files if frag.lower() in f.lower()] if frag else []
+    return JSONResponse({
+        "dir": d, "total_files": len(files),
+        "match": frag, "matches": hits,
+        "cwd": _os.getcwd(),
+    })
+
+
 @app.get("/health/db")
 def health_db():
     """One-tap probe: can THIS app process reach its database? Public and
