@@ -62,21 +62,28 @@ export default function MyLeads() {
   var [msgType, setMsgType] = useState('ok');
   var [showHelp, setShowHelp] = useState(false);
   var [showBuy, setShowBuy] = useState(false);
+  var [sendDomains, setSendDomains] = useState([]);
+  var [leadsStatusJump, setLeadsStatusJump] = useState(null); // hot-chip -> Leads tab pre-filtered
 
   function flash(t, ty) { setMsg(t); setMsgType(ty || 'ok'); setTimeout(function() { setMsg(''); }, 4000); }
 
   var refresh = useCallback(function() {
-    Promise.all([apiGet('/api/leads'), apiGet('/api/leads/sequences'), apiGet('/api/leads/lists'), apiGet('/api/leads/stats'), apiGet('/api/leads/email-stats')])
-      .then(function(r) { setLeads(r[0].leads || []); setSequences(r[1].sequences || []); setLists(r[2].lists || []); setStats(r[3] || {}); setEmailStats(r[4] || {}); setLoading(false); })
+    Promise.all([apiGet('/api/leads'), apiGet('/api/leads/sequences'), apiGet('/api/leads/lists'), apiGet('/api/leads/stats'), apiGet('/api/leads/email-stats'), apiGet('/api/sending-domains').catch(function(){return {};})])
+      .then(function(r) { setLeads(r[0].leads || []); setSequences(r[1].sequences || []); setLists(r[2].lists || []); setStats(r[3] || {}); setEmailStats(r[4] || {}); setSendDomains((r[5] && r[5].domains) || []); setLoading(false); })
       .catch(function() { setLoading(false); });
   }, []);
 
   useEffect(function() { refresh(); }, [refresh]);
 
+  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'9px 16px',borderRadius:9,border:'1.5px solid #e2e8f0',background:'#fff',color:'#334155',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
+
   if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
+  var verifiedDomain = null;
+  for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
+
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
@@ -98,97 +105,87 @@ export default function MyLeads() {
         .sl-select:hover{border-color:#a5b4fc}
         .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
+        .sl-ctrl{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+        .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;box-shadow:0 2px 8px rgba(23,37,84,.04);flex:0 1 auto}
+        .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;padding:8px 16px;box-shadow:0 2px 8px rgba(23,37,84,.04)}
+        .sl-search{flex:0 1 300px;min-width:180px}
+        .sl-newlist{display:flex;gap:6px;margin-left:auto;min-width:190px}
+        .sl-empty-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto}
+        @media(max-width:767px){
+          .sl-ctrl{flex-direction:column}
+          .sl-tabsbox{width:100%}
+          .sl-strip{min-width:0}
+          .sl-search{flex:1 1 100%;min-width:100%}
+          .sl-newlist{margin-left:0;flex:1}
+          .sl-md{display:none}
+          .sl-empty-acts{grid-template-columns:1fr}
+        }
       `}</style>
 
-      {/* ── Hero banner with cobalt gradient ── */}
-      <div style={{background:'linear-gradient(135deg,#0b1e4c 0%,#1e3a8a 55%,#4338ca 100%)',borderRadius:16,padding:'26px 30px',marginBottom:22,position:'relative',overflow:'hidden',boxShadow:'0 8px 28px rgba(23,37,84,.22)'}}>
-        {/* Decorative gradient blob */}
-        <div style={{position:'absolute',top:-60,right:-60,width:220,height:220,borderRadius:'50%',
-                     background:'radial-gradient(circle,rgba(139,92,246,0.25) 0%,transparent 70%)',pointerEvents:'none'}}/>
-        <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
-          <div>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
-              <div style={{width:36,height:36,borderRadius:10,background:'rgba(255,255,255,.12)',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,.15)'}}>
-                <Mail size={18} color="#a5b4fc"/>
+      {/* ── Control row: tabs (with live counts) + slim status strip.
+             Replaced the hero banner (title already lives in the topbar), the
+             four stat cards (counts moved onto the tabs — the number now
+             navigates), and the full-height AllowanceBar (compressed into the
+             strip, Buy affordance retained). 2 Jul 2026, mockup-approved. ── */}
+      <div className="sl-ctrl">
+        <div className="sl-tabsbox">
+          {TAB_CONFIG.map(function(tb){
+            var a = tab === tb.key;
+            var I = tb.icon;
+            var count = tb.key === 'leads' ? (stats.total||0) : (tb.key === 'sequences' ? sequences.length : null);
+            return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
+              style={{padding:'10px 16px',borderRadius:8,
+                      background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
+                      color: a ? '#fff' : '#334155',
+                      fontSize:13.5,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',
+                      display:'flex',alignItems:'center',justifyContent:'center',gap:7,
+                      boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
+                      transition:'all .15s',flex:'1 1 auto'}}>
+              <I size={15}/> {t('myLeads.' + tb.labelKey)}
+              {count !== null && <span style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:10.5,fontWeight:600,borderRadius:20,padding:'1px 7px',background: a ? 'rgba(255,255,255,.22)' : '#eef2f8', color: a ? '#fff' : '#334155'}}>{count}</span>}
+            </div>;
+          })}
+        </div>
+        <SlimStatus emailStats={emailStats} hot={stats.hot||0}
+          onBuy={function(){setShowBuy(true);}}
+          onHot={function(){ setLeadsStatusJump({v:'hot'}); setTab('leads'); }}/>
+      </div>
+
+      {/* Send-from-your-own-brand — state-aware: verified members get the
+          slim confirmation line, everyone else gets the guided CTA. */}
+      {verifiedDomain ? (
+        <Link to="/sending-domains" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:9,background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'10px 16px',marginTop:12,fontSize:13,fontWeight:600,color:'#334155'}}>
+          <span style={{color:'#16a34a',fontWeight:800}}>&#10003;</span>
+          Sending as <code style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:12,color:'#0f172a',fontWeight:700}}>{verifiedDomain.from_address}</code>
+        </Link>
+      ) : (
+        <Link to="/sending-domains" style={{textDecoration:'none',display:'block',marginTop:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:12,padding:'13px 18px',borderRadius:12,
+                       background:'linear-gradient(135deg,var(--sap-cobalt-mid,#1e3a8a),#2b4bb5)',
+                       boxShadow:'0 6px 18px rgba(30,58,138,.16)'}}>
+            <div style={{width:38,height:38,borderRadius:10,background:'rgba(103,232,249,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <Mail size={19} color="#67e8f9"/>
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:14,color:'#fff',marginBottom:2}}>
+                Send from your own brand
               </div>
-              <div style={{fontSize:12,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#a5b4fc'}}>{t('myLeads.autoresponderLabel')}</div>
+              <div style={{fontSize:12.5,color:'#dbe6fb',lineHeight:1.5}}>
+                Verify your own domain so emails come from <strong style={{color:'#67e8f9'}}>you</strong>, not SuperAdPro. ~5 min, fully guided.
+              </div>
             </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,color:'#fff',marginBottom:6,letterSpacing:-.3}}>{t('myLeads.title')}</div>
-            <div style={{fontSize:15,color:'rgba(255,255,255,.78)',maxWidth:620,lineHeight:1.5}}>{t('myLeads.subtitle')}</div>
-          </div>
-          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0,backdropFilter:'blur(10px)',transition:'background .2s'}}
-                  onMouseEnter={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.15)'; }}
-                  onMouseLeave={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.08)'; }}>
-            <HelpCircle size={15}/> {t('myLeads.helpBtn')}
-          </button>
-        </div>
-      </div>
-
-      {/* ── Stat cards with coloured strips + matching icon tiles ── */}
-      <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:22}}>
-        {[
-          {v:stats.total||0,l:t('myLeads.totalLeadsStat'),c:'#6366f1',icon:UserPlus,bg:'rgba(99,102,241,.1)'},
-          {v:sequences.length,l:t('myLeads.sequencesStat'),c:'#0ea5e9',icon:Zap,bg:'rgba(14,165,233,.1)'},
-          {v:emailStats.sent_month||0,l:t('myLeads.sentTodayStat'),c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
-          {v:stats.hot||0,l:t('myLeads.hotLeadsStat'),c:'#f59e0b',icon:Rocket,bg:'rgba(245,158,11,.1)'},
-        ].map(function(s,i){
-          var Ic = s.icon;
-          return <div key={i} className="sl-stat-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'22px 20px',position:'relative',overflow:'hidden',boxShadow:'0 4px 14px rgba(23,37,84,.05)'}}>
-            <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,'+s.c+','+s.c+'80)'}}/>
-            <div style={{position:'absolute',top:16,right:16,width:36,height:36,borderRadius:10,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <Ic size={17} color={s.c}/>
-            </div>
-            <div style={{fontSize:13,fontWeight:700,color:'#475569',marginBottom:10,letterSpacing:.3}}>{s.l}</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:s.c,letterSpacing:-.5}}>{s.v}</div>
-          </div>;
-        })}
-      </div>
-
-      {/* ── Send-from-your-own-brand entry point ── */}
-      <Link to="/sending-domains" style={{textDecoration:'none',display:'block',marginBottom:18}}>
-        <div style={{display:'flex',alignItems:'center',gap:14,padding:'16px 20px',borderRadius:14,
-                     background:'linear-gradient(135deg,#0a1438,#1e3a8a)',border:'1px solid #1e3a8a',
-                     boxShadow:'0 6px 18px rgba(10,20,56,.14)'}}>
-          <div style={{width:42,height:42,borderRadius:11,background:'rgba(103,232,249,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            <Mail size={21} color="#67e8f9"/>
-          </div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',marginBottom:2}}>
-              Send from your own brand
-            </div>
-            <div style={{fontSize:13,color:'#bcd0f0',lineHeight:1.5}}>
-              Verify your own domain so emails come from <strong style={{color:'#67e8f9'}}>you</strong>, not SuperAdPro. ~5 min, fully guided.
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,color:'#67e8f9',whiteSpace:'nowrap',flexShrink:0}}>
+              Set up &rarr;
             </div>
           </div>
-          <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,color:'#67e8f9',whiteSpace:'nowrap',flexShrink:0}}>
-            Set up &rarr;
-          </div>
-        </div>
-      </Link>
+        </Link>
+      )}
 
-      {msg && <div style={{padding:'12px 18px',borderRadius:10,marginBottom:16,fontSize:14,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
+      {msg && <div style={{padding:'12px 18px',borderRadius:10,margin:'12px 0 0',fontSize:14,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
 
-      {/* ── Tab bar: filled pill for active, subtle for inactive ── */}
-      <div style={{display:'flex',gap:6,marginBottom:22,padding:6,background:'#fff',borderRadius:12,border:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(23,37,84,.04)',flexWrap:'wrap'}}>
-        {TAB_CONFIG.map(function(tb){
-          var a = tab === tb.key;
-          var I = tb.icon;
-          return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
-            style={{flex:'1 1 auto',minWidth:110,padding:'11px 18px',borderRadius:8,
-                    background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
-                    color: a ? '#fff' : '#475569',
-                    fontSize:14,fontWeight:a?700:600,cursor:'pointer',
-                    display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-                    boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
-                    transition:'all .15s'}}>
-            <I size={16}/> {t('myLeads.' + tb.labelKey)}
-          </div>;
-        })}
-      </div>
+      <div style={{height:12}}/>
 
-      <AllowanceBar emailStats={emailStats} onBuy={function(){setShowBuy(true);}}/>
-
-      {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
+      {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash} statusJump={leadsStatusJump} goImport={function(){setTab('import');}}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} refresh={refresh}/>}
       {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
@@ -201,10 +198,13 @@ export default function MyLeads() {
   );
 }
 
-function LeadsTab({leads,lists,sequences,refresh,flash}) {
+function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
 
   var { t } = useTranslation();
   var [search,setSearch]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');
+  var [newListName,setNewListName]=useState('');
+  // Hot-chip jump: parent bumps statusJump ({v:'hot'}) -> pre-filter this tab.
+  useEffect(function(){ if(statusJump && statusJump.v){ setFS(statusJump.v); } }, [statusJump]);
   var lm={}; lists.forEach(function(l){lm[l.id]=l;});
   var filtered=leads.filter(function(l){
     if(search&&!l.email.toLowerCase().includes(search.toLowerCase())&&!(l.name||'').toLowerCase().includes(search.toLowerCase()))return false;
@@ -213,7 +213,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
   });
   function del(id){if(!window.confirm(t('myLeads.deleteLeadConfirm')))return;apiDelete('/api/leads/'+id).then(function(){flash(t('myLeads.leadDeleted'));refresh();}).catch(function(e){flash(e.message,'err');});}
   function assignSeq(lid,sid){apiPost('/api/leads/'+lid+'/assign-sequence',{sequence_id:sid?parseInt(sid):null}).then(function(){flash('Sequence assigned');refresh();}).catch(function(e){flash(e.message,'err');});}
-  function createList(){var name=window.prompt('Enter a name for your new list:');if(!name||!name.trim())return;apiPost('/api/leads/lists',{name:name.trim()}).then(function(){flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
+  function createList(){var name=newListName.trim();if(!name)return;apiPost('/api/leads/lists',{name:name}).then(function(){setNewListName('');flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
@@ -227,17 +227,18 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
         ]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
-        <div style={{position:'relative'}}><Search size={15} color="var(--sap-text-muted)" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',width:200,outline:'none',transition:'border-color .15s'}}/></div>
+        <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:500}}/></div>
+        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name\u2026" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5}}>Add</button></div>
       </div>
       <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
-    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:14,minWidth:600}}><thead><tr>
+    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:14}}><thead><tr>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.contact')}</th>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.email')}</th>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.status')}</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.list')}</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.list')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
       <th style={{textAlign:'right',padding:'14px 18px',borderBottom:'1px solid #e2e8f0'}}></th>
     </tr></thead><tbody>{filtered.map(function(l){
       var statusKey = l.is_hot ? 'hot' : (l.status || 'new');
@@ -247,12 +248,28 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <td style={{padding:'14px 18px',fontWeight:600,color:'var(--sap-text-primary)',fontSize:15}}>{l.name||'—'}</td>
       <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:15}}>{l.email}</td>
       <td style={{padding:'14px 18px'}}><span style={{padding:'4px 11px',borderRadius:6,background:st.bg,color:st.color,fontSize:13,fontWeight:600}}>{t('myLeads.' + st.labelKey)}</span></td>
-      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 11px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:13,fontWeight:600}}>{li.name}</span>:<span style={{color:'var(--sap-text-muted)',fontSize:13}}>—</span>}</td>
-      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.emails_sent||0} {t('myLeads.sent') || 'sent'}</td>
-      <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:150}} options={[{value:'',label:t('myLeads.noneOption')||'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
+      <td className="sl-md" style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 11px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:13,fontWeight:600}}>{li.name}</span>:<span style={{color:'var(--sap-text-muted)',fontSize:13}}>—</span>}</td>
+      <td className="sl-md" style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.emails_sent||0} {t('myLeads.sent') || 'sent'}</td>
+      <td className="sl-md" style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:150}} options={[{value:'',label:t('myLeads.noneOption')||'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
       <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'6px 11px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={13}/></button></td>
     </tr>;})}</tbody></table></div>
-    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="var(--sap-text-ghost)" style={{marginBottom:10}}/><div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noLeadsYet')}</div><div style={{fontSize:14,color:'var(--sap-text-muted)',marginTop:6,lineHeight:1.5,maxWidth:420,margin:'6px auto 0'}}>{t('myLeads.noLeadsDesc')}</div></div>}
+    : leads.length===0 ? <div style={{textAlign:'center',padding:'44px 22px'}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:19,fontWeight:800,color:'#0f172a',marginBottom:6}}>Get your first leads in</div>
+        <div style={{fontSize:13.5,color:'#334155',fontWeight:500,marginBottom:20,lineHeight:1.5}}>Two ways to fill this page &mdash; pick whichever fits you:</div>
+        <div className="sl-empty-acts">
+          <div onClick={function(){if(goImport)goImport();}} style={{border:'1.5px solid #e2e8f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fbfdff',cursor:'pointer'}}>
+            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#eef2ff'}}><Upload size={19} color="#4f46e5"/></div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Import contacts</div>
+            <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Upload a CSV of people you already know</div>
+          </div>
+          <Link to="/funnels" style={{textDecoration:'none',border:'1.5px solid #e2e8f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fbfdff',display:'block'}}>
+            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#ecfeff'}}><Sparkles size={19} color="#0891b2"/></div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Capture from your pages</div>
+            <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Every SuperPages opt-in lands here automatically</div>
+          </Link>
+        </div>
+      </div>
+    : <div style={{textAlign:'center',padding:'46px 20px'}}><Search size={26} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14.5,fontWeight:700,color:'#334155'}}>No leads match your search or filters.</div></div>}
   </div>;
 }
 
@@ -264,7 +281,8 @@ function SeqTab({sequences,refresh,flash}) {
   function editEx(s){setEd(s.id);setTitle(s.title);setEm(s.emails||[]);}
   function save(){if(!title.trim()){flash('Title required','err');return;}var c=em.filter(function(e){return e.subject&&e.subject.trim();});if(!c.length){flash('At least one email required','err');return;}(ed==='new'?apiPost('/api/leads/sequences',{title:title,emails:c}):apiPut('/api/leads/sequences/'+ed,{title:title,emails:c})).then(function(){flash('Sequence saved');setEd(null);refresh();}).catch(function(e){flash(e.message,'err');});}
   function delSeq(id){if(!window.confirm('Delete?'))return;apiDelete('/api/leads/sequences/'+id).then(function(){flash('Deleted');refresh();}).catch(function(e){flash(e.message,'err');});}
-  function genAI(){setGen(true);var n=window.prompt('What niche? (e.g. fitness, crypto, marketing)');if(!n){setGen(false);return;}apiPost('/api/leads/sequences',{title:n.charAt(0).toUpperCase()+n.slice(1)+' Welcome Series',niche:n,emails:[{subject:'Welcome — your journey starts here',body_html:'<p>'+t('myLeads.welcomeDefault')+'</p>',send_delay_days:0},{subject:'Quick tip to get started',body_html:'<p>'+t('myLeads.tipDefault')+' '+n+'</p>',send_delay_days:1},{subject:'What others are saying',body_html:'<p>'+t('myLeads.achieveDefault')+'</p>',send_delay_days:3},{subject:"Don't miss out",body_html:'<p>'+t('myLeads.urgencySubject')+'</p>',send_delay_days:5},{subject:'Final call — are you in?',body_html:'<p>'+t('myLeads.lastChanceDefault')+'</p>',send_delay_days:7}]}).then(function(){flash('AI sequence created — edit to customise');setGen(false);refresh();}).catch(function(e){flash(e.message,'err');setGen(false);});}
+  var [nicheOpen,setNicheOpen]=useState(false);var [niche,setNiche]=useState('');
+  function genAI(){var n=niche.trim();if(!n){setNicheOpen(true);return;}setGen(true);setNicheOpen(false);apiPost('/api/leads/sequences',{title:n.charAt(0).toUpperCase()+n.slice(1)+' Welcome Series',niche:n,emails:[{subject:'Welcome — your journey starts here',body_html:'<p>'+t('myLeads.welcomeDefault')+'</p>',send_delay_days:0},{subject:'Quick tip to get started',body_html:'<p>'+t('myLeads.tipDefault')+' '+n+'</p>',send_delay_days:1},{subject:'What others are saying',body_html:'<p>'+t('myLeads.achieveDefault')+'</p>',send_delay_days:3},{subject:"Don't miss out",body_html:'<p>'+t('myLeads.urgencySubject')+'</p>',send_delay_days:5},{subject:'Final call — are you in?',body_html:'<p>'+t('myLeads.lastChanceDefault')+'</p>',send_delay_days:7}]}).then(function(){flash('AI sequence created — edit to customise');setGen(false);setNiche('');refresh();}).catch(function(e){flash(e.message,'err');setGen(false);});}
   function sendNext(sid){apiPost('/api/leads/send-sequence-email',{sequence_id:sid}).then(function(r){flash('Sent '+(r.sent||0)+' emails');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   if(ed!==null)return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
@@ -285,6 +303,12 @@ function SeqTab({sequences,refresh,flash}) {
       <button onClick={startNew} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={16}/> {t('myLeads.createSequenceBtn')}</button>
       <button onClick={genAI} disabled={gen} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:13,fontWeight:700,cursor:gen?'wait':'pointer',fontFamily:'inherit'}}><Sparkles size={16}/> {gen?'Generating...':'Generate with AI'}</button>
     </div>
+    {nicheOpen && <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center',background:'#fff',border:'1.5px dashed #a78bfa',borderRadius:12,padding:'10px 12px',flexWrap:'wrap'}}>
+      <div style={{fontSize:12.5,fontWeight:700,color:'#334155'}}>What niche?</div>
+      <input autoFocus value={niche} onChange={function(e){setNiche(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')genAI();}} placeholder="e.g. fitness, crypto, marketing" style={{flex:1,minWidth:160,padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:9,fontSize:13,fontFamily:'inherit',outline:'none',color:'#1e293b',fontWeight:500}}/>
+      <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#8b5cf6',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating\u2026':'Create'}</button>
+      <button onClick={function(){setNicheOpen(false);setNiche('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+    </div>}
     {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:12}}>
       <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
         <div><div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{sq.title}</div><div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:2}}>{sq.num_emails} emails</div></div>
@@ -307,42 +331,26 @@ function SeqTab({sequences,refresh,flash}) {
   </div>;
 }
 
-function AllowanceBar({emailStats, onBuy}) {
+function SlimStatus({emailStats, hot, onBuy, onHot}) {
   var es = emailStats || {};
   var monthlyLimit = (es.monthly_limit != null) ? es.monthly_limit : 5000;
   var sentMonth = es.sent_month || 0;
-  var freeRemaining = (es.free_remaining != null) ? es.free_remaining : Math.max(0, monthlyLimit - sentMonth);
   var credits = es.boost_credits || 0;
-  var totalAvail = (es.total_available != null) ? es.total_available : (freeRemaining + credits);
   var usedPct = monthlyLimit > 0 ? Math.min(100, Math.round((sentMonth / monthlyLimit) * 100)) : 0;
-  return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'18px 22px',marginBottom:22,boxShadow:'0 2px 8px rgba(23,37,84,.04)'}}>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
-      <div style={{display:'flex',alignItems:'center',gap:18,flexWrap:'wrap'}}>
-        <div>
-          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#64748b',marginBottom:3,letterSpacing:.2}}><Mail size={14}/> Emails you can send right now</div>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#0f172a',letterSpacing:-.5,lineHeight:1}}>{totalAvail.toLocaleString()}</div>
-        </div>
-        <div style={{width:1,height:46,background:'#e8ecf2'}}/>
-        <div>
-          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Free this month</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#16a34a'}}>{freeRemaining.toLocaleString()}<span style={{fontSize:12,color:'#94a3b8',fontWeight:600}}> / {monthlyLimit.toLocaleString()}</span></div>
-          <div style={{width:100,height:5,background:'#e7f6ec',borderRadius:3,marginTop:6,overflow:'hidden'}}><div style={{height:'100%',width:usedPct+'%',background:'#16a34a',borderRadius:3,transition:'width .3s'}}/></div>
-        </div>
-        <div>
-          <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:4}}>Purchased credits</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#7c3aed'}}>{credits.toLocaleString()}</div>
-          <div style={{fontSize:11,color:'#94a3b8',marginTop:6}}>Never expire</div>
-        </div>
+  return <div className="sl-strip">
+    <div style={{flex:1,minWidth:150}}>
+      <div style={{fontSize:11,fontWeight:700,color:'#334155',display:'flex',justifyContent:'space-between',marginBottom:5}}>
+        <span>Sent this month</span><span style={{fontFamily:'ui-monospace,Menlo,monospace'}}>{sentMonth.toLocaleString()} / {monthlyLimit.toLocaleString()}</span>
       </div>
-      <button onClick={function(){if(onBuy)onBuy();}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',flexShrink:0}}><Rocket size={14}/> Buy email credits</button>
+      <div style={{height:6,borderRadius:6,background:'#eef2f8',overflow:'hidden'}}>
+        <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#0ea5e9,#06b6d4)',transition:'width .3s'}}/>
+      </div>
     </div>
-    <div style={{display:'flex',alignItems:'flex-start',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid #f1f5f9',fontSize:12,color:'#64748b',lineHeight:1.5}}>
-      <Info size={14} style={{marginTop:1,flexShrink:0}}/>
-      <span>Your {monthlyLimit.toLocaleString()} free emails refresh on the 1st of each month. Autoresponder drips and broadcasts both draw from this balance — top up with credits (they never expire) for bigger sends.</span>
-    </div>
+    {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:12,fontWeight:700,borderRadius:20,padding:'6px 12px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
+    {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:12.5,fontWeight:700,borderRadius:20,padding:'6px 13px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
+    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}><Rocket size={13}/> Buy</button>
   </div>;
 }
-
 function BcastTab({leads,lists,flash,refresh}) {
 
   var { t } = useTranslation();
