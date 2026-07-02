@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins } from 'lucide-react';
+import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins, Magnet, Megaphone } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
@@ -84,7 +84,7 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn} data-shell="v2">
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
@@ -106,6 +106,8 @@ export default function MyLeads() {
         .sl-select:hover{border-color:#a5b4fc}
         .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
+        .sl-hero{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e8ecf2;border-radius:14px;padding:16px 20px;margin-bottom:12px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(23,37,84,.04)}
+        .sl-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#1e3a8a;background:#eef4ff;border:1px solid #dbe6fb;border-radius:20px;padding:6px 12px;white-space:nowrap}
         .sl-ctrl{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
         .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;box-shadow:0 2px 8px rgba(23,37,84,.04);flex:0 1 auto}
         .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;padding:8px 16px;box-shadow:0 2px 8px rgba(23,37,84,.04)}
@@ -122,6 +124,28 @@ export default function MyLeads() {
           .sl-empty-acts{grid-template-columns:1fr}
         }
       `}</style>
+
+      {/* ── SuperLeads identity hero (Steve-approved 2 Jul): lockup + purpose
+             line + job chips. Replaces the lost page title (categoryBack
+             chrome renders no title) with tool-level branding. Slim card,
+             not the old 130px gradient banner. ── */}
+      <div className="sl-hero">
+        <div style={{display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+          <div style={{width:46,height:46,borderRadius:12,background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 12px rgba(14,165,233,.3)',flexShrink:0}}>
+            <Magnet size={23} color="#fff" strokeWidth={2.2}/>
+          </div>
+          <div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:21,fontWeight:800,letterSpacing:-.3,color:'#0f172a'}}>Super<span style={{color:'#0ea5e9'}}>Leads</span></div>
+            <div style={{fontSize:12.5,color:'#334155',fontWeight:600}}>Collect leads, build your list, send email that lands.</div>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginLeft:'auto',alignItems:'center'}}>
+          <span className="sl-chip"><Magnet size={12}/> Capture from your pages</span>
+          <span className="sl-chip"><Zap size={12}/> Automated sequences</span>
+          <span className="sl-chip"><Megaphone size={12}/> One-click broadcasts</span>
+          {helpBtn}
+        </div>
+      </div>
 
       {/* ── Control row: tabs (with live counts) + slim status strip.
              Replaced the hero banner (title already lives in the topbar), the
@@ -229,7 +253,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
         <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:500}}/></div>
-        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name\u2026" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5}}>Add</button></div>
+        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name…" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5}}>Add</button></div>
       </div>
       <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
@@ -307,7 +331,7 @@ function SeqTab({sequences,refresh,flash}) {
     {nicheOpen && <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center',background:'#fff',border:'1.5px dashed #a78bfa',borderRadius:12,padding:'10px 12px',flexWrap:'wrap'}}>
       <div style={{fontSize:12.5,fontWeight:700,color:'#334155'}}>What niche?</div>
       <input autoFocus value={niche} onChange={function(e){setNiche(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')genAI();}} placeholder="e.g. fitness, crypto, marketing" style={{flex:1,minWidth:160,padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:9,fontSize:13,fontFamily:'inherit',outline:'none',color:'#1e293b',fontWeight:500}}/>
-      <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#8b5cf6',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating\u2026':'Create'}</button>
+      <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#8b5cf6',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating…':'Create'}</button>
       <button onClick={function(){setNicheOpen(false);setNiche('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
     </div>}
     {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:12}}>
