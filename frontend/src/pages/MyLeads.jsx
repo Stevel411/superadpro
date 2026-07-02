@@ -84,7 +84,7 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'], title: 'Autoresponder', subtitle: 'Leads \u00b7 Sequences \u00b7 Broadcasts' }}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'], headline: ['Collect leads. Build your list.', 'Send email that lands.'] }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
@@ -106,9 +106,11 @@ export default function MyLeads() {
         .sl-select:hover{border-color:#a5b4fc}
         .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
-        .sl-hero{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:34px 24px 28px;margin-bottom:12px;text-align:center;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
+        .sl-hero{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:26px 24px 24px;margin-bottom:12px;text-align:center;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
         .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1e3a8a;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap;box-shadow:0 2px 6px rgba(30,58,138,.08)}
-        @media(max-width:520px){.sl-hero{padding:24px 16px 20px}.sl-hero br{display:none}}
+        .sl-hero-hl-m{display:none}
+        @media(max-width:900px){.sl-hero-hl-m{display:block}}
+        @media(max-width:520px){.sl-hero{padding:22px 16px 18px}}
         .sl-ctrl{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
         .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05);flex:0 1 auto}
         .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;padding:8px 16px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
@@ -131,10 +133,12 @@ export default function MyLeads() {
              chrome renders no title) with tool-level branding. Slim card,
              not the old 130px gradient banner. ── */}
       <div className="sl-hero">
-        <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,letterSpacing:-.5,color:'#0f172a',lineHeight:1.2,marginBottom:10}}>
-          Collect leads. Build your list.<br/>Send email that lands.
+        {/* Mobile-only headline: the topbar centre hides <=900px, so the
+            statement renders here instead — never both. */}
+        <div className="sl-hero-hl-m" style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,letterSpacing:-.5,color:'#0f172a',lineHeight:1.2,marginBottom:10}}>
+          Collect leads. Build your list. Send email that lands.
         </div>
-        <div style={{fontSize:15,color:'#334155',fontWeight:600,marginBottom:18}}>
+        <div style={{fontSize:16,color:'#334155',fontWeight:600,marginBottom:18}}>
           Your autoresponder &mdash; capture, nurture and broadcast from one place.
         </div>
         <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>

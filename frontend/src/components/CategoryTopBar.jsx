@@ -21,9 +21,10 @@ const CSS = `
 .ctb .back:hover{gap:9px;border-color:#22d3ee;}
 .ctb .rt{display:flex;align-items:center;gap:10px;}
 .ctb .mid{flex:1;text-align:center;min-width:0;overflow:hidden;}
+.ctb .mid .mh{font-family:'Sora','DM Sans',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.18;color:#0f172a;}
 .ctb .mid .mt{font-family:'Sora','DM Sans',sans-serif;font-size:16px;font-weight:800;color:#0f172a;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ctb .mid .ms{font-size:11.5px;color:#475569;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-@media(max-width:860px){.ctb .mid{display:none;}}
+@media(max-width:900px){.ctb .mid{display:none;}}
 .ctb .bal{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e4eaf3;border-radius:999px;padding:6px 15px 6px 12px;text-decoration:none;box-shadow:0 10px 30px rgba(10,20,56,.08);transition:border-color .2s,box-shadow .2s;}
 .ctb .bal:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
 .ctb .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
@@ -95,10 +96,19 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
         )}
         <Link className="back" to={backTo}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span className="bl">{backLabel}</span></Link>
       </div>
-      {toolBrand && toolBrand.title && (
+      {toolBrand && (toolBrand.headline || toolBrand.title) && (
         <div className="mid">
-          <div className="mt">{toolBrand.title}</div>
-          {toolBrand.subtitle && <div className="ms">{toolBrand.subtitle}</div>}
+          {toolBrand.headline ? (
+            /* Big-statement variant (Steve's SuperLeads layout, 2 Jul 2026):
+               the page headline lives in the topbar centre. Hidden <=900px —
+               the page renders it in its hero card there instead. */
+            <div className="mh">{toolBrand.headline[0]}<br/>{toolBrand.headline[1]}</div>
+          ) : (
+            <>
+              <div className="mt">{toolBrand.title}</div>
+              {toolBrand.subtitle && <div className="ms">{toolBrand.subtitle}</div>}
+            </>
+          )}
         </div>
       )}
       <div className="rt">
