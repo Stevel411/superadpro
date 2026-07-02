@@ -1897,10 +1897,12 @@ def health_db():
     one glance (app up + db down = infra fault, restart Postgres and wait
     10-15 min for mesh propagation — see incident runbook)."""
     import time as _t
+    from .database import engine as _eng
+    from sqlalchemy import text as _text
     t0 = _t.monotonic()
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+        with _eng.connect() as conn:
+            conn.execute(_text("SELECT 1"))
         return JSONResponse({"db": "ok", "latency_ms": round((_t.monotonic() - t0) * 1000, 1)})
     except Exception as e:
         return JSONResponse({"db": "unreachable", "error_type": type(e).__name__,
