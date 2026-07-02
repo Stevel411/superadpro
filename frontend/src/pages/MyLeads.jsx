@@ -76,7 +76,7 @@ export default function MyLeads() {
 
   useEffect(function() { refresh(); }, [refresh]);
 
-  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:9,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
+  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:9,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:13.5,fontWeight:800,boxShadow:'0 2px 8px rgba(23,37,84,.08)',cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
 
   if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
@@ -84,11 +84,11 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'] }}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'], title: 'Autoresponder', subtitle: 'Leads \u00b7 Sequences \u00b7 Broadcasts' }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
-        .sl-tab:hover{background:#eef2ff!important;color:#4f46e5!important}
+        .sl-tab:hover{background:#e0e7ff!important;color:#4338ca!important;box-shadow:0 3px 10px rgba(79,70,229,.18);transform:translateY(-1px)}
         .sl-row{transition:background .1s}
         .sl-row:hover{background:#f8fafc!important}
         .sl-stat-card{transition:transform .2s,box-shadow .2s}
@@ -96,7 +96,7 @@ export default function MyLeads() {
         @media(max-width:767px){.sl-stats{grid-template-columns:1fr 1fr!important}}
         .sl-select{
           width:100%;padding:10px 36px 10px 14px;border-radius:10px;
-          border:1.5px solid #cbd5e1;background:#fff;color:#1e293b;
+          border:1.5px solid #cbd5e1;background:#fff;color:#1e293b;box-shadow:0 2px 6px rgba(23,37,84,.05);
           font-size:14px;font-family:inherit;font-weight:700;cursor:pointer;
           appearance:none;-webkit-appearance:none;-moz-appearance:none;
           background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2364748b%27 stroke-width=%272.5%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E");
@@ -106,12 +106,12 @@ export default function MyLeads() {
         .sl-select:hover{border-color:#a5b4fc}
         .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
-        .sl-hero{background:#fff;border:1px solid #e8ecf2;border-radius:14px;padding:34px 24px 28px;margin-bottom:12px;text-align:center;box-shadow:0 2px 8px rgba(23,37,84,.04)}
-        .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1e3a8a;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap}
+        .sl-hero{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:34px 24px 28px;margin-bottom:12px;text-align:center;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
+        .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1e3a8a;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap;box-shadow:0 2px 6px rgba(30,58,138,.08)}
         @media(max-width:520px){.sl-hero{padding:24px 16px 20px}.sl-hero br{display:none}}
         .sl-ctrl{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
-        .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;box-shadow:0 2px 8px rgba(23,37,84,.04);flex:0 1 auto}
-        .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;padding:8px 16px;box-shadow:0 2px 8px rgba(23,37,84,.04)}
+        .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05);flex:0 1 auto}
+        .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;padding:8px 16px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
         .sl-search{flex:0 1 300px;min-width:180px}
         .sl-newlist{display:flex;gap:6px;margin-left:auto;min-width:190px}
         .sl-empty-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto}
@@ -238,7 +238,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
   function assignSeq(lid,sid){apiPost('/api/leads/'+lid+'/assign-sequence',{sequence_id:sid?parseInt(sid):null}).then(function(){flash('Sequence assigned');refresh();}).catch(function(e){flash(e.message,'err');});}
   function createList(){var name=newListName.trim();if(!name)return;apiPost('/api/leads/lists',{name:name}).then(function(){setNewListName('');flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
 
-  return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
+  return <div style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
         <CustomSelect value={fS} onChange={setFS} style={{width:170}} options={[
@@ -250,8 +250,8 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         ]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
-        <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:15,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:600}}/></div>
-        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name…" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5}}>Add</button></div>
+        <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:15,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:600,boxShadow:'0 2px 6px rgba(23,37,84,.05)'}}/></div>
+        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name…" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5,boxShadow:'0 3px 10px rgba(79,70,229,.28)'}}>Add</button></div>
       </div>
       <div style={{fontSize:14,color:'#1e293b',fontWeight:800}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
@@ -280,12 +280,12 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         <div style={{fontFamily:'Sora,sans-serif',fontSize:19,fontWeight:800,color:'#0f172a',marginBottom:6}}>Get your first leads in</div>
         <div style={{fontSize:13.5,color:'#334155',fontWeight:500,marginBottom:20,lineHeight:1.5}}>Two ways to fill this page &mdash; pick whichever fits you:</div>
         <div className="sl-empty-acts">
-          <div onClick={function(){if(goImport)goImport();}} style={{border:'1.5px solid #e2e8f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fbfdff',cursor:'pointer'}}>
+          <div onClick={function(){if(goImport)goImport();}} style={{border:'1.5px solid #dfe6f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fff',cursor:'pointer',boxShadow:'0 2px 8px rgba(23,37,84,.07)'}}>
             <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#eef2ff'}}><Upload size={19} color="#4f46e5"/></div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Import contacts</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Upload a CSV of people you already know</div>
           </div>
-          <Link to="/funnels" style={{textDecoration:'none',border:'1.5px solid #e2e8f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fbfdff',display:'block'}}>
+          <Link to="/funnels" style={{textDecoration:'none',border:'1.5px solid #dfe6f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fff',display:'block',boxShadow:'0 2px 8px rgba(23,37,84,.07)'}}>
             <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#ecfeff'}}><Sparkles size={19} color="#0891b2"/></div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Capture from your pages</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Every SuperPages opt-in lands here automatically</div>
@@ -308,7 +308,7 @@ function SeqTab({sequences,refresh,flash}) {
   function genAI(){var n=niche.trim();if(!n){setNicheOpen(true);return;}setGen(true);setNicheOpen(false);apiPost('/api/leads/sequences',{title:n.charAt(0).toUpperCase()+n.slice(1)+' Welcome Series',niche:n,emails:[{subject:'Welcome — your journey starts here',body_html:'<p>'+t('myLeads.welcomeDefault')+'</p>',send_delay_days:0},{subject:'Quick tip to get started',body_html:'<p>'+t('myLeads.tipDefault')+' '+n+'</p>',send_delay_days:1},{subject:'What others are saying',body_html:'<p>'+t('myLeads.achieveDefault')+'</p>',send_delay_days:3},{subject:"Don't miss out",body_html:'<p>'+t('myLeads.urgencySubject')+'</p>',send_delay_days:5},{subject:'Final call — are you in?',body_html:'<p>'+t('myLeads.lastChanceDefault')+'</p>',send_delay_days:7}]}).then(function(){flash('AI sequence created — edit to customise');setGen(false);setNiche('');refresh();}).catch(function(e){flash(e.message,'err');setGen(false);});}
   function sendNext(sid){apiPost('/api/leads/send-sequence-email',{sequence_id:sid}).then(function(r){flash('Sent '+(r.sent||0)+' emails');refresh();}).catch(function(e){flash(e.message,'err');});}
 
-  if(ed!==null)return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
+  if(ed!==null)return <div style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.cancel')}</button></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sequenceName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("myLeads.sequenceNamePlaceholder")} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
@@ -332,7 +332,7 @@ function SeqTab({sequences,refresh,flash}) {
       <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#8b5cf6',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating…':'Create'}</button>
       <button onClick={function(){setNicheOpen(false);setNiche('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
     </div>}
-    {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:12}}>
+    {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)',marginBottom:12}}>
       <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
         <div><div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{sq.title}</div><div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:2}}>{sq.num_emails} emails</div></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
@@ -371,7 +371,7 @@ function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
     </div>
     {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
     {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
-    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}><Rocket size={13}/> Buy</button>
+    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0,boxShadow:'0 4px 12px rgba(30,58,138,.3)'}}><Rocket size={13}/> Buy</button>
     {extra}
   </div>;
 }
@@ -412,7 +412,7 @@ function BcastTab({leads,lists,flash,refresh}) {
     });
   }
 
-  return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
+  return <div style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:10,marginBottom:16}}>
@@ -467,7 +467,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
     }).catch(function(e) { setUploading(false); flash(e.message, 'err'); });
   }
 
-  return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
+  return <div style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)'}}>
     <div style={{padding:'20px 24px',borderBottom:'1px solid #f1f5f9'}}>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,marginBottom:4}}>{t('myLeads.importLeads')}</div>
       <div style={{fontSize:13,color:'var(--sap-text-secondary)'}}>{t("myLeads.importDescFull")}</div>
