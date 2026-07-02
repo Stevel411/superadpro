@@ -8,6 +8,32 @@
 
 ---
 
+## Status as of 2026-07-02 — BLOG MEDIA SYSTEM DONE + GUIDED CUSTOM-DOMAIN PAGE
+
+HEAD = `769c6e529`. Full detail in `handover-2026-07-02.md`.
+
+**Shipped (all live, deploy-verified):**
+- `2275a43d9` **Unified media layout** — one control (Left · Normal · Wide · Full · Right) on any selected image **or video**; Left/Right float + wrap text, Normal/Wide/Full are block sizes. Video gained `data-w`/`data-align` (was URL-only). Collapses the old two-axis Size+Align (which let Wide+Left conflict). Wired node → toolbar → editor CSS → Split-preview → public `blog_render.py` → sanitizer, + mobile stacking.
+- `c2cde2f4e` **Video aspect-ratio fix + column widen** — `.bn-embed`'s `padding-bottom:56.25%` is % of *container* width, so a floated ~360px video kept ~405px height (near-square, cropped, overflowing). Switched to `aspect-ratio:16/9` (element-relative) in all three surfaces. Reading column **720 → 820px** (public + preview).
+- `c2fe1041d` **S/M/L size control** — size dial on image/video independent of position (in-column 40/60/85%; floated 240/360/460px-capped; hidden for Wide/Full). New `data-scale` attr through all six layers. Default M → existing content unchanged.
+- `5c17915db` **`/admin/api/domain-config`** — read-only admin diagnostic: is seamless auto-TLS configured (four `RAILWAY_*` vars) + has any domain provisioned. Governs blog AND SuperPages (shared plumbing). Booleans/counts only.
+- `769c6e529` **Guided blog custom-domain page** — `/my-site/domain`, sibling of `/sending-domains`: copy-paste record cards + Copy buttons, CNAME/TXT "what's this?", Pending→Verified status, 30s auto-poll, HTTPS footer. Wired to existing `/api/blog/domain`. Added route + shell handler; My Site → Settings inline panel replaced with a prominent **"Set up your custom domain →"** CTA.
+
+**⚠️ Ground-truth corrections (trust `PLATFORM_STATE.md` + `CLAUDE.md`, not the stale instructions):**
+1. **THREE live payment rails — Stripe, NOWPayments, WalletConnect/BSC.** The "BSC-only / Stripe+NOWPayments dead" claim is stale; `PLATFORM_STATE.md` explicitly flags the NOWPayments-retired claim as WRONG. Steve confirmed three rails. Polygon retired, Airwallex never wired.
+2. **Custom domains are fully built** (blog + SuperPages = one Railway-backed system: `CustomDomain` model, `custom_domains.py`, `railway_api.py` auto-TLS, host-routing, cert cron, UIs). Don't rebuild.
+
+**Custom-domain config:** `/admin/api/domain-config` = **seamless auto-TLS ON** (all four `RAILWAY_*` vars set) but **`total_custom_domains: 0`** — configured but never run in production.
+
+**Open / next:**
+1. **🔬 First real custom-domain test — 2026-07-03.** Steve connects a domain he owns via `/my-site/domain`. First-ever production run — watch Railway hand-off; monitor `/admin/api/domain-config` (`registered_with_railway` / `tls_certificate_issued` should tick from 0). First-run bug plausible.
+2. **AI blog-writing feature — PARKED.** `draft`/`outline` already in `/api/blog/ai/assist`; new piece = live web research (Grok Live Search). Banked: video=embed-not-generate, images=`grok_imagine` (1 hero). Needs compliance guardrails + gating decision. Don't build until greenlit.
+3. **PAT rotation** still pending (plaintext in instructions). **SECURITY.md vs admin-GET / cron `?secret=`** tension unreconciled.
+
+**Watch:** blog media S/M/L percentages + float px caps are one-line tunes; custom-domain "we handle the cert" copy is honest (config ON) but unproven until tomorrow's test.
+
+---
+
 ## Status as of 2026-06-30 — RENEWAL NUDGE + HEALTH-BOARD CLOSED + DOC CLEANUP
 
 HEAD = `d4c2d23c8`. Full detail in `handover-2026-06-30.md`.
