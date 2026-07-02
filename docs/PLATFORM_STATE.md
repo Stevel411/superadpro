@@ -119,7 +119,7 @@
 - Attacker accounts 670/673/674: **deleted by Steve deliberately** (Action Fraud declined). Do not flag as evidence loss.
 - `SECURITY.md` invariants (no `?secret=` on privileged routes, no state-changing GETs, `scripts/security_check.py` before every push) are **unreconciled** with the tappable-admin-GET convention and the daily-briefing cron's `?secret=`. Needs a dedicated pass with Steve — which posture wins.
 - **GitHub PAT still plaintext in the Claude.ai project instructions** — rotation pending, repeatedly flagged.
-- **DB backups: WORKING** — `app/db_backup.py` (pure-Python logical JSON dump to R2, shipped 29 Jun `529c684`, retention fixed `75fcda4`). Replaced the dead pg_dump path entirely; the stale `nixpacks.toml` "will keep failing" comment was removed 2 Jul. Boot daemon backs up on every deploy (20h skip window).
+- **DB backups: WORKING — verified against live R2 2 Jul** (`/admin/api/backups`: unbroken daily history since 14 Jun, 27.5 MB today). `app/db_backup.py` pure-Python logical JSON dump to R2; predates 8 Jun; age-tiered retention fixed `da064f95` (9 Jun — old count-based pruning had evicted all earlier history, which is why nothing pre-14-Jun survives). Replaced the dead pg_dump path entirely; stale `nixpacks.toml` comment removed 2 Jul. Boot daemon dumps on deploy when the newest R2 backup is >20h old. Known quirk: with two replicas both boot dumps race the R2 recency check → duplicate same-second backups on multi-replica boot days (harmless, doubles DB read load on those boots — cheap fix queued).
 - rippa (#343) carries a known INTENTIONAL ~$70.37 legacy over-credit — do not reclaim.
 
 ---
@@ -155,7 +155,7 @@
 | BSC scanner | in-process, 30s | ⚠️ Live, stall-prone (Open Issue #3) |
 | Sending-domain verify | `/cron/verify-sending-domains` | ✅ Live |
 | Custom-domain cert polling | cron | ✅ Configured — exercised for real from first domain connection onward |
-| Daily DB backup | boot daemon, `skip_if_recent_hours=20` | ✅ Live — `app/db_backup.py` pure-Python logical dump → R2 `backups/` (no pg_dump dependency). Age-tiered retention (all <14d / weekly to 90d / monthly to 2y / floor 7). Manual: `GET /admin/api/backup/run`. Restore: `load_backup` + `list_backups`. |
+| Daily DB backup | boot daemon, `skip_if_recent_hours=20` | ✅ Live & verified (daily in R2 since 14 Jun) — `app/db_backup.py` pure-Python logical dump → R2 `backups/`, no pg_dump dependency. Age-tiered retention (all <14d / weekly to 90d / monthly to 2y / floor 7). List: `GET /admin/api/backups` · manual run: `GET /admin/api/backup/run` · restore: `load_backup`. |
 
 ---
 
