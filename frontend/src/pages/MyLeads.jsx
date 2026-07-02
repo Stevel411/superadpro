@@ -115,14 +115,12 @@ export default function MyLeads() {
         .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05);flex:0 1 auto}
         .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #dfe6f0;border-radius:12px;padding:8px 16px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
         .sl-search{flex:0 1 300px;min-width:180px}
-        .sl-newlist{display:flex;gap:6px;margin-left:auto;min-width:190px}
-        .sl-empty-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto}
+                .sl-empty-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto}
         @media(max-width:767px){
           .sl-ctrl{flex-direction:column}
           .sl-tabsbox{width:100%}
           .sl-strip{min-width:0}
           .sl-search{flex:1 1 100%;min-width:100%}
-          .sl-newlist{margin-left:0;flex:1}
           .sl-md{display:none}
           .sl-empty-acts{grid-template-columns:1fr}
         }
@@ -229,7 +227,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
 
   var { t } = useTranslation();
   var [search,setSearch]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');
-  var [newListName,setNewListName]=useState('');
+  var [newListName,setNewListName]=useState('');var [newListOpen,setNewListOpen]=useState(false);
   // Hot-chip jump: parent bumps statusJump ({v:'hot'}) -> pre-filter this tab.
   useEffect(function(){ if(statusJump && statusJump.v){ setFS(statusJump.v); } }, [statusJump]);
   var lm={}; lists.forEach(function(l){lm[l.id]=l;});
@@ -240,7 +238,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
   });
   function del(id){if(!window.confirm(t('myLeads.deleteLeadConfirm')))return;apiDelete('/api/leads/'+id).then(function(){flash(t('myLeads.leadDeleted'));refresh();}).catch(function(e){flash(e.message,'err');});}
   function assignSeq(lid,sid){apiPost('/api/leads/'+lid+'/assign-sequence',{sequence_id:sid?parseInt(sid):null}).then(function(){flash('Sequence assigned');refresh();}).catch(function(e){flash(e.message,'err');});}
-  function createList(){var name=newListName.trim();if(!name)return;apiPost('/api/leads/lists',{name:name}).then(function(){setNewListName('');flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
+  function createList(){var name=newListName.trim();if(!name)return;apiPost('/api/leads/lists',{name:name}).then(function(){setNewListName('');setNewListOpen(false);flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
@@ -253,9 +251,16 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
           {value:'converted',label:t('myLeads.statusConverted')},
         ]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
-        <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
+        {!newListOpen ? (
+          <button onClick={function(){setNewListOpen(true);}} style={{padding:'10px 16px',borderRadius:10,border:'1.5px solid #c7d2fe',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,boxShadow:'0 2px 6px rgba(79,70,229,.08)'}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
+        ) : (
+          <span style={{display:'inline-flex',gap:6,alignItems:'center'}}>
+            <input autoFocus value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();if(e.key==='Escape'){setNewListOpen(false);setNewListName('');}}} placeholder="New list name…" style={{width:170,padding:'10px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13.5,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:600}}/>
+            <button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:800,fontSize:12.5,padding:'10px 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5,boxShadow:'0 3px 10px rgba(79,70,229,.28)'}}>Add</button>
+            <button onClick={function(){setNewListOpen(false);setNewListName('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:'inherit',padding:'0 2px'}}>Cancel</button>
+          </span>
+        )}
         <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:15,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:600,boxShadow:'0 2px 6px rgba(23,37,84,.05)'}}/></div>
-        <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name…" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5,boxShadow:'0 3px 10px rgba(79,70,229,.28)'}}>Add</button></div>
       </div>
       <div style={{fontSize:14,color:'#1e293b',fontWeight:800}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
