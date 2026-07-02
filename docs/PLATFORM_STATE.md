@@ -4,7 +4,7 @@
 >
 > **For Steve:** Update at the END of every session. Replace, don't append. The narrative of what happened lives in `LAUNCH_LOG.md`. This file answers "what is true right now."
 
-**Last updated:** 2026-07-02 (full stale-data refresh — HEAD `54c60d8`; previous snapshot was 2026-06-09 and carried pre-v2 grid economics, an open Founder offer, and a 95/5 Campaign Tier split, all long superseded)
+**Last updated:** 2026-07-02 (full stale-data refresh + backup-status correction — HEAD `54c60d8`; previous snapshot was 2026-06-09 and carried pre-v2 grid economics, an open Founder offer, and a 95/5 Campaign Tier split, all long superseded)
 
 ---
 
@@ -119,21 +119,21 @@
 - Attacker accounts 670/673/674: **deleted by Steve deliberately** (Action Fraud declined). Do not flag as evidence loss.
 - `SECURITY.md` invariants (no `?secret=` on privileged routes, no state-changing GETs, `scripts/security_check.py` before every push) are **unreconciled** with the tappable-admin-GET convention and the daily-briefing cron's `?secret=`. Needs a dedicated pass with Steve — which posture wins.
 - **GitHub PAT still plaintext in the Claude.ai project instructions** — rotation pending, repeatedly flagged.
+- **DB backups: WORKING** — `app/db_backup.py` (pure-Python logical JSON dump to R2, shipped 29 Jun `529c684`, retention fixed `75fcda4`). Replaced the dead pg_dump path entirely; the stale `nixpacks.toml` "will keep failing" comment was removed 2 Jul. Boot daemon backs up on every deploy (20h skip window).
 - rippa (#343) carries a known INTENTIONAL ~$70.37 legacy over-credit — do not reclaim.
 
 ---
 
 ## Open issues (ranked)
 
-1. **🔴 DB backups STILL BROKEN — no working backup exists (post-breach platform).** `pg_dump` binary absent from the Railway container; `nixpacks.toml` still carries the failed `postgresql_17` note (27 May). Code side is ready (pipefail, stderr capture, `/admin/api/backup/run`). Fix = correct nixpkgs package name or Dockerfile apt install, then verify a real dump lands in external storage. Months old, top priority, repeatedly deferred.
-2. **First custom-domain production run (~3 Jul)** — see Custom domains above.
-3. **BSC scanner silent-stall risk** — orphaned advisory lock (27 May, ~6.5h) + succeed-with-empty-result RPC gap (Matt case): needs a no-tick alarm. Restart clears it.
-4. **Stripe webhook delivery reliability** — `invoice.paid` self-heal is catching missed `checkout.session.completed`; Stripe Dashboard delivery investigation still not done.
-5. **4-Jul founder renewal runway** — Steve's call on broadcast/extension.
-6. **Retirement-aware scanner cleanup** — `commission_routing`/`pack_ownership`/`matrix_integrity` false-positive criticals for post-30-May flat-20%/no-matrix state (investigated 30 Jun: no real money problems).
-7. **i18n backlog** — 19 frontend locales stale on flat pricing keys (`863ae66` en-only); non-EN locales carry stale grid rates; backend training locales (de/es/fr/hi/it/pt) need retranslation vs 18-lesson corpus.
-8. **Dead code queued:** legacy Polygon handler bodies (~350 lines + `crypto_payments.py`); escrow subsystem (`_escrow_pending_commission`, `PendingCommission`, `_release_pending_for_user` — zero callers; handle existing pending rows in cleanup).
-9. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
+1. **First custom-domain production run (~3 Jul)** — see Custom domains above.
+2. **BSC scanner silent-stall risk** — orphaned advisory lock (27 May, ~6.5h) + succeed-with-empty-result RPC gap (Matt case): needs a no-tick alarm. Restart clears it.
+3. **Stripe webhook delivery reliability** — `invoice.paid` self-heal is catching missed `checkout.session.completed`; Stripe Dashboard delivery investigation still not done.
+4. **4-Jul founder renewal runway** — Steve's call on broadcast/extension.
+5. **Retirement-aware scanner cleanup** — `commission_routing`/`pack_ownership`/`matrix_integrity` false-positive criticals for post-30-May flat-20%/no-matrix state (investigated 30 Jun: no real money problems).
+6. **i18n backlog** — 19 frontend locales stale on flat pricing keys (`863ae66` en-only); non-EN locales carry stale grid rates; backend training locales (de/es/fr/hi/it/pt) need retranslation vs 18-lesson corpus.
+7. **Dead code queued:** legacy Polygon handler bodies (~350 lines + `crypto_payments.py`); escrow subsystem (`_escrow_pending_commission`, `PendingCommission`, `_release_pending_for_user` — zero callers; handle existing pending rows in cleanup).
+8. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
 
 ## Open product decisions (Steve)
 
@@ -155,7 +155,7 @@
 | BSC scanner | in-process, 30s | ⚠️ Live, stall-prone (Open Issue #3) |
 | Sending-domain verify | `/cron/verify-sending-domains` | ✅ Live |
 | Custom-domain cert polling | cron | ✅ Configured — exercised for real from first domain connection onward |
-| Daily DB backup | daemon thread | 🔴 FAILING (pg_dump absent — Open Issue #1) |
+| Daily DB backup | boot daemon, `skip_if_recent_hours=20` | ✅ Live — `app/db_backup.py` pure-Python logical dump → R2 `backups/` (no pg_dump dependency). Age-tiered retention (all <14d / weekly to 90d / monthly to 2y / floor 7). Manual: `GET /admin/api/backup/run`. Restore: `load_backup` + `list_backups`. |
 
 ---
 

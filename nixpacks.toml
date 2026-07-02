@@ -1,10 +1,8 @@
 [phases.setup]
-# Note: pg_dump for daily backups needs postgresql installed at runtime.
-# Tried adding 'postgresql_17' here but it failed Railway's nixpacks
-# build (27 May 2026) — package name doesn't resolve in the nixpkgs
-# revision Railway uses. Need to find the correct package name. In the
-# meantime the daily backup will keep failing with 'command not found'.
-# Tracked as a known issue; not blocking deploys.
+# Backups do NOT need pg_dump anymore: app/db_backup.py (29 Jun 2026)
+# does a pure-Python logical dump straight to R2 — version-agnostic,
+# no postgres client binary required. Do not re-add postgresql here
+# for backup reasons.
 nixPkgs = ['...', 'ffmpeg']
 
 [phases.build]
