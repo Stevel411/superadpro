@@ -181,7 +181,9 @@ export default function MyLeads() {
       {verifiedDomain ? (
         <Link to="/sending-domains" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:9,background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'10px 16px',marginTop:12,fontSize:14,fontWeight:700,color:'#1e293b'}}>
           <span style={{color:'#16a34a',fontWeight:800}}>&#10003;</span>
-          Sending as <code style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:12,color:'#0f172a',fontWeight:700}}>{verifiedDomain.from_address}</code>
+          Sending as{verifiedDomain.from_name ? <strong style={{color:'#0f172a'}}>&nbsp;{verifiedDomain.from_name}</strong> : null}
+          <code style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:12,color:'#0f172a',fontWeight:700}}>&lt;{verifiedDomain.from_address}&gt;</code>
+          <span style={{marginLeft:'auto',color:'#0ea5e9',fontWeight:800,fontSize:12.5,whiteSpace:'nowrap'}}>change &rarr;</span>
         </Link>
       ) : (
         <Link to="/sending-domains" style={{textDecoration:'none',display:'block',marginTop:12}}>
