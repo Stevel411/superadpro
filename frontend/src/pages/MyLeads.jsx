@@ -76,7 +76,7 @@ export default function MyLeads() {
 
   useEffect(function() { refresh(); }, [refresh]);
 
-  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
+  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:9,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
 
   if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
@@ -84,7 +84,7 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'] }}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'] }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
@@ -170,7 +170,8 @@ export default function MyLeads() {
         </div>
         <SlimStatus emailStats={emailStats} hot={stats.hot||0}
           onBuy={function(){setShowBuy(true);}}
-          onHot={function(){ setLeadsStatusJump({v:'hot'}); setTab('leads'); }}/>
+          onHot={function(){ setLeadsStatusJump({v:'hot'}); setTab('leads'); }}
+          extra={helpBtn}/>
       </div>
 
       {/* Send-from-your-own-brand — state-aware: verified members get the
@@ -353,7 +354,7 @@ function SeqTab({sequences,refresh,flash}) {
   </div>;
 }
 
-function SlimStatus({emailStats, hot, onBuy, onHot}) {
+function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
   var es = emailStats || {};
   var monthlyLimit = (es.monthly_limit != null) ? es.monthly_limit : 5000;
   var sentMonth = es.sent_month || 0;
@@ -371,6 +372,7 @@ function SlimStatus({emailStats, hot, onBuy, onHot}) {
     {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
     {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
     <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}><Rocket size={13}/> Buy</button>
+    {extra}
   </div>;
 }
 function BcastTab({leads,lists,flash,refresh}) {
