@@ -76,7 +76,7 @@ export default function MyLeads() {
 
   useEffect(function() { refresh(); }, [refresh]);
 
-  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'9px 16px',borderRadius:9,border:'1.5px solid #e2e8f0',background:'#fff',color:'#334155',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
+  var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'11px 20px',borderRadius:10,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
 
   if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
@@ -84,7 +84,7 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'] }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
@@ -96,8 +96,8 @@ export default function MyLeads() {
         @media(max-width:767px){.sl-stats{grid-template-columns:1fr 1fr!important}}
         .sl-select{
           width:100%;padding:10px 36px 10px 14px;border-radius:10px;
-          border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;
-          font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;
+          border:1.5px solid #cbd5e1;background:#fff;color:#1e293b;
+          font-size:14px;font-family:inherit;font-weight:700;cursor:pointer;
           appearance:none;-webkit-appearance:none;-moz-appearance:none;
           background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2364748b%27 stroke-width=%272.5%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E");
           background-repeat:no-repeat;background-position:right 12px center;
@@ -106,8 +106,9 @@ export default function MyLeads() {
         .sl-select:hover{border-color:#a5b4fc}
         .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
-        .sl-hero{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e8ecf2;border-radius:14px;padding:16px 20px;margin-bottom:12px;flex-wrap:wrap;box-shadow:0 2px 8px rgba(23,37,84,.04)}
-        .sl-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#1e3a8a;background:#eef4ff;border:1px solid #dbe6fb;border-radius:20px;padding:6px 12px;white-space:nowrap}
+        .sl-hero{background:#fff;border:1px solid #e8ecf2;border-radius:14px;padding:34px 24px 28px;margin-bottom:12px;text-align:center;box-shadow:0 2px 8px rgba(23,37,84,.04)}
+        .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1e3a8a;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap}
+        @media(max-width:520px){.sl-hero{padding:24px 16px 20px}.sl-hero br{display:none}}
         .sl-ctrl{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
         .sl-tabsbox{display:flex;gap:5px;padding:5px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;box-shadow:0 2px 8px rgba(23,37,84,.04);flex:0 1 auto}
         .sl-strip{flex:1;min-width:300px;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8ecf2;border-radius:12px;padding:8px 16px;box-shadow:0 2px 8px rgba(23,37,84,.04)}
@@ -130,20 +131,16 @@ export default function MyLeads() {
              chrome renders no title) with tool-level branding. Slim card,
              not the old 130px gradient banner. ── */}
       <div className="sl-hero">
-        <div style={{display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
-          <div style={{width:46,height:46,borderRadius:12,background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 12px rgba(14,165,233,.3)',flexShrink:0}}>
-            <Magnet size={23} color="#fff" strokeWidth={2.2}/>
-          </div>
-          <div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:21,fontWeight:800,letterSpacing:-.3,color:'#0f172a'}}>Super<span style={{color:'#0ea5e9'}}>Leads</span></div>
-            <div style={{fontSize:12.5,color:'#334155',fontWeight:600}}>Collect leads, build your list, send email that lands.</div>
-          </div>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,letterSpacing:-.5,color:'#0f172a',lineHeight:1.2,marginBottom:10}}>
+          Collect leads. Build your list.<br/>Send email that lands.
         </div>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginLeft:'auto',alignItems:'center'}}>
-          <span className="sl-chip"><Magnet size={12}/> Capture from your pages</span>
-          <span className="sl-chip"><Zap size={12}/> Automated sequences</span>
-          <span className="sl-chip"><Megaphone size={12}/> One-click broadcasts</span>
-          {helpBtn}
+        <div style={{fontSize:15,color:'#334155',fontWeight:600,marginBottom:18}}>
+          Your autoresponder &mdash; capture, nurture and broadcast from one place.
+        </div>
+        <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+          <span className="sl-chip"><Magnet size={13}/> Capture from your pages</span>
+          <span className="sl-chip"><Zap size={13}/> Automated sequences</span>
+          <span className="sl-chip"><Megaphone size={13}/> One-click broadcasts</span>
         </div>
       </div>
 
@@ -159,15 +156,15 @@ export default function MyLeads() {
             var I = tb.icon;
             var count = tb.key === 'leads' ? (stats.total||0) : (tb.key === 'sequences' ? sequences.length : null);
             return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
-              style={{padding:'10px 16px',borderRadius:8,
+              style={{padding:'12px 20px',borderRadius:8,
                       background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
-                      color: a ? '#fff' : '#334155',
-                      fontSize:13.5,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',
+                      color: a ? '#fff' : '#1e293b',
+                      fontSize:15,fontWeight:800,cursor:'pointer',whiteSpace:'nowrap',
                       display:'flex',alignItems:'center',justifyContent:'center',gap:7,
                       boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
                       transition:'all .15s',flex:'1 1 auto'}}>
               <I size={15}/> {t('myLeads.' + tb.labelKey)}
-              {count !== null && <span style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:10.5,fontWeight:600,borderRadius:20,padding:'1px 7px',background: a ? 'rgba(255,255,255,.22)' : '#eef2f8', color: a ? '#fff' : '#334155'}}>{count}</span>}
+              {count !== null && <span style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:11.5,fontWeight:700,borderRadius:20,padding:'2px 8px',background: a ? 'rgba(255,255,255,.22)' : '#eef2f8', color: a ? '#fff' : '#1e293b'}}>{count}</span>}
             </div>;
           })}
         </div>
@@ -179,7 +176,7 @@ export default function MyLeads() {
       {/* Send-from-your-own-brand — state-aware: verified members get the
           slim confirmation line, everyone else gets the guided CTA. */}
       {verifiedDomain ? (
-        <Link to="/sending-domains" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:9,background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'10px 16px',marginTop:12,fontSize:13,fontWeight:600,color:'#334155'}}>
+        <Link to="/sending-domains" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:9,background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'10px 16px',marginTop:12,fontSize:14,fontWeight:700,color:'#1e293b'}}>
           <span style={{color:'#16a34a',fontWeight:800}}>&#10003;</span>
           Sending as <code style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:12,color:'#0f172a',fontWeight:700}}>{verifiedDomain.from_address}</code>
         </Link>
@@ -252,27 +249,27 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         ]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
-        <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:500}}/></div>
+        <div className="sl-search" style={{position:'relative'}}><Search size={15} color="#64748b" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:15,fontFamily:'inherit',width:'100%',outline:'none',transition:'border-color .15s',boxSizing:'border-box',color:'#1e293b',fontWeight:600}}/></div>
         <div className="sl-newlist"><input value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();}} placeholder="New list name…" style={{flex:1,padding:'9px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:500,minWidth:120}}/><button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'0 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5}}>Add</button></div>
       </div>
-      <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
+      <div style={{fontSize:14,color:'#1e293b',fontWeight:800}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
-    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:14}}><thead><tr>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.contact')}</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.email')}</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.status')}</th>
-      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.list')}</th>
-      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
-      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
+    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:15}}><thead><tr>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.contact')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.email')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.status')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.list')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
+      <th className="sl-md" style={{textAlign:'left',padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:13.5,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
       <th style={{textAlign:'right',padding:'14px 18px',borderBottom:'1px solid #e2e8f0'}}></th>
     </tr></thead><tbody>{filtered.map(function(l){
       var statusKey = l.is_hot ? 'hot' : (l.status || 'new');
       var st = STATUS_PALETTE[statusKey] || STATUS_PALETTE.new;
       var li=lm[l.list_id];
       return <tr key={l.id} className="sl-row" style={{borderBottom:'1px solid #f1f5f9'}}>
-      <td style={{padding:'14px 18px',fontWeight:600,color:'var(--sap-text-primary)',fontSize:15}}>{l.name||'—'}</td>
-      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:15}}>{l.email}</td>
-      <td style={{padding:'14px 18px'}}><span style={{padding:'4px 11px',borderRadius:6,background:st.bg,color:st.color,fontSize:13,fontWeight:600}}>{t('myLeads.' + st.labelKey)}</span></td>
+      <td style={{padding:'14px 18px',fontWeight:800,color:'#0f172a',fontSize:15.5}}>{l.name||'—'}</td>
+      <td style={{padding:'14px 18px',color:'#334155',fontWeight:600,fontSize:14.5}}>{l.email}</td>
+      <td style={{padding:'14px 18px'}}><span style={{padding:'4px 11px',borderRadius:6,background:st.bg,color:st.color,fontSize:13,fontWeight:800}}>{t('myLeads.' + st.labelKey)}</span></td>
       <td className="sl-md" style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 11px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:13,fontWeight:600}}>{li.name}</span>:<span style={{color:'var(--sap-text-muted)',fontSize:13}}>—</span>}</td>
       <td className="sl-md" style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.emails_sent||0} {t('myLeads.sent') || 'sent'}</td>
       <td className="sl-md" style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:150}} options={[{value:'',label:t('myLeads.noneOption')||'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
@@ -364,16 +361,16 @@ function SlimStatus({emailStats, hot, onBuy, onHot}) {
   var usedPct = monthlyLimit > 0 ? Math.min(100, Math.round((sentMonth / monthlyLimit) * 100)) : 0;
   return <div className="sl-strip">
     <div style={{flex:1,minWidth:150}}>
-      <div style={{fontSize:11,fontWeight:700,color:'#334155',display:'flex',justifyContent:'space-between',marginBottom:5}}>
+      <div style={{fontSize:12,fontWeight:800,color:'#1e293b',display:'flex',justifyContent:'space-between',marginBottom:5}}>
         <span>Sent this month</span><span style={{fontFamily:'ui-monospace,Menlo,monospace'}}>{sentMonth.toLocaleString()} / {monthlyLimit.toLocaleString()}</span>
       </div>
       <div style={{height:6,borderRadius:6,background:'#eef2f8',overflow:'hidden'}}>
         <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#0ea5e9,#06b6d4)',transition:'width .3s'}}/>
       </div>
     </div>
-    {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:12,fontWeight:700,borderRadius:20,padding:'6px 12px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
-    {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:12.5,fontWeight:700,borderRadius:20,padding:'6px 13px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
-    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}><Rocket size={13}/> Buy</button>
+    {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
+    {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
+    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}><Rocket size={13}/> Buy</button>
   </div>;
 }
 function BcastTab({leads,lists,flash,refresh}) {

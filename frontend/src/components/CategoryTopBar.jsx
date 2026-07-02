@@ -50,7 +50,7 @@ const CSS = `
 }
 `;
 
-export default function CategoryTopBar({ backTo = '/home-preview', backLabel = 'Dashboard' }) {
+export default function CategoryTopBar({ backTo = '/home-preview', backLabel = 'Dashboard', toolBrand = null }) {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const acctRef = useRef(null);
@@ -70,10 +70,25 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
     <div className="ctb">
       <style>{CSS}</style>
       <div className="tl">
+        {toolBrand ? (
+          /* Tool-branded lockup (2 Jul 2026, Steve): tool pages present their
+             own identity in the corner. Same home link. First adopter:
+             SuperLeads; SuperPages/Creative Studio/Ad Studio can pass their
+             own toolBrand when Steve schedules the uniform pass. */
+          <Link className="brand" to="/home-preview" style={{ textDecoration: 'none' }}>
+            <span style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,' + (toolBrand.gradient ? toolBrand.gradient[0] : '#0ea5e9') + ',' + (toolBrand.gradient ? toolBrand.gradient[1] : '#06b6d4') + ')', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 9px rgba(14,165,233,.35)', flexShrink: 0 }}>
+              {toolBrand.icon}
+            </span>
+            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 19, fontWeight: 800, letterSpacing: '-0.3px', color: '#0f172a', marginLeft: 9, whiteSpace: 'nowrap' }}>
+              {toolBrand.wordmark[0]}<span style={{ color: toolBrand.accent || '#0ea5e9' }}>{toolBrand.wordmark[1]}</span>
+            </span>
+          </Link>
+        ) : (
         <Link className="brand" to="/home-preview">
           <span className="lm"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
           <span className="wm">SuperAd<span className="pro">Pro</span></span>
         </Link>
+        )}
         <Link className="back" to={backTo}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span className="bl">{backLabel}</span></Link>
       </div>
       <div className="rt">

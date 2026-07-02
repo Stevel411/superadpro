@@ -25,7 +25,7 @@ function useIsMobile() {
 
 var MOBILE_TABS = ['/watch', '/dashboard', '/wallet', '/'];
 
-export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar, categoryBack, categoryChrome }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight, hideSidebar, hideTopbar, categoryBack, categoryChrome, toolBrand }) {
   var [sidebarOpen, setSidebarOpen] = useState(false);
   var closeSidebar = useCallback(function() { setSidebarOpen(false); }, []);
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
@@ -149,7 +149,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         )}>
         {catMode && (
           <div style={{ padding: isMobile ? '14px 16px' : '18px 24px', background: '#FFFFFF' }}>
-            <CategoryTopBar backTo={backTarget.to} backLabel={backTarget.label} />
+            <CategoryTopBar backTo={backTarget.to} backLabel={backTarget.label} toolBrand={toolBrand} />
             {topbarActions && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>{topbarActions}</div>
             )}
