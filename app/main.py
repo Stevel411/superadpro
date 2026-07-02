@@ -25069,25 +25069,33 @@ def admin_bsc_chunks_status(user: User = Depends(get_current_user), db: Session 
     """Admin, read-only: bsc_scan_failed_chunks breakdown — watch the
     retention cleanup drain the 367k-row backlog (added 2 Jul 2026)."""
     _require_admin(user)
-    by_status = db.execute(text(
-        "SELECT status, COUNT(*) AS n FROM bsc_scan_failed_chunks GROUP BY status ORDER BY n DESC"
-    )).mappings().all()
-    oldest_pending = db.execute(text(
-        "SELECT MIN(first_seen_at) FROM bsc_scan_failed_chunks WHERE status='pending'"
-    )).scalar()
-    size = db.execute(text(
-        "SELECT pg_size_pretty(pg_total_relation_size('bsc_scan_failed_chunks'))"
-    )).scalar()
-    return JSONResponse({
-        "read_only": True,
-        "by_status": [dict(r) for r in by_status],
-        "total_rows": sum(r["n"] for r in by_status),
-        "oldest_pending": str(oldest_pending) if oldest_pending else None,
-        "table_size_on_disk": size,
-        "note": ("Retention deletes resolved/abandoned rows >7d old, 5000 per "
-                 "30s scanner tick. Disk size shrinks only after vacuum reuses "
-                 "the space — row count is the live progress signal."),
-    })
+    # Admin-gated diagnostic: surface real errors to the admin instead of the
+    # generic 500 (same pattern as treasury-scan) — a diagnostic endpoint that
+    # hides its own failure cause is useless.
+    try:
+        by_status = db.execute(text(
+            "SELECT status, COUNT(*) AS n FROM bsc_scan_failed_chunks GROUP BY status ORDER BY n DESC"
+        )).mappings().all()
+        oldest_pending = db.execute(text(
+            "SELECT MIN(first_seen_at) FROM bsc_scan_failed_chunks WHERE status='pending'"
+        )).scalar()
+        size = db.execute(text(
+            "SELECT pg_size_pretty(pg_total_relation_size('bsc_scan_failed_chunks'))"
+        )).scalar()
+        return JSONResponse({
+            "read_only": True,
+            "by_status": [dict(r) for r in by_status],
+            "total_rows": sum(r["n"] for r in by_status),
+            "oldest_pending": str(oldest_pending) if oldest_pending else None,
+            "table_size_on_disk": size,
+            "note": ("Retention deletes resolved/abandoned rows >7d old, 5000 per "
+                     "30s scanner tick. Disk size shrinks only after vacuum reuses "
+                     "the space — row count is the live progress signal."),
+        })
+    except Exception as e:
+        import traceback
+        logger.error(f"bsc-chunks-status failed: {e}\n{traceback.format_exc()}")
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
 
 
 @app.get("/admin/api/bsc-chunks-consolidate")
@@ -25113,10 +25121,15 @@ def admin_bsc_chunks_consolidate(
     normally — this only abandons rows existing at tap time.
     """
     _require_admin(user)
-    span = db.execute(text(
-        "SELECT COUNT(*) AS n, MIN(from_block) AS lo, MAX(to_block) AS hi, MAX(id) AS max_id "
-        "FROM bsc_scan_failed_chunks WHERE status='pending'"
-    )).mappings().first()
+    try:
+        span = db.execute(text(
+            "SELECT COUNT(*) AS n, MIN(from_block) AS lo, MAX(to_block) AS hi, MAX(id) AS max_id "
+            "FROM bsc_scan_failed_chunks WHERE status='pending'"
+        )).mappings().first()
+    except Exception as e:
+        import traceback
+        logger.error(f"bsc-chunks-consolidate failed: {e}\n{traceback.format_exc()}")
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
     if not span or not span["n"]:
         return JSONResponse({"pending": 0, "note": "nothing to consolidate"})
 
