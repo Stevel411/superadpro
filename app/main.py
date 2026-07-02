@@ -21465,6 +21465,24 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
         stats["errors"].append(f"cursor: {e}")
         db.rollback()
 
+    # ── Failed-chunk retention (2 Jul 2026) ───────────────────────────
+    # Terminal-status rows (resolved/abandoned) used to accumulate forever
+    # — 367k rows / 116 MB, 67% of the whole DB, bloating every daily
+    # backup. Bounded delete per tick: drains the backlog fast, then
+    # no-ops. Never touches pending rows. Best-effort — never fails a scan.
+    try:
+        from .walletconnect_payments import cleanup_failed_chunks
+        pruned = cleanup_failed_chunks(db, keep_days=7, batch=5000)
+        if pruned:
+            db.commit()
+            stats["chunks_pruned"] = pruned
+    except Exception as e:
+        logger.error(f"cron_scan_bsc_payments: chunk retention cleanup failed: {e}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
     return stats
 
 
@@ -25028,6 +25046,32 @@ def admin_db_size(user: User = Depends(get_current_user), db: Session = Depends(
         "tables": [dict(r) for r in rows],
         "note": ("total_bytes includes indexes + TOAST. High dead_rows = bloat "
                  "(autovacuum lag), not real data. Compare over days to find growth."),
+    })
+
+
+@app.get("/admin/api/bsc-chunks-status")
+def admin_bsc_chunks_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin, read-only: bsc_scan_failed_chunks breakdown — watch the
+    retention cleanup drain the 367k-row backlog (added 2 Jul 2026)."""
+    _require_admin(user)
+    by_status = db.execute(text(
+        "SELECT status, COUNT(*) AS n FROM bsc_scan_failed_chunks GROUP BY status ORDER BY n DESC"
+    )).mappings().all()
+    oldest_pending = db.execute(text(
+        "SELECT MIN(first_seen_at) FROM bsc_scan_failed_chunks WHERE status='pending'"
+    )).scalar()
+    size = db.execute(text(
+        "SELECT pg_size_pretty(pg_total_relation_size('bsc_scan_failed_chunks'))"
+    )).scalar()
+    return JSONResponse({
+        "read_only": True,
+        "by_status": [dict(r) for r in by_status],
+        "total_rows": sum(r["n"] for r in by_status),
+        "oldest_pending": str(oldest_pending) if oldest_pending else None,
+        "table_size_on_disk": size,
+        "note": ("Retention deletes resolved/abandoned rows >7d old, 5000 per "
+                 "30s scanner tick. Disk size shrinks only after vacuum reuses "
+                 "the space — row count is the live progress signal."),
     })
 
 

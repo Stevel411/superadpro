@@ -767,6 +767,35 @@ def get_pending_failed_chunks(db, limit: int = 200) -> list[tuple[int, int]]:
     return [(r.from_block, r.to_block) for r in rows]
 
 
+def cleanup_failed_chunks(db, keep_days: int = 7, batch: int = 5000) -> int:
+    """Delete resolved/abandoned failed-chunk rows older than keep_days.
+
+    Retention fix (2 Jul 2026): rows were only ever transitioned
+    pending → resolved/abandoned, never deleted, so the table grew to
+    367k rows / 116 MB — 67% of the entire database — inflating every
+    daily backup with it. Terminal-status rows have zero operational
+    value after a short forensic window: 'resolved' means the range was
+    successfully rescanned; 'abandoned' ranges are alert-covered and
+    recoverable from chain at any time by block number.
+
+    Bounded to `batch` rows per call so it can sit on the 30s scanner
+    tick: drains a large backlog in minutes, then no-ops (index on
+    status makes the empty case a cheap scan). Pending rows are NEVER
+    touched. Returns rows deleted; caller commits.
+    """
+    cutoff = datetime.utcnow() - timedelta(days=keep_days)
+    res = db.execute(text("""
+        DELETE FROM bsc_scan_failed_chunks
+        WHERE id IN (
+            SELECT id FROM bsc_scan_failed_chunks
+            WHERE status IN ('resolved', 'abandoned')
+              AND COALESCE(resolved_at, last_attempt_at, first_seen_at) < :cutoff
+            LIMIT :batch
+        )
+    """), {"cutoff": cutoff, "batch": batch})
+    return res.rowcount or 0
+
+
 # ── Order matching ────────────────────────────────────────────────────
 
 # Maximum re-rolls when generate_unique_amount produces a colliding amount.
