@@ -811,6 +811,14 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Catch unhandled exceptions and return JSON instead of HTML error pages."""
     import traceback
     logger.error(f"Unhandled error: {exc}\n{traceback.format_exc()}")
+    # DB-connectivity failures get a distinct 503 (2 Jul 2026 incident:
+    # a Railway private-network fault made every DB request fail, but the
+    # generic 500 hid the cause — diagnosis took an hour and a log export
+    # instead of one glance). No detail leaks: fixed string, but distinct
+    # from application errors, and 503 tells edge/monitors it's transient.
+    from sqlalchemy.exc import OperationalError as _SAOpErr
+    if isinstance(exc, _SAOpErr) or "OperationalError" in type(exc).__name__:
+        return JSONResponse({"error": "Service temporarily unavailable"}, status_code=503)
     # Do NOT return exc details to the client — error strings leak DB errors,
     # file paths, and SQL fragments that automated recon harvests. Full
     # detail is logged server-side above.
@@ -1879,6 +1887,24 @@ def home(request: Request):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+@app.get("/health/db")
+def health_db():
+    """One-tap probe: can THIS app process reach its database? Public and
+    dataless by design — returns only ok/unreachable + latency. Added after
+    the 2 Jul 2026 Railway private-network fault, where /health said 200
+    while every DB request died; this endpoint makes that split visible in
+    one glance (app up + db down = infra fault, restart Postgres and wait
+    10-15 min for mesh propagation — see incident runbook)."""
+    import time as _t
+    t0 = _t.monotonic()
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return JSONResponse({"db": "ok", "latency_ms": round((_t.monotonic() - t0) * 1000, 1)})
+    except Exception as e:
+        return JSONResponse({"db": "unreachable", "error_type": type(e).__name__,
+                             "waited_ms": round((_t.monotonic() - t0) * 1000, 1)}, status_code=503)
 
 
 # ═══════════════════════════════════════════════════════════════
