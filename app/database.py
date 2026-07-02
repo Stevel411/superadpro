@@ -2120,8 +2120,32 @@ class EmailSuppression(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# Migrations single-runner lock (family: 1885347291 BSC scanner, ...92 secwatch).
+# Without this, every replica runs the full battery concurrently at boot; the
+# ALTER TABLE users statements queue for ACCESS EXCLUSIVE against live traffic
+# from the still-serving previous deployment, each waiting out its lock_timeout,
+# and a queued ALTER blocks every SELECT behind it — the 2 Jul 2026 deploy
+# failed exactly this way (replica 2's startup pass exceeded the healthcheck
+# budget; member queries stalled behind its queued locks).
+_MIGRATIONS_LOCK_ID = 1885347293
+_migrations_attempted_in_process = False
+
+
 def run_migrations():
-    """Add any new columns that don't exist yet in the live DB."""
+    """Add any new columns that don't exist yet in the live DB.
+
+    Guards (2 Jul 2026):
+    - Once per process: main.py's startup_event also calls this after the
+      module-level call below has already run it at import time.
+    - Once per deploy: pg_try_advisory_lock so only ONE replica executes the
+      battery; the other skips (every statement is idempotent, so whichever
+      replica wins does all the work).
+    """
+    global _migrations_attempted_in_process
+    if _migrations_attempted_in_process:
+        print("ℹ️  run_migrations: already attempted in this process — skipped")
+        return []
+    _migrations_attempted_in_process = True
     migrations = [
         # ── Float → Numeric(18,6) migration for financial precision ──
         "ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(18,6) USING COALESCE(balance,0)::NUMERIC(18,6)",
@@ -2796,6 +2820,12 @@ def run_migrations():
     ]
     results = []
     with engine.connect() as conn:
+        got_lock = conn.execute(
+            text("SELECT pg_try_advisory_lock(:i)"), {"i": _MIGRATIONS_LOCK_ID}
+        ).scalar()
+        if not got_lock:
+            print("ℹ️  run_migrations: another replica holds the migration lock — skipped on this replica")
+            return []
         # ── Defensive timeouts (added 15 May 2026 launch-night) ──
         # Prevent any single ALTER/CREATE from hanging the entire app
         # boot if another connection holds a conflicting lock. Per-statement
@@ -2808,14 +2838,20 @@ def run_migrations():
             # If even setting the timeout fails, fall through — at worst
             # we're back to the no-timeout behaviour we had before.
             pass
-        for sql in migrations:
+        try:
+            for sql in migrations:
+                try:
+                    conn.execute(text(sql))
+                    conn.commit()
+                    results.append(("ok", sql[:60]))
+                except Exception as e:
+                    conn.rollback()
+                    results.append(("skip", f"{sql[:50]} — {e}"))
+        finally:
             try:
-                conn.execute(text(sql))
-                conn.commit()
-                results.append(("ok", sql[:60]))
-            except Exception as e:
-                conn.rollback()
-                results.append(("skip", f"{sql[:50]} — {e}"))
+                conn.execute(text("SELECT pg_advisory_unlock(:i)"), {"i": _MIGRATIONS_LOCK_ID})
+            except Exception:
+                pass  # session close releases it anyway
     return results
 
 try:
@@ -3937,32 +3973,16 @@ try:
         #   - First run: matches all is_active=TRUE users, assigns spots 1..N
         #   - Subsequent runs: matches zero rows (already flagged), no-op
         # This makes it safe to redeploy without re-running the migration.
-        result = conn.execute(text("""
-            WITH ordered_actives AS (
-                SELECT
-                    id,
-                    ROW_NUMBER() OVER (ORDER BY activated_at ASC NULLS LAST, id ASC) AS spot
-                FROM users
-                WHERE is_active = TRUE
-                  AND is_founding_member = FALSE
-            )
-            UPDATE users u
-            SET is_founding_member = TRUE,
-                founding_spot_number = oa.spot,
-                membership_price_locked = 15.00,
-                membership_tier = 'founding'
-            FROM ordered_actives oa
-            WHERE u.id = oa.id
-              AND oa.spot <= 100
-            RETURNING u.id, u.founding_spot_number
-        """))
-        grandfathered = result.fetchall()
-        conn.commit()
-        if grandfathered:
-            spots = sorted([r.founding_spot_number for r in grandfathered])
-            print(f"✅ flat-pricing grandfathering: {len(grandfathered)} users granted founding partner status (spots {spots[0]}..{spots[-1]})")
-        else:
-            print("✅ flat-pricing grandfathering: no users to migrate (already complete)")
+        # RETIRED 2 Jul 2026 — do NOT reinstate. This one-shot ran 15 May 2026.
+        # Its WHERE clause (is_active AND NOT is_founding_member) matches every
+        # active PARTNER, so post-Founder-cap it attempted to convert up to 100
+        # paying $20 Partners into $15 lifetime Founders on EVERY boot. The only
+        # thing blocking it was a coincidental UniqueViolation on
+        # founding_spot_number — it failed loudly on every deploy (see logs
+        # 2 Jul 2026) while taking row locks on the users table each time.
+        # Founder allocation is owned solely by the runtime allocator in
+        # _activate_membership (COUNT-gated, lowest-gap spot assignment).
+        print("ℹ️  flat-pricing grandfathering: RETIRED one-shot (ran 15 May 2026) — not run")
 except Exception as e:
     print(f"⚠️ flat-pricing migration failed: {e}")
 

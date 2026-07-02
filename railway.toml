@@ -4,5 +4,5 @@ builder = "nixpacks"
 [deploy]
 startCommand = "python start.py"
 healthcheckPath = "/health"
-healthcheckTimeout = 600
+healthcheckTimeout = 900
 restartPolicyType = "on_failure"
