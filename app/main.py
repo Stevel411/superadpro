@@ -1903,9 +1903,21 @@ def health_assets(name: str = ""):
         return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=200)
     frag = (name or "").strip()
     hits = [f for f in files if frag.lower() in f.lower()] if frag else []
+    detail = []
+    for f in hits[:5]:
+        fp = _os.path.join(d, f)
+        try:
+            st = _os.stat(fp)
+            rp = _os.path.realpath(fp)
+            droot = _os.path.realpath(d)
+            detail.append({"name": f, "repr": repr(f), "size": st.st_size,
+                           "is_symlink": _os.path.islink(fp),
+                           "realpath_inside_root": rp.startswith(droot)})
+        except Exception as e:
+            detail.append({"name": f, "stat_error": f"{type(e).__name__}: {e}"})
     return JSONResponse({
         "dir": d, "total_files": len(files),
-        "match": frag, "matches": hits,
+        "match": frag, "matches": hits, "detail": detail,
         "cwd": _os.getcwd(),
     })
 

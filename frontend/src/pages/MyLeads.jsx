@@ -1,3 +1,4 @@
+// v2 chunk-hash bump
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
@@ -83,7 +84,7 @@ export default function MyLeads() {
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn}>
+    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} topbarActions={helpBtn} data-shell="v2">
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
