@@ -37,6 +37,8 @@
 | **Polygon** | ❌ Retired | All 8 inbound endpoints 410-gated (`7ec8fe19f`). ~350 lines of dead handler bodies queued for cleanup (keep `_resolve_superscene_credits` + `SUPERSCENE_CREDIT_RATE` — used by live NOWPayments flow). |
 | **Airwallex** | ❌ Never wired | Ignore. |
 
+**Treasury operating model (post-breach, confirmed by Steve 2 Jul 2026):** the BSC treasury deliberately holds ~zero balance. Member withdrawals are funded JUST-IN-TIME by Steve from his Binance account — inbound USDT top-ups from rotating Binance hot wallets (varying sender addresses, odd amounts) shortly before payouts. **Consequence: unattributed treasury INBOUND transfers in a treasury-scan sweep are almost certainly Steve's funding top-ups, NOT missed member payments.** Cross-check against withdrawals paid around the same time before concluding a member payment was missed (2 Jul lesson: a sweep of the scanner-outage week surfaced 4 unattributed inbounds ~$237 that were misread as stranded member payments; they were Steve's withdrawal funding).
+
 **Money truth lives in the gateways, not mirror tables** (breach wiped mirrors on 3 Jun). Canonical tools per question:
 - "Did they pay?" → `/admin/api/gateway-forensics?user_ids=N` (live Stripe + NOWPayments)
 - "What did they get?" → `/admin/api/user-fulfillment?user_id=N` (aggregates grid positions, credit packs, credits, commissions — blind to Stripe charges)
