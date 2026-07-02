@@ -406,9 +406,21 @@ def scan_treasury_transfers_with_cursor(scan_floor_block: int) -> tuple[list, in
     safe_cursor = floor - 1
     first_failure_seen = False
 
-    cursor = floor
-    while cursor <= latest:
-        chunk_to = min(cursor + GETLOGS_WINDOW_BLOCKS - 1, latest)
+    # ── Fixed-grid chunk alignment (2 Jul 2026) ──────────────────────
+    # Chunks MUST start on multiples of GETLOGS_WINDOW_BLOCKS. Before this,
+    # boundaries were cut from the sliding floor (latest - cap moves every
+    # tick), so the SAME failing block range was recorded under a fresh
+    # (from_block, to_block) pair each tick — the unique constraint never
+    # deduped, and bsc_scan_failed_chunks exploded to 231k pending rows
+    # (~33k/day) while the retry pass burned RPC quota re-covering the
+    # same blocks under different labels. Aligned grid = canonical range
+    # identity = upsert dedupes = bounded table. We also only scan
+    # COMPLETE grid chunks: the partial head chunk waits for the next
+    # tick (≤ ~10 blocks / a few seconds of lag — irrelevant for payment
+    # matching, and it keeps every recorded range canonical).
+    cursor = (floor // GETLOGS_WINDOW_BLOCKS) * GETLOGS_WINDOW_BLOCKS
+    while cursor + GETLOGS_WINDOW_BLOCKS - 1 <= latest:
+        chunk_to = cursor + GETLOGS_WINDOW_BLOCKS - 1
         # Use the redundant-provider scanner (24 May 2026) instead of the
         # single-provider failover. Critical difference: if ANY of N
         # providers has the transfer indexed, we see it — defends against

@@ -20987,9 +20987,12 @@ def _enqueue_skipped_gap(db, gap_lo, gap_hi):
     total = gap_hi - gap_lo + 1
     recover_lo = max(gap_lo, gap_hi - GAP_AUTORECOVER_MAX_BLOCKS + 1)
     chunks_enqueued = 0
-    b = recover_lo
+    # Align to the fixed GETLOGS_WINDOW_BLOCKS grid (2 Jul 2026) — same
+    # canonical range identity as the main scan loop, so re-enqueues of
+    # overlapping gaps upsert instead of minting new rows.
+    b = (recover_lo // GETLOGS_WINDOW_BLOCKS) * GETLOGS_WINDOW_BLOCKS
     while b <= gap_hi:
-        chunk_hi = min(b + GETLOGS_WINDOW_BLOCKS - 1, gap_hi)
+        chunk_hi = b + GETLOGS_WINDOW_BLOCKS - 1
         try:
             record_failed_chunk(db, b, chunk_hi, "skipped_gap_cap_exceeded")
             chunks_enqueued += 1
@@ -21178,7 +21181,13 @@ async def cron_scan_bsc_payments(request: Request, db: Session = Depends(get_db)
     #     across cron lifetimes.
     retry_transfers: list = []
     try:
-        pending_chunks = get_pending_failed_chunks(db, limit=200)
+        pending_chunks = get_pending_failed_chunks(
+            db, limit=int(os.environ.get("BSC_RETRY_CHUNKS_PER_TICK", "25")))
+        # 2 Jul 2026: was 200. 200 chunks x SCAN_REDUNDANCY(3) = 600 RPC
+        # calls per 30s tick JUST for retries — the retry storm consumed
+        # the quota the head scan needed, so fresh chunks failed, grew the
+        # queue, and amplified the storm (the ~25 Jun death spiral). 25 is
+        # sustainable on the free tier; env-tunable.
         stats["retry_chunks_seen"] = len(pending_chunks)
         for (fb, tb) in pending_chunks:
             chunk_txs, providers_ok, last_err = get_treasury_transfers_in_range_redundant(fb, tb)
@@ -21606,7 +21615,13 @@ def _run_inproc_bsc_scan(SessionLocal, lock_id, sql_text):
         # 2a. Retry previously-failed chunks (24 May 2026 — cross-run retry).
         retry_transfers: list = []
         try:
-            pending_chunks = get_pending_failed_chunks(db, limit=200)
+            pending_chunks = get_pending_failed_chunks(
+            db, limit=int(os.environ.get("BSC_RETRY_CHUNKS_PER_TICK", "25")))
+        # 2 Jul 2026: was 200. 200 chunks x SCAN_REDUNDANCY(3) = 600 RPC
+        # calls per 30s tick JUST for retries — the retry storm consumed
+        # the quota the head scan needed, so fresh chunks failed, grew the
+        # queue, and amplified the storm (the ~25 Jun death spiral). 25 is
+        # sustainable on the free tier; env-tunable.
             stats["retry_chunks_seen"] = len(pending_chunks)
             for (fb, tb) in pending_chunks:
                 chunk_txs, providers_ok, last_err = get_treasury_transfers_in_range_redundant(fb, tb)
@@ -25073,6 +25088,93 @@ def admin_bsc_chunks_status(user: User = Depends(get_current_user), db: Session 
                  "30s scanner tick. Disk size shrinks only after vacuum reuses "
                  "the space — row count is the live progress signal."),
     })
+
+
+@app.get("/admin/api/bsc-chunks-consolidate")
+def admin_bsc_chunks_consolidate(
+    apply: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin one-shot (2 Jul 2026): retire the misaligned pending-chunk backlog.
+
+    Before the fixed-grid alignment fix, every scanner tick minted fresh
+    (from_block, to_block) pairs for the same failing blocks — 231k pending
+    rows of overlapping 'shingles' covering ~1 week of chain. Retrying them
+    individually would re-cover the same blocks hundreds of times over
+    (pure RPC quota burn). Correct recovery is: abandon the shingles, then
+    sweep the affected TIME window once with /admin/api/treasury-scan,
+    which finds any real unattributed treasury inbound directly.
+
+    Dry-run by default: reports the pending count, block span, approximate
+    timestamps, and ready-made treasury-scan URLs. &apply=1 marks all
+    pending rows abandoned (retention then deletes them after 7 days).
+    Rows created AFTER the alignment fix are canonical and keep retrying
+    normally — this only abandons rows existing at tap time.
+    """
+    _require_admin(user)
+    span = db.execute(text(
+        "SELECT COUNT(*) AS n, MIN(from_block) AS lo, MAX(to_block) AS hi, MAX(id) AS max_id "
+        "FROM bsc_scan_failed_chunks WHERE status='pending'"
+    )).mappings().first()
+    if not span or not span["n"]:
+        return JSONResponse({"pending": 0, "note": "nothing to consolidate"})
+
+    # Resolve block span → timestamps (PoA-safe raw JSON-RPC; web3.get_block
+    # raises ExtraDataLengthError on BSC).
+    ts_lo = ts_hi = None
+    try:
+        from .withdrawals import BSC_RPC_URL
+        import urllib.request as _urlreq, json as _json
+        def _blk_ts(n):
+            body = _json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_getBlockByNumber",
+                                "params": [hex(int(n)), False]}).encode()
+            req = _urlreq.Request(BSC_RPC_URL, data=body, headers={"Content-Type": "application/json"})
+            with _urlreq.urlopen(req, timeout=15) as r:
+                out = _json.loads(r.read())
+            return int(out["result"]["timestamp"], 16)
+        from datetime import datetime as _dt, timezone as _tz
+        ts_lo = _dt.fromtimestamp(_blk_ts(span["lo"]), _tz.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        ts_hi = _dt.fromtimestamp(_blk_ts(span["hi"]), _tz.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    except Exception as e:
+        logger.warning(f"bsc-chunks-consolidate: block→timestamp lookup failed: {e}")
+
+    sweep_urls = []
+    if ts_lo and ts_hi:
+        # treasury-scan has a per-call time budget — split the span into
+        # daily windows so each tap completes.
+        from datetime import datetime as _dt2, timedelta as _td
+        cur = _dt2.strptime(ts_lo, "%Y-%m-%dT%H:%M:%S")
+        end = _dt2.strptime(ts_hi, "%Y-%m-%dT%H:%M:%S")
+        while cur < end:
+            nxt = min(cur + _td(days=1), end)
+            sweep_urls.append(
+                f"https://www.superadpro.com/admin/api/treasury-scan"
+                f"?after={cur.strftime('%Y-%m-%dT%H:%M:%S')}&before={nxt.strftime('%Y-%m-%dT%H:%M:%S')}"
+            )
+            cur = nxt
+
+    result = {
+        "read_only": not bool(apply),
+        "pending_rows": span["n"],
+        "block_span": {"from": span["lo"], "to": span["hi"]},
+        "time_span_utc": {"from": ts_lo, "to": ts_hi},
+        "recovery_sweep_urls": sweep_urls,
+        "note": ("Tap each sweep URL after applying; any unattributed treasury "
+                 "inbound it finds is a real missed payment — recover via the "
+                 "existing reconcile endpoints."),
+    }
+    if apply:
+        n = db.execute(text(
+            "UPDATE bsc_scan_failed_chunks SET status='abandoned', resolved_at=NOW() "
+            "WHERE status='pending' AND id <= :mx"
+        ), {"mx": span["max_id"]}).rowcount
+        db.commit()
+        result["abandoned"] = n
+        result["note"] = "Backlog abandoned. Now tap each recovery_sweep_url to check the window for missed payments."
+    else:
+        result["apply_url"] = "https://www.superadpro.com/admin/api/bsc-chunks-consolidate?apply=1"
+    return JSONResponse(result)
 
 
 @app.get("/cron/backup")
