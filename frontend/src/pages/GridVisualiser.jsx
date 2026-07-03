@@ -231,7 +231,7 @@ export default function GridVisualiser() {
           {/* Grid card */}
           <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', boxShadow:'0 4px 20px rgba(10,20,56,0.04)' }}>
             <div style={{ background:COBALT_HEADER, padding:'16px 22px', display:'flex', justifyContent:'space-between', alignItems:'center', position:'relative', overflow:'hidden' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}{viewedCompleted ? <span style={{ fontSize:12, fontWeight:700, color:'#a7f3d0', marginLeft:8 }}>· Grid {viewedCompleted.advance} ✓ complete</span> : null}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', position:'relative', zIndex:1 }}>T{tier.t} {tier.name} — ${tier.price}{viewedCompleted ? <span style={{ fontSize:12, fontWeight:700, color: viewedCompleted.retired ? '#cbd5e1' : '#a7f3d0', marginLeft:8 }}>· Grid {viewedCompleted.advance} {viewedCompleted.retired ? '· retired' : '✓ complete'}</span> : null}</div>
               <div style={{ fontSize:12.5, color:'rgba(255,255,255,0.85)', fontWeight:600, fontFamily:'JetBrains Mono,monospace', position:'relative', zIndex:1 }}>{boardFilled} of {boardTotal} · {boardPct}%</div>
               <div style={{ position:'absolute', top:'-50%', right:'-10%', width:280, height:'200%', background:'radial-gradient(circle,rgba(56,189,248,0.15),transparent 65%)', pointerEvents:'none' }}/>
             </div>
@@ -245,8 +245,10 @@ export default function GridVisualiser() {
                     var active = viewAdvance === cg.advance;
                     return (
                       <button key={'cg'+cg.advance} onClick={function(){ setViewAdvance(cg.advance); }}
-                        style={{ cursor:'pointer', border:'1px solid '+(active?'#10b981':'#cbd5e1'), background:active?'#ecfdf5':'#fff', color:active?'#047857':'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ color:'#10b981' }}>✓</span> Grid {cg.advance} · {cg.total_seats}/{cg.total_seats}{cg.bonus_paid ? ' · $'+cg.bonus_paid.toFixed(0) : ''}
+                        style={{ cursor:'pointer', border:'1px solid '+(active?(cg.retired?'#94a3b8':'#10b981'):'#cbd5e1'), background:active?(cg.retired?'#f1f5f9':'#ecfdf5'):'#fff', color:active?(cg.retired?'#475569':'#047857'):'#475569', borderRadius:8, padding:'6px 12px', fontFamily:'DM Sans,sans-serif', fontSize:12.5, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>
+                        {cg.retired
+                          ? <>Grid {cg.advance} · retired</>
+                          : <><span style={{ color:'#10b981' }}>✓</span> Grid {cg.advance} · {cg.total_seats}/{cg.total_seats}{cg.bonus_paid ? ' · $'+cg.bonus_paid.toFixed(0) : ''}</>}
                       </button>
                     );
                   })}
@@ -259,7 +261,7 @@ export default function GridVisualiser() {
               {/* Progress row with countdown */}
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10, fontSize:14 }}>
                 <div style={{ color:'#475569', fontWeight:700 }}>{planV2 ? 'Progress to next bonus' : 'Progress to bonus'}</div>
-                <div style={{ color: viewedCompleted ? '#10b981' : (planV2 ? VIOLET : '#0891b2'), fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{viewedCompleted ? 'Complete ✓' : (planV2 ? (seatsToNextBonus + ' seats to seat ' + nextBonusSeat + ' ★') : (boardSeatsToUnlock + ' seats to ♛'))}</div>
+                <div style={{ color: viewedCompleted ? '#10b981' : (planV2 ? VIOLET : '#0891b2'), fontWeight:700, fontFamily:'JetBrains Mono,monospace' }}>{viewedCompleted ? (viewedCompleted.retired ? 'Retired' : 'Complete ✓') : (planV2 ? (seatsToNextBonus + ' seats to seat ' + nextBonusSeat + ' ★') : (boardSeatsToUnlock + ' seats to ♛'))}</div>
               </div>
               <div style={{ height:8, background:'#f1f5f9', borderRadius:4, overflow:'hidden', marginBottom:18 }}>
                 <div className="lgv-progress-fill" style={{ height:'100%', width:boardPct+'%', background:CYAN_PROGRESS, borderRadius:4, transition:'width .6s ease' }}/>
@@ -277,9 +279,11 @@ export default function GridVisualiser() {
               {viewedCompleted && boardSeats.length === 0 ? (
                 <div style={{ background:'#ecfdf5', border:'1px solid #a7f3d0', borderRadius:12, padding:'28px 24px', textAlign:'center' }}>
                   <div style={{ fontSize:34, lineHeight:1, marginBottom:10, color:'#10b981' }}>✓</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#047857', marginBottom:8 }}>Grid {viewedCompleted.advance} completed — all {viewedCompleted.total_seats} seats filled</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color: viewedCompleted.retired ? '#334155' : '#047857', marginBottom:8 }}>{viewedCompleted.retired ? ('Grid ' + viewedCompleted.advance + ' — retired at the plan change') : ('Grid ' + viewedCompleted.advance + ' completed — all ' + viewedCompleted.total_seats + ' seats filled')}</div>
                   <div style={{ fontSize:13.5, color:'#475569', fontWeight:600, lineHeight:1.5, maxWidth:460, margin:'0 auto' }}>
-                    This grid completed and {viewedCompleted.bonus_paid ? ('its $' + viewedCompleted.bonus_paid.toFixed(0) + ' completion bonus was paid') : 'its completion bonus was processed'}. The individual seat records for this advance predate the 3 June reset and aren&rsquo;t available to display — the completion and bonus remain intact in your earnings.
+                    {viewedCompleted.retired
+                      ? <>This grid is from the previous plan and was retired when the Grid changed on 12 June. Your real activity and earnings from it are preserved — they&rsquo;re in your commissions totals on this page.</>
+                      : <>This grid completed and {viewedCompleted.bonus_paid ? ('its $' + viewedCompleted.bonus_paid.toFixed(0) + ' completion bonus was paid') : 'its completion bonus was processed'}. The individual seat records for this advance predate the 3 June reset and aren&rsquo;t available to display — the completion and bonus remain intact in your earnings.</>}
                   </div>
                 </div>
               ) : (

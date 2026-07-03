@@ -3882,7 +3882,8 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     completed = db.query(Grid).filter(
         Grid.owner_id == user.id,
         Grid.package_tier == tier,
-        Grid.is_complete == True
+        Grid.is_complete == True,
+        Grid.retired_at.is_(None),  # 3 Jul: retired cutover grids are NOT completions
     ).count()
 
     # Bonus pool
@@ -4018,6 +4019,13 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             "filled": len(cg_seats),
             "total_seats": (cg.total_seats or 36),
             "bonus_paid": (round(float(cg.bonus_pool_accrued or 0), 2) if cg.bonus_paid else 0.0),
+            # 3 Jul 2026 (grid-truth audit): retired_at marks 12-Jun legacy-
+            # cutover grids — is_complete=True but NOT genuine completions.
+            # Their completion topups were REVERSED in the phantom cleanup;
+            # the UI was still claiming "bonus was paid" for 80 such grids
+            # ($13,948 of reversed fiction). Frontend renders retired grids
+            # honestly and excludes them from the advances tile.
+            "retired": bool(cg.retired_at),
             "seats": cg_seats,
         })
 
@@ -25295,6 +25303,57 @@ async def admin_broadcast_resume_now(
     except Exception as e:
         import traceback
         logger.error(f"resume-now failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
+@app.get("/admin/api/reverse-house-topup")
+def admin_reverse_house_topup(
+    apply: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """One-shot (3 Jul 2026): the phantom-topup cleanup missed $18 of PAID
+    grid_completion_bonus_topup on the house account (user 1) — the only
+    paid topup left platform-wide per grid-truth-audit. Reverse = row
+    status -> 'reversed' + campaign_balance debit (topups credited the
+    campaign wallet). Dry-run by default; idempotent (re-runs find zero)."""
+    _require_admin(user)
+    try:
+        rows = db.execute(text("""
+            SELECT id, amount_usdt, package_tier, status
+            FROM commissions
+            WHERE to_user_id = 1
+              AND commission_type = 'grid_completion_bonus_topup'
+              AND status = 'paid'
+        """)).mappings().all()
+        total = round(sum(float(r["amount_usdt"] or 0) for r in rows), 2)
+        house = db.query(User).filter(User.id == 1).first()
+        plan = {
+            "rows": [{"id": r["id"], "amount": float(r["amount_usdt"]),
+                      "tier": r["package_tier"]} for r in rows],
+            "total_to_reverse_usd": total,
+            "campaign_balance_before": float(getattr(house, "campaign_balance", 0) or 0),
+        }
+        if not rows:
+            return JSONResponse({"applied": False, "note": "nothing to reverse — already clean", **plan})
+        if not apply:
+            return JSONResponse({"applied": False, "note": "dry run — re-tap with &apply=1", **plan})
+        for r in rows:
+            db.execute(text(
+                "UPDATE commissions SET status='reversed', "
+                "notes = COALESCE(notes,'') || ' [3 Jul 2026: house-account topup missed by phantom cleanup — reversed via grid-truth-audit follow-up]' "
+                "WHERE id=:i"), {"i": r["id"]})
+        house.campaign_balance = float(getattr(house, "campaign_balance", 0) or 0) - total
+        db.commit()
+        plan["campaign_balance_after"] = float(house.campaign_balance or 0)
+        return JSONResponse({"applied": True, **plan})
+    except Exception as e:
+        import traceback
+        logger.error(f"reverse-house-topup failed: {e}\n{traceback.format_exc()}")
         try:
             db.rollback()
         except Exception:
