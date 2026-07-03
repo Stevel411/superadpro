@@ -1264,7 +1264,11 @@ def process_auto_renewals(db: Session) -> dict:
     """
     from datetime import timedelta
     now       = datetime.utcnow()
-    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": [], "errors": []}
+    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": [], "errors": [], "final_warned": []}
+    try:
+        from .database import Notification as _NotifModel
+    except Exception:
+        _NotifModel = None
 
     # Renewal emails are QUEUED here and dispatched on a daemon thread AFTER all
     # DB work commits (see end of function). Sending inline, inside the per-member
@@ -1444,6 +1448,54 @@ def process_auto_renewals(db: Session) -> dict:
         # ── Grace period expired (5 days) ───────────────────────
         elif renewal.in_grace_period and renewal.grace_period_start:
             grace_expired = renewal.grace_period_start + timedelta(days=5)
+            final_day_from = renewal.grace_period_start + timedelta(days=4)
+            if final_day_from <= now < grace_expired:
+                # ── Final-day warning (3 Jul 2026, Steve): the automatic rung
+                # between "5 days to renew" (grace start) and "lapsed" (grace
+                # end) — the lifecycle escalates itself, no manual broadcast
+                # ever needed. Idempotent via a Notification lookback (no
+                # schema change): the daily cron lands in this 24h window
+                # exactly once; a manual /admin/process-renewals tap inside
+                # the window is deduped by the lookback.
+                already = db.query(_NotifModel).filter(
+                    _NotifModel.user_id == user.id,
+                    _NotifModel.title.like("Final day%"),
+                    _NotifModel.created_at >= now - timedelta(days=2),
+                ).first() if _NotifModel else None
+                if not already:
+                    results["final_warned"].append(user.id)
+                    try:
+                        from .database import Notification
+                        db.add(Notification(
+                            user_id=user.id,
+                            type="system",
+                            icon="⏰",
+                            title="Final day — your membership lapses tomorrow",
+                            message=("Your grace period ends within 24 hours. Renew today to keep "
+                                     "your tools, commissions and withdrawals active."
+                                     + (" Your locked Founder price is safe either way — but access "
+                                        "pauses at lapse." if getattr(user, "is_founding_member", False) else "")),
+                            link="/upgrade",
+                        ))
+                    except Exception as exc:
+                        import logging
+                        logging.getLogger(__name__).warning(f"Final-day notification failed for user {user.id}: {exc}")
+                    _renewal_email(
+                        user,
+                        "⏰ Final day — your SuperAdPro membership lapses tomorrow",
+                        _wrap(
+                            f'<h2 style="color:#fff;margin:0 0 12px">Last chance to renew</h2>'
+                            f'<p style="line-height:1.6">Your 5-day grace period ends within <b>24 hours</b>. '
+                            f'After that your account becomes inactive — tools, commissions and withdrawals '
+                            f'pause until you reactivate.</p>'
+                            + (f'<p style="line-height:1.6">Your locked <b>$15/month Founder price is yours for life</b> '
+                               f'and survives a lapse — but why lose even a day of access?</p>'
+                               if getattr(user, "is_founding_member", False) else "")
+                            + f'<p><a href="https://www.superadpro.com/upgrade" style="display:inline-block;'
+                            f'background:#22d3ee;color:#0a1438;font-weight:700;text-decoration:none;'
+                            f'padding:12px 22px;border-radius:8px;margin-top:8px">Renew now →</a></p>'
+                        ),
+                    )
             if now >= grace_expired:
                 user.is_active          = False
                 renewal.in_grace_period = False
