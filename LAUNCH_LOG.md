@@ -1148,5 +1148,10 @@ If you (future Claude) are reading this in a fresh session, the most useful thin
 4. If a user reports a "stuck" or "double-paid" issue, run `/admin/api/audit-double-pays` first before assuming it's a new bug class.
 5. CSS tokens live in `static/design-tokens.css` (70+ vars). Do not introduce hardcoded hex values into new components.
 6. The `commissions` table is multi-purpose — it holds Profit Grid events, membership commissions, Pay It Forward gift redemptions, and admin adjustments. Never assume "row in commissions table = grid event". When grouping commission_type values for any report, use `mcp/tools/_commission_buckets.py` as the single source of truth (`bucket_for(commission_type)` returns one of `profit_grid` / `membership` / `admin` / `other`). When a new `commission_type` value is introduced anywhere in the codebase, add it to that helper.
+7. **asyncio background tasks MUST be strong-referenced** — the event loop keeps only weak refs; an unreferenced `create_task` can be garbage-collected mid-flight, silently (this killed the broadcast resume loop, 3 Jul). Use `_spawn_bg()` in main.py for all fire-and-forget tasks.
+8. **Raw SQL against `app_config` must set `updated_at` explicitly** — NOT NULL with an ORM-level default only; raw INSERT/UPDATE omitting it throws NotNullViolation.
+9. **`ON CONFLICT` requires the unique index to actually exist on prod** — lazy-ensure functions (`_ensure_broadcast_log_table`) must run on EVERY path that claims, not just the path that first created the table. Probe pattern: `broadcast-state?probe=1` runs the real SQL in a rolled-back txn.
+10. **JSX attribute strings are literal text** — `\u2026`-style escapes do NOT resolve there (they do inside `{'...'}` JS expressions). Use real characters.
+11. **Comment-only source edits do not change Rollup chunk hashes** — comments are stripped pre-hash; a hash-bump touch must change effective code.
 
 When you finish a session that introduced something noteworthy, update the "Recently shipped" and "Currently watching" sections of this file before pushing. Keep the format identical so the daily briefing parser doesn't break.
