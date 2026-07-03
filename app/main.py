@@ -25278,6 +25278,30 @@ def admin_bsc_chunks_consolidate(
     return JSONResponse(result)
 
 
+@app.get("/admin/api/broadcast-resume-now")
+async def admin_broadcast_resume_now(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Run one broadcast-resume pass immediately (same logic as the 10-min
+    loop) and report exactly what it found, skipped, and spawned. Built
+    3 Jul during the protection-system live test."""
+    _require_admin(user)
+    try:
+        _ensure_member_broadcasts_table(db)
+        _ensure_broadcast_log_table(db)
+        rep = await _broadcast_resume_pass(db)
+        return JSONResponse({"ok": True, **rep})
+    except Exception as e:
+        import traceback
+        logger.error(f"resume-now failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/broadcast-state")
 def admin_broadcast_state(
     user_id: int = 0,
@@ -53677,6 +53701,66 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
         _BROADCAST_ACTIVE.pop(user_id, None)
 
 
+async def _broadcast_resume_pass(db, report=None):
+    """One resume pass — shared by the 10-min loop and the admin trigger.
+    Returns a report of rows found, guards evaluated, jobs spawned."""
+    from .send_limits import daily_state as _dstate
+    rep = report if report is not None else {}
+    rep.setdefault("found", 0); rep.setdefault("spawned", [])
+    rep.setdefault("skipped", [])
+    rows = db.execute(text("""
+        SELECT id, broadcast_key, user_id, subject, html_content,
+               filter_status, filter_list_id, status
+        FROM member_broadcasts
+        WHERE status = 'paused_daily'
+           OR (status = 'sending' AND updated_at < NOW() - INTERVAL '15 minutes')
+        ORDER BY id
+        LIMIT 20
+    """)).mappings().all()
+    rep["found"] = len(rows)
+    for r in rows:
+        uid = r["user_id"]
+        live = _BROADCAST_ACTIVE.get(uid)
+        if live and live in _BROADCAST_JOBS and            _BROADCAST_JOBS[live]["status"] in ("queued", "sending"):
+            rep["skipped"].append({"row": r["id"], "why": "live job already running"})
+            continue
+        owner = db.query(User).filter(User.id == uid).first()
+        if not owner or getattr(owner, "email_sending_paused", False):
+            rep["skipped"].append({"row": r["id"], "why": "owner missing or complaint-paused"})
+            continue
+        dst = _dstate(db, owner)
+        if dst["remaining"] <= 0:
+            rep["skipped"].append({"row": r["id"], "why": f"no daily headroom ({dst['sent_today']}/{dst['cap']})"})
+            continue
+        ok_m, _r = _check_email_allowance(owner, db, 1)
+        if not ok_m:
+            rep["skipped"].append({"row": r["id"], "why": f"allowance: {_r[:80]}"})
+            continue
+        job_id = _uuid.uuid4().hex
+        _BROADCAST_JOBS[job_id] = {
+            "job_id": job_id, "user_id": uid, "status": "queued",
+            "total": 0, "sent": 0, "failed": 0, "failure_summary": {},
+            "started_at": datetime.utcnow().isoformat(),
+            "finished_at": None, "error": None,
+            "allowed_this_run": dst["remaining"], "deferred": 0,
+            "skipped_prior": 0, "bkey": r["broadcast_key"],
+            "db_id": r["id"], "resumed": True,
+        }
+        _BROADCAST_ACTIVE[uid] = job_id
+        db.execute(text(
+            "UPDATE member_broadcasts SET status='sending', updated_at=NOW() WHERE id=:i"
+        ), {"i": r["id"]})
+        db.commit()
+        asyncio.create_task(_run_broadcast_job(
+            job_id, uid, r["subject"], r["html_content"],
+            r["filter_status"], r["filter_list_id"]))
+        rep["spawned"].append({"row": r["id"], "job_id": job_id,
+                               "headroom": dst["remaining"]})
+        print(f"[broadcast-resume] resumed broadcast {r['id']} "
+              f"(user {uid}, headroom {dst['remaining']}) as job {job_id}")
+    return rep
+
+
 async def _broadcast_resume_loop():
     """Durable auto-resume (phase 2, 3 Jul 2026). Every 10 minutes:
     - 'paused_daily' rows whose owner has fresh daily headroom -> resume.
@@ -53700,49 +53784,7 @@ async def _broadcast_resume_loop():
                 got = db.execute(text("SELECT pg_try_advisory_lock(1885347294)")).scalar()
                 if got:
                     try:
-                        rows = db.execute(text("""
-                            SELECT id, broadcast_key, user_id, subject, html_content,
-                                   filter_status, filter_list_id, status
-                            FROM member_broadcasts
-                            WHERE status = 'paused_daily'
-                               OR (status = 'sending' AND updated_at < NOW() - INTERVAL '15 minutes')
-                            ORDER BY id
-                            LIMIT 20
-                        """)).mappings().all()
-                        for r in rows:
-                            uid = r["user_id"]
-                            live = _BROADCAST_ACTIVE.get(uid)
-                            if live and live in _BROADCAST_JOBS and                                _BROADCAST_JOBS[live]["status"] in ("queued", "sending"):
-                                continue
-                            owner = db.query(User).filter(User.id == uid).first()
-                            if not owner or getattr(owner, "email_sending_paused", False):
-                                continue
-                            dst = _dstate(db, owner)
-                            if dst["remaining"] <= 0:
-                                continue
-                            ok_m, _r = _check_email_allowance(owner, db, 1)
-                            if not ok_m:
-                                continue
-                            job_id = _uuid.uuid4().hex
-                            _BROADCAST_JOBS[job_id] = {
-                                "job_id": job_id, "user_id": uid, "status": "queued",
-                                "total": 0, "sent": 0, "failed": 0, "failure_summary": {},
-                                "started_at": datetime.utcnow().isoformat(),
-                                "finished_at": None, "error": None,
-                                "allowed_this_run": dst["remaining"], "deferred": 0,
-                                "skipped_prior": 0, "bkey": r["broadcast_key"],
-                                "db_id": r["id"], "resumed": True,
-                            }
-                            _BROADCAST_ACTIVE[uid] = job_id
-                            db.execute(text(
-                                "UPDATE member_broadcasts SET status='sending', updated_at=NOW() WHERE id=:i"
-                            ), {"i": r["id"]})
-                            db.commit()
-                            asyncio.create_task(_run_broadcast_job(
-                                job_id, uid, r["subject"], r["html_content"],
-                                r["filter_status"], r["filter_list_id"]))
-                            print(f"[broadcast-resume] resumed broadcast {r['id']} "
-                                  f"(user {uid}, headroom {dst['remaining']}) as job {job_id}")
+                        await _broadcast_resume_pass(db)
                     finally:
                         try:
                             db.execute(text("SELECT pg_advisory_unlock(1885347294)"))
