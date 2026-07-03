@@ -11983,6 +11983,83 @@ def admin_api_reroute_purchase_commission(
     })
 
 
+@app.get("/admin/api/w2e-stats")
+def admin_w2e_stats(
+    days: int = 14,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Watch-to-Earn supply/demand in one compact tap (3 Jul 2026, for the
+    earned-views design discussion). Supply = watches/day; demand = active
+    campaigns' remaining view backlog; pace = days-to-drain at current rate."""
+    _require_admin(user)
+    try:
+        from .database import VideoCampaign, VideoWatch, WatchQuota
+        days = max(3, min(days, 30))
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+
+        # Demand: active campaigns and their backlog
+        camp = db.execute(text("""
+            SELECT COUNT(*) AS n,
+                   COALESCE(SUM(views_target),0) AS target,
+                   COALESCE(SUM(views_delivered),0) AS delivered
+            FROM video_campaigns
+            WHERE status = 'active' AND is_completed = FALSE
+        """)).mappings().first()
+        backlog = int(camp["target"]) - int(camp["delivered"])
+
+        # Supply: watches per day, distinct watchers per day
+        daily = db.execute(text("""
+            SELECT watch_date, COUNT(*) AS watches, COUNT(DISTINCT user_id) AS watchers
+            FROM video_watches
+            WHERE watch_date >= :cutoff
+            GROUP BY watch_date ORDER BY watch_date DESC
+        """), {"cutoff": (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")}).mappings().all()
+        day_rows = [{"date": r["watch_date"], "watches": int(r["watches"]),
+                     "watchers": int(r["watchers"])} for r in daily]
+        full_days = [r for r in day_rows if r["date"] != today]
+        avg_watches = round(sum(r["watches"] for r in full_days) / len(full_days), 1) if full_days else 0.0
+        avg_watchers = round(sum(r["watchers"] for r in full_days) / len(full_days), 1) if full_days else 0.0
+
+        # Behaviour: does anyone watch beyond the minimum?
+        quota = db.execute(text("""
+            SELECT COUNT(*) AS quotas,
+                   COUNT(*) FILTER (WHERE today_date = :today AND today_watched >= daily_required) AS met_today,
+                   COUNT(*) FILTER (WHERE today_date = :today AND today_watched > daily_required) AS beyond_minimum_today,
+                   COUNT(*) FILTER (WHERE commissions_paused) AS commissions_paused
+            FROM watch_quotas
+        """), {"today": today}).mappings().first()
+
+        # Top campaigns by remaining backlog (names redacted to owner ids — small)
+        top = db.execute(text("""
+            SELECT user_id, views_target - views_delivered AS remaining, views_delivered, views_target
+            FROM video_campaigns
+            WHERE status='active' AND is_completed = FALSE
+            ORDER BY remaining DESC LIMIT 5
+        """)).mappings().all()
+
+        return JSONResponse({
+            "demand": {"active_campaigns": int(camp["n"]),
+                       "total_target": int(camp["target"]),
+                       "delivered": int(camp["delivered"]),
+                       "backlog_views": backlog},
+            "supply": {"avg_watches_per_day": avg_watches,
+                       "avg_watchers_per_day": avg_watchers,
+                       "by_day": day_rows[:days]},
+            "pace": {"days_to_drain_backlog_at_current_rate":
+                     (round(backlog / avg_watches, 1) if avg_watches else None)},
+            "behaviour": {"quota_rows": int(quota["quotas"]),
+                          "met_today": int(quota["met_today"]),
+                          "watched_beyond_minimum_today": int(quota["beyond_minimum_today"]),
+                          "commissions_paused": int(quota["commissions_paused"])},
+            "top_backlog_campaigns": [dict(r) for r in top],
+        })
+    except Exception as e:
+        import traceback
+        logger.error(f"w2e-stats failed: {e}\n{traceback.format_exc()}")
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/grid-owner-status")
 def admin_api_grid_owner_status(
     user: User = Depends(get_current_user),
