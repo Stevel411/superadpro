@@ -417,7 +417,7 @@ function BcastTab({leads,lists,flash,refresh}) {
         setSent(sentN);
         if(j.status==='paused_daily_cap'){
           var remainN=j.remaining_after_cap||0;
-          flash('Sent '+sentN+' today — daily sending protection reached. '+remainN+' remaining: tap Send again tomorrow and delivery continues exactly where it left off (already-sent contacts are skipped automatically).','ok');
+          flash('Sent '+sentN+' today — daily sending protection reached. '+remainN+' remaining will send automatically after midnight UTC. Nothing else to do — already-sent contacts are never emailed twice.','ok');
           if(refresh)refresh();return;
         }
         var skipped=j.skipped_prior||0;
@@ -614,9 +614,10 @@ function HowTab({emailStats}) {
       <p style={body}>
         When you hit Send on a broadcast, it delivers steadily in the background at a controlled
         rate rather than all at once &mdash; you can close the page and it keeps going. If a large list
-        meets your daily ceiling, delivery pauses and tells you exactly how many are left;
-        tap Send again tomorrow and it continues precisely where it stopped &mdash;
-        <strong> anyone who already received it is skipped automatically</strong>, so nobody is ever double-emailed.
+        meets your daily ceiling, delivery pauses and <strong>resumes automatically after midnight UTC</strong> &mdash;
+        nothing for you to do, and it continues precisely where it stopped.
+        <strong> Anyone who already received it is skipped automatically</strong>, so nobody is ever double-emailed
+        &mdash; even if the platform restarts mid-send.
       </p>
     </div>
 

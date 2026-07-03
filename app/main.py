@@ -507,6 +507,14 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Migrations skipped: {e}")
 
+    # Broadcast auto-resume (phase 2, 3 Jul 2026): continues daily-capped and
+    # deploy-interrupted member broadcasts with zero member action.
+    try:
+        asyncio.create_task(_broadcast_resume_loop())
+        print("✅ Broadcast auto-resume loop started")
+    except Exception as e:
+        print(f"⚠️ Broadcast resume loop failed to start: {e}")
+
     # ── SES governor: reconcile today's send count from the durable log ──
     # The daily soft cap lives in mailer module state (single worker). A mid-day
     # restart would otherwise reset it to zero and allow up to a second full cap
@@ -31017,6 +31025,55 @@ def _broadcast_mark_failed(db: Session, log_id: int, error: str):
     db.commit()
 
 
+def _ensure_member_broadcasts_table(db: Session):
+    """Lazy migration — durable header row per member broadcast (3 Jul 2026,
+    phase 2 of send-protection). The in-memory job registry dies on every
+    deploy; this table is what lets a daily-capped OR deploy-interrupted
+    broadcast resume automatically with zero member action. Recipient-level
+    exactly-once dedupe lives in broadcast_log claims; this row carries the
+    content + filters + status needed to respawn the job."""
+    db.execute(text("""
+        CREATE TABLE IF NOT EXISTS member_broadcasts (
+            id SERIAL PRIMARY KEY,
+            broadcast_key VARCHAR(64) NOT NULL,
+            user_id INTEGER NOT NULL,
+            subject TEXT NOT NULL,
+            html_content TEXT NOT NULL,
+            filter_status VARCHAR(24) DEFAULT 'all',
+            filter_list_id INTEGER,
+            status VARCHAR(24) DEFAULT 'sending',
+            total INTEGER DEFAULT 0,
+            sent INTEGER DEFAULT 0,
+            failed INTEGER DEFAULT 0,
+            skipped INTEGER DEFAULT 0,
+            error TEXT,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        )
+    """))
+    db.execute(text("CREATE INDEX IF NOT EXISTS idx_member_broadcasts_status ON member_broadcasts (status)"))
+    db.execute(text("CREATE INDEX IF NOT EXISTS idx_member_broadcasts_user ON member_broadcasts (user_id)"))
+    db.commit()
+
+
+def _member_broadcast_row_update(db: Session, db_id: int, job: dict, status: str = None):
+    """Sync the durable row with the live job counters. Best-effort — a failed
+    update never fails a send."""
+    try:
+        db.execute(text(
+            "UPDATE member_broadcasts SET sent=:s, failed=:f, skipped=:k, total=:t, "
+            "status=COALESCE(:st, status), error=:e, updated_at=NOW() WHERE id=:i"
+        ), {"s": job.get("sent", 0), "f": job.get("failed", 0),
+            "k": job.get("skipped_prior", 0), "t": job.get("total", 0),
+            "st": status, "e": (job.get("error") or None), "i": db_id})
+        db.commit()
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
 def _founder_broadcast_recipients(db: Session, broadcast_key: str):
     """Return User rows eligible for the founder broadcast.
 
@@ -53449,6 +53506,8 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
                     db.commit()
                 except Exception:
                     db.rollback()
+                if job.get("db_id"):
+                    _member_broadcast_row_update(db, job["db_id"], job)
 
             # Pace under the SES cap (each ses_send opens its own SMTP
             # connection so this is already gentle, but the floor guarantees it).
@@ -53464,6 +53523,10 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
             print(f"[broadcast/{job_id}] final commit failed: {e}")
         if job["status"] != "paused_daily_cap":
             job["status"] = "done"
+        if job.get("db_id"):
+            _member_broadcast_row_update(
+                db, job["db_id"], job,
+                status=("paused_daily" if job["status"] == "paused_daily_cap" else "done"))
     except Exception as e:
         job["status"] = "error"
         job["error"] = str(e)
@@ -53471,11 +53534,91 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
             db.rollback()
         except Exception:
             pass
+        if job.get("db_id"):
+            _member_broadcast_row_update(db, job["db_id"], job, status="error")
         print(f"[broadcast/{job_id}] FATAL: {e}")
     finally:
         job["finished_at"] = datetime.utcnow().isoformat()
         db.close()
         _BROADCAST_ACTIVE.pop(user_id, None)
+
+
+async def _broadcast_resume_loop():
+    """Durable auto-resume (phase 2, 3 Jul 2026). Every 10 minutes:
+    - 'paused_daily' rows whose owner has fresh daily headroom -> resume.
+    - 'sending' rows not updated for 15+ minutes -> orphaned by a deploy/
+      restart mid-run (the live job updates its row every ~25 sends, i.e.
+      every few seconds) -> resume.
+    Recipient claims in broadcast_log make every resume exactly-once — an
+    already-delivered lead can never be claimed again, so a resumed job
+    fast-forwards through the sent portion and continues from the first
+    unsent recipient. Advisory lock 1885347294 keeps this single-runner
+    if replicas ever return."""
+    await asyncio.sleep(90)  # let boot settle before first pass
+    from .database import SessionLocal as _SL
+    from .send_limits import daily_state as _dstate
+    while True:
+        try:
+            db = _SL()
+            try:
+                _ensure_member_broadcasts_table(db)
+                got = db.execute(text("SELECT pg_try_advisory_lock(1885347294)")).scalar()
+                if got:
+                    try:
+                        rows = db.execute(text("""
+                            SELECT id, broadcast_key, user_id, subject, html_content,
+                                   filter_status, filter_list_id, status
+                            FROM member_broadcasts
+                            WHERE status = 'paused_daily'
+                               OR (status = 'sending' AND updated_at < NOW() - INTERVAL '15 minutes')
+                            ORDER BY id
+                            LIMIT 20
+                        """)).mappings().all()
+                        for r in rows:
+                            uid = r["user_id"]
+                            live = _BROADCAST_ACTIVE.get(uid)
+                            if live and live in _BROADCAST_JOBS and                                _BROADCAST_JOBS[live]["status"] in ("queued", "sending"):
+                                continue
+                            owner = db.query(User).filter(User.id == uid).first()
+                            if not owner or getattr(owner, "email_sending_paused", False):
+                                continue
+                            dst = _dstate(db, owner)
+                            if dst["remaining"] <= 0:
+                                continue
+                            ok_m, _r = _check_email_allowance(owner, db, 1)
+                            if not ok_m:
+                                continue
+                            job_id = _uuid.uuid4().hex
+                            _BROADCAST_JOBS[job_id] = {
+                                "job_id": job_id, "user_id": uid, "status": "queued",
+                                "total": 0, "sent": 0, "failed": 0, "failure_summary": {},
+                                "started_at": datetime.utcnow().isoformat(),
+                                "finished_at": None, "error": None,
+                                "allowed_this_run": dst["remaining"], "deferred": 0,
+                                "skipped_prior": 0, "bkey": r["broadcast_key"],
+                                "db_id": r["id"], "resumed": True,
+                            }
+                            _BROADCAST_ACTIVE[uid] = job_id
+                            db.execute(text(
+                                "UPDATE member_broadcasts SET status='sending', updated_at=NOW() WHERE id=:i"
+                            ), {"i": r["id"]})
+                            db.commit()
+                            asyncio.create_task(_run_broadcast_job(
+                                job_id, uid, r["subject"], r["html_content"],
+                                r["filter_status"], r["filter_list_id"]))
+                            print(f"[broadcast-resume] resumed broadcast {r['id']} "
+                                  f"(user {uid}, headroom {dst['remaining']}) as job {job_id}")
+                    finally:
+                        try:
+                            db.execute(text("SELECT pg_advisory_unlock(1885347294)"))
+                            db.commit()
+                        except Exception:
+                            pass
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"[broadcast-resume] tick failed: {e}")
+        await asyncio.sleep(600)
 
 
 @app.post("/api/leads/broadcast")
@@ -53565,6 +53708,22 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         (subject + "|" + html_content).encode()).hexdigest()[:16])
 
     _prune_broadcast_jobs()
+    # Durable header (phase 2): survives deploys so the resume loop can
+    # continue a capped or interrupted send automatically. A manual re-send
+    # of the same content supersedes any stalled row for the same key.
+    _ensure_member_broadcasts_table(db)
+    db.execute(text(
+        "UPDATE member_broadcasts SET status='superseded', updated_at=NOW() "
+        "WHERE user_id=:u AND broadcast_key=:k AND status IN ('paused_daily','sending')"
+    ), {"u": user.id, "k": bkey})
+    db_id = db.execute(text(
+        "INSERT INTO member_broadcasts (broadcast_key, user_id, subject, html_content, "
+        "filter_status, filter_list_id, status, total) "
+        "VALUES (:k, :u, :sub, :html, :fs, :fl, 'sending', :t) RETURNING id"
+    ), {"k": bkey, "u": user.id, "sub": subject, "html": html_content,
+        "fs": filter_status, "fl": filter_list_id, "t": total}).scalar()
+    db.commit()
+
     job_id = _uuid.uuid4().hex
     _BROADCAST_JOBS[job_id] = {
         "job_id": job_id, "user_id": user.id, "status": "queued",
@@ -53572,7 +53731,7 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         "started_at": datetime.utcnow().isoformat(), "finished_at": None,
         "error": None,
         "allowed_this_run": allowed_this_run, "deferred": deferred,
-        "skipped_prior": 0, "bkey": bkey,
+        "skipped_prior": 0, "bkey": bkey, "db_id": db_id,
     }
     _BROADCAST_ACTIVE[user.id] = job_id
     asyncio.create_task(_run_broadcast_job(
