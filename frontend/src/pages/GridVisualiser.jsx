@@ -287,6 +287,12 @@ export default function GridVisualiser() {
                   </div>
                 </div>
               ) : (
+              <>
+              {viewedCompleted && viewedCompleted.retired ? (
+                <div style={{ background:'#f1f5f9', border:'1px solid #cbd5e1', borderRadius:10, padding:'12px 16px', marginBottom:14, fontSize:13, color:'#475569', fontWeight:600, lineHeight:1.5 }}>
+                  This grid is from the previous plan and was retired when the Grid changed on 12 June. Your real activity and earnings from it are preserved — they&rsquo;re in your commissions totals on this page.
+                </div>
+              ) : null}
               <div style={{ display:'grid', gridTemplateColumns:'repeat(' + boardCols + ',1fr)', gap:10, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
                 {Array.from({length:boardTotal}, function(_,i) {
                   var pos = i + 1;
@@ -305,7 +311,11 @@ export default function GridVisualiser() {
                           ? <div style={{ position:'absolute', top:7, right:9, color:'#fff', fontSize:14 }}>★</div>
                           : <div className={'lgv-star ' + (isDirect ? 'gold' : 'cyan')}><span className="lgv-star-ico">★</span></div>}
                         <div className="lgv-uname">{seat.username}</div>
-                        <div className="lgv-money">+${seatMoney.toFixed(2)}</div>
+                        {viewedCompleted && viewedCompleted.retired
+                          ? null /* retired boards: no per-seat money — chips showed
+                                    CURRENT-plan rates on OLD-plan fills (e.g. +$10 on
+                                    a fill that paid $8). Actuals are in commissions. */
+                          : <div className="lgv-money">+${seatMoney.toFixed(2)}</div>}
                         {isBonusSeat && planV2 ? <div style={{ fontFamily:'JetBrains Mono,monospace', fontSize:8.5, color:'rgba(255,255,255,0.85)', marginTop:2 }}>${bonusCashPerPos.toFixed(0)} cash · ${bonusStepupPerPos.toFixed(0)} step-up</div> : null}
                       </div>
                     );
@@ -339,6 +349,7 @@ export default function GridVisualiser() {
                   );
                 })}
               </div>
+              </>
               )}
             </div>
           </div>
