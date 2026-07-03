@@ -25331,7 +25331,7 @@ def admin_grid_truth_audit(
         """)).mappings().all()
         comm = db.execute(text("""
             SELECT to_user_id, package_tier, commission_type, status,
-                   SUM(amount) AS total, COUNT(*) AS n
+                   SUM(amount_usdt) AS total, COUNT(*) AS n
             FROM commissions
             WHERE commission_type IN ('grid_completion_bonus', 'grid_completion_bonus_topup')
             GROUP BY to_user_id, package_tier, commission_type, status
