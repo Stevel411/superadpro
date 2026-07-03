@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins, Magnet, Megaphone } from 'lucide-react';
+import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins, Magnet, Megaphone, Shield, CheckCircle2, Clock } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 import { TYPE } from '../styles/typography';
@@ -25,6 +25,7 @@ var TAB_CONFIG = [
   { key:'sequences', icon:Zap,      labelKey:'tabSequences' },
   { key:'broadcast', icon:Send,     labelKey:'tabBroadcast' },
   { key:'import',    icon:Upload,   labelKey:'tabImport' },
+  { key:'how',       icon:Shield,   labelKey:'tabHow' },
 ];
 
 // Status style palette — labels come from t() at render time.
@@ -216,6 +217,7 @@ export default function MyLeads() {
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash} refresh={refresh}/>}
       {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
+      {tab==='how' && <HowTab emailStats={emailStats}/>}
 
       <BuyCreditsModal show={showBuy} onClose={function(){setShowBuy(false);}} emailStats={emailStats} refresh={refresh} flash={flash}/>
 
@@ -371,6 +373,8 @@ function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
   var sentMonth = es.sent_month || 0;
   var credits = es.boost_credits || 0;
   var usedPct = monthlyLimit > 0 ? Math.min(100, Math.round((sentMonth / monthlyLimit) * 100)) : 0;
+  var d = es.daily || null;
+  var dayHot = d && d.cap > 0 && (d.sent_today / d.cap) >= 0.8;
   return <div className="sl-strip">
     <div style={{flex:1,minWidth:150}}>
       <div style={{fontSize:12,fontWeight:800,color:'#1e293b',display:'flex',justifyContent:'space-between',marginBottom:5}}>
@@ -380,6 +384,7 @@ function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
         <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#0ea5e9,#06b6d4)',transition:'width .3s'}}/>
       </div>
     </div>
+    {d && <span title={"Daily protection ('" + d.tier + "' tier) — resets at midnight UTC. Grows with your sending history."} style={{fontSize:12.5,fontWeight:800,borderRadius:20,padding:'7px 13px',background:dayHot?'#fef3c7':'#f0f9ff',color:dayHot?'#b45309':'#0369a1',whiteSpace:'nowrap'}}>Today {d.sent_today.toLocaleString()} / {d.cap.toLocaleString()}</span>}
     {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
     {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
     <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0,boxShadow:'0 4px 12px rgba(30,58,138,.3)'}}><Rocket size={13}/> Buy</button>
@@ -405,12 +410,19 @@ function BcastTab({leads,lists,flash,refresh}) {
     fails=fails||0;
     apiGet('/api/leads/broadcast-status?job_id='+encodeURIComponent(jobId)).then(function(j){
       setProg({sent:j.sent||0,total:j.total||0,failed:j.failed||0,status:j.status});
-      if(j.status==='done'||j.status==='error'){
+      if(j.status==='done'||j.status==='error'||j.status==='paused_daily_cap'){
         setS(false);setProg(null);
         if(j.status==='error'){flash(j.error||'Broadcast failed','err');return;}
         var sentN=j.sent||0,totalN=j.total||0,failedN=j.failed||0;
         setSent(sentN);
+        if(j.status==='paused_daily_cap'){
+          var remainN=j.remaining_after_cap||0;
+          flash('Sent '+sentN+' today — daily sending protection reached. '+remainN+' remaining: tap Send again tomorrow and delivery continues exactly where it left off (already-sent contacts are skipped automatically).','ok');
+          if(refresh)refresh();return;
+        }
+        var skipped=j.skipped_prior||0;
         var msg='Sent to '+sentN+' of '+totalN+' leads';
+        if(skipped>0)msg=msg+' ('+skipped+' already received this broadcast — skipped)';
         if(failedN>0){var reasons=j.failure_summary||{};var parts=[];Object.keys(reasons).forEach(function(k){parts.push(reasons[k]+' '+k);});if(parts.length)msg=msg+' ('+parts.join(', ')+')';}
         flash(msg,sentN>0?'ok':'err');if(refresh)refresh();return;
       }
@@ -550,6 +562,85 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
         </div>
       </div>
     </div></div>;
+}
+
+function HowTab({emailStats}) {
+  /* Member-facing explainer for the sending-protection system (3 Jul 2026,
+     Steve). Written to reassure: these limits exist to keep every member's
+     email landing in inboxes, not spam folders. */
+  var es = emailStats || {};
+  var d = es.daily || {};
+  var tiers = es.ramp_tiers || [];
+  var card = {background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)',padding:'22px 24px',marginBottom:14};
+  var h = {fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:8,display:'flex',alignItems:'center',gap:8};
+  var body = {fontSize:14,color:'#334155',fontWeight:500,lineHeight:1.65,margin:0};
+  return <div>
+    <div style={{...card,textAlign:'center',padding:'26px 24px'}}>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:6}}>Built to keep your emails landing</div>
+      <p style={{...body,maxWidth:640,margin:'0 auto'}}>
+        Big email platforms don&rsquo;t let anyone blast at full volume from day one &mdash; and neither do we.
+        These protections are why mail sent from SuperLeads reaches inboxes instead of spam folders,
+        and why one careless sender can never damage <strong>your</strong> deliverability.
+      </p>
+    </div>
+
+    <div style={card}>
+      <div style={h}><Shield size={17} color="#0ea5e9"/> Your daily sending limit grows with you</div>
+      <p style={body}>
+        Every account has a daily sending ceiling that rises automatically as your clean sending
+        history builds &mdash; the same &ldquo;warm-up&rdquo; system professional email providers use.
+        Mailbox providers like Gmail trust senders who ramp up gradually; sudden blasts from new
+        senders are the #1 trigger for spam filtering.
+      </p>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',margin:'14px 0 4px'}}>
+        {tiers.map(function(tr,i){
+          var active = d.tier===tr.label;
+          return <div key={i} style={{flex:'1 1 160px',border:'1.5px solid '+(active?'#0ea5e9':'#dfe6f0'),borderRadius:12,padding:'14px 16px',background:active?'#f0f9ff':'#fff',position:'relative'}}>
+            {active && <div style={{position:'absolute',top:-9,right:12,background:'#0ea5e9',color:'#fff',fontSize:10,fontWeight:800,borderRadius:10,padding:'2px 9px'}}>YOU ARE HERE</div>}
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:14,color:'#0f172a'}}>{tr.label}</div>
+            <div style={{fontSize:12.5,color:'#334155',fontWeight:600,marginTop:2}}>{tr.below?('Under '+tr.below.toLocaleString()+' lifetime sends'):'10,000+ lifetime sends'}</div>
+            <div style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:16,fontWeight:600,color:'#0369a1',marginTop:6}}>{tr.cap.toLocaleString()} / day</div>
+          </div>;
+        })}
+      </div>
+      <p style={{...body,fontSize:12.5,color:'#64748b'}}>
+        You&rsquo;ve sent {(d.lifetime_sends||0).toLocaleString()} emails so far
+        {d.next_tier_at?(' — '+(d.next_tier_at-(d.lifetime_sends||0)).toLocaleString()+' more unlocks the next tier.'):' — you\u2019re at the top tier.'} The counter resets at midnight UTC.
+      </p>
+    </div>
+
+    <div style={card}>
+      <div style={h}><Clock size={17} color="#0ea5e9"/> Big broadcasts are paced, never blasted</div>
+      <p style={body}>
+        When you hit Send on a broadcast, it delivers steadily in the background at a controlled
+        rate rather than all at once &mdash; you can close the page and it keeps going. If a large list
+        meets your daily ceiling, delivery pauses and tells you exactly how many are left;
+        tap Send again tomorrow and it continues precisely where it stopped &mdash;
+        <strong> anyone who already received it is skipped automatically</strong>, so nobody is ever double-emailed.
+      </p>
+    </div>
+
+    <div style={card}>
+      <div style={h}><CheckCircle2 size={17} color="#16a34a"/> Reputation protection, for everyone</div>
+      <p style={body}>
+        If a recipient marks a member&rsquo;s email as spam, that account&rsquo;s sending is paused
+        automatically for review. It sounds strict &mdash; it&rsquo;s the reason the platform&rsquo;s sending
+        reputation stays clean, which is what keeps <strong>your</strong> emails out of spam folders.
+        Verifying your own sending domain (the &ldquo;Sending as&rdquo; line above) adds another layer:
+        your mail carries your brand&rsquo;s signature and builds <em>your</em> reputation with every send.
+      </p>
+    </div>
+
+    <div style={{...card,background:'linear-gradient(135deg,var(--sap-cobalt-mid,#1e3a8a),#2b4bb5)',border:'none'}}>
+      <div style={{...h,color:'#fff'}}><Mail size={17} color="#67e8f9"/> The short version</div>
+      <p style={{...body,color:'#dbe6fb'}}>
+        Credits decide <strong style={{color:'#67e8f9'}}>how many</strong> emails you can send.
+        The warm-up ramp decides <strong style={{color:'#67e8f9'}}>how fast</strong>.
+        Clean sending decides <strong style={{color:'#67e8f9'}}>how far they reach</strong>.
+        Play the long game and all three grow together.
+      </p>
+    </div>
+  </div>;
 }
 
 function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {

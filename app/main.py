@@ -25270,6 +25270,52 @@ def admin_bsc_chunks_consolidate(
     return JSONResponse(result)
 
 
+@app.get("/admin/api/send-cap")
+def admin_send_cap(
+    user_id: int = 0,
+    daily: int = -1,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin: view/set per-member daily send-cap overrides (app_config JSON,
+    key 'send_cap_overrides'). ?user_id=N&daily=X sets; daily=0 clears;
+    no daily param = view that member's current protection state; no
+    params = list all overrides. Tappable per admin-GET convention."""
+    _require_admin(user)
+    import json as _j
+    from .send_limits import daily_state, _cache as _sl_cache
+    raw = db.execute(text("SELECT value FROM app_config WHERE key='send_cap_overrides'")).scalar()
+    overrides = {}
+    try:
+        overrides = _j.loads(raw) if raw else {}
+    except Exception:
+        overrides = {}
+    if not user_id:
+        return JSONResponse({"overrides": overrides,
+                             "note": "?user_id=N&daily=X to set · daily=0 to clear · daily omitted to inspect"})
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=200)
+    if daily >= 0:
+        if daily == 0:
+            overrides.pop(str(user_id), None)
+        else:
+            overrides[str(user_id)] = int(daily)
+        payload = _j.dumps(overrides)
+        updated = db.execute(text(
+            "UPDATE app_config SET value=:v WHERE key='send_cap_overrides'"), {"v": payload}).rowcount
+        if not updated:
+            db.execute(text(
+                "INSERT INTO app_config (key, value) VALUES ('send_cap_overrides', :v)"), {"v": payload})
+        db.commit()
+        _sl_cache.pop(user_id, None)
+    return JSONResponse({
+        "user_id": user_id, "username": target.username,
+        "override": overrides.get(str(user_id)),
+        "state": daily_state(db, target),
+    })
+
+
 @app.get("/cron/backup")
 def cron_backup(secret: str = ""):
     """Cron endpoint: trigger daily backup. Protected by secret."""
@@ -52934,6 +52980,20 @@ def _check_email_allowance(user, db, count=1):
     free_remaining = max(0, MONTHLY_EMAIL_LIMIT - sent_month)
     boost_credits = user.email_credits or 0
 
+    # Daily warm-up protection (3 Jul 2026, see app/send_limits.py): a
+    # volume-ramped per-member daily ceiling. Checked FIRST so sequence
+    # sends defer cleanly to the next cron tick and broadcasts can plan
+    # partial sends against today's headroom.
+    from .send_limits import daily_state
+    _dst = daily_state(db, user)
+    if count > _dst["remaining"]:
+        return False, (
+            f"Daily sending protection reached ({_dst['sent_today']:,}/"
+            f"{_dst['cap']:,} today, '{_dst['tier']}' tier). This warm-up "
+            f"limit protects your sender reputation and grows with your "
+            f"sending history — it resets at midnight UTC."
+        )
+
     if free_remaining + boost_credits < count:
         return False, (
             f"Monthly email limit reached. {sent_month:,}/{MONTHLY_EMAIL_LIMIT:,} free "
@@ -52943,6 +53003,8 @@ def _check_email_allowance(user, db, count=1):
 
     return True, ""
 def _deduct_email_send(user, db, count=1):
+    from .send_limits import note_sends
+    note_sends(user.id, count)
     """Deduct `count` sends from the monthly free allowance first, then boost
     credits. Mirrors the reset logic in _check_email_allowance."""
     month = datetime.utcnow().strftime("%Y-%m")
@@ -53254,6 +53316,9 @@ def _broadcast_job_public(job):
         "failure_summary": job["failure_summary"],
         "started_at": job["started_at"], "finished_at": job["finished_at"],
         "error": job["error"],
+        "deferred": job.get("deferred", 0),
+        "skipped_prior": job.get("skipped_prior", 0),
+        "remaining_after_cap": job.get("remaining_after_cap", 0),
     }
 
 
@@ -53308,7 +53373,28 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
 
         min_interval = 1.0 / float(_SES_MAX_PER_SEC)
         sent = 0
+        allowed_this_run = job.get("allowed_this_run", len(leads))
+        bkey = job.get("bkey")
         for lead in leads:
+            # Daily ceiling: stop here, report the remainder, and let the
+            # member (or a future auto-resume) continue tomorrow. Claimed
+            # rows make the continuation exactly-once.
+            if sent >= allowed_this_run:
+                job["status"] = "paused_daily_cap"
+                job["remaining_after_cap"] = job["total"] - sent - job["failed"] - job.get("skipped_prior", 0)
+                break
+            # Exactly-once claim (broadcast_log; user_id column carries the
+            # LEAD id for member broadcasts — founder broadcasts use
+            # 'founder-*' keys so the namespaces can't collide).
+            log_id = None
+            if bkey:
+                try:
+                    log_id = _broadcast_claim_recipient(db, bkey, lead.id, lead.email)
+                except Exception as e:
+                    print(f"[broadcast/{job_id}] claim failed lead {lead.id}: {e} — sending unclaimed")
+                if bkey and log_id is None:
+                    job["skipped_prior"] = job.get("skipped_prior", 0) + 1
+                    continue
             t0 = _time.monotonic()
             try:
                 _unsub_url = f"https://www.superadpro.com/lead-unsubscribe?t={_sign_lead_unsub(lead.id)}"
@@ -53324,6 +53410,11 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
             if result.get("ok"):
                 sent += 1
                 job["sent"] = sent
+                if log_id:
+                    try:
+                        _broadcast_mark_sent(db, log_id, result.get("message_id", ""))
+                    except Exception:
+                        pass
                 try:
                     db.add(EmailSendLog(lead_id=lead.id, sequence_id=None,
                                         email_index=None,
@@ -53334,6 +53425,11 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
                     print(f"[broadcast/{job_id}] EmailSendLog write failed lead {lead.id}: {e}")
             else:
                 job["failed"] += 1
+                if log_id:
+                    try:
+                        _broadcast_mark_failed(db, log_id, result.get("error") or "")
+                    except Exception:
+                        pass
                 err = (result.get("error") or "unknown error").lower()
                 if "block" in err or "unsubscribe" in err:
                     bucket = "blocked or unsubscribed"
@@ -53366,7 +53462,8 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
         except Exception as e:
             db.rollback()
             print(f"[broadcast/{job_id}] final commit failed: {e}")
-        job["status"] = "done"
+        if job["status"] != "paused_daily_cap":
+            job["status"] = "done"
     except Exception as e:
         job["status"] = "error"
         job["error"] = str(e)
@@ -53441,11 +53538,31 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     if total == 0:
         return JSONResponse({"error": "No recipients match that filter"}, status_code=400)
 
-    # Reserve the whole send against the member's daily allowance up front so a
-    # huge list can't blow the platform's email quota mid-run.
-    allowed, reason = _check_email_allowance(user, db, total)
+    # Daily warm-up protection (3 Jul 2026): broadcasts send TODAY'S headroom
+    # and pause at the ceiling instead of hard-failing a big list. A stable
+    # content-derived broadcast_key + the broadcast_log claim table make the
+    # next day's re-send exactly-once: already-sent leads are skipped
+    # atomically, so "tap Send again tomorrow" can never double-email anyone.
+    from .send_limits import daily_state
+    import hashlib as _hl
+    dst = daily_state(db, user)
+    if dst["remaining"] <= 0:
+        return JSONResponse({"error": (
+            f"Daily sending protection reached ({dst['sent_today']:,}/"
+            f"{dst['cap']:,} today). It resets at midnight UTC — tap Send "
+            f"again tomorrow and delivery continues where it left off "
+            f"(already-sent contacts are skipped automatically).")},
+            status_code=429)
+    allowed_this_run = min(total, dst["remaining"])
+    deferred = total - allowed_this_run
+
+    # Monthly allowance / credits must cover what we'll actually send today.
+    allowed, reason = _check_email_allowance(user, db, allowed_this_run)
     if not allowed:
         return JSONResponse({"error": reason}, status_code=429)
+
+    bkey = "mb%d-%s" % (user.id, _hl.sha1(
+        (subject + "|" + html_content).encode()).hexdigest()[:16])
 
     _prune_broadcast_jobs()
     job_id = _uuid.uuid4().hex
@@ -53454,6 +53571,8 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         "total": total, "sent": 0, "failed": 0, "failure_summary": {},
         "started_at": datetime.utcnow().isoformat(), "finished_at": None,
         "error": None,
+        "allowed_this_run": allowed_this_run, "deferred": deferred,
+        "skipped_prior": 0, "bkey": bkey,
     }
     _BROADCAST_ACTIVE[user.id] = job_id
     asyncio.create_task(_run_broadcast_job(
@@ -53501,6 +53620,8 @@ def api_email_stats(request: Request, user: User = Depends(get_current_user), db
     if getattr(user, 'emails_sent_month_key', None) != month:
         sent_month = 0
     free_remaining = max(0, MONTHLY_EMAIL_LIMIT - sent_month)
+    from .send_limits import daily_state, DAILY_RAMP_TIERS
+    dst = daily_state(db, user)
     return {
         "period": "month",
         "monthly_limit": MONTHLY_EMAIL_LIMIT,
@@ -53510,6 +53631,10 @@ def api_email_stats(request: Request, user: User = Depends(get_current_user), db
         "total_available": free_remaining + (user.email_credits or 0),
         "wallet_balance": float(user.balance or 0),
         "boost_packs": EMAIL_BOOST_PACKS,
+        "daily": dst,
+        "ramp_tiers": [
+            {"below": t[0], "cap": t[1], "label": t[2]} for t in DAILY_RAMP_TIERS
+        ],
     }
 @app.post("/api/leads/buy-boost")
 async def api_buy_email_boost(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
