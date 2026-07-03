@@ -25302,6 +25302,102 @@ async def admin_broadcast_resume_now(
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
 
 
+@app.get("/admin/api/grid-truth-audit")
+def admin_grid_truth_audit(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """READ-ONLY platform-wide audit (3 Jul 2026, cynniam case): every
+    Grid row claiming is_complete=True, classified against the commission
+    ledger and the retirement cutover. Classes:
+
+      genuine   — retired_at NULL, completion money PAID in the ledger
+      retired   — retired_at set (12 Jun legacy-36-seat cutover artifact;
+                  NOT a real completion — UI must not claim 'bonus paid')
+      unbacked  — is_complete, not retired, but NO paid completion money
+                  (or only REVERSED topups) — restoration-era fabrication;
+                  the class the member UI is lying about
+      phantom$  — any PAID grid_completion_bonus_topup (money that became
+                  spendable; worst class, none expected after the cleanup)
+    """
+    _require_admin(user)
+    try:
+        grids = db.execute(text("""
+            SELECT g.id, g.owner_id, u.username, g.package_tier, g.advance_number,
+                   g.is_complete, g.bonus_paid, g.retired_at, g.created_at
+            FROM grids g JOIN users u ON u.id = g.owner_id
+            WHERE g.is_complete = TRUE
+            ORDER BY g.owner_id, g.package_tier, g.advance_number
+        """)).mappings().all()
+        comm = db.execute(text("""
+            SELECT to_user_id, package_tier, commission_type, status,
+                   SUM(amount) AS total, COUNT(*) AS n
+            FROM commissions
+            WHERE commission_type IN ('grid_completion_bonus', 'grid_completion_bonus_topup')
+            GROUP BY to_user_id, package_tier, commission_type, status
+        """)).mappings().all()
+        cmap = {}
+        for c in comm:
+            key = (c["to_user_id"], c["package_tier"])
+            cmap.setdefault(key, {"paid_bonus": 0.0, "paid_topup": 0.0,
+                                  "reversed_topup": 0.0, "reversed_bonus": 0.0})
+            bucket = ("paid_" if c["status"] == "paid" else "reversed_") +                      ("topup" if c["commission_type"].endswith("topup") else "bonus")
+            cmap[key][bucket] = round(cmap[key][bucket] + float(c["total"] or 0), 2)
+
+        users, summary = {}, {"complete_grids": len(grids), "genuine": 0,
+                              "retired": 0, "unbacked": 0,
+                              "phantom_paid_topup_usd": 0.0,
+                              "reversed_topup_usd": 0.0}
+        for g in grids:
+            key = (g["owner_id"], g["package_tier"])
+            money = cmap.get(key, {"paid_bonus": 0, "paid_topup": 0,
+                                   "reversed_topup": 0, "reversed_bonus": 0})
+            if g["retired_at"]:
+                verdict = "retired"
+            elif money["paid_bonus"] > 0 or money["paid_topup"] > 0:
+                verdict = "genuine"
+            else:
+                verdict = "unbacked"
+            summary[verdict] += 1
+            u = users.setdefault(g["owner_id"], {
+                "user_id": g["owner_id"], "username": g["username"], "grids": [],
+                "paid_completion_usd": money["paid_bonus"],
+                "paid_topup_usd": money["paid_topup"],
+                "reversed_topup_usd": money["reversed_topup"],
+            })
+            # money keys are per (user,tier); merge across tiers
+            u["paid_completion_usd"] = round(sum(
+                cmap.get((g["owner_id"], t), {}).get("paid_bonus", 0)
+                for t in {gr["tier"] for gr in u["grids"]} | {g["package_tier"]}), 2)
+            u["paid_topup_usd"] = round(sum(
+                cmap.get((g["owner_id"], t), {}).get("paid_topup", 0)
+                for t in {gr["tier"] for gr in u["grids"]} | {g["package_tier"]}), 2)
+            u["reversed_topup_usd"] = round(sum(
+                cmap.get((g["owner_id"], t), {}).get("reversed_topup", 0)
+                for t in {gr["tier"] for gr in u["grids"]} | {g["package_tier"]}), 2)
+            u["grids"].append({"grid_id": g["id"], "tier": g["package_tier"],
+                               "advance": g["advance_number"],
+                               "bonus_paid_flag": bool(g["bonus_paid"]),
+                               "retired": bool(g["retired_at"]),
+                               "verdict": verdict})
+        for u in users.values():
+            summary["phantom_paid_topup_usd"] = round(
+                summary["phantom_paid_topup_usd"] + u["paid_topup_usd"], 2)
+            summary["reversed_topup_usd"] = round(
+                summary["reversed_topup_usd"] + u["reversed_topup_usd"], 2)
+        summary["users_affected_unbacked"] = sum(
+            1 for u in users.values() if any(x["verdict"] == "unbacked" for x in u["grids"]))
+        ordered = sorted(users.values(), key=lambda u: (
+            -u["paid_topup_usd"],
+            -sum(1 for x in u["grids"] if x["verdict"] == "unbacked"),
+            -u["reversed_topup_usd"]))
+        return JSONResponse({"summary": summary, "users": ordered})
+    except Exception as e:
+        import traceback
+        logger.error(f"grid-truth-audit failed: {e}\n{traceback.format_exc()}")
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/broadcast-state")
 def admin_broadcast_state(
     user_id: int = 0,
