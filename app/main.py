@@ -25278,6 +25278,42 @@ def admin_bsc_chunks_consolidate(
     return JSONResponse(result)
 
 
+@app.get("/admin/api/broadcast-state")
+def admin_broadcast_state(
+    user_id: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Diagnose a member's broadcasts in one tap: durable header rows (status,
+    counters) + recipient-claim states per broadcast_key. Built 3 Jul while
+    chasing the wedged-'sending' claims bug."""
+    _require_admin(user)
+    try:
+        if not user_id:
+            return JSONResponse({"error": "user_id required"}, status_code=200)
+        _ensure_member_broadcasts_table(db)
+        rows = db.execute(text(
+            "SELECT id, broadcast_key, status, total, sent, failed, skipped, "
+            "created_at, updated_at, subject FROM member_broadcasts "
+            "WHERE user_id=:u ORDER BY id DESC LIMIT 10"), {"u": user_id}).mappings().all()
+        out = []
+        for r in rows:
+            claims = db.execute(text(
+                "SELECT status, COUNT(*) AS n FROM broadcast_log "
+                "WHERE broadcast_key=:k GROUP BY status"), {"k": r["broadcast_key"]}).mappings().all()
+            out.append({
+                "id": r["id"], "status": r["status"],
+                "subject": (r["subject"] or "")[:60],
+                "total": r["total"], "sent": r["sent"], "failed": r["failed"],
+                "skipped": r["skipped"],
+                "created_at": str(r["created_at"]), "updated_at": str(r["updated_at"]),
+                "claims": {c["status"]: c["n"] for c in claims},
+            })
+        return JSONResponse({"user_id": user_id, "broadcasts": out})
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:300]}"}, status_code=200)
+
+
 @app.get("/admin/api/process-renewals")
 def admin_api_process_renewals(
     user: User = Depends(get_current_user),
@@ -31038,9 +31074,14 @@ def _broadcast_claim_recipient(db: Session, broadcast_key: str, user_id: int, em
     uq_broadcast_log_key_user unique index, so it is atomic at the database:
     if two runs race for the same person, exactly one INSERT wins and the
     other gets no row back. A prior 'failed' row is re-claimed for retry; a
-    'sent' or in-flight 'sending' row is left untouched (no row returned).
-    This is what makes a double-send physically impossible, independent of
-    any application-level lock.
+    'sent' row is never re-claimed. An in-flight 'sending' row blocks
+    re-claim for 10 minutes; older than that it is a crash artifact (a real
+    send takes ~1s — a job killed mid-run, e.g. by a deploy, leaves claims
+    wedged in 'sending' forever) and is re-claimed so the broadcast can
+    actually resume. Found 3 Jul 2026 when a deploy-killed test job wedged
+    6 claims and every retry reported 'already received'. The double-send
+    window this opens is the millisecond gap between SES-accept and
+    mark_sent, once, only if a crash lands exactly there — accepted.
     """
     row = db.execute(text("""
         INSERT INTO broadcast_log (broadcast_key, user_id, email_address, status)
@@ -31048,6 +31089,8 @@ def _broadcast_claim_recipient(db: Session, broadcast_key: str, user_id: int, em
         ON CONFLICT (broadcast_key, user_id) DO UPDATE
             SET status = 'sending', error_message = NULL, sent_at = NOW()
             WHERE broadcast_log.status = 'failed'
+               OR (broadcast_log.status = 'sending'
+                   AND broadcast_log.sent_at < NOW() - INTERVAL '10 minutes')
         RETURNING id
     """), {"k": broadcast_key, "uid": user_id, "em": email}).fetchone()
     db.commit()
