@@ -25304,6 +25304,8 @@ async def admin_broadcast_resume_now(
 
 @app.get("/admin/api/grid-truth-audit")
 def admin_grid_truth_audit(
+    summary: int = 0,
+    top: int = 0,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -25344,7 +25346,7 @@ def admin_grid_truth_audit(
             bucket = ("paid_" if c["status"] == "paid" else "reversed_") +                      ("topup" if c["commission_type"].endswith("topup") else "bonus")
             cmap[key][bucket] = round(cmap[key][bucket] + float(c["total"] or 0), 2)
 
-        users, summary = {}, {"complete_grids": len(grids), "genuine": 0,
+        users, summary_out = {}, {"complete_grids": len(grids), "genuine": 0,
                               "retired": 0, "unbacked": 0,
                               "phantom_paid_topup_usd": 0.0,
                               "reversed_topup_usd": 0.0}
@@ -25358,7 +25360,7 @@ def admin_grid_truth_audit(
                 verdict = "genuine"
             else:
                 verdict = "unbacked"
-            summary[verdict] += 1
+            summary_out[verdict] += 1
             u = users.setdefault(g["owner_id"], {
                 "user_id": g["owner_id"], "username": g["username"], "grids": [],
                 "paid_completion_usd": money["paid_bonus"],
@@ -25381,17 +25383,21 @@ def admin_grid_truth_audit(
                                "retired": bool(g["retired_at"]),
                                "verdict": verdict})
         for u in users.values():
-            summary["phantom_paid_topup_usd"] = round(
-                summary["phantom_paid_topup_usd"] + u["paid_topup_usd"], 2)
-            summary["reversed_topup_usd"] = round(
-                summary["reversed_topup_usd"] + u["reversed_topup_usd"], 2)
-        summary["users_affected_unbacked"] = sum(
+            summary_out["phantom_paid_topup_usd"] = round(
+                summary_out["phantom_paid_topup_usd"] + u["paid_topup_usd"], 2)
+            summary_out["reversed_topup_usd"] = round(
+                summary_out["reversed_topup_usd"] + u["reversed_topup_usd"], 2)
+        summary_out["users_affected_unbacked"] = sum(
             1 for u in users.values() if any(x["verdict"] == "unbacked" for x in u["grids"]))
         ordered = sorted(users.values(), key=lambda u: (
             -u["paid_topup_usd"],
             -sum(1 for x in u["grids"] if x["verdict"] == "unbacked"),
             -u["reversed_topup_usd"]))
-        return JSONResponse({"summary": summary, "users": ordered})
+        if summary and not top:
+            return JSONResponse({"summary": summary_out})
+        if top:
+            return JSONResponse({"summary": summary_out, "users": ordered[:top]})
+        return JSONResponse({"summary": summary_out, "users": ordered})
     except Exception as e:
         import traceback
         logger.error(f"grid-truth-audit failed: {e}\n{traceback.format_exc()}")
