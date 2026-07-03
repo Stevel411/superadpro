@@ -25282,6 +25282,7 @@ def admin_bsc_chunks_consolidate(
 def admin_broadcast_state(
     user_id: int = 0,
     probe: int = 0,
+    fix: int = 0,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -25310,6 +25311,13 @@ def admin_broadcast_state(
                 "created_at": str(r["created_at"]), "updated_at": str(r["updated_at"]),
                 "claims": {c["status"]: c["n"] for c in claims},
             })
+        fix_result = None
+        if fix:
+            try:
+                _ensure_broadcast_log_table(db)
+                fix_result = {"ok": True, "note": "dedupe + unique index ensured"}
+            except Exception as fe:
+                fix_result = {"ok": False, "error": f"{type(fe).__name__}: {str(fe)[:300]}"}
         probe_result = None
         if probe:
             # Execute the EXACT claim statement inside a rolled-back
@@ -25334,7 +25342,7 @@ def admin_broadcast_state(
                     db.rollback()
                 except Exception:
                     pass
-        return JSONResponse({"user_id": user_id, "broadcasts": out, "claim_probe": probe_result})
+        return JSONResponse({"user_id": user_id, "broadcasts": out, "fix": fix_result, "claim_probe": probe_result})
     except Exception as e:
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:300]}"}, status_code=200)
 
@@ -53688,6 +53696,7 @@ async def _broadcast_resume_loop():
             db = _SL()
             try:
                 _ensure_member_broadcasts_table(db)
+                _ensure_broadcast_log_table(db)
                 got = db.execute(text("SELECT pg_try_advisory_lock(1885347294)")).scalar()
                 if got:
                     try:
@@ -53834,6 +53843,12 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         (subject + "|" + html_content).encode()).hexdigest()[:16])
 
     _prune_broadcast_jobs()
+    # Claims infra: table + dedupe + the UNIQUE index the ON CONFLICT claim
+    # depends on. 3 Jul root cause: this ensure only ever ran from the admin
+    # founder endpoints, and the unique-index hardening postdated their last
+    # tap — so prod had the table WITHOUT the index and every member claim
+    # threw InvalidColumnReference. Idempotent, cheap after first run.
+    _ensure_broadcast_log_table(db)
     # Durable header (phase 2): survives deploys so the resume loop can
     # continue a capped or interrupted send automatically. A manual re-send
     # of the same content supersedes any stalled row for the same key.
