@@ -25278,6 +25278,39 @@ def admin_bsc_chunks_consolidate(
     return JSONResponse(result)
 
 
+@app.get("/admin/api/process-renewals")
+def admin_api_process_renewals(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Tappable GET wrapper for the renewal processor (the POST variant is
+    unusable from a phone). Runs the same daily lifecycle pass the briefing
+    cron runs: renew-from-wallet, grace starts, FINAL-DAY warnings (3 Jul),
+    lapses. Idempotent by design — every stage dedupes itself."""
+    _require_admin(user)
+    try:
+        from .payment import process_auto_renewals
+        results = process_auto_renewals(db)
+        return JSONResponse({
+            "ok": True,
+            "renewed": len(results.get("renewed", [])),
+            "grace_started": len(results.get("grace_extended", [])),
+            "final_warned": len(results.get("final_warned", [])),
+            "final_warned_ids": results.get("final_warned", []),
+            "lapsed": len(results.get("lapsed", [])),
+            "lapsed_ids": results.get("lapsed", []),
+            "errors": results.get("errors", []),
+        })
+    except Exception as e:
+        import traceback
+        logger.error(f"process-renewals GET failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/send-cap")
 def admin_send_cap(
     user_id: int = 0,
