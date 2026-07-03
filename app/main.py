@@ -510,8 +510,8 @@ async def startup_event():
     # Broadcast auto-resume (phase 2, 3 Jul 2026): continues daily-capped and
     # deploy-interrupted member broadcasts with zero member action.
     try:
-        asyncio.create_task(_broadcast_resume_loop())
-        print("✅ Broadcast auto-resume loop started")
+        _spawn_bg(_broadcast_resume_loop())
+        print("✅ Broadcast auto-resume loop started (strong-ref held)")
     except Exception as e:
         print(f"⚠️ Broadcast resume loop failed to start: {e}")
 
@@ -53505,6 +53505,22 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
 # all requests — no DB table required (also sidesteps SKIP_MIGRATIONS).
 import uuid as _uuid
 
+# Strong references for fire-and-forget asyncio tasks. The event loop keeps
+# only WEAK refs to tasks — an unreferenced background task can be garbage-
+# collected mid-flight and simply vanish (no error, no log). This is exactly
+# what killed the broadcast resume loop (3 Jul 2026): created at startup,
+# never referenced, silently GC'd, zero passes ever ran while the identical
+# logic worked when invoked from a request. Python docs explicitly require
+# holding a reference. Done-callback discards keep the set from growing.
+_BG_TASKS = set()
+
+def _spawn_bg(coro):
+    t = asyncio.create_task(coro)
+    _BG_TASKS.add(t)
+    t.add_done_callback(_BG_TASKS.discard)
+    return t
+
+
 _BROADCAST_JOBS = {}      # job_id -> progress dict
 _BROADCAST_ACTIVE = {}    # user_id -> job_id (at most one live broadcast per member)
 _SES_MAX_PER_SEC = 10     # deliberate headroom under the SES 14/sec cap
@@ -53751,7 +53767,7 @@ async def _broadcast_resume_pass(db, report=None):
             "UPDATE member_broadcasts SET status='sending', updated_at=NOW() WHERE id=:i"
         ), {"i": r["id"]})
         db.commit()
-        asyncio.create_task(_run_broadcast_job(
+        _spawn_bg(_run_broadcast_job(
             job_id, uid, r["subject"], r["html_content"],
             r["filter_status"], r["filter_list_id"]))
         rep["spawned"].append({"row": r["id"], "job_id": job_id,
@@ -53917,7 +53933,7 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         "skipped_prior": 0, "bkey": bkey, "db_id": db_id,
     }
     _BROADCAST_ACTIVE[user.id] = job_id
-    asyncio.create_task(_run_broadcast_job(
+    _spawn_bg(_run_broadcast_job(
         job_id, user.id, subject, html_content, filter_status, filter_list_id))
     return {"ok": True, "job_id": job_id, "total": total, "status": "queued"}
 
@@ -58855,7 +58871,7 @@ async def api_blog_post_newsletter(post_id: int, request: Request, db: Session =
         "error": None,
     }
     _BROADCAST_ACTIVE[user.id] = job_id
-    asyncio.create_task(_run_broadcast_job(
+    _spawn_bg(_run_broadcast_job(
         job_id, user.id, subject, html_content, "all", list_id))
     return {"ok": True, "job_id": job_id, "total": total, "status": "queued"}
 
