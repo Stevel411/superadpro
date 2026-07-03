@@ -25281,6 +25281,7 @@ def admin_bsc_chunks_consolidate(
 @app.get("/admin/api/broadcast-state")
 def admin_broadcast_state(
     user_id: int = 0,
+    probe: int = 0,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -25309,7 +25310,31 @@ def admin_broadcast_state(
                 "created_at": str(r["created_at"]), "updated_at": str(r["updated_at"]),
                 "claims": {c["status"]: c["n"] for c in claims},
             })
-        return JSONResponse({"user_id": user_id, "broadcasts": out})
+        probe_result = None
+        if probe:
+            # Execute the EXACT claim statement inside a rolled-back
+            # transaction — reports the real database error (or success)
+            # without writing anything.
+            try:
+                row = db.execute(text("""
+                    INSERT INTO broadcast_log (broadcast_key, user_id, email_address, status)
+                    VALUES ('probe-diagnostic', 999999901, 'probe@diagnostic.local', 'sending')
+                    ON CONFLICT (broadcast_key, user_id) DO UPDATE
+                        SET status = 'sending', error_message = NULL, sent_at = NOW()
+                        WHERE broadcast_log.status = 'failed'
+                           OR (broadcast_log.status = 'sending'
+                               AND broadcast_log.sent_at < NOW() - INTERVAL '10 minutes')
+                    RETURNING id
+                """)).fetchone()
+                probe_result = {"ok": True, "returned_id": row[0] if row else None}
+            except Exception as pe:
+                probe_result = {"ok": False, "error": f"{type(pe).__name__}: {str(pe)[:400]}"}
+            finally:
+                try:
+                    db.rollback()
+                except Exception:
+                    pass
+        return JSONResponse({"user_id": user_id, "broadcasts": out, "claim_probe": probe_result})
     except Exception as e:
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:300]}"}, status_code=200)
 
@@ -53463,6 +53488,7 @@ def _broadcast_job_public(job):
         "deferred": job.get("deferred", 0),
         "skipped_prior": job.get("skipped_prior", 0),
         "remaining_after_cap": job.get("remaining_after_cap", 0),
+        "claim_errors": job.get("claim_errors", [])[:5],
     }
 
 
@@ -53532,11 +53558,24 @@ async def _run_broadcast_job(job_id, user_id, subject, html_content,
             # 'founder-*' keys so the namespaces can't collide).
             log_id = None
             if bkey:
+                claim_error = False
                 try:
                     log_id = _broadcast_claim_recipient(db, bkey, lead.id, lead.email)
                 except Exception as e:
+                    # 3 Jul bug: this branch printed "sending unclaimed" but
+                    # fell through to the skip below — an erroring claim
+                    # silently skipped EVERY lead ("Sent to 0 of 6"). A claim
+                    # exception now truly means send-without-dedupe, and the
+                    # session is rolled back so the failure can't poison
+                    # every subsequent statement in the loop.
+                    claim_error = True
+                    job.setdefault("claim_errors", []).append(f"lead {lead.id}: {type(e).__name__}: {str(e)[:200]}")
                     print(f"[broadcast/{job_id}] claim failed lead {lead.id}: {e} — sending unclaimed")
-                if bkey and log_id is None:
+                    try:
+                        db.rollback()
+                    except Exception:
+                        pass
+                if log_id is None and not claim_error:
                     job["skipped_prior"] = job.get("skipped_prior", 0) + 1
                     continue
             t0 = _time.monotonic()
