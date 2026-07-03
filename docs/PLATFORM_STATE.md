@@ -138,7 +138,7 @@
 6. **Retirement-aware scanner cleanup** — `commission_routing`/`pack_ownership`/`matrix_integrity` false-positive criticals for post-30-May flat-20%/no-matrix state (investigated 30 Jun: no real money problems).
 7. **i18n backlog** — 19 frontend locales stale on flat pricing keys (`863ae66` en-only); non-EN locales carry stale grid rates; backend training locales (de/es/fr/hi/it/pt) need retranslation vs 18-lesson corpus.
 8. **Dead code queued:** legacy Polygon handler bodies (~350 lines + `crypto_payments.py`); escrow subsystem (`_escrow_pending_commission`, `PendingCommission`, `_release_pending_for_user` — zero callers; handle existing pending rows in cleanup).
-9. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
+9. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats — NOTE: GridVisualiser retired-grid display fixed `ebf36ad3` 3 Jul, ledger phantom = $0.00 verified), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
 
 ## Open product decisions (Steve)
 
