@@ -8,6 +8,36 @@
 
 ---
 
+## Status as of 2026-07-03 — SEND-PROTECTION SYSTEM LIVE + DEPLOY PIPELINE OVERHAUL + OUTAGE RUNBOOK
+
+HEAD = `53befe56`. Two-day marathon (2–3 Jul), ~35 commits.
+
+### 2 Jul — infrastructure day
+- **Deploy pipeline overhauled** (`3fed6c91`, `e17838e2`): start.py port-binding stub REMOVED — it answered every request `{"status":"ok"}` during boot on EVERY deploy, silently swallowing Stripe/NOWPayments/SES webhooks (likely the historic "Stripe webhook reliability" mystery). Migrations now single-runner (advisory lock) + once-per-process — was 4×/deploy causing users-table lock storms. Retired the boot-time flat-pricing UPDATE that attempted to convert active Partners into Founders every boot. **Zero-downtime deploys verified live by continuous polling.**
+- **Production outage 10:25–11:30 UTC** — Railway private-network fault (app ↔ `postgres.railway.internal` TCP timeouts on IPv4+IPv6; MCP service unaffected). NOT code. **Runbook: restart the Postgres service, allow 10–15 min mesh propagation** (proven). Shipped `/health/db` (public one-tap probe) + global 503 for DB-connectivity errors (`16a79d75`).
+- **BSC scanner death-spiral fixed** (`dbd5ac2c`, `859be11d`, `3cf0ad27`): chunk boundaries drifted on a sliding floor, minting fresh failed-chunk rows every tick (367k rows / 116MB = 67% of the DB) while 600 retry RPCs/tick burned the quota that caused the failures. Fixed-grid alignment + retry throttle (200→25) + retention on the LIVE loop (first hook landed in the wrong scan variant — two parallel implementations exist). Consolidate one-shot abandoned 230,868 shingles. ~90% RPC cut. Steady state: single-digit pending.
+- **Treasury sweep of the outage week**: 4 unattributed inbounds (~$237) verified on-chain, then corrected by Steve — they are HIS just-in-time withdrawal funding top-ups from Binance (treasury deliberately ~zero post-breach). **Documented in PLATFORM_STATE (`df3af2a5`): unattributed treasury inbounds = funding top-ups by default; check withdrawals before assuming missed member payments.** Only real member payment in the window ($15.33 → user_264) was correctly credited.
+- **Railway cost**: replicas 2→1; `Postgres-3ZTY` confirmed empty (delete pending); `superadpro-renderer` = Remotion service for the orphaned `/video-creator` page, on 24/7 since April, zero nav links (decision pending).
+- **/help/custom-domain rebuilt** (`56a92899`) in the BlogDomain guided style: 671→227 lines.
+- **SuperLeads redesigned across five approved iterations** (`e19b5b97` → `50915f01` + fixes `ea67c49e`, `597ad2cf`, `da9178e6`, `6e08285b`, `c0f80fbf`, `9a25aa99`): hero removed → tab counts replace stat cards → SlimStatus strip → state-aware "Sending as" line → empty-state action cards → inline inputs replace window.prompt → responsive table → **toolBrand prop** (SuperLeads corner lockup + big topbar headline; pattern ready for SuperPages/Creative Studio/Ad Studio) → depth system + luxury type pass.
+- **Phantom chunk 404**: committed asset 404'd from origin across 3 deploys while provably on disk (`/health/assets` diagnostic shipped). Never root-caused; regenerating under a new hash fixed it. Lesson: comment-only edits don't change Rollup chunk hashes.
+
+### 3 Jul — send-protection system (Steve directive: protect from bad actors + explain to members)
+- **Phase 1** (`29a155ee`): volume-ramped per-member daily caps (lifetime sends <1k → 500/day "Warming up", <10k → 2,000 "Established", 10k+ → 5,000 "Trusted"), counted live from EmailSendLog, midnight-UTC reset, enforced in `_check_email_allowance` (every send path at once; sequences defer to next cron tick). Broadcasts send today's headroom then pause. `/admin/api/send-cap` override (app_config JSON). UI: "Today X/cap" chip + **"How it works" 5th tab** (tier ladder with YOU-ARE-HERE, pacing, resume promise, complaint-pause framing).
+- **Phase 2** (`29f538e7`): `member_broadcasts` durable header table + `_broadcast_resume_loop` — daily-capped AND deploy-interrupted broadcasts resume automatically, exactly-once via broadcast_log claims. Fixed a pre-existing silent bug: deploys used to kill in-flight broadcasts with the remainder never sending.
+- **Live test on test12 flushed SEVEN real defects**: send-cap NOT NULL on first override write (`0cb72e70`); claim-exception → skip cascade + session poisoning (`20723fd1` — fix + claim probe); **missing UNIQUE index on production** = the ON CONFLICT root cause (`f67cabdc` — ensure now wired into every claim path + `?fix=1`); wedged 'sending' claims never re-claimable (`0864983c`); send-log undercount (rollback ate uncommitted sibling row — self-resolved); **resume loop garbage-collected** (asyncio weak-ref trap; `53befe56` — `_spawn_bg` strong-ref registry for ALL background tasks incl. broadcast jobs); manual `resume-now` trigger + `broadcast-state` diagnostic (`350210eb`).
+- **Final test verdict: full chain production-proven** — blog capture → cap pause → durable row → resume (manually triggered) → claims `{"sent":6}` → ramp state accurate ("Warming up", 7 lifetime). Loop self-firing on its own timer: fix deployed, awaiting natural proof.
+- **Renewal lifecycle now self-escalating** (`03e5550e`, `3431ad53`): automatic **final-day warning** on day 4 of grace (notification + email, Founder variant reassures locked price survives lapse) between "5 days to renew" and "lapsed". Tappable `GET /admin/api/process-renewals`. test12 access question resolved: NOT a bug — auto-renewed from wallet balance ($20−$15=$5), 14 clean renewals network-wide in 96h.
+
+### Currently watching (3 Jul, ranked)
+1. **⏰ TODAY: tap `/admin/api/process-renewals`** — delivers the final-day notice to the ~30 founders whose grace ends ~4 Jul (today's 06:00 cron predates the feature). Tomorrow's cron lapses them either way — with the tap they get the promised warning first.
+2. **Resume-loop self-fire** — GC fix deployed; proven via manual trigger; unproven on its own 10-min timer. Manual lever: `/admin/api/broadcast-resume-now`.
+3. **First custom-domain production run** — still queued (config verified ON, `total_custom_domains: 0`).
+4. Railway housekeeping: resource caps 24/24→4/4, delete `Postgres-3ZTY`, renderer decision.
+5. SES quota increase pending; i18n backlog; dead-code queue (Polygon bodies, escrow subsystem).
+
+---
+
 ## Status as of 2026-07-02 — BLOG MEDIA SYSTEM DONE + GUIDED CUSTOM-DOMAIN PAGE
 
 HEAD = `769c6e529`. Full detail in `handover-2026-07-02.md`.

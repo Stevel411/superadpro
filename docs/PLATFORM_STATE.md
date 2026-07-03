@@ -84,7 +84,9 @@
 - **Allowance: 5,000/month free** (`MONTHLY_EMAIL_LIMIT`), then boost packs $3.75/$14.25/$21.75/$74.25 (1k/5k/10k/50k).
 - **SES quota:** approved 50,000/day + 14/sec; increase to 250,000/day + 50/sec requested 19 Jun, pending. When granted: set `SES_DAILY_SOFT_CAP≈230000` + `SES_MAX_PER_SEC≈45` in Railway, confirm via `/admin/api/ses-capacity`. Until then the in-app governor sits safely under live limits.
 - **Verify tool:** `GET /admin/api/test-email?to=addr`.
-- Open guardrail gaps: per-member hard send cap (only the 5k soft cap exists on a shared SES account); verify bounce/complaint auto-pause exists (`8c1633f93`?) before promoting the autoresponder hard; email body footer still SuperAdPro-branded.
+- **Send-protection system (3 Jul 2026, LIVE + production-proven):** per-member daily caps ramp with LIFETIME sends (<1k → 500/day, <10k → 2,000, 10k+ → 5,000; `app/send_limits.py`), enforced in `_check_email_allowance` (all send paths; sequences defer to next cron tick). Broadcasts: durable `member_broadcasts` rows + `broadcast_log` recipient claims (UNIQUE index REQUIRED — `_ensure_broadcast_log_table` must run on every claim path) = exactly-once delivery; daily-capped and deploy-interrupted broadcasts auto-resume (`_broadcast_resume_loop`, strong-ref'd — asyncio tasks WITHOUT strong refs get GC'd silently). Admin: `/admin/api/send-cap` (override), `/admin/api/broadcast-state?fix=1&probe=1` (diagnostics), `/admin/api/broadcast-resume-now` (manual pass). Member-facing: "Today X/cap" chip + "How it works" tab.
+- **Bounce/complaint auto-pause: VERIFIED EXISTS** — attributed SES complaint sets `users.email_sending_paused`, checked on every member send; admin unpause after review.
+- Remaining guardrail note: email body footer still SuperAdPro-branded.
 
 ---
 
@@ -131,11 +133,12 @@
 1. **First custom-domain production run (~3 Jul)** — see Custom domains above.
 2. **BSC scanner silent-stall risk** — orphaned advisory lock (27 May, ~6.5h) + succeed-with-empty-result RPC gap (Matt case): needs a no-tick alarm. Restart clears it.
 3. **Stripe webhook delivery reliability** — `invoice.paid` self-heal is catching missed `checkout.session.completed`; Stripe Dashboard delivery investigation still not done.
-4. **4-Jul founder renewal runway** — Steve's call on broadcast/extension.
-5. **Retirement-aware scanner cleanup** — `commission_routing`/`pack_ownership`/`matrix_integrity` false-positive criticals for post-30-May flat-20%/no-matrix state (investigated 30 Jun: no real money problems).
-6. **i18n backlog** — 19 frontend locales stale on flat pricing keys (`863ae66` en-only); non-EN locales carry stale grid rates; backend training locales (de/es/fr/hi/it/pt) need retranslation vs 18-lesson corpus.
-7. **Dead code queued:** legacy Polygon handler bodies (~350 lines + `crypto_payments.py`); escrow subsystem (`_escrow_pending_commission`, `PendingCommission`, `_release_pending_for_user` — zero callers; handle existing pending rows in cleanup).
-8. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
+4. **Lapse wave from 4 Jul** — ~30 overdue $0-balance founders lapse automatically as grace windows end (spots survive lapse; reactivation at locked price). Final-day warnings ship automatically going forward; the FIRST cohort needs one `GET /admin/api/process-renewals` tap on 3 Jul (the 06:00 cron predates the feature).
+5. **Broadcast resume-loop self-fire unproven** — GC strong-ref fix deployed (`53befe56`); identical logic proven via `/admin/api/broadcast-resume-now`; awaiting first natural timer-fired resume.
+6. **Retirement-aware scanner cleanup** — `commission_routing`/`pack_ownership`/`matrix_integrity` false-positive criticals for post-30-May flat-20%/no-matrix state (investigated 30 Jun: no real money problems).
+7. **i18n backlog** — 19 frontend locales stale on flat pricing keys (`863ae66` en-only); non-EN locales carry stale grid rates; backend training locales (de/es/fr/hi/it/pt) need retranslation vs 18-lesson corpus.
+8. **Dead code queued:** legacy Polygon handler bodies (~350 lines + `crypto_payments.py`); escrow subsystem (`_escrow_pending_commission`, `PendingCommission`, `_release_pending_for_user` — zero callers; handle existing pending rows in cleanup).
+9. Smaller tracked: stale-rate sweep (`/new-grid` still shows scrapped welcome-bonus plan; `PassupVisualiser.jsx` hard-codes 36 seats), Course Academy references (~17 files), `/achievements` still Jinja, `cache_invalidate_user()` namespace coverage, historical `membership_company` backfill (bookkeeping only), admin revenue 3-dp display.
 
 ## Open product decisions (Steve)
 
@@ -153,7 +156,7 @@
 | Service | Schedule | Status |
 |---|---|---|
 | `daily-briefing-cron` | `0 6 * * *` UTC | ✅ Live — curl image, `/cron/daily-briefing?secret=$CRON_SECRET`, email to Steve, idempotent per UTC date |
-| `process_auto_renewals` | rides daily-briefing | ✅ Live (22 Jun) — NOT a separate service, NOT in-process. Maintenance-guarded, idempotent per member-month; counts in the briefing email. Manual: `/admin/process-renewals`. |
+| `process_auto_renewals` | rides daily-briefing | ✅ Live (22 Jun) — idempotent per member-month. Lifecycle self-escalates (3 Jul): grace-start email → **automatic final-day warning on day 4** → lapse. Manual: `GET /admin/api/process-renewals` (tappable). |
 | BSC scanner | in-process, 30s | ⚠️ Live, stall-prone (Open Issue #3) |
 | Sending-domain verify | `/cron/verify-sending-domains` | ✅ Live |
 | Custom-domain cert polling | cron | ✅ Configured — exercised for real from first domain connection onward |
