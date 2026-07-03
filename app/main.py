@@ -25292,36 +25292,47 @@ def admin_send_cap(
     _require_admin(user)
     import json as _j
     from .send_limits import daily_state, _cache as _sl_cache
-    raw = db.execute(text("SELECT value FROM app_config WHERE key='send_cap_overrides'")).scalar()
-    overrides = {}
     try:
-        overrides = _j.loads(raw) if raw else {}
-    except Exception:
-        overrides = {}
-    if not user_id:
-        return JSONResponse({"overrides": overrides,
-                             "note": "?user_id=N&daily=X to set · daily=0 to clear · daily omitted to inspect"})
-    target = db.query(User).filter(User.id == user_id).first()
-    if not target:
-        return JSONResponse({"error": f"user {user_id} not found"}, status_code=200)
-    if daily >= 0:
-        if daily == 0:
-            overrides.pop(str(user_id), None)
-        else:
-            overrides[str(user_id)] = int(daily)
-        payload = _j.dumps(overrides)
-        updated = db.execute(text(
-            "UPDATE app_config SET value=:v WHERE key='send_cap_overrides'"), {"v": payload}).rowcount
-        if not updated:
-            db.execute(text(
-                "INSERT INTO app_config (key, value) VALUES ('send_cap_overrides', :v)"), {"v": payload})
-        db.commit()
-        _sl_cache.pop(user_id, None)
-    return JSONResponse({
-        "user_id": user_id, "username": target.username,
-        "override": overrides.get(str(user_id)),
-        "state": daily_state(db, target),
-    })
+        raw = db.execute(text("SELECT value FROM app_config WHERE key='send_cap_overrides'")).scalar()
+        try:
+            overrides = _j.loads(raw) if raw else {}
+        except Exception:
+            overrides = {}
+        if not user_id:
+            return JSONResponse({"overrides": overrides,
+                                 "note": "?user_id=N&daily=X to set · daily=0 to clear · daily omitted to inspect"})
+        target = db.query(User).filter(User.id == user_id).first()
+        if not target:
+            return JSONResponse({"error": f"user {user_id} not found"}, status_code=200)
+        if daily >= 0:
+            if daily == 0:
+                overrides.pop(str(user_id), None)
+            else:
+                overrides[str(user_id)] = int(daily)
+            payload = _j.dumps(overrides)
+            # app_config.updated_at is NOT NULL with an ORM-level default only —
+            # raw SQL must supply it explicitly (3 Jul bug: the first-ever
+            # INSERT omitted it -> NotNullViolation -> 500 on Steve's tap).
+            updated = db.execute(text(
+                "UPDATE app_config SET value=:v, updated_at=NOW() WHERE key='send_cap_overrides'"), {"v": payload}).rowcount
+            if not updated:
+                db.execute(text(
+                    "INSERT INTO app_config (key, value, updated_at) VALUES ('send_cap_overrides', :v, NOW())"), {"v": payload})
+            db.commit()
+            _sl_cache.pop(user_id, None)
+        return JSONResponse({
+            "user_id": user_id, "username": target.username,
+            "override": overrides.get(str(user_id)),
+            "state": daily_state(db, target),
+        })
+    except Exception as e:
+        import traceback
+        logger.error(f"send-cap failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
 
 
 @app.get("/cron/backup")
