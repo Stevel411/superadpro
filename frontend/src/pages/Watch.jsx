@@ -755,7 +755,7 @@ export default function Watch() {
                 ) : advCanSub ? (
                   <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(14,165,233,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
                 ) : (
-                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#eef2f8',color:'#94a3b8',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background: timerDone ? '#fffbeb' : '#eef2f8',color: timerDone ? '#b45309' : '#94a3b8',border: timerDone ? '1.5px solid #fcd34d' : 'none',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {timerDone ? t('watch.subscribeLockedReady',{defaultValue:'Tap “Mark as Watched” to unlock'}) : t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
                 )}
               </div>
             )}
