@@ -189,6 +189,7 @@ export default function Watch() {
   const [subOpen, setSubOpen] = useState(false);
   const [subBusy, setSubBusy] = useState(false);
   const [subDone, setSubDone] = useState({});
+  const [justCompleted, setJustCompleted] = useState({});
   const markAsWatched = async () => {
     // Preview mode hard-stop: campaign owners previewing their own ad
     // must NEVER hit /api/watch/complete. This guard is belt-and-braces
@@ -203,6 +204,7 @@ export default function Watch() {
     setMarkError(null);
     try {
       await apiPost('/api/watch/complete', { video_id: video.id });
+      setJustCompleted(p => ({ ...p, [video.id]: true }));
       const newData = await apiGet('/api/watch');
       const nextIdx = newData.videos.findIndex((v, i) => !v.is_watched);
       if (nextIdx >= 0 && nextIdx !== currentIdx) {
@@ -322,6 +324,7 @@ export default function Watch() {
   const ringOffset = ringC * (1 - Math.min(1, watched / limit));
   const isCurrentWatched = current?.is_watched;
   const advSubscribed = !!(current && (current.subscribed || subDone[current.id]));
+  const advCanSub = !!(current && (current.can_subscribe || isCurrentWatched || justCompleted[current.id]));
   async function doSubscribe(){
     if (!current || subBusy) return;
     setSubBusy(true);
@@ -749,7 +752,7 @@ export default function Watch() {
                 </div>
                 {advSubscribed ? (
                   <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#ecfdf5',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
-                ) : isCurrentWatched ? (
+                ) : advCanSub ? (
                   <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(14,165,233,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
                 ) : (
                   <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#eef2f8',color:'#94a3b8',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>

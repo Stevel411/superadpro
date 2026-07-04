@@ -52366,9 +52366,19 @@ def _watch_sub_fields(db: Session, viewer, campaign) -> dict:
                   .filter(MemberLead.user_id == owner.id,
                           MemberLead.email == (viewer.email or "").lower(),
                           MemberLead.status != "unsubscribed").first())
-        return {"advertiser": owner.username, "subscribed": bool(lead)}
+        # can_subscribe mirrors the subscribe endpoint's proof-of-watch rule
+        # EXACTLY: any completed watch, any date. The is_watched flag in the
+        # payload is TODAY-only (quota state) and must never gate the button —
+        # that mismatch shipped as a live bug on 4 Jul (button stayed locked
+        # on resumed/other-day videos the member had already earned).
+        ever = (db.query(VideoWatch)
+                  .filter(VideoWatch.user_id == viewer.id,
+                          VideoWatch.campaign_id == campaign.id,
+                          VideoWatch.is_complete == True).first())
+        return {"advertiser": owner.username, "subscribed": bool(lead),
+                "can_subscribe": bool(ever)}
     except Exception:
-        return {"advertiser": None, "subscribed": False}
+        return {"advertiser": None, "subscribed": False, "can_subscribe": False}
 
 
 @app.post("/api/watch/subscribe")
