@@ -186,6 +186,9 @@ export default function Watch() {
   }, []);
 
   const [markError, setMarkError] = useState(null);
+  const [subOpen, setSubOpen] = useState(false);
+  const [subBusy, setSubBusy] = useState(false);
+  const [subDone, setSubDone] = useState({});
   const markAsWatched = async () => {
     // Preview mode hard-stop: campaign owners previewing their own ad
     // must NEVER hit /api/watch/complete. This guard is belt-and-braces
@@ -318,6 +321,20 @@ export default function Watch() {
   const ringC = 2 * Math.PI * ringR;
   const ringOffset = ringC * (1 - Math.min(1, watched / limit));
   const isCurrentWatched = current?.is_watched;
+  const advSubscribed = !!(current && (current.subscribed || subDone[current.id]));
+  async function doSubscribe(){
+    if (!current || subBusy) return;
+    setSubBusy(true);
+    try {
+      await apiPost('/api/watch/subscribe', { campaign_id: current.id });
+      setSubDone(p => ({ ...p, [current.id]: true }));
+      setSubOpen(false);
+    } catch(e) {
+      setMarkError((e && e.message) || 'Could not subscribe — try again');
+      setSubOpen(false);
+    }
+    setSubBusy(false);
+  }
   const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
   const quotaComplete = isExempt || d.quota_reached || watched >= limit;
   // Live progress fraction for the "Today's Progress" ring. Combines:
@@ -717,6 +734,28 @@ export default function Watch() {
                 </button>
               </div>
             )}
+
+            {/* Subscribe to the advertiser (4 Jul 2026): unlocks after the
+                watch verifies; per-advertiser state; never paid, never
+                required — independent of watch qualification. */}
+            {!isPreviewMode && current?.advertiser && (
+              <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',borderTop:'1px solid #f1f3f7'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
+                  <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:13,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{current.advertiser.charAt(0).toUpperCase()}</div>
+                  <div style={{minWidth:0}}>
+                    <div style={{fontSize:13.5,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>@{current.advertiser}</div>
+                    <div style={{fontSize:11.5,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.runsCampaign',{defaultValue:'runs this campaign'})}</div>
+                  </div>
+                </div>
+                {advSubscribed ? (
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#ecfdf5',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
+                ) : isCurrentWatched ? (
+                  <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(14,165,233,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
+                ) : (
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#eef2f8',color:'#94a3b8',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ── MOBILE: Timer + Mark button ── */}
@@ -883,6 +922,23 @@ export default function Watch() {
           )}
         </div>
       </div>
+
+      {/* Subscribe consent modal */}
+      {subOpen && current && (
+        <div onClick={()=>setSubOpen(false)} style={{position:'fixed',inset:0,background:'rgba(10,20,56,.55)',zIndex:120,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,maxWidth:400,width:'100%',padding:24,boxShadow:'0 24px 64px rgba(10,20,56,.35)'}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,marginBottom:10,color:'#0f172a'}}>{t('watch.subModalTitle',{defaultValue:'Join this mailing list?'})}</div>
+            <div style={{fontSize:13.5,color:'#475569',fontWeight:600,lineHeight:1.6,marginBottom:8}}>
+              {t('watch.subModalBody',{defaultValue:'Your member email will be shared with'})} <b style={{color:'#0f172a'}}>@{current.advertiser}</b> {t('watch.subModalBody2',{defaultValue:'so they can send you their emails.'})}
+            </div>
+            <div style={{fontSize:11.5,color:'#94a3b8',fontWeight:600,marginBottom:16}}>{t('watch.subModalFine',{defaultValue:'You can unsubscribe anytime from any email they send. SuperAdPro never shares your email without a confirmation like this one.'})}</div>
+            <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+              <button onClick={()=>setSubOpen(false)} style={{background:'#fff',border:'1.5px solid #cbd5e1',color:'#475569',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('common.cancel',{defaultValue:'Cancel'})}</button>
+              <button onClick={doSubscribe} disabled={subBusy} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',opacity:subBusy?0.6:1}}>{subBusy ? '…' : t('watch.subModalYes',{defaultValue:'Yes — join the list'})}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }

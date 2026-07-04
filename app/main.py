@@ -52334,6 +52334,111 @@ def admin_watch_pool_debug(user_id: int = 0,
     }
 
 
+def _ensure_w2e_lead_list(owner, db: Session) -> int:
+    """Find-or-create the advertiser's single 'Watch-to-Earn subscribers'
+    list (one list per advertiser, campaign recorded per-lead in source_url —
+    avoids list sprawl and double-nurture across campaigns). Mirrors the
+    blog-subscribe pattern."""
+    ll = (db.query(LeadList)
+            .filter(LeadList.user_id == owner.id,
+                    LeadList.name == "Watch-to-Earn subscribers").first())
+    if ll:
+        return ll.id
+    ll = LeadList(user_id=owner.id, name="Watch-to-Earn subscribers",
+                  description="Members who subscribed from your video campaigns",
+                  color="#f59e0b")
+    db.add(ll)
+    db.commit()
+    db.refresh(ll)
+    return ll.id
+
+
+def _watch_sub_fields(db: Session, viewer, campaign) -> dict:
+    """Advertiser identity + per-advertiser subscribe state for the watch
+    payload. Subscription is PER-ADVERTISER: a lead with this viewer's email
+    anywhere in the advertiser's CRM (blog list, W2E list, funnel) counts —
+    being captured twice by the same person makes no sense."""
+    try:
+        owner = db.query(User).filter(User.id == campaign.user_id).first()
+        if not owner:
+            return {"advertiser": None, "subscribed": False}
+        lead = (db.query(MemberLead)
+                  .filter(MemberLead.user_id == owner.id,
+                          MemberLead.email == (viewer.email or "").lower(),
+                          MemberLead.status != "unsubscribed").first())
+        return {"advertiser": owner.username, "subscribed": bool(lead)}
+    except Exception:
+        return {"advertiser": None, "subscribed": False}
+
+
+@app.post("/api/watch/subscribe")
+async def api_watch_subscribe(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Subscribe button on Watch-to-Earn (4 Jul 2026, Steve greenlight).
+    One deliberate tap AFTER a verified watch adds the viewer's member email
+    to the advertiser's SuperLeads. Hard rules: never auto-capture, never
+    paid, never required — watching pay and subscription state are fully
+    independent. Unsubscribed leads re-opt-in via a fresh tap (reactivates,
+    never duplicates); 'sent'-state per-advertiser so no video by the same
+    advertiser ever asks twice."""
+    try:
+        body = await request.json()
+        campaign_id = int(body.get("campaign_id") or 0)
+        campaign = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
+        if not campaign:
+            return JSONResponse({"error": "Campaign not found"}, status_code=404)
+        if campaign.user_id == user.id:
+            return JSONResponse({"error": "That's your own campaign"}, status_code=400)
+        # Proof-of-watch: subscribing is something watching earns the right
+        # to do. Any verified (completed) watch of this campaign qualifies.
+        proof = (db.query(VideoWatch)
+                   .filter(VideoWatch.user_id == user.id,
+                           VideoWatch.campaign_id == campaign.id,
+                           VideoWatch.is_complete == True).first())
+        if not proof:
+            return JSONResponse({"error": "Watch the video first"}, status_code=400)
+        owner = db.query(User).filter(User.id == campaign.user_id).first()
+        if not owner:
+            return JSONResponse({"error": "Advertiser not found"}, status_code=404)
+        email = (user.email or "").lower()
+        if not email:
+            return JSONResponse({"error": "Your account has no email"}, status_code=400)
+        existing = (db.query(MemberLead)
+                      .filter(MemberLead.user_id == owner.id,
+                              MemberLead.email == email).first())
+        if existing and existing.status != "unsubscribed":
+            return JSONResponse({"ok": True, "state": "already",
+                                 "advertiser": owner.username})
+        if existing:  # unsubscribed -> fresh explicit tap = fresh consent
+            existing.status = "new"
+            existing.source_url = f"/watch?c={campaign.id}&m={user.id}&resub=1"
+            db.commit()
+            return JSONResponse({"ok": True, "state": "resubscribed",
+                                 "advertiser": owner.username})
+        list_id = _ensure_w2e_lead_list(owner, db)
+        db.add(MemberLead(user_id=owner.id, email=email,
+                          name=user.username,
+                          source_url=f"/watch?c={campaign.id}&m={user.id}",
+                          list_id=list_id, status="new"))
+        ll = db.query(LeadList).filter(LeadList.id == list_id).first()
+        if ll:
+            ll.lead_count = (ll.lead_count or 0) + 1
+        db.commit()
+        return JSONResponse({"ok": True, "state": "subscribed",
+                             "advertiser": owner.username})
+    except Exception as e:
+        import traceback
+        logger.error(f"watch-subscribe failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": "Something went wrong — try again"}, status_code=500)
+
+
 @app.get("/api/watch")
 @limiter.limit("30/minute")
 def api_watch_data(request: Request, user: User = Depends(get_current_user),
@@ -52402,6 +52507,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                         "platform": forced_c.platform or "youtube",
                         "category": forced_c.category or "General",
                         "embed_url": forced_c.embed_url,
+                        **_watch_sub_fields(db, user, forced_c),
                         "cta_url": forced_c.cta_url or None,
                         "is_watched": False,
                         "seconds_remaining": seconds_remaining,
@@ -52420,6 +52526,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                         c = next_content["data"]
                         next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
                                       "category": c.category or "General", "embed_url": c.embed_url,
+                                      **_watch_sub_fields(db, user, c),
                                       "cta_url": c.cta_url or None, "is_watched": False,
                                       "seconds_remaining": WATCH_DURATION,
                                       "is_resumed": False}
