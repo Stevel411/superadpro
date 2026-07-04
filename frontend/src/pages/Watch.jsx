@@ -190,6 +190,7 @@ export default function Watch() {
   const [subBusy, setSubBusy] = useState(false);
   const [subDone, setSubDone] = useState({});
   const [justCompleted, setJustCompleted] = useState({});
+  const [holdAfterComplete, setHoldAfterComplete] = useState(false);
   const markAsWatched = async () => {
     // Preview mode hard-stop: campaign owners previewing their own ad
     // must NEVER hit /api/watch/complete. This guard is belt-and-braces
@@ -206,11 +207,22 @@ export default function Watch() {
       await apiPost('/api/watch/complete', { video_id: video.id });
       setJustCompleted(p => ({ ...p, [video.id]: true }));
       const newData = await apiGet('/api/watch');
-      const nextIdx = newData.videos.findIndex((v, i) => !v.is_watched);
-      if (nextIdx >= 0 && nextIdx !== currentIdx) {
-        setCurrentIdx(-1); setData(newData);
-        setTimeout(() => setCurrentIdx(nextIdx), 50);
-      } else { setData(newData); setSubmitted(false); }
+      // Hold the moment (4 Jul): if the just-watched video's subscribe is
+      // still available, KEEP rendering it — quota-complete page and
+      // next-video advance both stole the capture moment the instant it
+      // unlocked. Member moves on via the explicit Continue button.
+      const keepIdx = newData.videos.findIndex(v => v.id === video.id);
+      const vNew = keepIdx >= 0 ? newData.videos[keepIdx] : null;
+      if (vNew && vNew.advertiser && !vNew.subscribed && !subDone[video.id]) {
+        setData(newData); setCurrentIdx(keepIdx);
+        setHoldAfterComplete(true); setSubmitted(false);
+      } else {
+        const nextIdx = newData.videos.findIndex((v) => !v.is_watched);
+        if (nextIdx >= 0 && nextIdx !== currentIdx) {
+          setCurrentIdx(-1); setData(newData);
+          setTimeout(() => setCurrentIdx(nextIdx), 50);
+        } else { setData(newData); setSubmitted(false); }
+      }
     } catch (e) {
       setSubmitted(false);
       // Try to parse server-provided remaining-seconds if this is a timing error
@@ -430,7 +442,7 @@ export default function Watch() {
   }
 
   // ── QUOTA COMPLETE ──
-  if (quotaComplete) {
+  if (quotaComplete && !holdAfterComplete) {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
@@ -735,6 +747,13 @@ export default function Watch() {
                   className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}>
                   {submitted ? t('watch.submitting') : t('watch.markAsWatched')}
                 </button>
+              </div>
+            )}
+
+            {holdAfterComplete && isCurrentWatched && (
+              <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',background:'#f0fdf4',borderTop:'1px solid #bbf7d0'}}>
+                <div style={{fontSize:13.5,fontWeight:800,color:'#166534'}}>✓ {t('watch.watchCounted',{defaultValue:'Watch counted'})}{quotaComplete ? ' — ' + t('watch.quotaDoneShort',{defaultValue:'daily quota complete'}) : ''}</div>
+                <button onClick={()=>{ setHoldAfterComplete(false); const ni = videos.findIndex(v=>!v.is_watched); if (ni >= 0 && ni !== currentIdx) { setCurrentIdx(-1); setTimeout(()=>setCurrentIdx(ni),50); } }} style={{background:'#fff',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('watch.continueBtn',{defaultValue:'Continue'})} →</button>
               </div>
             )}
 
