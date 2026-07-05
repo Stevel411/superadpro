@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join {{FIRST_NAME}} on SuperAdPro — real tools, real audience, recurring income</title>
+<meta name="description" content="The all-in-one creator platform: AI creative tools, pages, autoresponder and video advertising — plus a comp plan that pays monthly. Free to start.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Join {{FIRST_NAME}} on SuperAdPro">
+<meta property="og:description" content="Real tools. A real audience. Real recurring income — 100% of campaign revenue shared with members. Free account, no card to start.">
+<meta property="og:site_name" content="SuperAdPro">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  :root{--ink:#0a1438;--ink2:#1e2c54;--dim:#5b6b8c;--line:#e6edf8;
+    --cy1:#0891b2;--cy2:#06b6d4;--cy3:#22d3ee;--sky:#0ea5e9;
+    --grn:#16a34a;--grn2:#22c55e;--gold:#f59e0b;--vio:#7c3aed;--cob:#1e3a8a;
+    --shadow:0 30px 70px -36px rgba(20,45,110,.32);--shadow-sm:0 14px 36px -20px rgba(20,45,110,.30)}
+  body{font-family:'DM Sans',sans-serif;color:var(--ink);background:#fff;position:relative}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:linear-gradient(118deg,transparent 0 58%,rgba(6,182,212,.06) 58% 63%,transparent 63%),
+               linear-gradient(118deg,transparent 0 70%,rgba(124,58,237,.05) 70% 74%,transparent 74%),
+               linear-gradient(118deg,transparent 0 34%,rgba(14,165,233,.04) 34% 38%,transparent 38%)}
+  .z{position:relative;z-index:1}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  .nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .navin{max-width:880px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:12px 20px}
+  .mk{display:flex;align-items:center;gap:10px}
+  .mk .tile{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cy2),var(--cob));display:grid;place-items:center}
+  .mk .tile svg{width:15px;height:15px;fill:#fff}
+  .mk b{font-family:Sora;font-size:16px}
+  .mk b i{color:var(--cy1);font-style:normal}
+  .shared{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700;color:var(--ink2);box-shadow:var(--shadow-sm)}
+  .shared .dot{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--cy3));font-family:Sora;font-size:10px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+
+  .hero{background:radial-gradient(80% 90% at 90% 0%,#eaf3ff 0%,transparent 55%),radial-gradient(70% 80% at 0% 100%,#f0ecff 0%,transparent 55%),linear-gradient(180deg,#fbfdff,#f4f8ff);padding:54px 0 48px;text-align:center}
+  .eyebrow{font-family:Sora;font-size:11px;font-weight:800;letter-spacing:.24em;color:var(--cy1);margin-bottom:16px}
+  h1{font-family:Sora;font-size:clamp(30px,5.4vw,46px);font-weight:800;letter-spacing:-1px;line-height:1.08;margin-bottom:16px}
+  h1 .g{background:linear-gradient(115deg,var(--cy1),var(--cy2) 55%,var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:17px;color:var(--ink2);font-weight:500;line-height:1.6;max-width:640px;margin:0 auto 26px}
+  .sub b{color:var(--ink)}
+  .cta{display:inline-block;background:linear-gradient(135deg,var(--cy1),var(--cob));color:#fff;border:none;border-radius:12px;padding:16px 34px;font-family:Sora;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 18px 38px -14px rgba(8,145,178,.55);text-decoration:none}
+  .micro{font-size:12.5px;color:var(--dim);font-weight:700;margin-top:14px}
+  .micro i{color:var(--grn);font-style:normal}
+
+  section{padding:50px 0}
+  .kicker{font-family:Sora;font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--cy1);margin-bottom:10px;text-align:center}
+  h2{font-family:Sora;font-size:clamp(23px,3.6vw,30px);font-weight:800;letter-spacing:-.5px;text-align:center;margin-bottom:14px}
+  .lede{font-size:15px;color:var(--dim);font-weight:500;line-height:1.65;text-align:center;max-width:640px;margin:0 auto 32px}
+  .lede b{color:var(--ink2)}
+
+  .opp{background:linear-gradient(180deg,#fbfdff,#f0f6ff);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:820px;margin:0 auto 22px}
+  .stat{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:22px 20px;text-align:center;box-shadow:var(--shadow-sm)}
+  .stat .big{font-family:Sora;font-size:30px;font-weight:800;line-height:1.1;margin-bottom:6px}
+  .stat .big.gold{color:var(--gold)} .stat .big.grn{color:var(--grn)} .stat .big.cy{color:var(--cy1)}
+  .stat p{font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.5}
+  .stat p b{color:var(--ink2)}
+  .oppdetail{max-width:680px;margin:0 auto 20px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:20px 24px;box-shadow:var(--shadow-sm)}
+  .oline{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f1f5fb;font-size:13.5px;color:var(--ink2);font-weight:500;line-height:1.55}
+  .oline:last-child{border:none}
+  .oline .tick{color:var(--grn);font-weight:800;flex-shrink:0}
+  .oline b{color:var(--ink)}
+  .illus{max-width:680px;margin:0 auto;background:#0a1438;border-radius:14px;padding:20px 24px;color:#fff}
+  .illus .lbl{font-family:Sora;font-size:10px;font-weight:800;letter-spacing:.2em;color:#67e8f9;margin-bottom:12px}
+  .irow{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(143,164,216,.2);font-size:13.5px;font-weight:600;color:#c7d6f5}
+  .irow b{font-family:'JetBrains Mono';color:#fff}
+  .irow:last-of-type{border:none}
+  .illus .fine{font-size:10.5px;color:#8fa4d8;font-weight:600;margin-top:10px;line-height:1.55}
+  .oppdisc{max-width:680px;margin:16px auto 0;font-size:11px;color:var(--dim);font-weight:600;text-align:center;line-height:1.6}
+
+  .loop{display:flex;flex-direction:column;gap:14px;max-width:660px;margin:0 auto}
+  .lstep{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+  .lnum{width:30px;height:30px;border-radius:50%;font-family:Sora;font-weight:800;font-size:13px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .lstep b{font-family:Sora;font-size:15px;display:block;margin-bottom:4px}
+  .lstep p{font-size:13.5px;color:var(--dim);font-weight:500;line-height:1.55}
+  .vig{margin-top:12px;background:#fbfdff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .vig .who{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink2)}
+  .vig .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--cob),var(--sky));color:#fff;font-family:Sora;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .vig .btn{background:linear-gradient(135deg,var(--sky),var(--cy2));color:#fff;border-radius:8px;padding:7px 13px;font-family:Sora;font-size:11px;font-weight:800}
+  .vig .lead{font-family:'JetBrains Mono';font-size:11px;color:var(--grn);font-weight:600}
+
+  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;max-width:840px;margin:0 auto}
+  .tool{border-radius:14px;padding:20px 18px;color:#fff;box-shadow:var(--shadow-sm)}
+  .tool b{font-family:Sora;font-size:15.5px;display:block;margin-bottom:5px}
+  .tool p{font-size:12.5px;font-weight:600;line-height:1.5;opacity:.92}
+  .t1{background:linear-gradient(135deg,#0891b2,#22d3ee)}
+  .t2{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+  .t3{background:linear-gradient(135deg,#16a34a,#22c55e)}
+  .t4{background:linear-gradient(135deg,#d97706,#f59e0b)}
+
+  .whycard{max-width:660px;margin:0 auto;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)}
+  .whycard p{font-size:14.5px;color:var(--ink2);font-weight:500;line-height:1.7;margin-bottom:12px}
+  .whycard p:last-child{margin-bottom:0}
+  .whycard p b{color:var(--ink)}
+  .whycard .hl{color:var(--cy1);font-weight:800}
+
+  .steps3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;max-width:740px;margin:0 auto}
+  .s3{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:20px 18px;box-shadow:var(--shadow-sm);text-align:center}
+  .s3 .n{width:34px;height:34px;border-radius:50%;background:var(--cob);color:#fff;font-family:Sora;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+  .s3 b{font-family:Sora;font-size:14px;display:block;margin-bottom:5px}
+  .s3 p{font-size:12.5px;color:var(--dim);font-weight:500;line-height:1.5}
+
+  .final{background:linear-gradient(135deg,var(--ink),var(--cob));text-align:center;color:#fff}
+  .final h2{color:#fff}
+  .final .lede{color:#c7d6f5}
+  .final .cta{background:#fff;color:var(--cob)}
+  .final .micro{color:#8fa4d8}
+  .final .micro i{color:#67e8f9}
+  .fine{padding:26px 0 40px;text-align:center;font-size:10.5px;color:#9aa9c7;font-weight:600;line-height:1.7}
+
+  /* ── Motion ── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  @keyframes breathe{0%,100%{box-shadow:0 18px 38px -14px rgba(8,145,178,.55)}50%{box-shadow:0 22px 52px -12px rgba(8,145,178,.85)}}
+  @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+  .hero .eyebrow,.hero h1,.hero .sub,.hero .cta,.hero .micro{animation:fadeUp .7s cubic-bezier(.2,.7,.2,1) both}
+  .hero h1{animation-delay:.08s}.hero .sub{animation-delay:.16s}.hero .cta{animation-delay:.26s}.hero .micro{animation-delay:.34s}
+  h1 .g{background-size:220% 220%;animation:fadeUp .7s .08s cubic-bezier(.2,.7,.2,1) both,gradShift 6s 1s ease-in-out infinite}
+  .hero .cta{animation:fadeUp .7s .26s cubic-bezier(.2,.7,.2,1) both,breathe 3.2s 1.2s ease-in-out infinite}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .stagger>*{opacity:0;transform:translateY(18px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+  .stagger.in>*{opacity:1;transform:none}
+  .stagger.in>*:nth-child(2){transition-delay:.1s}.stagger.in>*:nth-child(3){transition-delay:.2s}.stagger.in>*:nth-child(4){transition-delay:.3s}
+  .tool{transition:transform .25s ease,box-shadow .25s ease}
+  .tool:hover{transform:translateY(-5px);box-shadow:0 22px 44px -18px rgba(20,45,110,.45)}
+  .stat{transition:transform .25s ease}
+  .stat:hover{transform:translateY(-4px)}
+  .vig .btn.state-lock{background:#eef2f8;color:#94a3b8}
+  .vig .btn.state-done{background:#ecfdf5;color:#047857;border:1.5px solid #a7f3d0}
+  .vig .btn{transition:all .35s ease;animation:popIn .35s ease both}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .reveal,.stagger>*{opacity:1!important;transform:none!important}
+  }
+
+  /* ═══ THEME SYSTEM — sales-page artistic licence ═══ */
+  body,.nav,.stat,.oppdetail,.lstep,.s3,.whycard,.vig,.illus,.shared{transition:background .45s ease,color .45s ease,border-color .45s ease}
+
+  /* ── B. MIDNIGHT GOLD — dark opportunity aesthetic ── */
+  body[data-theme="midnight"]{background:#070d24;color:#eef2ff}
+  body[data-theme="midnight"]::before{background:
+    linear-gradient(118deg,transparent 0 58%,rgba(245,158,11,.06) 58% 63%,transparent 63%),
+    linear-gradient(118deg,transparent 0 70%,rgba(34,211,238,.05) 70% 74%,transparent 74%)}
+  body[data-theme="midnight"] .nav{background:rgba(7,13,36,.85);border-bottom-color:rgba(148,163,216,.18)}
+  body[data-theme="midnight"] .mk b{color:#fff}
+  body[data-theme="midnight"] .shared{background:#0d1631;border-color:rgba(148,163,216,.25);color:#c7d2f0}
+  body[data-theme="midnight"] .hero{background:radial-gradient(80% 90% at 90% 0%,rgba(245,158,11,.13) 0%,transparent 55%),radial-gradient(70% 80% at 0% 100%,rgba(34,211,238,.10) 0%,transparent 55%),linear-gradient(180deg,#070d24,#0b1533)}
+  body[data-theme="midnight"] h1,body[data-theme="midnight"] h2{color:#fff}
+  body[data-theme="midnight"] h1 .g{background-image:linear-gradient(115deg,#fbbf24,#f59e0b 45%,#22d3ee)}
+  body[data-theme="midnight"] .sub{color:#b9c9ef}
+  body[data-theme="midnight"] .sub b,body[data-theme="midnight"] .lede b{color:#fff}
+  body[data-theme="midnight"] .kicker{color:#fbbf24}
+  body[data-theme="midnight"] .lede{color:#9fb0d8}
+  body[data-theme="midnight"] .cta{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#2a1602;box-shadow:0 18px 38px -14px rgba(245,158,11,.6)}
+  body[data-theme="midnight"] .hero .cta{animation:fadeUp .7s .26s cubic-bezier(.2,.7,.2,1) both}
+  body[data-theme="midnight"] .micro{color:#8fa4d8}
+  body[data-theme="midnight"] .opp{background:linear-gradient(180deg,#0a1230,#0d1738);border-color:rgba(148,163,216,.18)}
+  body[data-theme="midnight"] .stat,body[data-theme="midnight"] .oppdetail,body[data-theme="midnight"] .lstep,body[data-theme="midnight"] .s3,body[data-theme="midnight"] .whycard{background:#0d1631;border-color:rgba(148,163,216,.22)}
+  body[data-theme="midnight"] .stat .big.gold{color:#fbbf24}
+  body[data-theme="midnight"] .stat .big.cy{color:#22d3ee}
+  body[data-theme="midnight"] .stat .big.grn{color:#34d399}
+  body[data-theme="midnight"] .stat p,body[data-theme="midnight"] .lstep p,body[data-theme="midnight"] .s3 p,body[data-theme="midnight"] .lede{color:#9fb0d8}
+  body[data-theme="midnight"] .stat p b,body[data-theme="midnight"] .oline b,body[data-theme="midnight"] .lstep b,body[data-theme="midnight"] .s3 b,body[data-theme="midnight"] .whycard p b{color:#fff}
+  body[data-theme="midnight"] .oline{color:#c7d2f0;border-color:rgba(148,163,216,.14)}
+  body[data-theme="midnight"] .illus{background:#131f45;border:1px solid rgba(251,191,36,.3)}
+  body[data-theme="midnight"] .oppdisc{color:#8fa4d8}
+  body[data-theme="midnight"] .vig{background:#0a142e;border-color:rgba(148,163,216,.2)}
+  body[data-theme="midnight"] .vig .who{color:#c7d2f0}
+  body[data-theme="midnight"] .whycard p{color:#c7d2f0}
+  body[data-theme="midnight"] .whycard .hl{color:#fbbf24}
+  body[data-theme="midnight"] .why{background:linear-gradient(180deg,#0a1230,#0d1738);border-color:rgba(148,163,216,.18)}
+  body[data-theme="midnight"] .final{background:linear-gradient(135deg,#04081c,#0d1738)}
+  body[data-theme="midnight"] .final .cta{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#2a1602}
+  body[data-theme="midnight"] .fine{color:#5b6b9c}
+
+  /* ── C. EMERALD — the money palette, light ── */
+  body[data-theme="emerald"] h1 .g{background-image:linear-gradient(115deg,#059669,#10b981 55%,#f59e0b)}
+  body[data-theme="emerald"]::before{background:
+    linear-gradient(118deg,transparent 0 58%,rgba(16,185,129,.07) 58% 63%,transparent 63%),
+    linear-gradient(118deg,transparent 0 70%,rgba(245,158,11,.05) 70% 74%,transparent 74%)}
+  body[data-theme="emerald"] .hero{background:radial-gradient(80% 90% at 90% 0%,#e5f7ef 0%,transparent 55%),radial-gradient(70% 80% at 0% 100%,#fdf4e3 0%,transparent 55%),linear-gradient(180deg,#fcfefd,#f2faf6)}
+  body[data-theme="emerald"] .kicker{color:#059669}
+  body[data-theme="emerald"] .cta{background:linear-gradient(135deg,#059669,#047857);box-shadow:0 18px 38px -14px rgba(5,150,105,.55)}
+  body[data-theme="emerald"] .stat .big.cy{color:#059669}
+  body[data-theme="emerald"] .opp{background:linear-gradient(180deg,#fcfefd,#eefaf4);border-color:#d7ece2}
+  body[data-theme="emerald"] .stat,body[data-theme="emerald"] .oppdetail{border-color:#d7ece2}
+  body[data-theme="emerald"] .illus{background:#052e1c}
+  body[data-theme="emerald"] .illus .lbl{color:#6ee7b7}
+  body[data-theme="emerald"] .why{background:linear-gradient(180deg,#fcfefd,#eefaf4);border-color:#d7ece2}
+  body[data-theme="emerald"] .whycard .hl{color:#059669}
+  body[data-theme="emerald"] .final{background:linear-gradient(135deg,#052e1c,#065f46)}
+  body[data-theme="emerald"] .final .cta{color:#065f46}
+  body[data-theme="emerald"] .s3 .n{background:#059669}
+
+  /* ── D. VOLTAGE — dark neon, scroll-stopper ── */
+  body[data-theme="voltage"]{background:#12061f;color:#f5edff}
+  body[data-theme="voltage"]::before{background:
+    linear-gradient(118deg,transparent 0 58%,rgba(217,70,239,.08) 58% 63%,transparent 63%),
+    linear-gradient(118deg,transparent 0 70%,rgba(34,211,238,.06) 70% 74%,transparent 74%)}
+  body[data-theme="voltage"] .nav{background:rgba(18,6,31,.85);border-bottom-color:rgba(196,181,253,.2)}
+  body[data-theme="voltage"] .mk b{color:#fff}
+  body[data-theme="voltage"] .shared{background:#1d0f33;border-color:rgba(196,181,253,.3);color:#dcd0f2}
+  body[data-theme="voltage"] .hero{background:radial-gradient(80% 90% at 90% 0%,rgba(217,70,239,.18) 0%,transparent 55%),radial-gradient(70% 80% at 0% 100%,rgba(34,211,238,.12) 0%,transparent 55%),linear-gradient(180deg,#12061f,#1a0b2e)}
+  body[data-theme="voltage"] h1,body[data-theme="voltage"] h2{color:#fff}
+  body[data-theme="voltage"] h1 .g{background-image:linear-gradient(115deg,#e879f9,#a78bfa 50%,#22d3ee)}
+  body[data-theme="voltage"] .sub{color:#c9b8e8}
+  body[data-theme="voltage"] .sub b,body[data-theme="voltage"] .lede b{color:#fff}
+  body[data-theme="voltage"] .kicker{color:#e879f9}
+  body[data-theme="voltage"] .lede{color:#b9a3d8}
+  body[data-theme="voltage"] .cta{background:linear-gradient(135deg,#d946ef,#7c3aed);box-shadow:0 18px 38px -14px rgba(217,70,239,.6)}
+  body[data-theme="voltage"] .micro{color:#a78fc9}
+  body[data-theme="voltage"] .opp{background:linear-gradient(180deg,#180a2b,#1d0f33);border-color:rgba(196,181,253,.2)}
+  body[data-theme="voltage"] .stat,body[data-theme="voltage"] .oppdetail,body[data-theme="voltage"] .lstep,body[data-theme="voltage"] .s3,body[data-theme="voltage"] .whycard{background:#1d0f33;border-color:rgba(196,181,253,.25)}
+  body[data-theme="voltage"] .stat .big.gold{color:#fbbf24}
+  body[data-theme="voltage"] .stat .big.cy{color:#22d3ee}
+  body[data-theme="voltage"] .stat .big.grn{color:#34d399}
+  body[data-theme="voltage"] .stat p,body[data-theme="voltage"] .lstep p,body[data-theme="voltage"] .s3 p{color:#b9a3d8}
+  body[data-theme="voltage"] .stat p b,body[data-theme="voltage"] .oline b,body[data-theme="voltage"] .lstep b,body[data-theme="voltage"] .s3 b,body[data-theme="voltage"] .whycard p b{color:#fff}
+  body[data-theme="voltage"] .oline{color:#dcd0f2;border-color:rgba(196,181,253,.15)}
+  body[data-theme="voltage"] .illus{background:#2a1348;border:1px solid rgba(232,121,249,.35)}
+  body[data-theme="voltage"] .illus .lbl{color:#e879f9}
+  body[data-theme="voltage"] .oppdisc{color:#a78fc9}
+  body[data-theme="voltage"] .vig{background:#160a28;border-color:rgba(196,181,253,.2)}
+  body[data-theme="voltage"] .vig .who{color:#dcd0f2}
+  body[data-theme="voltage"] .whycard p{color:#dcd0f2}
+  body[data-theme="voltage"] .whycard .hl{color:#e879f9}
+  body[data-theme="voltage"] .why{background:linear-gradient(180deg,#180a2b,#1d0f33);border-color:rgba(196,181,253,.2)}
+  body[data-theme="voltage"] .final{background:linear-gradient(135deg,#0f0620,#2a1348)}
+  body[data-theme="voltage"] .final .cta{background:linear-gradient(135deg,#d946ef,#7c3aed);color:#fff}
+  body[data-theme="voltage"] .fine{color:#7a68a0}
+
+  /* ── Hero collage + living windows ── */
+  .heroflex{display:flex;gap:36px;align-items:center;text-align:left}
+  .heroL{flex:1.1;min-width:0}
+  .heroR{flex:1;min-width:0;position:relative}
+  @media(max-width:820px){.heroflex{flex-direction:column;text-align:center}.heroL .cta,.heroL .vtab{margin-left:auto;margin-right:auto}.heroR{width:100%;max-width:440px;margin:8px auto 0}}
+  @keyframes floatY{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-12px) rotate(.4deg)}}
+  .collage{background:#fff;border:1.5px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px;animation:floatY 6.5s ease-in-out infinite;position:relative;z-index:2}
+  .collage .chrome{margin:0 0 12px;padding-bottom:10px}
+  .toolchips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .tchip{border-radius:10px;padding:10px 12px;color:#fff;font-family:Sora;font-size:11.5px;font-weight:800}
+  .tc1{background:linear-gradient(135deg,#0891b2,#22d3ee)}.tc2{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+  .tc3{background:linear-gradient(135deg,#16a34a,#22c55e)}.tc4{background:linear-gradient(135deg,#d97706,#f59e0b)}
+  .minigridwrap{background:#0a1438;border-radius:12px;padding:14px}
+  .mgtitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .mgtitle b{font-family:Sora;font-size:11px;color:#fff;letter-spacing:.04em}
+  .mgcount{font-family:'JetBrains Mono';font-size:13px;font-weight:600;color:#fbbf24}
+  .minigrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .seat{aspect-ratio:1;border-radius:7px;background:#152252;transition:all .35s ease;position:relative;display:flex;align-items:center;justify-content:center}
+  .seat .amt{font-family:'JetBrains Mono';font-size:10px;font-weight:600;color:#fff;opacity:0;transition:opacity .3s ease .1s;text-align:center;line-height:1.25}
+  .seat.on .amt{opacity:1}
+  .seat.bonus .amt{color:#3d2703}
+  .seat.bonus .amt i{display:block;font-style:normal;font-size:8.5px;opacity:.75}
+  .seat.bonus .amt b{display:block;font-size:11px;font-weight:800}
+  @media(max-width:400px){.seat .amt{font-size:8.5px}.seat.bonus .amt b{font-size:9.5px}.seat.bonus .amt i{font-size:7.5px}}
+  .seat.on{background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 0 12px -2px rgba(34,211,238,.7)}
+  .seat.bonus.on{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 0 14px -2px rgba(251,191,36,.8)}
+  .seat .pop{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:Sora;font-size:10px;font-weight:800;color:#fbbf24;opacity:0;pointer-events:none;white-space:nowrap}
+  .seat.popped .pop{animation:popUp 1.1s ease forwards}
+  @keyframes popUp{0%{opacity:0;transform:translate(-50%,4px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-14px)}}
+  .heroorb{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none;z-index:1}
+  .ho1{width:120px;height:120px;background:radial-gradient(circle,rgba(34,211,238,.35),transparent 70%);top:-30px;right:-24px;animation:floatY 8s 1s ease-in-out infinite}
+  .ho2{width:90px;height:90px;background:radial-gradient(circle,rgba(251,191,36,.32),transparent 70%);bottom:-20px;left:-20px;animation:floatY 7s .5s ease-in-out infinite}
+  .ho3{width:70px;height:70px;background:radial-gradient(circle,rgba(167,139,250,.32),transparent 70%);top:40%;left:-34px;animation:floatY 9s 1.6s ease-in-out infinite}
+  body[data-theme="midnight"] .collage,body[data-theme="voltage"] .collage{background:#0d1631;border-color:rgba(148,163,216,.25)}
+  body[data-theme="voltage"] .collage{background:#1d0f33;border-color:rgba(196,181,253,.28)}
+
+  .feedwin{max-width:680px;margin:0 auto 22px;background:#0a1438;border-radius:14px;padding:16px 20px;box-shadow:var(--shadow)}
+  .feedwin .chrome{border-bottom-color:rgba(143,164,216,.25)}
+  .feed{height:172px;overflow:hidden;position:relative}
+  .frow{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid rgba(143,164,216,.15);font-size:12.5px;font-weight:600;color:#c7d6f5;animation:feedIn .5s ease both}
+  .frow b{font-family:'JetBrains Mono';color:#34d399}
+  .frow b.gold{color:#fbbf24}
+  @keyframes feedIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  .feednote{font-size:10px;color:#8fa4d8;font-weight:700;letter-spacing:.08em;margin-top:10px;text-align:center}
+
+  /* ── Expressive pass (competitor-grade visual language) ── */
+  .kicker{display:flex;justify-content:center;margin-bottom:14px}
+  .kicker span.kpill{display:inline-flex;align-items:center;gap:8px;border:1.5px solid currentColor;border-radius:20px;padding:7px 16px;box-shadow:0 0 18px -6px currentColor}
+  .kicker .kdot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;animation:kpulse 2s ease-in-out infinite}
+  @keyframes kpulse{50%{opacity:.5}}
+  .g2{background:linear-gradient(115deg,var(--cy1),var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent}
+  body[data-theme="midnight"] .g2{background-image:linear-gradient(115deg,#fbbf24,#f59e0b 55%,#22d3ee)}
+  body[data-theme="emerald"] .g2{background-image:linear-gradient(115deg,#059669,#10b981 55%,#f59e0b)}
+  body[data-theme="voltage"] .g2{background-image:linear-gradient(115deg,#e879f9,#a78bfa 55%,#22d3ee)}
+  .itile{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px;background:linear-gradient(135deg,rgba(8,145,178,.12),rgba(30,58,138,.10));border:1px solid rgba(8,145,178,.25);box-shadow:0 6px 18px -8px rgba(8,145,178,.5)}
+  .stat{position:relative;overflow:hidden}
+  .stat::before,.w2ecard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+  .w2ecard{position:relative;overflow:hidden}
+  .statgrid .stat:nth-child(1)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+  .statgrid .stat:nth-child(2)::before{background:linear-gradient(90deg,#0891b2,#22d3ee)}
+  .statgrid .stat:nth-child(3)::before{background:linear-gradient(90deg,#16a34a,#22c55e)}
+  .w2egrid .w2ecard:nth-child(1)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+  .w2egrid .w2ecard:nth-child(2)::before{background:linear-gradient(90deg,#0891b2,#22d3ee)}
+  .w2egrid .w2ecard:nth-child(3)::before{background:linear-gradient(90deg,#16a34a,#22c55e)}
+  .chrome{display:flex;align-items:center;gap:6px;margin:-6px 0 12px;padding-bottom:12px;border-bottom:1px solid rgba(143,164,216,.25)}
+  .chrome i{width:10px;height:10px;border-radius:50%}
+  .chrome i:nth-child(1){background:#ff5f57}.chrome i:nth-child(2){background:#febc2e}.chrome i:nth-child(3){background:#28c840}
+  .chrome span{font-size:11px;font-weight:700;color:#8fa4d8;margin-left:8px;font-family:'DM Sans'}
+  .irow{align-items:center}
+  .irow .paidpill{font-family:Sora;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#34d399;border:1.2px solid rgba(52,211,153,.55);border-radius:12px;padding:3px 9px;margin-left:10px;white-space:nowrap;box-shadow:0 0 12px -4px rgba(52,211,153,.6)}
+  .irow>span{display:flex;align-items:center;flex-wrap:wrap}
+  .lnum{box-shadow:0 0 16px -4px currentColor}
+  .gridtex{display:none;position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:linear-gradient(rgba(143,164,216,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(143,164,216,.05) 1px,transparent 1px);
+    background-size:44px 44px;mask-image:radial-gradient(70% 60% at 50% 30%,#000 0%,transparent 100%)}
+  body[data-theme="midnight"] .gridtex,body[data-theme="voltage"] .gridtex{display:block}
+  .cta{transition:transform .2s ease}
+  .cta:hover{transform:translateY(-2px) scale(1.02)}
+
+  /* ── Video tab + panel ── */
+  .vtab{margin-top:22px;background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:11px 22px;font-family:Sora;font-size:13px;font-weight:800;color:var(--cob);cursor:pointer;box-shadow:var(--shadow-sm);animation:fadeUp .7s .42s cubic-bezier(.2,.7,.2,1) both;transition:transform .2s ease}
+  .vtab:hover{transform:translateY(-2px)}
+  .vpanel{max-height:0;overflow:hidden;transition:max-height .55s cubic-bezier(.2,.7,.2,1);max-width:640px;margin:0 auto}
+  .vpanel.open{max-height:420px}
+  .vscreen{margin-top:18px;background:#0a1438;border-radius:16px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;box-shadow:var(--shadow);padding:20px}
+  .vscreen .vdot{width:52px;height:52px;border-radius:50%;background:rgba(34,211,238,.15);border:2px solid #22d3ee;position:relative;margin-bottom:6px;animation:breatheDot 2.4s ease-in-out infinite}
+  .vscreen .vdot::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#22d3ee;font-size:16px}
+  @keyframes breatheDot{0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,.35)}50%{box-shadow:0 0 0 14px rgba(34,211,238,0)}}
+  .vscreen b{font-family:Sora;font-size:16px}
+  .vscreen p{font-size:12.5px;color:#8fa4d8;font-weight:600;max-width:340px;text-align:center;line-height:1.5}
+
+  /* ── Watch-to-Earn cards ── */
+  .w2e{background:linear-gradient(180deg,#fff,#f7fbff)}
+  .w2egrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;max-width:780px;margin:0 auto}
+  .w2ecard{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:22px 20px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .25s ease}
+  .w2ecard:hover{transform:translateY(-4px)}
+  .w2ecard .wnum{font-family:Sora;font-size:27px;font-weight:800;margin-bottom:6px}
+  .wnum.gold{color:var(--gold)}.wnum.cy{color:var(--cy1)}.wnum.grn{color:var(--grn)}
+  .w2ecard p{font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.55}
+  .w2ecard p b{color:var(--ink2)}
+  body[data-theme="midnight"] .w2e{background:linear-gradient(180deg,#070d24,#0a1230)}
+  body[data-theme="midnight"] .w2ecard{background:#0d1631;border-color:rgba(148,163,216,.22)}
+  body[data-theme="midnight"] .w2ecard p{color:#9fb0d8}
+  body[data-theme="midnight"] .w2ecard p b{color:#fff}
+  body[data-theme="midnight"] .vtab{background:#0d1631;border-color:rgba(148,163,216,.25);color:#fbbf24}
+  body[data-theme="emerald"] .w2e{background:linear-gradient(180deg,#fff,#f2faf6)}
+  body[data-theme="emerald"] .wnum.cy{color:#059669}
+  body[data-theme="voltage"] .w2e{background:linear-gradient(180deg,#12061f,#180a2b)}
+  body[data-theme="voltage"] .w2ecard{background:#1d0f33;border-color:rgba(196,181,253,.25)}
+  body[data-theme="voltage"] .w2ecard p{color:#b9a3d8}
+  body[data-theme="voltage"] .w2ecard p b{color:#fff}
+  body[data-theme="voltage"] .vtab{background:#1d0f33;border-color:rgba(196,181,253,.3);color:#e879f9}
+
+  .tblbl{font-family:Sora;font-size:10px;font-weight:800;letter-spacing:.06em;color:#8fa4d8;align-self:center;padding-left:6px;white-space:nowrap}
+  @media(max-width:560px){.tblbl{display:none}}
+
+  /* ── Switcher pill ── */
+  .themebar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:200;display:flex;gap:6px;background:rgba(10,20,56,.92);backdrop-filter:blur(10px);border-radius:26px;padding:7px 9px;box-shadow:0 12px 36px rgba(4,9,29,.45)}
+  .themebar button{display:flex;align-items:center;gap:7px;background:transparent;border:1.5px solid transparent;border-radius:18px;padding:7px 13px;font-family:Sora;font-size:11px;font-weight:800;color:#c7d6f5;cursor:pointer}
+  .themebar button.on{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+  .themebar .sw{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="gridtex"></div>
+<div class="z">
+
+  <div class="nav"><div class="navin">
+    <span class="mk"><span class="tile"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><b>Super<i>Ad</i>Pro</b></span>
+    <span class="shared"><span class="dot" id="spInit">S</span> Invited by {{FIRST_NAME}}</span>
+  </div></div>
+
+  <div class="hero">
+    <div class="wrap"><div class="heroflex">
+      <div class="heroL">
+      <div class="eyebrow">TOOLS THAT WORK · INCOME THAT REPEATS</div>
+      <h1>Real tools. A real audience.<br><span class="g">Real recurring income.</span></h1>
+      <div class="sub">The full AI marketing toolkit — pages, creative studio, autoresponder, video advertising — <b>plus a compensation plan that pays you every month</b>, on two income streams, through a platform that shares 100% of campaign revenue with its members.</div>
+      <a class="cta" href="{{ACTIVATION_URL}}">Create free account →</a>
+      <div class="micro"><i>●</i> No card to start · full toolkit from $20/mo · cancel anytime</div>
+      <button class="vtab" id="vtab">▶ &nbsp;Watch the 2-minute overview</button>
+      <div class="vpanel" id="vpanel">
+        <div class="vscreen">
+          <div class="vdot"></div>
+          <b>Overview video — coming soon</b>
+          <p>We're filming the walkthrough now. Everything on this page is live today — scroll on.</p>
+        </div>
+      </div>
+      </div>
+      <div class="heroR">
+        <div class="heroorb ho1"></div><div class="heroorb ho2"></div><div class="heroorb ho3"></div>
+        <div class="collage">
+          <div class="chrome"><i></i><i></i><i></i><span>Your SuperAdPro dashboard</span></div>
+          <div class="toolchips">
+            <div class="tchip tc1">Creative Studio</div>
+            <div class="tchip tc2">SuperPages</div>
+            <div class="tchip tc3">SuperLeads</div>
+            <div class="tchip tc4">Ad Studio</div>
+          </div>
+          <div class="minigridwrap">
+            <div class="mgtitle"><b>PREMIUM TIER GRID · $400</b><span class="mgcount" id="mgcount">$0</span></div>
+            <div class="minigrid" id="minigrid"></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <section class="opp">
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>THE OPPORTUNITY</span></div>
+      <h2>Get paid <span class="g2">every month</span> — not once</h2>
+      <div class="lede">Two income streams, one rule: <b>50% direct commission on both.</b> Memberships pay you monthly for as long as your referral stays. Campaign purchases pay the moment they happen.</div>
+      <div class="statgrid stagger">
+        <div class="stat"><div class="itile" style="background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(217,119,6,.08));border-color:rgba(245,158,11,.35);box-shadow:0 6px 18px -8px rgba(245,158,11,.55)">💸</div><div class="big gold" data-count="10" data-prefix="$" data-suffix="/mo">$10/mo</div><p><b>recurring, per active member</b> you refer — every month they stay, at 50% of their membership</p></div>
+        <div class="stat"><div class="itile">⚡</div><div class="big cy" data-count="50" data-suffix="%">50%</div><p><b>direct commission</b> on video campaign purchases too — $10 instantly on a $20 campaign</p></div>
+        <div class="stat"><div class="itile" style="background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(22,163,74,.08));border-color:rgba(34,197,94,.35);box-shadow:0 6px 18px -8px rgba(34,197,94,.55)">🤝</div><div class="big grn" data-count="100" data-suffix="%">100%</div><p><b>of campaign revenue goes to members</b> — 50% direct, 25% through your team, 25% in completion bonuses. Company keeps 0%.</p></div>
+      </div>
+      <div class="feedwin reveal">
+        <div class="chrome"><i></i><i></i><i></i><span>Commission feed — the plan's rates in motion</span></div>
+        <div class="feed" id="feed"></div>
+        <div class="feednote">ILLUSTRATION — real published rates, example activity</div>
+      </div>
+      <div class="oppdetail reveal">
+        <div class="oline"><span class="tick">✓</span><span><b>Residual by design</b> — membership commissions repeat monthly; annual memberships pay $100 up front.</span></div>
+        <div class="oline"><span class="tick">✓</span><span><b>Five levels deep</b> — 5% per level on your team's campaign activity, plus completion bonuses as grids fill.</span></div>
+        <div class="oline"><span class="tick">✓</span><span><b>Paid through the platform ledger</b> — tracked live on your dashboard, withdrawable to your wallet. No person-to-person payment apps, no chasing anyone for your money.</span></div>
+        <div class="oline"><span class="tick">✓</span><span><b>$10 Launchpad on-ramp</b> — a low-friction first step that switches the comp plan on for your new signups.</span></div>
+      </div>
+      <div class="illus reveal">
+        <div class="chrome"><i></i><i></i><i></i><span>Your commissions — residual view</span></div><div class="lbl">WHAT RESIDUAL LOOKS LIKE — ILLUSTRATION ONLY</div>
+        <div class="irow"><span>5 active members referred <em class="paidpill">RECURRING</em></span><b>$50/mo</b></div>
+        <div class="irow"><span>10 active members <em class="paidpill">RECURRING</em></span><b>$100/mo</b></div>
+        <div class="irow"><span>25 active members <em class="paidpill">RECURRING</em></span><b>$250/mo</b></div>
+        <div class="fine">Illustration of the $10/month direct commission only — before any team or campaign earnings. These are worked examples of the rates, not typical results and not a promise: your earnings depend entirely on your own activity and on referrals staying active.</div>
+      </div>
+      <div class="oppdisc">Every tool on this page works fully without referring anyone. The comp plan is there when you want it — see the full income disclaimer below.</div>
+    </div>
+  </section>
+
+  <section class="w2e">
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>WATCH TO EARN</span></div>
+      <h2>One video a day <span class="g2">switches everything on</span></h2>
+      <div class="lede">Watch-to-Earn is the heartbeat of the platform: <b>one short video a day keeps your account earning-qualified</b> across every income stream — and the campaign grid it powers is where the numbers get interesting.</div>
+      <div class="w2egrid stagger">
+        <div class="w2ecard"><div class="itile" style="background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(217,119,6,.08));border-color:rgba(245,158,11,.35)">💰</div><div class="wnum gold">$10</div><p><b>direct commission</b> the moment someone you referred takes a $20 campaign entry</p></div>
+        <div class="w2ecard"><div class="itile">🌱</div><div class="wnum cy">$1 × 5</div><p><b>per level, five levels deep</b> — every $20 entry anywhere in your team pays your upline chain</p></div>
+        <div class="w2ecard"><div class="itile" style="background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(22,163,74,.08));border-color:rgba(34,197,94,.35)">🏆</div><div class="wnum grn">$20 × 4</div><p><b>completion bonuses</b> at seats 4, 8, 12 and 16 — a single completed grid pays <b>$80 in bonuses alone</b></p></div>
+      </div>
+      <div class="illus reveal" style="margin-top:16px">
+        <div class="chrome"><i></i><i></i><i></i><span>Your grid — one full cycle · Premium $400 tier</span></div><div class="lbl">THE TOP TIER, WORKED THROUGH — ILLUSTRATION ONLY</div>
+        <div class="irow"><span>4 personal referrals take a $400 entry <em class="paidpill">PAID TO YOU</em></span><b>$800</b></div>
+        <div class="irow"><span>12 more entries across your 5 levels <em class="paidpill">PAID TO YOU</em></span><b>$240</b></div>
+        <div class="irow"><span>Bonuses at seats 4, 8, 12 and 16 <em class="paidpill">PAID TO YOU</em></span><b>$1,600</b></div>
+        <div class="irow"><span>One Premium grid cycle, all in <em class="paidpill" style="color:#fbbf24;border-color:rgba(251,191,36,.55);box-shadow:0 0 12px -4px rgba(251,191,36,.6)">ONE CYCLE</em></span><b>$2,640</b></div>
+        <div class="fine">Worked example of the published rates on one fully-completed grid at the top $400 Premium tier — not typical results and not a promise. Grids fill through real referral activity at whatever tier your team buys; the entry-level $20 tier pays the same percentages ($132 per completed grid). Your results depend entirely on your own effort and your team's.</div>
+      </div>
+      <div class="oppdisc">Your daily watch is also what advertisers pay for: real members, really watching. You qualify, they get seen, the money stays 100% with members.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>WHY YOUR RESIDUAL STICKS</span></div>
+      <h2>Members stay for tools they <span class="g2">actually use</span></h2>
+      <div class="lede">Recurring income is only as good as retention — and retention comes from a product that earns its $20 every month. Here's the loop that keeps members here: <b>their audience is built in.</b></div>
+      <div class="loop stagger">
+        <div class="lstep"><span class="lnum" style="background:#0891b2">1</span><div><b>Create an ad in minutes</b><p>Creative Studio writes, voices and renders video with AI — or bring your own. No editor, no agency.</p></div></div>
+        <div class="lstep"><span class="lnum" style="background:#0ea5e9">2</span><div><b>Real members watch it — guaranteed</b><p>Campaigns are delivered to logged-in members who watch daily. Real humans, verified views, honest stats.</p></div></div>
+        <div class="lstep"><span class="lnum" style="background:#7c3aed">3</span><div style="flex:1"><b>Viewers join your email list in one tap</b><p>Every video carries a Subscribe button. Watchers who like what they see land straight on your list — with their real account email.</p>
+          <div class="vig"><span class="who"><span class="av">Y</span> @you · runs this campaign</span><span class="btn" id="subDemo">Like what you saw? Subscribe</span></div>
+        </div></div>
+        <div class="lstep"><span class="lnum" style="background:#16a34a">4</span><div style="flex:1"><b>Your autoresponder takes it from there</b><p>Subscribers drop into SuperLeads — sequences, broadcasts, your own sending domain. Views are nice; a list is a business.</p>
+          <div class="vig"><span class="lead" id="leadDemo">+ new subscriber · sarah.k@ — via your video</span><span class="lead" style="color:var(--vio)">→ welcome sequence, email 1 sent</span></div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:8px">
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>THE TOOLKIT</span></div>
+      <h2><span class="g2">Four tools.</span> One membership.</h2>
+      <div class="tools stagger">
+        <div class="tool t1"><b>Creative Studio</b><p>AI video, images and voice. Your ideas, rendered — pay only for what you generate.</p></div>
+        <div class="tool t2"><b>SuperPages</b><p>Pages &amp; funnels that convert. Templates, custom domains, your brand.</p></div>
+        <div class="tool t3"><b>SuperLeads</b><p>Find &amp; nurture leads. Autoresponder, sequences, your own sending domain.</p></div>
+        <div class="tool t4"><b>Ad Studio</b><p>Video campaigns watched by real members — with the Subscribe button built in.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>THE HONEST QUESTION</span></div>
+      <h2>"How can it pay that much AND cost $20?"</h2>
+      <div class="whycard reveal">
+        <p><b>Because the platform doesn't skim the money that flows through it.</b> When members buy video campaigns, <span class="hl">100% of that revenue is shared with members</span> — direct commissions, team levels, completion bonuses. The company earns from memberships and tool usage, not by taking a cut of the comp plan.</p>
+        <p>And you don't have to take our word for any of it — <b>the account is free to open.</b> Look around, build a page, see the watch page working. Upgrade when you're ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:8px">
+    <div class="wrap">
+      <div class="kicker"><span class="kpill"><span class="kdot"></span>YOUR FIRST 10 MINUTES</span></div>
+      <h2>Onboarding is three steps</h2>
+      <div class="steps3 stagger">
+        <div class="s3"><span class="n">1</span><b>Create your free account</b><p>No card. You're in, in under a minute.</p></div>
+        <div class="s3"><span class="n">2</span><b>Build your first page</b><p>Pick a SuperPages template, make it yours, publish.</p></div>
+        <div class="s3"><span class="n">3</span><b>Grab your link</b><p>Your personal invite link is on your dashboard — this page, with your name on it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2>Start free. Build something that <span class="g2" style="background-image:linear-gradient(115deg,#67e8f9,#a78bfa)">pays twice.</span></h2>
+      <div class="lede">A toolkit that grows your business — and a plan that pays you monthly for growing the platform.</div>
+      <a class="cta" href="{{ACTIVATION_URL}}">Create free account →</a>
+      <div class="micro"><i>●</i> Joining through this page connects you with {{FIRST_NAME}} as your sponsor</div>
+    </div>
+  </section>
+
+  <div class="fine wrap">
+    Income disclaimer: commission rates shown are the current plan rates; illustrations are worked examples of those rates, not typical results and not a promise of earnings. Your results depend entirely on your own activity and on your referrals remaining active. SuperAdPro's tools can be used fully without referring anyone or participating in the compensation plan. Full income disclaimer at superadpro.com.<br>© SuperAdPro · superadpro.com · privacy · terms
+  </div>
+
+</div>
+
+
+<script>
+(function(){
+  var t = new URLSearchParams(location.search).get('t');
+  if (['midnight','emerald','voltage'].indexOf(t) >= 0) document.body.dataset.theme = t;
+  var chip = document.querySelector('.shared');
+  var init = document.getElementById('spInit');
+  if (chip && init) {
+    var nm = chip.textContent.replace('Invited by','').trim();
+    if (nm) init.textContent = nm.charAt(0).toUpperCase();
+  }
+})();
+</script>
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Video tab
+  var vt=document.getElementById('vtab'), vp=document.getElementById('vpanel');
+  if(vt&&vp){ vt.addEventListener('click',function(){ vp.classList.toggle('open');
+    vt.textContent = vp.classList.contains('open') ? '✕  Close' : '▶  Watch the 2-minute overview'; }); }
+
+  // Scroll reveals
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.18});
+  document.querySelectorAll('.reveal,.stagger').forEach(function(el){
+    if(reduced){ el.classList.add('in'); } else { io.observe(el); }
+  });
+
+  // Count-up stats
+  function countUp(el){
+    var target=+el.dataset.count, pre=el.dataset.prefix||'', suf=el.dataset.suffix||'', t0=null;
+    function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/900,1);
+      el.textContent = pre + Math.round(target*(1-Math.pow(1-p,3))) + suf;
+      if(p<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  var cio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); cio.unobserve(e.target); } });
+  },{threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(function(el){ if(!reduced) cio.observe(el); });
+
+  // Hero mini-grid: seats fill on loop, bonuses pop, counter runs to $132
+  var mg=document.getElementById('minigrid'), mgc=document.getElementById('mgcount');
+  if(mg&&!reduced){
+    // Premium $400 tier at published rates: 4 directs $200, 12 uni $20,
+    // +$400 bonus at seats 4/8/12/16 -> totals $2,640 per completed grid.
+    for(var i=1;i<=16;i++){
+      var d=document.createElement('div'); d.className='seat'+(i%4===0?' bonus':'');
+      var entry = (i<=4?'$200':'$20');
+      d.innerHTML = (i%4===0)
+        ? '<span class="amt"><i>'+entry+' entry</i><b>+$400</b></span><span class="pop">bonus seat!</span>'
+        : '<span class="amt">'+entry+'</span>';
+      mg.appendChild(d);
+    }
+    var seats=mg.children, si=0, total=0;
+    setInterval(function(){
+      if(si>=16){
+        si=0; total=0;
+        for(var j=0;j<16;j++){seats[j].classList.remove('on','popped');}
+        mgc.textContent='$0'; return;
+      }
+      seats[si].classList.add('on');
+      total += (si<4?200:20);
+      if((si+1)%4===0){ seats[si].classList.add('popped'); total+=400; }
+      mgc.textContent='$'+total.toLocaleString();
+      si++;
+    },700);
+  } else if(mg){ for(var k=1;k<=16;k++){var e=document.createElement('div');e.className='seat on'+(k%4===0?' bonus':'');var en=(k<=4?'$200':'$20');e.innerHTML=(k%4===0)?'<span class="amt"><i>'+en+' entry</i><b>+$400</b></span>':'<span class="amt">'+en+'</span>';mg.appendChild(e);} if(mgc)mgc.textContent='$2,640'; }
+
+  // Commission feed: rows slide in at the real rates
+  var feed=document.getElementById('feed');
+  if(feed&&!reduced){
+    var events=[
+      ['+ $10.00','direct — referral took a $20 entry',''],
+      ['+ $1.00','uni-level — level 2 activity',''],
+      ['+ $10.00','recurring — monthly membership commission',''],
+      ['+ $20.00','completion bonus — seat 4 filled','gold'],
+      ['+ $1.00','uni-level — level 5 activity',''],
+      ['+ $10.00','direct — referral took a $20 entry',''],
+      ['+ $20.00','completion bonus — seat 8 filled','gold']
+    ], fi=0;
+    function pushRow(){
+      var ev=events[fi%events.length]; fi++;
+      var r=document.createElement('div'); r.className='frow';
+      r.innerHTML='<span>'+ev[1]+'</span><b class="'+ev[2]+'">'+ev[0]+'</b>';
+      feed.insertBefore(r,feed.firstChild);
+      while(feed.children.length>5) feed.removeChild(feed.lastChild);
+    }
+    pushRow();pushRow();pushRow();pushRow();
+    setInterval(pushRow,1900);
+  }
+
+  // Living Subscribe demo: watching -> unlocked -> subscribed, loop
+  var sub=document.getElementById('subDemo');
+  if(sub && !reduced){
+    var states=[
+      ['state-lock','🔒 Watching… 12s'],
+      ['state-lock','🔒 Watching… 4s'],
+      ['','Like what you saw? Subscribe'],
+      ['state-done','✓ Subscribed — on your list']
+    ], i=2;
+    setInterval(function(){
+      i=(i+1)%states.length;
+      sub.className='btn '+states[i][0];
+      sub.textContent=states[i][1];
+    },2100);
+  }
+
+  // Leads demo: cycle example subscribers
+  var lead=document.getElementById('leadDemo');
+  if(lead && !reduced){
+    var names=['sarah.k@','mark.d@','lena.p@','joel.w@'], n=0;
+    setInterval(function(){
+      n=(n+1)%names.length;
+      lead.style.opacity=0;
+      setTimeout(function(){ lead.textContent='+ new subscriber · '+names[n]+' — via your video'; lead.style.opacity=1; },300);
+    },3400);
+    lead.style.transition='opacity .3s ease';
+  }
+})();
+</script>
+</body>
+</html>

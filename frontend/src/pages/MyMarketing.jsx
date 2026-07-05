@@ -4,8 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import {
   Megaphone, Link2, Gift, PlayCircle, FileText, Tv,
-  Sparkles, Image, Files, Mail, Magnet,
-} from 'lucide-react';
+  Sparkles, Image, Files, Mail, Magnet, Palette } from 'lucide-react';
 
 // ── My Marketing hub ────────────────────────────────────────────────
 // One front door for the member's promotional surfaces. Most cards point
@@ -48,6 +47,27 @@ export default function MyMarketing() {
           title: t('myMarketing.salesVideo', { defaultValue: 'Personal Sales Video' }),
           desc: t('myMarketing.salesVideoDesc', { defaultValue: 'Your branded video sales page — share the link with prospects.' }),
           onClick: go(refBase + '/video', true) },
+      ],
+    },
+    {
+      heading: t('myMarketing.sectionOffer', { defaultValue: 'Your Offer Page — pick a theme' }),
+      cards: [
+        { key: 'offer-ocean', icon: Palette, grad: 'linear-gradient(135deg,#0891b2,#1e3a8a)',
+          title: t('myMarketing.offerOcean', { defaultValue: 'Offer Page · Ocean' }),
+          desc: t('myMarketing.offerOceanDesc', { defaultValue: 'Light, clean, on-brand — your income-forward landing page with live grid animation.' }),
+          onClick: go('https://www.superadpro.com/m/offer/' + (user && user.username ? user.username : ''), true) },
+        { key: 'offer-midnight', icon: Palette, grad: 'linear-gradient(135deg,#070d24,#f59e0b)',
+          title: t('myMarketing.offerMidnight', { defaultValue: 'Offer Page · Midnight' }),
+          desc: t('myMarketing.offerMidnightDesc', { defaultValue: 'Dark navy and gold — the classic opportunity aesthetic.' }),
+          onClick: go('https://www.superadpro.com/m/offer/' + (user && user.username ? user.username : '') + '?t=midnight', true) },
+        { key: 'offer-emerald', icon: Palette, grad: 'linear-gradient(135deg,#059669,#f59e0b)',
+          title: t('myMarketing.offerEmerald', { defaultValue: 'Offer Page · Emerald' }),
+          desc: t('myMarketing.offerEmeraldDesc', { defaultValue: 'Greens and gold — the money palette, bright and fresh.' }),
+          onClick: go('https://www.superadpro.com/m/offer/' + (user && user.username ? user.username : '') + '?t=emerald', true) },
+        { key: 'offer-voltage', icon: Palette, grad: 'linear-gradient(135deg,#d946ef,#7c3aed)',
+          title: t('myMarketing.offerVoltage', { defaultValue: 'Offer Page · Voltage' }),
+          desc: t('myMarketing.offerVoltageDesc', { defaultValue: 'Neon violet and magenta — the scroll-stopper for social feeds.' }),
+          onClick: go('https://www.superadpro.com/m/offer/' + (user && user.username ? user.username : '') + '?t=voltage', true) },
       ],
     },
     {

@@ -25387,6 +25387,63 @@ async def admin_broadcast_resume_now(
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
 
 
+@app.get("/admin/api/publish-offer-page")
+def admin_publish_offer_page(
+    apply: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Publish/refresh the member offer page (5 Jul 2026) into the
+    marketing_assets system from app/marketing_templates/offer.html.
+    Idempotent upsert on slug='offer' — future template edits are a file
+    change + re-tap. Served at /m/offer/{username} (?t=midnight|emerald|
+    voltage for the theme; default Ocean), with the standard ref-cookie
+    sponsor attribution and per-member OG tags via {{FIRST_NAME}}
+    substitution."""
+    _require_admin(user)
+    try:
+        from pathlib import Path as _P
+        tpl_path = _P(__file__).parent / "marketing_templates" / "offer.html"
+        if not tpl_path.exists():
+            return JSONResponse({"error": "template file missing from deploy"}, status_code=200)
+        html = tpl_path.read_text()
+        existing = db.query(MarketingAsset).filter(MarketingAsset.slug == "offer").first()
+        plan = {"slug": "offer", "template_bytes": len(html),
+                "placeholders": html.count("{{"),
+                "currently": ("published" if (existing and existing.is_published)
+                              else "exists-unpublished" if existing else "absent"),
+                "example_urls": [
+                    "https://www.superadpro.com/m/offer/SuperAdPro",
+                    "https://www.superadpro.com/m/offer/SuperAdPro?t=midnight",
+                    "https://www.superadpro.com/m/offer/SuperAdPro?t=emerald",
+                    "https://www.superadpro.com/m/offer/SuperAdPro?t=voltage"]}
+        if not apply:
+            return JSONResponse({"applied": False, "note": "dry run — re-tap with &apply=1", **plan})
+        now = datetime.utcnow()
+        if existing:
+            existing.html_template = html
+            existing.is_published = True
+            existing.published_at = existing.published_at or now
+            existing.updated_at = now
+        else:
+            db.add(MarketingAsset(
+                slug="offer",
+                title="Get Paid to Watch — Member Offer Page",
+                description="Income-forward offer/onboarding landing page. Four themes via ?t= (ocean default, midnight, emerald, voltage). Per-member sponsor attribution + OG unfurls.",
+                asset_type="page", html_template=html,
+                is_published=True, published_at=now))
+        db.commit()
+        return JSONResponse({"applied": True, **plan})
+    except Exception as e:
+        import traceback
+        logger.error(f"publish-offer-page failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/manual-renewal")
 def admin_manual_renewal(
     user_id: int,
