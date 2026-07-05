@@ -25387,6 +25387,95 @@ async def admin_broadcast_resume_now(
         return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
 
 
+@app.get("/admin/api/manual-renewal")
+def admin_manual_renewal(
+    user_id: int,
+    months: int = 1,
+    anchor: str = "now",
+    apply: int = 0,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Record an OFF-PLATFORM membership renewal (5 Jul 2026, built for the
+    @itsamazing case: member paid Steve wallet-to-wallet; paid-activation
+    correctly refused because it's fresh-signups-only). Extends the renewal
+    clock + expiry, clears grace, keeps the member active, and writes a
+    Payment row (payment_type='membership_manual', status='paid') so
+    gateway-forensics and the ledger reflect reality.
+
+    NO commission rows and NO wallet credits are created — the money never
+    entered platform rails. Fine when the sponsor is the house account;
+    if the sponsor is a real member, their renewal commission needs a
+    deliberate separate decision (the dry run names the sponsor so you see
+    exactly who's affected before applying).
+
+    anchor=now  (default): paid month starts today.
+    anchor=due: paid month starts at the missed due date (stricter).
+    Dry-run by default; &apply=1 executes."""
+    _require_admin(user)
+    try:
+        target = db.query(User).filter(User.id == user_id).first()
+        if not target:
+            return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+        renewal = db.query(MembershipRenewal).filter(
+            MembershipRenewal.user_id == user_id).first()
+        now = datetime.utcnow()
+        months = max(1, min(months, 12))
+        due = renewal.next_renewal_date if renewal and renewal.next_renewal_date else now
+        base = due if (anchor == "due" and due) else now
+        new_due = base + timedelta(days=30 * months)
+        price = float(getattr(target, "membership_price_locked", None) or 20.0)
+        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()             if getattr(target, "sponsor_id", None) else None
+        plan = {
+            "user": {"id": target.id, "username": target.username,
+                     "is_active": bool(target.is_active),
+                     "founder": bool(getattr(target, "is_founder", False)),
+                     "price_locked": price},
+            "sponsor": ({"id": sponsor.id, "username": sponsor.username}
+                        if sponsor else None),
+            "current_next_renewal": due.isoformat() if due else None,
+            "overdue_days": max(0, (now - due).days) if due else 0,
+            "anchor": "due" if anchor == "due" else "now",
+            "months": months,
+            "new_next_renewal": new_due.isoformat(),
+            "commission_note": "no commission rows / wallet credits created — payment was off-platform",
+        }
+        if not apply:
+            return JSONResponse({"applied": False,
+                                 "note": "dry run — re-tap with &apply=1", **plan})
+        if renewal:
+            renewal.next_renewal_date = new_due
+            renewal.last_renewed_at = now
+            renewal.renewal_source = "manual"
+            renewal.in_grace_period = False
+            renewal.grace_period_start = None
+            renewal.total_renewals = (renewal.total_renewals or 0) + 1
+        else:
+            db.add(MembershipRenewal(user_id=target.id, activated_at=now,
+                                     next_renewal_date=new_due, last_renewed_at=now,
+                                     renewal_source="manual", in_grace_period=False,
+                                     total_renewals=1))
+        target.is_active = True
+        if hasattr(target, "membership_expires_at"):
+            target.membership_expires_at = new_due
+        db.add(Payment(from_user_id=target.id, to_user_id=None,
+                       amount_usdt=price * months,
+                       payment_type="membership_manual",
+                       tx_hash=f"manual-renewal-{target.id}-{now.strftime('%Y%m%d%H%M%S')}",
+                       status="paid"))
+        db.commit()
+        plan["applied"] = True
+        return JSONResponse(plan)
+    except Exception as e:
+        import traceback
+        logger.error(f"manual-renewal failed: {e}\n{traceback.format_exc()}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:400]}"}, status_code=200)
+
+
 @app.get("/admin/api/reverse-house-topup")
 def admin_reverse_house_topup(
     apply: int = 0,
