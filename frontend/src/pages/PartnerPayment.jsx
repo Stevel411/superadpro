@@ -405,7 +405,7 @@ export default function PartnerPayment() {
                         </div>
                       </>) : (
                         <div style={{ fontSize: 12.5, color: '#cbd5e1', textAlign: 'center', lineHeight: 1.5 }}>
-                          {t('partner.renewBalanceShort', { defaultValue: 'Wallet balance $' + walletBal.toFixed(2) + ' \u2014 $' + (fee - walletBal).toFixed(2) + ' short of the $' + renewMonthly + ' fee. Earn or top up to pay from balance.' })}
+                          {t('partner.renewBalanceShort', { defaultValue: 'Wallet balance $' + walletBal.toFixed(2) + ' \u2014 $' + (fee - walletBal).toFixed(2) + ' short of the $' + renewMonthly + ' fee. Commissions you earn are added here automatically \u2014 once it covers the fee you can renew from balance.' })}
                         </div>
                       )}
                     </div>

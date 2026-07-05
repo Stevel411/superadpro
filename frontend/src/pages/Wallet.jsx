@@ -516,7 +516,7 @@ export default function Wallet() {
                 <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 13px', marginBottom: 14, fontSize: 14.5, color: '#b45309', lineHeight: 1.55 }}>
                   <strong>⚠ {t('wallet.coverShort', { defaultValue: '${{short}} short.', short: formatMoney(renewal.shortfall || 0) })}</strong>{' '}
                   {t('wallet.coverShortDetail', {
-                    defaultValue: "Your ${{bal}} commission balance won't cover the ${{fee}} fee yet. Top up or renew before {{date}}, or your membership will lapse.",
+                    defaultValue: "Your ${{bal}} commission balance won't cover the ${{fee}} fee yet. Renew by card or crypto before {{date}}, or your membership will lapse.",
                     bal: formatMoney(renewal.balance || 0),
                     fee: formatMoney(renewal.fee || 0),
                     date: fmtRenewDate(renewal.next_renewal_date),
