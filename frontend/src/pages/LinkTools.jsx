@@ -87,7 +87,7 @@ export default function LinkTools() {
   const [tagColorIdx, setTagColorIdx] = useState(0);
   const [editTags, setEditTags] = useState([]);
 
-  const BASE = window.location.origin;
+  const BASE = 'https://www.superadpro.com'; // fixed: bare domain only forwards root — copied/QR links must carry www
 
   const load = () => apiGet('/api/link-tools').then(d => {
     setLinks(d.short_links || []);

@@ -37223,14 +37223,21 @@ async def create_short_link(request: Request, user: User = Depends(get_current_u
         existing_rot = db.query(LinkRotator).filter(LinkRotator.slug == custom_slug).first()
         if existing_rot:
             return {"error": f"Slug '{custom_slug}' is already taken by a rotator. Try another."}
+        from .database import PosterTemplate as _PT
+        if db.query(_PT).filter_by(share_slug=custom_slug).first():
+            return {"error": f"Slug '{custom_slug}' is already taken. Try another."}
         slug = custom_slug
     else:
         # Auto-generate 6-char slug
+        slug = None
         for _ in range(20):
-            slug = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
-            if not db.query(ShortLink).filter(ShortLink.slug == slug).first() and \
-               not db.query(LinkRotator).filter(LinkRotator.slug == slug).first():
+            cand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+            if not db.query(ShortLink).filter(ShortLink.slug == cand).first() and \
+               not db.query(LinkRotator).filter(LinkRotator.slug == cand).first():
+                slug = cand
                 break
+        if not slug:
+            return {"error": "Could not generate a unique slug — try a custom one"}
 
     import json as _json
     click_cap       = body.get("click_cap")
@@ -37316,17 +37323,77 @@ async def edit_short_link(link_id: int, request: Request,
 @limiter.limit("10/minute")
 @app.post("/go/{slug}/unlock")
 async def go_unlock_password(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Verify password for a password-protected short link and redirect."""
+    """Verify password for a protected short link. 6 Jul 2026 audit fixes:
+    previously returned the raw URL with NO click recording, NO cap/expiry
+    enforcement (cap bypass via direct POST), and NO geo/device rules —
+    password links showed zero analytics forever. Now mirrors go_redirect."""
     link = db.query(ShortLink).filter(ShortLink.slug == slug).first()
     if not link: raise HTTPException(status_code=404, detail="Link not found")
+    now = datetime.utcnow()
+    if link.expires_at and now > link.expires_at:
+        return {"error": "This link has expired"}
+    if link.click_cap and (link.clicks or 0) >= link.click_cap:
+        return {"error": "This link has reached its click limit"}
     body = await request.json()
     pw = body.get("password", "")
-    if not link.password_hash:
-        return {"success": True, "url": link.destination_url}
-    import bcrypt
-    if bcrypt.checkpw(pw.encode(), link.password_hash.encode()):
-        return {"success": True, "url": link.destination_url}
-    return {"error": "Incorrect password"}
+    if link.password_hash:
+        import bcrypt
+        if not bcrypt.checkpw(pw.encode(), link.password_hash.encode()):
+            return {"error": "Incorrect password"}
+    import json as _json
+    ua = (request.headers.get("user-agent", "") or "").lower()
+    if any(d in ua for d in ["mobile", "android", "iphone"]):
+        device = "mobile"
+    elif "ipad" in ua or "tablet" in ua:
+        device = "tablet"
+    else:
+        device = "desktop"
+    if "edg" in ua:
+        browser = "edge"
+    elif "chrome" in ua and "chromium" not in ua:
+        browser = "chrome"
+    elif "firefox" in ua:
+        browser = "firefox"
+    elif "safari" in ua and "chrome" not in ua:
+        browser = "safari"
+    else:
+        browser = "other"
+    country_code = None
+    country_name = None
+    try:
+        from app.database import _geoip_reader
+        if _geoip_reader:
+            ip = request.headers.get("cf-connecting-ip") or \
+                 request.headers.get("x-forwarded-for", "").split(",")[0].strip() or \
+                 (request.client.host if request.client else None)
+            if ip and ip not in ("127.0.0.1", "::1", "localhost"):
+                geo = _geoip_reader.country(ip)
+                country_code = geo.country.iso_code
+                country_name = geo.country.name
+    except Exception:
+        pass
+    dest_url = link.destination_url
+    if link.geo_redirect_json and country_code:
+        try:
+            rules = _json.loads(link.geo_redirect_json)
+            if country_code in rules:
+                dest_url = rules[country_code]
+        except Exception:
+            pass
+    if link.device_redirect_json:
+        try:
+            rules = _json.loads(link.device_redirect_json)
+            if device in rules and rules[device]:
+                dest_url = rules[device]
+        except Exception:
+            pass
+    link.clicks = (link.clicks or 0) + 1
+    link.last_clicked = now
+    db.add(LinkClick(link_id=link.id, link_type="short", source="password",
+                     device=device, browser=browser,
+                     country=country_code, country_name=country_name))
+    db.commit()
+    return {"success": True, "url": dest_url}
 @app.get("/api/links/analytics/{link_id}")
 def link_analytics(link_id: int, link_type: str = "short",
                    user: User = Depends(get_current_user),
@@ -37416,6 +37483,9 @@ async def create_rotator(request: Request, user: User = Depends(get_current_user
         existing = db.query(ShortLink).filter(ShortLink.slug == custom_slug).first()
         existing_rot = db.query(LinkRotator).filter(LinkRotator.slug == custom_slug).first()
         if existing or existing_rot:
+            return {"error": f"Slug '{custom_slug}' is already taken. Try another."}
+        from .database import PosterTemplate as _PT2
+        if db.query(_PT2).filter_by(share_slug=custom_slug).first():
             return {"error": f"Slug '{custom_slug}' is already taken. Try another."}
         slug = custom_slug
     else:
@@ -37757,6 +37827,17 @@ else{{document.getElementById('err').style.display='block'}}}}</script></body></
         db.add(build_click(rotator.id, "rotator"))
         db.commit()
         return RedirectResponse(url=chosen["url"], status_code=302)
+
+    # ── Brand Poster share landing (6 Jul 2026 audit fix) ──
+    # bpg_share_landing was registered as a SECOND @app.get("/go/{slug}")
+    # route, which FastAPI shadowed behind this one — every poster share
+    # link members posted to social media 404'd here. Those URLs are in
+    # the wild, so /go/ must keep serving them: poster lookup is now the
+    # final fallback of this handler and the duplicate registration is
+    # removed.
+    from .database import PosterTemplate as _PT
+    if db.query(_PT).filter_by(share_slug=slug).first():
+        return bpg_share_landing(slug, request, db)
 
     raise HTTPException(status_code=404, detail="Link not found")
 #  AI SALES CHATBOT (on funnel pages)
@@ -62059,7 +62140,6 @@ def bpg_my_generations(request: Request, db: Session = Depends(get_db),
     return {"generations": results, "count": len(results)}
 
 
-@app.get("/go/{share_slug}")
 def bpg_share_landing(share_slug: str, request: Request, db: Session = Depends(get_db)):
     """Public viral landing page. When a member shares a poster on social
     media, the link points here. Visitor lands on a SuperAdPro page
