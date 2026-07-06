@@ -12,6 +12,10 @@ const CSS = `
 .cat .linkbox .lk{flex:1;min-width:200px;font-family:'JetBrains Mono';font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cat .linkbox .cpy{background:#fff;color:#0a1438;font-family:'Sora';font-weight:700;font-size:14px;padding:11px 18px;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:8px;}
 .cat .linkbox .cpy:hover{transform:translateY(-1px);}
+.cat .tile .to1{background:linear-gradient(135deg,#0891b2,#1e3a8a);}
+.cat .tile .to2{background:linear-gradient(135deg,#070d24,#f59e0b);}
+.cat .tile .to3{background:linear-gradient(135deg,#059669,#f59e0b);}
+.cat .tile .to4{background:linear-gradient(135deg,#d946ef,#7c3aed);}
 `;
 
 const MATS = [
@@ -57,6 +61,24 @@ export default function MarketingPage() {
           }
           return (
             <Link className="tile" to={m.to} key={m.to}>{inner}</Link>
+          );
+        })}
+      </div>
+
+      <div className="sect"><h3>Your offer page</h3><span>income-forward landing with your link built in — pick a theme, share the URL</span></div>
+      <div className="grid">
+        {[
+          { t:'', cls:'to1', name:'Ocean', desc:'Light, clean, on-brand — with the live earning-grid animation.' },
+          { t:'midnight', cls:'to2', name:'Midnight', desc:'Dark navy and gold — the classic opportunity aesthetic.' },
+          { t:'emerald', cls:'to3', name:'Emerald', desc:'Greens and gold — the money palette, bright and fresh.' },
+          { t:'voltage', cls:'to4', name:'Voltage', desc:'Neon violet and magenta — the scroll-stopper for social.' },
+        ].map(function (o) {
+          var url = 'https://www.superadpro.com/m/offer/' + (user?.username || '') + (o.t ? '?t=' + o.t : '');
+          return (
+            <a className="tile" href={url} target="_blank" rel="noopener noreferrer" key={o.name}>
+              <div className={'ti ' + o.cls}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+              <h4>Offer page &middot; {o.name}</h4><p>{o.desc}</p><span className="go">Open &rarr;</span>
+            </a>
           );
         })}
       </div>
