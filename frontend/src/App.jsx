@@ -35,6 +35,7 @@ const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
+const EmailSwipes = React.lazy(() => import('./pages/EmailSwipes'));
 const LeadMagnets = React.lazy(() => import('./pages/LeadMagnets'));
 const LeadMagnetDetail = React.lazy(() => import('./pages/LeadMagnetDetail'));
 const BusinessHub = React.lazy(() => import('./pages/BusinessHub'));
@@ -385,7 +386,8 @@ function AppRoutes() {
       <Route path="/video-script-generator" element={<ProtectedRoute><RequireTier tier="basic"><AiTool title={'Video Script Generator'} subtitle={'AI video scripts'} apiEndpoint="/api/video-scripts/generate"
         fields={[{key:'topic',label:'Video Topic',placeholder:'What is the video about?'},{key:'duration',label:'Target Duration',type:'select',options:['30 seconds','1 minute','2 minutes','5 minutes','10 minutes']},{key:'style',label:'Style',type:'select',options:['Tutorial','Testimonial','Sales Pitch','Educational','Story']}]}
         resultLabel="Your Video Script" /></RequireTier></ProtectedRoute>} />
-      <Route path="/email-swipes" element={<ProtectedRoute><AiTool categoryBack={{ to: '/marketing', label: 'Marketing' }} title={'Email Swipes'} subtitle={'AI email copy generator'} apiEndpoint="/api/swipe-file/generate"
+      <Route path="/email-swipes" element={<ProtectedRoute><EmailSwipes /></ProtectedRoute>} />
+      <Route path="/email-swipes/generator" element={<ProtectedRoute><AiTool categoryBack={{ to: '/email-swipes', label: 'Email Swipes' }} title={'Email Swipes'} subtitle={'AI email copy generator'} apiEndpoint="/api/swipe-file/generate"
         fields={[{key:'product',label:'Product/Service',placeholder:'What are you promoting?'},{key:'audience',label:'Target Audience',placeholder:'Who are you emailing?'},{key:'goal',label:'Email Goal',type:'select',options:['Welcome Sequence','Sales Email','Follow-Up','Re-engagement','Announcement']}]}
         resultLabel="Your Email" /></ProtectedRoute>} />
 

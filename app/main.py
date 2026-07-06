@@ -42804,6 +42804,15 @@ def email_swipes_page(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/email-swipes/generator")
+def email_swipes_generator_page(request: Request):
+    """Serve React SPA — AI generator moved to sub-route when the curated
+    20-swipe library took over /email-swipes (6 Jul 2026)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
 # ═══════════════════════════════════════════════════════════════
 #  AI VIDEO SCRIPT GENERATOR
 # ═══════════════════════════════════════════════════════════════
