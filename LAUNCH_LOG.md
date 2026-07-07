@@ -8,6 +8,65 @@
 
 ---
 
+## Status as of 2026-07-07 — SUBSCRIBE BUTTON LIVE + MARKETING ARSENAL (OFFER PAGE, SWIPES, COURSE) + LINK-TOOLS AUDIT
+
+HEAD = `b8f0e283`. Sessions 4–7 Jul, 15 commits. Theme of the period: the Watcher Pool proposal round ended in one surviving idea shipped and verified, then a marketing-asset building spree, then two audits that caught serious silent breakage.
+
+### Watch-to-Earn Subscribe button — SHIPPED + VERIFIED (`d8171a80` → `31a13c0e`)
+- In-platform lead capture at the moment of proven attention: watchers tap once after a verified watch → land in the advertiser's SuperLeads ("Watch-to-Earn subscribers" list, gold). Proof-of-watch enforced server-side (any-date completed VideoWatch), own-campaign guard, per-advertiser dedupe across ALL lists, unsub + fresh tap = reactivation. HARD RULES: never auto-capture, never paid, never required.
+- **Four defects found by Steve's live testing, all fixed**: (1) unlock keyed to today-only `is_watched` instead of the endpoint's any-date rule (`3e168f24`, adds `can_subscribe` server flag); (2) locked-chip copy contradicted a completed timer (`22ac4244`, amber "Tap Mark as Watched to unlock"); (3) quota-complete page unmounted the capture moment (`092c6a50` — WRONG FIX, searched newData for the video); (4) real root cause: quota-complete `/api/watch` returns `videos: []` — hold now decided from the just-completed video object, newData stashed in `pendingData` until Continue (`31a13c0e`). **Steve confirmed working.**
+- LESSON: `is_watched` is a today-only quota flag; quota-complete watch responses carry an EMPTY videos list; verify the actual member flow, not that code compiles.
+
+### Killed proposals (Steve verdicts, recorded `ef0c9b00`)
+- **Watcher Pool cash pool / comp re-split: DEAD** (~$34/yr member ceiling — "not worth bothering"). Direct stays 50%.
+- **Public campaign pages: DEAD** (no differentiation vs sharing a blog/SuperPages page).
+- **STILL OPEN: quota 1→3 daily watches** — the actual 426-day backlog fix. Longest-standing decision on the board.
+
+### Manual renewal tool (`966c42e8`) — used live on user 179
+- `/admin/api/manual-renewal?user_id=N&months=1&anchor=now|due` (dry default, `&apply=1`): extends next_renewal_date + membership_expires_at (heals two-field drift), clears grace, `renewal_source='manual'`, writes Payment row (`membership_manual`, locked price), deliberately NO commission rows/wallet credits (off-platform money); dry run names the sponsor so real-member-sponsor $10 gets a deliberate decision. Applied to @itsamazing (David Smith, Founder #14, paid wallet-to-wallet): renewed to 4 Aug @ $15, panel converged.
+
+### Renewal-surface copy lies killed (`6dc6aaab`, `a69527b5`)
+- "Earn or top up" — NO wallet top-up capability exists (verified: /api/wallet read-only). Both instances fixed.
+- Replacement "earn to cover" also killed (hope ≠ renewal method). RULE: payment-surface copy states balance, names live options (card/crypto), never suggests timing-dependent paths.
+
+### Member offer page — mockup rounds → LIVE feature (`06ba7114`, hub fix `da49fb54`)
+- dailyleadsystem.com teardown → income-forward member landing page: floating dashboard collage (Premium $400 mini-grid self-filling to $2,640 with per-seat values + stacked gold bonus labels), live commission feed at published rates, verified numbers throughout ($10/mo recurring, 50% direct both streams, 100% campaign scoped, $132/$2,640 worked examples), W2E section, subscribe demo, video coming-soon tab, FOUR THEMES (Ocean/Midnight/Emerald/Voltage via `?t=`), disclaimers everywhere, no fake social proof.
+- Ships via the marketing_assets system: template at `app/marketing_templates/offer.html`, `/admin/api/publish-offer-page` (idempotent upsert, slug='offer'), served `/m/offer/{username}` with ref-cookie attribution + per-member OG unfurls. Published by Steve; verified live, zero leaked placeholders.
+- **Steve caught me patching the DEAD MyMarketing.jsx** (removed from nav weeks ago) — real hub = `MarketingPage.jsx` at `/marketing` (statically imported → main bundle). Four theme tiles added there; MyMarketing reverted. LESSON: check which page the nav actually serves before patching.
+- NOTE: no $600 campaign tier exists (Steve asked twice) — top tier = T5 Premium $400. Creating one = product decision.
+
+### Email swipes library (`29f89f85`)
+- `/email-swipes` = curated 20-swipe library (5 categories × 4: Invite / Welcome & nurture / Value & trust / Re-engagement / Promo & launch), each with subject + body + tailored AI prompt. Copy Email substitutes member's real /ref link + name client-side; `{{name}}` left intact as SuperLeads' NATIVE merge tag (verified in send path ~48150). Invite swipes: scoped claims + results-vary baked in. AI generator preserved at `/email-swipes/generator`.
+
+### Link-tools audit (`eb952020`) — 5 defects, one severe
+1. **CRITICAL: duplicate `@app.get("/go/{slug}")`** — bpg_share_landing shadowed by the link-tools redirect → EVERY Brand Poster share link on social 404'd, silently, for strangers. Poster lookup now the final fallback in go_redirect (short → rotator → poster → 404); duplicate registration removed.
+2. Password-protected links recorded ZERO clicks + `/go/{slug}/unlock` bypassed cap/expiry and ignored geo/device rules → unlock now mirrors go_redirect fully (source='password').
+3. Cross-system slug hijack: both create paths now exclude `PosterTemplate.share_slug`.
+4. Auto-slug 20-attempt fallthrough → clean error.
+5. Frontend BASE → fixed `https://www.superadpro.com` (bare domain forwards root only).
+- LESSON: duplicate FastAPI route registrations shadow silently — grep route paths when auditing.
+
+### Attraction Marketing Course → lead magnet #3 (`b8f0e283`)
+- Original 8-module / 24-lesson course (researched + synthesized, income-claims compliant, SuperAdPro tools as the worked example). **Visual edition**: designed dark-cobalt cover + six branded SVG→PNG diagrams (trust ladder, four pillars, capture bridge, flywheel, DMO hour, 90-day timeline), amber action-step panels, page-numbered footers, static contents page (no Word-field dependency).
+- Ships in the LEAD_MAGNETS architecture alongside Traffic + Email List courses: PDF at `static/downloads/`, 5-email welcome sequence (value-pure, teaches the course's own method), `_provision_attraction_course_funnel` (violet list + sequence + FunnelPage), opt-in template derived from the email-course one with asserted replacements, public route `/attraction-course/{username}` auto-provisioning on first view. Verified live: page 200, zero placeholders, PDF 200.
+- Master docx with Steve (outputs). Video-course proposal discussed (voice-clone + branded slides pipeline, 8 phone-filmed module intros); prototype offer stands, not started.
+
+### Open board (Steve actions)
+1. **DECIDE quota 1→3** (the backlog fix — longest-standing)
+2. Verify: poster share link (post-`eb952020`), link-tools round trip, offer page WhatsApp unfurl, email-swipes copy test, lead magnet #3 page + capture test
+3. Railway: delete `superadpro-renderer` + `Postgres-3ZTY` + volume; caps 24/24 → 4/4
+4. **Rotate the GitHub PAT** (still plaintext in project instructions)
+5. Send Cynthia's email (drafted 3 Jul)
+6. Custom-domain first production run (oldest queued)
+
+### Engineering queue
+- commission-spec.md line ~107 "current split 30/50/20" is STALE (v2 addendum 50/25/25 is truth, verified against `V2_*` constants) — one-line tidy pending
+- Dead-code sweep: legacy Polygon bodies, escrow subsystem, MyMarketing.jsx + /my-marketing, /marketing-materials, /cron/stuck-lapsed-alert
+- i18n batch pending; SES quota increase pending AWS; platform-wide wallet reconciliation recommended
+- Video course build (awaiting Steve go); $600 tier (product decision if wanted)
+
+---
+
 ## Status as of 2026-07-03 — SEND-PROTECTION SYSTEM LIVE + DEPLOY PIPELINE OVERHAUL + OUTAGE RUNBOOK
 
 HEAD = `53befe56`. Two-day marathon (2–3 Jul), ~35 commits.
