@@ -67327,6 +67327,106 @@ def _provision_email_course_funnel(db, user):
     return f"https://www.superadpro.com/email-course/{user.username}"
 
 
+_ATTRACTION_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/attraction-marketing-course.pdf"
+
+ATTRACTION_COURSE_SEQUENCE_EMAILS = [
+    {"subject": "Your Attraction Marketing Course is here",
+     "send_delay_days": 0,
+     "body_html": "<p>Hi {{lead_name}}, your copy of <strong>The Attraction Marketing Course</strong> is ready.</p>"
+        + _course_btn(_ATTRACTION_COURSE_PDF_URL, "Download the course \u2192")
+        + "<p>Inside: the push-vs-pull reframe, positioning that works without guru status, a weekly content "
+          "system built for 2026, list building, conversations that convert without spam, and a 90-day plan "
+          "with a daily method you can run in an hour.</p>"
+        + "<p>Start with Module 1 \u2014 it changes how you see everything else. I\u2019ll send my favourite "
+          "ideas from the course over the next few days.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "The one reframe that changes everything",
+     "send_delay_days": 2,
+     "body_html": "<p>Quick one, {{lead_name}}.</p>"
+        + "<p>Push marketing interrupts strangers and asks for a decision \u2014 the cold DM, the spammed link. "
+          "It works occasionally, at the cost of your reputation. Pull marketing publishes something genuinely "
+          "useful, repeatedly, and lets the right people come to you.</p>"
+        + "<p>The practical difference is who moves first. In push, you move first and people resist. In pull, "
+          "they move first \u2014 a follow, a comment, a subscribe \u2014 and every step after feels like their idea.</p>"
+        + "<p>Module 1 of the course covers this in full, with the action steps. Today\u2019s version: for every "
+          "one direct outreach you do this week, publish four pieces of value first.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "You don't need results to start (do this instead)",
+     "send_delay_days": 4,
+     "body_html": "<p>{{lead_name}}, the biggest lie stopping beginners: \u201cI can\u2019t lead \u2014 I haven\u2019t got results yet.\u201d</p>"
+        + "<p>You don\u2019t need results. You need honesty, one step ahead, in public. Document what you\u2019re "
+          "doing instead of performing expertise: the tool you set up today, the mistake you made yesterday, the "
+          "small win this week. People follow an honest journey the way they follow a series \u2014 nobody demands "
+          "the protagonist be finished.</p>"
+        + "<p>It also solves the content problem permanently: your work becomes your content. Module 2 shows the "
+          "full method, including the story inventory exercise most people skip and shouldn\u2019t.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "Why followers aren't an asset (and what is)",
+     "send_delay_days": 7,
+     "body_html": "<p>{{lead_name}}, here\u2019s the uncomfortable truth about social media: followers are rented. "
+          "The platform owns the relationship, the algorithm decides your reach, and an account issue can zero "
+          "you overnight.</p>"
+        + "<p>An email list is owned. Nobody can take it, throttle it, or change the rules on it. That\u2019s why "
+          "every serious attraction marketer runs the same bridge: content attracts \u2192 a lead magnet captures "
+          "\u2192 email nurtures. You\u2019re living proof it works \u2014 it\u2019s exactly how you got this email.</p>"
+        + "<p>Modules 4 and 5 of the course build that bridge step by step: the magnet, the capture page, and the "
+          "five-email welcome sequence that does the trust-building for you.</p>"
+        + "<p>{{member_name}}</p>"},
+    {"subject": "The 60-minute daily method",
+     "send_delay_days": 10,
+     "body_html": "<p>Last one in this series, {{lead_name}} \u2014 and it\u2019s the one that decides whether any of "
+          "this works: the Daily Method of Operation.</p>"
+        + "<p>20 minutes publish (from a weekly batch, so you\u2019re shipping, not creating). 20 minutes connect "
+          "(conversations with people who engaged \u2014 signals, not strangers). 10 minutes in your niche\u2019s "
+          "conversations. 10 minutes logging what happened. One hour. Every day. The streak is the asset \u2014 "
+          "consistency beats brilliance in this game, every time.</p>"
+        + "<p>The full plan, the scoreboard that goes with it, and the 90-day rollout are in Modules 7\u20138 of "
+          "the course. If you haven\u2019t opened it yet, today\u2019s the day: "
+        + _course_btn(_ATTRACTION_COURSE_PDF_URL, "Open the course \u2192")
+        + "<p>Go build something that compounds.</p>"
+        + "<p>{{member_name}}</p>"},
+]
+
+
+def _provision_attraction_course_funnel(db, user):
+    """Idempotently create the member's Attraction Marketing Course funnel
+    (list + sequence + page) and return the public page URL. Mirrors the
+    Email List Course provisioner; binds to /api/capture/{user}/{slug}."""
+    from .database import LeadList, EmailSequence, FunnelPage
+    import json as _jc
+    slug = f"{user.username}/attraction-marketing-course"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
+    if page and page.capture_sequence_id and page.default_list_id:
+        return f"https://www.superadpro.com/attraction-course/{user.username}"
+
+    lst = db.query(LeadList).filter(LeadList.user_id == user.id,
+                                    LeadList.name == "Attraction Marketing Course leads").first()
+    if not lst:
+        lst = LeadList(user_id=user.id, name="Attraction Marketing Course leads",
+                       description="Leads from your free Attraction Marketing Course page", color="#7c3aed")
+        db.add(lst); db.flush()
+
+    seq = db.query(EmailSequence).filter(EmailSequence.user_id == user.id,
+                                         EmailSequence.title == "The Attraction Marketing Course \u2014 Welcome").first()
+    if not seq:
+        seq = EmailSequence(user_id=user.id, title="The Attraction Marketing Course \u2014 Welcome",
+                            niche="attraction-marketing", tone="straight-talking",
+                            num_emails=len(ATTRACTION_COURSE_SEQUENCE_EMAILS),
+                            emails_json=_jc.dumps(ATTRACTION_COURSE_SEQUENCE_EMAILS), is_active=True)
+        db.add(seq); db.flush()
+    lst.sequence_id = seq.id
+
+    if not page:
+        page = FunnelPage(user_id=user.id, slug=slug, title="The Attraction Marketing Course",
+                          template_type="optin", status="published")
+        db.add(page)
+    page.capture_sequence_id = seq.id
+    page.default_list_id = lst.id
+    page.status = "published"
+    db.commit()
+    return f"https://www.superadpro.com/attraction-course/{user.username}"
+
+
 LEAD_MAGNETS = [
     {
         "key": "traffic-course",
@@ -67355,6 +67455,20 @@ LEAD_MAGNETS = [
         "list_name": "Email List Course leads",
         "status": "live",
         "provision": _provision_email_course_funnel,
+    },
+    {
+        "key": "attraction-marketing-course",
+        "title": "The Attraction Marketing Course",
+        "desc": "Make the right people come to you \u2014 positioning, a weekly content "
+                "system, list building, conversations that convert, and a 90-day plan "
+                "with a daily method. No income claims.",
+        "cover": "attraction",
+        "cover_title": "Attraction Marketing.",
+        "badge": "20-PAGE PDF \u00b7 FREE",
+        "pdf_url": _ATTRACTION_COURSE_PDF_URL,
+        "list_name": "Attraction Marketing Course leads",
+        "status": "live",
+        "provision": _provision_attraction_course_funnel,
     },
 ]
 
@@ -67630,6 +67744,144 @@ function submitCourse(){
 }
 </script></body></html>"""
 
+_ATTRACTION_COURSE_PAGE_TMPL = r"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Attraction Marketing Course — free</title><link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;
+ background:#eef4fb;background:linear-gradient(180deg,#e9f1fb 0%,#f5f8fc 46%,#eef4fb 100%);
+ min-height:100vh;-webkit-font-smoothing:antialiased}
+.blob{position:fixed;top:-160px;right:-120px;width:520px;height:520px;border-radius:50%;
+ background:radial-gradient(circle at 35% 35%,rgba(56,189,248,.16),rgba(30,58,138,.10) 60%,transparent 72%);z-index:0}
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:26px 22px 46px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
+.brand{font-family:'Sora';font-weight:800;font-size:18px;color:#0a1438;display:flex;align-items:center;gap:9px}
+.brand .mk{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#22d3ee,#1e3a8a)}
+.brand .dot{color:#0ea5e9}
+.shared{font-family:'DM Sans';font-weight:600;font-size:12px;color:#1e3a8a;background:#dCEaFb;
+ background:rgba(30,58,138,.08);border:1px solid rgba(30,58,138,.16);padding:6px 13px;border-radius:999px}
+.hero{display:grid;gap:30px 40px;grid-template-columns:1fr 1fr;
+ grid-template-areas:"top form" "rest rest";align-items:start}
+.p-top{grid-area:top;align-self:center}.p-rest{grid-area:rest;margin-top:8px}.f-col{grid-area:form}
+.eyebrow{font-family:'DM Sans';font-weight:700;font-size:12px;letter-spacing:.16em;
+ text-transform:uppercase;color:#0284c7;margin-bottom:12px}
+.eyebrow .pip{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7c3aed;margin-right:8px;vertical-align:middle}
+h1{font-family:'Sora';font-weight:800;font-size:42px;line-height:1.05;color:#0a1438;letter-spacing:-1px}
+h1 .g{background:linear-gradient(92deg,#0ea5e9,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:17px;line-height:1.55;color:#475569;margin-top:16px;font-weight:500;max-width:440px}
+.bens{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px auto 0;max-width:900px}
+.ben{background:#fff;border:1px solid #e2e9f3;border-radius:12px;padding:11px 13px;display:flex;gap:9px;align-items:flex-start;
+ box-shadow:0 1px 2px rgba(16,42,90,.04)}
+.ben .ck{width:21px;height:21px;flex:none;border-radius:6px;background:#f3eefe;color:#7c3aed;font-weight:800;
+ font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ben span{font-size:13.5px;line-height:1.35;color:#1f2d44;font-weight:500}
+.ben b{color:#0a1438;font-weight:700}
+.how{margin:18px auto 0;max-width:540px;background:rgba(255,255,255,.55);border:1px dashed #c7d6ea;border-radius:13px;
+ padding:13px 15px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.how .st{display:flex;gap:9px;align-items:center}
+.how .n{width:24px;height:24px;border-radius:50%;background:#0a1438;color:#fff;font-family:'Sora';font-weight:800;
+ font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.how .t{font-size:12.5px;color:#334155;font-weight:600;line-height:1.2}
+.how .ar{color:#94a3b8;font-size:14px}
+/* form column */
+.minicover{position:relative;margin:0 auto -22px;width:170px;height:226px;border-radius:13px;overflow:hidden;
+ transform:rotate(-3deg);box-shadow:0 18px 36px -16px rgba(10,20,56,.5);background:#0a1438;z-index:2}
+.minicover .c1{position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:#15346b}
+.minicover .c2{position:absolute;top:10px;right:-18px;width:80px;height:80px;border-radius:50%;background:#0ea5e9;opacity:.3}
+.minicover .mk{position:absolute;top:13px;left:14px;font-family:'Sora';font-weight:800;font-size:9px;color:#fff}
+.minicover .pill{position:absolute;left:14px;top:96px;font-family:'DM Sans';font-weight:700;font-size:6.5px;
+ letter-spacing:.08em;color:#9ff0ff;border:1px solid rgba(125,211,238,.5);padding:2px 7px;border-radius:20px}
+.minicover .tt{position:absolute;left:14px;top:116px;right:12px;font-family:'Sora';font-weight:800;font-size:17px;
+ line-height:1.04;color:#fff;letter-spacing:-.4px}
+.minicover .tt .d{color:#38bdf8}
+.minicover .rl{position:absolute;left:14px;top:188px;width:34px;height:4px;border-radius:3px;background:#0ea5e9}
+.card{background:#fff;border:1px solid #e4ebf4;border-radius:18px;padding:38px 24px 22px;
+ box-shadow:0 24px 60px -28px rgba(16,42,90,.4)}
+.fh{font-family:'Sora';font-weight:800;font-size:22px;color:#0a1438;text-align:center}
+.fhs{font-size:13.5px;color:#64748b;text-align:center;margin:5px 0 18px;font-weight:500}
+.field{width:100%;border:1.6px solid #d7e0ee;border-radius:11px;padding:14px 15px;font-family:'DM Sans';
+ font-size:15.5px;color:#0a1438;background:#f9fbfe;margin-bottom:12px}
+.field:focus{outline:none;border-color:#0ea5e9;background:#fff}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:2px 0 16px;cursor:pointer}
+.consent input{width:19px;height:19px;flex:none;margin-top:1px;accent-color:#7c3aed}
+.consent span{font-size:12px;color:#5a6b82;line-height:1.45}
+.cta{width:100%;border:none;border-radius:12px;padding:16px;font-family:'Sora';font-weight:800;font-size:16.5px;
+ color:#fff;background:#1e3a8a;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);cursor:pointer;
+ box-shadow:0 12px 22px -10px rgba(14,116,180,.7)}
+.cta:hover{filter:brightness(1.05)}
+.micro{text-align:center;font-size:10.5px;letter-spacing:.05em;color:#94a3b8;margin-top:12px;font-weight:600}
+.msg{text-align:center;font-size:13px;margin-top:10px;min-height:15px}
+.trust{display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.trust .ti{font-size:11.5px;color:#64748b;font-weight:600;display:flex;gap:5px;align-items:center}
+.trust .ti b{color:#7c3aed}
+.foot{margin-top:34px;text-align:center;font-size:11.5px;color:#8597ad;line-height:1.7;
+ border-top:1px solid #e2e9f3;padding-top:18px}
+.foot .pw{font-size:10px;color:#aab8cb;margin-top:7px}
+@media(max-width:760px){
+ .hero{grid-template-columns:1fr;grid-template-areas:"top" "form" "rest"}
+ .p-top{align-self:auto}
+ .bens{grid-template-columns:1fr 1fr;max-width:none;margin-top:22px}
+ h1{font-size:32px}.sub{font-size:16px}
+ .minicover{width:150px;height:200px;margin-bottom:-20px}
+ .bens{max-width:none}.how{max-width:none;flex-wrap:wrap;gap:12px}
+ .card{padding:34px 18px 20px}
+}
+</style></head><body><div class="blob"></div><div class="wrap">
+<div class="top"><div class="brand"><span class="mk"></span>SuperAdPro<span class="dot">.</span></div>
+<div class="shared">shared by __MEMBER__</div></div>
+<div class="hero">
+ <div class="p-top">
+  <div class="eyebrow"><span class="pip"></span>Free &middot; 20-page course</div>
+  <h1>Stop chasing prospects. <span class="g">Attract them.</span></h1>
+  <div class="sub">The complete system &mdash; positioning, content that pulls, list building, conversations that convert, and a 90-day plan. Yours free, in one click.</div>
+ </div>
+ <div class="f-col">
+  <div class="minicover"><div class="c1"></div><div class="c2"></div>
+   <div class="mk">SuperAdPro.</div><div class="pill">THE COMPLETE COURSE</div>
+   <div class="tt">Attraction<br>Marketing<span class="d">.</span></div><div class="rl"></div></div>
+  <div class="card" id="formwrap">
+   <div class="fh">Get the free course</div>
+   <div class="fhs">Email-only &mdash; instant access to your inbox.</div>
+   <input class="field" id="em" type="email" placeholder="Your best email" autocomplete="email">
+   <label class="consent"><input type="checkbox" id="cs"><span>Email me the free course and the
+    occasional list-building tip. I can unsubscribe anytime.</span></label>
+   <button class="cta" id="btn" onclick="submitCourse()">Send me the course &rarr;</button>
+   <div class="msg" id="msg"></div>
+   <div class="micro">22-PAGE PDF &middot; INSTANT ACCESS &middot; NO SPAM</div>
+  </div>
+  <div class="trust">
+   <div class="ti"><b>&#10003;</b> No income claims</div>
+   <div class="ti"><b>&#10003;</b> Unsubscribe anytime</div>
+   <div class="ti"><b>&#10003;</b> Read in 30 min</div>
+  </div>
+ </div>
+ <div class="p-rest">
+  <div class="bens"><div class="ben"><span class="ck">&#10003;</span><span><b>Push vs pull</b> &mdash; make the right people come to you</span></div><div class="ben"><span class="ck">&#10003;</span><span><b>The content engine</b> &mdash; hooks, pillars, a weekly system</span></div><div class="ben"><span class="ck">&#10003;</span><span><b>Capture &amp; nurture</b> &mdash; build a list that trusts you</span></div><div class="ben"><span class="ck">&#10003;</span><span><b>The 90-day plan</b> &mdash; a daily method that compounds</span></div></div>
+  <div class="how">
+   <div class="st"><span class="n">1</span><span class="t">Enter<br>your email</span></div>
+   <span class="ar">&rarr;</span>
+   <div class="st"><span class="n">2</span><span class="t">Check<br>your inbox</span></div>
+   <span class="ar">&rarr;</span>
+   <div class="st"><span class="n">3</span><span class="t">Read in<br>~30 min</span></div>
+  </div>
+ </div>
+</div>
+<div class="foot">You're joining __MEMBER__'s email list. We respect your privacy &mdash; unsubscribe in
+ one click, anytime.<br>&copy; SuperAdPro &middot; The Attraction Marketing Course<div class="pw">Powered by SuperAdPro</div></div>
+</div>
+<script>
+function submitCourse(){
+ var em=document.getElementById('em').value.trim();
+ var cs=document.getElementById('cs').checked;
+ var msg=document.getElementById('msg');
+ if(!em||em.indexOf('@')<1){msg.textContent='Please enter a valid email.';msg.style.color='#e11d48';return;}
+ if(!cs){msg.textContent='Please tick the box to continue.';msg.style.color='#e11d48';return;}
+ var btn=document.getElementById('btn');btn.textContent='Sending\u2026';btn.style.pointerEvents='none';msg.textContent='';
+ fetch('/api/capture/__USERNAME__/attraction-marketing-course',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,name:'',consent:true})})
+ .then(function(r){return r.json()}).then(function(d){
+   document.getElementById('formwrap').innerHTML='<div style="text-align:center;padding:30px 6px"><div style="font-family:Sora;font-weight:800;font-size:22px;color:#0a1438">Check your inbox.</div><p style="color:#475569;margin-top:9px;font-size:14px">Your course is on its way to '+em+'.<br>(Peek in spam if it\'s not there in a minute.)</p></div>';
+ }).catch(function(){msg.textContent='Something went wrong \u2014 please try again.';msg.style.color='#e11d48';btn.textContent='Send me the course \u2192';btn.style.pointerEvents='auto';});
+}
+</script></body></html>"""
+
 
 @app.get("/email-course/{username}")
 def email_course_page(username: str, db: Session = Depends(get_db)):
@@ -67645,6 +67897,24 @@ def email_course_page(username: str, db: Session = Depends(get_db)):
         logger.warning(f"email course funnel provision failed for {username}: {e}")
     member_name = owner.first_name or owner.username
     html = _EMAIL_COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    return HTMLResponse(html)
+
+
+@app.get("/attraction-course/{username}")
+def attraction_course_page(username: str, db: Session = Depends(get_db)):
+    """Public per-member Attraction Marketing Course lead-magnet page.
+    Auto-provisions the member's funnel on first view, then renders the
+    opt-in. Posts to /api/capture/."""
+    uname = (username or "").strip().lstrip("@")
+    owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
+    if not owner:
+        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+    try:
+        _provision_attraction_course_funnel(db, owner)
+    except Exception as e:
+        logger.warning(f"attraction course funnel provision failed for {username}: {e}")
+    member_name = owner.first_name or owner.username
+    html = _ATTRACTION_COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
     return HTMLResponse(html)
 
 

@@ -11,10 +11,13 @@ import { Copy, Check, SlidersHorizontal, Lock, Library } from 'lucide-react';
 function Cover({ m, height }) {
   if (m.cover_title) {
     const email = m.cover === 'email';
-    const grad = email
+    const attraction = m.cover === 'attraction';
+    const grad = attraction
+      ? 'linear-gradient(150deg,#0a1438 0%,#2d1b69 52%,#7c3aed 145%)'
+      : email
       ? 'linear-gradient(150deg,#0a1438 0%,#163a66 52%,#16a34a 145%)'
       : 'linear-gradient(150deg,#0a1438 0%,#15346b 55%,#0ea5e9 135%)';
-    const blob = email ? 'rgba(56,189,248,0.18)' : 'rgba(125,211,238,0.16)';
+    const blob = attraction ? 'rgba(167,139,250,0.20)' : email ? 'rgba(56,189,248,0.18)' : 'rgba(125,211,238,0.16)';
     return (
       <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: grad }}>
         <div style={{ position: 'absolute', top: -34, right: -30, width: 110, height: 110, borderRadius: '50%', background: blob }} />
