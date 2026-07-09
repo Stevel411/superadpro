@@ -66480,6 +66480,93 @@ def admin_api_members_emails(
     }
 
 
+@app.get("/admin/api/export-members-migration")
+def admin_api_export_members_migration(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Read-only one-shot export for the AdvantageLife migration.
+
+    Dumps every member's identity + genealogy (sponsor_id, pass_up_sponsor_id)
+    plus the fields needed to derive the grandfather set, and flags each member
+    who currently holds a LIVE Stripe subscription (active/trialing/past_due),
+    matched by stripe_customer_id — the gateway truth for 'still paying'.
+
+    NO mutations. Admin-only. Built for a single migration pull; safe to re-run.
+    """
+    _require_admin(user)
+    import time as _t
+    from datetime import datetime as _dt
+
+    # ── Gateway truth: who is currently subscribed in Stripe ──
+    active_customers = set()
+    stripe_note = "ok"
+    stripe_capped = False
+    try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            stripe_note = "stripe_not_configured_in_this_env"
+        else:
+            _ss._ensure_sdk()
+            import stripe as _stripe
+            sparams = {"status": "all", "limit": 100}
+            t0 = _t.time()
+            while True:
+                if _t.time() - t0 > 25:
+                    stripe_capped = True
+                    break
+                spage = _stripe.Subscription.list(**sparams)
+                for s in spage.data:
+                    st = getattr(s, "status", "unknown")
+                    if st in ("active", "trialing", "past_due"):
+                        cust = getattr(s, "customer", None)
+                        if cust:
+                            active_customers.add(cust)
+                if getattr(spage, "has_more", False) and spage.data:
+                    sparams["starting_after"] = spage.data[-1].id
+                else:
+                    break
+    except Exception as e:
+        stripe_note = f"stripe_error: {e}"
+
+    # ── Every member + genealogy ──
+    members = []
+    stripe_active_count = 0
+    for m in db.query(User).order_by(User.id.asc()).all():
+        cust_id = getattr(m, "stripe_customer_id", None)
+        is_stripe_active = bool(cust_id and cust_id in active_customers)
+        if is_stripe_active:
+            stripe_active_count += 1
+        _exp = getattr(m, "membership_expires_at", None)
+        members.append({
+            "id": m.id,
+            "username": m.username,
+            "email": m.email,
+            "sponsor_id": m.sponsor_id,
+            "pass_up_sponsor_id": m.pass_up_sponsor_id,
+            "membership_tier": m.membership_tier,
+            "is_founding_member": bool(getattr(m, "is_founding_member", False)),
+            "founding_spot_number": getattr(m, "founding_spot_number", None),
+            "is_active": bool(m.is_active),
+            "is_admin": bool(m.is_admin),
+            "activated_at": m.activated_at.isoformat() if m.activated_at else None,
+            "membership_expires_at": _exp.isoformat() if _exp else None,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "stripe_customer_id": cust_id,
+            "is_stripe_active": is_stripe_active,
+        })
+
+    return {
+        "exported_at": _dt.utcnow().isoformat(),
+        "total_members": len(members),
+        "stripe_active_count": stripe_active_count,
+        "stripe_note": stripe_note,
+        "stripe_capped": stripe_capped,
+        "members": members,
+    }
+
+
 # Advisory-lock id for the admin broadcast sender. Distinct from the BSC
 # scanner (…291) and security watchdog (…292) locks so a running broadcast
 # can't collide with those daemons. Held by the worker's own DB connection
