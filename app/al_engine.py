@@ -17,7 +17,7 @@ Two entry points mirror the pure core:
 `seller_user_id` is the buyer's sponsor — the member whose sale this is.
 COMPANY (pe.COMPANY sentinel) means the commission falls to the platform.
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -42,20 +42,36 @@ def owned_level(db: Session, user_id: int) -> int:
     return int(top or 0)
 
 
+WATCH_GRACE_HOURS = 48  # a member stays watch-qualified for 48h after meeting quota
+                        # — fixes the time-zone unfairness (a sale can't skip you just
+                        # because you hadn't done today's watch YET). Steve, 9 Jul 2026.
+
+
 def watch_qualified(db: Session, user_id: int) -> bool:
-    """Watch-to-Earn gate: today's watch quota met and commissions not paused.
-    Admin bypasses. Mirrors the daily-watch rule tracked in WatchQuota."""
+    """Watch-to-Earn gate WITH the 48h grace window. Qualified if EITHER today's
+    quota is met OR the member met quota within the last ~48h. Admin bypasses.
+    Commissions-paused always fails."""
     u = db.query(User).filter(User.id == user_id).first()
     if u is None:
         return False
     if u.is_admin:
         return True
     q = db.query(WatchQuota).filter(WatchQuota.user_id == user_id).first()
-    if q is None:
+    if q is None or q.commissions_paused:
         return False
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    return (not q.commissions_paused) and q.today_date == today \
-        and (q.today_watched or 0) >= (q.daily_required or 1)
+    # today's quota met outright
+    if q.today_date == today and (q.today_watched or 0) >= (q.daily_required or 1):
+        return True
+    # 48h grace: met quota recently enough (day-granularity window)
+    if q.last_quota_met:
+        try:
+            last = datetime.strptime(str(q.last_quota_met)[:10], "%Y-%m-%d").date()
+            if last >= (datetime.utcnow() - timedelta(hours=WATCH_GRACE_HOURS)).date():
+                return True
+        except Exception:
+            pass
+    return False
 
 
 # ── Build a pure-engine Member view from a real user row ───────────────
@@ -101,9 +117,11 @@ def resolve_payee(db: Session, seller_user_id: int, pack_level: int) -> dict:
 
 # ── Commit (on confirmation): wire, count, write audit row ─────────────
 def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
-                amount=None, purchase_id: int = None, do_commit: bool = True) -> dict:
+                amount=None, purchase_id: int = None, resolution: dict = None,
+                do_commit: bool = True) -> dict:
     """Settle a confirmed pack sale:
-      1. resolve the payee (seller = buyer's sponsor),
+      1. use the payee resolved (and LOCKED) at intent time if `resolution` is
+         given — the buyer already paid that person — else resolve fresh,
       2. wire the buyer's pass-up target SET-ONCE (migrated members keep theirs),
       3. increment the seller's sale counter,
       4. write a PackCommission audit row.
@@ -114,14 +132,14 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
         seller = db.query(User).filter(User.id == buyer.sponsor_id).first()
 
     if seller is None:
-        res = {"earner_id": pe.COMPANY, "type": "direct_company",
-               "sale_number": 0, "chain": None, "pass_up_depth": 0}
+        res = resolution or {"earner_id": pe.COMPANY, "type": "direct_company",
+                             "sale_number": 0, "chain": None, "pass_up_depth": 0}
         _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
         if do_commit:
             db.commit()
         return res
 
-    res = resolve_payee(db, seller.id, pack_level)
+    res = resolution or resolve_payee(db, seller.id, pack_level)
 
     # wire the buyer's pass-up target once (do not re-wire on repeat purchases,
     # and never overwrite a migrated member's derived target)
