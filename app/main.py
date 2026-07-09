@@ -11378,7 +11378,7 @@ def _run_reconciliation(db, max_seconds: int = 55, charge_cursor: str = ""):
                     if st in ("active", "trialing", "past_due"):
                         cust = getattr(s, "customer", None)
                         if cust:
-                            active_customers.add(cust)
+                            active_customers[cust] = st
                         try:
                             items = getattr(s, "items", None)
                             pid = items.data[0].price.id if (items and items.data) else "unknown"
@@ -66500,7 +66500,7 @@ def admin_api_export_members_migration(
     from datetime import datetime as _dt
 
     # ── Gateway truth: who is currently subscribed in Stripe ──
-    active_customers = set()
+    active_customers = {}   # customer_id -> subscription status
     stripe_note = "ok"
     stripe_capped = False
     try:
@@ -66522,7 +66522,7 @@ def admin_api_export_members_migration(
                     if st in ("active", "trialing", "past_due"):
                         cust = getattr(s, "customer", None)
                         if cust:
-                            active_customers.add(cust)
+                            active_customers[cust] = st
                 if getattr(spage, "has_more", False) and spage.data:
                     sparams["starting_after"] = spage.data[-1].id
                 else:
@@ -66535,7 +66535,8 @@ def admin_api_export_members_migration(
     stripe_active_count = 0
     for m in db.query(User).order_by(User.id.asc()).all():
         cust_id = getattr(m, "stripe_customer_id", None)
-        is_stripe_active = bool(cust_id and cust_id in active_customers)
+        stripe_status = active_customers.get(cust_id) if cust_id else None
+        is_stripe_active = stripe_status is not None
         if is_stripe_active:
             stripe_active_count += 1
         _exp = getattr(m, "membership_expires_at", None)
@@ -66555,12 +66556,16 @@ def admin_api_export_members_migration(
             "created_at": m.created_at.isoformat() if m.created_at else None,
             "stripe_customer_id": cust_id,
             "is_stripe_active": is_stripe_active,
+            "stripe_status": stripe_status,
         })
 
+    from collections import Counter as _Counter
+    status_breakdown = dict(_Counter(x["stripe_status"] for x in members if x["stripe_status"]))
     return {
         "exported_at": _dt.utcnow().isoformat(),
         "total_members": len(members),
         "stripe_active_count": stripe_active_count,
+        "stripe_status_breakdown": status_breakdown,
         "stripe_note": stripe_note,
         "stripe_capped": stripe_capped,
         "members": members,
