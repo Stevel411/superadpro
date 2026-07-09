@@ -325,6 +325,9 @@ class User(Base):
     sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # permanent pass-up chain
     course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
+    # ── AdvantageLife model ──
+    access_level        = Column(String, default="free", index=True)  # 'free' (pays $100 to join) or 'lifetime' ($100 join / grandfather gift)
+    pack_sale_count     = Column(Integer, default=0)              # AdvantageLife 3/6/9 pass-up counter (confirmed campaign-pack sales)
     wallet_address      = Column(String, nullable=True)
     wallet_network      = Column(String, nullable=True)    # 'tron' (TRC-20) or 'bsc' (BEP-20). NULL for legacy users until they re-enter address.
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
@@ -687,6 +690,90 @@ class CoursePassUpTracker(Base):
     sales_count     = Column(Integer, default=0)              # total sales closed at this tier
     first_passed_up = Column(Boolean, default=False)          # True once 1st sale was passed up
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# ═══════════════════════════════════════════════════════════════
+# AdvantageLife — Campaign Packs, P2P settlement & the 3/6/9 pass-up
+# New model: $100 lifetime join (platform-collected) unlocks the tools;
+# Watch-to-Earn campaign packs ($20–$1000) are sold 100% member-to-member
+# (P2P) with the 3/6/9 infinite pass-up. Generalised from the Course* models.
+# The platform never holds pack funds — it resolves the payee and records proof.
+# ═══════════════════════════════════════════════════════════════
+
+class CampaignPack(Base):
+    """Watch-to-Earn campaign pack tiers ($20 → $1000) — the product members buy."""
+    __tablename__ = "campaign_packs"
+    id            = Column(Integer, primary_key=True, index=True)
+    name          = Column(String, nullable=False)
+    slug          = Column(String, unique=True, index=True)
+    description   = Column(Text, nullable=True)
+    price         = Column(Money, nullable=False)                 # 20 .. 1000
+    level         = Column(Integer, nullable=False, index=True)   # $ level — drives the own-level-or-higher earning gate
+    is_active     = Column(Boolean, default=True)
+    sort_order    = Column(Integer, default=0)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+class PackPurchase(Base):
+    """Every campaign-pack purchase. Activated once the P2P payment is confirmed."""
+    __tablename__ = "pack_purchases"
+    id             = Column(Integer, primary_key=True, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), index=True)   # buyer
+    pack_id        = Column(Integer, ForeignKey("campaign_packs.id"))
+    pack_level     = Column(Integer, index=True)                  # denormalised for fast gating
+    amount         = Column(Money)
+    payment_method = Column(String, default="crypto")            # crypto / bank / paypal / wise
+    status         = Column(String, default="pending", index=True)   # pending / active
+    tx_ref         = Column(String, nullable=True)
+    activated_at   = Column(DateTime, nullable=True)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+class PackCommission(Base):
+    """Audit trail for every pack commission (direct / pass_up / company)."""
+    __tablename__ = "pack_commissions"
+    id              = Column(Integer, primary_key=True, index=True)
+    purchase_id     = Column(Integer, ForeignKey("pack_purchases.id"))
+    buyer_id        = Column(Integer, ForeignKey("users.id"))                 # who bought
+    earner_id       = Column(Integer, ForeignKey("users.id"), nullable=True)  # who earns (NULL = company)
+    amount          = Column(Money)
+    pack_level      = Column(Integer)
+    commission_type = Column(String)                             # direct / pass_up / direct_company / pass_up_company
+    pass_up_depth   = Column(Integer, default=0)                 # 0 = direct, 1+ = levels climbed
+    source_chain    = Column(Integer, nullable=True, index=True) # 3rd→1, 6th→2, 9th→3
+    status          = Column(String, default="pending", index=True)  # pending / paid
+    notes           = Column(Text, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class PayoutMethod(Base):
+    """A member's P2P payout details (how buyers pay them). Multiple allowed."""
+    __tablename__ = "payout_methods"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), index=True)
+    method_type  = Column(String)                                # crypto / paypal / bank / wise
+    details      = Column(Text, nullable=True)                   # JSON: address/QR/handle/account + optional instructions
+    is_default   = Column(Boolean, default=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+class P2PIntent(Base):
+    """A pending member-to-member pack payment: payee resolved up front, then
+       proof → confirm → activate. The platform never holds these funds."""
+    __tablename__ = "p2p_intents"
+    id              = Column(Integer, primary_key=True, index=True)
+    buyer_id        = Column(Integer, ForeignKey("users.id"), index=True)
+    earner_id       = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # resolved payee (NULL = company)
+    pack_id         = Column(Integer, ForeignKey("campaign_packs.id"))
+    pack_level      = Column(Integer, index=True)
+    amount          = Column(Money)
+    status          = Column(String, default="pending", index=True)  # pending / proof_submitted / confirmed / disputed / expired
+    payee_snapshot  = Column(Text, nullable=True)                # JSON: earner's payout details captured at intent time
+    commission_type = Column(String, nullable=True)             # direct / pass_up (from the engine)
+    pass_up_depth   = Column(Integer, default=0)
+    source_chain    = Column(Integer, nullable=True)
+    tx_ref          = Column(String, nullable=True)             # buyer-submitted transaction reference
+    proof_url       = Column(String, nullable=True)             # uploaded proof (R2/S3)
+    notes           = Column(Text, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    submitted_at    = Column(DateTime, nullable=True)           # when the buyer submitted proof
+    confirmed_at    = Column(DateTime, nullable=True)
+    confirmed_by    = Column(Integer, ForeignKey("users.id"), nullable=True)  # earner or admin who activated
 
 class Payment(Base):
     """Incoming payments from members."""
@@ -3798,6 +3885,18 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── AdvantageLife: access_level + pack_sale_count (isolated, same reason as activated_at above) ──
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS access_level VARCHAR DEFAULT 'free'"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS pack_sale_count INTEGER DEFAULT 0"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_users_access_level ON users(access_level)"))
+        conn.commit()
+        print("✅ access_level + pack_sale_count columns added/verified on users table")
+except Exception as e:
+    print(f"⚠️ AdvantageLife user-columns migration failed: {e}")
 
 # ── Fast Start hero columns (added 17 May 2026) ──
 # Two nullable timestamps tracking the dashboard "Activate Grid" hero state.
