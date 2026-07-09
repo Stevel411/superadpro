@@ -66480,6 +66480,171 @@ def admin_api_members_emails(
     }
 
 
+# ═══════════════════════════════════════════════════════════════
+# AdvantageLife migration — secret-gated (the fresh DB has no admin
+# account yet, so these bootstrap tools use MIGRATION_SECRET, not login).
+# ═══════════════════════════════════════════════════════════════
+def _check_migration_secret(secret: str):
+    import os as _os
+    expected = _os.getenv("MIGRATION_SECRET", "")
+    if not expected or secret != expected:
+        raise HTTPException(status_code=403, detail="Invalid or missing migration secret")
+
+
+@app.get("/admin/migrate", response_class=HTMLResponse)
+def admin_migrate_page(request: Request, secret: str = ""):
+    _check_migration_secret(secret)
+    return HTMLResponse("""<!doctype html><html><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1"><title>AdvantageLife Migration</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 20px;color:#0a1f52}
+.box{border:1px solid #e2e9f4;border-radius:14px;padding:24px;box-shadow:0 12px 34px -20px rgba(10,31,82,.35)}
+button{background:linear-gradient(135deg,#e11d3a,#9e0b26);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-weight:700;cursor:pointer;font-size:15px}
+pre{background:#f4f7fc;padding:16px;border-radius:10px;overflow:auto;font-size:12px;white-space:pre-wrap;max-height:320px}
+input{margin:14px 0}b{color:#c8102e}</style></head><body>
+<h1>AdvantageLife — Member Migration</h1>
+<div class=box>
+<p>Upload <b>export-members-migration.json</b>. The server imports members, preserves the referral genealogy, derives the 3/6/9 pass-up tree, and flags active subscribers as <b>lifetime</b>. Idempotent — safe to re-run.</p>
+<input type=file id=f accept=".json,application/json"><br>
+<button onclick=go()>Run migration import</button>
+<pre id=out>Ready.</pre>
+</div>
+<script>
+const secret=new URLSearchParams(location.search).get('secret')||'';
+async function go(){
+  const el=document.getElementById('f'); const o=document.getElementById('out');
+  if(!el.files[0]){o.textContent='Choose the JSON file first.';return;}
+  o.textContent='Importing… (this can take a few seconds)';
+  const fd=new FormData(); fd.append('file',el.files[0]);
+  try{
+    const r=await fetch('/admin/api/migrate-import?secret='+encodeURIComponent(secret),{method:'POST',body:fd});
+    o.textContent=JSON.stringify(await r.json(),null,2);
+  }catch(e){o.textContent='Error: '+e;}
+}
+</script></body></html>""")
+
+
+@app.post("/admin/api/migrate-import")
+async def admin_api_migrate_import(
+    file: UploadFile = File(...),
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """One-shot, idempotent AdvantageLife migration. Ingests the export JSON,
+    derives the 3/6/9 pass-up tree, flags active subscribers as lifetime, and
+    upserts into the users table by id (two-pass to avoid FK ordering issues)."""
+    _check_migration_secret(secret)
+    import json as _json, os as _os
+    from collections import defaultdict as _dd, deque as _deque
+    from datetime import datetime as _dt
+    from sqlalchemy import text as _text
+
+    data = _json.loads(await file.read())
+    members = {u["id"]: u for u in data["members"]}
+    N = len(members)
+
+    # ── derive pass-up tree in join order ──
+    children = _dd(list)
+    for u in members.values():
+        children[u["sponsor_id"]].append(u)
+    for k in children:
+        children[k].sort(key=lambda x: (x.get("created_at") or "", x["id"]))
+    POS = {3, 6, 9}
+    pass_up = {}
+    roots = children.get(None, [])
+    for r in roots:
+        pass_up[r["id"]] = None
+    dq = _deque(roots)
+    while dq:
+        node = dq.popleft()
+        for i, kid in enumerate(children.get(node["id"], [])):
+            pass_up[kid["id"]] = pass_up.get(node["id"]) if (i + 1) in POS else node["id"]
+            dq.append(kid)
+
+    def _parse(ts):
+        if not ts:
+            return None
+        try:
+            return _dt.fromisoformat(ts)
+        except Exception:
+            return None
+
+    # ── PASS 1: upsert identities (relationships null for now) ──
+    inserted = updated = 0
+    for uid, u in members.items():
+        gf = (u.get("stripe_status") == "active")
+        row = db.query(User).filter(User.id == uid).first()
+        if row is None:
+            row = User(id=uid)
+            db.add(row); inserted += 1
+        else:
+            updated += 1
+        row.username = u.get("username")
+        row.email = u.get("email")
+        row.membership_tier = u.get("membership_tier") or "free"
+        row.is_founding_member = bool(u.get("is_founding_member"))
+        row.founding_spot_number = u.get("founding_spot_number")
+        row.is_admin = bool(u.get("is_admin"))
+        row.access_level = "lifetime" if gf else "free"
+        row.is_active = gf
+        row.pack_sale_count = 0
+        row.activated_at = _parse(u.get("activated_at"))
+        row.created_at = _parse(u.get("created_at")) or row.created_at
+    db.commit()
+
+    # ── PASS 2: genealogy + derived pass-up (all rows exist now) ──
+    for uid, u in members.items():
+        row = db.query(User).filter(User.id == uid).first()
+        row.sponsor_id = u.get("sponsor_id")
+        row.pass_up_sponsor_id = pass_up.get(uid)
+    db.commit()
+
+    # ── reset id sequence so new signups don't collide with imported ids ──
+    seq_note = "ok"
+    try:
+        db.execute(_text("SELECT setval(pg_get_serial_sequence('users','id'), (SELECT MAX(id) FROM users))"))
+        db.commit()
+    except Exception as e:
+        seq_note = f"seq_reset_failed: {e}"
+
+    lifetime = sum(1 for u in members.values() if u.get("stripe_status") == "active")
+    total_users = db.query(User).count()
+    return {
+        "ok": True,
+        "members_in_file": N,
+        "inserted": inserted,
+        "updated": updated,
+        "lifetime_flagged": lifetime,
+        "free": N - lifetime,
+        "total_users_in_db_now": total_users,
+        "sequence_reset": seq_note,
+        "note": "Idempotent. Passwords not set — account-claim flow happens at launch.",
+    }
+
+
+@app.get("/admin/api/grant-lifetime")
+def admin_api_grant_lifetime(
+    usernames: str = "",
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """Grant lifetime access to a comma-separated list of usernames — the
+    hand-picked allow-list. Reusable at any time, idempotent."""
+    _check_migration_secret(secret)
+    wanted = [x.strip().lstrip("@") for x in usernames.split(",") if x.strip()]
+    granted, notfound = [], []
+    for uname in wanted:
+        row = db.query(User).filter(User.username == uname).first()
+        if row:
+            row.access_level = "lifetime"
+            row.is_active = True
+            granted.append(uname)
+        else:
+            notfound.append(uname)
+    db.commit()
+    return {"ok": True, "granted": granted, "not_found": notfound,
+            "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
+
+
 # Advisory-lock id for the admin broadcast sender. Distinct from the BSC
 # scanner (…291) and security watchdog (…292) locks so a running broadcast
 # can't collide with those daemons. Held by the worker's own DB connection
