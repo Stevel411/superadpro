@@ -8,7 +8,48 @@
 
 ---
 
-## Status as of 2026-07-07 — SUBSCRIBE BUTTON LIVE + MARKETING ARSENAL (OFFER PAGE, SWIPES, COURSE) + LINK-TOOLS AUDIT
+## Status as of 2026-07-09 — ADVANTAGELIFE: LIVE PLATFORM, MEMBERS MIGRATED, ENGINE PROVEN (Phases 0–3)
+
+**Branch `advantagelife-passup` = a SEPARATE live deploy** (not `main`). One codebase, two deploys: SuperAdPro off `main`, AdvantageLife off this branch with a FRESH DB. This session took AdvantageLife from mockups to a running platform with the whole member base on it.
+
+**New business model:** $100 one-time lifetime join (platform-collected) unlocks the tools; product = Watch-to-Earn campaign packs $10–$1,000 sold 100% member-to-member (P2P); 3/6/9 infinite pass-up; NO grid, NO subscription.
+
+### Live state
+- Deploy: Railway (renamed toward `advantagelife`), fresh Postgres. URL `web-production-a9b41.up.railway.app` (`/health` ok).
+- Env: `DATABASE_URL`(ref), `SESSION_SECRET`, `SKIP_MIGRATIONS=false`, `BRAND_NAME=AdvantageLife`, `BASE_URL=https://www.advantagelife.club`, `MIGRATION_SECRET`.
+- DB: **611 members** (teams + derived 3/6/9 tree), **53 lifetime**, **9 packs seeded**.
+
+### Done (commits)
+- **Phase 0** `8c1d217` — `app/brand_config.py` (env-driven brand, SuperAdPro defaults preserved).
+- **Phase 1** `744a6af` — schema: CampaignPack, PackPurchase, PackCommission, PayoutMethod, P2PIntent + `users.access_level`/`pack_sale_count`.
+- **Export** (main) `f7c9311`/`cf28876`/`6aa639a` — read-only `/admin/api/export-members-migration` (genealogy + per-member Stripe status). NB `6aa639a` fixed a global-replace over-reach that broke a pre-existing stripe diagnostic block.
+- **Phase 2** `518ec70` — upload migration: 611 imported, genealogy 1:1, 3/6/9 derived in join order, 47 flagged lifetime. Then 6 hand-picked granted → 53.
+- **Phase 3** `215217d` — `app/al_engine.py` DB integration layer (owned-level from PackPurchase, watch-gate from WatchQuota, resolve/commit), proven on the real `godsgifts` leg.
+- **Packs** `c9506d8` — seeded 9 tiers from GRID_PACKAGES/CAMPAIGN_VIEW_TARGETS; added `views_target` + `daily_watch_required`.
+
+### Decisions locked
+- Grandfather = 47 **active** Stripe subs (past_due EXCLUDED) ∪ allow-list (6 added: lindstrom26, natalieestola, kestola, chrissxx, boss70, itsamazing). `grant-lifetime` reusable.
+- Design system APPROVED: **Inter + navy #0a1f52 + red #c8102e + white**, heavy weights, crisp. Mockups `al-style-mockup.html`, `al-join-mockup.html` (join APPROVED).
+- Watch-to-Earn: two gates (own level-or-higher + watch-qualified). **48h grace (Option A)** — commission held pending 48h, releases if daily watch done in window, else passes up (fixes time-zone unfairness). Wires into Phase 5.
+- Packs: price = 100% P2P commission; views_target = delivery before expiry.
+- Stripe: ONE account both brands.
+
+### Next: Phase 4 — $100 join checkout
+Mockup approved. **Blocker = Stripe:** create a $100 one-time product/price + set Stripe keys on the AdvantageLife Railway env. Then wire checkout → activation (access_level=lifetime, unlock, wire sponsor+pass-up set-once, activated_at). Steve doing Stripe next morning.
+
+### Watch items
+- `SKIP_MIGRATIONS=false` now → flip `true` at launch.
+- Bootstrap endpoints LIVE, lock/remove in Phase 8: `/admin/migrate`, `/admin/api/migrate-import`, `/admin/api/grant-lifetime`, `/admin/api/packs` (branch); `/admin/api/export-members-migration` (main).
+- Passwords NOT migrated (post-breach) → account-claim flow at launch.
+- `daily_watch_required` per pack = null, awaiting Steve's 9 numbers (48h grace already set).
+- advantagelife.club is in GoDaddy (not Cloudflare) — decide DNS path at Phase 9.
+- Remaining: 5 P2P settlement → 6 Watch-to-Earn impl → 7 re-skin → 8 verify/lockdown → 9 cutover.
+
+Full handover: `/mnt/user-data/outputs/handover-2026-07-09.md` (this session).
+
+---
+
+
 
 HEAD = `b8f0e283`. Sessions 4–7 Jul, 15 commits. Theme of the period: the Watcher Pool proposal round ended in one surviving idea shipped and verified, then a marketing-asset building spree, then two audits that caught serious silent breakage.
 
