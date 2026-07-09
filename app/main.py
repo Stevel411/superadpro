@@ -11378,7 +11378,7 @@ def _run_reconciliation(db, max_seconds: int = 55, charge_cursor: str = ""):
                     if st in ("active", "trialing", "past_due"):
                         cust = getattr(s, "customer", None)
                         if cust:
-                            active_customers[cust] = st
+                            active_customers.add(cust)
                         try:
                             items = getattr(s, "items", None)
                             pid = items.data[0].price.id if (items and items.data) else "unknown"
