@@ -706,8 +706,10 @@ class CampaignPack(Base):
     name          = Column(String, nullable=False)
     slug          = Column(String, unique=True, index=True)
     description   = Column(Text, nullable=True)
-    price         = Column(Money, nullable=False)                 # 20 .. 1000
+    price         = Column(Money, nullable=False)                 # 10 .. 1000 — also the 100% P2P commission that passes up
     level         = Column(Integer, nullable=False, index=True)   # $ level — drives the own-level-or-higher earning gate
+    views_target  = Column(Integer, default=0)                    # campaign views delivered before the pack expires
+    daily_watch_required = Column(Integer, nullable=True)         # daily watches the OWNER must do to stay qualified (set in Phase 6)
     is_active     = Column(Boolean, default=True)
     sort_order    = Column(Integer, default=0)
     created_at    = Column(DateTime, default=datetime.utcnow)
@@ -3897,6 +3899,31 @@ try:
         print("✅ access_level + pack_sale_count columns added/verified on users table")
 except Exception as e:
     print(f"⚠️ AdvantageLife user-columns migration failed: {e}")
+
+# ── AdvantageLife: campaign_packs columns + seed the 9 tiers from existing config ──
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE campaign_packs ADD COLUMN IF NOT EXISTS views_target INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE campaign_packs ADD COLUMN IF NOT EXISTS daily_watch_required INTEGER"))
+        existing = conn.execute(text("SELECT COUNT(*) FROM campaign_packs")).scalar()
+        if not existing:
+            for tier in sorted(GRID_PACKAGES):
+                price = GRID_PACKAGES[tier]
+                name  = GRID_TIER_NAMES.get(tier, f"Tier {tier}")
+                views = CAMPAIGN_VIEW_TARGETS.get(tier, 0)
+                slug  = name.lower().replace(" ", "-")
+                conn.execute(text(
+                    "INSERT INTO campaign_packs (name, slug, price, level, views_target, is_active, sort_order, created_at) "
+                    "VALUES (:n, :s, :p, :l, :v, TRUE, :o, NOW())"),
+                    {"n": name, "s": slug, "p": price, "l": int(price), "v": views, "o": tier})
+            conn.commit()
+            print(f"✅ campaign_packs seeded ({len(GRID_PACKAGES)} AdvantageLife tiers from config)")
+        else:
+            conn.commit()
+            print(f"✅ campaign_packs already seeded ({existing} rows)")
+except Exception as e:
+    print(f"⚠️ campaign_packs seed failed: {e}")
 
 # ── Fast Start hero columns (added 17 May 2026) ──
 # Two nullable timestamps tracking the dashboard "Activate Grid" hero state.

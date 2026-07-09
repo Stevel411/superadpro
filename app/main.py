@@ -66645,6 +66645,18 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/api/packs")
+def admin_api_packs(secret: str = "", db: Session = Depends(get_db)):
+    """Read-only: list the seeded campaign packs (migration verification)."""
+    _check_migration_secret(secret)
+    from .database import CampaignPack
+    packs = db.query(CampaignPack).order_by(CampaignPack.sort_order.asc()).all()
+    return {"count": len(packs), "packs": [
+        {"level": p.level, "name": p.name, "price": float(p.price),
+         "views_target": p.views_target, "daily_watch_required": p.daily_watch_required,
+         "is_active": p.is_active} for p in packs]}
+
+
 # Advisory-lock id for the admin broadcast sender. Distinct from the BSC
 # scanner (…291) and security watchdog (…292) locks so a running broadcast
 # can't collide with those daemons. Held by the worker's own DB connection
