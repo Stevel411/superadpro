@@ -3,13 +3,14 @@
 # Brevo HTTP API · Cobalt branding · AI Marketing & Advertising
 # ═══════════════════════════════════════════════════════════════
 import os, json, logging, urllib.request
+from app.brand_config import BRAND_NAME, SITE_URL as _BRAND_SITE_URL, FROM_EMAIL as _BRAND_FROM_EMAIL
 
 logger = logging.getLogger(__name__)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-FROM_EMAIL    = os.getenv("FROM_EMAIL", "noreply@superadpro.com")
-SITE_URL      = os.getenv("SITE_URL", "https://www.superadpro.com")
-FROM_DISPLAY  = "SuperAdPro"
+FROM_EMAIL    = _BRAND_FROM_EMAIL
+SITE_URL      = _BRAND_SITE_URL
+FROM_DISPLAY  = BRAND_NAME
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",

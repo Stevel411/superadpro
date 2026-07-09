@@ -9,9 +9,11 @@ import httpx
 import json
 from datetime import datetime
 
+from app.brand_config import SENDER_NAME as _BRAND_SENDER_NAME
+
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 BREVO_SENDER_EMAIL = os.environ.get("FROM_EMAIL", os.environ.get("BREVO_SENDER_EMAIL", "noreply@superadpro.com"))
-BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "SuperAdPro")
+BREVO_SENDER_NAME = _BRAND_SENDER_NAME
 BREVO_BASE_URL = "https://api.brevo.com/v3"
 
 
