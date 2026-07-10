@@ -1900,8 +1900,8 @@ _AL_HOME = r"""<!DOCTYPE html>
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#e8203f;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4;--grn:#22c55e}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;color:#fff;background:linear-gradient(180deg,#0a1f52 0%,#0e2a6e 60%,#12388f 100%)}
-.top{background-image:linear-gradient(180deg,rgba(8,18,54,.78) 0%,rgba(8,18,54,.38) 34%,rgba(9,25,72,.55) 72%,#0a1f52 100%),url('/static/images/al-hero-bg.jpg');
-  background-size:cover;background-position:center 30%}
+.top{background-image:linear-gradient(180deg,rgba(8,18,54,.72) 0%,rgba(8,18,54,.30) 40%,rgba(9,25,72,.45) 78%,#0a1f52 100%),url('/static/images/al-hero-bg.jpg');
+  background-size:cover;background-position:center 30%;padding-bottom:56px}
 .nav{display:flex;align-items:center;gap:26px;max-width:1180px;margin:0 auto;padding:20px 24px}
 .logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:900;font-size:20px;letter-spacing:-.4px}
 .logo .ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#0e2a6e,#0a1f52);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
@@ -1965,9 +1965,9 @@ footer a{color:#b9c8ef}
 <div class="top">
 <div class="nav">
   <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
-  <a class="lnk" href="#plan">The plan</a>
+  <a class="lnk" href="/plan">The plan</a>
   <a class="lnk" href="#tools">Tools</a>
-  <a class="lnk" href="#income">Income</a>
+  <a class="lnk" href="/plan">Income</a>
   <span class="sp"></span>
   <a class="nb white" href="/login">Log in</a>
   <a class="nb red" href="/register">Start free</a>
@@ -1977,13 +1977,14 @@ footer a{color:#b9c8ef}
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
-  <a class="cta" href="/register">Start free — no card</a><a class="cta2" href="#plan">See the plan</a>
+  <a class="cta" href="/register">Start free — no card</a><a class="cta2" href="/plan">See the plan</a>
   <div class="trust"><span class="ok">✓</span> Free to start · the tools work whether or not you ever refer anyone</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
     <span class="pill"><span class="i">$</span> 100% member-to-member pack commissions</span>
   </div>
+</div>
 </div>
 
 <section id="tools">
@@ -2000,7 +2001,6 @@ footer a{color:#b9c8ef}
   </div>
   <div class="ai"><span class="lbl">Creative Studio runs frontier AI</span><span class="m">Sora 2</span><span class="m">Veo</span><span class="m">Kling 3</span><span class="m">FLUX.1</span></div>
 </section>
-</div>
 
 <section id="plan" style="padding-top:20px">
   <div class="income">
@@ -2030,6 +2030,141 @@ footer a{color:#b9c8ef}
 
 <footer>© AdvantageLife · advantagelife.club · <a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="/refund-policy">Refunds</a></footer>
 </body></html>"""
+
+
+_AL_PLAN = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AdvantageLife Plan — Your effort. Your income. 100% yours.</title>
+<meta name="description" content="100% commission, member to member, on every campaign pack. Here's exactly how you get paid.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4;--grn:#0b7a3e}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:#f6f8fd}
+.bar{background:var(--navy);display:flex;align-items:center;gap:20px;padding:14px 24px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:900;font-size:19px;letter-spacing:-.4px}
+.logo .ic{width:36px;height:36px;border-radius:10px;background:linear-gradient(160deg,#0e2a6e,#0a1f52);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.logo .life{color:#ff2743}
+.bar .sp{flex:1}
+.bar a.back{color:#dbe6ff;font-weight:800;font-size:14px;text-decoration:none}
+.nb{background:var(--red);color:#fff;font-weight:900;font-size:14px;text-decoration:none;border-radius:11px;padding:12px 22px}
+.hero{background-image:linear-gradient(180deg,rgba(8,18,54,.66) 0%,rgba(8,18,54,.34) 45%,rgba(8,18,54,.55) 100%),url('/static/images/al-plan-bg.jpg'),url('/static/images/al-hero-bg.jpg');
+  background-size:cover,cover,cover;background-position:center;color:#fff;text-align:center;padding:64px 22px 70px}
+.k{font-size:12px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:#ff5a70;margin-bottom:14px}
+h1{font-weight:900;font-size:clamp(36px,6.6vw,60px);letter-spacing:-2px;line-height:1.04;text-shadow:0 4px 26px rgba(0,0,0,.4)}
+.hsub{font-size:clamp(14.5px,2.2vw,18px);font-weight:600;color:#eaf0ff;max-width:600px;margin:20px auto 40px;line-height:1.6;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.vid{max-width:820px;margin:0 auto;background:rgba(10,25,70,.88);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:20px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;box-shadow:0 40px 90px -30px rgba(2,8,30,.7)}
+.vid .play{width:86px;height:86px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;box-shadow:0 16px 40px -10px rgba(200,16,46,.8)}
+.vid .cap{font-size:11px;font-weight:800;letter-spacing:.22em;color:#8fa4d8;text-transform:uppercase}
+section{max-width:960px;margin:0 auto;padding:66px 22px}
+.sk{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--red);text-align:center;margin-bottom:12px}
+h2{font-weight:900;font-size:clamp(26px,4.4vw,40px);letter-spacing:-1.3px;text-align:center;line-height:1.1;margin-bottom:14px}
+.lead{font-size:15px;font-weight:600;color:var(--dim);line-height:1.7;max-width:640px;margin:0 auto;text-align:center}
+.keepers{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:30px 0 8px}
+.kn{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;background:#fff;border:2px solid var(--line);color:var(--ink)}
+.kn.mine{background:#f0faf4;border-color:#8fd6a8;color:var(--grn)}
+.kn.up{background:#fdf2f4;border-color:#f3a8b8;color:var(--red)}
+.legend{display:flex;justify-content:center;gap:22px;font-size:12px;font-weight:800;margin-top:12px}
+.legend .g{color:var(--grn)}.legend .r{color:var(--red)}
+.card{background:#fff;border:2px solid var(--line);border-radius:20px;padding:clamp(22px,4vw,36px);margin-top:30px}
+.card h3{font-weight:900;font-size:19px;margin-bottom:10px}
+.card p{font-size:14px;font-weight:600;color:var(--dim);line-height:1.7}
+.card p b{color:var(--ink)}
+.packrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:22px}
+.pk{border:2px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+.pk b{display:block;font-weight:900;font-size:16px}
+.pk span{font-size:10px;font-weight:700;color:var(--dim)}
+.gates{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:680px){.gates{grid-template-columns:1fr}}
+.gate{border:2px solid var(--line);border-radius:16px;padding:20px}
+.gate b{font-weight:900;font-size:15px;display:block;margin-bottom:7px}
+.gate p{font-size:13px;font-weight:600;color:var(--dim);line-height:1.65}
+.honest{background:var(--navy);color:#fff;border-radius:20px;padding:clamp(22px,4vw,36px);margin-top:30px}
+.honest h3{font-weight:900;font-size:19px;margin-bottom:10px}
+.honest p{font-size:14px;font-weight:600;color:#c9d6f7;line-height:1.75}
+.honest p b{color:#fff}
+.final{text-align:center;padding:20px 22px 90px}
+.cta{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:16.5px;text-decoration:none;border-radius:13px;padding:18px 36px;box-shadow:0 18px 40px -12px rgba(200,16,46,.6)}
+.disc{font-size:11px;font-weight:600;color:#7c89ad;max-width:660px;margin:26px auto 0;line-height:1.7}
+footer{border-top:1.5px solid var(--line);padding:24px;text-align:center;font-size:12px;font-weight:700;color:var(--dim)}
+footer a{color:var(--dim)}
+</style></head><body>
+
+<div class="bar">
+  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
+  <span class="sp"></span>
+  <a class="back" href="/">&larr; Back to site</a>
+  <a class="nb" href="/register">Start free</a>
+</div>
+
+<div class="hero">
+  <div class="k">The AdvantageLife Plan</div>
+  <h1>Your effort. Your income.<br>100% yours.</h1>
+  <div class="hsub">100% commission, member to member, on every campaign pack. Here's exactly how you get paid — watch it, or read it below.</div>
+  <div class="vid"><div class="play">▶</div><div class="cap">Your explainer video · drops in here</div></div>
+</div>
+
+<section>
+  <div class="sk">Step 1 · Your sales</div>
+  <h2>Get paid in full — and earn from your whole team</h2>
+  <div class="lead">Every campaign pack is bought member to member: the buyer pays the earning member <b>directly, wallet to wallet</b>. When it's your sale, it's your money — 100% of the pack price, the moment they pay. Nothing withheld, nothing to withdraw.</div>
+  <div class="keepers">
+    <span class="kn mine">1</span><span class="kn mine">2</span><span class="kn up">3</span><span class="kn mine">4</span><span class="kn mine">5</span><span class="kn up">6</span><span class="kn mine">7</span><span class="kn mine">8</span><span class="kn up">9</span><span class="kn mine">10+</span>
+  </div>
+  <div class="legend"><span class="g">● yours, in full</span><span class="r">● passes up</span></div>
+</section>
+
+<section style="padding-top:0">
+  <div class="sk">Step 2 · The pass-up</div>
+  <h2>Three sales go up. Everyone's three come up to you.</h2>
+  <div class="lead">Your <b>3rd, 6th and 9th</b> sales pass up to the first qualified member above you. In return, every member in your team passes <b>their</b> 3rd, 6th and 9th up the same way — and their teams pass theirs, forever. Give three, receive from everyone below you. That's the whole engine.</div>
+  <div class="card">
+    <h3>Nine pack levels — earn at every level you own</h3>
+    <p>Pack price = the commission. You earn on sales at any level you <b>own or below</b> — own the $200 pack and a $200 sale pays you $200, member to member.</p>
+    <div class="packrow">
+      <div class="pk"><b>$10</b><span>1k views</span></div><div class="pk"><b>$20</b><span>2k views</span></div>
+      <div class="pk"><b>$50</b><span>4k views</span></div><div class="pk"><b>$100</b><span>8k views</span></div>
+      <div class="pk"><b>$200</b><span>15k views</span></div><div class="pk"><b>$400</b><span>30k views</span></div>
+      <div class="pk"><b>$600</b><span>50k views</span></div><div class="pk"><b>$800</b><span>80k views</span></div>
+      <div class="pk"><b>$1,000</b><span>120k views</span></div>
+    </div>
+    <p style="margin-top:16px;font-size:12.5px">Every pack is a real advertising product: your video, delivered to that many verified member views.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="sk">Step 3 · Staying qualified</div>
+  <h2>Two simple gates keep it fair</h2>
+  <div class="lead">A sale only lands with you when both are true — otherwise it passes over you to the next qualified member above.</div>
+  <div class="gates">
+    <div class="gate"><b>1 · Own the level</b><p>You earn at pack levels you own (or below). Skin in the game — nobody earns on a product they haven't bought.</p></div>
+    <div class="gate"><b>2 · Do your daily watch</b><p>Watch your daily campaign videos to stay earning-qualified (with a 48-hour grace window). Your watching is what makes every pack a real, delivered ad product.</p></div>
+  </div>
+  <div class="honest">
+    <h3>The honest fine print — on the page, not buried</h3>
+    <p><b>Your join isn't a commission.</b> The $100 lifetime membership goes to the platform — your sponsor earns nothing on it. Income comes only from campaign pack sales.<br><br>
+    <b>Unqualified sales route to the platform.</b> If nobody in a chain qualifies for a sale, it goes to AdvantageLife — never silently redistributed.<br><br>
+    <b>You need a payout wallet on file.</b> Buyers pay you directly in USDT/USDC — no wallet means sales pass over you until you add one.</p>
+  </div>
+</section>
+
+<div class="final">
+  <a class="cta" href="/register">Start free — no card</a>
+  <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. This page describes the compensation structure — it makes no earnings promises. Results depend entirely on your own effort, consistency and sales. Most members should expect results proportional to the work they put in, and you can use every tool without earning at all.</div>
+</div>
+
+<footer>© AdvantageLife · advantagelife.club · <a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="/refund-policy">Refunds</a></footer>
+</body></html>"""
+
+
+@app.get("/plan")
+def al_plan_page():
+    """The AdvantageLife compensation plan page (Steve's mockup, 10 Jul):
+    lifestyle hero + explainer-video slot + the 3-step plan with the 1-10
+    keeper strip, pack table, two gates, and the honest fine print."""
+    return HTMLResponse(_AL_PLAN)
 
 
 @app.api_route("/", methods=["GET", "HEAD"])
