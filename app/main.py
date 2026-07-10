@@ -22985,6 +22985,16 @@ def _stripe_handle_checkout_completed(db, session, event):
             except Exception as e:
                 logger.exception(f"pif_voucher activation crashed for user {user.id}")
 
+        elif product_kind == "al_lifetime":
+            # AdvantageLife $100 lifetime join — flat activation, sponsor
+            # earns nothing on the join (locked model). Paid+livemode guard
+            # above already vetted the charge.
+            try:
+                _al_activate_lifetime(db, user.id, source="stripe",
+                                      ref=f"stripe_{session.get('id')}")
+            except Exception:
+                logger.exception(f"al_lifetime activation crashed for user {user.id}")
+
         elif product_kind == "launchpad":
             # $10 Launchpad = grid tier 0 for a FREE (non-member) user. Grants
             # the tier-0 grid + comp-plan qualification through the SAME engine
@@ -24465,6 +24475,15 @@ def _nowpayments_activate_product(db, user, order, meta):
                 )
 
     # ── Email Boost ──
+    elif order.product_type == "al_lifetime":
+        # AdvantageLife $100 lifetime join via crypto — flat activation,
+        # sponsor earns nothing on the join (locked model).
+        try:
+            _al_activate_lifetime(db, order.user_id, source="nowpayments",
+                                  ref=f"np_{order.id}")
+        except Exception:
+            logger.exception(f"al_lifetime NOWPayments activation crashed for order {order.id}")
+
     elif order.product_type == "email_boost":
         pack_map = {
             "email_boost_1000": 1000,
@@ -66895,6 +66914,208 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
         j["action_needed"] = i.status == "proof_submitted"
         out.append(j)
     return {"sales": out}
+
+
+_AL_JOIN_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join AdvantageLife — $100 once, yours for life</title>
+<meta name="description" content="One payment. Every tool. Forever. The AdvantageLife Club lifetime membership.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4}
+body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy) 0%,var(--navy2) 100%);min-height:100vh;color:#fff}
+.wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
+.mk{text-align:center;font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
+.mk i{font-style:normal;color:#ff5a70}
+.tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:30px}
+.card{background:#fff;color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+h1{font-weight:900;font-size:29px;letter-spacing:-.8px;line-height:1.12;margin-bottom:8px}
+h1 .r{color:var(--red)}
+.sub{font-size:14.5px;color:var(--dim);font-weight:500;line-height:1.6;margin-bottom:20px}
+.price{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.price b{font-weight:900;font-size:44px;letter-spacing:-1.5px}
+.price span{font-size:13px;font-weight:700;color:var(--dim)}
+.once{font-size:12px;font-weight:800;color:#0b7a3e;background:#e8f7ee;border-radius:14px;padding:5px 12px;display:inline-block;margin-bottom:20px}
+.inc{border-top:1.5px solid var(--line);padding-top:16px;margin-bottom:20px}
+.inc .row{display:flex;gap:10px;font-size:13.5px;font-weight:600;color:#2a3352;padding:6px 0;line-height:1.45}
+.inc .row b{color:var(--ink)}
+.inc .ck{color:#0b7a3e;font-weight:900;flex-shrink:0}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:16px;font-family:'Inter';font-weight:900;font-size:15.5px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 14px 30px -12px rgba(200,16,46,.6);margin-bottom:10px}
+.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.consent{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;color:var(--dim);font-weight:600;line-height:1.5;margin:14px 0 4px}
+.consent input{margin-top:2px}
+.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
+.state{display:none}
+.state.on{display:block}
+.big{font-size:52px;text-align:center;margin-bottom:10px}
+.ctr{text-align:center}
+.spin{width:34px;height:34px;border:4px solid #e3e8f4;border-top-color:var(--red);border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style></head><body>
+<div class="wrap">
+  <div class="mk">Advantage<i>Life</i></div>
+  <div class="tag">Your effort. Your income. 100% yours.</div>
+  <div class="card">
+
+    <div class="state" id="stAnon">
+      <h1>One payment.<br><span class="r">Every tool. Forever.</span></h1>
+      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Log in or create your free account first — then unlock everything.</div>
+      <a class="btn red" href="/register">Create your account →</a>
+      <a class="btn ghost" href="/login?next=/join">I already have an account</a>
+    </div>
+
+    <div class="state" id="stOffer">
+      <h1>Unlock the platform.<br><span class="r">For life.</span></h1>
+      <div class="sub">One payment, no subscription, no renewals — every tool on AdvantageLife, yours permanently.</div>
+      <div class="price"><b>$__PRICE__</b><span>one-time</span></div>
+      <div class="once">✓ LIFETIME — never pay for the tools again</div>
+      <div class="inc">
+        <div class="row"><span class="ck">✓</span><span><b>Page &amp; funnel builder</b> — pages, funnels, custom domains</span></div>
+        <div class="row"><span class="ck">✓</span><span><b>Autoresponder</b> — lists, sequences, broadcasts, your sending domain</span></div>
+        <div class="row"><span class="ck">✓</span><span><b>AI Creative Studio</b> — video, images and voice from a prompt</span></div>
+        <div class="row"><span class="ck">✓</span><span><b>Video advertising</b> — campaigns watched by real members</span></div>
+        <div class="row"><span class="ck">✓</span><span><b>Watch-to-Earn + the pass-up plan</b> — the earning side, when you want it</span></div>
+      </div>
+      <div class="err" id="err"></div>
+      <button class="btn red" id="btnCard">Pay $__PRICE__ by card →</button>
+      <button class="btn ghost" id="btnCrypto">Pay with crypto (USDT)</button>
+      <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time digital purchase, activated immediately, with no refunds once access is granted.</label>
+      <div class="note">Your $100 joins the platform — your sponsor earns nothing on this payment. Their earnings come from the pack system, explained inside.</div>
+    </div>
+
+    <div class="state" id="stPoll">
+      <div class="spin"></div>
+      <h1 class="ctr">Confirming your payment…</h1>
+      <div class="sub ctr">This usually takes a few seconds. Don't close the page.</div>
+    </div>
+
+    <div class="state" id="stDone">
+      <div class="big">🎉</div>
+      <h1 class="ctr">You're in — <span class="r">for life.</span></h1>
+      <div class="sub ctr">Every tool is unlocked. Welcome to AdvantageLife.</div>
+      <a class="btn red" href="/dashboard">Open your dashboard →</a>
+    </div>
+
+  </div>
+  <div class="note" style="color:#8fa0d4">© AdvantageLife · advantagelife.club · terms · privacy · income disclaimer</div>
+</div>
+<script>
+(function(){
+  var LOGGED=__LOGGED__, LIFETIME=__LIFETIME__, PAID=new URLSearchParams(location.search).get('paid')==='1';
+  function show(id){document.querySelectorAll('.state').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
+  function fail(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+  function poll(n){fetch('/api/al/join/status').then(function(r){return r.json()}).then(function(j){
+    if(j.access_level==='lifetime'){show('stDone')}
+    else if(n<40){setTimeout(function(){poll(n+1)},3000)}
+    else{show('stOffer');fail('Payment not confirmed yet — it can take a few minutes. Refresh this page shortly; your access unlocks automatically.')}
+  }).catch(function(){setTimeout(function(){poll(n+1)},4000)})}
+  if(!LOGGED){show('stAnon');return}
+  if(LIFETIME){show('stDone');return}
+  if(PAID){show('stPoll');poll(0);return}
+  show('stOffer');
+  function needConsent(){if(!document.getElementById('ck').checked){fail('Please tick the purchase terms box first.');return true}return false}
+  function recordConsent(){return fetch('/api/purchase-consent').then(function(r){return r.json()}).then(function(p){
+    return fetch('/api/purchase-consent/record',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({version:p.version,text_hash:p.text_hash})})})}
+  document.getElementById('btnCard').onclick=function(){
+    if(needConsent())return; this.disabled=true; this.textContent='Opening secure checkout…';
+    var b=this;
+    recordConsent().finally(function(){
+      fetch('/api/al/join/checkout',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+        if(j.checkout_url){location.href=j.checkout_url}
+        else{fail(j.error||'Could not start checkout');b.disabled=false;b.textContent='Pay $__PRICE__ by card →'}
+      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay $__PRICE__ by card →'})})};
+  document.getElementById('btnCrypto').onclick=function(){
+    if(needConsent())return; this.disabled=true; this.textContent='Creating crypto invoice…';
+    var b=this;
+    recordConsent().finally(function(){
+      fetch('/api/nowpayments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({product_key:'al_lifetime'})}).then(function(r){return r.json()}).then(function(j){
+        if(j.invoice_url){location.href=j.invoice_url}
+        else{fail(j.error||'Could not create crypto invoice');b.disabled=false;b.textContent='Pay with crypto (USDT)'}
+      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay with crypto (USDT)'})})};
+})();
+</script>
+</body></html>"""
+
+
+@app.get("/join")
+def al_join_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """AdvantageLife $100 lifetime join page (approved mockup design intent:
+    navy/red/Inter, white card). States: anonymous -> register/login;
+    free member -> offer + Stripe/crypto; returning ?paid=1 -> poll until
+    the webhook/IPN flips access_level; lifetime -> celebration."""
+    price = os.environ.get("AL_JOIN_PRICE_USD", "100").rstrip("0").rstrip(".")
+    html = (_AL_JOIN_PAGE
+            .replace("__PRICE__", price)
+            .replace("__LOGGED__", "true" if user else "false")
+            .replace("__LIFETIME__", "true" if (user and user.access_level == "lifetime") else "false"))
+    return HTMLResponse(html)
+
+
+def _al_activate_lifetime(db, user_id: int, source: str, ref: str = None):
+    """Idempotently flip a member to lifetime access after a verified $100
+    join payment (Stripe webhook / NOWPayments IPN / admin grant parity).
+    The sponsor deliberately earns NOTHING on the join (locked model) —
+    no commission rows here, ever."""
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None:
+        return {"ok": False, "error": "user not found"}
+    if u.access_level == "lifetime":
+        return {"ok": True, "already": True}
+    u.access_level = "lifetime"
+    u.is_active = True
+    try:
+        db.add(Payment(from_user_id=u.id, to_user_id=None,
+                       amount_usdt=float(os.environ.get("AL_JOIN_PRICE_USD", "100")),
+                       payment_type="al_lifetime",
+                       tx_hash=(ref or f"al-join-{source}-{u.id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}")[:180],
+                       status="paid"))
+    except Exception:
+        logger.exception(f"al_lifetime Payment row failed for user {u.id} — activation continues")
+    try:
+        db.add(Notification(user_id=u.id, type="al_lifetime",
+                            title="Lifetime access unlocked 🎉",
+                            message="Welcome to AdvantageLife — every tool on the platform is now yours, for life."))
+    except Exception:
+        pass
+    db.commit()
+    logger.info(f"AL lifetime activated: user={u.id} source={source} ref={ref}")
+    return {"ok": True, "already": False}
+
+
+@app.post("/api/al/join/checkout")
+async def al_join_checkout(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """$100 lifetime membership — Stripe Checkout (one-time). Crypto goes
+    through the existing NOWPayments rail with product_key 'al_lifetime'."""
+    if user.access_level == "lifetime":
+        return JSONResponse({"error": "You already have lifetime access"}, status_code=400)
+    from . import stripe_service as _stripe
+    if not _stripe.is_configured():
+        return JSONResponse({"error": "Card payments aren't configured yet — use crypto below"}, status_code=503)
+    amount_cents = int(round(float(os.environ.get("AL_JOIN_PRICE_USD", "100")) * 100))
+    try:
+        result = _stripe.create_checkout_session(
+            user=user, db_session=db,
+            product_kind="al_lifetime",
+            amount_cents=amount_cents,
+            success_path="/join?paid=1",
+            cancel_path="/join",
+        )
+        return result
+    except Exception as e:
+        logger.exception(f"al_join_checkout failed for user {user.id}")
+        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)[:200]}, status_code=500)
+
+
+@app.get("/api/al/join/status")
+def al_join_status(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    fresh = db.query(User).filter(User.id == user.id).first()
+    return {"access_level": fresh.access_level, "is_active": bool(fresh.is_active)}
 
 
 @app.get("/admin/api/al/settlements")

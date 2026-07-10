@@ -44,6 +44,7 @@ PRODUCT_CATALOG = {
     # default at activation time. Legacy 'basic'/'pro' keys retained for
     # backward compatibility with any cached checkout pages but now resolve
     # to the standard partner price.
+    "al_lifetime":                {"price": Decimal("100.00"), "type": "al_lifetime", "desc": "AdvantageLife — Lifetime Membership"},
     "membership_partner":         {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Partner Membership (Monthly)"},
     "membership_partner_annual":  {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Partner Membership (Annual — Save $40)"},
     # Legacy keys — all now resolve to standard partner price under flat
