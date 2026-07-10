@@ -66656,6 +66656,16 @@ def admin_api_grant_lifetime(
 from . import al_settlement as _als
 from . import al_engine as _ale
 
+def _al_user(user: User = Depends(_al_user)):
+    """AL-route auth guard: get_current_user returns None unauth (house
+    pattern — every endpoint guards itself); this dependency raises the 401
+    so no AL handler can ever run with user=None. First deploy 500'd on
+    exactly this."""
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user
+
+
 AL_INTENT_TTL_HOURS = 48
 AL_COMPANY_PAYOUT = {
     "method_type": "usdt_bsc",
@@ -66718,7 +66728,7 @@ def _al_intent_json(db, intent, viewer_id=None):
 
 
 @app.get("/api/al/packs")
-def al_list_packs(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Pack tiers + the caller's earning state + any open intent."""
     _al_expire_stale(db)
     packs = (db.query(CampaignPack).filter(CampaignPack.is_active == True)
@@ -66740,7 +66750,7 @@ def al_list_packs(user: User = Depends(get_current_user), db: Session = Depends(
 
 @app.post("/api/al/packs/{pack_level}/intent")
 async def al_create_intent(pack_level: int,
-                           user: User = Depends(get_current_user),
+                           user: User = Depends(_al_user),
                            db: Session = Depends(get_db)):
     """Open a purchase intent: resolve + LOCK the payee, show the buyer
     exactly who to pay. One open intent per buyer."""
@@ -66772,7 +66782,7 @@ async def al_create_intent(pack_level: int,
 
 @app.post("/api/al/intents/{intent_id}/proof")
 async def al_submit_proof(intent_id: int, request: Request,
-                          user: User = Depends(get_current_user),
+                          user: User = Depends(_al_user),
                           db: Session = Depends(get_db)):
     intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
     if not intent or intent.buyer_id != user.id:
@@ -66805,7 +66815,7 @@ async def al_submit_proof(intent_id: int, request: Request,
 
 @app.post("/api/al/intents/{intent_id}/confirm")
 async def al_confirm_intent(intent_id: int,
-                            user: User = Depends(get_current_user),
+                            user: User = Depends(_al_user),
                             db: Session = Depends(get_db)):
     """The payee confirms money arrived (admin for company sales). This is the
     settlement moment: pack activates, counter advances. Idempotent."""
@@ -66834,7 +66844,7 @@ async def al_confirm_intent(intent_id: int,
 
 @app.post("/api/al/intents/{intent_id}/decline")
 async def al_decline_intent(intent_id: int,
-                            user: User = Depends(get_current_user),
+                            user: User = Depends(_al_user),
                             db: Session = Depends(get_db)):
     """Payee: 'I did not receive this' — freezes for admin resolution."""
     intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
@@ -66850,7 +66860,7 @@ async def al_decline_intent(intent_id: int,
 
 @app.post("/api/al/intents/{intent_id}/cancel")
 async def al_cancel_intent(intent_id: int,
-                           user: User = Depends(get_current_user),
+                           user: User = Depends(_al_user),
                            db: Session = Depends(get_db)):
     """Buyer cancels an unpaid intent (pending only — after proof, use dispute)."""
     intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
@@ -66864,7 +66874,7 @@ async def al_cancel_intent(intent_id: int,
 
 
 @app.get("/api/al/my-purchases")
-def al_my_purchases(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def al_my_purchases(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     _al_expire_stale(db)
     intents = (db.query(P2PIntent).filter(P2PIntent.buyer_id == user.id)
                  .order_by(P2PIntent.id.desc()).limit(50).all())
@@ -66872,7 +66882,7 @@ def al_my_purchases(user: User = Depends(get_current_user), db: Session = Depend
 
 
 @app.get("/api/al/my-sales")
-def al_my_sales(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """The payee's action queue: sales awaiting their confirmation, plus history."""
     _al_expire_stale(db)
     intents = (db.query(P2PIntent).filter(P2PIntent.earner_id == user.id)
@@ -66889,7 +66899,7 @@ def al_my_sales(user: User = Depends(get_current_user), db: Session = Depends(ge
 
 @app.get("/admin/api/al/settlements")
 def al_admin_settlements(status: str = None, apply_expiry: int = 0,
-                         user: User = Depends(get_current_user),
+                         user: User = Depends(_al_user),
                          db: Session = Depends(get_db)):
     _require_admin(user)
     expired = _al_expire_stale(db) if apply_expiry else 0
@@ -66905,7 +66915,7 @@ def al_admin_settlements(status: str = None, apply_expiry: int = 0,
 
 @app.get("/admin/api/al/resolve-dispute")
 def al_admin_resolve_dispute(intent_id: int, outcome: str = "", apply: int = 0,
-                             user: User = Depends(get_current_user),
+                             user: User = Depends(_al_user),
                              db: Session = Depends(get_db)):
     """Tappable dispute resolution: outcome=confirm (money did arrive) or
     outcome=cancel (it didn't). Dry-run default."""
