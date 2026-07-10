@@ -66916,6 +66916,231 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     return {"sales": out}
 
 
+# ── Payout method registry: the five stablecoin rails members can receive
+#    on. Stablecoins ONLY — pack prices are exact USD amounts and "send
+#    exactly $X" must stay true between intent and payment (volatile coins
+#    turn every sale into a rounding dispute). auto_verify marks chains the
+#    platform scanner can annotate; settlement authority is ALWAYS the
+#    payee's confirmation regardless.
+AL_PAYOUT_METHODS = {
+    "usdt_bsc":     {"label": "USDT · BNB Smart Chain (BEP-20)", "family": "evm",
+                     "hint": 'Starts with "0x" — 42 characters', "auto_verify": True},
+    "usdt_tron":    {"label": "USDT · TRON (TRC-20)", "family": "tron",
+                     "hint": 'Starts with "T" — 34 characters', "auto_verify": False},
+    "usdt_polygon": {"label": "USDT · Polygon", "family": "evm",
+                     "hint": 'Starts with "0x" — 42 characters', "auto_verify": False},
+    "usdc_bsc":     {"label": "USDC · BNB Smart Chain (BEP-20)", "family": "evm",
+                     "hint": 'Starts with "0x" — 42 characters', "auto_verify": False},
+    "usdc_polygon": {"label": "USDC · Polygon", "family": "evm",
+                     "hint": 'Starts with "0x" — 42 characters', "auto_verify": False},
+}
+
+_AL_ADDR_RE = {
+    "evm":  re.compile(r"^0x[a-fA-F0-9]{40}$"),
+    "tron": re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
+}
+
+
+def _al_validate_address(method_type: str, address: str):
+    m = AL_PAYOUT_METHODS.get(method_type)
+    if not m:
+        return "Unknown payout method"
+    if not _AL_ADDR_RE[m["family"]].match(address or ""):
+        return f"That doesn't look like a valid address for {m['label']} ({m['hint']})"
+    return None
+
+
+@app.get("/api/al/payout-methods")
+def al_list_payout_methods(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    rows = (db.query(PayoutMethod).filter(PayoutMethod.user_id == user.id)
+              .order_by(PayoutMethod.is_default.desc(), PayoutMethod.id).all())
+    import json as _j
+    out = []
+    for r in rows:
+        try:
+            det = _j.loads(r.details) if r.details and r.details.strip().startswith("{") else {"address": r.details}
+        except Exception:
+            det = {"address": r.details}
+        reg = AL_PAYOUT_METHODS.get(r.method_type, {})
+        out.append({"id": r.id, "method_type": r.method_type,
+                    "label": reg.get("label", r.method_type),
+                    "address": det.get("address"),
+                    "auto_verify": reg.get("auto_verify", False),
+                    "is_default": bool(r.is_default)})
+    return {"methods": out,
+            "registry": [{"key": k, **{kk: vv for kk, vv in v.items() if kk != "family"}}
+                          for k, v in AL_PAYOUT_METHODS.items()]}
+
+
+@app.post("/api/al/payout-methods")
+async def al_add_payout_method(request: Request,
+                               user: User = Depends(_al_user),
+                               db: Session = Depends(get_db)):
+    import json as _j
+    body = await request.json()
+    method_type = (body.get("method_type") or "").strip()
+    address = (body.get("address") or "").strip()
+    err = _al_validate_address(method_type, address)
+    if err:
+        return JSONResponse({"error": err}, status_code=400)
+    dupe = (db.query(PayoutMethod)
+              .filter(PayoutMethod.user_id == user.id,
+                      PayoutMethod.method_type == method_type).first())
+    if dupe:
+        return JSONResponse({"error": "You already have a wallet for that method — delete it first to replace it"}, status_code=400)
+    has_any = db.query(PayoutMethod.id).filter(PayoutMethod.user_id == user.id).first() is not None
+    db.add(PayoutMethod(user_id=user.id, method_type=method_type,
+                        details=_j.dumps({"address": address}),
+                        is_default=not has_any))
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/al/payout-methods/{method_id}/default")
+def al_default_payout_method(method_id: int, user: User = Depends(_al_user),
+                             db: Session = Depends(get_db)):
+    row = db.query(PayoutMethod).filter(PayoutMethod.id == method_id,
+                                        PayoutMethod.user_id == user.id).first()
+    if not row:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    db.query(PayoutMethod).filter(PayoutMethod.user_id == user.id).update({"is_default": False})
+    row.is_default = True
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/al/payout-methods/{method_id}/delete")
+def al_delete_payout_method(method_id: int, user: User = Depends(_al_user),
+                            db: Session = Depends(get_db)):
+    row = db.query(PayoutMethod).filter(PayoutMethod.id == method_id,
+                                        PayoutMethod.user_id == user.id).first()
+    if not row:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    was_default = bool(row.is_default)
+    db.delete(row)
+    db.flush()
+    if was_default:
+        nxt = db.query(PayoutMethod).filter(PayoutMethod.user_id == user.id).first()
+        if nxt:
+            nxt.is_default = True
+    db.commit()
+    remaining = db.query(PayoutMethod.id).filter(PayoutMethod.user_id == user.id).count()
+    return {"ok": True, "remaining": remaining,
+            "warning": None if remaining else "No payout method on file — sales will pass over you until you add one"}
+
+
+_AL_WALLETS_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payout methods — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
+.wrap{max-width:560px;margin:0 auto;padding:30px 20px}
+.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
+.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
+.card{background:#fff;color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{color:var(--red)}
+.sub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
+.m{border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.m.def{border-color:#bfe6cd;background:#f6fdf8}
+.m .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
+.m .who{font-weight:900;font-size:13.5px}
+.badge{background:var(--grn);color:#fff;font-weight:900;font-size:10px;border-radius:8px;padding:4px 9px;flex-shrink:0}
+.m .tx{font-family:'JetBrains Mono';font-size:10px;background:#f6f8fd;border-radius:7px;padding:7px 9px;word-break:break-all;color:#33406b}
+.m .ver{font-size:10.5px;font-weight:800;color:var(--grn);margin-top:7px}
+.m .acts{display:flex;gap:8px;margin-top:9px}
+.sm{border:none;border-radius:8px;padding:7px 12px;font-family:'Inter';font-weight:800;font-size:11px;cursor:pointer;background:#f6f8fd;color:#33406b}
+.sm.danger{color:var(--red)}
+.add{border:2px dashed var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.add b{font-weight:900;font-size:13px;display:block;margin-bottom:10px}
+.inp,select.inp{width:100%;border:2px solid var(--line);border-radius:11px;padding:12px;font-family:'JetBrains Mono';font-size:12px;margin-bottom:9px}
+select.inp{font-family:'Inter';font-weight:700;font-size:13px}
+.hint{font-size:10.5px;font-weight:700;color:var(--dim);margin:-4px 0 9px}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:13px;font-family:'Inter';font-weight:900;font-size:13.5px;cursor:pointer;background:var(--red);color:#fff}
+.warn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:14px;display:none}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700;margin-bottom:10px}
+.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:16px;line-height:1.6}
+.empty{text-align:center;padding:18px 0;color:var(--dim);font-weight:700;font-size:13px;display:none}
+</style></head><body>
+<div class="wrap">
+  <div class="mk">Advantage<i>Life</i></div>
+  <div class="tag">Your effort. Your income. 100% yours.</div>
+  <div class="card">
+    <h1>How you get <span class="r">paid</span></h1>
+    <div class="sub">Buyers pay your <b>default</b> wallet directly, member to member. Keep it current.</div>
+    <div class="warn" id="warn">⚠ No payout method on file — sales <b>pass over you</b> to the next qualified member until you add one.</div>
+    <div id="list"></div>
+    <div class="empty" id="empty">No wallets yet — add your first below.</div>
+    <div class="add">
+      <b>+ Add a payout method</b>
+      <select class="inp" id="mtype"></select>
+      <input class="inp" id="addr" placeholder="Wallet address">
+      <div class="hint" id="hint"></div>
+      <div class="err" id="err"></div>
+      <button class="btn" id="save">Save wallet</button>
+    </div>
+    <div class="note" style="color:var(--dim)">Double-check every address — payments are member-to-member and can't be reversed by AdvantageLife.</div>
+  </div>
+</div>
+<script>
+(function(){
+  var REG=[];
+  function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML}
+  function load(){fetch('/api/al/payout-methods').then(function(r){return r.json()}).then(function(j){
+    REG=j.registry||[];
+    var sel=document.getElementById('mtype');sel.innerHTML='';
+    REG.forEach(function(r){var o=document.createElement('option');o.value=r.key;o.textContent=r.label;sel.appendChild(o)});
+    hint();
+    var L=document.getElementById('list');L.innerHTML='';
+    (j.methods||[]).forEach(function(m){
+      var d=document.createElement('div');d.className='m'+(m.is_default?' def':'');
+      d.innerHTML='<div class="top"><span class="who">'+esc(m.label)+'</span>'+(m.is_default?'<span class="badge">DEFAULT</span>':'')+'</div>'
+        +'<div class="tx">'+esc(m.address)+'</div>'
+        +(m.auto_verify?'<div class="ver">\u2713 Auto-verified chain \u2014 payments to this wallet are checked on-chain</div>':'')
+        +'<div class="acts">'+(m.is_default?'':'<button class="sm" data-def="'+m.id+'">Make default</button>')
+        +'<button class="sm danger" data-del="'+m.id+'">Remove</button></div>';
+      L.appendChild(d);
+    });
+    document.getElementById('warn').style.display=(j.methods&&j.methods.length)?'none':'block';
+    document.getElementById('empty').style.display=(j.methods&&j.methods.length)?'none':'block';
+    L.querySelectorAll('[data-def]').forEach(function(b){b.onclick=function(){
+      fetch('/api/al/payout-methods/'+b.dataset.def+'/default',{method:'POST'}).then(load)}});
+    L.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){
+      if(!confirm('Remove this wallet?'))return;
+      fetch('/api/al/payout-methods/'+b.dataset.del+'/delete',{method:'POST'}).then(load)}});
+  })}
+  function hint(){var k=document.getElementById('mtype').value;var r=REG.find(function(x){return x.key===k});
+    document.getElementById('hint').textContent=r?r.hint:''}
+  document.getElementById('mtype').onchange=hint;
+  document.getElementById('save').onclick=function(){
+    var e=document.getElementById('err');e.style.display='none';
+    var b=this;b.disabled=true;b.textContent='Saving\u2026';
+    fetch('/api/al/payout-methods',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({method_type:document.getElementById('mtype').value,address:document.getElementById('addr').value.trim()})})
+    .then(function(r){return r.json()}).then(function(j){
+      b.disabled=false;b.textContent='Save wallet';
+      if(j.ok){document.getElementById('addr').value='';load()}
+      else{e.textContent=j.error||'Could not save';e.style.display='block'}
+    }).catch(function(){b.disabled=false;b.textContent='Save wallet';e.textContent='Network error';e.style.display='block'});
+  };
+  load();
+})();
+</script>
+</body></html>"""
+
+
+@app.get("/payout-methods")
+def al_payout_methods_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member payout-wallet settings (approved mockup screen 7). The
+    qualification rule made visible: no wallet = sales pass over you."""
+    if not user:
+        return RedirectResponse(url="/login?next=/payout-methods", status_code=302)
+    return HTMLResponse(_AL_WALLETS_PAGE)
+
+
 _AL_JOIN_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
