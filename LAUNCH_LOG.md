@@ -33,6 +33,7 @@
 - Watch-to-Earn: two gates (own level-or-higher + watch-qualified). **48h grace (Option A)** — commission held pending 48h, releases if daily watch done in window, else passes up (fixes time-zone unfairness). Wires into Phase 5.
 - Packs: price = 100% P2P commission; views_target = delivery before expiry.
 - Stripe: ONE account both brands.
+- Legal review DONE (per Steve, 9 Jul 2026): solicitors reviewed the comp plan and gave verbal assurance it is fully legitimate, on the basis that real digital products are purchased (campaign packs = genuine ad-view products with defined deliverables). Resolves the earlier solicitor-glance flag.
 
 ### Next: Phase 4 — $100 join checkout
 Mockup approved. **Blocker = Stripe:** create a $100 one-time product/price + set Stripe keys on the AdvantageLife Railway env. Then wire checkout → activation (access_level=lifetime, unlock, wire sponsor+pass-up set-once, activated_at). Steve doing Stripe next morning.
