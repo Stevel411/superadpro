@@ -66656,7 +66656,7 @@ def admin_api_grant_lifetime(
 from . import al_settlement as _als
 from . import al_engine as _ale
 
-def _al_user(user: User = Depends(_al_user)):
+def _al_user(user: User = Depends(get_current_user)):
     """AL-route auth guard: get_current_user returns None unauth (house
     pattern — every endpoint guards itself); this dependency raises the 401
     so no AL handler can ever run with user=None. First deploy 500'd on
