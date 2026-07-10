@@ -1899,9 +1899,9 @@ _AL_HOME = r"""<!DOCTYPE html>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#e8203f;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4;--grn:#22c55e}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;color:#fff;background:var(--navy);
-  background-image:linear-gradient(180deg,rgba(8,20,60,.82) 0%,rgba(8,20,60,.55) 30%,rgba(8,22,64,.72) 100%),var(--hero,linear-gradient(165deg,#0a1f52 0%,#0e2a6e 45%,#12388f 100%));
-  background-size:cover;background-position:center top;background-attachment:fixed}
+body{font-family:'Inter',sans-serif;color:#fff;background:linear-gradient(180deg,#0a1f52 0%,#0e2a6e 60%,#12388f 100%)}
+.top{background-image:linear-gradient(180deg,rgba(8,18,54,.78) 0%,rgba(8,18,54,.38) 34%,rgba(9,25,72,.55) 72%,#0a1f52 100%),url('/static/images/al-hero-bg.jpg');
+  background-size:cover;background-position:center 30%}
 .nav{display:flex;align-items:center;gap:26px;max-width:1180px;margin:0 auto;padding:20px 24px}
 .logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:900;font-size:20px;letter-spacing:-.4px}
 .logo .ic{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,#0e2a6e,#0a1f52);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
@@ -1923,6 +1923,12 @@ h1 .u::after{content:"";position:absolute;left:2%;right:2%;bottom:-6px;height:7p
 .cta2{display:inline-block;color:#fff;font-weight:800;font-size:15px;text-decoration:none;border:1.5px solid rgba(255,255,255,.45);background:rgba(10,20,50,.3);backdrop-filter:blur(6px);border-radius:13px;padding:17px 30px;margin-left:10px}
 .trust{margin-top:20px;font-size:13px;font-weight:700;color:#dbe6ff}
 .trust .ok{color:var(--grn);font-weight:900}
+.pills{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:26px}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:#fff;background:rgba(10,20,50,.5);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);border-radius:22px;padding:10px 18px}
+.pill .i{color:#ff5a70}
+.ai{display:flex;justify-content:center;align-items:center;gap:9px;flex-wrap:wrap;margin-top:34px}
+.ai .lbl{font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b9c8ef;margin-right:4px}
+.ai .m{font-size:12px;font-weight:800;color:#fff;background:rgba(10,20,50,.5);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);border-radius:18px;padding:8px 15px}
 section{max-width:1180px;margin:0 auto;padding:70px 24px}
 .k{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#ff5a70;text-align:center;margin-bottom:12px}
 h2{font-weight:900;font-size:clamp(28px,4.6vw,42px);letter-spacing:-1.4px;text-align:center;margin-bottom:14px;text-shadow:0 3px 20px rgba(0,0,0,.35)}
@@ -1956,6 +1962,7 @@ footer{border-top:1px solid rgba(255,255,255,.16);padding:26px 22px;text-align:c
 footer a{color:#b9c8ef}
 </style></head><body>
 
+<div class="top">
 <div class="nav">
   <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
   <a class="lnk" href="#plan">The plan</a>
@@ -1972,6 +1979,11 @@ footer a{color:#b9c8ef}
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
   <a class="cta" href="/register">Start free — no card</a><a class="cta2" href="#plan">See the plan</a>
   <div class="trust"><span class="ok">✓</span> Free to start · the tools work whether or not you ever refer anyone</div>
+  <div class="pills">
+    <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
+    <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
+    <span class="pill"><span class="i">$</span> 100% member-to-member pack commissions</span>
+  </div>
 </div>
 
 <section id="tools">
@@ -1986,7 +1998,9 @@ footer a{color:#b9c8ef}
     <div class="tool"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div>
     <div class="tool"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div>
   </div>
+  <div class="ai"><span class="lbl">Creative Studio runs frontier AI</span><span class="m">Sora 2</span><span class="m">Veo</span><span class="m">Kling 3</span><span class="m">FLUX.1</span></div>
 </section>
+</div>
 
 <section id="plan" style="padding-top:20px">
   <div class="income">
