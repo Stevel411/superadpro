@@ -41,6 +41,7 @@ from .database import Blog, BlogPost, BlogPage, BlogTag, BlogPostTag, BlogMenu, 
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
+from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod  # AdvantageLife P2P settlement (7 Jul 2026)
 from .database import CoPilotBriefing
 from .database import MemberLead, LeadList
 from .database import ShareCode
@@ -66643,6 +66644,291 @@ def admin_api_grant_lifetime(
     db.commit()
     return {"ok": True, "granted": granted, "not_found": notfound,
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# ADVANTAGELIFE — P2P PACK SETTLEMENT API (7 Jul 2026, build-spec §4)
+# The HTTP layer over al_settlement/al_engine. Rules enforced here, money
+# logic lives in the engines — handlers CALL, never re-implement.
+# Lifecycle: pending -> proof_submitted -> confirmed | disputed | expired | cancelled
+# Payee locked at intent; counter advances at confirm; platform never holds funds.
+# ═══════════════════════════════════════════════════════════════════════
+from . import al_settlement as _als
+from . import al_engine as _ale
+
+AL_INTENT_TTL_HOURS = 48
+AL_COMPANY_PAYOUT = {
+    "method_type": "usdt_bsc",
+    "details": os.environ.get("AL_COMPANY_USDT_ADDRESS", ""),
+}
+
+
+def _al_expire_stale(db):
+    """Lazy expiry: pending intents older than the TTL expire on touch.
+    Deterministic, no background task needed; admin sweep endpoint exists
+    for a manual pass."""
+    cutoff = datetime.utcnow() - timedelta(hours=AL_INTENT_TTL_HOURS)
+    stale = (db.query(P2PIntent)
+               .filter(P2PIntent.status == "pending",
+                       P2PIntent.created_at < cutoff).all())
+    for it in stale:
+        it.status = "expired"
+    if stale:
+        db.commit()
+    return len(stale)
+
+
+def _al_payee_display(db, intent):
+    if intent.earner_id is None:
+        return {"username": "AdvantageLife", "display": "AdvantageLife (platform)",
+                "is_company": True}
+    u = db.query(User).filter(User.id == intent.earner_id).first()
+    return {"username": u.username if u else "?",
+            "display": (u.first_name or u.username) if u else "?",
+            "is_company": False}
+
+
+def _al_payout_for(intent):
+    import json as _j
+    if intent.earner_id is None:
+        return AL_COMPANY_PAYOUT
+    try:
+        return _j.loads(intent.payee_snapshot) if intent.payee_snapshot else None
+    except Exception:
+        return None
+
+
+def _al_intent_json(db, intent, viewer_id=None):
+    pack = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
+    return {
+        "intent_id": intent.id,
+        "status": intent.status,
+        "pack": {"level": intent.pack_level, "name": pack.name if pack else None,
+                 "views": pack.views_target if pack else None},
+        "amount": float(intent.amount or 0),
+        "payee": _al_payee_display(db, intent),
+        "payout": _al_payout_for(intent) if viewer_id == intent.buyer_id else None,
+        "buyer_id": intent.buyer_id,
+        "tx_ref": intent.tx_ref,
+        "created_at": intent.created_at.isoformat() if intent.created_at else None,
+        "expires_at": ((intent.created_at + timedelta(hours=AL_INTENT_TTL_HOURS)).isoformat()
+                       if intent.created_at and intent.status == "pending" else None),
+        "confirmed_at": intent.confirmed_at.isoformat() if intent.confirmed_at else None,
+    }
+
+
+@app.get("/api/al/packs")
+def al_list_packs(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Pack tiers + the caller's earning state + any open intent."""
+    _al_expire_stale(db)
+    packs = (db.query(CampaignPack).filter(CampaignPack.is_active == True)
+               .order_by(CampaignPack.level).all())
+    open_intent = (db.query(P2PIntent)
+                     .filter(P2PIntent.buyer_id == user.id,
+                             P2PIntent.status.in_(("pending", "proof_submitted")))
+                     .first())
+    return {
+        "packs": [{"level": p.level, "name": p.name, "price": float(p.price),
+                   "views_target": p.views_target,
+                   "daily_watch_required": p.daily_watch_required} for p in packs],
+        "owned_level": _ale.owned_level(db, user.id),
+        "watch_qualified": _ale.watch_qualified(db, user.id),
+        "has_payout_method": _ale.payable(db, user.id),
+        "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
+    }
+
+
+@app.post("/api/al/packs/{pack_level}/intent")
+async def al_create_intent(pack_level: int,
+                           user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Open a purchase intent: resolve + LOCK the payee, show the buyer
+    exactly who to pay. One open intent per buyer."""
+    _al_expire_stale(db)
+    existing = (db.query(P2PIntent)
+                  .filter(P2PIntent.buyer_id == user.id,
+                          P2PIntent.status.in_(("pending", "proof_submitted")))
+                  .first())
+    if existing:
+        return JSONResponse({"error": "You already have an open purchase — complete or cancel it first",
+                             "intent": _al_intent_json(db, existing, user.id)}, status_code=409)
+    try:
+        intent = _als.create_intent(db, user.id, pack_level)
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+    payout = _al_payout_for(intent)
+    if intent.earner_id is not None and not payout:
+        # Post-payability-gate this should be unreachable; belt-and-braces:
+        # never hand a buyer an unpayable intent.
+        intent.status = "cancelled"
+        db.commit()
+        logger.error(f"AL intent {intent.id}: resolved payee {intent.earner_id} has no payout method DESPITE gate")
+        return JSONResponse({"error": "Could not prepare this purchase — try again shortly"}, status_code=500)
+    out = _al_intent_json(db, intent, user.id)
+    out["message"] = (f"Your payment goes directly to {out['payee']['display']} — "
+                      "AdvantageLife never holds it. Pay the exact amount, then submit proof below.")
+    return out
+
+
+@app.post("/api/al/intents/{intent_id}/proof")
+async def al_submit_proof(intent_id: int, request: Request,
+                          user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent or intent.buyer_id != user.id:
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    _al_expire_stale(db)
+    if intent.status not in ("pending", "proof_submitted"):
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    body = await request.json()
+    tx_ref = (body.get("tx_ref") or "").strip()[:200]
+    proof_url = (body.get("proof_url") or "").strip()[:500] or None
+    if not tx_ref and not proof_url:
+        return JSONResponse({"error": "Provide a transaction reference or proof"}, status_code=400)
+    if tx_ref:
+        dupe = (db.query(P2PIntent)
+                  .filter(P2PIntent.tx_ref == tx_ref, P2PIntent.id != intent.id).first())
+        if dupe:
+            return JSONResponse({"error": "That transaction reference is already used"}, status_code=400)
+    _als.submit_proof(db, intent.id, tx_ref=tx_ref or None, proof_url=proof_url)
+    if intent.earner_id:
+        try:
+            db.add(Notification(user_id=intent.earner_id, type="al_sale",
+                                title="Incoming pack sale — confirm receipt",
+                                message=f"{user.username} reports paying you ${float(intent.amount):.2f} "
+                                        f"for a Level {intent.pack_level} pack. Confirm once received."))
+            db.commit()
+        except Exception:
+            db.rollback()
+    return {"ok": True, "intent": _al_intent_json(db, intent, user.id)}
+
+
+@app.post("/api/al/intents/{intent_id}/confirm")
+async def al_confirm_intent(intent_id: int,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """The payee confirms money arrived (admin for company sales). This is the
+    settlement moment: pack activates, counter advances. Idempotent."""
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    if intent.status == "confirmed":
+        return {"ok": True, "already": True, "intent": _al_intent_json(db, intent, user.id)}
+    is_payee = intent.earner_id == user.id
+    is_admin = bool(getattr(user, "is_admin", False))
+    if not (is_payee or (intent.earner_id is None and is_admin) or is_admin):
+        return JSONResponse({"error": "Only the person being paid can confirm this sale"}, status_code=403)
+    if intent.status not in ("pending", "proof_submitted"):
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    result = _als.confirm(db, intent.id, confirmed_by=user.id)
+    try:
+        db.add(Notification(user_id=intent.buyer_id, type="al_pack",
+                            title="Pack activated 🎉",
+                            message=f"Your Level {intent.pack_level} campaign pack is live — "
+                                    "views start with the next rotation."))
+        db.commit()
+    except Exception:
+        db.rollback()
+    return {"ok": True, **result}
+
+
+@app.post("/api/al/intents/{intent_id}/decline")
+async def al_decline_intent(intent_id: int,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Payee: 'I did not receive this' — freezes for admin resolution."""
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent or (intent.earner_id != user.id and not getattr(user, "is_admin", False)):
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    if intent.status != "proof_submitted":
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    intent.status = "disputed"
+    intent.notes = ((intent.notes or "") + f" | disputed by {user.username} {datetime.utcnow().isoformat()}")[:2000]
+    db.commit()
+    return {"ok": True, "status": "disputed"}
+
+
+@app.post("/api/al/intents/{intent_id}/cancel")
+async def al_cancel_intent(intent_id: int,
+                           user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Buyer cancels an unpaid intent (pending only — after proof, use dispute)."""
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent or intent.buyer_id != user.id:
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    if intent.status != "pending":
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    intent.status = "cancelled"
+    db.commit()
+    return {"ok": True, "status": "cancelled"}
+
+
+@app.get("/api/al/my-purchases")
+def al_my_purchases(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _al_expire_stale(db)
+    intents = (db.query(P2PIntent).filter(P2PIntent.buyer_id == user.id)
+                 .order_by(P2PIntent.id.desc()).limit(50).all())
+    return {"purchases": [_al_intent_json(db, i, user.id) for i in intents]}
+
+
+@app.get("/api/al/my-sales")
+def al_my_sales(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The payee's action queue: sales awaiting their confirmation, plus history."""
+    _al_expire_stale(db)
+    intents = (db.query(P2PIntent).filter(P2PIntent.earner_id == user.id)
+                 .order_by(P2PIntent.id.desc()).limit(50).all())
+    out = []
+    for i in intents:
+        j = _al_intent_json(db, i)
+        buyer = db.query(User).filter(User.id == i.buyer_id).first()
+        j["buyer"] = {"username": buyer.username if buyer else "?"}
+        j["action_needed"] = i.status == "proof_submitted"
+        out.append(j)
+    return {"sales": out}
+
+
+@app.get("/admin/api/al/settlements")
+def al_admin_settlements(status: str = None, apply_expiry: int = 0,
+                         user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    _require_admin(user)
+    expired = _al_expire_stale(db) if apply_expiry else 0
+    q = db.query(P2PIntent)
+    if status:
+        q = q.filter(P2PIntent.status == status)
+    intents = q.order_by(P2PIntent.id.desc()).limit(200).all()
+    return {"expired_now": expired,
+            "counts": {st: db.query(P2PIntent).filter(P2PIntent.status == st).count()
+                       for st in ("pending", "proof_submitted", "confirmed", "disputed", "expired", "cancelled")},
+            "intents": [_al_intent_json(db, i) for i in intents]}
+
+
+@app.get("/admin/api/al/resolve-dispute")
+def al_admin_resolve_dispute(intent_id: int, outcome: str = "", apply: int = 0,
+                             user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Tappable dispute resolution: outcome=confirm (money did arrive) or
+    outcome=cancel (it didn't). Dry-run default."""
+    _require_admin(user)
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    plan = {"intent": _al_intent_json(db, intent), "outcome": outcome}
+    if outcome not in ("confirm", "cancel"):
+        return JSONResponse({**plan, "error": "outcome must be confirm|cancel"}, status_code=200)
+    if not apply:
+        return JSONResponse({"applied": False, "note": "re-tap with &apply=1", **plan})
+    if outcome == "confirm":
+        if intent.status == "confirmed":
+            return JSONResponse({"applied": False, "note": "already confirmed", **plan})
+        intent.status = "proof_submitted"  # confirm() requires an open state
+        db.commit()
+        result = _als.confirm(db, intent.id, confirmed_by=user.id)
+        return JSONResponse({"applied": True, **result})
+    intent.status = "cancelled"
+    intent.notes = ((intent.notes or "") + f" | admin-cancelled {datetime.utcnow().isoformat()}")[:2000]
+    db.commit()
+    return JSONResponse({"applied": True, "status": "cancelled"})
 
 
 @app.get("/admin/api/packs")

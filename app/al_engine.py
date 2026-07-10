@@ -22,7 +22,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from . import passup_engine as pe
-from .database import User, PackPurchase, PackCommission, WatchQuota
+from .database import User, PackPurchase, PackCommission, WatchQuota, PayoutMethod, P2PIntent
 
 _ADMIN_LEVEL = 10 ** 9  # admin/master owns every level
 
@@ -74,6 +74,16 @@ def watch_qualified(db: Session, user_id: int) -> bool:
     return False
 
 
+def payable(db: Session, user_id: int) -> bool:
+    """A member can only RECEIVE a sale if the buyer has something to pay —
+    i.e. at least one payout method on file. Without this, create_intent
+    would lock a buyer onto a payee with no address (payee_snapshot=None)
+    and the purchase would strand. Treated exactly like a failed gate:
+    skip / climb / company. (Build-spec §2.4, 7 Jul 2026.)"""
+    return db.query(PayoutMethod.id).filter(
+        PayoutMethod.user_id == user_id).first() is not None
+
+
 # ── Build a pure-engine Member view from a real user row ───────────────
 def _member(db: Session, user_id, cache: dict):
     if user_id in cache:
@@ -88,7 +98,9 @@ def _member(db: Session, user_id, cache: dict):
         pass_up_sponsor_id=u.pass_up_sponsor_id,
         pack_sale_count=u.pack_sale_count or 0,
         owned_level=owned_level(db, user_id),
-        watch_qualified=watch_qualified(db, user_id),
+        # "watch_qualified" carries the full CAN-RECEIVE gate into the pure
+        # core: watch gate AND payability. Semantically "eligible earner".
+        watch_qualified=watch_qualified(db, user_id) and payable(db, user_id),
     )
     cache[user_id] = m
     return m
@@ -103,6 +115,24 @@ def resolve_payee(db: Session, seller_user_id: int, pack_level: int) -> dict:
     if seller is None:
         return {"earner_id": pe.COMPANY, "type": "direct_company",
                 "sale_number": 1, "chain": None, "pass_up_depth": 0}
+    # Open-intent offset (build-spec §5.1): positions are decided at INTENT
+    # and locked, but the counter only advances at CONFIRM — so in-flight
+    # intents must occupy their positions now, or concurrent buyers all
+    # resolve as the same sale number. Count the seller's open intents
+    # (their downline buyers, any level — counter is global) and shift.
+    open_intents = (db.query(P2PIntent)
+                      .join(User, User.id == P2PIntent.buyer_id)
+                      .filter(User.sponsor_id == seller_user_id,
+                              P2PIntent.status.in_(("pending", "proof_submitted")))
+                      .count())
+    if open_intents:
+        seller = pe.Member(
+            id=seller.id, sponsor_id=seller.sponsor_id,
+            pass_up_sponsor_id=seller.pass_up_sponsor_id,
+            pack_sale_count=(seller.pack_sale_count or 0) + open_intents,
+            owned_level=seller.owned_level, watch_qualified=seller.watch_qualified,
+        )
+        cache[seller_user_id] = seller
     # materialise the pass-up chain so the pure core's members.get() resolves
     node, depth = seller.pass_up_sponsor_id, 0
     while node is not None and depth < pe.MAX_CASCADE_DEPTH:
