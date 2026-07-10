@@ -1978,7 +1978,7 @@ footer a{color:#b9c8ef}
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
   <a class="cta" href="/join">Get lifetime access — $100 →</a><a class="cta2" href="/plan">See the plan</a>
-  <div class="trust"><span class="ok">✓</span> One-time $100 · card or crypto · your sponsor earns nothing on your join</div>
+  <div class="trust"><span class="ok">✓</span> One-time $100 · pay with USDT · your sponsor earns nothing on your join</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
@@ -67787,7 +67787,7 @@ h1 .r{color:var(--red)}
 
     <div class="state" id="stAnon">
       <h1>One payment.<br><span class="r">Every tool. Forever.</span></h1>
-      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, card or crypto.</div>
+      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, paid in USDT.</div>
       <a class="btn red" href="/register">Create your account →</a>
       <a class="btn ghost" href="/login?next=/join">I already have an account</a>
     </div>
