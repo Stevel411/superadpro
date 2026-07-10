@@ -8,7 +8,7 @@ import { formatMoney } from '../utils/money';
 // Three-door dashboard (platform simplification) — ports the approved mock layout
 // (docs/platform-assets/dashboard-mockup.html) faithfully. Only the right-hand card's
 // four tiles are re-pointed to the Your Business categories, plus two data fixes:
-// Income card shows CURRENT BALANCE, grid button -> active grid (/grid-visualiser).
+// Income card: pack-centric (3/6/9 pass-up) — earnings from /api/al/my-sales, doors to /packs + /my-sales.
 // Wired to real data: /api/dashboard + /api/watch. Served at /home-preview.
 
 const CSS = `
@@ -188,16 +188,20 @@ export default function NewDashboard() {
   const { user } = useAuth();
   const [dash, setDash] = useState(null);
   const [watch, setWatch] = useState(null);
+  const [alPacks, setAlPacks] = useState(null);
+  const [alSales, setAlSales] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(function () {
     let alive = true;
-    Promise.allSettled([apiGet('/api/dashboard'), apiGet('/api/watch')]).then(function (res) {
+    Promise.allSettled([apiGet('/api/dashboard'), apiGet('/api/watch'), apiGet('/api/al/packs'), apiGet('/api/al/my-sales')]).then(function (res) {
       if (!alive) return;
       if (res[0].status === 'fulfilled') setDash(res[0].value || {});
       if (res[1].status === 'fulfilled') setWatch(res[1].value || {});
+      if (res[2].status === 'fulfilled') setAlPacks(res[2].value || {});
+      if (res[3].status === 'fulfilled') setAlSales(res[3].value || {});
       setLoading(false);
     });
     return function () { alive = false; };
@@ -210,6 +214,15 @@ export default function NewDashboard() {
   const tierRaw = (user?.membership_tier || d.membership_tier || '').toString();
   const tierLabel = tierRaw ? tierRaw.charAt(0).toUpperCase() + tierRaw.slice(1) : null;
   const balance = Number(user?.available_total != null ? user.available_total : (d.balance != null ? d.balance : (user?.balance || 0)));
+  const ap = alPacks || {};
+  const packList = ap.packs || [];
+  const ownedLevel = Number(ap.owned_level || 0);
+  const ownedPack = packList.find(function (p) { return p.level === ownedLevel; }) || null;
+  const saleCount = Number(ap.pack_sale_count || 0);
+  const nextSaleNo = saleCount + 1;
+  const nextPassesUp = nextSaleNo <= 9 && (nextSaleNo % 3 === 0);
+  const confirmedSales = ((alSales || {}).sales || []).filter(function (x) { return x.status === 'confirmed'; });
+  const earnedTotal = confirmedSales.reduce(function (a, x) { return a + Number(x.amount || 0); }, 0);
   const gs = d.grid_stats || {};
   const filled = Number(gs.filled != null ? gs.filled : (gs.seats_filled != null ? gs.seats_filled : (gs.total_filled || 0)));
   const total = Number(gs.total != null ? gs.total : (gs.seats || 16)) || 16;
@@ -256,9 +269,9 @@ export default function NewDashboard() {
                 <span className="p-full">Become a Partner</span><span className="p-short">Partner</span>
               </Link>
             )}
-            <Link className="bal" to="/wallet" aria-label="Wallet — available balance">
+            <Link className="bal" to="/payout-methods" aria-label="Payout wallets">
               <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
-              <span className="txt"><span className="l">Available</span><span className="a">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
+              <span className="txt"><span className="l">Payout</span><span className="a">wallets</span></span>
             </Link>
             <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
             <button className={'avatar-btn' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
@@ -339,16 +352,18 @@ export default function NewDashboard() {
 
           <div className="door income">
             <div className="d-head"><div><div className="eyebrow">Income</div></div><div className="d-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.2" strokeLinecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div></div>
-            <div className="earned"><div className="big">{formatMoney(balance)}</div><div className="sub">available to withdraw</div></div>
-            <div className="gridbar"><div className="gl"><span>Profit Grid</span><b>{filled} / {total} seats</b></div><div className="track"><div className="fill" style={{ width: pct + '%' }}></div></div></div>
+            <div className="earned"><div className="big">{formatMoney(earnedTotal)}</div><div className="sub">earned member-to-member — paid straight to your wallet</div></div>
+            <div className="gridbar"><div className="gl"><span>Your pack level</span><b>{ownedPack ? '$' + Number(ownedPack.price).toLocaleString() + ' · ' + (ownedPack.name || 'Pack') : 'No pack yet'}</b></div>
+              <div className="gl" style={{marginTop:8}}><span>Next sale (#{nextSaleNo})</span><b style={{color: nextPassesUp ? '#ff5a70' : '#7ef0a8'}}>{nextPassesUp ? 'passes up' : 'yours — 100%'}</b></div>
+            </div>
             <div className="metrics">
-              <div className="metric"><div className="mn">{team}</div><div className="ml">Team</div></div>
-              <div className="metric"><div className="mn">{activeTeam}</div><div className="ml">Active</div></div>
-              <div className="metric"><div className="mn">{toMilestone}</div><div className="ml">To bonus</div></div>
+              <div className="metric"><div className="mn">{saleCount}</div><div className="ml">Sales</div></div>
+              <div className="metric"><div className="mn">{confirmedSales.length}</div><div className="ml">Paid to you</div></div>
+              <div className="metric"><div className="mn">{ownedLevel ? '$' + Number((ownedPack || {}).price || 0).toLocaleString() : '—'}</div><div className="ml">Earn level</div></div>
             </div>
             <div className="d-cta">
-              <Link className="wallet-btn" to="/wallet" style={{ textDecoration: 'none' }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>Open wallet</Link>
-              <Link className="grid-btn" to="/grid-visualiser" style={{ textDecoration: 'none' }}>Open grid <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0a1438" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
+              <Link className="wallet-btn" to="/my-sales" style={{ textDecoration: 'none' }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>My sales</Link>
+              <Link className="grid-btn" to="/packs" style={{ textDecoration: 'none' }}>Get a pack <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0a1438" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></Link>
             </div>
           </div>
 

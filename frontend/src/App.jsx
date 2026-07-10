@@ -326,6 +326,15 @@ function AppRoutes() {
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<Navigate to="/home-preview" replace />} />
+      {/* AL server-rendered pages — hard navigation out of the SPA */}
+      <Route path="/packs" element={<HardRedirect to="/packs" />} />
+      <Route path="/my-sales" element={<HardRedirect to="/my-sales" />} />
+      <Route path="/payout-methods" element={<HardRedirect to="/payout-methods" />} />
+      <Route path="/plan" element={<HardRedirect to="/plan" />} />
+      <Route path="/compensation-plan" element={<HardRedirect to="/plan" />} />
+      <Route path="/grid-visualiser" element={<HardRedirect to="/packs" />} />
+      <Route path="/campaign-tiers" element={<HardRedirect to="/packs" />} />
+      <Route path="/grid-calculator" element={<HardRedirect to="/plan" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/toolkit" element={<ProtectedRoute><ToolKitPage /></ProtectedRoute>} />
       <Route path="/marketing" element={<ProtectedRoute><MarketingPage /></ProtectedRoute>} />
@@ -557,6 +566,13 @@ function AppPrefixRedirect() {
     const clean = loc.pathname.replace(/^\/app/, '') || '/';
     window.history.replaceState(null, '', clean + loc.search + loc.hash);
   }
+  return null;
+}
+
+function HardRedirect({ to }) {
+  // Server-rendered AL pages live outside the SPA — a full navigation is
+  // required (react-router would render nothing for these paths).
+  React.useEffect(function () { window.location.replace(to); }, [to]);
   return null;
 }
 

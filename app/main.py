@@ -67042,6 +67042,7 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
         "owned_level": _ale.owned_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
+        "pack_sale_count": user.pack_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
     }
 
