@@ -1887,11 +1887,153 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════
 
+_AL_HOME = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdvantageLife — Your effort. Your income. 100% yours.</title>
+<meta name="description" content="One $100 payment unlocks every tool for life. Advertise to real people, earn member-to-member — 100% of pack commissions pass between members, never to us.">
+<meta property="og:title" content="AdvantageLife — Your effort. Your income. 100% yours.">
+<meta property="og:description" content="$100 once. Every tool. Forever. Real advertising, real viewers, member-to-member income.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#e8203f;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:#fff}
+.nav{display:flex;justify-content:space-between;align-items:center;max-width:1080px;margin:0 auto;padding:18px 22px}
+.mk{font-weight:900;font-size:21px;letter-spacing:-.4px;color:#fff;text-decoration:none}
+.mk i{font-style:normal;color:#ff5a70}
+.nav .b{display:flex;gap:10px}
+.nb{font-weight:800;font-size:13px;text-decoration:none;border-radius:10px;padding:10px 18px}
+.nb.ghost{color:#fff;border:2px solid rgba(255,255,255,.35)}
+.nb.red{background:var(--red);color:#fff}
+.hero{background:linear-gradient(165deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding-bottom:74px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-120px;top:-80px;width:420px;height:420px;border-radius:50%;background:rgba(255,90,112,.10)}
+.hero::before{content:"";position:absolute;left:-140px;bottom:-160px;width:380px;height:380px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hwrap{max-width:1080px;margin:0 auto;padding:64px 22px 0;text-align:center;position:relative;z-index:2}
+.eyebrow{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ffb3c0;border:1.5px solid rgba(255,90,112,.45);border-radius:20px;padding:7px 16px;margin-bottom:26px}
+h1{font-weight:900;font-size:clamp(38px,7vw,64px);letter-spacing:-2px;line-height:1.03;margin-bottom:18px}
+h1 .r{color:#ff5a70}
+.hsub{font-size:clamp(15px,2.4vw,19px);font-weight:600;color:#c9d6f7;max-width:620px;margin:0 auto 34px;line-height:1.6}
+.cta{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:16px;text-decoration:none;border-radius:14px;padding:18px 38px;box-shadow:0 18px 40px -14px rgba(200,16,46,.65)}
+.cta2{display:inline-block;color:#fff;font-weight:800;font-size:14px;text-decoration:none;border:2px solid rgba(255,255,255,.35);border-radius:14px;padding:16px 28px;margin-left:10px}
+.trust{margin-top:22px;font-size:12px;font-weight:700;color:#8fa4d8}
+.strip{display:flex;justify-content:center;gap:clamp(18px,5vw,54px);flex-wrap:wrap;margin-top:52px}
+.st b{display:block;font-weight:900;font-size:clamp(22px,4vw,30px);letter-spacing:-1px}
+.st span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8fa4d8}
+section{max-width:1080px;margin:0 auto;padding:72px 22px}
+.k{font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+h2{font-weight:900;font-size:clamp(26px,4.6vw,38px);letter-spacing:-1.2px;line-height:1.1;margin-bottom:14px}
+.lead{font-size:15.5px;font-weight:600;color:var(--dim);line-height:1.65;max-width:640px;margin-bottom:34px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.tool{border:2px solid var(--line);border-radius:16px;padding:22px 20px}
+.tool .ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.tool b{font-weight:900;font-size:16px;display:block;margin-bottom:6px}
+.tool p{font-size:13px;font-weight:600;color:var(--dim);line-height:1.55}
+.w2e{background:#f6f8fd;border-radius:22px;padding:clamp(26px,5vw,46px);display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+@media(max-width:760px){.w2e{grid-template-columns:1fr}}
+.w2e h2{font-size:clamp(24px,4vw,32px)}
+.w2e .demo{background:var(--navy);border-radius:18px;padding:22px;color:#fff}
+.w2e .vid{background:#0d2668;border-radius:12px;height:130px;display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.w2e .row{display:flex;justify-content:space-between;font-size:12px;font-weight:800;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.w2e .row span:last-child{color:#7ef0a8}
+.income{background:linear-gradient(165deg,var(--navy),var(--navy2));border-radius:22px;color:#fff;padding:clamp(28px,5vw,50px)}
+.income h2{color:#fff}
+.income .lead{color:#c9d6f7}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:8px}
+.step{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14);border-radius:16px;padding:20px}
+.step .n{width:32px;height:32px;border-radius:50%;background:var(--red);font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.step b{font-weight:900;font-size:15px;display:block;margin-bottom:6px}
+.step p{font-size:12.5px;font-weight:600;color:#c9d6f7;line-height:1.55}
+.pass{margin-top:26px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14);border-radius:16px;padding:20px;font-size:13px;font-weight:600;color:#c9d6f7;line-height:1.7}
+.pass b{color:#fff}
+.pass .hl{color:#ffd08a;font-weight:800}
+.final{text-align:center;padding-bottom:84px}
+.final .price{font-weight:900;font-size:clamp(40px,8vw,58px);letter-spacing:-2px}
+.final .price span{font-size:15px;font-weight:700;color:var(--dim)}
+.disc{font-size:11px;font-weight:600;color:#94a0c2;max-width:640px;margin:26px auto 0;line-height:1.7}
+footer{border-top:1.5px solid var(--line);padding:26px 22px;text-align:center;font-size:12px;font-weight:700;color:var(--dim)}
+footer a{color:var(--dim)}
+</style></head><body>
+
+<div class="hero">
+  <div class="nav">
+    <a class="mk" href="/">Advantage<i>Life</i></a>
+    <div class="b"><a class="nb ghost" href="/login">Log in</a><a class="nb red" href="/join">Join — $100</a></div>
+  </div>
+  <div class="hwrap">
+    <div class="eyebrow">Your effort · Your income · 100% yours</div>
+    <h1>One payment.<br>Every tool. <span class="r">For life.</span></h1>
+    <div class="hsub">$100, once. No subscription, no renewals — the full AdvantageLife toolkit is yours forever. Then advertise to real people and earn <b>member-to-member</b>: 100% of every pack commission passes between members. Never to us.</div>
+    <a class="cta" href="/join">Get lifetime access →</a><a class="cta2" href="#how">How it works</a>
+    <div class="trust">One-time $100 · pay by card or crypto · your sponsor earns nothing on your join</div>
+    <div class="strip">
+      <div class="st"><b>$100</b><span>once, ever</span></div>
+      <div class="st"><b>100%</b><span>member-to-member</span></div>
+      <div class="st"><b>9</b><span>pack levels · $10–$1,000</span></div>
+      <div class="st"><b>0</b><span>monthly fees</span></div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="k">The toolkit</div>
+  <h2>Everything you need to market anything.</h2>
+  <div class="lead">The tools alone are the deal — professional marketing software, unlocked once, owned for life. Use them for any business, any offer, any niche.</div>
+  <div class="grid">
+    <div class="tool"><div class="ic" style="background:#eef2fd">🏗️</div><b>Page &amp; funnel builder</b><p>Landing pages, capture pages and funnels — templates, your own domain, done from your phone.</p></div>
+    <div class="tool"><div class="ic" style="background:#fdf2f4">✉️</div><b>Autoresponder</b><p>Lists, automated sequences and broadcasts with real deliverability. Your list, owned by you.</p></div>
+    <div class="tool"><div class="ic" style="background:#f0faf4">🎬</div><b>AI Creative Studio</b><p>Video, images and voice generated from a prompt — your ad creative without a production budget.</p></div>
+    <div class="tool"><div class="ic" style="background:#fff8e9">📣</div><b>Video advertising</b><p>Campaign packs put your video in front of real, logged-in members — verified attention, not bot views.</p></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="w2e">
+    <div>
+      <div class="k">Watch-to-Earn</div>
+      <h2>Real people watch. That's the product.</h2>
+      <div class="lead" style="margin-bottom:0">Members watch campaign videos daily to stay earning-qualified — which means every advertising pack is seen by real humans with a reason to pay attention. Your daily watch keeps your income switched on; their daily watch is your audience.</div>
+    </div>
+    <div class="demo">
+      <div class="vid">▶</div>
+      <div class="row"><span>Today's watch</span><span>✓ complete</span></div>
+      <div class="row"><span>Earning status</span><span>✓ qualified</span></div>
+      <div class="row" style="border:none"><span>Your campaign</span><span>1,284 real views</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="income">
+    <div class="k" style="color:#ff8fa0">The income side — when you want it</div>
+    <h2>100% member-to-member. We never touch it.</h2>
+    <div class="lead">Campaign packs ($10 to $1,000) are bought member-to-member: the buyer pays the earning member <b>directly, wallet to wallet</b>. AdvantageLife resolves who earns the sale and records the proof — the money never passes through us.</div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b>Join for $100</b><p>Lifetime access to every tool. Your sponsor earns nothing on this — it's a platform payment, not a commission.</p></div>
+      <div class="step"><div class="n">2</div><b>Own a pack &amp; do your daily watch</b><p>You earn at any level you own. Watching daily keeps you qualified — miss it and sales pass over you.</p></div>
+      <div class="step"><div class="n">3</div><b>Sell &amp; get paid directly</b><p>Buyers pay your wallet, member to member. USDT or USDC, the moment they buy — nothing to withdraw.</p></div>
+    </div>
+    <div class="pass"><b>The 3/6/9 pass-up:</b> you keep your 1st, 2nd, 4th, 5th, 7th, 8th and every sale from your 10th onward. Your <span class="hl">3rd, 6th and 9th</span> sales pass up to the first qualified member above you — and everyone below you passes theirs up the same way, forever. Simple, transparent, and every dollar of it stays between members.</div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="k">Ready?</div>
+  <div class="price">$100 <span>once · for life</span></div>
+  <h2 style="margin-top:8px">Never pay for the tools again.</h2>
+  <a class="cta" href="/join" style="margin-top:14px">Join AdvantageLife →</a>
+  <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. Earnings shown or described are illustrations of the compensation structure, not promises — most members' results depend entirely on their own effort, consistency and sales. You can use every tool without referring anyone or earning at all.</div>
+</section>
+
+<footer>© AdvantageLife · advantagelife.club · <a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="/refund-policy">Refunds</a></footer>
+</body></html>"""
+
+
 @app.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>SuperAdPro</h1>")
+    # AdvantageLife public homepage (this branch deploys only the AL site).
+    return HTMLResponse(_AL_HOME)
 
 @app.get("/health")
 async def health_check():
