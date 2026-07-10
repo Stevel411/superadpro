@@ -67411,6 +67411,326 @@ select.inp{font-family:'Inter';font-weight:700;font-size:13px}
 </body></html>"""
 
 
+_AL_PACKS_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign packs — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
+.wrap{max-width:560px;margin:0 auto;padding:30px 20px}
+.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
+.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
+.card{background:#fff;color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-bottom:6px}h1 .r{color:var(--red)}
+.sub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
+.scr{display:none}.scr.on{display:block}
+.packs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
+.pk{border:2px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer}
+.pk b{display:block;font-weight:900;font-size:17px}
+.pk span{font-size:10.5px;font-weight:700;color:var(--dim)}
+.pk.sel{border-color:var(--red);background:#fdf2f4}
+.pk.owned{border-color:#8fd6a8;background:#f0faf4}
+.ownedtag{display:block;font-size:8.5px;font-weight:900;color:var(--grn);letter-spacing:.08em;margin-top:2px}
+.payee{display:flex;align-items:center;gap:12px;background:#f6f8fd;border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.payee .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.payee b{font-weight:900;font-size:15px;display:block}
+.payee span{font-size:11.5px;font-weight:700;color:var(--dim)}
+.holds{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:16px}
+.addr{background:var(--navy);color:#fff;border-radius:14px;padding:16px;margin-bottom:14px}
+.addr .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.addr .lbl{font-size:10px;font-weight:800;letter-spacing:.12em;color:#8fa4d8}
+.chainbadge{background:#ffd08a;color:#5a3a00;font-weight:900;font-size:11px;border-radius:8px;padding:4px 10px}
+.addr .amt{font-weight:900;font-size:30px;letter-spacing:-.8px;margin-bottom:10px}
+.addr .amt span{font-size:13px;font-weight:700;color:#aebcf0}
+.addr .a{display:flex;gap:8px;align-items:center;background:#0d2668;border-radius:9px;padding:10px 12px}
+.addr .a code{font-family:'JetBrains Mono';font-size:11px;word-break:break-all;flex:1;color:#dbe5ff}
+.cp{background:var(--red);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-family:'Inter';font-weight:900;font-size:10.5px;cursor:pointer;flex-shrink:0}
+.wrong{font-size:10px;font-weight:800;color:#ffb3c0;margin-top:8px;line-height:1.5}
+#qr{width:110px;height:110px;background:#fff;border-radius:10px;padding:6px;margin:12px auto 2px;display:flex;align-items:center;justify-content:center}
+#qr img,#qr canvas{width:98px!important;height:98px!important}
+.count{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#8fa4d8;margin-top:10px}
+.count b{color:#ffd08a}
+.inp{width:100%;border:2px solid var(--line);border-radius:11px;padding:13px;font-family:'JetBrains Mono';font-size:12px;margin-bottom:10px}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-family:'Inter';font-weight:900;font-size:14.5px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 12px 26px -12px rgba(200,16,46,.6);margin-bottom:9px}
+.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.pend{background:#f6f8fd;border:1.5px dashed #b9c6e8;border-radius:14px;padding:20px;text-align:center;margin-bottom:14px}
+.spin{width:30px;height:30px;border:4px solid var(--line);border-top-color:var(--red);border-radius:50%;margin:0 auto 10px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pend b{font-weight:900;font-size:14px;display:block;margin-bottom:4px}
+.pend span{font-size:12px;color:var(--dim);font-weight:600}
+.big{font-size:46px;text-align:center;margin-bottom:8px}
+.ctr{text-align:center}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
+.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
+.gatewarn{background:#fdf2f4;border:1.5px solid #f3c2cc;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#8f1830;line-height:1.5;margin-bottom:14px}
+.gatewarn a{color:#8f1830}
+</style></head><body>
+<div class="wrap">
+  <div class="mk">Advantage<i>Life</i></div>
+  <div class="tag">Your effort. Your income. 100% yours.</div>
+  <div class="card">
+
+    <div class="scr" id="sPick">
+      <h1>Choose your <span class="r">campaign pack</span></h1>
+      <div class="sub">Real members watch your ads. Pack price = the 100% commission that passes member-to-member.</div>
+      <div class="gatewarn" id="gwarn" style="display:none"></div>
+      <div class="packs" id="packGrid"></div>
+      <div class="err" id="errPick"></div>
+      <button class="btn red" id="btnGo" disabled>Select a pack above</button>
+      <div class="note" id="ownNote"></div>
+    </div>
+
+    <div class="scr" id="sPay">
+      <h1>Pay <span class="r" id="payeeName">@member</span> directly</h1>
+      <div class="sub">This is a member-to-member purchase. AdvantageLife resolved who earns this sale — the money goes straight to them.</div>
+      <div class="payee"><div class="av" id="pAv">M</div><div><b id="pWho">Member</b><span id="pSub">earns this sale</span></div></div>
+      <div class="holds">⚠ AdvantageLife never holds this money. Send the <b>exact amount</b> to the address below — then submit your transaction reference.</div>
+      <div class="addr">
+        <div class="hd"><span class="lbl">SEND EXACTLY</span><span class="chainbadge" id="chain">USDT</span></div>
+        <div class="amt" id="amt">$0 <span>USDT</span></div>
+        <div class="a"><code id="addr">…</code><button class="cp" id="copyBtn">COPY</button></div>
+        <div class="wrong" id="wrong"></div>
+        <div id="qr"></div>
+        <div class="count"><span>This purchase expires in</span><b id="ttl">—</b></div>
+      </div>
+      <input class="inp" id="txref" placeholder="Paste your transaction hash / reference">
+      <div class="err" id="errPay"></div>
+      <button class="btn red" id="btnProof">I've paid — submit proof →</button>
+      <button class="btn ghost" id="btnCancel">Cancel this purchase</button>
+    </div>
+
+    <div class="scr" id="sPend">
+      <h1>Proof submitted ✓</h1>
+      <div class="sub"><span id="pendWho">The seller</span> confirms receipt — usually within a few hours. Your pack activates the moment they do.</div>
+      <div class="pend"><div class="spin"></div><b id="pendTitle">Waiting for confirmation</b><span id="pendMeta"></span></div>
+      <button class="btn ghost" id="btnDispute" style="display:none">Something wrong? It's been a while — contact support</button>
+    </div>
+
+    <div class="scr" id="sDone">
+      <div class="big">🎉</div>
+      <h1 class="ctr">Your pack is <span class="r">live</span></h1>
+      <div class="sub ctr" id="doneSub">Views start with the next rotation — and you now earn at this level on your own sales.</div>
+      <a class="btn red" href="/dashboard">Go to your dashboard →</a>
+      <a class="btn ghost" href="/packs">Buy another pack</a>
+    </div>
+
+  </div>
+  <div class="note" style="color:#8fa0d4">Member-to-member payments can't be reversed by AdvantageLife — always double-check the chain and address.</div>
+</div>
+<script>
+(function(){
+  var packs=[], sel=null, intent=null, tick=null;
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
+  function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
+  function fail(id,m){var e=document.getElementById(id);e.textContent=m;e.style.display='block'}
+  function chainLabel(mt){var M={usdt_bsc:'USDT · BNB Smart Chain (BEP-20)',usdt_tron:'USDT · TRON (TRC-20)',usdt_polygon:'USDT · Polygon',usdc_bsc:'USDC · BNB Smart Chain (BEP-20)',usdc_polygon:'USDC · Polygon'};return M[mt]||(mt||'USDT').toUpperCase()}
+  function chainWarn(mt){if(mt==='usdt_tron')return '⚠ TRON ONLY — sending on any other chain loses the funds. TRON addresses start with "T".';
+    var nm=chainLabel(mt).split(' · ')[1]||'this chain';return '⚠ '+nm.toUpperCase()+' ONLY — sending on any other chain loses the funds.'}
+  function fmtTTL(iso){var ms=new Date(iso)-new Date();if(ms<=0)return 'expired';var h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h+'h '+m+'m'}
+  function renderIntent(j){
+    intent=j;
+    var payee=j.payee||{};var cur=(j.pack&&j.pack.name&&j.pack.name.indexOf('USDC')>-1)?'USDC':'USDT';
+    document.getElementById('payeeName').textContent='@'+(payee.username||'member');
+    document.getElementById('pWho').textContent=(payee.display||payee.username||'Member')+' · @'+(payee.username||'');
+    document.getElementById('pSub').textContent=payee.is_company?'platform-routed sale':'earns this sale';
+    document.getElementById('pAv').textContent=(payee.display||'M').charAt(0).toUpperCase();
+    var po=j.payout||{};
+    document.getElementById('chain').textContent=chainLabel(po.method_type);
+    var addr='';try{addr=(typeof po.details==='string'?JSON.parse(po.details):po.details).address}catch(e){addr=po.details&&po.details.address||po.details||''}
+    document.getElementById('addr').textContent=addr;
+    document.getElementById('wrong').textContent=chainWarn(po.method_type);
+    var isUSDC=(po.method_type||'').indexOf('usdc')===0;
+    document.getElementById('amt').innerHTML='$'+Number(j.amount).toFixed(2)+' <span>'+(isUSDC?'USDC':'USDT')+'</span>';
+    var q=document.getElementById('qr');q.innerHTML='';if(window.QRCode&&addr){new QRCode(q,{text:addr,width:98,height:98})}
+    if(tick)clearInterval(tick);
+    if(j.expires_at){var u=function(){document.getElementById('ttl').textContent=fmtTTL(j.expires_at)};u();tick=setInterval(u,30000)}
+    show('sPay');
+  }
+  function renderPending(j){
+    document.getElementById('pendWho').textContent='@'+((j.payee&&j.payee.username)||'the seller');
+    document.getElementById('pendTitle').textContent='Waiting for @'+((j.payee&&j.payee.username)||'seller')+' to confirm';
+    document.getElementById('pendMeta').textContent=(j.tx_ref?('tx '+j.tx_ref.slice(0,10)+'…'):'proof on file');
+    show('sPend');
+    pollConfirm();
+  }
+  var pollN=0;
+  function pollConfirm(){
+    setTimeout(function(){
+      fetch('/api/al/my-purchases').then(function(r){return r.json()}).then(function(j){
+        var it=(j.purchases||[]).find(function(x){return intent&&x.intent_id===intent.intent_id});
+        if(it&&it.status==='confirmed'){show('sDone');return}
+        if(it&&(it.status==='expired'||it.status==='cancelled'||it.status==='disputed')){location.reload();return}
+        if(++pollN<120)pollConfirm();
+      }).catch(function(){if(++pollN<120)pollConfirm()});
+    },15000);
+  }
+  function renderPicker(j){
+    packs=j.packs||[];
+    var g=document.getElementById('packGrid');g.innerHTML='';
+    packs.forEach(function(pk){
+      var d=document.createElement('div');
+      var owned=j.owned_level>=pk.level;
+      d.className='pk'+(owned?' owned':'');
+      d.innerHTML='<b>$'+Number(pk.price).toLocaleString()+'</b><span>'+(pk.views_target/1000)+'k views</span>'+(owned?'<span class="ownedtag">OWNED</span>':'');
+      d.onclick=function(){sel=pk;document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel')});d.classList.add('sel');
+        var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
+      g.appendChild(d);
+    });
+    document.getElementById('ownNote').innerHTML=j.owned_level>0?('Your current level: <b>$'+Number((packs.find(function(p){return p.level===j.owned_level})||{}).price||0).toLocaleString()+'</b> — own a level to earn at that level.'):'Own a level to earn at that level.';
+    if(!j.has_payout_method){var w=document.getElementById('gwarn');w.style.display='block';
+      w.innerHTML='You have no payout wallet on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
+    show('sPick');
+  }
+  document.getElementById('btnGo').onclick=function(){
+    if(!sel)return;var b=this;b.disabled=true;b.textContent='Preparing your purchase…';
+    fetch('/api/al/packs/'+sel.level+'/intent',{method:'POST'}).then(function(r){return r.json().then(function(j){return{ok:r.ok,s:r.status,j:j}})}).then(function(x){
+      if(x.ok&&x.j.intent_id){renderIntent(x.j)}
+      else if(x.s===409&&x.j.intent){handleExisting(x.j.intent)}
+      else{fail('errPick',x.j.error||'Could not start this purchase');b.disabled=false;b.textContent='Try again'}
+    }).catch(function(){fail('errPick','Network error — try again');b.disabled=false;b.textContent='Try again'});
+  };
+  function handleExisting(it){intent=it;if(it.status==='pending'){renderIntent(it)}else{renderPending(it)}}
+  document.getElementById('copyBtn').onclick=function(){
+    var t=document.getElementById('addr').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){document.getElementById('copyBtn').textContent='COPIED ✓';setTimeout(function(){document.getElementById('copyBtn').textContent='COPY'},2000)}).catch(function(){});
+  };
+  document.getElementById('btnProof').onclick=function(){
+    var tx=document.getElementById('txref').value.trim();
+    if(!tx){fail('errPay','Paste the transaction hash from your wallet first');return}
+    var b=this;b.disabled=true;b.textContent='Submitting…';
+    fetch('/api/al/intents/'+intent.intent_id+'/proof',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_ref:tx})})
+    .then(function(r){return r.json()}).then(function(j){
+      b.disabled=false;b.textContent="I've paid — submit proof →";
+      if(j.ok){renderPending(j.intent)}else{fail('errPay',j.error||'Could not submit')}
+    }).catch(function(){b.disabled=false;fail('errPay','Network error — try again')});
+  };
+  document.getElementById('btnCancel').onclick=function(){
+    if(!confirm('Cancel this purchase?'))return;
+    fetch('/api/al/intents/'+intent.intent_id+'/cancel',{method:'POST'}).then(function(){location.reload()});
+  };
+  fetch('/api/al/packs').then(function(r){if(r.status===401){location.href='/login?next=/packs';return null}return r.json()}).then(function(j){
+    if(!j)return;
+    if(j.open_intent){handleExisting(j.open_intent)}else{renderPicker(j)}
+    if(!j.open_intent)renderPicker(j);
+  });
+})();
+</script>
+</body></html>"""
+
+
+_AL_SALES_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My sales — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
+.wrap{max-width:560px;margin:0 auto;padding:30px 20px}
+.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
+.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
+.card{background:#fff;color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{color:var(--red)}
+.sub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
+.sale{border:2px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.sale.action{border-color:#f3c2cc;background:#fffafb}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.who{font-weight:900;font-size:14.5px}
+.amt{font-weight:900;font-size:19px;color:var(--grn)}
+.meta{font-size:11.5px;color:var(--dim);font-weight:700;margin-bottom:4px}
+.tx{font-family:'JetBrains Mono';font-size:10px;background:#f6f8fd;border-radius:7px;padding:7px 9px;word-break:break-all;color:#33406b;margin:8px 0 10px}
+.two{display:flex;gap:8px}
+.btn{flex:1;border:none;border-radius:11px;padding:13px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;text-align:center}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.stbadge{font-size:10px;font-weight:900;border-radius:8px;padding:4px 9px}
+.st-confirmed{background:#e8f7ee;color:var(--grn)}
+.st-pending{background:#fff8e9;color:#7a5a10}
+.st-proof_submitted{background:#fdf2f4;color:var(--red)}
+.st-disputed{background:#fdecec;color:#a3132e}
+.st-expired,.st-cancelled{background:#eef1f7;color:var(--dim)}
+.empty{text-align:center;padding:26px 0;color:var(--dim);font-weight:700;font-size:13px}
+.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700;margin-bottom:10px}
+</style></head><body>
+<div class="wrap">
+  <div class="mk">Advantage<i>Life</i></div>
+  <div class="tag">Your effort. Your income. 100% yours.</div>
+  <div class="card">
+    <h1>Incoming <span class="r">sales</span></h1>
+    <div class="sub">Buyers pay you directly. Check your wallet — confirm only when the money has actually arrived.</div>
+    <div class="err" id="err"></div>
+    <div id="list"></div>
+    <div class="empty" id="empty" style="display:none">No sales yet — share your link and keep your daily watch going.</div>
+  </div>
+  <div class="note" style="color:#8fa0d4">Confirming activates the buyer's pack and advances your sale counter — it can't be undone.</div>
+</div>
+<script>
+(function(){
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
+  function fail(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+  function stLabel(s){return {pending:'AWAITING PAYMENT',proof_submitted:'CONFIRM RECEIPT',confirmed:'CONFIRMED',disputed:'DISPUTED',expired:'EXPIRED',cancelled:'CANCELLED'}[s]||s.toUpperCase()}
+  function load(){
+    fetch('/api/al/my-sales').then(function(r){if(r.status===401){location.href='/login?next=/my-sales';return null}return r.json()}).then(function(j){
+      if(!j)return;
+      var L=document.getElementById('list');L.innerHTML='';
+      var sales=j.sales||[];
+      document.getElementById('empty').style.display=sales.length?'none':'block';
+      sales.forEach(function(s){
+        var d=document.createElement('div');
+        d.className='sale'+(s.action_needed?' action':'');
+        var pk=s.pack||{};
+        d.innerHTML='<div class="top"><span class="who">@'+esc(s.buyer&&s.buyer.username)+'</span><span class="amt">+$'+Number(s.amount).toFixed(2)+'</span></div>'
+          +'<div class="meta">'+esc(pk.name||('Level '+pk.level))+' pack · <span class="stbadge st-'+esc(s.status)+'">'+stLabel(s.status)+'</span></div>'
+          +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')
+          +(s.action_needed?('<div class="two"><button class="btn red" data-c="'+s.intent_id+'">Money arrived — confirm ✓</button><button class="btn ghost" data-d="'+s.intent_id+'">Didn\u2019t receive</button></div>'):'');
+        L.appendChild(d);
+      });
+      L.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){
+        if(!confirm('Confirm you have RECEIVED this payment in your wallet? This activates the buyer\u2019s pack and cannot be undone.'))return;
+        b.disabled=true;b.textContent='Confirming…';
+        fetch('/api/al/intents/'+b.dataset.c+'/confirm',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+          if(j.ok){load()}else{fail(j.error||'Could not confirm');b.disabled=false;b.textContent='Money arrived — confirm ✓'}
+        }).catch(function(){fail('Network error');b.disabled=false});
+      }});
+      L.querySelectorAll('[data-d]').forEach(function(b){b.onclick=function(){
+        if(!confirm('Report that you did NOT receive this payment? The purchase freezes for admin review.'))return;
+        fetch('/api/al/intents/'+b.dataset.d+'/decline',{method:'POST'}).then(function(){load()});
+      }});
+    });
+  }
+  load();
+  setInterval(load, 60000);
+})();
+</script>
+</body></html>"""
+
+
+@app.get("/packs")
+def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Buyer flow (approved mockup screens 1-4): pack picker -> pay-the-payee
+    intent page (chain badge, address, QR, countdown, proof) -> pending ->
+    activated. One page, state-driven off /api/al/packs + my-purchases."""
+    if not user:
+        return RedirectResponse(url="/login?next=/packs", status_code=302)
+    return HTMLResponse(_AL_PACKS_PAGE)
+
+
+@app.get("/my-sales")
+def al_my_sales_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Payee queue (approved mockup screens 5-6): incoming sales with
+    confirm / didn't-receive, plus history. Auto-refreshes each minute."""
+    if not user:
+        return RedirectResponse(url="/login?next=/my-sales", status_code=302)
+    return HTMLResponse(_AL_SALES_PAGE)
+
+
 @app.get("/payout-methods")
 def al_payout_methods_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Member payout-wallet settings (approved mockup screen 7). The
