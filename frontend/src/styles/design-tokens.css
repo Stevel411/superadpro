@@ -155,3 +155,19 @@ button:disabled, [disabled] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ADVANTAGELIFE THEME OVERRIDE (branch: advantagelife-passup)
+   Later :root declaration wins — remaps the brand tokens to the
+   AL identity (navy #0a1f52/#12388f, red #c8102e, Inter) without
+   touching a single component. 10 Jul 2026.
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --sap-cobalt-deep:  #0a1f52;
+  --sap-cobalt-mid:   #12388f;
+  --sap-accent:       #c8102e;
+  --sap-accent-light: #e8203f;
+  --sap-accent-pale:  #f5b8c2;
+  --sap-font-body:    'Inter', system-ui, sans-serif;
+  --sap-font-heading: 'Inter', system-ui, sans-serif;
+}

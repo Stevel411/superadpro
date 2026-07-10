@@ -78,8 +78,8 @@ const CSS = `
 .nd .door:focus-visible{outline:3px solid var(--cyanb);outline-offset:3px;}
 @keyframes rise{to{opacity:1;transform:translateY(0);}}
 .nd /* WATCH — featured,.nd full width */
-.watch{grid-column:1 / -1;background:linear-gradient(120deg,#0a1438 0%,#15275f 48%,#0e7490 120%);color:#fff;box-shadow:var(--shadow-lg);padding:30px clamp(22px,3.6vw,40px);display:flex;align-items:center;gap:clamp(20px,4vw,52px);}
-.nd .watch::after{content:'';position:absolute;right:-60px;top:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.22),transparent 65%);pointer-events:none;}
+.watch{grid-column:1 / -1;background:linear-gradient(120deg,#0a1f52 0%,#12388f 55%,#7a1430 135%);color:#fff;box-shadow:var(--shadow-lg);padding:30px clamp(22px,3.6vw,40px);display:flex;align-items:center;gap:clamp(20px,4vw,52px);}
+.nd .watch::after{content:'';position:absolute;right:-60px;top:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,112,.20),transparent 65%);pointer-events:none;}
 .nd .watch:hover{box-shadow:0 30px 64px rgba(8,116,118,.34);}
 .nd .w-left{display:flex;align-items:center;gap:clamp(18px,3vw,30px);z-index:1;flex:1;min-width:0;}
 .nd .playwrap{position:relative;flex:0 0 auto;width:96px;height:96px;}
@@ -218,8 +218,17 @@ export default function NewDashboard() {
   const activeTeam = Number(d.directs_active != null ? d.directs_active : (d.network_active || 0));
   const toMilestone = Math.max(Math.min(Math.ceil((filled + 1) / 4) * 4, total) - filled, 0);
   const streak = Number(w.streak_days || 0);
+  // The W2E doorway shows the member's actual next campaign video.
+  // Quota-complete /api/watch returns videos: [] (rotation only assembles
+  // next_video when quota is unmet) — falls back to the done state.
+  const nextVid = (w.videos && w.videos[0]) || null;
+  let vidThumb = null;
+  if (nextVid && nextVid.embed_url) {
+    const m = String(nextVid.embed_url).match(/(?:youtube\.com\/(?:embed\/|watch\?v=)|youtu\.be\/)([\w-]{6,})/);
+    if (m) vidThumb = 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg';
+  }
   const watchedToday = !!w.watched_today;
-  const refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+  const refLink = 'https://www.advantagelife.club/ref/' + (user?.username || '');
   const dots = Array.from({ length: 7 }, function (_, i) { return i < Math.min(streak, 7); });
 
   function copyLink() {
@@ -238,7 +247,7 @@ export default function NewDashboard() {
         <div className="top">
           <div className="brand">
             <span className="logomark"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
-            <span className="wordmark">SuperAd<span className="pro">Pro</span></span>
+            <span className="wordmark">Advantage<span className="pro">Life</span></span>
           </div>
           <div className="rt">
             {user && !user.is_active && (
@@ -283,6 +292,16 @@ export default function NewDashboard() {
 
           <Link className="door watch" to="/watch" style={{ textDecoration: 'none' }}>
             <div className="w-left">
+              {(!watchedToday && vidThumb) ? (
+                <div style={{position:'relative',flex:'none',width:172,borderRadius:16,overflow:'hidden',boxShadow:'0 16px 34px -14px rgba(0,0,0,.55)'}}>
+                  <img src={vidThumb} alt="Today's campaign video" style={{display:'block',width:'100%',aspectRatio:'16/9',objectFit:'cover'}}/>
+                  <span style={{position:'absolute',inset:0,background:'linear-gradient(180deg,rgba(8,16,44,.05),rgba(8,16,44,.35))'}}></span>
+                  <span style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:48,height:48,borderRadius:'50%',background:'#c8102e',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 10px 24px -6px rgba(200,16,46,.8)'}}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" style={{marginLeft:2}}><path d="M8 5v14l11-7z"/></svg>
+                  </span>
+                  <span style={{position:'absolute',left:8,bottom:7,right:8,fontSize:10,fontWeight:800,color:'#fff',textShadow:'0 1px 6px rgba(0,0,0,.7)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nextVid.title || "Today's video"}</span>
+                </div>
+              ) : (
               <div className="playwrap">
                 {!watchedToday && <><span className="pulse"></span><span className="pulse"></span></>}
                 <span className="play">
@@ -291,12 +310,13 @@ export default function NewDashboard() {
                     : <svg width="30" height="30" viewBox="0 0 24 24" fill="#0a1438"><path d="M8 5v14l11-7z"/></svg>}
                 </span>
               </div>
+              )}
               <div className="w-copy">
                 <div className="greet-line">Welcome back, {name}</div>
                 <h2>{watchedToday ? "Today's watch — done" : "Today's video is ready"}</h2>
                 <p>{watchedToday
                   ? "You're qualified to earn and withdraw today. Come back tomorrow to keep your streak alive."
-                  : "One watch a day keeps your wallet active and your grid earnings switched on. Miss a day and earning pauses until you're back."}</p>
+                  : "One watch a day keeps you qualified to earn — real views are what make every campaign pack a real product. Miss a day and earning pauses until you're back."}</p>
                 {!watchedToday && <span className="w-cta">Watch now &nbsp;&rarr;</span>}
               </div>
             </div>

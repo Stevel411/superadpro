@@ -369,7 +369,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
             </div>
             {!collapsed && (
               <span style={{fontFamily:"'Sora',sans-serif",fontSize:17,fontWeight:800,color:'#fff',lineHeight:1}}>
-                SuperAd<span style={{color:'#38bdf8'}}>{t('common.pro')}</span>
+                Advantage<span style={{color:'#ff5a70'}}>Life</span>
               </span>
             )}
           </Link>
