@@ -754,6 +754,20 @@ class PayoutMethod(Base):
     is_default   = Column(Boolean, default=False)
     created_at   = Column(DateTime, default=datetime.utcnow)
 
+class DirectJoinPayment(Base):
+    """A verified on-chain $100 lifetime-join payment straight to the
+    company treasury (USDT BEP-20). One row per successful verification;
+    tx_hash unique = replay protection. (Crypto-only join, 10 Jul 2026.)"""
+    __tablename__ = "direct_join_payments"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), index=True)
+    tx_hash      = Column(String, unique=True, index=True)
+    amount_usd   = Column(Numeric(12, 2))
+    to_address   = Column(String)
+    status       = Column(String, default="confirmed")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
 class P2PIntent(Base):
     """A pending member-to-member pack payment: payee resolved up front, then
        proof → confirm → activate. The platform never holds these funds."""
@@ -3887,6 +3901,23 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── AdvantageLife: direct join payments table (isolated, crypto-only join 10 Jul 2026) ──
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS direct_join_payments (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            tx_hash VARCHAR UNIQUE,
+            amount_usd NUMERIC(12,2),
+            to_address VARCHAR,
+            status VARCHAR DEFAULT 'confirmed',
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_djp_user ON direct_join_payments(user_id)"))
+        conn.commit()
+except Exception as _e:
+    print(f"direct_join_payments migration skipped: {_e}")
 
 # ── AdvantageLife: access_level + pack_sale_count (isolated, same reason as activated_at above) ──
 try:

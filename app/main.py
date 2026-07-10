@@ -41,7 +41,7 @@ from .database import Blog, BlogPost, BlogPage, BlogTag, BlogPostTag, BlogMenu, 
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
-from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod  # AdvantageLife P2P settlement (7 Jul 2026)
+from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod, DirectJoinPayment  # AdvantageLife P2P settlement (7 Jul 2026)
 from .database import CoPilotBriefing
 from .database import MemberLead, LeadList
 from .database import ShareCode
@@ -67805,8 +67805,23 @@ h1 .r{color:var(--red)}
         <div class="row"><span class="ck">✓</span><span><b>Watch-to-Earn + the pass-up plan</b> — the earning side, when you want it</span></div>
       </div>
       <div class="err" id="err"></div>
-      <button class="btn red" id="btnCard">Pay $__PRICE__ by card →</button>
-      <button class="btn ghost" id="btnCrypto">Pay with crypto (USDT)</button>
+      <div id="payBox" style="display:none">
+        <div style="background:var(--navy);color:#fff;border-radius:14px;padding:16px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#8fa4d8">SEND EXACTLY</span>
+            <span style="background:#ffd08a;color:#5a3a00;font-weight:900;font-size:11px;border-radius:8px;padding:4px 10px" id="jChain">USDT · BEP-20</span>
+          </div>
+          <div style="font-weight:900;font-size:30px;letter-spacing:-.8px;margin-bottom:10px">$__PRICE__ <span style="font-size:13px;font-weight:700;color:#aebcf0">USDT</span></div>
+          <div style="display:flex;gap:8px;align-items:center;background:#0d2668;border-radius:9px;padding:10px 12px">
+            <code id="jAddr" style="font-family:'JetBrains Mono',monospace;font-size:11px;word-break:break-all;flex:1;color:#dbe5ff">…</code>
+            <button type="button" id="jCopy" style="background:var(--red);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-family:'Inter';font-weight:900;font-size:10.5px;cursor:pointer;flex-shrink:0">COPY</button>
+          </div>
+          <div style="font-size:10px;font-weight:800;color:#ffb3c0;margin-top:8px;line-height:1.5" id="jWarn"></div>
+        </div>
+        <input id="jTx" style="width:100%;border:2px solid var(--line);border-radius:11px;padding:13px;font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:10px" placeholder="Paste your transaction hash (0x…)">
+        <button class="btn red" id="btnVerify">I've paid — verify &amp; activate →</button>
+      </div>
+      <button class="btn red" id="btnStart">Pay $__PRICE__ with USDT →</button>
       <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time digital purchase, activated immediately, with no refunds once access is granted.</label>
       <div class="note">Your $100 joins the platform — your sponsor earns nothing on this payment. Their earnings come from the pack system, explained inside.</div>
     </div>
@@ -67845,23 +67860,34 @@ h1 .r{color:var(--red)}
   function recordConsent(){return fetch('/api/purchase-consent').then(function(r){return r.json()}).then(function(p){
     return fetch('/api/purchase-consent/record',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({version:p.version,text_hash:p.text_hash})})})}
-  document.getElementById('btnCard').onclick=function(){
-    if(needConsent())return; this.disabled=true; this.textContent='Opening secure checkout…';
-    var b=this;
+  document.getElementById('btnStart').onclick=function(){
+    if(needConsent())return;
+    var b=this;b.disabled=true;b.textContent='Loading payment details…';
     recordConsent().finally(function(){
-      fetch('/api/al/join/checkout',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
-        if(j.checkout_url){location.href=j.checkout_url}
-        else{fail(j.error||'Could not start checkout');b.disabled=false;b.textContent='Pay $__PRICE__ by card →'}
-      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay $__PRICE__ by card →'})})};
-  document.getElementById('btnCrypto').onclick=function(){
-    if(needConsent())return; this.disabled=true; this.textContent='Creating crypto invoice…';
-    var b=this;
-    recordConsent().finally(function(){
-      fetch('/api/nowpayments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({product_key:'al_lifetime'})}).then(function(r){return r.json()}).then(function(j){
-        if(j.invoice_url){location.href=j.invoice_url}
-        else{fail(j.error||'Could not create crypto invoice');b.disabled=false;b.textContent='Pay with crypto (USDT)'}
-      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay with crypto (USDT)'})})};
+      fetch('/api/al/join/direct-info').then(function(r){return r.json()}).then(function(j){
+        if(!j.address){fail(j.error==='not_configured'?'Payments are being set up — check back shortly':'Could not load payment details');b.disabled=false;b.textContent='Pay $__PRICE__ with USDT →';return}
+        document.getElementById('jAddr').textContent=j.address;
+        document.getElementById('jWarn').textContent=j.warning;
+        document.getElementById('payBox').style.display='block';
+        b.style.display='none';
+      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay $__PRICE__ with USDT →'})})};
+  document.getElementById('jCopy').onclick=function(){
+    var t=document.getElementById('jAddr').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){document.getElementById('jCopy').textContent='COPIED ✓';setTimeout(function(){document.getElementById('jCopy').textContent='COPY'},2000)}).catch(function(){})};
+  var verifyTries=0;
+  document.getElementById('btnVerify').onclick=function(){
+    var tx=document.getElementById('jTx').value.trim();
+    if(!tx){fail('Paste the transaction hash from your wallet first');return}
+    var b=this;b.disabled=true;b.textContent='Verifying on-chain…';
+    document.getElementById('err').style.display='none';
+    fetch('/api/al/join/direct',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_ref:tx})})
+    .then(function(r){return r.json().then(function(j){return{s:r.status,j:j}})}).then(function(x){
+      if(x.j.ok){show('stDone');return}
+      if(x.j.retryable&&verifyTries<20){verifyTries++;b.textContent='Confirming on-chain… ('+x.j.error+')';
+        setTimeout(function(){b.disabled=false;document.getElementById('btnVerify').click()},6000);return}
+      fail(x.j.error||'Verification failed');b.disabled=false;b.textContent="I've paid — verify & activate →";
+    }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent="I've paid — verify & activate →"});
+  };
 })();
 </script>
 </body></html>"""
@@ -67910,6 +67936,107 @@ def _al_activate_lifetime(db, user_id: int, source: str, ref: str = None):
     db.commit()
     logger.info(f"AL lifetime activated: user={u.id} source={source} ref={ref}")
     return {"ok": True, "already": False}
+
+
+AL_JOIN_MIN_CONFIRMATIONS = 5  # ~15s on BSC
+
+
+def _al_verify_join_tx(tx_hash: str):
+    """Verify a USDT (BEP-20) transfer of exactly the join price to the
+    company treasury. Mirrors the WalletConnect manual-confirm receipt
+    logic: status==1, call TO the USDT contract, Transfer log with
+    recipient == AL_COMPANY_USDT_ADDRESS, amount == AL_JOIN_PRICE_USD,
+    and enough confirmations. Returns (ok, error_string, retryable)."""
+    treasury = (os.environ.get("AL_COMPANY_USDT_ADDRESS", "") or "").lower()
+    if not treasury.startswith("0x") or len(treasury) != 42:
+        return False, "Payments aren't configured yet — try again shortly", False
+    expected = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
+    from .withdrawals import USDT_CONTRACT_BSC, _get_web3_bsc
+    try:
+        w3 = _get_web3_bsc()
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
+    except Exception as e:
+        if "not found" in str(e).lower():
+            return False, "Transaction not found yet — give it a moment and try again", True
+        logger.error(f"al join verify: receipt fetch failed for {tx_hash}: {e}")
+        return False, "Couldn't reach the blockchain — try again in a minute", True
+    if not receipt:
+        return False, "Transaction not found yet — give it a moment and try again", True
+    if receipt.get("status") != 1:
+        return False, "That transaction failed on-chain", False
+    if (receipt.get("to") or "").lower() != USDT_CONTRACT_BSC.lower():
+        return False, "That transaction isn't a USDT (BEP-20) transfer", False
+    TRANSFER_SIG = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    paid = None
+    for log in receipt.get("logs", []):
+        topics = log.get("topics", [])
+        if len(topics) < 3:
+            continue
+        t0 = topics[0].hex() if hasattr(topics[0], "hex") else str(topics[0])
+        if not t0.startswith("0x"): t0 = "0x" + t0
+        if t0.lower() != TRANSFER_SIG:
+            continue
+        t2 = topics[2].hex() if hasattr(topics[2], "hex") else str(topics[2])
+        if not t2.startswith("0x"): t2 = "0x" + t2
+        recipient = "0x" + t2[-40:].lower()
+        if recipient != treasury:
+            continue
+        data = log.get("data")
+        dh = data.hex() if hasattr(data, "hex") else str(data)
+        if not dh.startswith("0x"): dh = "0x" + dh
+        paid = int(dh, 16) / 10**18  # BEP-20 USDT = 18 decimals
+        break
+    if paid is None:
+        return False, "That transaction doesn't pay the AdvantageLife treasury address", False
+    if abs(paid - expected) > 0.01:
+        return False, f"Amount mismatch — the transfer is ${paid:.2f}, the membership is ${expected:.2f} exactly", False
+    try:
+        latest = w3.eth.block_number
+        confs = latest - receipt.get("blockNumber", latest)
+        if confs < AL_JOIN_MIN_CONFIRMATIONS:
+            return False, "Confirming on-chain — a few more seconds", True
+    except Exception:
+        pass
+    return True, None, False
+
+
+@app.get("/api/al/join/direct-info")
+def al_join_direct_info(user: User = Depends(_al_user)):
+    addr = os.environ.get("AL_COMPANY_USDT_ADDRESS", "")
+    if not addr:
+        return JSONResponse({"error": "not_configured"}, status_code=503)
+    return {"address": addr,
+            "amount": float(os.environ.get("AL_JOIN_PRICE_USD", "100")),
+            "chain": "USDT · BNB Smart Chain (BEP-20)",
+            "warning": 'BNB SMART CHAIN ONLY — USDT sent on any other network is lost. Addresses start with "0x".'}
+
+
+@app.post("/api/al/join/direct")
+async def al_join_direct(request: Request,
+                         user: User = Depends(_al_user),
+                         db: Session = Depends(get_db)):
+    """Crypto-only lifetime join: buyer pays the treasury directly, submits
+    the tx hash, we verify on-chain and activate instantly. No processor."""
+    if user.access_level == "lifetime":
+        return {"ok": True, "already": True}
+    body = await request.json()
+    tx_hash = (body.get("tx_ref") or "").strip()
+    if not re.match(r"^0x[a-fA-F0-9]{64}$", tx_hash):
+        return JSONResponse({"error": "That doesn't look like a BSC transaction hash (0x + 64 characters)"}, status_code=400)
+    dupe = db.query(DirectJoinPayment).filter(DirectJoinPayment.tx_hash == tx_hash).first()
+    if dupe:
+        if dupe.user_id == user.id:
+            return {"ok": True, "already": True}
+        return JSONResponse({"error": "That transaction is already used"}, status_code=400)
+    ok, err, retryable = _al_verify_join_tx(tx_hash)
+    if not ok:
+        return JSONResponse({"error": err, "retryable": retryable}, status_code=202 if retryable else 400)
+    db.add(DirectJoinPayment(user_id=user.id, tx_hash=tx_hash,
+                             amount_usd=float(os.environ.get("AL_JOIN_PRICE_USD", "100")),
+                             to_address=os.environ.get("AL_COMPANY_USDT_ADDRESS", "")))
+    db.commit()
+    _al_activate_lifetime(db, user.id, source="direct_bsc", ref=tx_hash)
+    return {"ok": True, "activated": True}
 
 
 @app.post("/api/al/join/checkout")
