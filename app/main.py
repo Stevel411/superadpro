@@ -1970,15 +1970,15 @@ footer a{color:#b9c8ef}
   <a class="lnk" href="/plan">Income</a>
   <span class="sp"></span>
   <a class="nb white" href="/login">Log in</a>
-  <a class="nb red" href="/register">Start free</a>
+  <a class="nb red" href="/join">Join — $100</a>
 </div>
 
 <div class="hero">
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
-  <a class="cta" href="/register">Start free — no card</a><a class="cta2" href="/plan">See the plan</a>
-  <div class="trust"><span class="ok">✓</span> Free to start · the tools work whether or not you ever refer anyone</div>
+  <a class="cta" href="/join">Get lifetime access — $100 →</a><a class="cta2" href="/plan">See the plan</a>
+  <div class="trust"><span class="ok">✓</span> One-time $100 · card or crypto · your sponsor earns nothing on your join</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
@@ -1990,7 +1990,7 @@ footer a{color:#b9c8ef}
 <section id="tools">
   <div class="k">The Toolkit</div>
   <h2>The tools that do the work</h2>
-  <div class="lead">Real marketing software you'd pay for on its own — yours from day one, referrals or not.</div>
+  <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by one $100 payment, for life.</div>
   <div class="grid">
     <div class="tool"><div class="ic">🏗️</div><b>SuperPages</b><p>Landing pages and funnels that convert — no designer, no code.</p></div>
     <div class="tool"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div>
@@ -2008,9 +2008,9 @@ footer a{color:#b9c8ef}
     <h2>From starting out to living free.</h2>
     <div class="lead">Three steps. No guesswork, no monthly tool bills, and an income side that's 100% member-to-member when you're ready for it.</div>
     <div class="steps">
-      <div class="step"><div class="n">1</div><b>Start free</b><p>Create your account, no card. Use the tools, watch how the platform works from the inside.</p></div>
-      <div class="step"><div class="n">2</div><b>Unlock lifetime — $100 once</b><p>One payment unlocks every tool forever. No subscription, ever. Your sponsor earns nothing on this — it's a platform payment.</p></div>
-      <div class="step"><div class="n">3</div><b>Advertise &amp; earn</b><p>Buy a campaign pack, do your daily watch, and earn member-to-member — buyers pay your wallet directly.</p></div>
+      <div class="step"><div class="n">1</div><b>Join — $100, once</b><p>One payment, lifetime access to every tool. No subscription, ever. Your sponsor earns nothing on this — it's a platform payment.</p></div>
+      <div class="step"><div class="n">2</div><b>Own a pack &amp; do your daily watch</b><p>You earn at any pack level you own. Watching daily keeps you qualified — miss it and sales pass over you.</p></div>
+      <div class="step"><div class="n">3</div><b>Sell &amp; get paid directly</b><p>Buyers pay your wallet, member to member — USDT or USDC, the moment they buy. Nothing to withdraw.</p></div>
     </div>
     <div class="pass" id="income"><b>The income side, in one paragraph:</b> campaign packs ($10–$1,000) are bought member-to-member — the buyer pays the earning member <b>directly, wallet to wallet</b>. You keep your 1st, 2nd, 4th, 5th, 7th, 8th and every sale from your 10th on; your <span class="hl">3rd, 6th and 9th</span> pass up to the first qualified member above you — and everyone below you passes theirs up the same way, forever. AdvantageLife resolves who earns each sale and records the proof. <b>100% of every pack commission stays between members. Never to us.</b></div>
     <div class="w2erow">
@@ -2022,9 +2022,9 @@ footer a{color:#b9c8ef}
 
 <section class="final">
   <div class="k">Ready?</div>
-  <h2>Start free today.</h2>
-  <div class="price">Then $100, once — every tool, for life.</div>
-  <a class="cta" href="/register">Start free — no card</a>
+  <h2>Never pay for the tools again.</h2>
+  <div class="price">$100, once — every tool, for life.</div>
+  <a class="cta" href="/join">Join AdvantageLife →</a>
   <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. Earnings described illustrate the compensation structure, not promises — results depend entirely on your own effort, consistency and sales. You can use every tool without referring anyone or earning at all.</div>
 </section>
 
@@ -2096,7 +2096,7 @@ footer a{color:var(--dim)}
   <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
   <span class="sp"></span>
   <a class="back" href="/">&larr; Back to site</a>
-  <a class="nb" href="/register">Start free</a>
+  <a class="nb" href="/join">Join — $100</a>
 </div>
 
 <div class="hero">
@@ -2151,7 +2151,7 @@ footer a{color:var(--dim)}
 </section>
 
 <div class="final">
-  <a class="cta" href="/register">Start free — no card</a>
+  <a class="cta" href="/join">Join AdvantageLife — $100 once →</a>
   <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. This page describes the compensation structure — it makes no earnings promises. Results depend entirely on your own effort, consistency and sales. Most members should expect results proportional to the work they put in, and you can use every tool without earning at all.</div>
 </div>
 
@@ -67467,7 +67467,7 @@ h1 .r{color:var(--red)}
 
     <div class="state" id="stAnon">
       <h1>One payment.<br><span class="r">Every tool. Forever.</span></h1>
-      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Log in or create your free account first — then unlock everything.</div>
+      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, card or crypto.</div>
       <a class="btn red" href="/register">Create your account →</a>
       <a class="btn ghost" href="/login?next=/join">I already have an account</a>
     </div>
