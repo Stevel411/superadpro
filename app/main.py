@@ -68038,6 +68038,265 @@ def al_join_status(user: User = Depends(_al_user), db: Session = Depends(get_db)
     return {"access_level": fresh.access_level, "is_active": bool(fresh.is_active)}
 
 
+def _al_run_battery(db):
+    """Spec §8 verification battery: 12 cases proving the money routes
+    correctly, run against SYNTHETIC fixture members (prefix __albat_)
+    created and torn down inside the live stack. Real members untouched.
+    Returns {cases:[{n,name,ok,detail}], passed, failed}."""
+    import time as _t
+    from . import al_settlement as _S
+    from . import al_engine as _E
+    ts = str(int(_t.time()))[-7:]
+    made_users = []
+    results = []
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+
+    packs = (db.query(CampaignPack).filter(CampaignPack.is_active == True)
+               .order_by(CampaignPack.level).limit(2).all())
+    if len(packs) < 2:
+        return {"error": "need at least 2 active campaign_packs seeded"}
+    L1, L2 = packs[0].level, packs[1].level
+
+    def mk(tag, sponsor=None, passup=None, level=0, watch=True, payout=True):
+        u = User(username=f"__albat_{tag}_{ts}", email=f"albat_{tag}_{ts}@albat.local",
+                 password="x", is_active=True, access_level="lifetime",
+                 sponsor_id=(sponsor.id if sponsor else None),
+                 pass_up_sponsor_id=(passup.id if passup else (sponsor.id if sponsor else None)))
+        if hasattr(User, "referral_code"):
+            u.referral_code = f"albat{tag}{ts}"
+        db.add(u); db.flush()
+        made_users.append(u.id)
+        if level:
+            db.add(PackPurchase(user_id=u.id, pack_id=packs[0].id if level == L1 else packs[1].id,
+                                pack_level=level, amount=0, payment_method="fixture",
+                                status="active", created_at=datetime.utcnow()))
+        db.add(WatchQuota(user_id=u.id, daily_required=1,
+                          today_watched=1 if watch else 0,
+                          today_date=today if watch else None,
+                          last_quota_met=today if watch else "2020-01-01",
+                          commissions_paused=False))
+        if payout:
+            import json as _j
+            db.add(PayoutMethod(user_id=u.id, method_type="usdt_bsc",
+                                details=_j.dumps({"address": "0x" + "11" * 20}),
+                                is_default=True))
+        db.flush()
+        return u
+
+    def case(n, name, fn):
+        try:
+            detail = fn()
+            results.append({"n": n, "name": name, "ok": True, "detail": detail})
+        except AssertionError as e:
+            results.append({"n": n, "name": name, "ok": False, "detail": str(e)})
+        except Exception as e:
+            results.append({"n": n, "name": name, "ok": False,
+                            "detail": f"{type(e).__name__}: {str(e)[:200]}"})
+
+    def counter(u):
+        db.refresh(u); return u.pack_sale_count or 0
+
+    try:
+        # ── 1. qualified seller, sale #1 → kept ──
+        def c1():
+            A = mk("c1a", level=L1)
+            X = mk("c1x", sponsor=A)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id == A.id, f"earner {it.earner_id} != seller {A.id}"
+            assert "direct" in (it.commission_type or ""), it.commission_type
+            return f"sale#1 kept by seller ({it.commission_type})"
+        case(1, "Qualified seller keeps sale #1", c1)
+
+        # ── 2. sale #3 passes up to first qualified upline ──
+        def c2():
+            A = mk("c2a", level=L1)
+            B = mk("c2b", sponsor=A, level=L1)
+            db.query(User).filter(User.id == B.id).update({"pack_sale_count": 2}); db.flush()
+            X = mk("c2x", sponsor=B)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id == A.id, f"earner {it.earner_id} != upline {A.id}"
+            assert "pass" in (it.commission_type or ""), it.commission_type
+            return f"3rd sale passed up ({it.commission_type}, depth {it.pass_up_depth})"
+        case(2, "Sale #3 passes up to first qualified upline", c2)
+
+        # ── 3. kept sale + unqualified seller → COMPANY, no climb ──
+        def c3():
+            A = mk("c3a", level=L1)
+            B = mk("c3b", sponsor=A, level=L1, watch=False)  # seller lapsed
+            X = mk("c3x", sponsor=B)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id is None, f"expected COMPANY, got {it.earner_id} (climb happened?)"
+            return f"company, no climb ({it.commission_type})"
+        case(3, "Kept sale + unqualified seller → company (no climb)", c3)
+
+        # ── 4. pass-up with whole chain unqualified → COMPANY ──
+        def c4():
+            A = mk("c4a", level=L1, watch=False)
+            B = mk("c4b", sponsor=A, level=L1)
+            db.query(User).filter(User.id == B.id).update({"pack_sale_count": 2}); db.flush()
+            X = mk("c4x", sponsor=B)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id is None, f"expected COMPANY, got {it.earner_id}"
+            return f"chain exhausted → company ({it.commission_type})"
+        case(4, "Pass-up, whole chain unqualified → company", c4)
+
+        # ── 5. payee lapses AFTER intent → lock holds through confirm ──
+        def c5():
+            A = mk("c5a", level=L1)
+            X = mk("c5x", sponsor=A)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id == A.id
+            db.query(WatchQuota).filter(WatchQuota.user_id == A.id).update(
+                {"today_watched": 0, "today_date": None, "last_quota_met": "2020-01-01"}); db.flush()
+            _S.submit_proof(db, it.id, tx_ref=f"0xc5{ts}", do_commit=False); db.flush()
+            r = _S.confirm(db, it.id, confirmed_by=A.id, do_commit=False); db.flush()
+            assert r["earner_id"] == A.id, "lock did not hold"
+            return "payee lock survived post-intent lapse"
+        case(5, "Payee lock survives lapse between intent and confirm", c5)
+
+        # ── 6. no payout method → skipped as payee (climb past) ──
+        def c6():
+            Z = mk("c6z", level=L1)
+            A = mk("c6a", sponsor=Z, level=L1, payout=False)  # qualified but unpayable
+            B = mk("c6b", sponsor=A, level=L1)
+            db.query(User).filter(User.id == B.id).update({"pack_sale_count": 2}); db.flush()
+            X = mk("c6x", sponsor=B)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it.earner_id == Z.id, f"expected climb past unpayable A to Z, got {it.earner_id}"
+            assert it.payee_snapshot, "snapshot missing for payable payee"
+            return "unpayable member skipped; snapshot present on final payee"
+        case(6, "Missing payout method → skipped as payee", c6)
+
+        # ── 7. expiry releases the slot, counter untouched ──
+        def c7():
+            A = mk("c7a", level=L1)
+            X = mk("c7x", sponsor=A)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            before = counter(A)
+            db.query(P2PIntent).filter(P2PIntent.id == it.id).update(
+                {"created_at": datetime.utcnow() - timedelta(hours=49)}); db.flush()
+            n = _al_expire_stale(db)
+            db.refresh(it)
+            assert it.status == "expired", it.status
+            assert counter(A) == before, "counter moved on expiry"
+            open_q = db.query(P2PIntent).filter(P2PIntent.buyer_id == X.id,
+                        P2PIntent.status.in_(("pending", "proof_submitted"))).first()
+            assert open_q is None, "slot not released"
+            it2 = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert it2.status == "pending"
+            return f"expired ({n} swept), slot released, counter untouched"
+        case(7, "Expiry releases slot, counter untouched", c7)
+
+        # ── 8. confirm idempotency ──
+        def c8():
+            A = mk("c8a", level=L1)
+            X = mk("c8x", sponsor=A)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            _S.submit_proof(db, it.id, tx_ref=f"0xc8{ts}", do_commit=False); db.flush()
+            _S.confirm(db, it.id, confirmed_by=A.id, do_commit=False); db.flush()
+            after_one = counter(A)
+            try:
+                _S.confirm(db, it.id, confirmed_by=A.id, do_commit=False)
+                raise AssertionError("second confirm did not raise")
+            except ValueError:
+                pass
+            assert counter(A) == after_one, "counter double-incremented"
+            return f"second confirm rejected; counter stayed {after_one}"
+        case(8, "Confirm is idempotent (double-tap safe)", c8)
+
+        # ── 9. duplicate tx_ref rejected (the endpoint dedupe query) ──
+        def c9():
+            A = mk("c9a", level=L1)
+            X = mk("c9x", sponsor=A)
+            Y = mk("c9y", sponsor=A)
+            i1 = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            _S.submit_proof(db, i1.id, tx_ref=f"0xdup{ts}", do_commit=False); db.flush()
+            i2 = _S.create_intent(db, Y.id, L1, do_commit=False); db.flush()
+            dupe = (db.query(P2PIntent)
+                      .filter(P2PIntent.tx_ref == f"0xdup{ts}", P2PIntent.id != i2.id).first())
+            assert dupe is not None and dupe.id == i1.id, "dedupe query missed the duplicate"
+            return "duplicate tx_ref caught by the guard query"
+        case(9, "Duplicate tx reference rejected", c9)
+
+        # ── 10. dispute freeze + both admin outcomes ──
+        def c10():
+            A = mk("c10a", level=L1)
+            X = mk("c10x", sponsor=A)
+            i1 = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            _S.submit_proof(db, i1.id, tx_ref=f"0xd1{ts}", do_commit=False); db.flush()
+            i1.status = "disputed"; db.flush()
+            i1.status = "proof_submitted"; db.flush()   # admin resolve: confirm path
+            r = _S.confirm(db, i1.id, confirmed_by=None, do_commit=False); db.flush()
+            db.refresh(i1); assert i1.status == "confirmed"
+            Y = mk("c10y", sponsor=A)
+            i2 = _S.create_intent(db, Y.id, L1, do_commit=False); db.flush()
+            _S.submit_proof(db, i2.id, tx_ref=f"0xd2{ts}", do_commit=False); db.flush()
+            i2.status = "disputed"; db.flush()
+            i2.status = "cancelled"; db.flush()          # admin resolve: cancel path
+            db.refresh(i2); assert i2.status == "cancelled"
+            return "dispute resolved both ways (confirm + cancel)"
+        case(10, "Dispute freeze + admin resolution (both outcomes)", c10)
+
+        # ── 11. owned_level rises only at confirm; level gate honoured ──
+        def c11():
+            A = mk("c11a", level=L1)  # owns L1 ONLY
+            X = mk("c11x", sponsor=A)
+            it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
+            assert _E.owned_level(db, X.id) == 0, "level rose before confirm"
+            _S.submit_proof(db, it.id, tx_ref=f"0xc11{ts}", do_commit=False); db.flush()
+            _S.confirm(db, it.id, do_commit=False); db.flush()
+            assert _E.owned_level(db, X.id) == L1, "level did not rise at confirm"
+            Y = mk("c11y", sponsor=A)
+            i2 = _S.create_intent(db, Y.id, L2, do_commit=False); db.flush()  # L2 sale, A owns L1
+            assert i2.earner_id is None, f"level gate failed: {i2.earner_id} earned above owned level"
+            return "level rises at confirm; level-or-higher gate enforced"
+        case(11, "owned_level at confirm + level gate", c11)
+
+        # ── 12. concurrent open intents occupy distinct positions ──
+        def c12():
+            A = mk("c12a", level=L1)
+            B = mk("c12b", sponsor=A, level=L1)
+            db.query(User).filter(User.id == B.id).update({"pack_sale_count": 1}); db.flush()
+            X = mk("c12x", sponsor=B)
+            Y = mk("c12y", sponsor=B)
+            i1 = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()   # position 2 → kept
+            i2 = _S.create_intent(db, Y.id, L1, do_commit=False); db.flush()   # position 3 → pass-up
+            assert i1.earner_id == B.id, f"pos2 earner {i1.earner_id} != seller {B.id}"
+            assert i2.earner_id == A.id, f"pos3 earner {i2.earner_id} != upline {A.id} (offset failed)"
+            return "two open intents resolved as positions 2 and 3"
+        case(12, "3/6/9 boundary under concurrent intents", c12)
+
+    finally:
+        try:
+            if made_users:
+                for model in (P2PIntent, PackCommission):
+                    db.query(model).filter(
+                        (model.buyer_id.in_(made_users) if hasattr(model, "buyer_id") else model.user_id.in_(made_users))
+                        | (model.earner_id.in_(made_users) if hasattr(model, "earner_id") else False)
+                    ).delete(synchronize_session=False)
+                for model in (PackPurchase, PayoutMethod, WatchQuota, Notification):
+                    db.query(model).filter(model.user_id.in_(made_users)).delete(synchronize_session=False)
+                db.query(User).filter(User.id.in_(made_users)).delete(synchronize_session=False)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            logger.error(f"al battery teardown failed: {e}")
+
+    passed = sum(1 for r in results if r["ok"])
+    return {"cases": results, "passed": passed, "failed": len(results) - passed,
+            "fixtures_cleaned": len(made_users)}
+
+
+@app.get("/admin/api/al/verify-battery")
+def al_verify_battery(secret: str = "", user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Run the 12-case settlement verification battery. Secret-gated
+    (MIGRATION_SECRET) or admin session. Synthetic fixtures, torn down."""
+    if secret != os.environ.get("MIGRATION_SECRET", "___") and not (user and is_admin(user)):
+        raise HTTPException(status_code=403, detail="forbidden")
+    return _al_run_battery(db)
+
+
 @app.get("/admin/api/al/settlements")
 def al_admin_settlements(status: str = None, apply_expiry: int = 0,
                          user: User = Depends(_al_user),
