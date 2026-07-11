@@ -68386,6 +68386,38 @@ def al_db_connections(secret: str = "", db: Session = Depends(get_db)):
     return {"connections": [dict(r) for r in rows], "count": len(rows)}
 
 
+@app.get("/admin/api/al/intent-debug")
+def al_intent_debug(secret: str = "", buyer_username: str = "", db: Session = Depends(get_db)):
+    """Read the latest P2P intent for a buyer + WHY the payee resolved as it
+    did — chasing why a sale isn't hitting the seller's queue. Phase 8."""
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
+        raise HTTPException(status_code=403, detail="forbidden")
+    b = db.query(User).filter(User.username == buyer_username.strip().lstrip("@")).first()
+    if not b:
+        return JSONResponse({"error": "buyer not found"}, status_code=404)
+    it = (db.query(P2PIntent).filter(P2PIntent.buyer_id == b.id)
+            .order_by(P2PIntent.id.desc()).first())
+    if not it:
+        return {"buyer": b.username, "intent": None}
+    import app.al_engine as _ae, app.passup_engine as _pe
+    earner = db.query(User).filter(User.id == it.earner_id).first() if it.earner_id else None
+    seller = db.query(User).filter(User.id == b.sponsor_id).first() if b.sponsor_id else None
+    return {
+        "buyer": {"id": b.id, "username": b.username, "sponsor_id": b.sponsor_id,
+                  "access_level": b.access_level},
+        "intent": {"id": it.id, "status": it.status, "pack_level": it.pack_level,
+                   "earner_id": it.earner_id, "is_company": it.earner_id == _pe.COMPANY,
+                   "earner_username": earner.username if earner else "(company/none)"},
+        "seller_(sponsor)": ({"id": seller.id, "username": seller.username,
+                              "owned_level": _ae.owned_level(db, seller.id),
+                              "watch_qualified": _ae.watch_qualified(db, seller.id),
+                              "payable": _ae.payable(db, seller.id),
+                              "pack_sale_count": seller.pack_sale_count or 0} if seller else None),
+        "COMPANY_sentinel": _pe.COMPANY,
+    }
+
+
 @app.get("/admin/api/al/treasury-check")
 def al_treasury_check(secret: str = ""):
     """Dry readback of the treasury config the platform actually loaded —
