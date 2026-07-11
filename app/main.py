@@ -68353,13 +68353,13 @@ def al_set_display_name(secret: str = "", username: str = "", display_name: str 
 
 
 @app.get("/admin/api/al/secret-check")
-def al_secret_check(secret: str = ""):
+def al_secret_check(secret: str = "", db: Session = Depends(get_db)):
     """Diagnose MIGRATION_SECRET mismatches WITHOUT revealing the secret:
     reports whether the env var is configured, both lengths, whitespace
     contamination, and whether the given value matches. Temporary
     bootstrap-debug tool — dies in the Phase 8 lockdown."""
     env = os.environ.get("MIGRATION_SECRET", "")
-    return {
+    out = {
         "env_configured": bool(env),
         "env_length": len(env),
         "env_has_leading_or_trailing_whitespace": env != env.strip(),
@@ -68367,6 +68367,13 @@ def al_secret_check(secret: str = ""):
         "match": bool(env) and secret == env,
         "match_after_strip": bool(env) and (secret or "").strip() == env.strip(),
     }
+    if out["match"]:
+        u1 = db.query(User).filter(User.id == 1).first()
+        dupe = db.query(User.id).filter(User.username == "SuperAdPro").scalar()
+        out["user_1"] = {"username": u1.username if u1 else None,
+                         "first_name": u1.first_name if u1 else None}
+        out["any_user_named_SuperAdPro"] = dupe
+    return out
 
 
 @app.get("/admin/api/al/rename-user")
