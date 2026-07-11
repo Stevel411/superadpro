@@ -25,6 +25,15 @@ from sqlalchemy.orm import Session
 
 from . import passup_engine as pe
 from . import al_engine
+
+# Company-routed pack commissions (unqualified sponsor + no qualified upline)
+# are assigned to the AdvantageLife house account (user 1). Steve's decision
+# 11 Jul 2026: "if they don't have a pack the revenue goes to me at
+# AdvantageLife." This gives company sales a real payee with a real /my-sales
+# queue + payout wallet, so the buyer's pack always has a confirmation path
+# (previously earner_id was set to NULL — a settlement dead-end that left the
+# buyer waiting forever).
+AL_HOUSE_USER_ID = 1
 from .database import (User, CampaignPack, PackPurchase, PackCommission,
                        P2PIntent, PayoutMethod)
 
@@ -59,7 +68,7 @@ def create_intent(db: Session, buyer_user_id: int, pack_level: int, do_commit: b
     else:
         res = al_engine.resolve_payee(db, seller.id, pack_level)
 
-    earner_id = None if res["earner_id"] == pe.COMPANY else res["earner_id"]
+    earner_id = AL_HOUSE_USER_ID if res["earner_id"] == pe.COMPANY else res["earner_id"]
     payee_snapshot = _default_payout(db, earner_id)
 
     intent = P2PIntent(

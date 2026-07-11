@@ -68130,7 +68130,7 @@ def _al_run_battery(db):
             B = mk("c3b", sponsor=A, level=L1, watch=False)  # seller lapsed
             X = mk("c3x", sponsor=B)
             it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
-            assert it.earner_id is None, f"expected COMPANY, got {it.earner_id} (climb happened?)"
+            assert it.earner_id == 1, f"expected COMPANY->house(1), got {it.earner_id} (climb happened?)"
             return f"company, no climb ({it.commission_type})"
         case(3, "Kept sale + unqualified seller → company (no climb)", c3)
 
@@ -68141,7 +68141,7 @@ def _al_run_battery(db):
             db.query(User).filter(User.id == B.id).update({"pack_sale_count": 2}); db.flush()
             X = mk("c4x", sponsor=B)
             it = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
-            assert it.earner_id is None, f"expected COMPANY, got {it.earner_id}"
+            assert it.earner_id == 1, f"expected COMPANY->house(1), got {it.earner_id}"
             return f"chain exhausted → company ({it.commission_type})"
         case(4, "Pass-up, whole chain unqualified → company", c4)
 
@@ -68253,7 +68253,7 @@ def _al_run_battery(db):
             assert _E.owned_level(db, X.id) == L1, "level did not rise at confirm"
             Y = mk("c11y", sponsor=A)
             i2 = _S.create_intent(db, Y.id, L2, do_commit=False); db.flush()  # L2 sale, A owns L1
-            assert i2.earner_id is None, f"level gate failed: {i2.earner_id} earned above owned level"
+            assert i2.earner_id == 1, f"level gate failed: {i2.earner_id} earned above owned level (expected COMPANY->house 1)"
             return "level rises at confirm; level-or-higher gate enforced"
         case(11, "owned_level at confirm + level gate", c11)
 
