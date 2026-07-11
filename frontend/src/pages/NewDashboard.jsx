@@ -74,12 +74,13 @@ const CSS = `
 .al .card.cboard{overflow:hidden}
 .al .cboard .rows{flex:1;overflow-y:auto;padding-right:4px;min-height:0}
 .al .cwatch h3{font-size:26px}
+.al .cboard h3{font-size:26px}
 .al .cwatch .vid .ply{width:84px;height:84px}
 .al .cwatch .vid .ply svg{width:30px;height:30px}
 .al .cwatch .vid .vt{font-size:14px;left:14px;bottom:16px}
 .al .cwatch .wst{font-size:15.5px}
 .al .card{background:#fff;border-radius:22px;box-shadow:0 10px 30px -18px rgba(10,31,82,.22);padding:26px;display:flex;flex-direction:column}
-.al .card .ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.al .card .ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;min-height:52px}
 .al .card .ck{font-size:10.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#c8102e;display:block;margin-bottom:4px}
 .al .card h3{font-weight:900;font-size:22px;letter-spacing:-.5px;margin:0}
 .al .card .go{width:34px;height:34px;border-radius:50%;border:1.5px solid #e3e8f4;display:flex;align-items:center;justify-content:center;color:#0a1f52;flex:none}
