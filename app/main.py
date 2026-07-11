@@ -68346,7 +68346,8 @@ def al_verify_battery(secret: str = "", user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
     """Run the 12-case settlement verification battery. Secret-gated
     (MIGRATION_SECRET) or admin session. Synthetic fixtures, torn down."""
-    if secret != os.environ.get("MIGRATION_SECRET", "___") and not (user and is_admin(user)):
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if (not _ms or secret != _ms) and not (user and is_admin(user)):
         raise HTTPException(status_code=403, detail="forbidden")
     return _al_run_battery(db)
 
