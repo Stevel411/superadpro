@@ -68288,6 +68288,23 @@ def _al_run_battery(db):
             "fixtures_cleaned": len(made_users)}
 
 
+@app.get("/admin/api/al/secret-check")
+def al_secret_check(secret: str = ""):
+    """Diagnose MIGRATION_SECRET mismatches WITHOUT revealing the secret:
+    reports whether the env var is configured, both lengths, whitespace
+    contamination, and whether the given value matches. Temporary
+    bootstrap-debug tool — dies in the Phase 8 lockdown."""
+    env = os.environ.get("MIGRATION_SECRET", "")
+    return {
+        "env_configured": bool(env),
+        "env_length": len(env),
+        "env_has_leading_or_trailing_whitespace": env != env.strip(),
+        "given_length": len(secret or ""),
+        "match": bool(env) and secret == env,
+        "match_after_strip": bool(env) and (secret or "").strip() == env.strip(),
+    }
+
+
 @app.get("/admin/api/al/rename-user")
 def al_rename_user(secret: str = "", username: str = "", new_username: str = "",
                    apply: int = 0, db: Session = Depends(get_db)):
