@@ -68288,6 +68288,42 @@ def _al_run_battery(db):
             "fixtures_cleaned": len(made_users)}
 
 
+@app.get("/api/al/featured-video")
+def al_featured_video(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """A RANDOM active campaign video for the dashboard feature slot —
+    every member's campaign rotates through everyone's dashboard (bonus
+    exposure + the daily watch reminder). Clicking lands on /watch where
+    the real rotation/quota rules apply."""
+    from sqlalchemy import func as _f
+    c = (db.query(VideoCampaign)
+           .filter(VideoCampaign.status == "active",
+                   VideoCampaign.embed_url.isnot(None))
+           .order_by(_f.random()).first())
+    if not c:
+        return {"video": None}
+    owner = db.query(User.username).filter(User.id == c.user_id).scalar()
+    return {"video": {"title": c.title, "embed_url": c.embed_url,
+                      "owner": owner}}
+
+
+@app.get("/admin/api/al/set-display-name")
+def al_set_display_name(secret: str = "", username: str = "", display_name: str = "",
+                        db: Session = Depends(get_db)):
+    """Bootstrap: fix the display name (the rename endpoint changed
+    username only — the dashboard greeting reads display_name).
+    Phase 8 lockdown list."""
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
+        raise HTTPException(status_code=403, detail="forbidden")
+    u = db.query(User).filter(User.username == username.strip().lstrip("@")).first()
+    if not u:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    # The dashboard greeting reads first_name (User has no display_name).
+    u.first_name = display_name.strip()[:60]
+    db.commit()
+    return {"ok": True, "username": u.username, "first_name": u.first_name}
+
+
 @app.get("/admin/api/al/secret-check")
 def al_secret_check(secret: str = ""):
     """Diagnose MIGRATION_SECRET mismatches WITHOUT revealing the secret:
