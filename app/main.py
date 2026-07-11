@@ -67053,6 +67053,9 @@ async def al_create_intent(pack_level: int,
                            db: Session = Depends(get_db)):
     """Open a purchase intent: resolve + LOCK the payee, show the buyer
     exactly who to pay. One open intent per buyer."""
+    if not _al_is_lifetime(user):
+        return JSONResponse({"error": "Campaign packs are for lifetime members. Join for $100 (one time) to unlock packs.",
+                             "action": "join", "join_url": "/join"}, status_code=403)
     _al_expire_stale(db)
     existing = (db.query(P2PIntent)
                   .filter(P2PIntent.buyer_id == user.id,
@@ -67715,8 +67718,21 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{c
 </body></html>"""
 
 
+def _al_is_lifetime(user) -> bool:
+    """A member may buy/sell campaign packs only once they hold lifetime
+    access (paid the $100 join or grandfathered). Admins bypass. Core
+    sequence of the model: join first, then packs."""
+    if user is None:
+        return False
+    if getattr(user, "is_admin", False):
+        return True
+    return getattr(user, "access_level", "free") == "lifetime"
+
+
 @app.get("/packs")
 def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _al_is_lifetime(user):
+        return RedirectResponse(url="/join", status_code=302)
     """Buyer flow (approved mockup screens 1-4): pack picker -> pay-the-payee
     intent page (chain badge, address, QR, countdown, proof) -> pending ->
     activated. One page, state-driven off /api/al/packs + my-purchases."""
