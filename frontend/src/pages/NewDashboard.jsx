@@ -68,19 +68,20 @@ const CSS = `
 .al .card.cwatch{min-width:0}
 .al .cwatch .vid{flex:1;aspect-ratio:auto;min-height:300px}
 .al .rightcol{display:flex;flex-direction:column;gap:20px;min-width:0}
-.al .rightcol>.card{flex:1;min-height:0}
+.al .rightcol>.card{flex:0 0 auto}
+.al .rightcol{justify-content:flex-start}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}
 .al .card.cboard{overflow:hidden}
 .al .cboard .rows{flex:1;overflow-y:auto;padding-right:4px;min-height:0}
-.al .cwatch h3{font-size:26px}
-.al .cboard h3{font-size:26px}
+.al .cwatch h3{font-size:24px}
+.al .cboard h3{font-size:24px}
 .al .cwatch .vid .ply{width:84px;height:84px}
 .al .cwatch .vid .ply svg{width:30px;height:30px}
 .al .cwatch .vid .vt{font-size:14px;left:14px;bottom:16px}
 .al .cwatch .wst{font-size:15.5px}
 .al .card{background:#fff;border-radius:22px;box-shadow:0 10px 30px -18px rgba(10,31,82,.22);padding:26px;display:flex;flex-direction:column}
-.al .card .ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;min-height:52px}
+.al .card .ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;height:56px}
 .al .card .ck{font-size:10.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#c8102e;display:block;margin-bottom:4px}
 .al .card h3{font-weight:900;font-size:22px;letter-spacing:-.5px;margin:0}
 .al .card .go{width:34px;height:34px;border-radius:50%;border:1.5px solid #e3e8f4;display:flex;align-items:center;justify-content:center;color:#0a1f52;flex:none}
@@ -109,7 +110,7 @@ const CSS = `
 .al .tm .l{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5a6584;margin-top:2px}
 .al .cbtn{display:block;text-align:center;background:#0a1f52;color:#fff;border-radius:12px;padding:14px;font-weight:900;font-size:14.5px;margin-top:16px}
 .al .cbtn.red{background:#c8102e;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
-.al .lb{margin-top:20px}
+.al .lb{margin-top:0}
 .al .lb .rows{display:grid;gap:8px}
 .al .lb .r{display:flex;align-items:center;gap:12px;border:1.5px solid #e3e8f4;border-radius:13px;padding:11px 14px}
 .al .lb .r.top{background:#fdf2f4;border-color:#f3c2cc}
