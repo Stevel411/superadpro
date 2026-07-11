@@ -68384,8 +68384,13 @@ def al_intent_debug(secret: str = "", buyer_username: str = "", db: Session = De
         return JSONResponse({"error": "buyer not found"}, status_code=404)
     it = (db.query(P2PIntent).filter(P2PIntent.buyer_id == b.id)
             .order_by(P2PIntent.id.desc()).first())
+    _sp = db.query(User.username).filter(User.id == b.sponsor_id).scalar() if b.sponsor_id else None
     if not it:
-        return {"buyer": b.username, "intent": None}
+        return {"buyer": {"id": b.id, "username": b.username,
+                          "sponsor_id": b.sponsor_id, "sponsor_username": _sp,
+                          "access_level": b.access_level},
+                "intent": None,
+                "sponsor_is_you_user1": b.sponsor_id == 1}
     import app.al_engine as _ae, app.passup_engine as _pe
     earner = db.query(User).filter(User.id == it.earner_id).first() if it.earner_id else None
     seller = db.query(User).filter(User.id == b.sponsor_id).first() if b.sponsor_id else None
