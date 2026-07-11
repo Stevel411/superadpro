@@ -754,6 +754,24 @@ class PayoutMethod(Base):
     is_default   = Column(Boolean, default=False)
     created_at   = Column(DateTime, default=datetime.utcnow)
 
+# ── Username write tripwire (11 Jul 2026): a confirmed rename of user 1
+#    reverted with NO app-side writer found. Log every username change
+#    with a stack so any future write is caught red-handed. Remove after
+#    the mystery is closed.
+from sqlalchemy import event as _sa_event
+
+@_sa_event.listens_for(User.username, "set", retval=False)
+def _audit_username_write(target, value, oldvalue, initiator):
+    try:
+        if oldvalue not in (value, None) and str(oldvalue) != str(value):
+            import traceback
+            print(f"[USERNAME-AUDIT] user id={getattr(target, 'id', '?')} "
+                  f"'{oldvalue}' -> '{value}'\n" + "".join(traceback.format_stack(limit=8)))
+    except Exception:
+        pass
+    return value
+
+
 class DirectJoinPayment(Base):
     """A verified on-chain $100 lifetime-join payment straight to the
     company treasury (USDT BEP-20). One row per successful verification;
