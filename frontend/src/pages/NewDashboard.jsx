@@ -64,7 +64,16 @@ const CSS = `
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── cards row ── */
-.al .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px}
+.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-areas:"watch side1" "watch side2";gap:20px}
+.al .card.cwatch{grid-area:watch}
+.al .card.cstudio{grid-area:side1}
+.al .card.cteam{grid-area:side2}
+@media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "side1" "side2"}}
+.al .cwatch h3{font-size:26px}
+.al .cwatch .vid .ply{width:84px;height:84px}
+.al .cwatch .vid .ply svg{width:30px;height:30px}
+.al .cwatch .vid .vt{font-size:14px;left:14px;bottom:16px}
+.al .cwatch .wst{font-size:15.5px}
 .al .card{background:#fff;border-radius:22px;box-shadow:0 10px 30px -18px rgba(10,31,82,.22);padding:26px;display:flex;flex-direction:column}
 .al .card .ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
 .al .card .ck{font-size:10.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#c8102e;display:block;margin-bottom:4px}
@@ -225,7 +234,7 @@ export default function NewDashboard() {
 
             <div className="row">
 
-              <div className="card">
+              <div className="card cwatch">
                 <div className="ch"><div><span className="ck">Daily</span><h3>Watch-to-Earn</h3></div>
                   <Link className="go" to="/watch">→</Link></div>
                 <Link className="vid" to="/watch">
@@ -242,7 +251,7 @@ export default function NewDashboard() {
                 {feat && feat.owner && <div className="feat">Featured campaign · @{feat.owner} — everyone's campaigns rotate here</div>}
               </div>
 
-              <div className="card">
+              <div className="card cstudio">
                 <div className="ch"><div><span className="ck">Create</span><h3>AI Ad Generator</h3></div>
                   <Link className="go" to="/creative-studio">→</Link></div>
                 <div className="skel">
@@ -255,7 +264,7 @@ export default function NewDashboard() {
                 <Link className="cbtn red" to="/creative-studio">Open Creative Studio →</Link>
               </div>
 
-              <div className="card">
+              <div className="card cteam">
                 <div className="ch"><div><span className="ck">Team</span><h3>Your network</h3></div>
                   <Link className="go" to="/my-team">→</Link></div>
                 <div className="tm">
