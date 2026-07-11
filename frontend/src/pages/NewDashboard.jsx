@@ -64,12 +64,13 @@ const CSS = `
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── cards row ── */
-.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-areas:"watch board" "watch team";gap:20px}
+.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;grid-template-areas:"watch board" "watch team";gap:20px;align-items:stretch}
 .al .card.cwatch{grid-area:watch}
 .al .card.cboard{grid-area:board}
 .al .card.cteam{grid-area:team}
 @media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "board" "team"}}
-.al .cboard .rows{max-height:420px;overflow-y:auto;padding-right:4px}
+.al .card.cboard{overflow:hidden}
+.al .cboard .rows{flex:1;overflow-y:auto;padding-right:4px;min-height:0}
 .al .cwatch h3{font-size:26px}
 .al .cwatch .vid .ply{width:84px;height:84px}
 .al .cwatch .vid .ply svg{width:30px;height:30px}
