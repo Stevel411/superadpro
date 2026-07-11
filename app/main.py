@@ -68368,6 +68368,34 @@ def al_db_connections(secret: str = "", db: Session = Depends(get_db)):
     return {"connections": [dict(r) for r in rows], "count": len(rows)}
 
 
+@app.get("/admin/api/al/treasury-check")
+def al_treasury_check(secret: str = ""):
+    """Dry readback of the treasury config the platform actually loaded —
+    confirms which join networks are lit and shows a masked address per
+    network so Steve can eyeball-match without exposing full addresses in
+    a URL response. Phase 8 lockdown list."""
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
+        raise HTTPException(status_code=403, detail="forbidden")
+    def mask(a):
+        a = (a or "").strip()
+        return (a[:6] + "…" + a[-4:]) if len(a) > 12 else (a or "(not set)")
+    from . import al_chain_verify as _ac
+    nets = _ac.available_networks()
+    return {
+        "site_url": os.environ.get("SITE_URL", "(default — NOT set)"),
+        "join_price_usd": os.environ.get("AL_JOIN_PRICE_USD", "100"),
+        "networks_live": [n["key"] for n in nets],
+        "addresses": {
+            "bsc (AL_COMPANY_USDT_ADDRESS)": mask(os.environ.get("AL_COMPANY_USDT_ADDRESS", "")),
+            "eth (AL_TREASURY_USDT_ETH)": mask(os.environ.get("AL_TREASURY_USDT_ETH", "")),
+            "polygon (AL_TREASURY_USDT_POLYGON)": mask(os.environ.get("AL_TREASURY_USDT_POLYGON", "")),
+            "tron (AL_TREASURY_USDT_TRON)": mask(os.environ.get("AL_TREASURY_USDT_TRON", "")),
+        },
+        "ready_for_rehearsal": bool(os.environ.get("AL_COMPANY_USDT_ADDRESS", "").strip()),
+    }
+
+
 @app.get("/admin/api/al/secret-check")
 def al_secret_check(secret: str = "", db: Session = Depends(get_db)):
     """Diagnose MIGRATION_SECRET mismatches WITHOUT revealing the secret:
