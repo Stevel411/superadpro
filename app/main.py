@@ -68288,6 +68288,27 @@ def _al_run_battery(db):
             "fixtures_cleaned": len(made_users)}
 
 
+@app.get("/admin/api/al/set-password")
+def al_set_password(secret: str = "", username: str = "", new_password: str = "",
+                    db: Session = Depends(get_db)):
+    """Bootstrap password-set for migrated AL accounts (passwords were
+    deliberately not carried over post-breach). MIGRATION_SECRET-gated,
+    phone-tappable. Goes into the Phase 8 lockdown list with the other
+    bootstrap endpoints."""
+    if secret != os.environ.get("MIGRATION_SECRET", "___"):
+        raise HTTPException(status_code=403, detail="forbidden")
+    if not username or len(new_password) < 8:
+        return JSONResponse({"error": "username + new_password (min 8 chars) required"}, status_code=400)
+    u = db.query(User).filter(User.username == username.strip().lstrip("@")).first()
+    if not u:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    import bcrypt
+    u.password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode()
+    db.commit()
+    return {"ok": True, "username": u.username,
+            "message": "Password set — log in at /login"}
+
+
 @app.get("/admin/api/al/verify-battery")
 def al_verify_battery(secret: str = "", user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
