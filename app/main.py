@@ -67922,7 +67922,9 @@ def al_join_page(user: User = Depends(get_current_user), db: Session = Depends(g
     navy/red/Inter, white card). States: anonymous -> register/login;
     free member -> offer + Stripe/crypto; returning ?paid=1 -> poll until
     the webhook/IPN flips access_level; lifetime -> celebration."""
-    price = os.environ.get("AL_JOIN_PRICE_USD", "100").rstrip("0").rstrip(".")
+    # Format for display without the destructive rstrip that turned "100" into "1":
+    _raw_price = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
+    price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
     html = (_AL_JOIN_PAGE
             .replace("__PRICE__", price)
             .replace("__LOGGED__", "true" if user else "false")
