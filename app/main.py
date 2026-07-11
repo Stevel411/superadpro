@@ -68306,7 +68306,7 @@ def al_secret_check(secret: str = ""):
 
 
 @app.get("/admin/api/al/rename-user")
-def al_rename_user(secret: str = "", username: str = "", new_username: str = "",
+def al_rename_user(request: Request, secret: str = "", username: str = "", new_username: str = "",
                    apply: int = 0, db: Session = Depends(get_db)):
     """Bootstrap username rename (e.g. the brand account SuperAdPro ->
     AdvantageLife). Safe: genealogy + settlement reference user IDs, not
@@ -68314,7 +68314,13 @@ def al_rename_user(secret: str = "", username: str = "", new_username: str = "",
     &apply=1 to execute. MIGRATION_SECRET-gated; Phase 8 lockdown list."""
     _ms = os.environ.get("MIGRATION_SECRET", "")
     if not _ms or secret != _ms:
-        raise HTTPException(status_code=403, detail="forbidden")
+        # Temporary gate diagnostics (Phase 8 lockdown removes this whole
+        # endpoint): lengths + param names only — never values.
+        return JSONResponse({"error": "forbidden",
+                             "given_secret_length": len(secret or ""),
+                             "env_secret_length": len(_ms),
+                             "params_received": sorted(request.query_params.keys())},
+                            status_code=403)
     old_name = username.strip().lstrip("@")
     new_name = new_username.strip().lstrip("@")
     if not re.match(r"^[A-Za-z0-9_-]{3,30}$", new_name):
