@@ -14,11 +14,11 @@ const CSS = `
 .ctb *{box-sizing:border-box;}
 .ctb .tl{display:flex;align-items:center;gap:16px;}
 .ctb .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
-.ctb .brand .lm{width:30px;height:30px;border-radius:50%;background:#0ea5e9;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 4px 12px rgba(14,165,233,.35);}
+.ctb .brand .lm{width:30px;height:30px;border-radius:9px;background:linear-gradient(160deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 4px 12px rgba(10,31,82,.35);}
 .ctb .brand .wm{font-family:'Sora','DM Sans',sans-serif;font-weight:800;font-size:20px;color:#0a1438;letter-spacing:-.3px;line-height:1;}
-.ctb .brand .wm .pro{color:#0ea5e9;}
+.ctb .brand .wm .pro{color:#c8102e;}
 .ctb .back{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #e4eaf3;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:#1e3a8a;box-shadow:0 10px 30px rgba(10,20,56,.08);text-decoration:none;transition:gap .2s,border-color .2s;}
-.ctb .back:hover{gap:9px;border-color:#22d3ee;}
+.ctb .back:hover{gap:9px;border-color:#c8102e;}
 .ctb .rt{display:flex;align-items:center;gap:10px;}
 .ctb .mid{flex:1;text-align:center;min-width:0;overflow:hidden;}
 .ctb .mid .mh{font-family:'Sora','DM Sans',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.18;color:#0f172a;}
@@ -26,15 +26,15 @@ const CSS = `
 .ctb .mid .ms{font-size:11.5px;color:#475569;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media(max-width:900px){.ctb .mid{display:none;}}
 .ctb .bal{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e4eaf3;border-radius:999px;padding:6px 15px 6px 12px;text-decoration:none;box-shadow:0 10px 30px rgba(10,20,56,.08);transition:border-color .2s,box-shadow .2s;}
-.ctb .bal:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
-.ctb .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.ctb .bal:hover{border-color:#c8102e;box-shadow:0 22px 50px rgba(10,20,56,.16);}
+.ctb .bal .ico{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
 .ctb .bal .txt{display:flex;flex-direction:column;line-height:1.05;}
 .ctb .bal .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#64748b;}
 .ctb .bal .a{font-family:'Sora','DM Sans',sans-serif;font-size:15px;font-weight:800;color:#16a34a;}
 .ctb .acct{position:relative;}
 .ctb .burger{width:48px;height:44px;border-radius:12px;background:#fff;border:1px solid #e4eaf3;box-shadow:0 10px 30px rgba(10,20,56,.08);display:flex;align-items:center;justify-content:center;color:#0a1438;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;}
-.ctb .burger:hover{border-color:#22d3ee;box-shadow:0 22px 50px rgba(10,20,56,.16);}
-.ctb .burger.open{border-color:#22d3ee;background:#f4fbff;}
+.ctb .burger:hover{border-color:#c8102e;box-shadow:0 22px 50px rgba(10,20,56,.16);}
+.ctb .burger.open{border-color:#c8102e;background:#fdf2f4;}
 .ctb .menu{position:absolute;right:0;top:54px;width:216px;background:#fff;border:1px solid #e4eaf3;border-radius:14px;box-shadow:0 22px 50px rgba(10,20,56,.16);padding:8px;z-index:1200;}
 .ctb .menu .mhead{padding:8px 12px;border-bottom:1px solid #e4eaf3;margin-bottom:6px;}
 .ctb .menu .mhead b{font-family:'Sora','DM Sans',sans-serif;font-size:14px;color:#0a1438;display:block;}
@@ -81,17 +81,17 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
              SuperLeads; SuperPages/Creative Studio/Ad Studio can pass their
              own toolBrand when Steve schedules the uniform pass. */
           <Link className="brand" to="/home-preview" style={{ textDecoration: 'none' }}>
-            <span style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,' + (toolBrand.gradient ? toolBrand.gradient[0] : '#0ea5e9') + ',' + (toolBrand.gradient ? toolBrand.gradient[1] : '#06b6d4') + ')', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 9px rgba(14,165,233,.35)', flexShrink: 0 }}>
+            <span style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,' + (toolBrand.gradient ? toolBrand.gradient[0] : '#12388f') + ',' + (toolBrand.gradient ? toolBrand.gradient[1] : '#0a1f52') + ')', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 9px rgba(14,165,233,.35)', flexShrink: 0 }}>
               {toolBrand.icon}
             </span>
             <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 19, fontWeight: 800, letterSpacing: '-0.3px', color: '#0f172a', marginLeft: 9, whiteSpace: 'nowrap' }}>
-              {toolBrand.wordmark[0]}<span style={{ color: toolBrand.accent || '#0ea5e9' }}>{toolBrand.wordmark[1]}</span>
+              {toolBrand.wordmark[0]}<span style={{ color: toolBrand.accent || '#c8102e' }}>{toolBrand.wordmark[1]}</span>
             </span>
           </Link>
         ) : (
         <Link className="brand" to="/home-preview">
-          <span className="lm"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ marginLeft: 2 }}><path d="M8 5v14l11-7z"/></svg></span>
-          <span className="wm">SuperAd<span className="pro">Pro</span></span>
+          <span className="lm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 5h6v6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+          <span className="wm">Advantage<span className="pro">Life</span></span>
         </Link>
         )}
         <Link className="back" to={backTo}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span className="bl">{backLabel}</span></Link>
@@ -112,10 +112,10 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
         </div>
       )}
       <div className="rt">
-        <Link className="bal" to="/wallet" aria-label="Wallet — available balance">
+        <a className="bal" href="/payout-methods" aria-label="Payout wallets">
           <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
-          <span className="txt"><span className="l">Available</span><span className="a">${bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></span>
-        </Link>
+          <span className="txt"><span className="l">Payout</span><span className="a">wallets</span></span>
+        </a>
         <div className="acct" ref={acctRef}>
         <button className={'burger' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>
           {menuOpen

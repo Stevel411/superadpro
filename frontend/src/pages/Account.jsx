@@ -7,14 +7,14 @@ import { apiPost, apiGet } from '../utils/api';
 
 var COUNTRIES = ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'];
 
-var TABS = ['profile', 'billing', 'security', 'payouts', 'verification'];
+var TABS = ['profile', 'security', 'payouts', 'verification'];  // billing removed — no subscriptions on AdvantageLife
 
 var CSS = `
 .aset{font-family:'DM Sans',system-ui,sans-serif;color:#0f172a;max-width:1080px;margin:0 auto;}
 .aset *{box-sizing:border-box;}
 .aset .band{height:120px;border-radius:18px;background:linear-gradient(120deg,#0a1438,#15275f 55%,#1e3a8a);}
 .aset .idcard{position:relative;margin:-58px 16px 22px;background:#fff;border-radius:18px;box-shadow:0 2px 6px rgba(10,20,56,.06),0 24px 50px rgba(10,20,56,.12);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-.aset .av{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:30px;flex:0 0 auto;box-shadow:0 12px 26px rgba(14,165,233,.35);overflow:hidden;border:5px solid #fff;margin-top:-46px;}
+.aset .av{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:30px;flex:0 0 auto;box-shadow:0 12px 26px rgba(10,31,82,.35);overflow:hidden;border:5px solid #fff;margin-top:-46px;}
 .aset .av img{width:100%;height:100%;object-fit:cover;}
 .aset .idtext{min-width:180px;}
 .aset .nm{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;color:#0a1438;letter-spacing:-.4px;line-height:1.1;}
@@ -40,11 +40,11 @@ var CSS = `
 .aset .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#64748b;margin-bottom:7px;}
 .aset .lbl span{font-weight:500;text-transform:none;letter-spacing:0;color:#94a3b8;}
 .aset .inp,.aset .sel{width:100%;padding:11px 14px;border:1px solid #e4eaf3;border-radius:11px;font-size:15px;color:#0f172a;font-family:inherit;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;}
-.aset .inp:focus,.aset .sel:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.15);}
+.aset .inp:focus,.aset .sel:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,.12);}
 .aset .inp.ro{background:#f6f8fc;color:#64748b;}
 .aset .inp.mono{font-family:'JetBrains Mono',monospace;font-size:14px;}
 .aset .inp:disabled{opacity:.55;}
-.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Sora',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#06b6d4,#0ea5e9);box-shadow:0 10px 24px rgba(14,165,233,.28);transition:box-shadow .12s;}
+.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Sora',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#12388f,#0a1f52);box-shadow:0 10px 24px rgba(200,16,46,.32);transition:box-shadow .12s;}
 .aset .btn:hover{box-shadow:0 14px 30px rgba(14,165,233,.36);}
 .aset .btn:disabled{opacity:.6;cursor:wait;box-shadow:none;}
 .aset .btn.ghost{background:#fff;color:#1e3a8a;border:1px solid #e4eaf3;box-shadow:0 8px 20px rgba(10,20,56,.07);}
@@ -55,7 +55,7 @@ var CSS = `
 .aset .toast.ok{background:#ecfdf5;color:#047857;}
 .aset .toast.err{background:#fef2f2;color:#b91c1c;}
 .aset .photorow{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
-.aset .pav{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;overflow:hidden;flex:0 0 auto;}
+.aset .pav{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;overflow:hidden;flex:0 0 auto;}
 .aset .pav img{width:100%;height:100%;object-fit:cover;}
 .aset .centre{text-align:center;padding:26px 0;}
 .aset .centre .ico{font-size:34px;margin-bottom:8px;}
@@ -81,7 +81,7 @@ var CSS = `
 .aset .badge{display:inline-block;font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:999px;background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
 .aset .empty{padding:26px;text-align:center;color:#94a3b8;font-size:14px;}
 .aset .netbtn{padding:11px 13px;border-radius:11px;border:2px solid #e4eaf3;background:#fff;cursor:pointer;text-align:left;width:100%;transition:border-color .15s,background .15s;}
-.aset .netbtn.on{border-color:#22d3ee;background:#ecfeff;}
+.aset .netbtn.on{border-color:#c8102e;background:#fdf2f4;}
 .aset .netbtn .t{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0a1438;}
 .aset .netbtn .d{font-size:12px;color:#64748b;margin-top:2px;}
 .aset .file{display:block;width:100%;padding:12px;border-radius:11px;font-size:14px;text-align:center;cursor:pointer;background:#fafbfc;}
@@ -226,7 +226,7 @@ export default function Account() {
   if (!user) return null;
   var initials = (((user.first_name || '')[0] || '') + ((user.last_name || user.username || '')[0] || '')).toUpperCase();
   var kyc = user.kyc_status || 'none';
-  var tierLabel = user.is_founding_member === true ? 'Founder' : (['partner', 'basic', 'pro'].indexOf((user.membership_tier || 'free').toLowerCase()) >= 0 ? 'Partner' : 'Free');
+  var tierLabel = (user.access_level === 'lifetime') ? 'Lifetime Member' : 'Free';
   var memberSince = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—';
 
   return (
@@ -259,7 +259,7 @@ export default function Account() {
         <div className="layout">
           <nav className="rail">
             {TABS.map(function (tab) {
-              var labels = { profile: 'Profile', billing: 'Billing', security: 'Security', payouts: 'Payouts', verification: 'Verification' };
+              var labels = { profile: 'Profile', security: 'Security', payouts: 'Payout Wallets', verification: 'Verification' };
               return (
                 <button key={tab} className={'tab' + (activeTab === tab ? ' on' : '')} onClick={function () { go(tab); }}>
                   <Icon name={tab} />{labels[tab]}
@@ -383,8 +383,10 @@ export default function Account() {
 
             {activeTab === 'payouts' && (
               <>
-                <h2 className="ph">Payouts</h2>
-                <p className="psub">Where your withdrawals are sent.</p>
+                <h2 className="ph">Payout Wallets</h2>
+                <p className="psub">Buyers pay your default wallet directly, member to member — there are no platform withdrawals on AdvantageLife.</p>
+                <a href="/payout-methods" className="btn" style={{ textDecoration: 'none', marginBottom: 22 }}>Manage payout wallets →</a>
+                <div style={{ display: 'none' }}>
                 <div className="fld">
                   <label className="lbl">Withdrawal network</label>
                   <button type="button" className={'netbtn' + (walletNetwork === 'bsc' ? ' on' : '')} onClick={function () { setWalletNetwork('bsc'); }}>
@@ -398,6 +400,7 @@ export default function Account() {
                 </div>
                 <div className="note">MetaMask · Trust Wallet · Binance — any wallet that supports USDT on BNB Chain (BEP-20). Make sure the address starts with <strong>0x</strong> and is 42 characters.</div>
                 <button className="btn" onClick={saveWallet} disabled={savingWallet}>{savingWallet ? t('account.saving') : t('account.saveWallet')}</button>
+                </div>
               </>
             )}
 
@@ -416,7 +419,7 @@ export default function Account() {
                     <div className="fld"><label className="lbl">{t('account.idType')}</label><select className="sel" value={kycIdType} onChange={function (e) { setKycIdType(e.target.value); }}><option value="passport">{t('account.passport')}</option><option value="drivers_licence">{t('account.driversLicence')}</option><option value="national_id">{t('account.nationalId')}</option></select></div>
                     <div className="fld">
                       <label className="lbl">{t('account.uploadId')}</label>
-                      <label className="file" style={{ border: kycFile ? '2px solid #0ea5e9' : '2px dashed #cbd5e1', color: kycFile ? '#0e7490' : '#64748b' }}>
+                      <label className="file" style={{ border: kycFile ? '2px solid #c8102e' : '2px dashed #cbd5e1', color: kycFile ? '#8f1830' : '#64748b' }}>
                         {kycFile ? '✓ ' + kycFile.name : t('account.chooseFile')}
                         <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={function (e) { setKycFile(e.target.files[0] || null); }} style={{ display: 'none' }} />
                       </label>
