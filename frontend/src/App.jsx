@@ -93,7 +93,6 @@ const FunnelsNew = React.lazy(() => import('./pages/FunnelsNew'));
 const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
 const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
 const GridActivatePage = React.lazy(() => import('./pages/GridActivatePage'));
-const PayItForward = React.lazy(() => import('./pages/PayItForward'));
 const ShareStory = React.lazy(() => import('./pages/ShareStory'));
 const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
 const TeamGiftAccept = React.lazy(() => import('./pages/TeamGiftAccept'));
@@ -368,7 +367,7 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<ProtectedRoute><RequireTier tier="basic"><CampaignTiers /></RequireTier></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><RequireTier tier="basic"><ActivateTier /></RequireTier></ProtectedRoute>} />
       <Route path="/grid/activate" element={<ProtectedRoute><RequireTier tier="basic"><GridActivatePage /></RequireTier></ProtectedRoute>} />
-      <Route path="/pay-it-forward" element={<ProtectedRoute><RequireTier tier="basic"><PayItForward /></RequireTier></ProtectedRoute>} />
+      <Route path="/pay-it-forward" element={<HardRedirect to="/home-preview" />} />
       {/* Brand Poster Generator — gallery is open to all members (preview), generation gated by Nexus pack ownership in the backend */}
       <Route path="/brand-posters" element={<ProtectedRoute><RequireTier tier="basic"><BrandPostersGallery /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />

@@ -46,7 +46,6 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.myMarketing', { defaultValue: 'My Marketing' }), shortLabel: t('navShort.myMarketing', { defaultValue: 'Market' }), key: 'mymarketing', icon: Megaphone, items: [
       { label: t('nav.myMarketingHub', { defaultValue: 'My Marketing Hub' }), shortLabel: t('navShort.myMarketingHub', { defaultValue: 'Hub' }), icon: Megaphone, path: '/my-marketing' },
       { label: t('nav.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }), shortLabel: t('navShort.affiliateLink', { defaultValue: 'Link' }), icon: Share2, path: '/social-share' },
-      { label: t('nav.payItForward', { defaultValue: 'Pay It Forward' }), shortLabel: t('navShort.payItForward', { defaultValue: 'Gift' }), icon: Gift, path: '/pay-it-forward', basic: true },
       { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/plan', external: true },
       { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
       { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },

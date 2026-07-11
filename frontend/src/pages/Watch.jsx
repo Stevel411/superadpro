@@ -65,10 +65,10 @@ var CSS = `
   transition: all .2s;
 }
 .mark-btn.ready {
-  background: linear-gradient(180deg,#38bdf8,#0ea5e9);
-  box-shadow: 0 4px 0 #0284c7, 0 6px 16px rgba(14,165,233,.3);
+  background: linear-gradient(180deg,#e8203f,#c8102e);
+  box-shadow: 0 4px 0 #a30d26, 0 6px 16px rgba(200,16,46,.3);
 }
-.mark-btn.ready:active { transform: translateY(2px); box-shadow: 0 2px 0 #0284c7; }
+.mark-btn.ready:active { transform: translateY(2px); box-shadow: 0 2px 0 #a30d26; }
 .mark-btn.disabled { background: #e2e8f0; color: #475569; cursor: default; box-shadow: none; }
 
 .dot-item {
@@ -77,8 +77,8 @@ var CSS = `
   font-size: 11px; font-weight: 700;
   transition: all .3s;
 }
-.dot-done { background: linear-gradient(135deg,#0ea5e9,#38bdf8); color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
-.dot-current { background: rgba(56,189,248,.1); border: 2px solid #38bdf8; color: #0ea5e9; }
+.dot-done { background: linear-gradient(135deg,#c8102e,#e8203f); color: #fff; box-shadow: 0 2px 8px rgba(200,16,46,.3); }
+.dot-current { background: rgba(200,16,46,.08); border: 2px solid #c8102e; color: #c8102e; }
 .dot-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #7a8899; }
 
 .stat-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; text-align: center; }
@@ -309,7 +309,7 @@ export default function Watch() {
         </p>
         <button onClick={() => window.location.reload()} style={{
           display:'inline-flex',alignItems:'center',gap:8,padding:'12px 26px',borderRadius:11,border:'none',
-          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',fontWeight:800,fontSize:14,
+          background:'linear-gradient(135deg,#c8102e,#a30d26)',color:'#fff',fontWeight:800,fontSize:14,
           fontFamily:'Sora,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(14,165,233,0.35)',
         }}>
           ↻ Try again
@@ -429,13 +429,13 @@ export default function Watch() {
             <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:24}}>
               {Array.from({length:limit}).map((_,i)=>(
                 <div key={i} style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,
-                  background: i < watched ? 'linear-gradient(135deg,#06b6d4,#0891b2)' : 'var(--sap-border)',
+                  background: i < watched ? 'linear-gradient(135deg,#12388f,#0a1f52)' : 'var(--sap-border)',
                   color: i < watched ? '#fff' : 'var(--sap-text-muted)'}}>
                   {i < watched ? '✓' : i+1}
                 </div>
               ))}
             </div>
-            <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.backToDashboard')}</a>
+            <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#c8102e,#e8203f)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.backToDashboard')}</a>
           </div>
         </div>
       </AppLayout>
@@ -470,7 +470,7 @@ export default function Watch() {
                 {w:6,h:8,bg:'var(--sap-pink)',t:'9%',l:'46%',a:'confFall1',d:'2.8s',dl:'0.5s',r:'60deg'},
                 {w:8,h:5,bg:'var(--sap-purple)',t:'7%',l:'58%',a:'confFall2',d:'3.4s',dl:'1s',r:'15deg'},
                 {w:7,h:7,bg:'#f97316',t:'11%',l:'70%',a:'confFall3',d:'2.5s',dl:'0.2s',r:'0deg'},
-                {w:5,h:9,bg:'#06b6d4',t:'14%',l:'82%',a:'confFall1',d:'3.1s',dl:'1.2s',r:'75deg'},
+                {w:5,h:9,bg:'#c8102e',t:'14%',l:'82%',a:'confFall1',d:'3.1s',dl:'1.2s',r:'75deg'},
                 {w:8,h:5,bg:'#eab308',t:'3%',l:'92%',a:'confFall2',d:'2.9s',dl:'0.8s',r:'40deg'},
                 {w:6,h:8,bg:'var(--sap-red-bright)',t:'8%',l:'25%',a:'confFall3',d:'3.3s',dl:'0.4s',r:'55deg'},
                 {w:7,h:6,bg:'#14b8a6',t:'16%',l:'55%',a:'confFall1',d:'3s',dl:'0.6s',r:'20deg'},
@@ -488,12 +488,12 @@ export default function Watch() {
 
             <div style={{position:'relative',zIndex:1}}>
               {/* Trophy circle */}
-              <div style={{width:100,height:100,borderRadius:'50%',background:'linear-gradient(145deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',boxShadow:'0 0 30px rgba(6,182,212,.3), 0 0 60px rgba(6,182,212,.15)',animation:'trophyBounce 1.5s ease-in-out infinite'}}>
+              <div style={{width:100,height:100,borderRadius:'50%',background:'linear-gradient(145deg,#12388f,#0a1f52)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',boxShadow:'0 0 30px rgba(18,56,143,.35), 0 0 60px rgba(18,56,143,.18)',animation:'trophyBounce 1.5s ease-in-out infinite'}}>
                 <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
 
               {/* Badge */}
-              <div style={{display:'inline-block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(6,182,212,.3)',animation:'badgeSlide .6s ease-out'}}>{t('watch.fullyQualified')}</div>
+              <div style={{display:'inline-block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#12388f,#0a1f52)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(18,56,143,.3)',animation:'badgeSlide .6s ease-out'}}>{t('watch.fullyQualified')}</div>
 
               {/* Title */}
               <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0c4a6e',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
@@ -504,7 +504,7 @@ export default function Watch() {
               {/* Stats */}
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:24,animation:'fadeUp 1.2s ease-out'}}>
                 {[
-                  {v:done,l:t('watch.watched'),c:'#06b6d4'},
+                  {v:done,l:t('watch.watched'),c:'#12388f'},
                   {v:`${Math.floor(done*30/60)}m ${done*30%60>0?(done*30%60)+'s':''}`.trim(),l:t('watch.watchTime'),c:'var(--sap-accent-light)'},
                   {v:d.streak_days||0,l:t('watch.streak'),c:'var(--sap-amber)'},
                   {v:t('watch.tier', {n:d.tier||1}),l:t('watch.level'),c:'var(--sap-purple)'},
@@ -519,7 +519,7 @@ export default function Watch() {
               {/* Completed circles — one per required video */}
               <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:28,animation:'fadeUp 1.4s ease-out'}}>
                 {Array.from({length:limit}).map((_,i)=>(
-                  <div key={i} style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',boxShadow:'0 2px 8px rgba(6,182,212,.3)'}}>✓</div>
+                  <div key={i} style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#12388f,#0a1f52)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',boxShadow:'0 2px 8px rgba(18,56,143,.3)'}}>✓</div>
                 ))}
               </div>
 
@@ -529,13 +529,13 @@ export default function Watch() {
                   <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#fef3c7,#fde68a)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#b45309',flexShrink:0}}>{d.streak_days}</div>
                   <div style={{textAlign:'left'}}>
                     <div style={{fontSize:14,fontWeight:700,color:'#0c4a6e'}}>{d.streak_days} {t('watch.dayStreak')}</div>
-                    <div style={{fontSize:14,color:'#22d3ee',marginTop:1}}>{t('watch.topEarners')}</div>
+                    <div style={{fontSize:14,color:'#ff5a70',marginTop:1}}>{t('watch.topEarners')}</div>
                   </div>
                 </div>
               )}
 
               <div style={{animation:'fadeUp 1.8s ease-out'}}>
-                <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(6,182,212,.3)'}}>{t('watch.backToDashboard')}</Link>
+                <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#12388f,#0a1f52)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(18,56,143,.3)'}}>{t('watch.backToDashboard')}</Link>
               </div>
             </div>
         </div>
@@ -556,11 +556,11 @@ export default function Watch() {
             <div style={{fontSize:16,color:'var(--sap-text-muted)',lineHeight:1.7,marginBottom:24}}>{t('watch.checkBackSoon')}</div>
             <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
               {userHasTier ? (
-                <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
+                <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#c8102e,#e8203f)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
                   {t('watch.createACampaign', { defaultValue: '+ Create a campaign' })}
                 </Link>
               ) : (
-                <Link to="/campaign-tiers" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0a1438,#0ea5e9)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 12px rgba(10,20,56,0.25)'}}>
+                <Link to="/packs" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0a1f52,#12388f)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 12px rgba(10,20,56,0.25)'}}>
                   {t('watch.buyACampaignTier', { defaultValue: 'Buy a Campaign Tier' })}
                 </Link>
               )}
@@ -628,7 +628,7 @@ export default function Watch() {
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}
       bgStyle={window.innerWidth < 768 ? {padding: 0, paddingBottom: 80} : {}}
       topbarActions={<>
-        <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
+        <div style={{background:'rgba(200,16,46,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-accent-light)'}}>{t('watch.tier', {n:d.tier})}</div>
           <div style={{fontSize:14,color:'rgba(186,230,253,.55)',marginTop:1}}>
             {isExempt ? t('watch.exempt', {defaultValue: 'No daily quota'}) : t('watch.videosPerDay', {count:limit})}
@@ -664,7 +664,7 @@ export default function Watch() {
                 <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||t('watch.loading')}</div>
                 <div style={{fontSize:14,color:'var(--sap-text-muted)',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||t('watch.general')}</div>
               </div>
-              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>{isPreviewMode ? '👁 ' + t('watch.previewMode', { defaultValue: 'Preview' }) : '▶ ' + t('watch.watching')}</div>
+              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.06)',border:'1px solid rgba(200,16,46,.1)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>{isPreviewMode ? '👁 ' + t('watch.previewMode', { defaultValue: 'Preview' }) : '▶ ' + t('watch.watching')}</div>
             </div>
 
             {/* Video */}
@@ -772,7 +772,7 @@ export default function Watch() {
             {!isPreviewMode && current?.advertiser && (
               <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',borderTop:'1px solid #f1f3f7'}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
-                  <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:13,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{current.advertiser.charAt(0).toUpperCase()}</div>
+                  <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#12388f,#0a1f52)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:13,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{current.advertiser.charAt(0).toUpperCase()}</div>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:13.5,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>@{current.advertiser}</div>
                     <div style={{fontSize:11.5,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.runsCampaign',{defaultValue:'runs this campaign'})}</div>
@@ -781,7 +781,7 @@ export default function Watch() {
                 {advSubscribed ? (
                   <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#ecfdf5',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
                 ) : advCanSub ? (
-                  <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(14,165,233,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
+                  <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(200,16,46,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
                 ) : (
                   <span style={{display:'inline-flex',alignItems:'center',gap:6,background: timerDone ? '#fffbeb' : '#eef2f8',color: timerDone ? '#b45309' : '#94a3b8',border: timerDone ? '1.5px solid #fcd34d' : 'none',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {timerDone ? t('watch.subscribeLockedReady',{defaultValue:'Tap “Mark as Watched” to unlock'}) : t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
                 )}
@@ -937,8 +937,8 @@ export default function Watch() {
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {videos.map((v,i) => (
                   <button key={v.id} onClick={()=>{setCurrentIdx(-1);setTimeout(()=>setCurrentIdx(i),50);}}
-                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`1px solid ${i===currentIdx?'rgba(14,165,233,.3)':'rgba(15,25,60,.07)'}`,background:i===currentIdx?'rgba(14,165,233,.06)':'var(--sap-bg-input)',cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .15s'}}>
-                    <div style={{width:28,height:28,borderRadius:'50%',background:v.is_watched?'linear-gradient(135deg,#0ea5e9,#38bdf8)':i===currentIdx?'rgba(14,165,233,.12)':'var(--sap-border)',border:i===currentIdx&&!v.is_watched?'2px solid #38bdf8':'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:v.is_watched?'#fff':i===currentIdx?'var(--sap-accent)':'var(--sap-text-muted)',flexShrink:0}}>
+                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`1px solid ${i===currentIdx?'rgba(200,16,46,.3)':'rgba(15,25,60,.07)'}`,background:i===currentIdx?'rgba(14,165,233,.06)':'var(--sap-bg-input)',cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .15s'}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',background:v.is_watched?'linear-gradient(135deg,#c8102e,#e8203f)':i===currentIdx?'rgba(200,16,46,.1)':'var(--sap-border)',border:i===currentIdx&&!v.is_watched?'2px solid #c8102e':'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:v.is_watched?'#fff':i===currentIdx?'var(--sap-accent)':'var(--sap-text-muted)',flexShrink:0}}>
                       {v.is_watched ? '✓' : i + 1}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
@@ -962,10 +962,10 @@ export default function Watch() {
             <div style={{fontSize:13.5,color:'#475569',fontWeight:600,lineHeight:1.6,marginBottom:8}}>
               {t('watch.subModalBody',{defaultValue:'Your member email will be shared with'})} <b style={{color:'#0f172a'}}>@{current.advertiser}</b> {t('watch.subModalBody2',{defaultValue:'so they can send you their emails.'})}
             </div>
-            <div style={{fontSize:11.5,color:'#94a3b8',fontWeight:600,marginBottom:16}}>{t('watch.subModalFine',{defaultValue:'You can unsubscribe anytime from any email they send. SuperAdPro never shares your email without a confirmation like this one.'})}</div>
+            <div style={{fontSize:11.5,color:'#94a3b8',fontWeight:600,marginBottom:16}}>{t('watch.subModalFine',{defaultValue:'You can unsubscribe anytime from any email they send. AdvantageLife never shares your email without a confirmation like this one.'})}</div>
             <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
               <button onClick={()=>setSubOpen(false)} style={{background:'#fff',border:'1.5px solid #cbd5e1',color:'#475569',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('common.cancel',{defaultValue:'Cancel'})}</button>
-              <button onClick={doSubscribe} disabled={subBusy} style={{background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',border:'none',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',opacity:subBusy?0.6:1}}>{subBusy ? '…' : t('watch.subModalYes',{defaultValue:'Yes — join the list'})}</button>
+              <button onClick={doSubscribe} disabled={subBusy} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',opacity:subBusy?0.6:1}}>{subBusy ? '…' : t('watch.subModalYes',{defaultValue:'Yes — join the list'})}</button>
             </div>
           </div>
         </div>
