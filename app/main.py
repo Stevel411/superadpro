@@ -68373,6 +68373,9 @@ def al_secret_check(secret: str = "", db: Session = Depends(get_db)):
         out["user_1"] = {"username": u1.username if u1 else None,
                          "first_name": u1.first_name if u1 else None}
         out["any_user_named_SuperAdPro"] = dupe
+        from .database import USERNAME_AUDIT_LOG
+        out["username_audit"] = USERNAME_AUDIT_LOG[-10:]
+        out["container_note"] = "audit is per-container since last deploy"
     return out
 
 

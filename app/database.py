@@ -760,13 +760,21 @@ class PayoutMethod(Base):
 #    the mystery is closed.
 from sqlalchemy import event as _sa_event
 
+USERNAME_AUDIT_LOG = []  # in-memory ring (per container) — readable via secret-check
+
 @_sa_event.listens_for(User.username, "set", retval=False)
 def _audit_username_write(target, value, oldvalue, initiator):
     try:
         if oldvalue not in (value, None) and str(oldvalue) != str(value):
             import traceback
-            print(f"[USERNAME-AUDIT] user id={getattr(target, 'id', '?')} "
-                  f"'{oldvalue}' -> '{value}'\n" + "".join(traceback.format_stack(limit=8)))
+            from datetime import datetime as _dt
+            entry = {"at": _dt.utcnow().isoformat() + "Z",
+                     "user_id": getattr(target, "id", None),
+                     "from": str(oldvalue), "to": str(value),
+                     "stack": [l.strip() for l in traceback.format_stack(limit=9)[:-1][-6:]]}
+            USERNAME_AUDIT_LOG.append(entry)
+            del USERNAME_AUDIT_LOG[:-50]
+            print(f"[USERNAME-AUDIT] {entry['user_id']} '{oldvalue}' -> '{value}'")
     except Exception:
         pass
     return value
