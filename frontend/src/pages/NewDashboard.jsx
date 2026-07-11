@@ -65,9 +65,10 @@ const CSS = `
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── cards row ── */
 .al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;grid-template-areas:"watch board" "watch team";gap:20px;align-items:stretch}
-.al .card.cwatch{grid-area:watch}
-.al .card.cboard{grid-area:board}
-.al .card.cteam{grid-area:team}
+.al .card.cwatch{grid-area:watch;height:100%}
+.al .cwatch .vid{flex:1;aspect-ratio:auto;min-height:340px}
+.al .card.cboard{grid-area:board;height:100%}
+.al .card.cteam{grid-area:team;height:100%}
 @media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "board" "team"}}
 .al .card.cboard{overflow:hidden}
 .al .cboard .rows{flex:1;overflow-y:auto;padding-right:4px;min-height:0}
