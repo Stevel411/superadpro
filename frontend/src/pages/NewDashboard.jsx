@@ -104,6 +104,18 @@ const CSS = `
 .al .tm .l{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5a6584;margin-top:2px}
 .al .cbtn{display:block;text-align:center;background:#0a1f52;color:#fff;border-radius:12px;padding:14px;font-weight:900;font-size:14.5px;margin-top:16px}
 .al .cbtn.red{background:#c8102e;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
+.al .lb{margin-top:20px}
+.al .lb .rows{display:grid;gap:8px}
+.al .lb .r{display:flex;align-items:center;gap:12px;border:1.5px solid #e3e8f4;border-radius:13px;padding:11px 14px}
+.al .lb .r.top{background:#fdf2f4;border-color:#f3c2cc}
+.al .lb .rk{width:30px;height:30px;border-radius:9px;background:#0a1f52;color:#fff;font-weight:900;font-size:12.5px;display:flex;align-items:center;justify-content:center;flex:none}
+.al .lb .r.top .rk{background:#c8102e}
+.al .lb .who b{display:block;font-weight:900;font-size:14.5px}
+.al .lb .who span{font-size:11.5px;font-weight:700;color:#5a6584}
+.al .lb .amt{margin-left:auto;font-weight:900;font-size:16px;color:#0b7a3e;font-family:'JetBrains Mono',monospace}
+.al .lb .empty{border:1.5px dashed #e3e8f4;border-radius:13px;padding:22px;text-align:center;color:#5a6584;font-weight:700;font-size:13.5px}
+.al .lb .live{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#c8102e}
+.al .lb .live i{width:7px;height:7px;border-radius:50%;background:#c8102e;animation:alp 1.6s infinite}
 .al .loading{max-width:1120px;margin:80px auto;text-align:center;color:#5a6584;font-weight:700}
 `;
 
@@ -119,6 +131,7 @@ export default function NewDashboard() {
   const [alPacks, setAlPacks] = useState(null);
   const [alSales, setAlSales] = useState(null);
   const [feat, setFeat] = useState(null);
+  const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -136,6 +149,10 @@ export default function NewDashboard() {
       if (res[4].status === 'fulfilled') setFeat((res[4].value || {}).video || null);
       setLoading(false);
     });
+    function loadBoard() { apiGet('/api/al/leaderboard').then(setBoard).catch(function () {}); }
+    loadBoard();
+    const t = setInterval(loadBoard, 60000);
+    return function () { clearInterval(t); };
   }, []);
 
   const d = dash || {};
@@ -274,6 +291,26 @@ export default function NewDashboard() {
                 <Link className="cbtn" to="/my-team">Open my team →</Link>
               </div>
 
+            </div>
+
+            <div className="card lb">
+              <div className="ch"><div><span className="ck">Team · {(board && board.month) || 'this month'}</span><h3>Referral Leaderboard</h3></div>
+                <span className="live"><i></i> LIVE</span></div>
+              {board && board.leaders && board.leaders.length ? (
+                <div className="rows">
+                  {board.leaders.map(function (l) {
+                    return (
+                      <div key={l.rank} className={'r' + (l.rank <= 3 ? ' top' : '')}>
+                        <span className="rk">{l.rank}</span>
+                        <span className="who"><b>@{l.username}</b><span>{l.sales} sales · {l.referrals} direct referrals</span></span>
+                        <span className="amt">${Number(l.earned).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="empty">The board opens with the first confirmed sale of the month — every figure here is a real member-to-member payment.</div>
+              )}
             </div>
           </main>
         </div>

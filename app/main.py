@@ -1992,10 +1992,10 @@ footer a{color:#b9c8ef}
   <h2>The tools that do the work</h2>
   <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by one $100 payment, for life.</div>
   <div class="grid">
-    <div class="tool"><div class="ic">🏗️</div><b>SuperPages</b><p>Landing pages and funnels that convert — no designer, no code.</p></div>
+    <div class="tool"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div>
     <div class="tool"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div>
     <div class="tool"><div class="ic">✨</div><b>Creative Studio</b><p>AI ads, images and video in minutes — ready to post anywhere.</p></div>
-    <div class="tool"><div class="ic">✉️</div><b>SuperLeads</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div>
+    <div class="tool"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div>
     <div class="tool"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div>
     <div class="tool"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div>
   </div>
@@ -68286,6 +68286,34 @@ def _al_run_battery(db):
     passed = sum(1 for r in results if r["ok"])
     return {"cases": results, "passed": passed, "failed": len(results) - passed,
             "fixtures_cleaned": len(made_users)}
+
+
+@app.get("/api/al/leaderboard")
+def al_leaderboard(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Top 20 this calendar month by confirmed member-to-member earnings
+    (P2P pack sales), with direct-referral counts. Real figures only —
+    the dashboard leaderboard is a live feed, not marketing theatre."""
+    from sqlalchemy import func as _f
+    month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    rows = (db.query(P2PIntent.earner_id,
+                     _f.sum(P2PIntent.amount).label("earned"),
+                     _f.count(P2PIntent.id).label("sales"))
+              .filter(P2PIntent.status == "confirmed",
+                      P2PIntent.earner_id.isnot(None),
+                      _f.coalesce(P2PIntent.confirmed_at, P2PIntent.created_at) >= month_start)
+              .group_by(P2PIntent.earner_id)
+              .order_by(_f.sum(P2PIntent.amount).desc())
+              .limit(20).all())
+    ids = [r.earner_id for r in rows]
+    names = dict(db.query(User.id, User.username).filter(User.id.in_(ids)).all()) if ids else {}
+    refs = dict(db.query(User.sponsor_id, _f.count(User.id))
+                  .filter(User.sponsor_id.in_(ids), User.created_at >= month_start)
+                  .group_by(User.sponsor_id).all()) if ids else {}
+    return {"month": month_start.strftime("%B %Y"),
+            "leaders": [{"rank": i + 1, "username": names.get(r.earner_id, "member"),
+                         "earned": float(r.earned or 0), "sales": int(r.sales or 0),
+                         "referrals": int(refs.get(r.earner_id, 0))}
+                        for i, r in enumerate(rows)]}
 
 
 @app.get("/api/al/featured-video")

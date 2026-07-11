@@ -72,7 +72,6 @@ const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPa
 const LearnPage = React.lazy(() => import('./pages/LearnPage'));
 const EducationPage = React.lazy(() => import('./pages/EducationPage'));
 const AssetsPage = React.lazy(() => import('./pages/AssetsPage'));
-const CommunityPage = React.lazy(() => import('./pages/CommunityPage'));
 const HowCommissionsWork = React.lazy(() => import('./pages/HowCommissionsWork'));
 const MyLeads = React.lazy(() => import('./pages/MyLeads'));
 const LinkTools = React.lazy(() => import('./pages/LinkTools'));
@@ -93,13 +92,11 @@ const FunnelsNew = React.lazy(() => import('./pages/FunnelsNew'));
 const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
 const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
 const GridActivatePage = React.lazy(() => import('./pages/GridActivatePage'));
-const ShareStory = React.lazy(() => import('./pages/ShareStory'));
 const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
 const TeamGiftAccept = React.lazy(() => import('./pages/TeamGiftAccept'));
 const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
 const CryptoGuide = React.lazy(() => import('./pages/CryptoGuide'));
 const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
-const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
 const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
 const ReferralVideo = React.lazy(() => import('./pages/ReferralVideo'));
 
@@ -176,7 +173,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/TrainingCentre'),
   () => import('./pages/CryptoGuide'),
   () => import('./pages/PlatformTour'),
-  () => import('./pages/TeamMessenger'),
   () => import('./pages/SuperLink'),
   () => import('./pages/CampaignAnalytics'),
   () => import('./pages/CreditMatrix'),
@@ -373,7 +369,7 @@ function AppRoutes() {
       <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/result/:generationId" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterResult /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/history" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterHistory /></RequireTier></ProtectedRoute>} />
-      <Route path="/share-story" element={<ProtectedRoute><ShareStory /></ProtectedRoute>} />
+      <Route path="/share-story" element={<HardRedirect to="/home-preview" />} />
       <Route path="/gift/team/:code" element={<ProtectedRoute><TeamGiftAccept /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
@@ -439,7 +435,7 @@ function AppRoutes() {
       <Route path="/labs/pagebuilder/edit/:pageId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
-      <Route path="/team-messenger" element={<ProtectedRoute><RequireTier tier="basic"><TeamMessenger /></RequireTier></ProtectedRoute>} />
+      <Route path="/team-messenger" element={<HardRedirect to="/home-preview" />} />
       <Route path="/qr-generator" element={<Navigate to="/tools" replace />} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />
@@ -481,7 +477,7 @@ function AppRoutes() {
       <Route path="/learn" element={<ProtectedRoute><LearnPage /></ProtectedRoute>} />
       <Route path="/learn/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
-      <Route path="/learn/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+      <Route path="/learn/community" element={<HardRedirect to="/learn" />} />
       <Route path="/income-chains" element={<ProtectedRoute><RequireTier tier="basic"><IncomeChains /></RequireTier></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<Navigate to="/wallet" replace />} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
