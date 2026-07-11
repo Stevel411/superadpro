@@ -64,13 +64,13 @@ const CSS = `
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── cards row ── */
-.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;grid-template-areas:"watch board" "watch team";gap:20px;align-items:stretch}
-.al .card.cwatch{grid-area:watch}
+.al .row{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch}
+.al .card.cwatch{min-width:0}
 .al .cwatch .vid{flex:1;aspect-ratio:auto;min-height:300px}
-.al .card.cboard{grid-area:board;min-height:0}
-.al .card.cboard .rows{min-height:0}
-.al .card.cteam{grid-area:team;min-height:0}
-@media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "board" "team"}}
+.al .rightcol{display:flex;flex-direction:column;gap:20px;min-width:0}
+.al .rightcol>.card{flex:1;min-height:0}
+.al .card.cboard .rows{min-height:0;overflow-y:auto}
+@media(max-width:900px){.al .row{grid-template-columns:1fr}}
 .al .card.cboard{overflow:hidden}
 .al .cboard .rows{flex:1;overflow-y:auto;padding-right:4px;min-height:0}
 .al .cwatch h3{font-size:26px}
@@ -272,16 +272,7 @@ export default function NewDashboard() {
                 {feat && feat.owner && <div className="feat">Featured campaign · @{feat.owner} — everyone's campaigns rotate here</div>}
               </div>
 
-              <div className="card cteam">
-                <div className="ch"><div><span className="ck">Team</span><h3>Your network</h3></div>
-                  <Link className="go" to="/my-team">→</Link></div>
-                <div className="tm">
-                  <div className="box"><div className="n">{team}</div><div className="l">Team members</div></div>
-                  <div className="box"><div className="n">{activeTeam}</div><div className="l">Active</div></div>
-                </div>
-                <Link className="cbtn" to="/my-team">Open my team →</Link>
-              </div>
-
+              <div className="rightcol">
               <div className="card lb cboard">
                 <div className="ch"><div><span className="ck">Team · {(board && board.month) || 'this month'}</span><h3>Referral Leaderboard</h3></div>
                   <span className="live"><i></i> LIVE</span></div>
@@ -300,6 +291,17 @@ export default function NewDashboard() {
               ) : (
                 <div className="empty">The board opens with the first confirmed sale of the month — every figure here is a real member-to-member payment.</div>
               )}
+              </div>
+
+              <div className="card cteam">
+                <div className="ch"><div><span className="ck">Team</span><h3>Your network</h3></div>
+                  <Link className="go" to="/my-team">→</Link></div>
+                <div className="tm">
+                  <div className="box"><div className="n">{team}</div><div className="l">Team members</div></div>
+                  <div className="box"><div className="n">{activeTeam}</div><div className="l">Active</div></div>
+                </div>
+                <Link className="cbtn" to="/my-team">Open my team →</Link>
+              </div>
               </div>
             </div>
           </main>
