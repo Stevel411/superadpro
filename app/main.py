@@ -68295,7 +68295,8 @@ def al_rename_user(secret: str = "", username: str = "", new_username: str = "",
     AdvantageLife). Safe: genealogy + settlement reference user IDs, not
     names; the ref link simply becomes /ref/{new}. Dry-run default,
     &apply=1 to execute. MIGRATION_SECRET-gated; Phase 8 lockdown list."""
-    if secret != os.environ.get("MIGRATION_SECRET", "___"):
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
         raise HTTPException(status_code=403, detail="forbidden")
     old_name = username.strip().lstrip("@")
     new_name = new_username.strip().lstrip("@")
@@ -68325,7 +68326,8 @@ def al_set_password(secret: str = "", username: str = "", new_password: str = ""
     deliberately not carried over post-breach). MIGRATION_SECRET-gated,
     phone-tappable. Goes into the Phase 8 lockdown list with the other
     bootstrap endpoints."""
-    if secret != os.environ.get("MIGRATION_SECRET", "___"):
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
         raise HTTPException(status_code=403, detail="forbidden")
     if not username or len(new_password) < 8:
         return JSONResponse({"error": "username + new_password (min 8 chars) required"}, status_code=400)
