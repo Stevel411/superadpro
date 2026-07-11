@@ -64,11 +64,12 @@ const CSS = `
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── cards row ── */
-.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-areas:"watch side1" "watch side2";gap:20px}
+.al .row{display:grid;grid-template-columns:2fr 1fr;grid-template-areas:"watch board" "watch team";gap:20px}
 .al .card.cwatch{grid-area:watch}
-.al .card.cstudio{grid-area:side1}
-.al .card.cteam{grid-area:side2}
-@media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "side1" "side2"}}
+.al .card.cboard{grid-area:board}
+.al .card.cteam{grid-area:team}
+@media(max-width:900px){.al .row{grid-template-columns:1fr;grid-template-areas:"watch" "board" "team"}}
+.al .cboard .rows{max-height:420px;overflow-y:auto;padding-right:4px}
 .al .cwatch h3{font-size:26px}
 .al .cwatch .vid .ply{width:84px;height:84px}
 .al .cwatch .vid .ply svg{width:30px;height:30px}
@@ -199,11 +200,13 @@ export default function NewDashboard() {
           </nav>
           <span className="sp"></span>
           <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
-            <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>{initials}</button>
+            <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Menu" aria-expanded={menuOpen}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            </button>
             {menuOpen && (
               <div className="menu">
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
-                <Link to="/account">Profile</Link>
+                <Link to="/account">Profile &amp; Settings</Link>
                 <a href="/payout-methods">Payout wallets</a>
                 <Link to="/account?tab=security">Security</Link>
                 {user && user.is_admin && (<><div className="sep"></div><Link to="/admin" style={{ color: '#12388f' }}>Admin</Link></>)}
@@ -223,9 +226,6 @@ export default function NewDashboard() {
             <a href="/packs">Campaign Packs</a>
             <a href="/payout-methods">Wallet</a>
             <Link to="/watch">Watch-to-Earn</Link>
-            <div className="sdiv"></div>
-            <Link to="/learn">Coach</Link>
-            <Link to="/account">Settings</Link>
           </aside>
 
           <main>
@@ -268,19 +268,6 @@ export default function NewDashboard() {
                 {feat && feat.owner && <div className="feat">Featured campaign · @{feat.owner} — everyone's campaigns rotate here</div>}
               </div>
 
-              <div className="card cstudio">
-                <div className="ch"><div><span className="ck">Create</span><h3>AI Ad Generator</h3></div>
-                  <Link className="go" to="/creative-studio">→</Link></div>
-                <div className="skel">
-                  <span className="ln" style={{width:'55%'}}></span>
-                  <span className="ln r" style={{width:'82%'}}></span>
-                  <span className="ln" style={{width:'70%'}}></span>
-                  <span className="ln r" style={{width:'46%'}}></span>
-                  <span className="btnln"></span>
-                </div>
-                <Link className="cbtn red" to="/creative-studio">Open Creative Studio →</Link>
-              </div>
-
               <div className="card cteam">
                 <div className="ch"><div><span className="ck">Team</span><h3>Your network</h3></div>
                   <Link className="go" to="/my-team">→</Link></div>
@@ -291,11 +278,9 @@ export default function NewDashboard() {
                 <Link className="cbtn" to="/my-team">Open my team →</Link>
               </div>
 
-            </div>
-
-            <div className="card lb">
-              <div className="ch"><div><span className="ck">Team · {(board && board.month) || 'this month'}</span><h3>Referral Leaderboard</h3></div>
-                <span className="live"><i></i> LIVE</span></div>
+              <div className="card lb cboard">
+                <div className="ch"><div><span className="ck">Team · {(board && board.month) || 'this month'}</span><h3>Referral Leaderboard</h3></div>
+                  <span className="live"><i></i> LIVE</span></div>
               {board && board.leaders && board.leaders.length ? (
                 <div className="rows">
                   {board.leaders.map(function (l) {
@@ -311,6 +296,7 @@ export default function NewDashboard() {
               ) : (
                 <div className="empty">The board opens with the first confirmed sale of the month — every figure here is a real member-to-member payment.</div>
               )}
+              </div>
             </div>
           </main>
         </div>
