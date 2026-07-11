@@ -68352,6 +68352,22 @@ def al_set_display_name(secret: str = "", username: str = "", display_name: str 
     return {"ok": True, "username": u.username, "first_name": u.first_name}
 
 
+@app.get("/admin/api/al/db-connections")
+def al_db_connections(secret: str = "", db: Session = Depends(get_db)):
+    """Who is connected to the AL Postgres RIGHT NOW — hunting the external
+    writer that keeps restoring user 1 to import state. Phase 8 lockdown."""
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
+        raise HTTPException(status_code=403, detail="forbidden")
+    from sqlalchemy import text as _t
+    rows = db.execute(_t(
+        "SELECT pid, usename, application_name, client_addr::text AS client_addr, "
+        "state, backend_start::text AS backend_start, LEFT(query, 200) AS query "
+        "FROM pg_stat_activity WHERE datname = current_database() ORDER BY backend_start"
+    )).mappings().all()
+    return {"connections": [dict(r) for r in rows], "count": len(rows)}
+
+
 @app.get("/admin/api/al/secret-check")
 def al_secret_check(secret: str = "", db: Session = Depends(get_db)):
     """Diagnose MIGRATION_SECRET mismatches WITHOUT revealing the secret:
