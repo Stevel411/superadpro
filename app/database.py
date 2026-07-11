@@ -3818,8 +3818,16 @@ try:
             earnings NUMERIC(10,2) DEFAULT 0, created_at TIMESTAMP DEFAULT NOW()
         )"""))
 
-        # Master affiliate username
-        conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))
+        # Master affiliate username — DISABLED 11 Jul 2026.
+        # This boot-time UPDATE forced every admin account back to
+        # 'SuperAdPro' on every startup. On AdvantageLife that silently
+        # reverted user 1's rename after each deploy/restart (raw SQL, so
+        # no ORM event fired — which is why the username tripwire stayed
+        # silent while the name kept reverting). The SuperAdPro house
+        # account is legacy; on AL the brand account is renamed
+        # deliberately. Left as a no-op comment rather than deleted so the
+        # history of this bug is legible.
+        # conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))
 
         # SuperSeller campaigns table
         conn.execute(text("""CREATE TABLE IF NOT EXISTS superseller_campaigns (
