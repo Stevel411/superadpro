@@ -39373,10 +39373,18 @@ async def api_register(
         via = sanitize(body.get("via", "").strip())
 
         sponsor_id = None
+        logger.info(f"[REG-REF] incoming ref={ref!r} for new username={body.get('username')!r}")
         if ref:
-            sponsor = db.query(User).filter(User.username == ref).first()
+            from sqlalchemy import func as _f
+            _ref_clean = ref.strip().lstrip("@")
+            sponsor = (db.query(User)
+                         .filter(_f.lower(User.username) == _ref_clean.lower())
+                         .first())
             if sponsor:
                 sponsor_id = sponsor.id
+                logger.info(f"[REG-REF] resolved ref={_ref_clean!r} -> sponsor_id={sponsor_id}")
+            else:
+                logger.warning(f"[REG-REF] ref={_ref_clean!r} did NOT match any user — will use house fallback")
                 # Atomic SQL increment to avoid lost updates under
                 # concurrent registrations on the same sponsor.
                 from sqlalchemy import func as _sqlfunc
@@ -39385,43 +39393,21 @@ async def api_register(
                     synchronize_session=False,
                 )
 
-        # ── Rotator FALLBACK for any signup without an explicit ref ──
-        # If an explicit ref arrived (affiliate sharing page /join/{name},
-        # or /start's peek-next-sponsor pick), it's already resolved above
-        # and we never reach here. This branch handles the no-ref case:
-        #   - /start funnel signups whose peek-next-sponsor pick was lost
-        #     (JS error, direct hit on /register?via=start), AND
-        #   - cold company-page traffic (homepage, Tools, Explore, stream
-        #     pages, nav "Create account") which links to bare /register
-        #     with no ref and no via.
-        # (28 May 2026, Steve): cold no-ref signups now distribute across
-        # the rotator instead of all defaulting to the SuperAdPro house
-        # account. SuperAdPro is itself enrolled in the rotator as an equal
-        # member, so the house still gets its fair share of the rotation —
-        # and remains the final fallback below if the rotator is empty.
-        # Affiliate referrals are untouched: they carry an explicit ref and
-        # resolve above before this runs.
+        # ── AdvantageLife: no rotator. ──────────────────────────────
+        # The SuperAdPro-era rotator (which distributed no-ref signups
+        # across random members) is RETIRED here (11 Jul 2026, Steve):
+        # in a pass-up model the sponsor tree is load-bearing, so a signup
+        # must attach to its actual referrer or to the house account — never
+        # to a random rotated member. Affiliate referrals resolve above via
+        # explicit ref. Any signup reaching here has no valid ref, so it
+        # attaches to the AdvantageLife house account (user id 1, top of the
+        # tree) as a predictable, honest default.
         rotator_assignment_made = False
         rotator_assigned_sponsor_id = None
         if not sponsor_id:
-            try:
-                rotator_assigned_sponsor_id = _pick_next_rotator_sponsor(db)
-                if rotator_assigned_sponsor_id:
-                    sponsor_id = rotator_assigned_sponsor_id
-                    rotator_assignment_made = True
-                    from sqlalchemy import func as _sqlfunc
-                    db.query(User).filter(User.id == sponsor_id).update(
-                        {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
-                        synchronize_session=False,
-                    )
-            except Exception as e:
-                logger.warning(f"rotator: pick_next failed, falling through to house: {e}")
-
-        # Default to company account if no sponsor (rotator empty / not /start)
-        if not sponsor_id:
-            company = db.query(User).filter(User.username == "SuperAdPro").first()
-            if company:
-                sponsor_id = company.id
+            house = db.query(User).filter(User.id == 1).first()
+            if house:
+                sponsor_id = house.id
                 from sqlalchemy import func as _sqlfunc
                 db.query(User).filter(User.id == sponsor_id).update(
                     {User.total_team: _sqlfunc.coalesce(User.total_team, 0) + 1},
