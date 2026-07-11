@@ -68374,8 +68374,15 @@ def al_secret_check(secret: str = "", db: Session = Depends(get_db)):
                          "first_name": u1.first_name if u1 else None}
         out["any_user_named_SuperAdPro"] = dupe
         from .database import USERNAME_AUDIT_LOG
-        out["username_audit"] = USERNAME_AUDIT_LOG[-10:]
-        out["container_note"] = "audit is per-container since last deploy"
+        out["username_audit_memory"] = USERNAME_AUDIT_LOG[-5:]
+        try:
+            from sqlalchemy import text as _t
+            rows = db.execute(_t(
+                "SELECT id, at, user_id, from_name, to_name, source, LEFT(stack, 400) AS stack "
+                "FROM al_username_audit ORDER BY id DESC LIMIT 12")).mappings().all()
+            out["username_audit_db"] = [dict(r, at=str(r["at"])) for r in rows]
+        except Exception as e:
+            out["username_audit_db"] = f"unavailable: {e}"
     return out
 
 
@@ -68412,6 +68419,14 @@ def al_rename_user(request: Request, secret: str = "", username: str = "", new_u
         return {"dry_run": True, **plan, "execute": "add &apply=1"}
     u.username = new_name
     db.commit()
+    try:
+        from sqlalchemy import text as _t
+        db.execute(_t("INSERT INTO al_username_audit (user_id, from_name, to_name, source, stack) "
+                      "VALUES (:u, :f, :tn, 'rename-endpoint', NULL)"),
+                   {"u": u.id, "f": old_name, "tn": new_name})
+        db.commit()
+    except Exception:
+        logger.exception("rename audit row failed")
     logger.info(f"AL rename: user {u.id} '{old_name}' -> '{new_name}'")
     return {"ok": True, **plan}
 

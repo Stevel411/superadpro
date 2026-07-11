@@ -760,7 +760,21 @@ class PayoutMethod(Base):
 #    the mystery is closed.
 from sqlalchemy import event as _sa_event
 
-USERNAME_AUDIT_LOG = []  # in-memory ring (per container) — readable via secret-check
+class UsernameAudit(Base):
+    """Durable username-change audit (11 Jul 2026). Doubles as a database
+    rollback detector: if committed audit rows ever VANISH, the storage
+    layer itself lost state — that is Railway-ticket evidence."""
+    __tablename__ = "al_username_audit"
+    id        = Column(Integer, primary_key=True)
+    at        = Column(DateTime, default=datetime.utcnow)
+    user_id   = Column(Integer)
+    from_name = Column(String)
+    to_name   = Column(String)
+    source    = Column(String)   # 'orm-listener' | 'rename-endpoint' | 'boot'
+    stack     = Column(Text)
+
+
+USERNAME_AUDIT_LOG = []  # in-memory ring (kept as a secondary witness)
 
 @_sa_event.listens_for(User.username, "set", retval=False)
 def _audit_username_write(target, value, oldvalue, initiator):
@@ -775,6 +789,16 @@ def _audit_username_write(target, value, oldvalue, initiator):
             USERNAME_AUDIT_LOG.append(entry)
             del USERNAME_AUDIT_LOG[:-50]
             print(f"[USERNAME-AUDIT] {entry['user_id']} '{oldvalue}' -> '{value}'")
+            try:
+                with engine.connect() as _c:
+                    _c.execute(text(
+                        "INSERT INTO al_username_audit (at, user_id, from_name, to_name, source, stack) "
+                        "VALUES (NOW(), :u, :f, :t, 'orm-listener', :s)"),
+                        {"u": entry["user_id"], "f": entry["from"], "t": entry["to"],
+                         "s": "\n".join(entry["stack"])})
+                    _c.commit()
+            except Exception as _e:
+                print(f"[USERNAME-AUDIT] durable write failed: {_e}")
     except Exception:
         pass
     return value
@@ -3927,6 +3951,20 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── AdvantageLife: username audit table + boot heartbeat (11 Jul 2026) ──
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS al_username_audit (
+            id SERIAL PRIMARY KEY, at TIMESTAMP DEFAULT NOW(),
+            user_id INTEGER, from_name VARCHAR, to_name VARCHAR,
+            source VARCHAR, stack TEXT)"""))
+        conn.execute(text("INSERT INTO al_username_audit (user_id, from_name, to_name, source, stack) "
+                          "VALUES (NULL, NULL, NULL, 'boot', NULL)"))
+        conn.commit()
+except Exception as _e:
+    print(f"al_username_audit migration skipped: {_e}")
 
 # ── AdvantageLife: direct join payments table (isolated, crypto-only join 10 Jul 2026) ──
 try:
