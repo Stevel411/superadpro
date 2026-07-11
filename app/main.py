@@ -68288,6 +68288,36 @@ def _al_run_battery(db):
             "fixtures_cleaned": len(made_users)}
 
 
+@app.get("/admin/api/al/rename-user")
+def al_rename_user(secret: str = "", username: str = "", new_username: str = "",
+                   apply: int = 0, db: Session = Depends(get_db)):
+    """Bootstrap username rename (e.g. the brand account SuperAdPro ->
+    AdvantageLife). Safe: genealogy + settlement reference user IDs, not
+    names; the ref link simply becomes /ref/{new}. Dry-run default,
+    &apply=1 to execute. MIGRATION_SECRET-gated; Phase 8 lockdown list."""
+    if secret != os.environ.get("MIGRATION_SECRET", "___"):
+        raise HTTPException(status_code=403, detail="forbidden")
+    old_name = username.strip().lstrip("@")
+    new_name = new_username.strip().lstrip("@")
+    if not re.match(r"^[A-Za-z0-9_-]{3,30}$", new_name):
+        return JSONResponse({"error": "new_username must be 3-30 chars: letters, numbers, _ or -"}, status_code=400)
+    u = db.query(User).filter(User.username == old_name).first()
+    if not u:
+        return JSONResponse({"error": f"user '{old_name}' not found"}, status_code=404)
+    clash = db.query(User).filter(User.username == new_name, User.id != u.id).first()
+    if clash:
+        return JSONResponse({"error": f"'{new_name}' is already taken (user {clash.id})"}, status_code=400)
+    plan = {"user_id": u.id, "from": u.username, "to": new_name,
+            "new_ref_link": f"https://www.advantagelife.club/ref/{new_name}",
+            "note": "genealogy/settlement unaffected (ID-based); log in with the new username afterwards"}
+    if not apply:
+        return {"dry_run": True, **plan, "execute": "add &apply=1"}
+    u.username = new_name
+    db.commit()
+    logger.info(f"AL rename: user {u.id} '{old_name}' -> '{new_name}'")
+    return {"ok": True, **plan}
+
+
 @app.get("/admin/api/al/set-password")
 def al_set_password(secret: str = "", username: str = "", new_password: str = "",
                     db: Session = Depends(get_db)):
