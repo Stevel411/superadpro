@@ -67955,6 +67955,16 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{c
 .empty{text-align:center;padding:26px 0;color:var(--dim);font-weight:700;font-size:13px}
 .note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700;margin-bottom:10px}
+.paidOverlay{position:fixed;inset:0;background:rgba(10,31,82,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:22px}
+.paidOverlay.show{display:flex;animation:pf .25s ease}
+@keyframes pf{from{opacity:0}to{opacity:1}}
+.paidCard{background:#fff;border-radius:24px;padding:40px 34px;max-width:420px;width:100%;text-align:center;box-shadow:0 40px 90px -30px rgba(0,0,0,.5);animation:pp .4s cubic-bezier(.2,1.2,.3,1)}
+@keyframes pp{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.paidEmoji{font-size:60px;animation:pb 1s ease 2}
+@keyframes pb{0%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}60%{transform:translateY(-3px)}}
+.paidTitle{font-family:'Sora','Inter',sans-serif;font-weight:900;font-size:28px;color:#0b7a3e;margin:8px 0 6px;letter-spacing:-.5px}
+.paidSub{font-size:14.5px;font-weight:600;color:#33406b;line-height:1.55;margin-bottom:22px}
+.paidCard .btn{margin-bottom:10px}
 </style></head><body>
 <div class="wrap">
   <div class="mk">Advantage<i>Life</i></div>
@@ -67967,11 +67977,23 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{c
     <div class="empty" id="empty" style="display:none">No sales yet — share your link and keep your daily watch going.</div>
   </div>
   <div class="note" style="color:#8fa0d4">Confirming activates the buyer's pack and advances your sale counter — it can't be undone.</div>
+  <div class="paidOverlay" id="paidOverlay">
+    <div class="paidCard">
+      <div class="paidEmoji">💰</div>
+      <div class="paidTitle">You got paid!</div>
+      <div class="paidSub" id="paidSub">The pack is now active and your sale counter advanced.</div>
+      <a class="btn red" href="/dashboard">Back to dashboard →</a>
+      <button class="btn ghost" id="paidStay">Stay on this page</button>
+    </div>
+  </div>
 </div>
 <script>
 (function(){
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
   function fail(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+  function chime(){try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;var c=new AC(),n=c.currentTime;[[1046.5,0],[1318.5,.12]].forEach(function(pr){var o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=pr[0];o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.0001,n+pr[1]);g.gain.exponentialRampToValueAtTime(.3,n+pr[1]+.03);g.gain.exponentialRampToValueAtTime(.0001,n+pr[1]+.5);o.start(n+pr[1]);o.stop(n+pr[1]+.55)})}catch(e){}}
+  function celebratePaid(amt){var ov=document.getElementById('paidOverlay');var sub=document.getElementById('paidSub');if(amt&&sub){sub.innerHTML='You received <b>'+esc(amt.replace('+',''))+'</b>. The pack is now active and your sale counter advanced.'}if(ov){ov.classList.add('show');chime()}}
+  var stayBtn=document.getElementById('paidStay');if(stayBtn){stayBtn.onclick=function(){document.getElementById('paidOverlay').classList.remove('show')}}
   function stLabel(s){return {pending:'AWAITING PAYMENT',proof_submitted:'CONFIRM RECEIPT',confirmed:'CONFIRMED',disputed:'DISPUTED',expired:'EXPIRED',cancelled:'CANCELLED'}[s]||s.toUpperCase()}
   function load(){
     fetch('/api/al/my-sales').then(function(r){if(r.status===401){location.href='/login?next=/my-sales';return null}return r.json()}).then(function(j){
@@ -67992,8 +68014,9 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{c
       L.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){
         if(!confirm('Confirm you have RECEIVED this payment in your wallet? This activates the buyer\u2019s pack and cannot be undone.'))return;
         b.disabled=true;b.textContent='Confirming…';
+        var saleAmt=b.closest('.sale').querySelector('.amt');var amtTxt=saleAmt?saleAmt.textContent:'';
         fetch('/api/al/intents/'+b.dataset.c+'/confirm',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
-          if(j.ok){load()}else{fail(j.error||'Could not confirm');b.disabled=false;b.textContent='Money arrived — confirm ✓'}
+          if(j.ok){celebratePaid(amtTxt);load()}else{fail(j.error||'Could not confirm');b.disabled=false;b.textContent='Money arrived — confirm ✓'}
         }).catch(function(){fail('Network error');b.disabled=false});
       }});
       L.querySelectorAll('[data-d]').forEach(function(b){b.onclick=function(){
