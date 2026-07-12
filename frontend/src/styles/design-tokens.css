@@ -170,4 +170,16 @@ button:disabled, [disabled] {
   --sap-accent-pale:  #f5b8c2;
   --sap-font-body:    'Inter', system-ui, sans-serif;
   --sap-font-heading: 'Inter', system-ui, sans-serif;
+  /* completes the sweep — leftover cyan/cobalt/purple → AL navy/red (12 Jul 2026) */
+  --sap-gradient-cobalt: linear-gradient(135deg, #0a1f52, #12388f);
+  --sap-gradient-accent: linear-gradient(135deg, #c8102e, #e8203f);
+  --sap-gradient-cta:    linear-gradient(135deg, #c8102e, #12388f);
+  --sap-gradient-purple: linear-gradient(135deg, #0a1f52, #12388f, #c8102e);
+  --sap-border-focus:    #c8102e;
+  --sap-shadow-accent:   0 4px 16px rgba(200,16,46,0.25);
+  --sap-indigo:          #12388f;
+  --sap-purple:          #12388f;
+  --sap-purple-light:    #4f6fc0;
+  --sap-purple-pale:     #dbe4f5;
+  --sap-violet:          #0a1f52;
 }
