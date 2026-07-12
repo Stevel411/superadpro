@@ -12,6 +12,7 @@ import { Component, Suspense } from 'react';
 // feel instant. Everything else is lazy-loaded to keep main bundle small.) ──
 import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
+import AIToolsHub from './pages/AIToolsHub';
 import ToolKitPage from './pages/ToolKitPage';
 import MarketingPage from './pages/MarketingPage';
 import CampaignsPage from './pages/CampaignsPage';
@@ -331,6 +332,7 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<HardRedirect to="/packs" />} />
       <Route path="/grid-calculator" element={<HardRedirect to="/plan" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
+      <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/toolkit" element={<ProtectedRoute><ToolKitPage /></ProtectedRoute>} />
       <Route path="/marketing" element={<ProtectedRoute><MarketingPage /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
