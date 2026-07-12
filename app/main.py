@@ -67134,14 +67134,43 @@ async def al_submit_proof(intent_id: int, request: Request,
             return JSONResponse({"error": "That transaction reference is already used"}, status_code=400)
     _als.submit_proof(db, intent.id, tx_ref=tx_ref or None, proof_url=proof_url)
     if intent.earner_id:
+        seller = db.query(User).filter(User.id == intent.earner_id).first()
+        amt = float(intent.amount or 0)
+        # 1) In-app notification (bell)
         try:
             db.add(Notification(user_id=intent.earner_id, type="al_sale",
-                                title="Incoming pack sale — confirm receipt",
-                                message=f"{user.username} reports paying you ${float(intent.amount):.2f} "
-                                        f"for a Level {intent.pack_level} pack. Confirm once received."))
+                                icon="💰", link="/my-sales",
+                                title="Payment sent — confirm to release the pack",
+                                message=f"{user.username} reports paying you ${amt:.2f} for a "
+                                        f"Level {intent.pack_level} pack. Check your wallet, then "
+                                        f"confirm at Confirm Sale to activate their pack."))
             db.commit()
         except Exception:
             db.rollback()
+        # 2) Email — the notification a seller actually sees when away from the app
+        try:
+            if seller and seller.email:
+                _base = os.environ.get("SITE_URL", "https://www.advantagelife.club").rstrip("/")
+                _sub = f"💰 {user.username} paid you ${amt:.2f} — confirm to release their pack"
+                _html = (
+                    f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
+                    f"<h2 style=\"color:#0a1f52\">You have an incoming pack sale</h2>"
+                    f"<p><b>{user.username}</b> reports sending you <b>${amt:.2f}</b> for a "
+                    f"Level {intent.pack_level} campaign pack.</p>"
+                    f"<p><b>What to do:</b> check the wallet or account they paid, and once the money "
+                    f"has arrived, confirm the sale to activate their pack and advance your counter.</p>"
+                    f"<p style=\"margin:24px 0\"><a href=\"{_base}/my-sales\" "
+                    f"style=\"background:#c8102e;color:#fff;font-weight:800;text-decoration:none;"
+                    f"padding:14px 26px;border-radius:10px;display:inline-block\">Confirm this sale →</a></p>"
+                    f"<p style=\"font-size:13px;color:#5a6584\">Only confirm once you have actually "
+                    f"received the money. Member-to-member payments can't be reversed by AdvantageLife.</p>"
+                    f"</div>")
+                _text = (f"{user.username} reports paying you ${amt:.2f} for a Level {intent.pack_level} pack. "
+                         f"Confirm once received: {_base}/my-sales")
+                from .email_utils import send_email as _send
+                _send(seller.email, _sub, _html, _text)
+        except Exception:
+            logger.exception("AL sale-notification email failed")
     return {"ok": True, "intent": _al_intent_json(db, intent, user.id)}
 
 
