@@ -67407,6 +67407,18 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 .m .ver{font-size:11px;font-weight:800;color:var(--grn);margin-top:6px}
 .badge{background:var(--grn);color:#fff;font-weight:900;font-size:11px;border-radius:9px;padding:5px 11px;flex:none}
 .macts{display:flex;gap:8px;flex:none}
+.editrow{display:none}
+.m.editing{flex-wrap:wrap}
+.m.editing .tx,.m.editing .ver,.m.editing .macts{display:none}
+.m.editing .editrow{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:4px}
+.editrow .einp{width:100%;border:2px solid var(--line);border-radius:12px;padding:14px 16px;font-family:'JetBrains Mono';font-size:14px;box-sizing:border-box}
+.editrow .einp:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
+.editrow .ehint{font-size:12.5px;font-weight:600;color:var(--dim);margin:-2px 2px 0}
+.editrow .eerr{font-size:13px;font-weight:700;color:var(--red);display:none;margin:2px}
+.editrow .eacts{display:flex;gap:10px;margin-top:2px}
+.editrow .esave{border:none;border-radius:11px;padding:12px 22px;font-family:'Inter';font-weight:900;font-size:13.5px;cursor:pointer;background:var(--red);color:#fff;box-shadow:0 10px 22px -12px rgba(200,16,46,.6)}
+.editrow .ecancel{border:2px solid var(--line);border-radius:11px;padding:12px 22px;font-family:'Inter';font-weight:800;font-size:13.5px;cursor:pointer;background:#fff;color:#33406b}
+.editrow .ecancel:hover{background:#f6f8fd}
 .sm{border:none;border-radius:9px;padding:9px 14px;font-family:'Inter';font-weight:800;font-size:12.5px;cursor:pointer;background:#f6f8fd;color:#33406b}
 .sm.danger{color:var(--red)}
 .add{border:2px dashed #cdd6ea;border-radius:19px;padding:26px;margin-top:20px;background:#fafbfe}
