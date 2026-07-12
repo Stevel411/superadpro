@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, ArrowRight, Send, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
@@ -270,10 +270,10 @@ export default function Funnels() {
   // they fed the three small stat cards above 'Your Pages' which we deleted
   // (they duplicated the ROI strip data at the top of the page).
 
-  if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('superPages.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
     <div style={{maxWidth:1200,margin:'0 auto'}}>
       {/* Error banner — visible when /api/funnels fails so the user
           isn't left looking at an empty page wondering what's wrong.
@@ -319,79 +319,26 @@ export default function Funnels() {
           rather than breaking the visual flow mid-page. */}
 
 
-      {/* Header — title + subtitle + New page button */}
-      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <svg width="40" height="40" viewBox="0 0 48 48" style={{flexShrink:0}}>
-            <rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/>
-            <rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/>
-            <rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/>
-            <rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/>
-          </svg>
-          <div>
-            <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
-              Build a <span style={{color:'var(--sap-accent)'}}>page</span>
-            </h1>
-            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Pick a starting point — you're in the editor in one tap. Your pages are below.</p>
-          </div>
+      {/* Page Builder hero (AL rebrand 12 Jul) — navy band + folded-in actions */}
+      <div style={{background:'#0a1f52',borderRadius:22,color:'#fff',padding:'24px 28px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:20,display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+        <div style={{width:54,height:54,borderRadius:15,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg>
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-          <a
-            href="/help/custom-domain"
-            style={{
-              background: '#fff',
-              color: 'var(--sap-text-primary)',
-              border: '1.5px solid #cbd5e1',
-              padding: '9px 14px',
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'Sora,sans-serif',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-            title="6-step guide to connect your own domain (e.g. pages.yourbrand.com)">
-            <ExternalLink size={14}/> Custom domain setup
+        <div style={{minWidth:180}}>
+          <div style={{fontWeight:900,fontSize:24,letterSpacing:-.7}}>Page Builder</div>
+          <div style={{fontSize:14,color:'#c9d6f7',fontWeight:600,marginTop:3}}>Build and publish landing pages &mdash; you're in the editor in one tap.</div>
+        </div>
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <a href="/help/custom-domain" title="6-step guide to connect your own domain (e.g. pages.yourbrand.com)"
+            style={{background:'rgba(255,255,255,.1)',color:'#fff',border:'1.5px solid rgba(255,255,255,.2)',padding:'10px 15px',borderRadius:10,fontSize:13,fontWeight:700,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6}}>
+            <ExternalLink size={14}/> Custom domain
           </a>
-          <button
-            onClick={() => setImportModal({ value: '', loading: false, error: null, success: null })}
-            style={{
-              background: '#fff',
-              color: 'var(--sap-text-primary)',
-              border: '1.5px solid #cbd5e1',
-              padding: '9px 16px',
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'Sora,sans-serif',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}>
+          <button onClick={() => setImportModal({ value: '', loading: false, error: null, success: null })}
+            style={{background:'rgba(255,255,255,.1)',color:'#fff',border:'1.5px solid rgba(255,255,255,.2)',padding:'10px 15px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',display:'inline-flex',alignItems:'center',gap:6}}>
             <Share2 size={14}/> Import code
           </button>
-          <a
-            href="/pro/funnels/new"
-            style={{
-              background: 'linear-gradient(135deg,#0a1438,#1e3a8a)',
-              color: '#fff',
-              border: 'none',
-              padding: '10px 18px',
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'Sora,sans-serif',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: '0 4px 12px rgba(10,20,56,.18)',
-            }}>
+          <a href="/pro/funnels/new"
+            style={{background:'linear-gradient(120deg,#c8102e,#e8203f)',color:'#fff',border:'none',padding:'11px 18px',borderRadius:10,fontSize:13.5,fontWeight:900,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6,boxShadow:'0 12px 26px -10px rgba(200,16,46,.7)'}}>
             <Plus size={14}/> More templates
           </a>
         </div>
@@ -428,7 +375,7 @@ export default function Funnels() {
                     boxShadow:'0 6px 16px -12px rgba(10,20,56,.2)'}}>
             <div style={{height:132,borderRadius:9,background:'#eef4ff',border:'1px solid #dbe6ff',
                          display:'flex',alignItems:'center',justifyContent:'center',marginBottom:10}}>
-              <span style={{fontSize:34,fontWeight:300,fontFamily:'Sora,sans-serif',color:'#1e3a8a'}}>{creatingKey==='blank'?'…':'+'}</span>
+              <span style={{fontSize:34,fontWeight:300,fontFamily:'Sora,sans-serif',color:'#12388f'}}>{creatingKey==='blank'?'…':'+'}</span>
             </div>
             <span style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>Blank canvas</span>
             <span style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2}}>Start from scratch</span>
@@ -514,7 +461,7 @@ export default function Funnels() {
                   </div>
                   {p.is_ai_generated && <span style={{
                     position:'absolute', top:10, right:10, zIndex:2,
-                    fontSize:10, fontWeight:800, color:'#0a1438',
+                    fontSize:10, fontWeight:800, color:'#0a1f52',
                     background:'rgba(255,255,255,.92)', padding:'3px 8px',
                     borderRadius:5, letterSpacing:'.4px', boxShadow:'0 2px 8px rgba(10,20,56,.18)',
                   }}>AI</span>}
@@ -530,7 +477,7 @@ export default function Funnels() {
                 {/* Title + slug — moved below the thumbnail */}
                 <div style={{ padding:'14px 18px 0' }}>
                   <div style={{
-                    fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1438',
+                    fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0a1f52',
                     overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', letterSpacing:'-0.01em',
                   }}>{p.title||t('superPages.untitled')}</div>
                   {p.slug && <div style={{
@@ -653,15 +600,15 @@ export default function Funnels() {
                     fontFamily:'Sora,sans-serif',
                     fontWeight:600,
                   }}>
-                  <Send size={10} color="#0ea5e9" strokeWidth={2.2}/>
+                  <Send size={10} color="#c8102e" strokeWidth={2.2}/>
                   <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                     {p.default_list_name ? (
-                      <>→ <span style={{color:'#0a1438'}}>{p.default_list_name}</span></>
+                      <>→ <span style={{color:'#0a1f52'}}>{p.default_list_name}</span></>
                     ) : (
                       <span style={{color:'#dc2626'}}>⚠ No list bound</span>
                     )}
                     {p.capture_sequence_title && (
-                      <> · <span style={{color:'#0a1438'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
+                      <> · <span style={{color:'#0a1f52'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
                     )}
                   </span>
                   <span style={{color:'var(--sap-accent)',fontWeight:700}}>Edit →</span>
@@ -742,7 +689,7 @@ export default function Funnels() {
                 <Share2 size={18} color="#0284c7" />
               </div>
               <div style={{flex:1}}>
-                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1438'}}>
+                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1f52'}}>
                   Share this page
                 </div>
                 <div style={{fontSize:12,color:'#64748b',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
@@ -790,7 +737,7 @@ export default function Funnels() {
                 }}>
                   <div style={{
                     fontFamily:'JetBrains Mono, ui-monospace, monospace',
-                    fontSize:22, fontWeight:700, color:'#0a1438',
+                    fontSize:22, fontWeight:700, color:'#0a1f52',
                     letterSpacing:1.5,
                   }}>
                     {shareModal.code}
@@ -801,7 +748,7 @@ export default function Funnels() {
                   style={{
                     width:'100%', padding:'11px 16px', borderRadius:8,
                     border:'none', cursor:'pointer',
-                    background: shareModal.copied ? '#16a34a' : '#0ea5e9',
+                    background: shareModal.copied ? '#16a34a' : '#c8102e',
                     color:'#fff', fontWeight:700, fontSize:14,
                     fontFamily:'Sora, sans-serif',
                     display:'flex', alignItems:'center', justifyContent:'center', gap:6,
@@ -844,7 +791,7 @@ export default function Funnels() {
                 <Share2 size={18} color="#0284c7" />
               </div>
               <div style={{flex:1}}>
-                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1438'}}>
+                <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1f52'}}>
                   {importModal.success ? 'Page imported' : 'Import a page'}
                 </div>
                 <div style={{fontSize:12,color:'#64748b',marginTop:2}}>
@@ -885,7 +832,7 @@ export default function Funnels() {
                     borderRadius:8, border:'1.5px solid #cbd5e1',
                     fontFamily:'JetBrains Mono, ui-monospace, monospace',
                     fontSize:16, fontWeight:600, letterSpacing:1,
-                    color:'#0a1438', textAlign:'center',
+                    color:'#0a1f52', textAlign:'center',
                     textTransform:'uppercase',
                   }}
                 />
@@ -895,7 +842,7 @@ export default function Funnels() {
                   style={{
                     width:'100%', padding:'11px 16px', borderRadius:8,
                     border:'none', cursor: importModal.loading || !importModal.value.trim() ? 'not-allowed' : 'pointer',
-                    background: importModal.loading || !importModal.value.trim() ? '#cbd5e1' : '#0ea5e9',
+                    background: importModal.loading || !importModal.value.trim() ? '#cbd5e1' : '#c8102e',
                     color:'#fff', fontWeight:700, fontSize:14,
                     fontFamily:'Sora, sans-serif', marginTop:12,
                   }}>
@@ -912,7 +859,7 @@ export default function Funnels() {
                 }}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
                     <Check size={16} color="#16a34a"/>
-                    <div style={{fontWeight:700,fontSize:14,color:'#0a1438'}}>Clone created as draft</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'#0a1f52'}}>Clone created as draft</div>
                   </div>
                   {importModal.success.ref_rewrites > 0 && (
                     <div style={{fontSize:13,color:'#475569',lineHeight:1.5}}>
@@ -943,7 +890,7 @@ export default function Funnels() {
                     display:'block', textAlign:'center',
                     width:'100%', boxSizing:'border-box',
                     padding:'11px 16px', borderRadius:8,
-                    background:'#0ea5e9', color:'#fff',
+                    background:'#c8102e', color:'#fff',
                     fontWeight:700, fontSize:14, fontFamily:'Sora, sans-serif',
                     textDecoration:'none', marginTop:12,
                   }}>
@@ -955,6 +902,6 @@ export default function Funnels() {
         </div>
       )}
     </div>
-    </AppLayout>
+    </AlShell>
   );
 }

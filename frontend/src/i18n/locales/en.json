@@ -2279,7 +2279,7 @@
             },
             {
               "title": "What counts as a lead?",
-              "desc": "Any email address you've captured — through a SuperPages funnel, a manual entry, or a CSV import. Each lead has a status, an optional name, a source tag, and can be assigned to any list."
+              "desc": "Any email address you've captured — through a Page Builder funnel, a manual entry, or a CSV import. Each lead has a status, an optional name, a source tag, and can be assigned to any list."
             },
             {
               "title": "Free emails vs boost credits",
@@ -2898,7 +2898,7 @@
           "category": "Getting Started",
           "items": [
             {
-              "title": "What is SuperPages?",
+              "title": "What is Page Builder?",
               "desc": "A drag-and-drop builder for landing pages, opt-in funnels, and sales pages. Every page is mobile-responsive and can capture leads directly into SuperLeads."
             },
             {

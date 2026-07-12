@@ -54,7 +54,7 @@ export default function LabsSuperPagesEditor() {
   // Title shown in AppLayout — labs URLs keep the 🧪 LABS prefix so it's
   // visually obvious we're in the sandbox; live URL shows the clean name
   // members see in any other Pro feature. Same component, two contexts.
-  const appLayoutTitle = isLabsRoute ? "🧪 LABS · SuperPages" : "SuperPages Editor";
+  const appLayoutTitle = isLabsRoute ? "🧪 LABS · Page Builder" : "Page Builder";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
@@ -751,7 +751,7 @@ export default function LabsSuperPagesEditor() {
               {t('superPagesEditor.desktopRequiredTitle', { defaultValue: 'Desktop required' })}
             </h1>
             <p style={{ fontSize: 15, lineHeight: 1.6, color: '#475569', margin: '0 0 24px' }}>
-              {t('superPagesEditor.desktopRequiredBody', { defaultValue: 'The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.' })}
+              {t('superPagesEditor.desktopRequiredBody', { defaultValue: 'The Page Builder uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.' })}
             </p>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: '#475569', margin: '0 0 28px' }}>
               {t('superPagesEditor.desktopRequiredNote', { defaultValue: 'Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.' })}
@@ -978,7 +978,7 @@ export default function LabsSuperPagesEditor() {
             alignItems:'center',
             padding:20
           }}>
-            <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#4338ca',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
+            <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#0a1f52',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
               <span>{t('superPagesEditor.previewMode')}</span>
               <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>{t('superPagesEditor.backToEditor')}</button>
             </div>
@@ -1027,7 +1027,7 @@ export default function LabsSuperPagesEditor() {
               flexShrink: 0,
               // 20 May 2026 v2: Steve flagged the dark-to-darker gradient
               // as too dark in some areas. Switched to a flat lighter
-              // cobalt (#1e3a8a) for uniform brand surface across the
+              // cobalt (#12388f) for uniform brand surface across the
               // panel. Width bumped 260 → 320 for breathing room
               // around controls inside.
               background: '#eef4fb',
@@ -1604,10 +1604,10 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     { bg: 'var(--sap-red-bright)', label: 'Red' },
     { bg: 'var(--sap-amber)', label: 'Amber' },
     { bg: 'var(--sap-pink)', label: 'Pink' },
-    { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo' },
-    { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink' },
+    { bg: 'linear-gradient(135deg,#c8102e,#12388f)', label: 'Cyan→Indigo' },
+    { bg: 'linear-gradient(135deg,#12388f,#ec4899)', label: 'Purple→Pink' },
     { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber' },
-    { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan' },
+    { bg: 'linear-gradient(135deg,#10b981,#c8102e)', label: 'Green→Cyan' },
   ];
 
   // Parse fontSize into a number for the slider — strip 'px' suffix
@@ -1690,7 +1690,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
         min="8" max="120" step="1"
         value={fontSizeNum}
         onChange={e => setFontSize(e.target.value + 'px')}
-        style={{ flex: 1, accentColor: '#0ea5e9', cursor: 'pointer' }}
+        style={{ flex: 1, accentColor: '#c8102e', cursor: 'pointer' }}
         title={`Font size: ${fontSizeNum}px`}
       />
       <span style={{
@@ -1724,7 +1724,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
       {['#ffffff', '#000000', 'var(--sap-text-primary)', 'var(--sap-amber-bright)', 'var(--sap-accent)'].map(c => (
         <div key={c} onClick={() => setTxtColor(c)} style={{
           width: 24, height: 24, borderRadius: 5, background: c, cursor: 'pointer',
-          border: txtColor === c ? '2px solid #0ea5e9' : '1px solid #e2e8f0',
+          border: txtColor === c ? '2px solid #c8102e' : '1px solid #e2e8f0',
         }} />
       ))}
       <div style={{ position: 'relative', width: 24, height: 24, borderRadius: 5, border: '1px solid #e2e8f0', overflow: 'hidden', background: txtColor }}>
