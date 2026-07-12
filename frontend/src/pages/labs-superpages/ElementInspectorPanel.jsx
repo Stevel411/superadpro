@@ -110,7 +110,7 @@ const SHADOW_PRESETS = [
   { id: 'soft',   label: 'Soft',   value: '0 6px 16px rgba(15,23,42,0.15)' },
   { id: 'medium', label: 'Medium', value: '0 12px 28px rgba(15,23,42,0.22)' },
   { id: 'strong', label: 'Strong', value: '0 24px 48px rgba(15,23,42,0.35), 0 8px 16px rgba(15,23,42,0.20)' },
-  { id: 'glow',   label: 'Glow',   value: '0 0 32px rgba(14,165,233,0.55), 0 0 12px rgba(14,165,233,0.35)' },
+  { id: 'glow',   label: 'Glow',   value: '0 0 32px rgba(200,16,46,0.55), 0 0 12px rgba(200,16,46,0.35)' },
 ];
 
 // Match a CSS shadow string against the known presets. Returns
@@ -270,9 +270,9 @@ function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = secti
               title={p.label}
               style={{
                 padding: '7px 4px',
-                background: active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                background: active ? 'var(--sap-accent, #c8102e)' : 'var(--sap-bg-elevated, #f8fafc)',
                 color: active ? '#fff' : 'var(--sap-text-primary, #0f172a)',
-                border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                border: '1px solid ' + (active ? 'var(--sap-accent, #c8102e)' : 'var(--sap-border, #e2e8f0)'),
                 borderRadius: 5,
                 fontSize: 11, fontWeight: 700,
                 cursor: 'pointer', fontFamily: 'inherit',
@@ -289,9 +289,9 @@ function ShadowControl({ el, updateElementStyle, markDirty, wrapperStyle = secti
           title="Custom shadow"
           style={{
             padding: '7px 4px',
-            background: activePreset === 'custom' ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+            background: activePreset === 'custom' ? 'var(--sap-accent, #c8102e)' : 'var(--sap-bg-elevated, #f8fafc)',
             color: activePreset === 'custom' ? '#fff' : 'var(--sap-text-primary, #0f172a)',
-            border: '1px solid ' + (activePreset === 'custom' ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+            border: '1px solid ' + (activePreset === 'custom' ? 'var(--sap-accent, #c8102e)' : 'var(--sap-border, #e2e8f0)'),
             borderRadius: 5,
             fontSize: 11, fontWeight: 700,
             cursor: 'pointer', fontFamily: 'inherit',
@@ -444,7 +444,7 @@ const BUTTON_STYLE_PRESETS = [
     label: 'Soft Lift',
     hint: 'Floating glassy shadow — premium feel',
     style: {
-      boxShadow: '0 20px 40px rgba(14,165,233,0.25), 0 8px 16px rgba(168,85,247,0.18), 0 2px 4px rgba(15,23,42,0.08)',
+      boxShadow: '0 20px 40px rgba(200,16,46,0.25), 0 8px 16px rgba(168,85,247,0.18), 0 2px 4px rgba(15,23,42,0.08)',
       border: '', transform: '',
     },
     banner: true,
@@ -454,7 +454,7 @@ const BUTTON_STYLE_PRESETS = [
     label: 'Neon Glow',
     hint: 'Cyan halo — on-brand glow',
     style: {
-      boxShadow: '0 0 36px rgba(14,165,233,0.65), 0 0 12px rgba(14,165,233,0.45)',
+      boxShadow: '0 0 36px rgba(200,16,46,0.65), 0 0 12px rgba(200,16,46,0.45)',
       border: '', transform: '',
     },
     banner: true,
@@ -534,8 +534,8 @@ function StylePresetTile({ preset, active, onClick }) {
   // backdropFilter from the preview because it needs something
   // behind it to blur — tile background is solid.
   const previewBg = preset.id === 'glass'
-    ? 'linear-gradient(135deg,rgba(14,165,233,0.55),rgba(168,85,247,0.55))'
-    : 'linear-gradient(135deg,#0ea5e9,#6366f1)';
+    ? 'linear-gradient(135deg,rgba(200,16,46,0.55),rgba(168,85,247,0.55))'
+    : 'linear-gradient(135deg,#c8102e,#12388f)';
   const { backdropFilter, ...safeStyle } = preset.style;
   return (
     <button
@@ -545,8 +545,8 @@ function StylePresetTile({ preset, active, onClick }) {
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
         padding: '10px 4px 6px',
-        background: active ? 'rgba(14,165,233,0.10)' : 'var(--sap-bg-elevated, #f8fafc)',
-        border: '1px solid ' + (active ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+        background: active ? 'rgba(200,16,46,0.10)' : 'var(--sap-bg-elevated, #f8fafc)',
+        border: '1px solid ' + (active ? 'var(--sap-accent, #c8102e)' : 'var(--sap-border, #e2e8f0)'),
         borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
         // Extra vertical breathing room so chunky shadows (Hard Pop,
         // Layered, Brutalist) don't get clipped by the tile edges.
@@ -663,7 +663,7 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
   useEffect(() => {
     setTxt(el.txt || 'Join Now');
     setUrl(el.url || '');
-    setBgColor(el.s?.background || 'linear-gradient(135deg,#0ea5e9,#6366f1)');
+    setBgColor(el.s?.background || 'linear-gradient(135deg,#c8102e,#12388f)');
     setTxtColor(el.s?.color || '#fff');
     setFontFamily(el.s?.fontFamily || 'Sora,sans-serif');
     setFontWeight(el.s?.fontWeight || '700');
@@ -707,14 +707,14 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
   };
 
   const COLOUR_PRESETS = [
-    { bg: 'var(--sap-accent)', label: 'Cyan', fill: '#0ea5e9' },
+    { bg: 'var(--sap-accent)', label: 'Cyan', fill: '#c8102e' },
     { bg: 'var(--sap-green-mid)', label: 'Green', fill: '#10b981' },
-    { bg: 'var(--sap-indigo)', label: 'Indigo', fill: '#6366f1' },
+    { bg: 'var(--sap-indigo)', label: 'Indigo', fill: '#12388f' },
     { bg: 'var(--sap-red-bright)', label: 'Red', fill: '#ef4444' },
-    { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo', fill: 'linear-gradient(135deg,#0ea5e9,#6366f1)' },
-    { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink', fill: 'linear-gradient(135deg,#8b5cf6,#ec4899)' },
+    { bg: 'linear-gradient(135deg,#c8102e,#12388f)', label: 'Cyan→Indigo', fill: 'linear-gradient(135deg,#c8102e,#12388f)' },
+    { bg: 'linear-gradient(135deg,#12388f,#ec4899)', label: 'Purple→Pink', fill: 'linear-gradient(135deg,#12388f,#ec4899)' },
     { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber', fill: 'linear-gradient(135deg,#ef4444,#f59e0b)' },
-    { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan', fill: 'linear-gradient(135deg,#10b981,#0ea5e9)' },
+    { bg: 'linear-gradient(135deg,#10b981,#c8102e)', label: 'Green→Cyan', fill: 'linear-gradient(135deg,#10b981,#c8102e)' },
     { bg: 'var(--sap-amber)', label: 'Amber', fill: '#f59e0b' },
     { bg: 'var(--sap-pink)', label: 'Pink', fill: '#ec4899' },
     { bg: '#0f172a', label: 'Slate', fill: '#0f172a' },
@@ -779,7 +779,7 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
             min="8" max="120" step="1"
             value={fontSizeNum}
             onChange={e => commitFontSize(parseInt(e.target.value, 10))}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -843,7 +843,7 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
                 borderRadius: 5,
                 background: c,
                 cursor: 'pointer',
-                border: txtColor === c ? '2px solid var(--sap-accent, #0ea5e9)' : '1px solid var(--sap-border, #e2e8f0)',
+                border: txtColor === c ? '2px solid var(--sap-accent, #c8102e)' : '1px solid var(--sap-border, #e2e8f0)',
                 padding: 0,
               }}
             />
@@ -949,8 +949,8 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
     { value: '#334155', label: 'Slate-700' },
     { value: '#64748b', label: 'Slate-500' },
     { value: '#ffffff', label: 'White' },
-    { value: '#0ea5e9', label: 'Cyan' },
-    { value: '#6366f1', label: 'Indigo' },
+    { value: '#c8102e', label: 'Cyan' },
+    { value: '#12388f', label: 'Indigo' },
     { value: '#ef4444', label: 'Red' },
     { value: '#f59e0b', label: 'Amber' },
   ];
@@ -993,7 +993,7 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
             min="8" max="128" step="1"
             value={fontSizeNum}
             onChange={e => commitFontSize(parseInt(e.target.value, 10))}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -1035,13 +1035,13 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
                 padding: '8px 6px',
                 borderRadius: 6,
                 border: textAlign === opt.value
-                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  ? '2px solid var(--sap-accent, #c8102e)'
                   : '1px solid var(--sap-border, #e2e8f0)',
                 background: textAlign === opt.value
-                  ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))'
+                  ? 'var(--sap-accent-bg, rgba(200,16,46,0.08))'
                   : 'var(--sap-bg-elevated, #f8fafc)',
                 color: textAlign === opt.value
-                  ? 'var(--sap-accent, #0ea5e9)'
+                  ? 'var(--sap-accent, #c8102e)'
                   : 'var(--sap-text-primary, #0f172a)',
                 fontSize: 11,
                 fontWeight: 700,
@@ -1062,7 +1062,7 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
             min="1" max="3" step="0.05"
             value={lineHeightNum}
             onChange={e => commitLineHeight(parseFloat(e.target.value))}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -1091,7 +1091,7 @@ function TextTypeProperties({ el, updateElement, updateElementStyle, markDirty }
                 background: c.value,
                 cursor: 'pointer',
                 border: textColor === c.value
-                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  ? '2px solid var(--sap-accent, #c8102e)'
                   : '1px solid var(--sap-border, #e2e8f0)',
                 padding: 0,
               }}
@@ -1184,11 +1184,11 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
 
   // Accent stripe — only meaningful for review/testimonial which use
   // it as a left-bar visual divider. Parse from `borderLeft` which
-  // is typically '4px solid #0ea5e9'.
+  // is typically '4px solid #c8102e'.
   const stripeRaw = el.s?.borderLeft || '';
   const stripeMatch = stripeRaw.match(/^(\d+)px\s+solid\s+(.+)$/);
   const [stripeWidth, setStripeWidth] = useState(stripeMatch ? parseInt(stripeMatch[1], 10) : 0);
-  const [stripeColor, setStripeColor] = useState(stripeMatch ? stripeMatch[2] : '#0ea5e9');
+  const [stripeColor, setStripeColor] = useState(stripeMatch ? stripeMatch[2] : '#c8102e');
 
   // Border — opted-in via includeBorder prop. Same parse pattern as
   // BoxProperties. Added 20 May 2026 (Steve flag): the Form element
@@ -1200,7 +1200,7 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
   const borderRaw = el.s?.border || '';
   const borderMatch = borderRaw.match(/^(\d+)px\s+solid\s+(.+)$/);
   const [borderWidth, setBorderWidth] = useState(borderMatch ? parseInt(borderMatch[1], 10) : 0);
-  const [borderColor, setBorderColor] = useState(borderMatch ? borderMatch[2] : 'rgba(14,165,233,0.15)');
+  const [borderColor, setBorderColor] = useState(borderMatch ? borderMatch[2] : 'rgba(200,16,46,0.15)');
 
   // Resync on selection change
   useEffect(() => {
@@ -1209,10 +1209,10 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
     setPadding(parseInt((el.s?.padding || '24px'), 10) || 24);
     const m = (el.s?.borderLeft || '').match(/^(\d+)px\s+solid\s+(.+)$/);
     setStripeWidth(m ? parseInt(m[1], 10) : 0);
-    setStripeColor(m ? m[2] : '#0ea5e9');
+    setStripeColor(m ? m[2] : '#c8102e');
     const bm = (el.s?.border || '').match(/^(\d+)px\s+solid\s+(.+)$/);
     setBorderWidth(bm ? parseInt(bm[1], 10) : 0);
-    setBorderColor(bm ? bm[2] : 'rgba(14,165,233,0.15)');
+    setBorderColor(bm ? bm[2] : 'rgba(200,16,46,0.15)');
   }, [el.id]);
 
   // ── Background colour + opacity helpers ─────────────────────────
@@ -1457,7 +1457,7 @@ function ContainerSection({ el, updateElementStyle, markDirty, includeAccentStri
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <input
               type="color"
-              value={(/^#[0-9a-f]{6}$/i).test(stripeColor) ? stripeColor : '#0ea5e9'}
+              value={(/^#[0-9a-f]{6}$/i).test(stripeColor) ? stripeColor : '#c8102e'}
               onChange={e => commitStripe(stripeWidth || 4, e.target.value)}
               style={{
                 width: 32, height: 28, padding: 0,
@@ -1573,7 +1573,7 @@ function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }
     faq: { title: '#ffffff', body: '#94a3b8' },
     review: { title: '#e2e8f0', body: '#64748b' },
     testimonial: { title: '#e2e8f0', body: '#64748b' },
-    stat: { title: '#0ea5e9', body: '#64748b' },
+    stat: { title: '#c8102e', body: '#64748b' },
   };
 
   // Seed colour values from el.txt by parsing existing inline
@@ -1720,9 +1720,9 @@ function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }
                 onClick={() => commitAlign(opt.v)}
                 style={{
                   flex: 1, padding: '6px 8px',
-                  background: textAlign === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                  background: textAlign === opt.v ? 'var(--sap-accent, #c8102e)' : 'var(--sap-bg-elevated, #f8fafc)',
                   color: textAlign === opt.v ? '#fff' : 'var(--sap-text-primary, #0f172a)',
-                  border: '1px solid ' + (textAlign === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                  border: '1px solid ' + (textAlign === opt.v ? 'var(--sap-accent, #c8102e)' : 'var(--sap-border, #e2e8f0)'),
                   borderRadius: 5,
                   fontSize: 11, fontWeight: 700,
                   cursor: 'pointer', fontFamily: 'inherit',
@@ -1814,7 +1814,7 @@ function CardLikeProperties({ el, updateElement, updateElementStyle, markDirty }
 function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const [label, setLabel] = useState(el._label || 'Progress');
   const [percent, setPercent] = useState(parseInt(el._percent, 10) || 75);
-  const [color, setColor] = useState(el._color || '#0ea5e9');
+  const [color, setColor] = useState(el._color || '#c8102e');
   const [trackColor, setTrackColor] = useState(el._trackColor || 'rgba(255,255,255,0.08)');
   // _labelColor (22 May 2026) — was hardcoded light-on-dark.
   const [labelColor, setLabelColor] = useState(el._labelColor || '#e2e8f0');
@@ -1822,7 +1822,7 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
   useEffect(() => {
     setLabel(el._label || 'Progress');
     setPercent(parseInt(el._percent, 10) || 75);
-    setColor(el._color || '#0ea5e9');
+    setColor(el._color || '#c8102e');
     setTrackColor(el._trackColor || 'rgba(255,255,255,0.08)');
     setLabelColor(el._labelColor || '#e2e8f0');
   }, [el.id]);
@@ -1901,7 +1901,7 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
             type="color"
-            value={(/^#[0-9a-f]{6}$/i).test(color) ? color : '#0ea5e9'}
+            value={(/^#[0-9a-f]{6}$/i).test(color) ? color : '#c8102e'}
             onChange={e => { setColor(e.target.value); commitField('_color', e.target.value); }}
             style={{
               width: 32, height: 28, padding: 0,
@@ -1914,7 +1914,7 @@ function ProgressProperties({ el, updateElement, updateElementStyle, markDirty }
             type="text"
             value={color}
             onChange={e => { setColor(e.target.value); commitField('_color', e.target.value); }}
-            placeholder="#0ea5e9"
+            placeholder="#c8102e"
             style={{ ...inputStyle, flex: 1 }}
           />
         </div>
@@ -1999,7 +1999,7 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
   const legacy = fromLegacy();
   const [statValue, setStatValue] = useState(el._statValue !== undefined ? el._statValue : legacy.v);
   const [statLabel, setStatLabel] = useState(el._statLabel !== undefined ? el._statLabel : legacy.l);
-  const [statColor, setStatColor] = useState(el._statColor || '#0ea5e9');
+  const [statColor, setStatColor] = useState(el._statColor || '#c8102e');
   const [statSize, setStatSize] = useState(el._statSize || 36);
   const [statLabelColor, setStatLabelColor] = useState(el._statLabelColor || '#64748b');
   const [statLabelSize, setStatLabelSize] = useState(el._statLabelSize || 12);
@@ -2008,7 +2008,7 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
     const lg = fromLegacy();
     setStatValue(el._statValue !== undefined ? el._statValue : lg.v);
     setStatLabel(el._statLabel !== undefined ? el._statLabel : lg.l);
-    setStatColor(el._statColor || '#0ea5e9');
+    setStatColor(el._statColor || '#c8102e');
     setStatSize(el._statSize || 36);
     setStatLabelColor(el._statLabelColor || '#64748b');
     setStatLabelSize(el._statLabelSize || 12);
@@ -2060,7 +2060,7 @@ function StatProperties({ el, updateElement, updateElementStyle, markDirty }) {
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <input
             type="color"
-            value={(/^#[0-9a-f]{6}$/i).test(statColor) ? statColor : '#0ea5e9'}
+            value={(/^#[0-9a-f]{6}$/i).test(statColor) ? statColor : '#c8102e'}
             onChange={(e) => { setStatColor(e.target.value); commit({ _statColor: e.target.value }); }}
             style={{
               width: 32, height: 28, padding: 0,
@@ -2615,8 +2615,8 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
                   color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
@@ -2690,7 +2690,7 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
               padding: '4px 10px',
               fontSize: 11,
               fontWeight: 700,
-              background: items.length >= 8 ? '#e2e8f0' : 'var(--sap-accent, #0ea5e9)',
+              background: items.length >= 8 ? '#e2e8f0' : 'var(--sap-accent, #c8102e)',
               color: items.length >= 8 ? '#94a3b8' : '#fff',
               border: 'none',
               borderRadius: 5,
@@ -2754,7 +2754,7 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                 padding: '6px 10px', fontSize: 11, cursor: 'pointer',
                 background: '#fff', border: '1px dashed var(--sap-border, #e2e8f0)',
                 borderRadius: 4, fontWeight: 600,
-                color: uploadingIdx === idx ? 'var(--sap-text-muted, #64748b)' : 'var(--sap-accent, #0ea5e9)',
+                color: uploadingIdx === idx ? 'var(--sap-text-muted, #64748b)' : 'var(--sap-accent, #c8102e)',
               }}>
                 {uploadingIdx === idx ? 'Uploading…' : '📎 Upload logo image'}
                 <input type="file" accept="image/*" style={{ display: 'none' }}
@@ -2906,8 +2906,8 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
                   color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
@@ -3626,8 +3626,8 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     fontSize: 12,
     fontFamily: "'Sora', sans-serif",
     fontWeight: 600,
-    border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-    background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+    border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
+    background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
     color: active ? '#0284c7' : '#4d648c',
     borderRadius: 5,
     cursor: 'pointer',
@@ -3858,8 +3858,8 @@ function CountdownProperties({ el, updateElement, markDirty }) {
                   fontSize: 12,
                   fontFamily: "'Sora', sans-serif",
                   fontWeight: 600,
-                  border: '1px solid ' + (active ? '#0ea5e9' : 'rgba(255,255,255,0.15)'),
-                  background: active ? 'rgba(14,165,233,0.12)' : 'rgba(255,255,255,0.04)',
+                  border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
+                  background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
                   color: active ? '#0284c7' : '#4d648c',
                   borderRadius: 5,
                   cursor: 'pointer',
@@ -4299,16 +4299,16 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
   // promo/alert UI rather than primary CTAs.
   const COLOUR_PRESETS = [
     { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber (default)' },
-    { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo' },
-    { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan' },
-    { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink' },
+    { bg: 'linear-gradient(135deg,#c8102e,#12388f)', label: 'Cyan→Indigo' },
+    { bg: 'linear-gradient(135deg,#10b981,#c8102e)', label: 'Green→Cyan' },
+    { bg: 'linear-gradient(135deg,#12388f,#ec4899)', label: 'Purple→Pink' },
     { bg: 'var(--sap-red-bright, #ef4444)', label: 'Solid Red' },
     { bg: 'var(--sap-amber, #f59e0b)', label: 'Solid Amber' },
-    { bg: 'var(--sap-indigo, #6366f1)', label: 'Solid Indigo' },
+    { bg: 'var(--sap-indigo, #12388f)', label: 'Solid Indigo' },
     { bg: '#0f172a', label: 'Solid Slate' },
   ];
 
-  const TEXT_COLOURS = ['#ffffff', '#000000', '#fbbf24', '#0ea5e9'];
+  const TEXT_COLOURS = ['#ffffff', '#000000', '#fbbf24', '#c8102e'];
 
   return (
     <>
@@ -4379,7 +4379,7 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
             min="10" max="48" step="1"
             value={fontSizeNum}
             onChange={e => commitFontSize(parseInt(e.target.value, 10))}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -4443,7 +4443,7 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
                 borderRadius: 5,
                 background: c,
                 cursor: 'pointer',
-                border: txtColor === c ? '2px solid var(--sap-accent, #0ea5e9)' : '1px solid var(--sap-border, #e2e8f0)',
+                border: txtColor === c ? '2px solid var(--sap-accent, #c8102e)' : '1px solid var(--sap-border, #e2e8f0)',
                 padding: 0,
               }}
             />
@@ -4724,7 +4724,7 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '6px 12px',
-              background: uploading ? 'var(--sap-bg-elevated, #f8fafc)' : 'var(--sap-accent, #0ea5e9)',
+              background: uploading ? 'var(--sap-bg-elevated, #f8fafc)' : 'var(--sap-accent, #c8102e)',
               color: uploading ? 'var(--sap-text-muted, #94a3b8)' : '#fff',
               border: 'none', borderRadius: 6,
               fontSize: 11, fontWeight: 700,
@@ -4865,9 +4865,9 @@ function MediaProperties({ el, updateElement, updateElementStyle, markDirty }) {
                   style={{
                     flex: 1,
                     padding: '6px 8px',
-                    background: imageFit === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-bg-elevated, #f8fafc)',
+                    background: imageFit === opt.v ? 'var(--sap-accent, #c8102e)' : 'var(--sap-bg-elevated, #f8fafc)',
                     color: imageFit === opt.v ? '#fff' : 'var(--sap-text-primary, #0f172a)',
-                    border: '1px solid ' + (imageFit === opt.v ? 'var(--sap-accent, #0ea5e9)' : 'var(--sap-border, #e2e8f0)'),
+                    border: '1px solid ' + (imageFit === opt.v ? 'var(--sap-accent, #c8102e)' : 'var(--sap-border, #e2e8f0)'),
                     borderRadius: 5,
                     fontSize: 11, fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'inherit',
@@ -5094,7 +5094,7 @@ function ToggleRow({ label, hint, value, onChange }) {
           marginTop: 2,
           width: 16,
           height: 16,
-          accentColor: 'var(--sap-accent, #0ea5e9)',
+          accentColor: 'var(--sap-accent, #c8102e)',
           cursor: 'pointer',
           flexShrink: 0,
         }}
@@ -5246,7 +5246,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
     }
     let gdprBlock = '';
     if (cfg.gdpr) {
-      gdprBlock = `<label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;cursor:pointer"><input type="checkbox" required style="margin-top:2px;flex-shrink:0;accent-color:#0ea5e9;cursor:pointer"><span>${cfg.gdprText}</span></label>`;
+      gdprBlock = `<label style="display:flex;align-items:flex-start;gap:8px;margin:8px 0 12px;text-align:left;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;cursor:pointer"><input type="checkbox" required style="margin-top:2px;flex-shrink:0;accent-color:#c8102e;cursor:pointer"><span>${cfg.gdprText}</span></label>`;
     }
     // Heading + subtitle + button styles now driven by cfg.
     const headingStyle = `font-family:${cfg.headingFont};font-weight:${cfg.headingWeight};font-size:${cfg.headingSize}px;color:${cfg.headingColor};margin-bottom:6px`;
@@ -5407,7 +5407,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="12" max="48" step="1"
             value={headingSize}
             onChange={e => commitFormChange({ headingSize: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5472,7 +5472,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="10" max="24" step="1"
             value={subtitleSize}
             onChange={e => commitFormChange({ subtitleSize: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5558,7 +5558,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="11" max="20" step="1"
             value={fieldSize}
             onChange={e => commitFormChange({ fieldSize: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5615,7 +5615,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="11" max="24" step="1"
             value={btnFontSize}
             onChange={e => commitFormChange({ btnFontSize: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5652,7 +5652,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="6" max="28" step="1"
             value={btnPadding}
             onChange={e => commitFormChange({ btnPadding: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5676,7 +5676,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
             min="0" max="32" step="1"
             value={btnRadius}
             onChange={e => commitFormChange({ btnRadius: parseInt(e.target.value, 10) })}
-            style={{ flex: 1, accentColor: 'var(--sap-accent, #0ea5e9)', cursor: 'pointer' }}
+            style={{ flex: 1, accentColor: 'var(--sap-accent, #c8102e)', cursor: 'pointer' }}
           />
           <span style={{
             fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
@@ -5701,13 +5701,13 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
                 padding: '8px 6px',
                 borderRadius: 6,
                 border: btnWidth === opt.value
-                  ? '2px solid var(--sap-accent, #0ea5e9)'
+                  ? '2px solid var(--sap-accent, #c8102e)'
                   : '1px solid var(--sap-border, #e2e8f0)',
                 background: btnWidth === opt.value
-                  ? 'var(--sap-accent-bg, rgba(14,165,233,0.08))'
+                  ? 'var(--sap-accent-bg, rgba(200,16,46,0.08))'
                   : 'var(--sap-bg-elevated, #f8fafc)',
                 color: btnWidth === opt.value
-                  ? 'var(--sap-accent, #0ea5e9)'
+                  ? 'var(--sap-accent, #c8102e)'
                   : 'var(--sap-text-primary, #0f172a)',
                 fontSize: 11,
                 fontWeight: 700,
@@ -5872,7 +5872,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       <span style={{
         marginLeft: 'auto',
         fontSize: 9, fontWeight: 700,
-        color: '#22d3ee',
+        color: '#e8203f',
         background: 'rgba(34,211,238,0.12)',
         border: '1px solid rgba(34,211,238,0.3)',
         borderRadius: 4,
@@ -5914,8 +5914,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '2px solid ' + (!isPublished ? '#0ea5e9' : '#abc5e5'),
-              background: !isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+              border: '2px solid ' + (!isPublished ? '#c8102e' : '#abc5e5'),
+              background: !isPublished ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
               color: !isPublished ? '#0284c7' : '#4d648c',
             }}>
             Draft
@@ -5929,8 +5929,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               fontSize: 11, fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              border: '2px solid ' + (isPublished ? '#0ea5e9' : '#abc5e5'),
-              background: isPublished ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+              border: '2px solid ' + (isPublished ? '#c8102e' : '#abc5e5'),
+              background: isPublished ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
               color: isPublished ? '#0284c7' : '#4d648c',
             }}>
             Published
@@ -6066,8 +6066,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
                     flex: 1,
                     padding: '6px 8px',
                     fontSize: 11, fontWeight: 700,
-                    border: '2px solid ' + (active ? '#0ea5e9' : '#abc5e5'),
-                    background: active ? 'rgba(14,165,233,0.16)' : '#f3f8fd',
+                    border: '2px solid ' + (active ? '#c8102e' : '#abc5e5'),
+                    background: active ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
                     color: active ? '#0284c7' : '#4d648c',
                     borderRadius: 5,
                     cursor: 'pointer',
@@ -6132,7 +6132,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           marginBottom: 6,
         }}>Editing</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 6, height: 6, background: 'var(--sap-accent, #0ea5e9)', borderRadius: '50%' }} />
+          <div style={{ width: 6, height: 6, background: 'var(--sap-accent, #c8102e)', borderRadius: '50%' }} />
           <span style={{
             fontFamily: 'monospace',
             fontSize: 13,
@@ -6144,7 +6144,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           <button onClick={onDuplicate} title="Duplicate" aria-label="Duplicate"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--sap-text-muted, #94a3b8)', fontSize: 14 }}>⧉</button>
           <button onClick={onToggleLock} title={el.locked ? 'Unlock' : 'Lock'} aria-label={el.locked ? 'Unlock' : 'Lock'}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: el.locked ? '#a855f7' : 'var(--sap-text-muted, #94a3b8)', fontSize: 14 }}>{el.locked ? '🔒' : '🔓'}</button>
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: el.locked ? '#12388f' : 'var(--sap-text-muted, #94a3b8)', fontSize: 14 }}>{el.locked ? '🔒' : '🔓'}</button>
           <button onClick={onDelete} title="Delete" aria-label="Delete"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--sap-red, #ef4444)', fontSize: 13 }}>✕</button>
         </div>

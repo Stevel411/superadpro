@@ -433,7 +433,7 @@ export default function TiptapText({
               // popup ever misbehaves again, one paste of console tells
               // us exactly what was happening.
               // eslint-disable-next-line no-console
-              console.log('%c[LinkDiag v2] openPopup()', 'background:#8b5cf6;color:#fff;padding:2px 6px',
+              console.log('%c[LinkDiag v2] openPopup()', 'background:#12388f;color:#fff;padding:2px 6px',
                 '\n  from/to:', from, to,
                 '\n  computed pos:', pos,
                 '\n  coordsErr:', coordsErr,
@@ -462,7 +462,7 @@ export default function TiptapText({
 
           {showAi && aiMenuOpen && (
             <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
-              <div style={{fontSize:13,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('editor.aiCommands')}</div>
+              <div style={{fontSize:13,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#12388f',marginBottom:8}}>{t('editor.aiCommands')}</div>
               <AiCmd onClick={() => handleAiCommand('rewrite')}>✨ Rewrite for clarity</AiCmd>
               <AiCmd onClick={() => handleAiCommand('shorten')}>📏 Make it shorter</AiCmd>
               <AiCmd onClick={() => handleAiCommand('sharper')}>🎯 Sharper hook</AiCmd>
@@ -549,7 +549,7 @@ export default function TiptapText({
             }}
             style={{
               height: 30, padding: '0 14px', border: 'none',
-              background: '#0ea5e9', color: '#fff', fontWeight: 600,
+              background: '#c8102e', color: '#fff', fontWeight: 600,
               fontSize: 12, borderRadius: 5, cursor: 'pointer',
               fontFamily: 'inherit', flexShrink: 0,
             }}
@@ -594,7 +594,7 @@ export default function TiptapText({
           margin: 0;
         }
         .sp-tt-wrapper .sp-editor-link {
-          color: #0ea5e9;
+          color: #c8102e;
           text-decoration: underline;
           cursor: pointer;
         }
@@ -622,7 +622,7 @@ export default function TiptapText({
           transform: none !important; filter: none !important;
         }
         .sp-tt-btn.sp-tt-active {
-          background: rgba(14,165,233,0.12); color: #0284c7;
+          background: rgba(200,16,46,0.12); color: #0284c7;
         }
         .sp-tt-select {
           display: inline-flex; align-items: center;
@@ -643,7 +643,7 @@ export default function TiptapText({
         .sp-tt-ai {
           width: auto !important;
           padding: 4px 10px !important;
-          background: linear-gradient(135deg, #0ea5e9, #8b5cf6) !important;
+          background: linear-gradient(135deg, #c8102e, #12388f) !important;
           color: #fff !important;
           font-weight: 600 !important;
         }
@@ -746,7 +746,7 @@ function FontSelect({ editor, currentFont }) {
               style={{
                 padding: '8px 10px', fontSize: 14, cursor: 'pointer',
                 borderRadius: 4, fontFamily: f.value,
-                background: currentFont === f.value ? 'rgba(14,165,233,0.12)' : 'transparent',
+                background: currentFont === f.value ? 'rgba(200,16,46,0.12)' : 'transparent',
                 color: currentFont === f.value ? '#0284c7' : '#0f172a',
               }}
               onMouseEnter={e => { if (currentFont !== f.value) e.currentTarget.style.background = '#f1f5f9'; }}
@@ -834,7 +834,7 @@ function SizeInput({ editor, currentSize }) {
               style={{
                 padding: '6px 10px', fontSize: 12, cursor: 'pointer',
                 borderRadius: 4, textAlign: 'center',
-                background: currentSize === size ? 'rgba(14,165,233,0.12)' : 'transparent',
+                background: currentSize === size ? 'rgba(200,16,46,0.12)' : 'transparent',
                 color: currentSize === size ? '#0284c7' : '#475569',
               }}
               onMouseEnter={e => { if (currentSize !== size) e.currentTarget.style.background = '#f1f5f9'; }}

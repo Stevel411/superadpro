@@ -1038,7 +1038,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Defaults match the original hardcoded values for back-compat.
       const sv = el._statValue ?? '';
       const sl = el._statLabel ?? '';
-      const sc = el._statColor || '#0ea5e9';
+      const sc = el._statColor || '#c8102e';
       const ss = el._statSize || 36;
       const slc = el._statLabelColor || '#64748b';
       const sls = el._statLabelSize || 12;
@@ -1522,11 +1522,11 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {/* Alignment guides */}
         {['vCentre', 'vLeft', 'vRight'].map(name => (
           <div key={name} ref={el => guideRefs.current[name] = el}
-            style={{ display: 'none', position: 'absolute', top: 0, width: 1, height: '100%', background: 'rgba(14,165,233,0.4)', zIndex: 100, pointerEvents: 'none' }} />
+            style={{ display: 'none', position: 'absolute', top: 0, width: 1, height: '100%', background: 'rgba(200,16,46,0.4)', zIndex: 100, pointerEvents: 'none' }} />
         ))}
         {['hTop', 'hMid', 'hBot'].map(name => (
           <div key={name} ref={el => guideRefs.current[name] = el}
-            style={{ display: 'none', position: 'absolute', left: 0, height: 1, width: '100%', background: 'rgba(14,165,233,0.4)', zIndex: 100, pointerEvents: 'none' }} />
+            style={{ display: 'none', position: 'absolute', left: 0, height: 1, width: '100%', background: 'rgba(200,16,46,0.4)', zIndex: 100, pointerEvents: 'none' }} />
         ))}
 
         {/* Marquee selection rectangle */}
@@ -1537,8 +1537,8 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             top: marquee.y1,
             width: marquee.x2 - marquee.x1,
             height: marquee.y2 - marquee.y1,
-            background: 'rgba(14,165,233,0.08)',
-            border: '1px dashed rgba(14,165,233,0.6)',
+            background: 'rgba(200,16,46,0.08)',
+            border: '1px dashed rgba(200,16,46,0.6)',
             borderRadius: 2,
             zIndex: 50,
             pointerEvents: 'none',
@@ -1555,14 +1555,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
               <button onClick={onShowTemplates} style={{
                 padding: '12px 22px',
                 borderRadius: 10,
-                background: '#0ea5e9',
+                background: '#c8102e',
                 color: '#fff',
                 border: 'none',
                 fontFamily: 'Sora, sans-serif',
                 fontWeight: 800,
                 fontSize: 14,
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(14,165,233,0.35)',
+                boxShadow: '0 4px 14px rgba(200,16,46,0.35)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
@@ -1635,10 +1635,10 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                     }}
                     style={{
                       padding: '2px 8px',
-                      background: deviceView === 'tablet' ? 'rgba(168,85,247,0.12)' : 'rgba(236,72,153,0.12)',
+                      background: deviceView === 'tablet' ? 'rgba(18,56,143,0.12)' : 'rgba(236,72,153,0.12)',
                       border: 'none', borderRadius: 5, cursor: 'pointer',
                       fontSize: 10, fontWeight: 900,
-                      color: deviceView === 'tablet' ? '#0ea5e9' : '#0a1438',
+                      color: deviceView === 'tablet' ? '#c8102e' : '#0a1438',
                       letterSpacing: '0.06em', textTransform: 'uppercase',
                     }}
                     title={`This element has a ${deviceView} override. Click to reset to ${deviceView === 'mobile' ? 'tablet/desktop' : 'desktop'}.`}>
@@ -1660,7 +1660,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }} title={t('superPagesEditor.duplicate')}>⧉</button>
               <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); updateElement(el.id, { locked: !el.locked }); markDirty(); }}
-                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: el.locked ? '#0ea5e9' : '#64748b' }}
+                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: el.locked ? '#c8102e' : '#64748b' }}
                 title={el.locked ? 'Unlock element' : 'Lock element'}>{el.locked ? '🔒' : '🔓'}</button>
               <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); if (window._spDeleteElement) window._spDeleteElement(el.id); }}
@@ -1742,9 +1742,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             background: 'rgba(255,255,255,0.96)',
             backdropFilter: 'saturate(180%) blur(20px)',
             WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-            border: '1px solid rgba(14,165,233,0.2)',
+            border: '1px solid rgba(200,16,46,0.2)',
             borderRadius: 10,
-            boxShadow: '0 14px 40px rgba(15,23,42,0.2), 0 4px 12px rgba(14,165,233,0.1)',
+            boxShadow: '0 14px 40px rgba(15,23,42,0.2), 0 4px 12px rgba(200,16,46,0.1)',
             padding: '6px 0',
             zIndex: 1000,
             fontFamily: 'Manrope, sans-serif',
@@ -1765,7 +1765,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                     color: it.danger ? '#dc2626' : '#0f172a',
                     transition: 'background 0.12s',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = it.danger ? 'rgba(220,38,38,0.08)' : 'rgba(14,165,233,0.08)'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = it.danger ? 'rgba(220,38,38,0.08)' : 'rgba(200,16,46,0.08)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   <span>{it.label}</span>
@@ -1778,17 +1778,17 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       })()}
 
       <style>{`
-        .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 3px; }
-        .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 4px; }
-        .cel.multi-selected { outline: 2px dashed #0ea5e9; outline-offset: 4px; }
-        .cel.editing { outline: 2px solid #6366f1; outline-offset: 4px; cursor: text !important; }
+        .cel:hover { outline: 1px dashed rgba(200,16,46,0.35); outline-offset: 3px; }
+        .cel.selected { outline: 2px solid #c8102e; outline-offset: 4px; }
+        .cel.multi-selected { outline: 2px dashed #c8102e; outline-offset: 4px; }
+        .cel.editing { outline: 2px solid #12388f; outline-offset: 4px; cursor: text !important; }
         .cel.editing * { cursor: text !important; user-select: auto !important; }
         .cel > *:not(.cel-bar):not(.cel-resize) { pointer-events: none; }
         .cel.editing > * { pointer-events: auto !important; }
         .cel .cel-bar, .cel .cel-bar * { pointer-events: auto !important; cursor: pointer !important; }
         .cel .cel-resize { pointer-events: auto !important; }
         .cel-editable:focus { outline: none; }
-        .cel-editable::selection { background: rgba(14,165,233,0.2); }
+        .cel-editable::selection { background: rgba(200,16,46,0.2); }
 
         /* Override the global 'button hover lifts 1 px' rule for the element
            toolbar and resize handles. On these small, absolutely-positioned
@@ -1810,7 +1810,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           transition: background-color 0.08s !important;
         }
         /* Subtle hover tint on toolbar buttons so there's still visible feedback */
-        .cel-bar button:hover { background: rgba(14,165,233,0.08) !important; border-radius: 4px !important; }
+        .cel-bar button:hover { background: rgba(200,16,46,0.08) !important; border-radius: 4px !important; }
 
         /* Neutralise globals.css 'main div[style*=background:#fff]:hover' card
            lift — it targets the canvas surface itself, making the canvas try

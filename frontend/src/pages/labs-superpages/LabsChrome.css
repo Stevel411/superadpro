@@ -42,9 +42,9 @@
 
 /* CSS variables exposed for child component inline-style use */
 .labs-chrome {
-  --labs-accent-start: #0ea5e9;
-  --labs-accent-end: #22d3ee;
-  --labs-accent-grad: linear-gradient(135deg, #0ea5e9, #22d3ee);
+  --labs-accent-start: #c8102e;
+  --labs-accent-end: #e8203f;
+  --labs-accent-grad: linear-gradient(135deg, #c8102e, #e8203f);
   --labs-brand-deep: #0a1438;
   --labs-text-primary: #0f172a;
   --labs-text-secondary: #475569;
@@ -112,7 +112,7 @@
 }
 
 .labs-chrome .sp-editor-topbar .btn-primary {
-  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  background: linear-gradient(135deg, #e8203f, #c8102e);
   color: #0a1438;
   box-shadow: 0 4px 12px rgba(34,211,238,0.35);
   font-family: 'Manrope', sans-serif;
@@ -149,7 +149,7 @@
 .labs-chrome .sp-editor-topbar .device-toggle button.on,
 .labs-chrome .sp-editor-topbar .device-toggle button.active {
   background: rgba(34,211,238,0.22);
-  color: #22d3ee;
+  color: #e8203f;
   font-weight: 800;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
@@ -242,7 +242,7 @@
 .labs-chrome .ins-cobalt input:hover,
 .labs-chrome .ins-cobalt textarea:hover,
 .labs-chrome .ins-cobalt select:hover {
-  border-color: #0ea5e9 !important;
+  border-color: #c8102e !important;
   box-shadow: none !important;
 }
 .labs-chrome .ins-cobalt input::placeholder,
@@ -252,10 +252,10 @@
 .labs-chrome .ins-cobalt input:focus,
 .labs-chrome .ins-cobalt textarea:focus,
 .labs-chrome .ins-cobalt select:focus {
-  border-color: #0ea5e9 !important;
+  border-color: #c8102e !important;
   background: #ffffff !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(14,165,233,0.25) !important;
+  box-shadow: 0 0 0 2px rgba(200,16,46,0.25) !important;
 }
 
 /* Generic text inside the inspector defaults to white-translucent
@@ -373,9 +373,9 @@
 .labs-chrome .pal-item:hover {
   transform: translateY(-2px) !important;
   border-color: #0284c7 !important;
-  background: #0ea5e9 !important;
+  background: #c8102e !important;
   background-image: none !important;
-  box-shadow: 0 6px 18px rgba(14,165,233,0.40) !important;
+  box-shadow: 0 6px 18px rgba(200,16,46,0.40) !important;
 }
 
 .labs-chrome .pal-item:active {
@@ -448,7 +448,7 @@
    ───────────────────────────────────────────────────────────── */
 .labs-chrome .sp-canvas-area {
   background: transparent !important;
-  background-image: radial-gradient(circle, rgba(14,165,233,0.05) 1px, transparent 1px) !important;
+  background-image: radial-gradient(circle, rgba(200,16,46,0.05) 1px, transparent 1px) !important;
   background-size: 24px 24px !important;
   /* Generous breathing room — give the canvas physical space from the
      palette and settings panel edges. Was 28 from inline style. */
@@ -523,8 +523,8 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: 99px;
-  background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1));
-  border: 1px solid rgba(14,165,233,0.25);
+  background: linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1));
+  border: 1px solid rgba(200,16,46,0.25);
   font-family: 'Sora', sans-serif;
   font-size: 10px;
   font-weight: 900;
@@ -570,8 +570,8 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: 99px;
-  background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1));
-  border: 1px solid rgba(14,165,233,0.25);
+  background: linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1));
+  border: 1px solid rgba(200,16,46,0.25);
   font-family: 'Sora', sans-serif;
   font-size: 10px;
   font-weight: 900;
@@ -601,12 +601,12 @@
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 .labs-chrome .sp-tb-pill:hover {
-  background: #0ea5e9 !important;
+  background: #c8102e !important;
   background-image: none !important;
   border-color: #0284c7 !important;
   color: #fff !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(14,165,233,0.35) !important;
+  box-shadow: 0 4px 14px rgba(200,16,46,0.35) !important;
 }
 .labs-chrome .sp-tb-pill:hover svg,
 .labs-chrome .sp-tb-pill:hover span { color: #fff !important; }

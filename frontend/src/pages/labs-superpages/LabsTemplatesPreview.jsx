@@ -65,8 +65,8 @@ export default function LabsTemplatesPreview() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 10px', borderRadius: 99,
-              background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
-              border: '1px solid rgba(14,165,233,0.25)',
+              background: 'linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1))',
+              border: '1px solid rgba(200,16,46,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10, fontWeight: 900,
               color: '#0284c7',
@@ -99,7 +99,7 @@ export default function LabsTemplatesPreview() {
               min="0.3" max="1" step="0.1"
               value={zoom}
               onChange={(e) => setZoom(parseFloat(e.target.value))}
-              style={{ width: 120, accentColor: '#0ea5e9', cursor: 'pointer' }}
+              style={{ width: 120, accentColor: '#c8102e', cursor: 'pointer' }}
             />
             <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', minWidth: 36, fontFamily: 'monospace' }}>
               {Math.round(zoom * 100)}%
@@ -136,11 +136,11 @@ export default function LabsTemplatesPreview() {
               <div key={tpl.id} style={{
                 background: '#ffffff',
                 borderRadius: 18,
-                border: '1px solid rgba(14,165,233,0.14)',
+                border: '1px solid rgba(200,16,46,0.14)',
                 boxShadow:
                   'inset 0 1px 0 rgba(255,255,255,0.9), ' +
-                  '0 4px 12px rgba(14,165,233,0.12), ' +
-                  '0 8px 20px rgba(168,85,247,0.10)',
+                  '0 4px 12px rgba(200,16,46,0.12), ' +
+                  '0 8px 20px rgba(18,56,143,0.10)',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',

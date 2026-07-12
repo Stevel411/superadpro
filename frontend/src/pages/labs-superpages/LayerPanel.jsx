@@ -78,11 +78,11 @@ export default function LayerPanel({ open, onClose, els, selId, selIds, selectEl
         background: 'rgba(255,255,255,0.92)',
         backdropFilter: 'saturate(180%) blur(20px)',
         WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-        border: '1px solid rgba(14,165,233,0.18)',
+        border: '1px solid rgba(200,16,46,0.18)',
         borderRadius: 14,
         boxShadow:
-          '0 4px 16px rgba(14,165,233,0.12), ' +
-          '0 14px 36px rgba(168,85,247,0.14), ' +
+          '0 4px 16px rgba(200,16,46,0.12), ' +
+          '0 14px 36px rgba(18,56,143,0.14), ' +
           'inset 0 1px 0 rgba(255,255,255,1)',
         zIndex: 30,
         display: 'flex',
@@ -158,27 +158,27 @@ export default function LayerPanel({ open, onClose, els, selId, selIds, selectEl
                 borderRadius: 8,
                 cursor: 'pointer',
                 background: isPrimary
-                  ? 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(14,165,233,0.06))'
+                  ? 'linear-gradient(135deg, rgba(200,16,46,0.12), rgba(200,16,46,0.06))'
                   : isMulti
-                    ? 'rgba(168,85,247,0.08)'
+                    ? 'rgba(18,56,143,0.08)'
                     : 'transparent',
                 border: isPrimary
-                  ? '1px solid rgba(14,165,233,0.3)'
+                  ? '1px solid rgba(200,16,46,0.3)'
                   : isMulti
-                    ? '1px dashed rgba(168,85,247,0.35)'
+                    ? '1px dashed rgba(18,56,143,0.35)'
                     : '1px solid transparent',
                 opacity: el.hidden ? 0.5 : 1,
                 transition: 'background 0.12s, border-color 0.12s',
               }}
               onMouseEnter={(e) => {
-                if (!isPrimary && !isMulti) e.currentTarget.style.background = 'rgba(14,165,233,0.04)';
+                if (!isPrimary && !isMulti) e.currentTarget.style.background = 'rgba(200,16,46,0.04)';
               }}
               onMouseLeave={(e) => {
                 if (!isPrimary && !isMulti) e.currentTarget.style.background = 'transparent';
               }}
             >
               <Icon size={13} strokeWidth={2.2} style={{
-                color: isPrimary ? '#0ea5e9' : '#475569',
+                color: isPrimary ? '#c8102e' : '#475569',
                 flexShrink: 0,
               }}/>
               <span style={{
@@ -201,7 +201,7 @@ export default function LayerPanel({ open, onClose, els, selId, selIds, selectEl
                   style={{
                     width: 22, height: 22, borderRadius: 5,
                     background: 'none', border: 'none', cursor: 'pointer',
-                    color: el.hidden ? '#a855f7' : '#94a3b8',
+                    color: el.hidden ? '#12388f' : '#94a3b8',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                   {el.hidden ? <EyeOff size={12}/> : <Eye size={12}/>}
@@ -212,7 +212,7 @@ export default function LayerPanel({ open, onClose, els, selId, selIds, selectEl
                   style={{
                     width: 22, height: 22, borderRadius: 5,
                     background: 'none', border: 'none', cursor: 'pointer',
-                    color: el.locked ? '#a855f7' : '#94a3b8',
+                    color: el.locked ? '#12388f' : '#94a3b8',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                   {el.locked ? <Lock size={11}/> : <Unlock size={11}/>}

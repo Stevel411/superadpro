@@ -92,7 +92,7 @@ export default function LabsSandboxList() {
           background: 'rgba(255,255,255,0.85)',
           backdropFilter: 'saturate(180%) blur(20px)',
           WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-          border: '1px solid rgba(14,165,233,0.14)',
+          border: '1px solid rgba(200,16,46,0.14)',
           borderRadius: 18,
           padding: '24px 28px',
           marginBottom: 24,
@@ -105,8 +105,8 @@ export default function LabsSandboxList() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 10px', borderRadius: 99,
-              background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
-              border: '1px solid rgba(14,165,233,0.25)',
+              background: 'linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1))',
+              border: '1px solid rgba(200,16,46,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10, fontWeight: 900,
               color: '#0284c7',
@@ -140,13 +140,13 @@ export default function LabsSandboxList() {
               padding: '12px 22px',
               borderRadius: 10,
               border: 'none',
-              background: 'linear-gradient(135deg, #0ea5e9, #22d3ee)',
+              background: 'linear-gradient(135deg, #c8102e, #e8203f)',
               color: '#fff',
               fontFamily: 'Manrope, sans-serif',
               fontWeight: 900,
               fontSize: 13,
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
+              boxShadow: '0 4px 12px rgba(200,16,46,0.3)',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
@@ -171,9 +171,9 @@ export default function LabsSandboxList() {
             gap: 6,
             padding: '8px 14px',
             borderRadius: 9,
-            background: 'rgba(168,85,247,0.08)',
-            border: '1px solid rgba(168,85,247,0.25)',
-            color: '#0ea5e9',
+            background: 'rgba(18,56,143,0.08)',
+            border: '1px solid rgba(18,56,143,0.25)',
+            color: '#c8102e',
             textDecoration: 'none',
             fontFamily: 'Manrope, sans-serif',
             fontSize: 12,
@@ -199,7 +199,7 @@ export default function LabsSandboxList() {
         {pages.length === 0 ? (
           <div style={{
             background: '#fff',
-            border: '2px dashed rgba(14,165,233,0.25)',
+            border: '2px dashed rgba(200,16,46,0.25)',
             borderRadius: 14,
             padding: '60px 24px',
             textAlign: 'center',
@@ -232,13 +232,13 @@ export default function LabsSandboxList() {
                 padding: '11px 22px',
                 borderRadius: 10,
                 border: 'none',
-                background: 'linear-gradient(135deg, #0ea5e9, #22d3ee)',
+                background: 'linear-gradient(135deg, #c8102e, #e8203f)',
                 color: '#fff',
                 fontFamily: 'Manrope, sans-serif',
                 fontWeight: 900,
                 fontSize: 13,
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(14,165,233,0.3)',
+                boxShadow: '0 4px 12px rgba(200,16,46,0.3)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
@@ -261,8 +261,8 @@ export default function LabsSandboxList() {
                 transition: 'border-color 0.15s, box-shadow 0.15s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(14,165,233,0.25)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(14,165,233,0.08)';
+                e.currentTarget.style.borderColor = 'rgba(200,16,46,0.25)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(200,16,46,0.08)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'rgba(15,23,42,0.06)';
@@ -272,7 +272,7 @@ export default function LabsSandboxList() {
                 {/* Type icon */}
                 <div style={{
                   width: 42, height: 42, borderRadius: 10,
-                  background: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
+                  background: 'linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                   color: '#0284c7',
@@ -314,7 +314,7 @@ export default function LabsSandboxList() {
                     cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(14,165,233,0.08)'; e.currentTarget.style.color = '#0284c7'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(200,16,46,0.08)'; e.currentTarget.style.color = '#0284c7'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                 >
                   <Copy size={14}/>
@@ -340,7 +340,7 @@ export default function LabsSandboxList() {
                   style={{
                     padding: '7px 14px',
                     borderRadius: 8,
-                    background: 'linear-gradient(135deg, #0ea5e9, #22d3ee)',
+                    background: 'linear-gradient(135deg, #c8102e, #e8203f)',
                     color: '#fff',
                     fontFamily: 'Manrope, sans-serif',
                     fontWeight: 800,

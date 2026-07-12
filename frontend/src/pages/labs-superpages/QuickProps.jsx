@@ -81,9 +81,9 @@ export default function QuickProps({ el, updateElement, updateElementStyle, mark
         background: 'rgba(255,255,255,0.96)',
         backdropFilter: 'saturate(180%) blur(20px)',
         WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-        border: '1px solid rgba(14,165,233,0.2)',
+        border: '1px solid rgba(200,16,46,0.2)',
         borderRadius: 10,
-        boxShadow: '0 4px 14px rgba(14,165,233,0.1), 0 12px 32px rgba(168,85,247,0.12)',
+        boxShadow: '0 4px 14px rgba(200,16,46,0.1), 0 12px 32px rgba(18,56,143,0.12)',
         padding: '6px 10px',
         display: 'flex',
         alignItems: 'center',
@@ -102,7 +102,7 @@ export default function QuickProps({ el, updateElement, updateElementStyle, mark
           onChange={(e) => setStyle('opacity', parseFloat(e.target.value))}
           style={{
             width: 76, height: 4,
-            accentColor: '#0ea5e9',
+            accentColor: '#c8102e',
             cursor: 'pointer',
           }}
           title={`Opacity ${Math.round(opacity * 100)}%`}

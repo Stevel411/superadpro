@@ -75,12 +75,12 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   var { t } = useTranslation();
   const [bgType, setBgType] = useState(canvasBg?.startsWith('linear') ? 'gradient' : canvasBgImage ? 'image' : 'solid');
   const [grad1, setGrad1] = useState(() => {
-    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[0] || '#0ea5e9'; }
-    return '#0ea5e9';
+    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[0] || '#c8102e'; }
+    return '#c8102e';
   });
   const [grad2, setGrad2] = useState(() => {
-    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[1] || '#6366f1'; }
-    return '#6366f1';
+    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[1] || '#12388f'; }
+    return '#12388f';
   });
   const [gradDir, setGradDir] = useState('135deg');
   const [bgImageUrl, setBgImageUrl] = useState(canvasBgImage || '');
@@ -138,7 +138,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
 
   // Light-theme gradient presets — curated to look good on landing pages.
   const GRAD_PRESETS = [
-    ['#0ea5e9','#6366f1'], ['#8b5cf6','#ec4899'], ['#10b981','#059669'],
+    ['#c8102e','#12388f'], ['#12388f','#ec4899'], ['#10b981','#059669'],
     ['#f59e0b','#ef4444'], ['#0f172a','#1e3a5f'], ['#132044','#16213e'],
     ['#667eea','#764ba2'], ['#f093fb','#f5576c'], ['#4facfe','#00f2fe'],
   ];
@@ -179,7 +179,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               outline:'none',
               boxSizing:'border-box',
             }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#c8102e'; }}
             onBlur={e => { e.currentTarget.style.borderColor = '#c5d7ef'; }}
           />
           {search && (
@@ -224,8 +224,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 ['image', t('superPagesEditor.bgImage', { defaultValue: 'Image' })],
               ].map(([key,label]) => (
                 <button key={key} onClick={() => setBgType(key)} style={{
-                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(14,165,233,0.3)':'1px solid #c5d7ef',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
-                  background:bgType===key?'rgba(14,165,233,0.08)':'#ffffff',
+                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(200,16,46,0.3)':'1px solid #c5d7ef',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
+                  background:bgType===key?'rgba(200,16,46,0.08)':'#ffffff',
                   color:bgType===key?'#0284c7':'#475569',
                   transition:'all .15s',
                 }}>{label}</button>
@@ -243,11 +243,11 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <div style={{fontSize:13,fontFamily:'monospace',color:'#475569'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#1e293b','#0ea5e9','#6366f1','#8b5cf6','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
+                  {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#1e293b','#c8102e','#12388f','#12388f','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
                     <div key={c} onClick={() => applyBg(c)} style={{
                       width:22,height:22,borderRadius:5,background:c,cursor:'pointer',
-                      border:canvasBg===c?'2px solid #0ea5e9':'1px solid #c5d7ef',
-                      boxShadow: canvasBg===c ? '0 0 0 2px rgba(14,165,233,0.25)' : 'none',
+                      border:canvasBg===c?'2px solid #c8102e':'1px solid #c5d7ef',
+                      boxShadow: canvasBg===c ? '0 0 0 2px rgba(200,16,46,0.25)' : 'none',
                     }}/>
                   ))}
                 </div>
@@ -258,10 +258,10 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             {bgType === 'gradient' && (
               <div>
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
-                  <input type="color" value={grad1.startsWith('#')?grad1:'#0ea5e9'} onChange={e => { setGrad1(e.target.value); applyGradient(e.target.value, grad2, gradDir); }}
+                  <input type="color" value={grad1.startsWith('#')?grad1:'#c8102e'} onChange={e => { setGrad1(e.target.value); applyGradient(e.target.value, grad2, gradDir); }}
                     style={{width:34,height:30,borderRadius:6,border:'1px solid #c5d7ef',cursor:'pointer',padding:0}}/>
                   <span style={{fontSize:14,color:'#7a8899'}}>→</span>
-                  <input type="color" value={grad2.startsWith('#')?grad2:'#6366f1'} onChange={e => { setGrad2(e.target.value); applyGradient(grad1, e.target.value, gradDir); }}
+                  <input type="color" value={grad2.startsWith('#')?grad2:'#12388f'} onChange={e => { setGrad2(e.target.value); applyGradient(grad1, e.target.value, gradDir); }}
                     style={{width:34,height:30,borderRadius:6,border:'1px solid #c5d7ef',cursor:'pointer',padding:0}}/>
                   <select value={gradDir} onChange={e => { setGradDir(e.target.value); applyGradient(grad1, grad2, e.target.value); }}
                     style={{padding:'5px 8px',borderRadius:6,border:'1px solid #c5d7ef',fontSize:13,background:'#ffffff',color:'#475569',cursor:'pointer'}}>
@@ -371,7 +371,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 No blocks match <strong style={{color:'#0f172a'}}>"{search}"</strong>
                 <div style={{marginTop:8}}>
                   <button onClick={() => setSearch('')}
-                    style={{padding:'5px 12px',borderRadius:6,border:'1px solid rgba(14,165,233,0.3)',background:'rgba(14,165,233,0.08)',color:'#0284c7',cursor:'pointer',fontSize:11,fontWeight:800}}>
+                    style={{padding:'5px 12px',borderRadius:6,border:'1px solid rgba(200,16,46,0.3)',background:'rgba(200,16,46,0.08)',color:'#0284c7',cursor:'pointer',fontSize:11,fontWeight:800}}>
                     Clear search
                   </button>
                 </div>
@@ -522,7 +522,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <div key={i} style={{
                     maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',
                     ...(m.role==='user'
-                      ? {background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(14,165,233,0.25)'}
+                      ? {background:'linear-gradient(135deg,#c8102e,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(200,16,46,0.25)'}
                       : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #c5d7ef',borderBottomLeftRadius:2}),
                   }}>{m.text}</div>
                 ))}
@@ -533,7 +533,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
                   style={{flex:1,padding:'8px 11px',border:'1px solid #c5d7ef',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
                 <button onClick={sendChat} disabled={chatSending}
-                  style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
+                  style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#1e3a8a,#c8102e)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(200,16,46,0.3)'}}>
                   <Send size={14}/>
                 </button>
               </div>

@@ -39,8 +39,8 @@ export const LABS_TOKENS = {
 
   color: {
     pageBase: '#f8fafc',
-    glowCobalt: 'rgba(14,165,233,0.12)',
-    glowViolet: 'rgba(168,85,247,0.10)',
+    glowCobalt: 'rgba(200,16,46,0.12)',
+    glowViolet: 'rgba(18,56,143,0.10)',
 
     glassSurface: 'rgba(255,255,255,0.55)',
     glassSurfaceStrong: 'rgba(255,255,255,0.7)',
@@ -48,13 +48,13 @@ export const LABS_TOKENS = {
 
     tileBase: '#ffffff',
     tileBorder: 'rgba(15,23,42,0.04)',
-    tileBorderHover: 'rgba(168,85,247,0.25)',
+    tileBorderHover: 'rgba(18,56,143,0.25)',
 
-    accentStart: '#0ea5e9',
-    accentEnd:   '#a855f7',
-    accentGradient: 'linear-gradient(135deg, #0ea5e9, #a855f7)',
-    accentGradientSoft: 'linear-gradient(135deg, rgba(14,165,233,0.1), rgba(168,85,247,0.1))',
-    accentShadow: '0 4px 12px rgba(14,165,233,0.3)',
+    accentStart: '#c8102e',
+    accentEnd:   '#12388f',
+    accentGradient: 'linear-gradient(135deg, #c8102e, #12388f)',
+    accentGradientSoft: 'linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1))',
+    accentShadow: '0 4px 12px rgba(200,16,46,0.3)',
 
     textPrimary: '#0f172a',
     textSecondary: '#475569',
@@ -73,8 +73,8 @@ export const LABS_TOKENS = {
   shadow: {
     // Three-layer tile lift stack — see LabsChrome.css for actual cascade
     // Stored here as documentation; the CSS uses literal shadow strings.
-    tileRest: '0 4px 12px rgba(14,165,233,0.10), 0 8px 20px rgba(168,85,247,0.08)',
-    tileHover: '0 8px 20px rgba(14,165,233,0.20), 0 14px 36px rgba(168,85,247,0.20)',
+    tileRest: '0 4px 12px rgba(200,16,46,0.10), 0 8px 20px rgba(18,56,143,0.08)',
+    tileHover: '0 8px 20px rgba(200,16,46,0.20), 0 14px 36px rgba(18,56,143,0.20)',
   },
 
   blur: {
@@ -89,5 +89,5 @@ export const LABS_TOKENS = {
   },
 
   // The atmospheric glow applied to the page wash via the .labs-chrome::before
-  pageGlow: 'radial-gradient(ellipse at 15% 25%, rgba(14,165,233,0.12), transparent 45%), radial-gradient(ellipse at 85% 75%, rgba(168,85,247,0.10), transparent 45%)',
+  pageGlow: 'radial-gradient(ellipse at 15% 25%, rgba(200,16,46,0.12), transparent 45%), radial-gradient(ellipse at 85% 75%, rgba(18,56,143,0.10), transparent 45%)',
 };
