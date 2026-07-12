@@ -194,15 +194,8 @@ export default function NewDashboard() {
         <div className="top">
           <span className="logo">
             <span className="mk"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 5h6v6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-            Advantage&nbsp;<span className="life">Life</span>
+            <span>Advantage<span className="life">Life</span></span>
           </span>
-          <nav className="nav">
-            <a className="on" href="/home-preview">Dashboard</a>
-            <Link to="/ai-tools">AI Tools</Link>
-            <Link to="/video-library">Campaigns</Link>
-            <a href="/my-sales">Earnings</a>
-            <Link to="/bucket-list">Lifestyle</Link>
-          </nav>
           <span className="sp"></span>
           <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
             <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Menu" aria-expanded={menuOpen}>
@@ -211,8 +204,7 @@ export default function NewDashboard() {
             {menuOpen && (
               <div className="menu">
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
-                <Link to="/account">Profile &amp; Settings</Link>
-                <a href="/payout-methods">Payout wallets</a>
+                <Link to="/account">Profile</Link>
                 <Link to="/account?tab=security">Security</Link>
                 {user && user.is_admin && (<><div className="sep"></div><Link to="/admin" style={{ color: '#12388f' }}>Admin</Link></>)}
                 <div className="sep"></div>
@@ -227,10 +219,10 @@ export default function NewDashboard() {
             <a className="on" href="/home-preview">Dashboard</a>
             <Link to="/ai-tools">AI Tools</Link>
             <Link to="/video-library">Campaigns</Link>
-            <a href="/my-sales">Earnings</a>
-            <a href="/packs">Campaign Packs</a>
-            <a href="/payout-methods">Wallet</a>
             <Link to="/watch">Watch-to-Earn</Link>
+            <a href="/packs">Buy Packs</a>
+            <a href="/my-sales">Confirm Sale</a>
+            <a href="/payout-methods">Wallet</a>
           </aside>
 
           <main>
