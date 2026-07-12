@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
@@ -123,6 +123,17 @@ const CSS = `
 .al .lb .live{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#c8102e}
 .al .lb .live i{width:7px;height:7px;border-radius:50%;background:#c8102e;animation:alp 1.6s infinite}
 .al .loading{max-width:1120px;margin:80px auto;text-align:center;color:#5a6584;font-weight:700}
+.saleToast{position:fixed;top:22px;right:22px;z-index:9999;width:370px;max-width:calc(100vw - 44px);background:#fff;border-radius:18px;box-shadow:0 30px 70px -20px rgba(10,31,82,.5);border:2px solid #bfe6cd;display:flex;gap:14px;padding:18px 20px;animation:stPop .45s cubic-bezier(.2,1.2,.3,1)}
+@keyframes stPop{from{transform:translateX(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.saleToast .stIcon{font-size:34px;line-height:1;flex:none;animation:stBounce 1s ease 2}
+@keyframes stBounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}60%{transform:translateY(-2px)}}
+.saleToast .stBody{flex:1;min-width:0}
+.saleToast .stTitle{font-family:'Sora','Inter',sans-serif;font-weight:900;font-size:17px;color:#0b7a3e;margin-bottom:3px}
+.saleToast .stMsg{font-size:13px;font-weight:600;color:#33406b;line-height:1.5}
+.saleToast .stActs{display:flex;gap:9px;margin-top:12px;align-items:center}
+.saleToast .stGo{background:#c8102e;color:#fff;font-weight:900;font-size:12.5px;text-decoration:none;padding:9px 15px;border-radius:9px}
+.saleToast .stDismiss{background:none;border:none;color:#5a6584;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Inter'}
+.saleToast .stX{position:absolute;top:10px;right:12px;background:none;border:none;font-size:20px;color:#94a0c2;cursor:pointer;line-height:1}
 `;
 
 function ytThumb(embedUrl) {
@@ -141,6 +152,56 @@ export default function NewDashboard() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
+  const seenSalesRef = useRef(null);            // ids we've already alerted on
+
+  // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
+  function playPaymentChime() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      var ctx = new AC();
+      var now = ctx.currentTime;
+      // two-note rising ding (C6 -> E6) like a till
+      [[1046.5, 0], [1318.5, 0.12]].forEach(function (pair) {
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = pair[0];
+        o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, now + pair[1]);
+        g.gain.exponentialRampToValueAtTime(0.3, now + pair[1] + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + pair[1] + 0.5);
+        o.start(now + pair[1]); o.stop(now + pair[1] + 0.55);
+      });
+    } catch (e) { /* audio blocked — pop-up still shows */ }
+  }
+
+  // Poll my-sales for NEW sales awaiting confirmation -> chime + pop-up
+  useEffect(function () {
+    let alive = true;
+    function checkSales() {
+      apiGet('/api/al/my-sales').then(function (j) {
+        if (!alive) return;
+        var awaiting = ((j || {}).sales || []).filter(function (x) { return x.action_needed || x.status === 'proof_submitted'; });
+        var ids = awaiting.map(function (x) { return x.id; });
+        if (seenSalesRef.current === null) {
+          // first load — remember what's already there, don't alert on backlog
+          seenSalesRef.current = {}; ids.forEach(function (id) { seenSalesRef.current[id] = true; });
+          return;
+        }
+        var fresh = awaiting.filter(function (x) { return !seenSalesRef.current[x.id]; });
+        ids.forEach(function (id) { seenSalesRef.current[id] = true; });
+        if (fresh.length) {
+          var f = fresh[0];
+          setAlSales(j);
+          playPaymentChime();
+          setSaleAlert({ buyer: (f.buyer && f.buyer.username) || 'A member', amount: Number(f.amount || 0), level: f.pack_level });
+        }
+      }).catch(function () {});
+    }
+    checkSales();
+    var t = setInterval(checkSales, 20000);
+    return function () { alive = false; clearInterval(t); };
+  }, []);
 
   useEffect(function () {
     Promise.allSettled([
@@ -189,6 +250,20 @@ export default function NewDashboard() {
   return (
     <div className="al" onClick={function () { if (menuOpen) setMenuOpen(false); }}>
       <style>{CSS}</style>
+      {saleAlert && (
+        <div className="saleToast" onClick={function (e) { e.stopPropagation(); }}>
+          <div className="stIcon">💰</div>
+          <div className="stBody">
+            <div className="stTitle">Payment received!</div>
+            <div className="stMsg"><b>{saleAlert.buyer}</b> reports paying you <b>${saleAlert.amount.toFixed(2)}</b> for a Level {saleAlert.level} pack.</div>
+            <div className="stActs">
+              <a className="stGo" href="/my-sales">Confirm sale →</a>
+              <button className="stDismiss" onClick={function () { setSaleAlert(null); }}>Dismiss</button>
+            </div>
+          </div>
+          <button className="stX" onClick={function () { setSaleAlert(null); }}>×</button>
+        </div>
+      )}
       <div className="shell">
 
         <div className="top">
