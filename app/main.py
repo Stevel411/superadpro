@@ -67361,8 +67361,8 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
-body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
-.wrap{max-width:720px;margin:0 auto;padding:34px 22px}
+body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:120px}
+.wrap{max-width:720px;margin:0 auto;padding:34px 22px 80px}
 .mk{text-align:center;font-weight:900;font-size:21px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
 .tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:26px}
 .card{background:#fff;color:var(--ink);border-radius:24px;padding:38px 36px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
@@ -67461,7 +67461,8 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
   function shortLabel(l){return l.replace(' \u00b7 ',' \u00b7 ')}
   function buildMenu(){
     var menu=document.getElementById('ddMenu');menu.innerHTML='';
-    var crypto=REG.filter(function(r){return r.family==='evm'||r.family==='tron'});
+    var usdt=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdt')===0});
+    var usdc=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdc')===0});
     var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email'});
     function grp(title){var g=document.createElement('div');g.className='dd-group';g.textContent=title;menu.appendChild(g)}
     function opt(r){
@@ -67472,8 +67473,9 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       o.onclick=function(){choose(r.key)};
       menu.appendChild(o);
     }
-    if(crypto.length){grp('Crypto \u2014 instant & irreversible');crypto.forEach(opt)}
+    if(usdt.length){grp('USDT \u2014 instant & irreversible');usdt.forEach(opt)}
     if(cash.length){grp('Cash apps \u2014 confirmed by the seller');cash.forEach(opt)}
+    if(usdc.length){grp('USDC \u2014 instant & irreversible');usdc.forEach(opt)}
   }
   function choose(k){
     CUR=REG.find(function(x){return x.key===k});if(!CUR)return;
