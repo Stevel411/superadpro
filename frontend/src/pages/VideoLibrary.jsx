@@ -62,20 +62,21 @@ export default function VideoLibrary() {
 
   return (
     <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("videos.title")} subtitle={t("videos.subtitle")}>
+      <div style={{maxWidth:960,margin:'0 auto'}}>
       {/* Stats */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginBottom:22}}>
         {[
-          {value:d.total_campaigns||0,label:t('videos.totalCampaigns'),color:'var(--sap-accent)',bg:'#f0f9ff',border:'#bae6fd',icon:Film},
-          {value:d.active_campaigns||0,label:t('videos.activeCampaigns'),color:'var(--sap-green)',bg:'var(--sap-green-bg)',border:'var(--sap-green-bg-mid)',icon:Play},
-          {value:(d.total_views||0).toLocaleString(),label:t('videos.totalViewsDelivered'),color:'var(--sap-indigo)',bg:'#f5f3ff',border:'#e9d5ff',icon:Eye},
+          {value:d.total_campaigns||0,label:t('videos.totalCampaigns'),color:'#c8102e',bg:'#fff',border:'#e3e8f4',top:'#c8102e',iconbg:'#fde8ec',icon:Film},
+          {value:d.active_campaigns||0,label:t('videos.activeCampaigns'),color:'#0b7a3e',bg:'#fff',border:'#e3e8f4',top:'#0b7a3e',iconbg:'#e4f7ee',icon:Play},
+          {value:(d.total_views||0).toLocaleString(),label:t('videos.totalViewsDelivered'),color:'#12388f',bg:'#fff',border:'#e3e8f4',top:'#12388f',iconbg:'#e8eeff',icon:Eye},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (
-            <div key={i} style={{background:s.bg,border:'1px solid '+s.border,borderRadius:14,padding:20,position:'relative'}}>
-              <div style={{position:'absolute',top:12,right:12,width:32,height:32,borderRadius:8,background:s.color+'12',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <div key={i} style={{background:s.bg,border:'2px solid '+s.border,borderTop:'3px solid '+s.top,borderRadius:16,padding:'20px 22px',position:'relative'}}>
+              <div style={{position:'absolute',top:16,right:16,width:38,height:38,borderRadius:11,background:s.iconbg,display:'flex',alignItems:'center',justifyContent:'center'}}>
                 <Icon size={16} color={s.color}/>
               </div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color}}>{s.value}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,letterSpacing:'-1px',color:s.color}}>{s.value}</div>
               <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)',marginTop:4}}>{s.label}</div>
             </div>
           );
@@ -83,15 +84,15 @@ export default function VideoLibrary() {
       </div>
 
       {/* Campaign list */}
-      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-        <div style={{background:'var(--sap-cobalt-deep)',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <div style={{background:'#fff',border:'2px solid #e3e8f4',borderRadius:18,overflow:'hidden',boxShadow:'0 20px 50px -30px rgba(10,31,82,.35)'}}>
+        <div style={{background:'linear-gradient(120deg,#12388f,#0a1f52)',padding:'17px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <Film size={16} color="var(--sap-accent-light)"/>
+            <Film size={17} color="#ff5a70"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('videos.yourCampaigns')}</div>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <span style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'#fff',background:'var(--sap-accent)',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:900,color:'#fff',background:'#c8102e',padding:'9px 16px',borderRadius:10,textDecoration:'none',boxShadow:'0 8px 18px -8px rgba(200,16,46,.7)'}}>
               <Plus size={12}/> {t('videos.newCampaign')}
             </Link>
           </div>
@@ -147,9 +148,9 @@ export default function VideoLibrary() {
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:10}}>
                       <div style={{flex:1,height:6,background:'var(--sap-border)',borderRadius:3,overflow:'hidden',maxWidth:200}}>
-                        <div style={{height:'100%',borderRadius:3,background:pct>=100?'var(--sap-green)':'var(--sap-accent)',width:pct+'%',transition:'width .3s'}}/>
+                        <div style={{height:'100%',borderRadius:4,background:pct>=100?'#0b7a3e':'#c8102e',width:pct+'%',transition:'width .3s'}}/>
                       </div>
-                      <span style={{fontSize:12,fontWeight:700,color:'var(--sap-accent)'}}>{(c.views_delivered||0).toLocaleString()}</span>
+                      <span style={{fontSize:12.5,fontWeight:800,color:'#c8102e'}}>{(c.views_delivered||0).toLocaleString()}</span>
                       <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
                       <span style={{fontSize:13,fontWeight:700,color:pct>=100?'var(--sap-green)':'var(--sap-text-muted)'}}>{pct}%</span>
                     </div>
@@ -167,7 +168,7 @@ export default function VideoLibrary() {
                     )}
                     {c.video_url && (
                       <Link to={'/watch?preview=' + c.id}
-                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'var(--sap-accent)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
+                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:800,color:'#c8102e',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(200,16,46,.2)',background:'rgba(200,16,46,.04)',textDecoration:'none',cursor:'pointer'}}>
                         <Eye size={12}/> {t('videos.view')}
                       </Link>
                     )}
@@ -185,14 +186,15 @@ export default function VideoLibrary() {
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
             <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
             <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t('videos.activateATier')}</div>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:900,color:'#fff',background:'#c8102e',borderRadius:13,padding:'15px 28px',textDecoration:'none',boxShadow:'0 14px 30px -12px rgba(200,16,46,.6)'}}>
               <Plus size={16}/> {t('videos.createFirst')}
             </Link>
           </div>
         )}
       </div>
+      </div>
     </AppLayout>
   );
 }
 
-function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }
