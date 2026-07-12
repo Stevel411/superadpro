@@ -837,6 +837,7 @@ class P2PIntent(Base):
     proof_url       = Column(String, nullable=True)             # uploaded proof (R2/S3)
     notes           = Column(Text, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
+    chosen_method   = Column(String, nullable=True)             # which of the seller's methods the buyer picked (Option A multi-gateway)
     submitted_at    = Column(DateTime, nullable=True)           # when the buyer submitted proof
     confirmed_at    = Column(DateTime, nullable=True)
     confirmed_by    = Column(Integer, ForeignKey("users.id"), nullable=True)  # earner or admin who activated
@@ -3959,6 +3960,15 @@ try:
         print("✅ stuck_lapsed_alerted_at column added/verified on users table")
 except Exception as e:
     print(f"⚠️ stuck_lapsed_alerted_at migration failed: {e}")
+
+# ── AdvantageLife: buyer's chosen payment method (Option A multi-gateway, 12 Jul 2026) ──
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE p2p_intents ADD COLUMN IF NOT EXISTS chosen_method VARCHAR"))
+        conn.commit()
+except Exception as _e:
+    print(f"chosen_method migration skipped: {_e}")
 
 # ── AdvantageLife: username audit table + boot heartbeat (11 Jul 2026) ──
 try:

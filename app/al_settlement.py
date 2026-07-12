@@ -39,7 +39,8 @@ from .database import (User, CampaignPack, PackPurchase, PackCommission,
 
 
 def _default_payout(db: Session, user_id):
-    """The earner's default payout method (how the buyer pays them), as a dict."""
+    """The earner's default payout method (how the buyer pays them), as a dict.
+    Kept for callers that only need the single default."""
     if user_id is None:
         return None
     pm = (db.query(PayoutMethod)
@@ -48,6 +49,18 @@ def _default_payout(db: Session, user_id):
     if pm is None:
         return None
     return {"method_type": pm.method_type, "details": pm.details}
+
+
+def _all_payouts(db: Session, user_id):
+    """ALL of the earner's payout methods (Option A: the buyer picks which one
+    to pay). Default first. Returns a list of dicts; empty if none on file."""
+    if user_id is None:
+        return []
+    rows = (db.query(PayoutMethod)
+              .filter(PayoutMethod.user_id == user_id)
+              .order_by(PayoutMethod.is_default.desc(), PayoutMethod.id.asc()).all())
+    return [{"method_type": r.method_type, "details": r.details,
+             "is_default": bool(r.is_default)} for r in rows]
 
 
 def create_intent(db: Session, buyer_user_id: int, pack_level: int, do_commit: bool = True):
@@ -69,7 +82,7 @@ def create_intent(db: Session, buyer_user_id: int, pack_level: int, do_commit: b
         res = al_engine.resolve_payee(db, seller.id, pack_level)
 
     earner_id = AL_HOUSE_USER_ID if res["earner_id"] == pe.COMPANY else res["earner_id"]
-    payee_snapshot = _default_payout(db, earner_id)
+    payee_snapshot = _all_payouts(db, earner_id)   # Option A: lock ALL the seller's methods; buyer picks one
 
     intent = P2PIntent(
         buyer_id=buyer_user_id, earner_id=earner_id,

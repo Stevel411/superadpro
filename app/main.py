@@ -66982,14 +66982,35 @@ def _al_payee_display(db, intent):
             "is_company": False}
 
 
-def _al_payout_for(intent):
+def _al_payout_options(intent):
+    """The list of methods the buyer may pay (Option A). Handles both the new
+    list snapshot and legacy single-dict snapshots; company sales offer the
+    company payout."""
     import json as _j
     if intent.earner_id is None:
-        return AL_COMPANY_PAYOUT
+        return [AL_COMPANY_PAYOUT]
     try:
-        return _j.loads(intent.payee_snapshot) if intent.payee_snapshot else None
+        snap = _j.loads(intent.payee_snapshot) if intent.payee_snapshot else None
     except Exception:
+        snap = None
+    if snap is None:
+        return []
+    if isinstance(snap, dict):        # legacy single-method intent
+        return [snap]
+    return snap                        # new: list of methods
+
+
+def _al_payout_for(intent):
+    """Back-comat single-method accessor: the buyer's chosen method if set,
+    else the default (first) option."""
+    opts = _al_payout_options(intent)
+    if not opts:
         return None
+    if intent.chosen_method:
+        for o in opts:
+            if o.get("method_type") == intent.chosen_method:
+                return o
+    return opts[0]
 
 
 def _al_intent_json(db, intent, viewer_id=None):
@@ -67002,6 +67023,8 @@ def _al_intent_json(db, intent, viewer_id=None):
         "amount": float(intent.amount or 0),
         "payee": _al_payee_display(db, intent),
         "payout": _al_payout_for(intent) if viewer_id == intent.buyer_id else None,
+        "payout_options": _al_payout_options(intent) if viewer_id == intent.buyer_id else None,
+        "chosen_method": intent.chosen_method,
         "buyer_id": intent.buyer_id,
         "tx_ref": intent.tx_ref,
         "created_at": intent.created_at.isoformat() if intent.created_at else None,
@@ -67066,6 +67089,27 @@ async def al_create_intent(pack_level: int,
     out["message"] = (f"Your payment goes directly to {out['payee']['display']} — "
                       "AdvantageLife never holds it. Pay the exact amount, then submit proof below.")
     return out
+
+
+@app.post("/api/al/intents/{intent_id}/choose")
+async def al_choose_method(intent_id: int, request: Request,
+                           user: User = Depends(_al_user),
+                           db: Session = Depends(get_db)):
+    """Buyer records which of the seller's accepted methods they'll pay with
+    (Option A multi-gateway). Must be one of the locked snapshot options."""
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent or intent.buyer_id != user.id:
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    if intent.status not in ("pending", "proof_submitted"):
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    body = await request.json()
+    chosen = (body.get("method_type") or "").strip()
+    valid = {o.get("method_type") for o in _al_payout_options(intent)}
+    if chosen not in valid:
+        return JSONResponse({"error": "That method isn't offered by this seller"}, status_code=400)
+    intent.chosen_method = chosen
+    db.commit()
+    return {"ok": True, "chosen_method": chosen, "payout": _al_payout_for(intent)}
 
 
 @app.post("/api/al/intents/{intent_id}/proof")
@@ -67379,7 +67423,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
     <h1>How you get <span class="r">paid</span></h1>
-    <div class="sub">Buyers pay your <b>default</b> method directly, member to member. Keep it current.</div>
+    <div class="sub">Add every way you're happy to be paid &mdash; buyers choose one of <b>your</b> methods at checkout and pay you directly, member to member. More options, more sales.</div>
     <div class="warn" id="warn">&#9888; No payout method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
     <div class="seclabel">Your payout methods</div>
     <div id="list"></div>
