@@ -222,7 +222,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       // vertical room without sacrificing comfort.
       height: 64,
       background: '#ffffff',
-      borderBottom: '1px solid #e6ecf5',
+      borderBottom: '2px solid #0a1f52',
       boxShadow: '0 2px 10px -6px rgba(10,20,56,0.18)',
       display: 'flex', alignItems: 'center', padding: '0 18px', gap: 10,
       flexShrink: 0,
@@ -258,7 +258,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         .sp-brand-wm {
           font-family: Sora, system-ui, sans-serif;
           font-weight: 800; font-size: 15px;
-          color: #0a1438;
+          color: #0a1f52;
           letter-spacing: -0.3px;
           line-height: 1;
         }
@@ -280,12 +280,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         onClick={e => { e.preventDefault(); onBack && onBack(); }}
         title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
         <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true" style={{flexShrink:0}}>
-          <rect x="6" y="6" width="16" height="16" rx="4" fill="#c8102e" opacity="0.95"/>
-          <rect x="26" y="6" width="16" height="16" rx="4" fill="#c8102e" opacity="0.85"/>
+          <rect x="6" y="6" width="16" height="16" rx="4" fill="#0a1f52" opacity="0.95"/>
+          <rect x="26" y="6" width="16" height="16" rx="4" fill="#c8102e" opacity="0.95"/>
           <rect x="6" y="26" width="16" height="16" rx="4" fill="#c8102e" opacity="0.6"/>
-          <rect x="26" y="26" width="16" height="16" rx="4" fill="#c8102e" opacity="0.4"/>
+          <rect x="26" y="26" width="16" height="16" rx="4" fill="#12388f" opacity="0.85"/>
         </svg>
-        <span className="sp-brand-wm">Super<span>Pages</span></span>
+        <span className="sp-brand-wm">Advantage<span>Life</span></span>
       </a>
 
       <div className="sp-cluster-divider"/>
