@@ -67417,8 +67417,11 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:11px;padding:11px 14px;font-size:13px;font-weight:700;margin-top:12px}
 .note{font-size:12px;color:#94a0c2;font-weight:600;text-align:center;margin-top:18px;line-height:1.6}
 .empty{text-align:center;padding:18px 0;color:var(--dim);font-weight:700;font-size:14px;display:none}
+.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
+.backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
+  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
@@ -67618,8 +67621,11 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
 .note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
 .gatewarn{background:#fdf2f4;border:1.5px solid #f3c2cc;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#8f1830;line-height:1.5;margin-bottom:14px}
 .gatewarn a{color:#8f1830}
+.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
+.backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
+  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
@@ -67989,8 +67995,11 @@ h1 .r{color:var(--red)}
 .ctr{text-align:center}
 .spin{width:34px;height:34px;border:4px solid #e3e8f4;border-top-color:var(--red);border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
+.backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
+  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
