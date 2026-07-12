@@ -3,7 +3,7 @@
  * ═════════════════════════════════════════════════════════════════════
  * Lives at /sending-domains. Members verify their OWN domain inside our
  * SES account so their autoresponder emails send from their own brand —
- * subscribers see them, never SuperAdPro, and each domain carries its own
+ * subscribers see them, never AdvantageLife, and each domain carries its own
  * reputation (full per-member isolation).
  *
  * Design: layered. Simple by default (an 11-year-old can follow "copy,
@@ -19,7 +19,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
 import {
   Mail, CheckCircle2, AlertTriangle, Clock, Loader2, Trash2,
@@ -42,7 +42,7 @@ const WHAT_IS = {
   },
   SPF: {
     title: 'SPF (TXT record)',
-    body: 'This tells the inbox providers that SuperAdPro is allowed to send email on behalf of your domain. Without it, your messages can be blocked or marked as spam.',
+    body: 'This tells the inbox providers that AdvantageLife is allowed to send email on behalf of your domain. Without it, your messages can be blocked or marked as spam.',
   },
   DMARC: {
     title: 'DMARC (TXT record)',
@@ -142,7 +142,16 @@ export default function SendingDomains() {
   const toggleWhat = (key) => setExpanded((p) => ({ ...p, [key]: !p[key] }));
 
   return (
-    <AppLayout title="Sending Domain" subtitle="Send emails from your own brand">
+    <AlShell active="ai-tools" back={{ to: '/pro/leads', label: 'Email Marketing' }}>
+      <div style={{background:'#0a1f52',borderRadius:22,color:'#fff',padding:'24px 28px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:16,display:'flex',alignItems:'center',gap:16}}>
+        <div style={{width:54,height:54,borderRadius:15,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:24,letterSpacing:-.7}}>Sending Domain</div>
+          <div style={{fontSize:14,color:'#c9d6f7',fontWeight:600,marginTop:3}}>Send emails from your own brand.</div>
+        </div>
+      </div>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px' }}>
 
         <Link to="/funnels" style={backLinkStyle}>
@@ -153,7 +162,7 @@ export default function SendingDomains() {
         <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
           <div style={{
             width: 48, height: 48, borderRadius: 12,
-            background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)',
+            background: 'linear-gradient(135deg,#c8102e,#e8203f)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
             <Mail size={24} color="#fff" strokeWidth={2} />
@@ -164,7 +173,7 @@ export default function SendingDomains() {
             </h1>
             <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', lineHeight: 1.55 }}>
               Connect a domain you own so every email comes from <strong>you</strong> &mdash; your
-              subscribers see your name, never SuperAdPro. Takes about 5 minutes, and we guide every step.
+              subscribers see your name, never AdvantageLife. Takes about 5 minutes, and we guide every step.
             </p>
           </div>
         </div>
@@ -435,16 +444,16 @@ export default function SendingDomains() {
         })}
 
         {/* Why-your-own-domain panel */}
-        <div style={{ ...cardStyle, marginTop: 4, marginBottom: 24, background: 'linear-gradient(135deg,#0a1438,#1e3a8a)', border: 'none' }}>
+        <div style={{ ...cardStyle, marginTop: 4, marginBottom: 24, background: 'linear-gradient(135deg,#0a1438,#12388f)', border: 'none' }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <ShieldCheck size={22} color="#67e8f9" style={{ flexShrink: 0, marginTop: 2 }} />
+            <ShieldCheck size={22} color="#f5b8c2" style={{ flexShrink: 0, marginTop: 2 }} />
             <div>
               <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 15, color: '#fff', marginBottom: 5 }}>
                 Why your own domain?
               </div>
               <div style={{ fontSize: 13, color: '#bcd0f0', lineHeight: 1.6 }}>
-                Every email you send shows <strong style={{ color: '#67e8f9' }}>your</strong> name and domain &mdash;
-                your subscribers see you, never SuperAdPro. Your domain builds its own reputation, so the more you
+                Every email you send shows <strong style={{ color: '#f5b8c2' }}>your</strong> name and domain &mdash;
+                your subscribers see you, never AdvantageLife. Your domain builds its own reputation, so the more you
                 send well, the better your inbox placement gets. It&rsquo;s your list, your brand, your reputation
                 &mdash; we&rsquo;re just the engine behind it.
               </div>
@@ -458,7 +467,7 @@ export default function SendingDomains() {
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
-    </AppLayout>
+    </AlShell>
   );
 }
 
@@ -471,11 +480,11 @@ const tipBox = { display: 'flex', gap: 9, alignItems: 'flex-start', background: 
 const fieldLabel = { display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 };
 const inputFull = { width: '100%', padding: '11px 13px', border: '1px solid #cbd5e1', borderRadius: 9, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
 const atSuffix = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, color: '#64748b', background: '#f1f5f9', border: '1px solid #cbd5e1', borderLeft: 'none', borderTopRightRadius: 9, borderBottomRightRadius: 9, padding: '11px 10px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '55%' };
-const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
+const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#c8102e,#e8203f)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const dangerBtnStyle = { padding: '10px 12px', border: '1px solid #fecaca', borderRadius: 9, background: '#fff', color: '#b91c1c', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', flexShrink: 0 };
 const errorBoxStyle = { marginTop: 12, padding: '8px 12px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 };
 const recCardStyle = { border: '1px solid #e6ebf3', borderRadius: 12, padding: '13px 14px', marginBottom: 10, background: '#fbfdff' };
-const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#0ea5e9', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#c8102e', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
 const recTag = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 10, fontWeight: 600, color: '#475569', background: '#eef2f8', border: '1px solid #e2e8f0', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
 const recTagOk = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10.5, fontWeight: 700, color: '#15803d', background: '#dcfce7', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
 const pasteHint = { fontSize: 12, color: '#0c4a6e', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '7px 10px', margin: '0 0 10px', lineHeight: 1.5 };
@@ -483,10 +492,10 @@ const recRow = { display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 
 const recKey = { fontSize: 10.5, fontWeight: 700, color: '#475569', width: 96, flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.03em' };
 const recVal = { flex: 1, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 11.5, color: '#0f172a', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 7, padding: '7px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 const copyBtn = { flexShrink: 0, background: '#0a1438', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 11px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 };
-const whatLink = { background: 'none', border: 'none', color: '#0ea5e9', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 0 0', marginTop: 3 };
-const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #6366f1', borderRadius: 8, padding: '11px 13px' };
-const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#6366f1', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
+const whatLink = { background: 'none', border: 'none', color: '#c8102e', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 0 0', marginTop: 3 };
+const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #12388f', borderRadius: 8, padding: '11px 13px' };
+const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#12388f', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
 const whatBoxBody = { fontSize: 12, color: '#475569', lineHeight: 1.6 };
 const helpStrip = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', marginTop: 13, fontSize: 12.5, color: '#92400e', lineHeight: 1.5 };
-const providerChip = { fontSize: 11, color: '#0ea5e9', border: '1px solid #cfe8f7', background: '#f0f9ff', borderRadius: 6, padding: '4px 9px', fontWeight: 600, textDecoration: 'none' };
+const providerChip = { fontSize: 11, color: '#c8102e', border: '1px solid #cfe8f7', background: '#f0f9ff', borderRadius: 6, padding: '4px 9px', fontWeight: 600, textDecoration: 'none' };
 const fromLineStyle = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12.5, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 12px', margin: '6px 0 12px', color: '#0f172a' };

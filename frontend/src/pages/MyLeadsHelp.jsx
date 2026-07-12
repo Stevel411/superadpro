@@ -59,7 +59,7 @@ export default function MyLeadsHelp({ visible, onClose }) {
         animation: 'mlHelpSlide 0.25s ease-out',
       }}>
         {/* Header — cobalt gradient, larger title + subtitle */}
-        <div style={{ padding: '22px 24px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'linear-gradient(135deg,#0b1e4c,#1e3a8a 70%,#3730a3)' }}>
+        <div style={{ padding: '22px 24px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'linear-gradient(135deg,#0a1f52,#12388f 70%,#0e2a6e)' }}>
           <div>
             <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.3 }}>
               {t('myLeads.help.title')}
