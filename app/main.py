@@ -67208,12 +67208,17 @@ AL_PAYOUT_METHODS = {
                      "hint": 'Your $Cashtag — starts with "$"', "auto_verify": False,
                      "reversible": True,
                      "seller_note": "Cash App payments can be reversed. Confirm only once the money shows as settled in your balance — not just received."},
+    "paypal":       {"label": "PayPal", "family": "email",
+                     "hint": "Your PayPal email address", "auto_verify": False,
+                     "reversible": True,
+                     "seller_note": "PayPal payments can be disputed for up to 180 days. Confirm only once the money is in your PayPal balance, and keep proof of the sale."},
 }
 
 _AL_ADDR_RE = {
     "evm":     re.compile(r"^0x[a-fA-F0-9]{40}$"),
     "tron":    re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
     "cashtag": re.compile(r"^\$[a-zA-Z][a-zA-Z0-9_]{1,19}$"),
+    "email":   re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$"),
 }
 
 
@@ -67244,8 +67249,7 @@ def al_list_payout_methods(user: User = Depends(_al_user), db: Session = Depends
                     "auto_verify": reg.get("auto_verify", False),
                     "is_default": bool(r.is_default)})
     return {"methods": out,
-            "registry": [{"key": k, **{kk: vv for kk, vv in v.items() if kk != "family"}}
-                          for k, v in AL_PAYOUT_METHODS.items()]}
+            "registry": [{"key": k, **v} for k, v in AL_PAYOUT_METHODS.items()]}
 
 
 @app.post("/api/al/payout-methods")
@@ -67314,70 +67318,148 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
 body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
-.wrap{max-width:560px;margin:0 auto;padding:30px 20px}
-.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
-.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
-.card{background:#fff;color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
-h1{font-weight:900;font-size:24px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{color:var(--red)}
-.sub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
-.m{border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
-.m.def{border-color:#bfe6cd;background:#f6fdf8}
-.m .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
-.m .who{font-weight:900;font-size:13.5px}
-.badge{background:var(--grn);color:#fff;font-weight:900;font-size:10px;border-radius:8px;padding:4px 9px;flex-shrink:0}
-.m .tx{font-family:'JetBrains Mono';font-size:10px;background:#f6f8fd;border-radius:7px;padding:7px 9px;word-break:break-all;color:#33406b}
-.m .ver{font-size:10.5px;font-weight:800;color:var(--grn);margin-top:7px}
-.m .acts{display:flex;gap:8px;margin-top:9px}
-.sm{border:none;border-radius:8px;padding:7px 12px;font-family:'Inter';font-weight:800;font-size:11px;cursor:pointer;background:#f6f8fd;color:#33406b}
+.wrap{max-width:720px;margin:0 auto;padding:34px 22px}
+.mk{text-align:center;font-weight:900;font-size:21px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
+.tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:26px}
+.card{background:#fff;color:var(--ink);border-radius:24px;padding:38px 36px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{color:var(--red)}
+.sub{font-size:15px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:24px}
+.seclabel{font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 14px}
+.warn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:12px 15px;font-size:12.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:16px;display:none}
+.m{border:2px solid var(--line);border-radius:17px;padding:18px 20px;margin-bottom:13px;display:flex;align-items:center;gap:15px}
+.m.def{border-color:#bfe6cd;background:#f5fdf8}
+.m .mi{width:48px;height:48px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff}
+.m .minfo{flex:1;min-width:0}
+.m .who{font-weight:900;font-size:16px}
+.m .tx{font-family:'JetBrains Mono';font-size:12px;background:#f6f8fd;border-radius:8px;padding:6px 10px;margin-top:6px;word-break:break-all;color:#33406b;display:inline-block}
+.m .ver{font-size:11px;font-weight:800;color:var(--grn);margin-top:6px}
+.badge{background:var(--grn);color:#fff;font-weight:900;font-size:11px;border-radius:9px;padding:5px 11px;flex:none}
+.macts{display:flex;gap:8px;flex:none}
+.sm{border:none;border-radius:9px;padding:9px 14px;font-family:'Inter';font-weight:800;font-size:12.5px;cursor:pointer;background:#f6f8fd;color:#33406b}
 .sm.danger{color:var(--red)}
-.add{border:2px dashed var(--line);border-radius:14px;padding:16px;margin-top:14px}
-.add b{font-weight:900;font-size:13px;display:block;margin-bottom:10px}
-.inp,select.inp{width:100%;border:2px solid var(--line);border-radius:11px;padding:12px;font-family:'JetBrains Mono';font-size:12px;margin-bottom:9px}
-select.inp{font-family:'Inter';font-weight:700;font-size:13px}
-.hint{font-size:10.5px;font-weight:700;color:var(--dim);margin:-4px 0 9px}
-.btn{display:block;width:100%;border:none;border-radius:12px;padding:13px;font-family:'Inter';font-weight:900;font-size:13.5px;cursor:pointer;background:var(--red);color:#fff}
-.warn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:14px;display:none}
-.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700;margin-bottom:10px}
-.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:16px;line-height:1.6}
-.empty{text-align:center;padding:18px 0;color:var(--dim);font-weight:700;font-size:13px;display:none}
+.add{border:2px dashed #cdd6ea;border-radius:19px;padding:26px;margin-top:20px;background:#fafbfe}
+.add .addh{font-weight:900;font-size:16.5px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.add .addh i{font-style:normal;color:var(--red)}
+.fl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#33406b;margin-bottom:9px;display:block}
+.dd{position:relative;margin-bottom:19px}
+.dd-btn{width:100%;border:2px solid var(--line);border-radius:15px;padding:16px 18px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:15px;font-family:'Inter';transition:border .15s,box-shadow .15s}
+.dd-btn:hover{border-color:var(--red)}
+.dd-btn.open{border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
+.dd-selicon{width:42px;height:42px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;background:#0a7d5a}
+.dd-seltext{flex:1;text-align:left}
+.dd-seltext b{display:block;font-size:16px;font-weight:900;color:var(--navy)}
+.dd-seltext span{font-size:12.5px;font-weight:600;color:var(--dim)}
+.dd-chev{color:var(--dim);transition:transform .2s}
+.dd-btn.open .dd-chev{transform:rotate(180deg)}
+.dd-menu{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:2px solid var(--line);border-radius:16px;box-shadow:0 28px 56px -18px rgba(10,31,82,.42);overflow:hidden;z-index:20;max-height:0;opacity:0;pointer-events:none;transition:max-height .22s,opacity .18s}
+.dd-menu.open{max-height:460px;opacity:1;pointer-events:auto;overflow-y:auto}
+.dd-group{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#94a0c2;padding:13px 18px 7px;background:#fafbfe}
+.dd-opt{display:flex;align-items:center;gap:15px;padding:14px 18px;cursor:pointer;transition:background .12s;border-top:1px solid #f0f3fa}
+.dd-opt:hover{background:#f6f8fd}
+.dd-opt.sel{background:#fdf2f4}
+.dd-oi{width:40px;height:40px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff}
+.dd-ot{flex:1}
+.dd-ot b{display:block;font-size:15px;font-weight:900;color:var(--navy)}
+.dd-ot span{font-size:12px;font-weight:600;color:var(--dim)}
+.dd-tag{font-size:9.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:7px;flex:none}
+.dd-tag.auto{background:#e4f7ee;color:#0a7d5a}
+.dd-tag.man{background:#fff1d6;color:#9a6a08}
+.dd-check{color:var(--red);font-weight:900;font-size:18px;flex:none}
+.inp{width:100%;border:2px solid var(--line);border-radius:14px;padding:16px 18px;font-family:'JetBrains Mono';font-size:15px;background:#fff;box-sizing:border-box}
+.inp:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
+.hint{font-size:13px;font-weight:600;color:var(--dim);margin:9px 2px 0}
+.sellwarn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:12px 15px;font-size:12.5px;font-weight:700;color:#7a5a10;line-height:1.55;margin-top:14px;display:none}
+.btn{display:block;width:100%;border:none;border-radius:15px;padding:18px;font-family:'Inter';font-weight:900;font-size:16.5px;cursor:pointer;background:var(--red);color:#fff;margin-top:18px;box-shadow:0 14px 30px -12px rgba(200,16,46,.6)}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:11px;padding:11px 14px;font-size:13px;font-weight:700;margin-top:12px}
+.note{font-size:12px;color:#94a0c2;font-weight:600;text-align:center;margin-top:18px;line-height:1.6}
+.empty{text-align:center;padding:18px 0;color:var(--dim);font-weight:700;font-size:14px;display:none}
 </style></head><body>
 <div class="wrap">
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
     <h1>How you get <span class="r">paid</span></h1>
-    <div class="sub">Buyers pay your <b>default</b> wallet directly, member to member. Keep it current.</div>
-    <div class="warn" id="warn">⚠ No payout method on file — sales <b>pass over you</b> to the next qualified member until you add one.</div>
+    <div class="sub">Buyers pay your <b>default</b> method directly, member to member. Keep it current.</div>
+    <div class="warn" id="warn">&#9888; No payout method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
+    <div class="seclabel">Your payout methods</div>
     <div id="list"></div>
-    <div class="empty" id="empty">No wallets yet — add your first below.</div>
+    <div class="empty" id="empty">No methods yet &mdash; add your first below.</div>
     <div class="add">
-      <b>+ Add a payout method</b>
-      <select class="inp" id="mtype"></select>
-      <input class="inp" id="addr" placeholder="Wallet address">
+      <div class="addh"><i>+</i> Add a payout method</div>
+      <span class="fl">Payment type</span>
+      <div class="dd" id="dd">
+        <button class="dd-btn" id="ddBtn" type="button">
+          <span class="dd-selicon" id="ddSelIcon">&#8366;</span>
+          <span class="dd-seltext" id="ddSelText"><b>Select a method</b><span>Choose how buyers pay you</span></span>
+          <span class="dd-chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="dd-menu" id="ddMenu"></div>
+      </div>
+      <span class="fl" id="addrLabel">Address</span>
+      <input class="inp" id="addr" placeholder="Select a payment type first">
       <div class="hint" id="hint"></div>
+      <div class="sellwarn" id="sellwarn"></div>
       <div class="err" id="err"></div>
-      <button class="btn" id="save">Save wallet</button>
+      <button class="btn" id="save">Save payout method</button>
     </div>
-    <div class="note" style="color:var(--dim)">Double-check every address — payments are member-to-member and can't be reversed by AdvantageLife.</div>
+    <div class="note">Double-check every detail &mdash; payments are member-to-member and AdvantageLife can't reverse a mistaken transfer.</div>
   </div>
 </div>
 <script>
 (function(){
-  var REG=[];
+  var REG=[],CUR=null;
+  var ICONS={usdt_bsc:{s:'\u20AE',bg:'#0a7d5a'},usdt_tron:{s:'\u20AE',bg:'#c8102e'},usdt_eth:{s:'\u20AE',bg:'#6c5ce7'},usdt_polygon:{s:'\u20AE',bg:'#8247e5'},usdc_bsc:{s:'\u20B5',bg:'#2775ca'},usdc_polygon:{s:'\u20B5',bg:'#8247e5'},cashapp:{s:'$',bg:'#00c244'},paypal:{s:'P',bg:'#003087'}};
+  function ic(k){return ICONS[k]||{s:'\u25CF',bg:'#5a6584'}}
   function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML}
+  function shortLabel(l){return l.replace(' \u00b7 ',' \u00b7 ')}
+  function buildMenu(){
+    var menu=document.getElementById('ddMenu');menu.innerHTML='';
+    var crypto=REG.filter(function(r){return r.family==='evm'||r.family==='tron'});
+    var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email'});
+    function grp(title){var g=document.createElement('div');g.className='dd-group';g.textContent=title;menu.appendChild(g)}
+    function opt(r){
+      var i=ic(r.key);var o=document.createElement('div');o.className='dd-opt';o.dataset.key=r.key;
+      o.innerHTML='<span class="dd-oi" style="background:'+i.bg+'">'+i.s+'</span>'
+        +'<span class="dd-ot"><b>'+esc(r.label)+'</b><span>'+esc(r.hint)+'</span></span>'
+        +'<span class="dd-tag '+(r.auto_verify?'auto':'man')+'">'+(r.auto_verify?'Auto':'Manual')+'</span>';
+      o.onclick=function(){choose(r.key)};
+      menu.appendChild(o);
+    }
+    if(crypto.length){grp('Crypto \u2014 instant & irreversible');crypto.forEach(opt)}
+    if(cash.length){grp('Cash apps \u2014 confirmed by the seller');cash.forEach(opt)}
+  }
+  function choose(k){
+    CUR=REG.find(function(x){return x.key===k});if(!CUR)return;
+    var i=ic(k);
+    var si=document.getElementById('ddSelIcon');si.style.background=i.bg;si.textContent=i.s;
+    document.getElementById('ddSelText').innerHTML='<b>'+esc(CUR.label)+'</b><span>'+(CUR.auto_verify?'Auto-verified on-chain':'Confirmed by the seller')+'</span>';
+    document.getElementById('hint').textContent=CUR.hint||'';
+    document.getElementById('addrLabel').textContent=(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':'Wallet address';
+    document.getElementById('addr').placeholder=(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':'0x\u2026';
+    document.getElementById('addr').style.fontFamily=(CUR.family==='email'||CUR.family==='cashtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
+    var sw=document.getElementById('sellwarn');
+    if(CUR.seller_note){sw.textContent='\u26A0 '+CUR.seller_note;sw.style.display='block'}else{sw.style.display='none'}
+    Array.prototype.forEach.call(document.querySelectorAll('.dd-opt'),function(o){o.classList.toggle('sel',o.dataset.key===k);var c=o.querySelector('.dd-check');if(o.dataset.key===k){if(!c){var s=document.createElement('span');s.className='dd-check';s.textContent='\u2713';o.appendChild(s)}}else if(c){c.remove()}});
+    closeMenu();
+  }
+  function openMenu(){document.getElementById('ddBtn').classList.add('open');document.getElementById('ddMenu').classList.add('open')}
+  function closeMenu(){document.getElementById('ddBtn').classList.remove('open');document.getElementById('ddMenu').classList.remove('open')}
+  document.getElementById('ddBtn').onclick=function(e){e.stopPropagation();var open=document.getElementById('ddMenu').classList.contains('open');if(open)closeMenu();else openMenu()};
+  document.addEventListener('click',closeMenu);
+  document.getElementById('ddMenu').onclick=function(e){e.stopPropagation()};
   function load(){fetch('/api/al/payout-methods').then(function(r){return r.json()}).then(function(j){
-    REG=j.registry||[];
-    var sel=document.getElementById('mtype');sel.innerHTML='';
-    REG.forEach(function(r){var o=document.createElement('option');o.value=r.key;o.textContent=r.label;sel.appendChild(o)});
-    hint();
+    REG=j.registry||[];buildMenu();
     var L=document.getElementById('list');L.innerHTML='';
     (j.methods||[]).forEach(function(m){
+      var i=ic(m.method_type);
       var d=document.createElement('div');d.className='m'+(m.is_default?' def':'');
-      d.innerHTML='<div class="top"><span class="who">'+esc(m.label)+'</span>'+(m.is_default?'<span class="badge">DEFAULT</span>':'')+'</div>'
+      d.innerHTML='<div class="mi" style="background:'+i.bg+'">'+i.s+'</div>'
+        +'<div class="minfo"><div class="who">'+esc(m.label)+'</div>'
         +'<div class="tx">'+esc(m.address)+'</div>'
-        +(m.auto_verify?'<div class="ver">\u2713 Auto-verified chain \u2014 payments to this wallet are checked on-chain</div>':'')
-        +'<div class="acts">'+(m.is_default?'':'<button class="sm" data-def="'+m.id+'">Make default</button>')
-        +'<button class="sm danger" data-del="'+m.id+'">Remove</button></div>';
+        +(m.auto_verify?'<div class="ver">\u2713 Auto-verified on-chain</div>':'')+'</div>'
+        +(m.is_default?'<span class="badge">DEFAULT</span>':'<div class="macts">'
+          +'<button class="sm" data-def="'+m.id+'">Make default</button>'
+          +'<button class="sm danger" data-del="'+m.id+'">Remove</button></div>');
       L.appendChild(d);
     });
     document.getElementById('warn').style.display=(j.methods&&j.methods.length)?'none':'block';
@@ -67385,22 +67467,20 @@ select.inp{font-family:'Inter';font-weight:700;font-size:13px}
     L.querySelectorAll('[data-def]').forEach(function(b){b.onclick=function(){
       fetch('/api/al/payout-methods/'+b.dataset.def+'/default',{method:'POST'}).then(load)}});
     L.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){
-      if(!confirm('Remove this wallet?'))return;
+      if(!confirm('Remove this payout method?'))return;
       fetch('/api/al/payout-methods/'+b.dataset.del+'/delete',{method:'POST'}).then(load)}});
   })}
-  function hint(){var k=document.getElementById('mtype').value;var r=REG.find(function(x){return x.key===k});
-    document.getElementById('hint').textContent=r?r.hint:''}
-  document.getElementById('mtype').onchange=hint;
   document.getElementById('save').onclick=function(){
     var e=document.getElementById('err');e.style.display='none';
+    if(!CUR){e.textContent='Choose a payment type first';e.style.display='block';return}
     var b=this;b.disabled=true;b.textContent='Saving\u2026';
     fetch('/api/al/payout-methods',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({method_type:document.getElementById('mtype').value,address:document.getElementById('addr').value.trim()})})
+      body:JSON.stringify({method_type:CUR.key,address:document.getElementById('addr').value.trim()})})
     .then(function(r){return r.json()}).then(function(j){
-      b.disabled=false;b.textContent='Save wallet';
+      b.disabled=false;b.textContent='Save payout method';
       if(j.ok){document.getElementById('addr').value='';load()}
       else{e.textContent=j.error||'Could not save';e.style.display='block'}
-    }).catch(function(){b.disabled=false;b.textContent='Save wallet';e.textContent='Network error';e.style.display='block'});
+    }).catch(function(){b.disabled=false;b.textContent='Save payout method';e.textContent='Network error';e.style.display='block'});
   };
   load();
 })();
