@@ -67333,6 +67333,34 @@ def al_default_payout_method(method_id: int, user: User = Depends(_al_user),
     return {"ok": True}
 
 
+@app.post("/api/al/payout-methods/{method_id}/edit")
+async def al_edit_payout_method(method_id: int, request: Request,
+                                user: User = Depends(_al_user),
+                                db: Session = Depends(get_db)):
+    """Update the address on an existing receiving method (fix a typo without
+    delete+re-add). Validates the new address against the method's family."""
+    row = db.query(PayoutMethod).filter(PayoutMethod.id == method_id,
+                                        PayoutMethod.user_id == user.id).first()
+    if not row:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    body = await request.json()
+    new_addr = (body.get("address") or "").strip()
+    err = _al_validate_address(row.method_type, new_addr)
+    if err:
+        return JSONResponse({"error": err}, status_code=400)
+    import json as _j
+    try:
+        d = _j.loads(row.details) if row.details else {}
+        if not isinstance(d, dict):
+            d = {}
+    except Exception:
+        d = {}
+    d["address"] = new_addr
+    row.details = _j.dumps(d)
+    db.commit()
+    return {"ok": True}
+
+
 @app.post("/api/al/payout-methods/{method_id}/delete")
 def al_delete_payout_method(method_id: int, user: User = Depends(_al_user),
                             db: Session = Depends(get_db)):
@@ -67505,10 +67533,13 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       d.innerHTML='<div class="mi" style="background:'+i.bg+'">'+i.s+'</div>'
         +'<div class="minfo"><div class="who">'+esc(m.label)+'</div>'
         +'<div class="tx">'+esc(m.address)+'</div>'
-        +(m.auto_verify?'<div class="ver">\u2713 Auto-verified on-chain</div>':'')+'</div>'
-        +(m.is_default?'<span class="badge">DEFAULT</span>':'<div class="macts">'
-          +'<button class="sm" data-def="'+m.id+'">Make default</button>'
-          +'<button class="sm danger" data-del="'+m.id+'">Remove</button></div>');
+        +(m.auto_verify?'<div class="ver">\u2713 Auto-verified on-chain</div>':'')
+        +'<div class="editrow"><input class="einp" value="'+esc(m.address)+'"><div class="ehint">'+esc((REG.find(function(x){return x.key===m.method_type})||{}).hint||'')+'</div><div class="eerr"></div><div class="eacts"><button class="esave">Save</button><button class="ecancel">Cancel</button></div></div>'
+        +'</div>'
+        +'<div class="macts">'
+          +'<button class="sm" data-edit="'+m.id+'" data-mt="'+m.method_type+'">Edit</button>'
+          +(m.is_default?'<span class="badge">DEFAULT</span>':'<button class="sm" data-def="'+m.id+'">Make default</button>'
+          +'<button class="sm danger" data-del="'+m.id+'">Remove</button>')+'</div>';
       L.appendChild(d);
     });
     document.getElementById('warn').style.display=(j.methods&&j.methods.length)?'none':'block';
@@ -67518,6 +67549,26 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     L.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){
       if(!confirm('Remove this receiving method?'))return;
       fetch('/api/al/payout-methods/'+b.dataset.del+'/delete',{method:'POST'}).then(load)}});
+    L.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){
+      var row=b.closest('.m');if(!row)return;
+      row.classList.add('editing');
+      var inp=row.querySelector('.einp');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)}
+    }});
+    L.querySelectorAll('.ecancel').forEach(function(b){b.onclick=function(){
+      var row=b.closest('.m');if(row){row.classList.remove('editing');var er=row.querySelector('.eerr');if(er)er.style.display='none'}
+    }});
+    L.querySelectorAll('.esave').forEach(function(b){b.onclick=function(){
+      var row=b.closest('.m');if(!row)return;
+      var editBtn=row.querySelector('[data-edit]');var id=editBtn?editBtn.dataset.edit:null;
+      var inp=row.querySelector('.einp');var er=row.querySelector('.eerr');
+      var v=(inp?inp.value:'').trim();if(!v){return}
+      er.style.display='none';b.disabled=true;b.textContent='Saving\u2026';
+      fetch('/api/al/payout-methods/'+id+'/edit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:v})})
+      .then(function(r){return r.json()}).then(function(j){
+        b.disabled=false;b.textContent='Save';
+        if(j.ok){load()}else{er.textContent=j.error||'Could not update';er.style.display='block'}
+      }).catch(function(){b.disabled=false;b.textContent='Save';er.textContent='Network error';er.style.display='block'})
+    }});
   })}
   document.getElementById('save').onclick=function(){
     var e=document.getElementById('err');e.style.display='none';
