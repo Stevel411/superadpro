@@ -67192,14 +67192,39 @@ async def al_confirm_intent(intent_id: int,
     if intent.status not in ("pending", "proof_submitted"):
         return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
     result = _als.confirm(db, intent.id, confirmed_by=user.id)
+    buyer = db.query(User).filter(User.id == intent.buyer_id).first()
     try:
         db.add(Notification(user_id=intent.buyer_id, type="al_pack",
-                            title="Pack activated 🎉",
-                            message=f"Your Level {intent.pack_level} campaign pack is live — "
-                                    "views start with the next rotation."))
+                            icon="🎉", link="/video-library",
+                            title="Pack activated — you can create your campaign",
+                            message=f"Your Level {intent.pack_level} campaign pack is live. "
+                                    "Create your video campaign to start getting views, and "
+                                    "you now earn at this level on your own sales."))
         db.commit()
     except Exception:
         db.rollback()
+    # Email the buyer — the activation confirmation they'll actually see
+    try:
+        if buyer and buyer.email:
+            _base = os.environ.get("SITE_URL", "https://www.advantagelife.club").rstrip("/")
+            _sub = f"🎉 Your Level {intent.pack_level} pack is active — create your campaign"
+            _html = (
+                f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
+                f"<h2 style=\"color:#0b7a3e\">Your pack is live 🎉</h2>"
+                f"<p>Your payment was confirmed and your <b>Level {intent.pack_level}</b> campaign pack "
+                f"is now active.</p>"
+                f"<p><b>Two things you can do now:</b></p>"
+                f"<ul><li>Create your video campaign to start getting real member views.</li>"
+                f"<li>You now earn at this level on your own pack sales.</li></ul>"
+                f"<p style=\"margin:24px 0\"><a href=\"{_base}/video-library\" "
+                f"style=\"background:#c8102e;color:#fff;font-weight:800;text-decoration:none;"
+                f"padding:14px 26px;border-radius:10px;display:inline-block\">Create your campaign →</a></p>"
+                f"</div>")
+            _text = (f"Your Level {intent.pack_level} pack is active. Create your campaign: {_base}/video-library")
+            from .email_utils import send_email as _send
+            _send(buyer.email, _sub, _html, _text)
+    except Exception:
+        logger.exception("AL pack-activation email failed")
     return {"ok": True, **result}
 
 
