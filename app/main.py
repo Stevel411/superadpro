@@ -67571,6 +67571,34 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
 .addr .a code{font-family:'JetBrains Mono';font-size:11px;word-break:break-all;flex:1;color:#dbe5ff}
 .cp{background:var(--red);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-family:'Inter';font-weight:900;font-size:10.5px;cursor:pointer;flex-shrink:0}
 .wrong{font-size:10px;font-weight:800;color:#ffb3c0;margin-top:8px;line-height:1.5}
+.mpick{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--red);margin:2px 0 12px}
+.mopts{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.mopt{display:flex;align-items:center;gap:13px;border:2px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;transition:border .15s,box-shadow .15s,background .15s}
+.mopt:hover{border-color:var(--red)}
+.mopt.sel{border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1);background:#fdf2f4}
+.mopt .moi{width:40px;height:40px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff}
+.mopt .mot{flex:1;min-width:0}
+.mopt .mot b{display:block;font-size:15px;font-weight:900;color:var(--navy)}
+.mopt .mot span{font-size:12px;font-weight:600;color:var(--dim)}
+.motag{font-size:9.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:7px;flex:none}
+.motag.auto{background:#e4f7ee;color:#0a7d5a}.motag.man{background:#fff1d6;color:#9a6a08}
+.moradio{width:22px;height:22px;border-radius:50%;border:2px solid #cdd6ea;flex:none;display:flex;align-items:center;justify-content:center}
+.mopt.sel .moradio{border-color:var(--red);background:var(--red)}
+.mopt.sel .moradio:after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+.paypanel{border:2px solid var(--line);border-radius:16px;padding:19px;margin:16px 0 4px;background:#fafbfe}
+.paypanel .phd{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.paypanel .plbl{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.paypanel .pbadge{font-weight:900;font-size:10.5px;border-radius:8px;padding:5px 10px;background:#fde8ec;color:var(--red)}
+.paypanel .pbadge.auto{background:#e4f7ee;color:#0a7d5a}
+.paypanel .pamt{font-weight:900;font-size:31px;letter-spacing:-1px;margin-bottom:13px;color:var(--ink)}
+.paypanel .pamt span{font-size:15px;color:var(--dim);font-weight:800}
+.paddr{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);border-radius:11px;padding:11px 13px}
+.paddr code{flex:1;font-family:'JetBrains Mono';font-size:13px;word-break:break-all;color:var(--navy)}
+.pcp{border:none;border-radius:8px;padding:8px 13px;font-family:'Inter';font-weight:900;font-size:11px;cursor:pointer;flex:none;background:var(--red);color:#fff}
+.pwarn{font-size:11.5px;font-weight:700;margin-top:10px;line-height:1.5;color:#9a6a08}
+.pwarn.crypto{color:var(--red)}
+#pQr{display:flex;justify-content:center;margin-top:14px}
+.pcount{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--dim);margin-top:12px}.pcount b{color:var(--red)}
 #qr{width:110px;height:110px;background:#fff;border-radius:10px;padding:6px;margin:12px auto 2px;display:flex;align-items:center;justify-content:center}
 #qr img,#qr canvas{width:98px!important;height:98px!important}
 .count{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:#8fa4d8;margin-top:10px}
@@ -67607,19 +67635,20 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
     </div>
 
     <div class="scr" id="sPay">
-      <h1>Pay <span class="r" id="payeeName">@member</span> directly</h1>
-      <div class="sub">This is a member-to-member purchase. AdvantageLife resolved who earns this sale — the money goes straight to them.</div>
-      <div class="payee"><div class="av" id="pAv">M</div><div><b id="pWho">Member</b><span id="pSub">earns this sale</span></div></div>
-      <div class="holds">⚠ AdvantageLife never holds this money. Send the <b>exact amount</b> to the address below — then submit your transaction reference.</div>
-      <div class="addr">
-        <div class="hd"><span class="lbl">SEND EXACTLY</span><span class="chainbadge" id="chain">USDT</span></div>
-        <div class="amt" id="amt">$0 <span>USDT</span></div>
-        <div class="a"><code id="addr">…</code><button class="cp" id="copyBtn">COPY</button></div>
-        <div class="wrong" id="wrong"></div>
-        <div id="qr"></div>
-        <div class="count"><span>This purchase expires in</span><b id="ttl">—</b></div>
+      <h1>Pay for your <span class="r" id="payPack">pack</span></h1>
+      <div class="sub" id="payViews">paid member to member</div>
+      <div class="payee"><div class="av" id="pAv">M</div><div><b id="pWho">Member</b><span id="pSub">earns this sale — you pay them directly</span></div></div>
+      <div class="mpick">Choose how to pay</div>
+      <div class="mopts" id="mopts"></div>
+      <div class="paypanel" id="paypanel">
+        <div class="phd"><span class="plbl">Send exactly</span><span class="pbadge" id="pBadge">USDT</span></div>
+        <div class="pamt" id="pAmt">$0</div>
+        <div class="paddr"><code id="addr">…</code><button class="pcp" id="copyBtn">COPY</button></div>
+        <div class="pwarn" id="pWarn"></div>
+        <div id="pQr"></div>
+        <div class="pcount"><span>This purchase expires in</span><b id="ttl">—</b></div>
       </div>
-      <input class="inp" id="txref" placeholder="Paste your transaction hash / reference">
+      <input class="inp" id="txref" placeholder="Paste your transaction hash">
       <div class="err" id="errPay"></div>
       <button class="btn red" id="btnProof">I've paid — submit proof →</button>
       <button class="btn ghost" id="btnCancel">Cancel this purchase</button>
@@ -67653,24 +67682,71 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
   function chainWarn(mt){if(mt==='usdt_tron')return '⚠ TRON ONLY — sending on any other chain loses the funds. TRON addresses start with "T".';
     var nm=chainLabel(mt).split(' · ')[1]||'this chain';return '⚠ '+nm.toUpperCase()+' ONLY — sending on any other chain loses the funds.'}
   function fmtTTL(iso){var ms=new Date(iso)-new Date();if(ms<=0)return 'expired';var h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h+'h '+m+'m'}
+  var METICON={usdt_bsc:{s:"\u20AE",bg:"#0a7d5a"},usdt_tron:{s:"\u20AE",bg:"#c8102e"},usdt_eth:{s:"\u20AE",bg:"#6c5ce7"},usdt_polygon:{s:"\u20AE",bg:"#8247e5"},usdc_bsc:{s:"\u20B5",bg:"#2775ca"},usdc_polygon:{s:"\u20B5",bg:"#8247e5"},cashapp:{s:"$",bg:"#00c244"},paypal:{s:"P",bg:"#003087"}};
+  function metIcon(k){return METICON[k]||{s:"\u25CF",bg:"#5a6584"}}
+  function famOf(mt){if(mt==="cashapp")return "cashtag";if(mt==="paypal")return "email";if((mt||"").indexOf("tron")>-1)return "tron";return "evm"}
+  function isCrypto(mt){var f=famOf(mt);return f==="evm"||f==="tron"}
+  function detailsAddr(po){var d=po.details;try{d=(typeof d==="string"?JSON.parse(d):d);return d&&d.address?d.address:(typeof d==="string"?d:"")}catch(e){return (typeof po.details==="string"?po.details:"")||""}}
+  function methLabel(mt){var M={usdt_bsc:"USDT \u00b7 BNB Smart Chain",usdt_tron:"USDT \u00b7 TRON",usdt_eth:"USDT \u00b7 Ethereum",usdt_polygon:"USDT \u00b7 Polygon",usdc_bsc:"USDC \u00b7 BNB Smart Chain",usdc_polygon:"USDC \u00b7 Polygon",cashapp:"Cash App",paypal:"PayPal"};return M[mt]||(mt||"").toUpperCase()}
+  function methSubLabel(mt){var M={usdt_tron:"TRC-20 \u00b7 low fees",usdt_bsc:"BEP-20",usdt_eth:"ERC-20 \u00b7 higher gas",usdt_polygon:"low fees",usdc_bsc:"BEP-20 stablecoin",usdc_polygon:"low fees",cashapp:"Pay to a $Cashtag",paypal:"Pay to a PayPal email"};return M[mt]||""}
+
+  function paintPanel(po,amount){
+    var mt=po.method_type,crypto=isCrypto(mt),addr=detailsAddr(po);
+    var badge=document.getElementById("pBadge");
+    badge.textContent=methLabel(mt);badge.className="pbadge"+(crypto?"":" auto");
+    var isUSDC=(mt||"").indexOf("usdc")===0;
+    document.getElementById("pAmt").innerHTML=crypto?(Number(amount).toFixed(2)+' <span>'+(isUSDC?"USDC":"USDT")+'</span>'):('$'+Number(amount).toFixed(2));
+    document.getElementById("addr").textContent=addr;
+    var cb=document.getElementById("copyBtn");cb.style.background=(mt==="cashapp"?"#00a03a":(mt==="paypal"?"#003087":"#c8102e"));
+    var w=document.getElementById("pWarn");
+    if(crypto){w.className="pwarn crypto";w.textContent=chainWarn(mt)||"\u26A0 Send on the correct network only — funds sent on another chain are lost."}
+    else if(mt==="cashapp"){w.className="pwarn";w.innerHTML="\u26A0 Send as a normal Cash App payment to this $Cashtag, then confirm below. The seller checks their balance before releasing your pack."}
+    else{w.className="pwarn";w.innerHTML="\u26A0 Send to this PayPal, then confirm below. The seller releases your pack once the money is in their balance."}
+    var q=document.getElementById("pQr");q.innerHTML="";if(crypto&&window.QRCode&&addr){new QRCode(q,{text:addr,width:98,height:98})}
+    var tr=document.getElementById("txref");
+    if(crypto){tr.style.display="";tr.placeholder="Paste your transaction hash";tr.style.fontFamily="'JetBrains Mono',monospace"}
+    else{tr.style.display="";tr.placeholder="Payment note / reference (optional)";tr.style.fontFamily="'Inter',sans-serif"}
+    document.getElementById("btnProof").textContent=crypto?"I've paid — submit proof \u2192":"I've paid — notify seller \u2192";
+  }
+
   function renderIntent(j){
     intent=j;
-    var payee=j.payee||{};var cur=(j.pack&&j.pack.name&&j.pack.name.indexOf('USDC')>-1)?'USDC':'USDT';
-    document.getElementById('payeeName').textContent='@'+(payee.username||'member');
-    document.getElementById('pWho').textContent=(payee.display||payee.username||'Member')+' · @'+(payee.username||'');
-    document.getElementById('pSub').textContent=payee.is_company?'platform-routed sale':'earns this sale';
-    document.getElementById('pAv').textContent=(payee.display||'M').charAt(0).toUpperCase();
-    var po=j.payout||{};
-    document.getElementById('chain').textContent=chainLabel(po.method_type);
-    var addr='';try{addr=(typeof po.details==='string'?JSON.parse(po.details):po.details).address}catch(e){addr=po.details&&po.details.address||po.details||''}
-    document.getElementById('addr').textContent=addr;
-    document.getElementById('wrong').textContent=chainWarn(po.method_type);
-    var isUSDC=(po.method_type||'').indexOf('usdc')===0;
-    document.getElementById('amt').innerHTML='$'+Number(j.amount).toFixed(2)+' <span>'+(isUSDC?'USDC':'USDT')+'</span>';
-    var q=document.getElementById('qr');q.innerHTML='';if(window.QRCode&&addr){new QRCode(q,{text:addr,width:98,height:98})}
+    var payee=j.payee||{};
+    document.getElementById("payPack").textContent="$"+Number(j.amount).toFixed(0)+" "+((j.pack&&j.pack.name)||"pack").replace(/^\$?[0-9]+\s*/,"");
+    document.getElementById("payViews").textContent=((j.pack&&j.pack.views)?Number(j.pack.views).toLocaleString()+" campaign views \u00b7 ":"")+"paid member to member";
+    document.getElementById("pWho").textContent=(payee.display||payee.username||"Member")+" \u00b7 @"+(payee.username||"");
+    document.getElementById("pSub").textContent=(payee.is_company?"platform-routed sale":"earns this sale")+" — you pay them directly";
+    document.getElementById("pAv").textContent=(payee.display||payee.username||"M").charAt(0).toUpperCase();
+
+    var opts=j.payout_options||(j.payout?[j.payout]:[]);
+    var chosen=j.chosen_method||(opts[0]&&opts[0].method_type)||null;
+    var box=document.getElementById("mopts");box.innerHTML="";
+    opts.forEach(function(po){
+      var mt=po.method_type,ic=metIcon(mt),crypto=isCrypto(mt);
+      var d=document.createElement("div");d.className="mopt"+(mt===chosen?" sel":"");d.dataset.mt=mt;
+      d.innerHTML='<span class="moi" style="background:'+ic.bg+'">'+ic.s+'</span>'
+        +'<span class="mot"><b>'+esc(methLabel(mt))+'</b><span>'+esc(methSubLabel(mt))+'</span></span>'
+        +'<span class="motag '+(crypto?"auto":"man")+'">'+(crypto?"Auto":"Manual")+'</span>'
+        +'<span class="moradio"></span>';
+      d.onclick=function(){
+        if(mt===chosen)return;chosen=mt;
+        Array.prototype.forEach.call(box.children,function(c){c.classList.toggle("sel",c.dataset.mt===mt)});
+        var po2=opts.filter(function(x){return x.method_type===mt})[0];paintPanel(po2,j.amount);
+        fetch("/api/al/intents/"+j.intent_id+"/choose",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({method_type:mt})});
+      };
+      box.appendChild(d);
+    });
+    // hide picker entirely if only one option
+    document.querySelector(".mpick").style.display=opts.length>1?"":"none";
+    box.style.display=opts.length>1?"":"none";
+
+    var initPo=opts.filter(function(x){return x.method_type===chosen})[0]||opts[0]||{};
+    paintPanel(initPo,j.amount);
+    if(chosen){fetch("/api/al/intents/"+j.intent_id+"/choose",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({method_type:chosen})})}
+
     if(tick)clearInterval(tick);
-    if(j.expires_at){var u=function(){document.getElementById('ttl').textContent=fmtTTL(j.expires_at)};u();tick=setInterval(u,30000)}
-    show('sPay');
+    if(j.expires_at){var u=function(){document.getElementById("ttl").textContent=fmtTTL(j.expires_at)};u();tick=setInterval(u,30000)}
+    show("sPay");
   }
   function renderPending(j){
     document.getElementById('pendWho').textContent='@'+((j.payee&&j.payee.username)||'the seller');
