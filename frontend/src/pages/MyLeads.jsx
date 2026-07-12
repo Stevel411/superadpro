@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle, Info, X, Wallet, CreditCard, Coins, Magnet, Megaphone, Shield, CheckCircle2, Clock } from 'lucide-react';
@@ -38,7 +38,7 @@ var STATUS_PALETTE = {
   unsubscribed: { bg:'var(--sap-bg-page)',       color:'var(--sap-text-muted)', labelKey:'statusUnsubscribed' },
 };
 
-var TC = ['var(--sap-indigo)','var(--sap-accent)','var(--sap-green)','var(--sap-amber)','var(--sap-red-bright)','var(--sap-pink)','var(--sap-purple)','#06b6d4'];
+var TC = ['var(--sap-indigo)','var(--sap-accent)','var(--sap-green)','var(--sap-amber)','var(--sap-red-bright)','var(--sap-pink)','var(--sap-purple)','#e8203f'];
 
 export default function MyLeads() {
   var { t } = useTranslation();
@@ -79,17 +79,17 @@ export default function MyLeads() {
 
   var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:9,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:13.5,fontWeight:800,boxShadow:'0 2px 8px rgba(23,37,84,.08)',cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
 
-  if (loading) return <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
 
   var verifiedDomain = null;
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')} toolBrand={{ icon: <Magnet size={17} color="#fff" strokeWidth={2.2}/>, wordmark: ['Super','Leads'], accent: '#0ea5e9', gradient: ['#0ea5e9','#06b6d4'], headline: ['Collect leads. Build your list.', 'Send email that lands.'] }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
-        .sl-tab:hover{background:#e0e7ff!important;color:#4338ca!important;box-shadow:0 3px 10px rgba(79,70,229,.18);transform:translateY(-1px)}
+        .sl-tab:hover{background:#e0e7ff!important;color:#0a1f52!important;box-shadow:0 3px 10px rgba(10,31,82,.18);transform:translateY(-1px)}
         .sl-row{transition:background .1s}
         .sl-row:hover{background:#f8fafc!important}
         .sl-stat-card{transition:transform .2s,box-shadow .2s}
@@ -104,11 +104,11 @@ export default function MyLeads() {
           background-repeat:no-repeat;background-position:right 12px center;
           transition:border-color .15s,box-shadow .15s;outline:none;
         }
-        .sl-select:hover{border-color:#a5b4fc}
-        .sl-select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+        .sl-select:hover{border-color:#9db0e0}
+        .sl-select:focus{border-color:#12388f;box-shadow:0 0 0 3px rgba(200,16,46,.1)}
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
         .sl-hero{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:26px 24px 24px;margin-bottom:12px;text-align:center;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
-        .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1e3a8a;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap;box-shadow:0 2px 6px rgba(30,58,138,.08)}
+        .sl-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#12388f;background:#eef4ff;border:1.5px solid #dbe6fb;border-radius:20px;padding:8px 16px;white-space:nowrap;box-shadow:0 2px 6px rgba(30,58,138,.08)}
         .sl-hero-hl-m{display:none}
         @media(max-width:900px){.sl-hero-hl-m{display:block}}
         @media(max-width:520px){.sl-hero{padding:22px 16px 18px}}
@@ -127,23 +127,15 @@ export default function MyLeads() {
         }
       `}</style>
 
-      {/* ── SuperLeads identity hero (Steve-approved 2 Jul): lockup + purpose
+      {/* ── Email Marketing hero (AL rebrand 12 Jul): navy band + purpose
              line + job chips. Replaces the lost page title (categoryBack
              chrome renders no title) with tool-level branding. Slim card,
              not the old 130px gradient banner. ── */}
-      <div className="sl-hero">
-        {/* Mobile-only headline: the topbar centre hides <=900px, so the
-            statement renders here instead — never both. */}
-        <div className="sl-hero-hl-m" style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,letterSpacing:-.5,color:'#0f172a',lineHeight:1.2,marginBottom:10}}>
-          Collect leads. Build your list. Send email that lands.
-        </div>
-        <div style={{fontSize:16,color:'#334155',fontWeight:600,marginBottom:18}}>
-          Your autoresponder &mdash; capture, nurture and broadcast from one place.
-        </div>
-        <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
-          <span className="sl-chip"><Magnet size={13}/> Capture from your pages</span>
-          <span className="sl-chip"><Zap size={13}/> Automated sequences</span>
-          <span className="sl-chip"><Megaphone size={13}/> One-click broadcasts</span>
+      <div style={{background:'#0a1f52',borderRadius:22,color:'#fff',padding:'24px 28px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:16,display:'flex',alignItems:'center',gap:16}}>
+        <div style={{width:54,height:54,borderRadius:15,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><Mail size={26} color="#fff"/></div>
+        <div>
+          <div style={{fontWeight:900,fontSize:24,letterSpacing:-.7}}>Email Marketing</div>
+          <div style={{fontSize:14,color:'#c9d6f7',fontWeight:600,marginTop:3}}>Collect leads, build your list, and send email that lands.</div>
         </div>
       </div>
 
@@ -160,11 +152,11 @@ export default function MyLeads() {
             var count = tb.key === 'leads' ? (stats.total||0) : (tb.key === 'sequences' ? sequences.length : null);
             return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
               style={{padding:'12px 20px',borderRadius:8,
-                      background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
+                      background: a ? 'linear-gradient(135deg,#0e2a6e,#12388f)' : 'transparent',
                       color: a ? '#fff' : '#1e293b',
                       fontSize:15,fontWeight:800,cursor:'pointer',whiteSpace:'nowrap',
                       display:'flex',alignItems:'center',justifyContent:'center',gap:7,
-                      boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
+                      boxShadow: a ? '0 4px 12px rgba(10,31,82,.3)' : 'none',
                       transition:'all .15s',flex:'1 1 auto'}}>
               <I size={15}/> {t('myLeads.' + tb.labelKey)}
               {count !== null && <span style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:11.5,fontWeight:700,borderRadius:20,padding:'2px 8px',background: a ? 'rgba(255,255,255,.22)' : '#eef2f8', color: a ? '#fff' : '#1e293b'}}>{count}</span>}
@@ -184,25 +176,25 @@ export default function MyLeads() {
           <span style={{color:'#16a34a',fontWeight:800}}>&#10003;</span>
           Sending as{verifiedDomain.from_name ? <strong style={{color:'#0f172a'}}>&nbsp;{verifiedDomain.from_name}</strong> : null}
           <code style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:12,color:'#0f172a',fontWeight:700}}>&lt;{verifiedDomain.from_address}&gt;</code>
-          <span style={{marginLeft:'auto',color:'#0ea5e9',fontWeight:800,fontSize:12.5,whiteSpace:'nowrap'}}>change &rarr;</span>
+          <span style={{marginLeft:'auto',color:'#c8102e',fontWeight:800,fontSize:12.5,whiteSpace:'nowrap'}}>change &rarr;</span>
         </Link>
       ) : (
         <Link to="/sending-domains" style={{textDecoration:'none',display:'block',marginTop:12}}>
           <div style={{display:'flex',alignItems:'center',gap:12,padding:'13px 18px',borderRadius:12,
-                       background:'linear-gradient(135deg,var(--sap-cobalt-mid,#1e3a8a),#2b4bb5)',
+                       background:'linear-gradient(135deg,var(--sap-cobalt-mid,#12388f),#2b4bb5)',
                        boxShadow:'0 6px 18px rgba(30,58,138,.16)'}}>
-            <div style={{width:38,height:38,borderRadius:10,background:'rgba(103,232,249,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-              <Mail size={19} color="#67e8f9"/>
+            <div style={{width:38,height:38,borderRadius:10,background:'rgba(245,184,194,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <Mail size={19} color="#f5b8c2"/>
             </div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:14,color:'#fff',marginBottom:2}}>
                 Send from your own brand
               </div>
               <div style={{fontSize:12.5,color:'#dbe6fb',lineHeight:1.5}}>
-                Verify your own domain so emails come from <strong style={{color:'#67e8f9'}}>you</strong>, not SuperAdPro. ~5 min, fully guided.
+                Verify your own domain so emails come from <strong style={{color:'#f5b8c2'}}>you</strong>, not AdvantageLife. ~5 min, fully guided.
               </div>
             </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,color:'#67e8f9',whiteSpace:'nowrap',flexShrink:0}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontWeight:700,fontSize:13,color:'#f5b8c2',whiteSpace:'nowrap',flexShrink:0}}>
               Set up &rarr;
             </div>
           </div>
@@ -223,7 +215,7 @@ export default function MyLeads() {
 
       {/* Help panel — slides in from the right as an overlay */}
       <MyLeadsHelp visible={showHelp} onClose={function(){setShowHelp(false);}}/>
-    </AppLayout>
+    </AlShell>
   );
 }
 
@@ -256,11 +248,11 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         ]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         {!newListOpen ? (
-          <button onClick={function(){setNewListOpen(true);}} style={{padding:'10px 16px',borderRadius:10,border:'1.5px solid #c7d2fe',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,boxShadow:'0 2px 6px rgba(79,70,229,.08)'}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
+          <button onClick={function(){setNewListOpen(true);}} style={{padding:'10px 16px',borderRadius:10,border:'1.5px solid #c7d2fe',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,boxShadow:'0 2px 6px rgba(10,31,82,.08)'}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
         ) : (
           <span style={{display:'inline-flex',gap:6,alignItems:'center'}}>
-            <input autoFocus value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();if(e.key==='Escape'){setNewListOpen(false);setNewListName('');}}} placeholder="New list name…" style={{width:170,padding:'10px 12px',border:'1.5px dashed #a5b4fc',borderRadius:10,fontSize:13.5,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:600}}/>
-            <button onClick={createList} disabled={!newListName.trim()} style={{background:'#4f46e5',color:'#fff',border:'none',borderRadius:9,fontWeight:800,fontSize:12.5,padding:'10px 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5,boxShadow:'0 3px 10px rgba(79,70,229,.28)'}}>Add</button>
+            <input autoFocus value={newListName} onChange={function(e){setNewListName(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')createList();if(e.key==='Escape'){setNewListOpen(false);setNewListName('');}}} placeholder="New list name…" style={{width:170,padding:'10px 12px',border:'1.5px dashed #9db0e0',borderRadius:10,fontSize:13.5,fontFamily:'inherit',outline:'none',boxSizing:'border-box',color:'#1e293b',fontWeight:600}}/>
+            <button onClick={createList} disabled={!newListName.trim()} style={{background:'#0e2a6e',color:'#fff',border:'none',borderRadius:9,fontWeight:800,fontSize:12.5,padding:'10px 14px',fontFamily:'inherit',cursor:'pointer',opacity:newListName.trim()?1:0.5,boxShadow:'0 3px 10px rgba(10,31,82,.28)'}}>Add</button>
             <button onClick={function(){setNewListOpen(false);setNewListName('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12.5,fontWeight:700,cursor:'pointer',fontFamily:'inherit',padding:'0 2px'}}>Cancel</button>
           </span>
         )}
@@ -294,7 +286,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
         <div style={{fontSize:13.5,color:'#334155',fontWeight:500,marginBottom:20,lineHeight:1.5}}>Two ways to fill this page &mdash; pick whichever fits you:</div>
         <div className="sl-empty-acts">
           <div onClick={function(){if(goImport)goImport();}} style={{border:'1.5px solid #dfe6f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fff',cursor:'pointer',boxShadow:'0 2px 8px rgba(23,37,84,.07)'}}>
-            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#eef2ff'}}><Upload size={19} color="#4f46e5"/></div>
+            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#eef2ff'}}><Upload size={19} color="#0e2a6e"/></div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Import contacts</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Upload a CSV of people you already know</div>
           </div>
@@ -331,18 +323,18 @@ function SeqTab({sequences,refresh,flash}) {
         <RichTextEditor content={e.body_html} onChange={function(h){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{body_html:h}):x;}));}} placeholder={t("myLeads.bodyPlaceholder")}/>
       </div>;})}
       <button onClick={function(){setEm(em.concat([{subject:'',body_html:'',send_delay_days:(em.length>0?(em[em.length-1].send_delay_days||0)+2:0)}]));}} style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1.5px solid #e8ecf2',background:'#fff',color:'var(--sap-indigo)',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',marginBottom:20}}><Plus size={12}/> {t('myLeads.addEmail')}</button>
-      <button onClick={save} style={{padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif'}}>{t('myLeads.saveSequence')}</button>
+      <button onClick={save} style={{padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#818cf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif'}}>{t('myLeads.saveSequence')}</button>
     </div></div>;
 
   return <div>
     <div style={{display:'flex',gap:10,marginBottom:16}}>
-      <button onClick={startNew} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={16}/> {t('myLeads.createSequenceBtn')}</button>
-      <button onClick={genAI} disabled={gen} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:13,fontWeight:700,cursor:gen?'wait':'pointer',fontFamily:'inherit'}}><Sparkles size={16}/> {gen?'Generating...':'Generate with AI'}</button>
+      <button onClick={startNew} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#818cf8)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={16}/> {t('myLeads.createSequenceBtn')}</button>
+      <button onClick={genAI} disabled={gen} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#a78bfa)',color:'#fff',fontSize:13,fontWeight:700,cursor:gen?'wait':'pointer',fontFamily:'inherit'}}><Sparkles size={16}/> {gen?'Generating...':'Generate with AI'}</button>
     </div>
     {nicheOpen && <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center',background:'#fff',border:'1.5px dashed #a78bfa',borderRadius:12,padding:'10px 12px',flexWrap:'wrap'}}>
       <div style={{fontSize:12.5,fontWeight:700,color:'#334155'}}>What niche?</div>
       <input autoFocus value={niche} onChange={function(e){setNiche(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')genAI();}} placeholder="e.g. fitness, crypto, marketing" style={{flex:1,minWidth:160,padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:9,fontSize:13,fontFamily:'inherit',outline:'none',color:'#1e293b',fontWeight:500}}/>
-      <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#8b5cf6',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating…':'Create'}</button>
+      <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#12388f',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating…':'Create'}</button>
       <button onClick={function(){setNicheOpen(false);setNiche('');}} style={{background:'none',border:'none',color:'#64748b',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
     </div>}
     {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1.5px solid #dfe6f0',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)',marginBottom:12}}>
@@ -381,13 +373,13 @@ function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
         <span>Sent this month</span><span style={{fontFamily:'ui-monospace,Menlo,monospace'}}>{sentMonth.toLocaleString()} / {monthlyLimit.toLocaleString()}</span>
       </div>
       <div style={{height:6,borderRadius:6,background:'#eef2f8',overflow:'hidden'}}>
-        <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#0ea5e9,#06b6d4)',transition:'width .3s'}}/>
+        <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#c8102e,#e8203f)',transition:'width .3s'}}/>
       </div>
     </div>
     {d && <span title={"Daily protection ('" + d.tier + "' tier) — resets at midnight UTC. Grows with your sending history."} style={{fontSize:12.5,fontWeight:800,borderRadius:20,padding:'7px 13px',background:dayHot?'#fef3c7':'#f0f9ff',color:dayHot?'#b45309':'#0369a1',whiteSpace:'nowrap'}}>Today {d.sent_today.toLocaleString()} / {d.cap.toLocaleString()}</span>}
     {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
     {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
-    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#1e3a8a,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0,boxShadow:'0 4px 12px rgba(30,58,138,.3)'}}><Rocket size={13}/> Buy</button>
+    <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#12388f,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0,boxShadow:'0 4px 12px rgba(30,58,138,.3)'}}><Rocket size={13}/> Buy</button>
     {extra}
   </div>;
 }
@@ -498,7 +490,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
     <div style={{padding:'20px 24px'}}>
       {/* Lead count + capacity */}
       <div style={{display:'flex',gap:12,marginBottom:20}}>
-        <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:'14px 16px'}}>
+        <div style={{flex:1,background:'rgba(200,16,46,.04)',border:'1px solid rgba(200,16,46,.12)',borderRadius:10,padding:'14px 16px'}}>
           <div style={{fontSize:13,fontWeight:700,color:'var(--sap-indigo)'}}>{t('myLeads.currentLeads')}</div>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'var(--sap-indigo)'}}>{stats.total||0}<span style={{fontSize:13,color:'var(--sap-text-secondary)',fontWeight:500}}> / {stats.limit||5000}</span></div>
           <div style={{width:'100%',height:4,background:'var(--sap-border)',borderRadius:2,marginTop:8}}><div style={{height:4,background:'var(--sap-indigo)',borderRadius:2,width:Math.min(100,((stats.total||0)/(stats.limit||5000))*100)+'%'}}/></div>
@@ -550,7 +542,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
       </div>}
 
       <button onClick={upload} disabled={uploading||!parsed.length}
-        style={{display:'flex',alignItems:'center',gap:6,padding:'14px 28px',borderRadius:10,border:'none',background:(uploading||!parsed.length)?'var(--sap-text-ghost)':'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:(uploading||!parsed.length)?'default':'pointer',fontFamily:'Sora,sans-serif'}}>
+        style={{display:'flex',alignItems:'center',gap:6,padding:'14px 28px',borderRadius:10,border:'none',background:(uploading||!parsed.length)?'var(--sap-text-ghost)':'linear-gradient(135deg,#12388f,#818cf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:(uploading||!parsed.length)?'default':'pointer',fontFamily:'Sora,sans-serif'}}>
         <Upload size={16}/>{uploading?'Importing...':'Import '+parsed.length+' leads'}
       </button>
 
@@ -579,13 +571,13 @@ function HowTab({emailStats}) {
       <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:6}}>Built to keep your emails landing</div>
       <p style={{...body,maxWidth:640,margin:'0 auto'}}>
         Big email platforms don&rsquo;t let anyone blast at full volume from day one &mdash; and neither do we.
-        These protections are why mail sent from SuperLeads reaches inboxes instead of spam folders,
+        These protections are why mail sent through AdvantageLife reaches inboxes instead of spam folders,
         and why one careless sender can never damage <strong>your</strong> deliverability.
       </p>
     </div>
 
     <div style={card}>
-      <div style={h}><Shield size={17} color="#0ea5e9"/> Your daily sending limit grows with you</div>
+      <div style={h}><Shield size={17} color="#c8102e"/> Your daily sending limit grows with you</div>
       <p style={body}>
         Every account has a daily sending ceiling that rises automatically as your clean sending
         history builds &mdash; the same &ldquo;warm-up&rdquo; system professional email providers use.
@@ -595,8 +587,8 @@ function HowTab({emailStats}) {
       <div style={{display:'flex',gap:10,flexWrap:'wrap',margin:'14px 0 4px'}}>
         {tiers.map(function(tr,i){
           var active = d.tier===tr.label;
-          return <div key={i} style={{flex:'1 1 160px',border:'1.5px solid '+(active?'#0ea5e9':'#dfe6f0'),borderRadius:12,padding:'14px 16px',background:active?'#f0f9ff':'#fff',position:'relative'}}>
-            {active && <div style={{position:'absolute',top:-9,right:12,background:'#0ea5e9',color:'#fff',fontSize:10,fontWeight:800,borderRadius:10,padding:'2px 9px'}}>YOU ARE HERE</div>}
+          return <div key={i} style={{flex:'1 1 160px',border:'1.5px solid '+(active?'#c8102e':'#dfe6f0'),borderRadius:12,padding:'14px 16px',background:active?'#f0f9ff':'#fff',position:'relative'}}>
+            {active && <div style={{position:'absolute',top:-9,right:12,background:'#c8102e',color:'#fff',fontSize:10,fontWeight:800,borderRadius:10,padding:'2px 9px'}}>YOU ARE HERE</div>}
             <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:14,color:'#0f172a'}}>{tr.label}</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:600,marginTop:2}}>{tr.below?('Under '+tr.below.toLocaleString()+' lifetime sends'):'10,000+ lifetime sends'}</div>
             <div style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:16,fontWeight:600,color:'#0369a1',marginTop:6}}>{tr.cap.toLocaleString()} / day</div>
@@ -610,7 +602,7 @@ function HowTab({emailStats}) {
     </div>
 
     <div style={card}>
-      <div style={h}><Clock size={17} color="#0ea5e9"/> Big broadcasts are paced, never blasted</div>
+      <div style={h}><Clock size={17} color="#c8102e"/> Big broadcasts are paced, never blasted</div>
       <p style={body}>
         When you hit Send on a broadcast, it delivers steadily in the background at a controlled
         rate rather than all at once &mdash; you can close the page and it keeps going. If a large list
@@ -632,12 +624,12 @@ function HowTab({emailStats}) {
       </p>
     </div>
 
-    <div style={{...card,background:'linear-gradient(135deg,var(--sap-cobalt-mid,#1e3a8a),#2b4bb5)',border:'none'}}>
-      <div style={{...h,color:'#fff'}}><Mail size={17} color="#67e8f9"/> The short version</div>
+    <div style={{...card,background:'linear-gradient(135deg,var(--sap-cobalt-mid,#12388f),#2b4bb5)',border:'none'}}>
+      <div style={{...h,color:'#fff'}}><Mail size={17} color="#f5b8c2"/> The short version</div>
       <p style={{...body,color:'#dbe6fb'}}>
-        Credits decide <strong style={{color:'#67e8f9'}}>how many</strong> emails you can send.
-        The warm-up ramp decides <strong style={{color:'#67e8f9'}}>how fast</strong>.
-        Clean sending decides <strong style={{color:'#67e8f9'}}>how far they reach</strong>.
+        Credits decide <strong style={{color:'#f5b8c2'}}>how many</strong> emails you can send.
+        The warm-up ramp decides <strong style={{color:'#f5b8c2'}}>how fast</strong>.
+        Clean sending decides <strong style={{color:'#f5b8c2'}}>how far they reach</strong>.
         Play the long game and all three grow together.
       </p>
     </div>
@@ -700,16 +692,16 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
     <div onClick={function(e){if(e.target===e.currentTarget&&!busy&&onClose)onClose();}} style={{position:'fixed',inset:0,zIndex:900,background:'rgba(15,23,42,.55)',display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
     <div style={{width:'100%',maxWidth:440,background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',padding:'22px 22px 24px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(15,23,42,.3)'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
-        <div style={{display:'flex',alignItems:'center',gap:8}}><Rocket size={18} color="#1e3a8a"/><span style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,color:'#0f172a'}}>Buy email credits</span></div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}><Rocket size={18} color="#12388f"/><span style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,color:'#0f172a'}}>Buy email credits</span></div>
         <button onClick={function(){if(!busy&&onClose)onClose();}} disabled={!!busy} style={{background:'none',border:'none',cursor:busy?'default':'pointer',color:'#94a3b8',padding:4,display:'flex'}}><X size={18}/></button>
       </div>
       <div style={{fontSize:12,color:'#64748b',marginBottom:16}}>Credits never expire</div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:18}}>
         {packs.map(function(p){var on=p.id===sel;return <div key={p.id} onClick={function(){if(!busy)setSel(p.id);}} style={{cursor:busy?'default':'pointer',border:on?'2px solid #2563eb':'1px solid #e2e8f0',background:on?'#eff6ff':'#fff',borderRadius:10,padding:'10px 14px'}}>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:on?'#1e3a8a':'#0f172a'}}>{(p.credits||0).toLocaleString()}</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:on?'#12388f':'#0f172a'}}>{(p.credits||0).toLocaleString()}</div>
           <div style={{fontSize:11,color:'#64748b',marginBottom:4}}>emails</div>
-          <div style={{fontSize:14,fontWeight:700,color:on?'#1e3a8a':'#2563eb'}}>${p.price}</div>
+          <div style={{fontSize:14,fontWeight:700,color:on?'#12388f':'#2563eb'}}>${p.price}</div>
         </div>;})}
       </div>
 
@@ -717,7 +709,7 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
         <div style={{fontSize:12,color:'#64748b',marginBottom:10}}>Pay ${price} for {credits.toLocaleString()} credits with</div>
         {err && <div style={{fontSize:12,fontWeight:700,color:'#dc2626',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,padding:'8px 12px',marginBottom:10}}>{err}</div>}
 
-        <button onClick={payWallet} disabled={!!busy||insufficient} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'12px 14px',borderRadius:10,border:'none',background:(busy||insufficient)?'#cbd5e1':'linear-gradient(135deg,#1e3a8a,#2563eb)',color:'#fff',fontSize:14,fontWeight:700,cursor:(busy||insufficient)?'default':'pointer',fontFamily:'inherit',marginBottom:8}}>
+        <button onClick={payWallet} disabled={!!busy||insufficient} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'12px 14px',borderRadius:10,border:'none',background:(busy||insufficient)?'#cbd5e1':'linear-gradient(135deg,#12388f,#2563eb)',color:'#fff',fontSize:14,fontWeight:700,cursor:(busy||insufficient)?'default':'pointer',fontFamily:'inherit',marginBottom:8}}>
           <span style={{display:'flex',alignItems:'center',gap:8}}><Wallet size={16}/> {busy==='wallet'?'Processing...':'Pay from wallet balance'}</span>
           <span style={{fontSize:11,opacity:.85}}>{insufficient?'Low balance':('$'+balance.toFixed(2))}</span>
         </button>
@@ -743,7 +735,7 @@ function BuyCreditsModal({show, onClose, emailStats, refresh, flash}) {
             <Suspense fallback={<div style={{fontSize:12,color:'#94a3b8',textAlign:'center',padding:'10px 0'}}>Loading wallet&hellip;</div>}>
               <WalletConnectProvider onBeforeClick={ensureConsent}>
                 <WalletConnectGate hideWhenConnected label={'Connect wallet to pay $'+price} style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'none',fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#ea580c,#f97316)',fontFamily:'inherit',cursor:'pointer'}}/>
-                <WalletPayLink productType="email_boost" productKey={'email_boost_'+credits} onSuccess={onWalletPaid} label={'Pay $'+price+' with wallet'} style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'none',fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#1e3a8a,#2563eb)',fontFamily:'inherit',cursor:'pointer',marginTop:8}}/>
+                <WalletPayLink productType="email_boost" productKey={'email_boost_'+credits} onSuccess={onWalletPaid} label={'Pay $'+price+' with wallet'} style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'none',fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#12388f,#2563eb)',fontFamily:'inherit',cursor:'pointer',marginTop:8}}/>
               </WalletConnectProvider>
             </Suspense>
           </div>
