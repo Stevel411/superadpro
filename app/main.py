@@ -67356,7 +67356,7 @@ def al_delete_payout_method(method_id: int, user: User = Depends(_al_user),
 _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payout methods — AdvantageLife</title>
+<title>Receiving methods — AdvantageLife</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
@@ -67427,12 +67427,12 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
   <div class="card">
     <h1>How you get <span class="r">paid</span></h1>
     <div class="sub">Add every way you're happy to be paid &mdash; buyers choose one of <b>your</b> methods at checkout and pay you directly, member to member. More options, more sales.</div>
-    <div class="warn" id="warn">&#9888; No payout method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
-    <div class="seclabel">Your payout methods</div>
+    <div class="warn" id="warn">&#9888; No receiving method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
+    <div class="seclabel">How you receive payment</div>
     <div id="list"></div>
     <div class="empty" id="empty">No methods yet &mdash; add your first below.</div>
     <div class="add">
-      <div class="addh"><i>+</i> Add a payout method</div>
+      <div class="addh"><i>+</i> Add a way to receive payment</div>
       <span class="fl">Payment type</span>
       <div class="dd" id="dd">
         <button class="dd-btn" id="ddBtn" type="button">
@@ -67447,7 +67447,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       <div class="hint" id="hint"></div>
       <div class="sellwarn" id="sellwarn"></div>
       <div class="err" id="err"></div>
-      <button class="btn" id="save">Save payout method</button>
+      <button class="btn" id="save">Save receiving method</button>
     </div>
     <div class="note">Double-check every detail &mdash; payments are member-to-member and AdvantageLife can't reverse a mistaken transfer.</div>
   </div>
@@ -67514,7 +67514,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     L.querySelectorAll('[data-def]').forEach(function(b){b.onclick=function(){
       fetch('/api/al/payout-methods/'+b.dataset.def+'/default',{method:'POST'}).then(load)}});
     L.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){
-      if(!confirm('Remove this payout method?'))return;
+      if(!confirm('Remove this receiving method?'))return;
       fetch('/api/al/payout-methods/'+b.dataset.del+'/delete',{method:'POST'}).then(load)}});
   })}
   document.getElementById('save').onclick=function(){
@@ -67524,10 +67524,10 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     fetch('/api/al/payout-methods',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({method_type:CUR.key,address:document.getElementById('addr').value.trim()})})
     .then(function(r){return r.json()}).then(function(j){
-      b.disabled=false;b.textContent='Save payout method';
+      b.disabled=false;b.textContent='Save receiving method';
       if(j.ok){document.getElementById('addr').value='';load()}
       else{e.textContent=j.error||'Could not save';e.style.display='block'}
-    }).catch(function(){b.disabled=false;b.textContent='Save payout method';e.textContent='Network error';e.style.display='block'});
+    }).catch(function(){b.disabled=false;b.textContent='Save receiving method';e.textContent='Network error';e.style.display='block'});
   };
   load();
 })();
