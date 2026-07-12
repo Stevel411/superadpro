@@ -8,6 +8,68 @@
 
 ---
 
+## Status as of 2026-07-12 — PAYMENTS PROVEN LIVE + NOTIFICATIONS + MULTI-GATEWAY + UI POLISH (Phases 4–7 in flight)
+
+**Two long sessions (11–12 Jul).** Took AdvantageLife from "engine proven" to "first real money moved end-to-end, both sides notified, payment UI complete." The core loop is now LIVE-TESTED, not just unit-passing.
+
+### The headline: FIRST LIVE P2P SALE COMPLETED
+Real $10 Launchpad pack, buyer (test65) → seller (Steve, user 1), paid on TRON, seller confirmed, pack activated, counter advanced. The whole money path works with a real Binance treasury address. This is the proof gate cleared.
+
+### Done (commits, newest first)
+- `213dae83a` — Confirm Sale page rebuilt: bigger/wider (620px), sectioned into "Needs your confirmation" (red) + "Confirmed · $X earned" (green tally), dashboard footer. No longer a dead-end.
+- `0b3c88ed6` — Campaign page (VideoLibrary) width-constrained (960px wrapper INSIDE page, NOT AppLayout) + AL retheme. First of the retheme queue; sets the pattern.
+- `39ee4baa2` — Buyer emailed on pack activation.
+- `7dffc553f` — Seller "You got paid!" celebration overlay + chime on confirm.
+- `7ad119922` — Dashboard chime + pop-up toast when a payment lands (polls my-sales 20s, diffs seen-set).
+- `68783231d` — **Seller emailed when buyer submits proof** (the critical live-test find — seller had NO way to know a payment arrived).
+- `e35c5cb51`/`d1fb22394` — Receiving methods: inline styled edit (fix a typo without delete+re-add).
+- `9a79cc5f0` — Wallets dropdown reorder (USDT → Cash apps → USDC) + bottom buffer.
+- `0ccc7eda5` — Wording "payout" → "receive/receiving" on wallets page (Steve: members expect to RECEIVE).
+- `1eaf50bea` — Dashboard + category nav cleanup: removed duplicate top nav, one-word "AdvantageLife" wordmark, sidebar = Dashboard/AI Tools/Campaigns/Watch-to-Earn/Buy Packs/Confirm Sale/Wallet, hamburgers trimmed (Profile/Security/Admin/Sign out).
+- `0b51e46a0` — Persistent "‹ Dashboard" back-link on all standalone pages (join, packs, payout).
+- `c9221b037` — Buyer pay page: multi-gateway method picker + adaptive panel (crypto=address/QR/hash, cash-app=handle/notify) + redesign.
+- `28c17caba` — **Option A multi-gateway**: create_intent snapshots ALL seller's methods; buyer picks via POST /intents/{id}/choose; `chosen_method` column added. (Steve caught: buyer may not have the seller's default rail.)
+- `93b4cc23b` — /payout-methods redesign: framed sections, custom chunky dropdown, + PayPal (email family).
+- `bc5e9c978` — Cash App + reversal safety-net `/admin/api/al/reverse-sale` (dry-run + apply). Reversible rails acceptable because company holds no funds + admin can claw back access.
+- `c7a5eb413` — **Company-routed sales → house user 1** (was earner_id=NULL, a settlement dead-end). Fixes buyer-stuck-forever.
+- `03fcd3ef6` — **Rotator RETIRED + ref lookup case-insensitive.** Was misattributing no-ref/case-mismatched signups to random members — critical in a pass-up tree.
+- `71a2c41d8` (earlier) — join price display bug ($100 rendered as $1 via rstrip("0")).
+- `012380dc9` (earlier) — **username-revert root cause**: a boot migration forcing admin username back to SuperAdPro on every startup. Killed.
+
+### Decisions locked (do NOT re-litigate)
+- **Company-routed pack sales go to Steve (house user 1).** "If they don't have a pack the revenue goes to me at AdvantageLife."
+- **Unqualified pass-ups are BY DESIGN**, not a bug: the $100 join grants membership, NOT earning-qualification. Must own the pack level AND be watch-qualified to earn. A member who joins but hasn't bought a pack owns level 0 → routes to company/Steve.
+- **Cash App + PayPal accepted** despite chargeback exposure: company carries no liability (never holds funds), audience is low-refund (network marketers), reversal tool exists. PayPal = family 'email', Cash App = family 'cashtag', both manual-confirm.
+- **Multi-gateway = Option A**: seller lists every rail they accept; buyer picks one. Listing a method = accepting payment on it.
+- **Treasury = Binance exchange addresses** (BSC/ETH share 0xd458…cc5e, TRON TLBBgH…s5ug). Steve accepted the memo/verification caveats; live test PROVED the scanner works with them. NO memo on any Binance USDT deposit screen.
+- **Wording: "receive" not "payout"** on member-facing wallet UI.
+- **Nav**: single sidebar (no duplicate top nav), one-word AdvantageLife wordmark, Confirm Sale = the /my-sales page.
+
+### Notifications (three layers now)
+1. Email — seller on proof-submit, buyer on activation (the "when away" layer, via email_utils.send_email).
+2. Dashboard chime + toast — seller when a payment lands (the "when watching" layer).
+3. In-app Notification rows — created both directions BUT still invisible (no notification bell on the AL dashboard yet — see pending).
+
+### Pending / next
+- **NOTIFICATION BELL** on the AL dashboard — in-app Notifications are created but there's nowhere to see them. Email covers urgent cases; bell is the complete fix. (Highest-value small task.)
+- **Retheme queue** (VideoLibrary done, pattern set): Create Campaign, Creative Studio chrome, marketing cluster, ActivateTier/campaign-tiers. Same recipe: 960px wrapper inside page + sweep --sap- brand colours to AL.
+- **Category-pages sidebar (Sidebar.jsx)** still the full SuperAdPro multi-group menu — does NOT match the clean AL dashboard sidebar. Biggest remaining nav inconsistency. Needs product decision on which items survive.
+- **Phase 8 lockdown**: strip diagnostic endpoints (secret-check, treasury-check, db-connections, intent-debug, reverse-sale?, rename-user, set-password, set-display-name, verify-battery, grant-lifetime, migrate-import, export-members-migration), drop al_username_audit table + tripwire, flip SKIP_MIGRATIONS=true.
+- **Phase 9**: account-claim/password flow (611 migrated, no passwords), announcement email, DNS cutover, sunset old.
+- **Web push** (optional, future): true background notifications need a service worker — the only way to alert a seller with the app closed.
+- i18n sweep (19 locales still old names/prices) + training-content AL rewrite — can trail launch.
+
+### Verified facts / gotchas banked
+- Settlement battery `/admin/api/al/verify-battery?secret=MIGRATION_SECRET` = 12/12 passing (re-verified after company-routing AND multi-gateway changes).
+- Live URL is now `https://www.advantagelife.club` (DNS in GoDaddy).
+- AL_JOIN_PRICE_USD defaults to 100, unset in Railway — do NOT set it.
+- Treasury env set: SITE_URL, AL_COMPANY_USDT_ADDRESS (BSC), AL_TREASURY_USDT_ETH, AL_TREASURY_USDT_TRON. Polygon not set.
+- Server-rendered templates (in app/main.py) ship on push — NO npm build. React pages (frontend/src) REQUIRE `npm run build` + commit static/app.
+- test65 = the live-test buyer (under user 1, lifetime). test64 = earlier ref-attribution test (landed on wrong sponsor 179 pre-fix).
+- Multi-template CSS hazard: .card / .wrap / .macts appear in 3+ near-identical templates in app/main.py — anchor edits on unique surrounding text, count==1, or exact-bounds string swap.
+
+---
+
 ## Status as of 2026-07-09 — ADVANTAGELIFE: LIVE PLATFORM, MEMBERS MIGRATED, ENGINE PROVEN (Phases 0–3)
 
 **Branch `advantagelife-passup` = a SEPARATE live deploy** (not `main`). One codebase, two deploys: SuperAdPro off `main`, AdvantageLife off this branch with a FRESH DB. This session took AdvantageLife from mockups to a running platform with the whole member base on it.
