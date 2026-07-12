@@ -67204,11 +67204,16 @@ AL_PAYOUT_METHODS = {
                      "hint": 'Starts with "0x" — 42 characters', "auto_verify": False},
     "usdc_polygon": {"label": "USDC · Polygon", "family": "evm",
                      "hint": 'Starts with "0x" — 42 characters', "auto_verify": False},
+    "cashapp":      {"label": "Cash App", "family": "cashtag",
+                     "hint": 'Your $Cashtag — starts with "$"', "auto_verify": False,
+                     "reversible": True,
+                     "seller_note": "Cash App payments can be reversed. Confirm only once the money shows as settled in your balance — not just received."},
 }
 
 _AL_ADDR_RE = {
-    "evm":  re.compile(r"^0x[a-fA-F0-9]{40}$"),
-    "tron": re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
+    "evm":     re.compile(r"^0x[a-fA-F0-9]{40}$"),
+    "tron":    re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
+    "cashtag": re.compile(r"^\$[a-zA-Z][a-zA-Z0-9_]{1,19}$"),
 }
 
 
@@ -68407,6 +68412,68 @@ def al_intent_debug(secret: str = "", buyer_username: str = "", db: Session = De
                               "pack_sale_count": seller.pack_sale_count or 0} if seller else None),
         "COMPANY_sentinel": _pe.COMPANY,
     }
+
+
+@app.get("/admin/api/al/reverse-sale")
+def al_reverse_sale(secret: str = "", intent_id: int = 0, apply: int = 0,
+                    reason: str = "chargeback", db: Session = Depends(get_db)):
+    """Reverse a CONFIRMED pack sale (chargeback / fraudulent reversal).
+    Undoes all three effects of confirm atomically: revokes the buyer's
+    pack, decrements the payee's sale counter, voids the commission. Dry-run
+    by default; &apply=1 to execute. MIGRATION_SECRET-gated, Phase 8 list.
+
+    Built 12 Jul 2026 for the Cash App/PayPal chargeback path: since those
+    rails are reversible (unlike crypto), an admin must be able to claw back
+    access when a payment is charged back after activation."""
+    _ms = os.environ.get("MIGRATION_SECRET", "")
+    if not _ms or secret != _ms:
+        raise HTTPException(status_code=403, detail="forbidden")
+    from sqlalchemy import text as _t
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return JSONResponse({"error": f"intent {intent_id} not found"}, status_code=404)
+    if intent.status != "confirmed":
+        return JSONResponse({"error": f"intent is '{intent.status}', not 'confirmed' — nothing to reverse"}, status_code=400)
+
+    purchase = (db.query(PackPurchase)
+                  .filter(PackPurchase.user_id == intent.buyer_id,
+                          PackPurchase.pack_id == intent.pack_id,
+                          PackPurchase.status == "active")
+                  .order_by(PackPurchase.id.desc()).first())
+    commission = (db.query(PackCommission)
+                    .filter(PackCommission.purchase_id == (purchase.id if purchase else -1))
+                    .first())
+    payee = db.query(User).filter(User.id == intent.earner_id).first() if intent.earner_id else None
+
+    plan = {
+        "intent_id": intent.id, "reason": reason,
+        "buyer_id": intent.buyer_id, "pack_level": intent.pack_level,
+        "will_revoke_purchase_id": purchase.id if purchase else None,
+        "will_void_commission_id": commission.id if commission else None,
+        "payee_id": intent.earner_id,
+        "payee_counter_now": (payee.pack_sale_count if payee else None),
+        "payee_counter_after": (max(0, (payee.pack_sale_count or 0) - 1) if payee else None),
+    }
+    if not apply:
+        return {"dry_run": True, **plan, "execute": "add &apply=1"}
+
+    # Execute atomically
+    if purchase:
+        purchase.status = "reversed"
+    if commission:
+        commission.status = "reversed"
+    if payee and (payee.pack_sale_count or 0) > 0:
+        payee.pack_sale_count = payee.pack_sale_count - 1
+    intent.status = "reversed"
+    try:
+        db.execute(_t("INSERT INTO al_username_audit (user_id, from_name, to_name, source, stack) "
+                      "VALUES (:u, :f, :tn, 'sale-reversal', :s)"),
+                   {"u": intent.buyer_id, "f": f"intent#{intent.id}",
+                    "tn": f"reversed:{reason}", "s": f"purchase={plan['will_revoke_purchase_id']} commission={plan['will_void_commission_id']}"})
+    except Exception:
+        logger.exception("reversal audit row failed")
+    db.commit()
+    return {"ok": True, "reversed": True, **plan}
 
 
 @app.get("/admin/api/al/treasury-check")
