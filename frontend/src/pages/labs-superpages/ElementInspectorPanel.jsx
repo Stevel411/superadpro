@@ -41,7 +41,7 @@ import ScriptsPanel from './ScriptsPanel';
 const labelStyle = {
   display: 'block',
   fontSize: 11, fontWeight: 700,
-  color: '#4d648c',
+  color: '#9db0e0',
   fontFamily: "'Sora', sans-serif",
   letterSpacing: '0.06em',
   textTransform: 'uppercase',
@@ -5835,7 +5835,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
 
     const sectionLabelStyle = {
       fontSize: 11, fontWeight: 700,
-      color: '#4d648c',
+      color: '#9db0e0',
       fontFamily: "'Sora', sans-serif",
       letterSpacing: '0.06em',
       textTransform: 'uppercase',
@@ -5893,7 +5893,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #c5d7ef' }}>
           <div style={{
             fontSize: 10, fontWeight: 800,
-            color: '#4d648c',
+            color: '#9db0e0',
             letterSpacing: '0.12em', textTransform: 'uppercase',
             marginBottom: 4,
           }}>Page settings</div>
@@ -6024,7 +6024,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {/* Base size slider */}
           <div style={{
             fontSize: 11, fontWeight: 700,
-            color: '#4d648c',
+            color: '#9db0e0',
             fontFamily: "'Sora', sans-serif",
             letterSpacing: '0.06em', textTransform: 'uppercase',
             marginTop: 14, marginBottom: 7,
@@ -6046,7 +6046,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           {/* Heading scale */}
           <div style={{
             fontSize: 11, fontWeight: 700,
-            color: '#4d648c',
+            color: '#9db0e0',
             fontFamily: "'Sora', sans-serif",
             letterSpacing: '0.06em', textTransform: 'uppercase',
             marginTop: 14, marginBottom: 7,
