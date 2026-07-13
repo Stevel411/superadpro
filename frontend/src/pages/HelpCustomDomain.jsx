@@ -1,5 +1,5 @@
 /**
- * HelpCustomDomain — guided setup guide for SuperPages custom domains
+ * HelpCustomDomain — guided setup guide for Page Builder custom domains
  * ═══════════════════════════════════════════════════════════════════
  * Rebuilt 2 Jul 2026 in the BlogDomain.jsx / SendingDomains.jsx visual
  * language: three numbered step cards, "What's this?" expanders, the
@@ -12,7 +12,7 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import {
   Globe, ArrowLeft, ArrowRight, AlertTriangle, Clock, HelpCircle,
   ChevronDown, ChevronRight, ShieldCheck, Wrench, CheckCircle2,
@@ -57,16 +57,12 @@ export default function HelpCustomDomain() {
   };
 
   return (
-    <AppLayout title="Custom Domain Guide" subtitle="Put your pages on your own domain">
+    <AlShell active="ai-tools" back={{ to: '/pro/funnels', label: 'Page Builder' }}>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px' }}>
-
-        <Link to="/funnels" style={backLinkStyle}>
-          <ArrowLeft size={14} /> Back to SuperPages
-        </Link>
 
         {/* Header */}
         <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: '#0a1438', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: '#0a1f52', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Globe size={24} color="#fff" strokeWidth={2} />
           </div>
           <div style={{ flex: 1, minWidth: 220 }}>
@@ -74,7 +70,7 @@ export default function HelpCustomDomain() {
               Put your pages on your own domain
             </h1>
             <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', lineHeight: 1.55 }}>
-              Serve your SuperPages at <strong>pages.yourbrand.com</strong> instead of the SuperAdPro
+              Serve your pages at <strong>pages.yourbrand.com</strong> instead of the AdvantageLife
               address. About 5 minutes &mdash; copy, paste, done. We issue the HTTPS certificate for you.
             </p>
             <Link to="/custom-domain" style={{ ...primaryBtnStyle, textDecoration: 'none', marginTop: 14 }}>
@@ -148,13 +144,13 @@ export default function HelpCustomDomain() {
         {/* Stuck fixes */}
         <div style={{ ...cardStyle, marginTop: 14, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Wrench size={16} color="#0ea5e9" />
+            <Wrench size={16} color="#c8102e" />
             <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 15, color: '#0f172a' }}>
               If it gets stuck
             </div>
           </div>
           <div style={fixRow}>
-            <CheckCircle2 size={14} color="#0ea5e9" style={fixIcon} />
+            <CheckCircle2 size={14} color="#c8102e" style={fixIcon} />
             <div style={fixText}>
               <strong>Status says Failed?</strong> The TXT record is usually missing or mistyped. Check its
               Name starts with <span style={codeInline}>_acme-challenge</span> and the value matches exactly,
@@ -162,14 +158,14 @@ export default function HelpCustomDomain() {
             </div>
           </div>
           <div style={fixRow}>
-            <CheckCircle2 size={14} color="#0ea5e9" style={fixIcon} />
+            <CheckCircle2 size={14} color="#c8102e" style={fixIcon} />
             <div style={fixText}>
               <strong>Added an &ldquo;A record&rdquo; by mistake?</strong> Delete it and add a
               {' '}<strong>CNAME</strong> instead &mdash; the setup page shows exactly what to paste.
             </div>
           </div>
           <div style={fixRow}>
-            <CheckCircle2 size={14} color="#0ea5e9" style={fixIcon} />
+            <CheckCircle2 size={14} color="#c8102e" style={fixIcon} />
             <div style={fixText}>
               <strong>Loads but says &ldquo;Not Secure&rdquo;?</strong> DNS beat the certificate. Wait 10&ndash;15
               minutes and refresh; still not secure after 30, tap <strong>Check now</strong> to re-issue.
@@ -182,17 +178,17 @@ export default function HelpCustomDomain() {
         </div>
 
         {/* Reassurance panel */}
-        <div style={{ ...cardStyle, marginBottom: 24, background: 'linear-gradient(135deg,#0a1438,#1e3a8a)', border: 'none' }}>
+        <div style={{ ...cardStyle, marginBottom: 24, background: 'linear-gradient(135deg,#0a1f52,#12388f)', border: 'none' }}>
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <ShieldCheck size={22} color="#67e8f9" style={{ flexShrink: 0, marginTop: 2 }} />
+            <ShieldCheck size={22} color="#f5b8c2" style={{ flexShrink: 0, marginTop: 2 }} />
             <div>
               <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 15, color: '#fff', marginBottom: 5 }}>
                 Secure, and fully your brand
               </div>
               <div style={{ fontSize: 13, color: '#bcd0f0', lineHeight: 1.6, marginBottom: 14 }}>
-                Once it&rsquo;s live, your pages load on <strong style={{ color: '#67e8f9' }}>your</strong> domain
+                Once it&rsquo;s live, your pages load on <strong style={{ color: '#f5b8c2' }}>your</strong> domain
                 over HTTPS with a certificate we issue and renew automatically. Visitors never see a
-                SuperAdPro URL &mdash; it&rsquo;s your site; we&rsquo;re just the engine behind it.
+                AdvantageLife URL &mdash; it&rsquo;s your site; we&rsquo;re just the engine behind it.
               </div>
               <Link to="/custom-domain" style={{ ...primaryBtnStyle, textDecoration: 'none' }}>
                 Start setup <ArrowRight size={14} />
@@ -201,25 +197,25 @@ export default function HelpCustomDomain() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }
 
 /* ── styles (mirrors BlogDomain.jsx / SendingDomains.jsx) ── */
 const cardStyle = { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' };
 const backLinkStyle = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: 16 };
-const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
+const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#c8102e,#e8203f)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const codeInline = { background: '#f1f5f9', color: '#0f172a', padding: '1px 6px', borderRadius: 4, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, fontWeight: 600 };
-const inlineLink = { color: '#0ea5e9', fontWeight: 700, textDecoration: 'none' };
+const inlineLink = { color: '#c8102e', fontWeight: 700, textDecoration: 'none' };
 const recCardStyle = { border: '1px solid #e6ebf3', borderRadius: 12, padding: '14px 16px', marginBottom: 10, background: '#fbfdff' };
-const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#0ea5e9', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#c8102e', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
 const recTag = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 10, fontWeight: 600, color: '#475569', background: '#eef2f8', border: '1px solid #e2e8f0', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
 const stepHead = { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9, flexWrap: 'wrap' };
 const stepTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 14.5, color: '#0f172a', flex: 1, minWidth: 180 };
 const stepBody = { fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 8px' };
-const whatLink = { background: 'none', border: 'none', color: '#0ea5e9', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 0 0' };
-const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #6366f1', borderRadius: 8, padding: '11px 13px' };
-const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#6366f1', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
+const whatLink = { background: 'none', border: 'none', color: '#c8102e', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 0 0' };
+const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #12388f', borderRadius: 8, padding: '11px 13px' };
+const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#12388f', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
 const whatBoxBody = { fontSize: 12, color: '#475569', lineHeight: 1.6 };
 const helpStrip = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', fontSize: 12.5, color: '#92400e', lineHeight: 1.5 };
 const fixRow = { display: 'flex', gap: 9, alignItems: 'flex-start', marginBottom: 9 };
