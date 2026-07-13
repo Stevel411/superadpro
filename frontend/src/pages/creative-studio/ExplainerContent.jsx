@@ -13,14 +13,14 @@ import { BrandKitContent } from './BrandKitContent';
 
 const STEPS = ['Brief', 'Storyboard', 'Look & sound', 'Generate', 'Result'];
 const STYLE_SWATCH = {
-  cinematic:  'linear-gradient(135deg,#0a1438,#1e3a8a 60%,#0e7490)',
+  cinematic:  'linear-gradient(135deg,#0a1438,#12388f 60%,#a00d24)',
   corporate:  'linear-gradient(135deg,#e6edf8,#c7d6f0)',
-  bold:       'linear-gradient(135deg,#0ea5e9,#22d3ee)',
-  animated3d: 'linear-gradient(135deg,#1e3a8a,#06b6d4)',
+  bold:       'linear-gradient(135deg,#c8102e,#e8203f)',
+  animated3d: 'linear-gradient(135deg,#12388f,#e8203f)',
   ugc:        'linear-gradient(135deg,#cdd6ea,#94a0c0)',
   whiteboard: 'linear-gradient(135deg,#ffffff,#e4e9f4)',
-  futuristic: 'linear-gradient(135deg,#070f2b,#0e7490)',
-  lifestyle:  'linear-gradient(135deg,#1e3a8a,#0ea5e9 70%,#fcd9b8)',
+  futuristic: 'linear-gradient(135deg,#070f2b,#a00d24)',
+  lifestyle:  'linear-gradient(135deg,#12388f,#c8102e 70%,#fcd9b8)',
 };
 
 function Icon({ d, fill }) {
@@ -455,7 +455,7 @@ export function ExplainerContent() {
 }
 
 const CSS = `
-.expl{ --co:#0a1438; --co2:#1e3a8a; --cy:#06b6d4; --cy2:#0ea5e9; --cyb:#22d3ee; --cyd:#0e7490;
+.expl{ --co:#0a1438; --co2:#12388f; --cy:#e8203f; --cy2:#c8102e; --cyb:#e8203f; --cyd:#a00d24;
   --ink:#0a1438; --inks:#26345c; --mut:#64739a; --faint:#94a0c0; --line:#e4e9f4; --soft:#eef1f8;
   font-family:'DM Sans',sans-serif; color:var(--ink); max-width:1080px; margin:0 auto; }
 .expl svg{ width:1em; height:1em; }
@@ -529,19 +529,19 @@ const CSS = `
 
 .bkbanner{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 18px; padding:11px 14px; border-radius:11px; font-size:13px; line-height:1.45; background:#f1f5ff; border:1px solid #dbe4ff; color:#26345c; }
 .bkbanner.on{ background:rgba(6,182,212,.06); border-color:rgba(6,182,212,.28); color:#0e5a6b; }
-.bkbanner a{ flex:0 0 auto; font-weight:600; color:#0e7490; text-decoration:none; white-space:nowrap; }
-.bk-link{ flex:0 0 auto; font-weight:600; color:#0e7490; background:none; border:0; padding:0; cursor:pointer; white-space:nowrap; font-family:'DM Sans'; font-size:13px; }
+.bkbanner a{ flex:0 0 auto; font-weight:600; color:#a00d24; text-decoration:none; white-space:nowrap; }
+.bk-link{ flex:0 0 auto; font-weight:600; color:#a00d24; background:none; border:0; padding:0; cursor:pointer; white-space:nowrap; font-family:'DM Sans'; font-size:13px; }
 .bkm-overlay{ position:fixed; inset:0; background:rgba(10,20,56,.55); z-index:1000; display:flex; align-items:flex-start; justify-content:center; padding:36px 16px; overflow:auto; }
 .bkm{ background:#fff; border-radius:18px; width:100%; max-width:980px; box-shadow:0 24px 70px rgba(10,20,56,.4); margin:auto; }
 .bkm-head{ position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:15px 22px; border-bottom:1px solid #e4e9f4; background:#fff; border-radius:18px 18px 0 0; z-index:2; }
 .bkm-head span{ font-family:'Sora',sans-serif; font-weight:700; font-size:14.5px; color:#0a1438; }
-.bkm-done{ flex:0 0 auto; border:0; background:linear-gradient(135deg,#1e3a8a,#0e7490); color:#fff; font-weight:600; font-size:13.5px; padding:9px 20px; border-radius:10px; cursor:pointer; }
+.bkm-done{ flex:0 0 auto; border:0; background:linear-gradient(135deg,#12388f,#a00d24); color:#fff; font-weight:600; font-size:13.5px; padding:9px 20px; border-radius:10px; cursor:pointer; }
 .bkm-body{ padding:22px; }
 
 .expl-err{ margin-top:16px; padding:11px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:13px; font-weight:500; }
 .perr{ margin-top:5px; font-size:11.5px; color:#b91c1c; font-family:'JetBrains Mono',monospace; }
 .assembling{ display:flex; align-items:center; gap:14px; margin-top:18px; padding:14px 16px; border-radius:12px; background:rgba(6,182,212,.06); border:1px solid rgba(6,182,212,.25); }
-.asm-spin{ flex:0 0 auto; width:22px; height:22px; border-radius:50%; border:3px solid rgba(6,182,212,.25); border-top-color:#06b6d4; animation:asmspin .8s linear infinite; }
+.asm-spin{ flex:0 0 auto; width:22px; height:22px; border-radius:50%; border:3px solid rgba(6,182,212,.25); border-top-color:#e8203f; animation:asmspin .8s linear infinite; }
 .asm-txt{ font-size:13px; color:#0e5a6b; line-height:1.45; } .asm-txt b{ display:block; font-family:'Sora',sans-serif; color:#0a1438; margin-bottom:1px; }
 @keyframes asmspin{ to{ transform:rotate(360deg); } }
 
@@ -554,7 +554,7 @@ const CSS = `
 
 .expl-side{ position:sticky; top:20px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 24px rgba(10,20,56,.06); padding:18px; }
 .expl-side h4{ margin:0 0 14px; font-size:11.5px; text-transform:uppercase; letter-spacing:1.2px; color:var(--faint); font-weight:600; }
-.rprev{ position:relative; border-radius:12px; overflow:hidden; aspect-ratio:16/9; background:linear-gradient(135deg,#0a1438,#1e3a8a 60%,#0e7490); display:flex; align-items:flex-end; padding:10px; margin-bottom:14px; }
+.rprev{ position:relative; border-radius:12px; overflow:hidden; aspect-ratio:16/9; background:linear-gradient(135deg,#0a1438,#12388f 60%,#a00d24); display:flex; align-items:flex-end; padding:10px; margin-bottom:14px; }
 .rprev .fmt{ position:absolute; top:9px; right:9px; font-family:'JetBrains Mono'; font-size:10px; font-weight:600; color:#0a1438; background:var(--cyb); padding:3px 7px; border-radius:6px; }
 .rprev .rttl{ color:#fff; font-family:'Sora'; font-weight:600; font-size:12px; text-shadow:0 1px 6px rgba(0,0,0,.4); }
 .rsum .r{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid var(--soft); font-size:13px; }

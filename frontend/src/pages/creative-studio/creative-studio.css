@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════ */
 
 /* ── Variables ── */
-.cs-page { --cobalt: #172554; --cobalt2: #1e3a8a; --cobalt3: #172554; --cyan: #38bdf8; --purple: #8b5cf6; overflow: visible; }
+.cs-page { --cobalt: #172554; --cobalt2: #12388f; --cobalt3: #172554; --cyan: #e8203f; --purple: #12388f; overflow: visible; }
 
 /* ── Header ── */
 .cs-header { background: linear-gradient(135deg, var(--cobalt3), var(--cobalt), var(--cobalt2)); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; }
@@ -16,13 +16,13 @@
 .cs-credits-buy { font-size: 10px; font-weight: 700; color: var(--cyan); background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.2); border-radius: 5px; padding: 3px 8px; text-decoration: none; margin-left: 4px; cursor: pointer; }
 
 /* ── Tab Bar (Platform Tour style) ── */
-.cs-tab-bar { background: linear-gradient(135deg, #172554, #1e3a8a); border-bottom: none; padding: 0 28px; overflow-x: auto; display: flex; align-items: center; gap: 0; }
+.cs-tab-bar { background: linear-gradient(135deg, #172554, #12388f); border-bottom: none; padding: 0 28px; overflow-x: auto; display: flex; align-items: center; gap: 0; }
 .cs-tabs { display: flex; gap: 4px; padding: 12px 0; flex: 1; }
-.cs-credits-buy { font-size: 11px; font-weight: 700; color: #fff; background: rgba(139,92,246,.3); border: 1px solid rgba(139,92,246,.4); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: inherit; transition: all .15s; }
-.cs-credits-buy:hover { background: rgba(139,92,246,.5); border-color: #8b5cf6; }
+.cs-credits-buy { font-size: 11px; font-weight: 700; color: #fff; background: rgba(18,56,143,.3); border: 1px solid rgba(18,56,143,.4); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.cs-credits-buy:hover { background: rgba(18,56,143,.5); border-color: #12388f; }
 .cs-tab { padding: 9px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.55); cursor: pointer; white-space: nowrap; border: 1.5px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); border-radius: 10px; display: flex; align-items: center; gap: 7px; transition: all .15s; font-family: inherit; }
 .cs-tab:hover { border-color: rgba(255,255,255,.25); color: #fff; background: rgba(255,255,255,.1); }
-.cs-tab.active { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,.35); }
+.cs-tab.active { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 2px 8px rgba(18,56,143,.35); }
 .cs-tab svg { width: 15px; height: 15px; }
 
 /* ── Main Content Area ── */
@@ -120,9 +120,9 @@
 .cs-motion-card:hover { border-color: #cbd5e1; background: #f1f5f9; }
 .cs-motion-card.on { background: #ecfeff; border-color: rgba(34,211,238,.35); }
 .cs-motion-icon { font-size: 16px; color: #475569; line-height: 1; }
-.cs-motion-card.on .cs-motion-icon { color: #06b6d4; }
+.cs-motion-card.on .cs-motion-icon { color: #e8203f; }
 .cs-motion-label { font-size: 9px; font-weight: 600; color: #64748b; text-align: center; line-height: 1.2; }
-.cs-motion-card.on .cs-motion-label { color: #0e7490; }
+.cs-motion-card.on .cs-motion-label { color: #a00d24; }
 
 /* ── Seed ── */
 .cs-seed { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; }
@@ -139,13 +139,13 @@
 /* ── Audio Toggle ── */
 .cs-audio-toggle { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 10px 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; }
 .cs-toggle-track { width: 40px; height: 22px; border-radius: 11px; background: #cbd5e1; position: relative; transition: background .2s; flex-shrink: 0; }
-.cs-toggle-track.on { background: #22d3ee; }
+.cs-toggle-track.on { background: #e8203f; }
 .cs-toggle-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
 .cs-toggle-track.on .cs-toggle-thumb { left: 20px; }
 
 /* ── Generate Button ── */
 .cs-gen-row { display: flex; gap: 12px; align-items: center; max-width: 900px; margin: 8px auto 0; }
-.cs-gen-btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 0 #5b21b6, 0 6px 20px rgba(124,58,237,.3); transition: all .1s; }
+.cs-gen-btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; background: linear-gradient(135deg, #12388f, #7c3aed); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 0 #5b21b6, 0 6px 20px rgba(124,58,237,.3); transition: all .1s; }
 .cs-gen-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
 .cs-gen-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
 .cs-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -166,8 +166,8 @@
 .cs-matrix-banner-text { flex: 1; }
 .cs-matrix-banner-title { font-size: 14px; font-weight: 700; color: #172554; margin-bottom: 2px; }
 .cs-matrix-banner-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
-.cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #8b5cf6; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #e9e5ff; background: #fff; transition: all .15s; flex-shrink: 0; }
-.cs-matrix-banner-link:hover { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+.cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #12388f; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #e9e5ff; background: #fff; transition: all .15s; flex-shrink: 0; }
+.cs-matrix-banner-link:hover { background: #12388f; color: #fff; border-color: #12388f; }
 
 /* ── Override AppLayout overflow restriction ── */
 .cs-page { overflow: visible !important; }

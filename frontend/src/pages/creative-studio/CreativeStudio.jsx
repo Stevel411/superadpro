@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import AppLayout from '../../components/layout/AppLayout';
+import AlShell from '../../components/layout/AlShell';
 import { CreditMatrixContent } from '../CreditMatrix';
 import { VideoCreatorContent } from '../VideoCreator';
 import { ExplainerContent } from './ExplainerContent';
@@ -13,12 +13,12 @@ function getModels(t) {
   return [
     { key: "wan26",      name: "WAN 2.6",          desc: t('creativeStudio.modelDesc.kling25Pro'),   badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
     { key: "seedance",   name: "Seedance 1.5 Pro", desc: t('creativeStudio.modelDesc.kling25Master'),badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12], resolutions: ["480p","720p","1080p"],durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
-    { key: "kling3",     name: "Kling 3.0",        desc: t('creativeStudio.modelDesc.veo31Fast'),    badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
+    { key: "kling3",     name: "Kling 3.0",        desc: t('creativeStudio.modelDesc.veo31Fast'),    badge: "POPULAR",  cost: 3,  color: "#e8203f", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
     { key: "grok-video", name: "Grok Imagine",     desc: t('creativeStudio.modelDesc.hailuo'),       badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
     { key: "veo31",      name: "VEO 3.1 Fast",     desc: t('creativeStudio.modelDesc.wan22'),        badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
     { key: "kling-o3",   name: "Kling O3",         desc: t('creativeStudio.modelDesc.veo31Pro'),     badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
     { key: "sora2",      name: "Sora 2 Pro",       desc: t('creativeStudio.modelDesc.sora2'),        badge: "PREMIUM",  cost: 8,  color: "var(--sap-purple-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],      resolutions: ["720p","1080p"],      durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
-    { key: "sora2-max",  name: "Sora 2 Max",       desc: t('creativeStudio.modelDesc.sora2Max'),     badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],       resolutions: ["720p","1080p"],      durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
+    { key: "sora2-max",  name: "Sora 2 Max",       desc: t('creativeStudio.modelDesc.sora2Max'),     badge: "PRO",      cost: 10, color: "#12388f", i2v: false, audio: false, negPrompt: false, durations: [10,15],       resolutions: ["720p","1080p"],      durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
     { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: t('creativeStudio.modelDesc.veo31Pro4K'),   badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
   ];
 }
@@ -611,7 +611,16 @@ export default function CreativeStudio() {
   //  RENDER
   // ══════════════════════════════════════════════════
   return (
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t("creativeStudio.title")} subtitle={t("creativeStudio.subtitle")}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M15 9h0M17.8 6.2L19 5M3 21l9-9M12.2 6.2L11 5"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t("creativeStudio.title")}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t("creativeStudio.subtitle")}</div>
+        </div>
+      </div>
 
       <div className="cs-page">
 
@@ -691,7 +700,7 @@ export default function CreativeStudio() {
           }}>Try it</div>
         </a>
 
-        {/* ── Tab Bar + Credits (Platform Tour style — directly under AppLayout) ── */}
+        {/* ── Tab Bar + Credits (Platform Tour style — directly under AlShell) ── */}
         <div className="cs-tab-bar">
           <button onClick={function() { var el = document.getElementById('cs-tabs-scroll'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
             style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:24, fontWeight:800, color:'rgba(255,255,255,.55)', flexShrink:0, display:'flex', alignItems:'center' }}>‹</button>
@@ -914,10 +923,10 @@ export default function CreativeStudio() {
             <div className="cs-matrix-banner">
               <div className="cs-matrix-banner-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#22d3ee"/>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#22d3ee"/>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#06b6d4"/>
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#c8102e"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#e8203f"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#e8203f"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#e8203f"/>
                 </svg>
               </div>
               <div className="cs-matrix-banner-text">
@@ -1098,7 +1107,7 @@ export default function CreativeStudio() {
                 <div style={{ display: 'flex', gap: 8, padding: 12, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                   <div style={{ flex: 1, maxHeight: '100%', position: 'relative', borderRadius: 10, overflow: 'hidden' }}>
                     <img src={riImg} alt="Reference" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: 10 }}/>
-                    {riUploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 32, height: 32, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 1s linear infinite' }}/></div>}
+                    {riUploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 32, height: 32, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#c8102e', borderRadius: '50%', animation: 'spin 1s linear infinite' }}/></div>}
                   </div>
                   <button onClick={function() { setRiImg(null); setRiImgUrl(''); setRiResults([]); }} style={{ position: 'absolute', top: 20, right: 20, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.6)', border: '1px solid rgba(255,255,255,.2)', color: '#fff', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
                 </div>
@@ -1142,7 +1151,7 @@ export default function CreativeStudio() {
                 <div className="cs-card">
                   <div className="cs-lbl">{t('creativeStudio.referenceImage')}</div>
                   {!riImg ? (
-                    <div onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ border: '2px dashed rgba(255,255,255,.12)', borderRadius: 10, padding: '20px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .2s', marginBottom: 12 }} onMouseEnter={function(e) { e.currentTarget.style.borderColor = 'rgba(14,165,233,.3)'; }} onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; }}>
+                    <div onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ border: '2px dashed rgba(255,255,255,.12)', borderRadius: 10, padding: '20px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .2s', marginBottom: 12 }} onMouseEnter={function(e) { e.currentTarget.style.borderColor = 'rgba(200,16,46,.3)'; }} onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; }}>
                       <div style={{ fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.clickToUpload')}</div>
                       <div style={{ fontSize: 14, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>{t('creativeStudio.uploadFormats')}</div>
                     </div>
@@ -1160,7 +1169,7 @@ export default function CreativeStudio() {
                     <span>{t('creativeStudio.subtle')}</span><span>{t('creativeStudio.moderate')}</span><span>{t('creativeStudio.dramatic')}</span>
                   </div>
 
-                  <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(139,92,246,.05)', border: '1px solid rgba(139,92,246,.08)', fontSize: 14, color: 'rgba(255,255,255,.35)', lineHeight: 1.6 }}>
+                  <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(18,56,143,.05)', border: '1px solid rgba(18,56,143,.08)', fontSize: 14, color: 'rgba(255,255,255,.35)', lineHeight: 1.6 }}>
                     <span style={{ fontWeight: 700, color: 'var(--sap-purple-light)' }}>{t('creativeStudio.tipsTitle')}: </span>
                     {t('creativeStudio.tipsContent')}
                   </div>
@@ -1438,6 +1447,6 @@ export default function CreativeStudio() {
       </div>
 
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-    </AppLayout>
+    </AlShell>
   );
 }
