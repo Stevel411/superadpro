@@ -374,14 +374,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           + Preview, Publish-status, Save, Open (always visible)
           ───────────────────────────────────────────────────────────── */}
       {!compactTertiary && (
-        <button onClick={onShowTemplates} className="sp-tb-pill" style={pillM_accent}
+        <button onClick={onShowTemplates} className="sp-tb-pill" style={pillM}
           onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(200,16,46,0.2)';
             e.currentTarget.style.borderColor = '#c8102e';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(200,16,46,0.12)';
-            e.currentTarget.style.borderColor = 'rgba(200,16,46,0.4)';
+            e.currentTarget.style.borderColor = '#e2e8f0';
           }}
           title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
           <LayoutTemplate size={14}/>
@@ -489,7 +487,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <div className="sp-cluster-divider"/>
 
-      <button onClick={onTogglePreview} className="sp-tb-pill" style={previewMode ? pillM_previewActive : pillM_accent}
+      <button onClick={onTogglePreview} className="sp-tb-pill" style={previewMode ? pillM_previewActive : pillM}
         onMouseEnter={e => {
           if (previewMode) return;
           e.currentTarget.style.background = 'rgba(200,16,46,0.2)';
@@ -504,7 +502,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <span>{previewMode ? t('superPagesEditor.editLabel', { defaultValue: 'Edit' }) : t('superPagesEditor.previewLabel', { defaultValue: 'Preview' })}</span>
       </button>
 
-      <button onClick={onTogglePublish} className="sp-tb-pill" style={isPublished ? pillM_publishedActive : pillM_accent}
+      <button onClick={onTogglePublish} className="sp-tb-pill" style={isPublished ? pillM_publishedActive : pillM}
         onMouseEnter={e => {
           if (isPublished) return;
           e.currentTarget.style.background = 'rgba(200,16,46,0.2)';
@@ -541,14 +539,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       {isPublished && slug && (
         <a href={`/p/${slug}`} target="_blank" rel="noopener noreferrer"
-          style={pillM_accent}
+          style={pillM}
           onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(200,16,46,0.2)';
             e.currentTarget.style.borderColor = '#c8102e';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = 'rgba(200,16,46,0.12)';
-            e.currentTarget.style.borderColor = 'rgba(200,16,46,0.4)';
+            e.currentTarget.style.borderColor = '#e2e8f0';
           }}
           title={t('superPagesEditor.openLinkTitle', { defaultValue: 'Open the live page in a new tab' })}>
           <ExternalLink size={14}/>

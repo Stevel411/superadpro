@@ -602,7 +602,7 @@
 .labs-chrome .sp-tb-pill:hover {
   background: #c8102e !important;
   background-image: none !important;
-  border-color: #0284c7 !important;
+  border-color: #e8203f !important;
   color: #fff !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(200,16,46,0.35) !important;
@@ -610,8 +610,8 @@
 .labs-chrome .sp-tb-pill:hover svg,
 .labs-chrome .sp-tb-pill:hover span { color: #fff !important; }
 .labs-chrome .sp-tb-pill:active {
-  background: #0284c7 !important;
-  border-color: #0284c7 !important;
+  background: #0a1f52 !important;
+  border-color: #e8203f !important;
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(2,132,199,0.45) !important;
 }

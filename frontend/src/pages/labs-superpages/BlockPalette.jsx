@@ -243,7 +243,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <div style={{fontSize:13,fontFamily:'monospace',color:'#c7d3f2'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#ffffff','#c8102e','#12388f','#12388f','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
+                  {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#0a1f52','#c8102e','#12388f','#e8203f','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
                     <div key={c} onClick={() => applyBg(c)} style={{
                       width:22,height:22,borderRadius:5,background:c,cursor:'pointer',
                       border:canvasBg===c?'2px solid #c8102e':'1px solid rgba(255,255,255,0.14)',
