@@ -94,6 +94,8 @@ export default function Funnels() {
   const [creating, setCreating] = useState(false);
   const [creatingKey, setCreatingKey] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [magnets, setMagnets] = useState([]);
+  const [copiedMag, setCopiedMag] = useState(null);
   // 26 May 2026 — page redesigned as a pure page-gateway. Analytics
   // (ROI strip, activity feed, next-action banner) all removed.
   // Members have dedicated analytics surfaces elsewhere; this page
@@ -155,6 +157,11 @@ export default function Funnels() {
   const [importModal, setImportModal] = useState(null);
 
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    apiGet('/api/lead-magnets')
+      .then(d => setMagnets((d?.magnets || []).filter(m => m.status === 'live')))
+      .catch(() => {});
+  }, []);
 
   // Phase 1.5 — user confirmed edit-wiring modal. Updates an existing
   // page's binding via POST /api/funnels/{id}/wiring. On success we
@@ -337,10 +344,6 @@ export default function Funnels() {
             style={{background:'rgba(255,255,255,.1)',color:'#fff',border:'1.5px solid rgba(255,255,255,.2)',padding:'10px 15px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',display:'inline-flex',alignItems:'center',gap:6}}>
             <Share2 size={14}/> Import code
           </button>
-          <a href="/pro/funnels/new"
-            style={{background:'linear-gradient(120deg,#c8102e,#e8203f)',color:'#fff',border:'none',padding:'11px 18px',borderRadius:10,fontSize:13.5,fontWeight:900,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6,boxShadow:'0 12px 26px -10px rgba(200,16,46,.7)'}}>
-            <Plus size={14}/> More templates
-          </a>
         </div>
       </div>
 
@@ -383,6 +386,49 @@ export default function Funnels() {
           </button>
         </div>
       </div>
+
+      {/* Lead Magnets — done-for-you giveaways (13 Jul 2026). Each is a
+          ready-to-share opt-in page that captures leads into the member's CRM.
+          Sourced from /api/lead-magnets (same as /my-marketing/lead-magnets). */}
+      {magnets.length > 0 && (
+        <div style={{marginBottom:28}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+            <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'var(--sap-text-primary)'}}>Lead Magnets</span>
+            <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)'}}>done-for-you · share &amp; capture</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14}}>
+            {magnets.map(m => (
+              <div key={m.key} style={{border:'1px solid #e6ecf5',borderRadius:15,overflow:'hidden',background:'#fff',display:'flex',flexDirection:'column',boxShadow:'0 6px 16px -12px rgba(10,20,56,.2)'}}>
+                <div style={{height:118,position:'relative',display:'flex',flexDirection:'column',justifyContent:'flex-end',padding:14,color:'#fff',background:'linear-gradient(150deg,#0a1f52 0%,#12388f 55%,#c8102e 150%)'}}>
+                  <div style={{position:'absolute',top:-34,right:-30,width:110,height:110,borderRadius:'50%',background:'rgba(255,255,255,0.10)'}}/>
+                  {m.badge && <span style={{position:'absolute',top:12,left:14,fontFamily:'JetBrains Mono,monospace',fontSize:9,letterSpacing:'0.08em',background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.28)',padding:'3px 9px',borderRadius:999}}>{m.badge}</span>}
+                  <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:19,lineHeight:1.05,position:'relative',zIndex:1}}>{m.cover_title || m.title}</div>
+                </div>
+                <div style={{padding:'15px 16px 16px',display:'flex',flexDirection:'column',flex:1}}>
+                  <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:700,color:'var(--sap-text-primary)'}}>{m.title}</span>
+                  <span style={{fontSize:12,color:'var(--sap-text-muted)',margin:'4px 0 12px',lineHeight:1.45,flex:1}}>{m.desc}</span>
+                  <div style={{display:'flex',alignItems:'center',gap:7,fontSize:12,color:'var(--sap-text-muted)',marginBottom:13}}>
+                    <span style={{width:7,height:7,borderRadius:'50%',background:'#16a34a'}}/>
+                    <b style={{color:'var(--sap-text-primary)'}}>{(m.lead_count||0).toLocaleString()}</b> leads · <span style={{color:'var(--sap-accent)'}}>Live</span>
+                  </div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={() => { try { navigator.clipboard?.writeText(m.share_url||''); } catch(e){} setCopiedMag(m.key); setTimeout(()=>setCopiedMag(null),1600); }}
+                      style={{flex:1,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:6,padding:'10px 12px',borderRadius:10,border:'none',background:'linear-gradient(120deg,#c8102e,#e8203f)',color:'#fff',fontWeight:800,fontSize:13,cursor:'pointer',boxShadow:'0 8px 18px -10px rgba(200,16,46,.6)'}}>
+                      {copiedMag===m.key ? <Check size={15}/> : <Copy size={15}/>} {copiedMag===m.key ? 'Copied!' : 'Copy link'}
+                    </button>
+                    {m.manage_path && (
+                      <button onClick={() => navigate(m.manage_path)}
+                        style={{flex:1,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:6,padding:'10px 12px',borderRadius:10,border:'1px solid #e6ecf5',background:'#fff',color:'var(--sap-text-primary)',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+                        <Pencil size={15}/> Manage
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Your pages */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
