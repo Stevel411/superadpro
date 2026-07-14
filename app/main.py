@@ -52591,6 +52591,125 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
     }
+@app.get("/api/leaderboard/weekly")
+def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """AdvantageLife weekly pack leaderboard (whole platform). Ranks members by
+    packs SOLD this week (active pack purchases made by their direct referrals),
+    and also surfaces packs OWNED (their highest active level) and weekly REVENUE
+    (sum of those purchase amounts). Resets Monday 00:00 UTC. The caller's own
+    row is flagged and returned separately so the UI can pin 'your rank'."""
+    from sqlalchemy.orm import aliased
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    next_reset = week_start + timedelta(days=7)
+
+    Buyer = aliased(User)
+    rows = (db.query(
+                Buyer.sponsor_id.label("seller_id"),
+                func.count(PackPurchase.id).label("sold"),
+                func.coalesce(func.sum(PackPurchase.amount), 0).label("revenue"))
+            .join(Buyer, Buyer.id == PackPurchase.user_id)
+            .filter(PackPurchase.status == "active",
+                    PackPurchase.created_at >= week_start,
+                    Buyer.sponsor_id.isnot(None))
+            .group_by(Buyer.sponsor_id)
+            .all())
+
+    stats = {r.seller_id: {"sold": int(r.sold or 0), "revenue": float(r.revenue or 0)} for r in rows}
+    seller_ids = list(stats.keys())
+
+    owned = {}
+    uname = {}
+    if seller_ids:
+        for uid, lvl in (db.query(PackPurchase.user_id, func.max(PackPurchase.pack_level))
+                         .filter(PackPurchase.user_id.in_(seller_ids), PackPurchase.status == "active")
+                         .group_by(PackPurchase.user_id).all()):
+            owned[uid] = int(lvl or 0)
+        for uid, un in db.query(User.id, User.username).filter(User.id.in_(seller_ids)).all():
+            uname[uid] = un
+
+    board = [{
+        "user_id": sid,
+        "username": uname.get(sid, "member"),
+        "sold": stats[sid]["sold"],
+        "owned": owned.get(sid, 0),
+        "revenue": round(stats[sid]["revenue"], 2),
+    } for sid in seller_ids]
+    board.sort(key=lambda m: (-m["sold"], -m["revenue"]))
+    for i, m in enumerate(board):
+        m["rank"] = i + 1
+
+    you = None
+    if user:
+        you = next((m for m in board if m["user_id"] == user.id), None)
+        if you is None:
+            my_owned = (db.query(func.max(PackPurchase.pack_level))
+                        .filter(PackPurchase.user_id == user.id, PackPurchase.status == "active").scalar()) or 0
+            you = {"user_id": user.id, "username": user.username, "sold": 0,
+                   "owned": int(my_owned), "revenue": 0.0, "rank": None}
+
+    return {
+        "week_start": week_start.isoformat(),
+        "next_reset": next_reset.isoformat(),
+        "members": [{"rank": m["rank"], "username": m["username"], "sold": m["sold"],
+                     "owned": m["owned"], "revenue": m["revenue"],
+                     "is_you": bool(user and m["user_id"] == user.id)} for m in board[:50]],
+        "you": ({"rank": you["rank"], "username": you["username"], "sold": you["sold"],
+                 "owned": you["owned"], "revenue": you["revenue"]} if you else None),
+    }
+
+
+@app.get("/api/my-team")
+def api_my_team(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The caller's DIRECT referrals (members who joined via their link) with each
+    one's highest active pack level, join date, own pack-sale count and active
+    status, plus a summary strip (totals, active count, packs the team has bought,
+    the caller's pass-up earnings) and the caller's referral link path. Exposes
+    only public profile fields for team members — no balances or emails."""
+    from sqlalchemy import func
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    directs = db.query(User).filter(User.sponsor_id == user.id).order_by(User.created_at.desc()).all()
+    direct_ids = [d.id for d in directs]
+
+    owned, bought = {}, {}
+    if direct_ids:
+        for uid, lvl in (db.query(PackPurchase.user_id, func.max(PackPurchase.pack_level))
+                         .filter(PackPurchase.user_id.in_(direct_ids), PackPurchase.status == "active")
+                         .group_by(PackPurchase.user_id).all()):
+            owned[uid] = int(lvl or 0)
+        for uid, cnt in (db.query(PackPurchase.user_id, func.count(PackPurchase.id))
+                         .filter(PackPurchase.user_id.in_(direct_ids), PackPurchase.status == "active")
+                         .group_by(PackPurchase.user_id).all()):
+            bought[uid] = int(cnt or 0)
+
+    members = [{
+        "username": d.username,
+        "pack_level": owned.get(d.id, 0),
+        "joined": d.created_at.isoformat() if d.created_at else None,
+        "sold": int(d.pack_sale_count or 0),
+        "is_active": bool(d.is_active),
+    } for d in directs]
+
+    passup = (db.query(func.coalesce(func.sum(PackCommission.amount), 0))
+              .filter(PackCommission.earner_id == user.id, PackCommission.status == "paid").scalar()) or 0
+
+    return {
+        "referral_link": f"/join/{user.username}",
+        "summary": {
+            "total": len(directs),
+            "active": sum(1 for d in directs if d.is_active),
+            "team_packs": sum(bought.values()),
+            "passup_earnings": round(float(passup), 2),
+        },
+        "members": members,
+    }
+
+
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
     """JSON data for the leaderboard: one ranked `members` board. Cached 5 min.
