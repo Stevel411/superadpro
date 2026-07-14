@@ -17,7 +17,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
 import {
   Globe, CheckCircle2, AlertTriangle, Clock, Loader2, Trash2, ExternalLink,
@@ -114,7 +114,7 @@ export default function BlogDomain() {
 
   const handleRemove = async () => {
     if (!domain) return;
-    if (!window.confirm(`Disconnect ${domain.domain}? Your blog will go back to its SuperAdPro address until you add it again.`)) return;
+    if (!window.confirm(`Disconnect ${domain.domain}? Your blog will go back to its AdvantageLife address until you add it again.`)) return;
     try {
       await apiDelete('/api/blog/domain');
       setDomain(null); setError('');
@@ -134,7 +134,16 @@ export default function BlogDomain() {
   const records = (domain && domain.dns_records) || [];
 
   return (
-    <AppLayout title="Custom Domain" subtitle="Put your blog on your own domain">
+    <AlShell active="ai-tools" back={{ to: '/my-site', label: 'My Blog' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Custom Domain</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Put your blog on your own domain.</div>
+        </div>
+      </div>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px' }}>
 
         <Link to="/my-site" style={backLinkStyle}>
@@ -151,7 +160,7 @@ export default function BlogDomain() {
               Put your blog on your own domain
             </h1>
             <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', lineHeight: 1.55 }}>
-              Serve your blog at <strong>blog.yourbrand.com</strong> instead of the SuperAdPro address.
+              Serve your blog at <strong>blog.yourbrand.com</strong> instead of the AdvantageLife address.
               Takes about 5 minutes &mdash; we guide every step, and we issue the HTTPS certificate for you.
             </p>
           </div>
@@ -352,17 +361,17 @@ export default function BlogDomain() {
             )}
 
             {/* Why-your-own-domain / secure panel */}
-            <div style={{ ...cardStyle, marginTop: 4, marginBottom: 24, background: 'linear-gradient(135deg,#0a1438,#1e3a8a)', border: 'none' }}>
+            <div style={{ ...cardStyle, marginTop: 4, marginBottom: 24, background: 'linear-gradient(135deg,#0a1438,#12388f)', border: 'none' }}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <ShieldCheck size={22} color="#67e8f9" style={{ flexShrink: 0, marginTop: 2 }} />
+                <ShieldCheck size={22} color="#f5b8c2" style={{ flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 15, color: '#fff', marginBottom: 5 }}>
                     Secure, and fully your brand
                   </div>
                   <div style={{ fontSize: 13, color: '#bcd0f0', lineHeight: 1.6 }}>
-                    Once it&rsquo;s live, your blog loads on <strong style={{ color: '#67e8f9' }}>your</strong> domain over
+                    Once it&rsquo;s live, your blog loads on <strong style={{ color: '#f5b8c2' }}>your</strong> domain over
                     HTTPS with a certificate we issue and renew automatically &mdash; the padlock is handled for you.
-                    Visitors never see a SuperAdPro URL. It&rsquo;s your site; we&rsquo;re just the engine behind it.
+                    Visitors never see a AdvantageLife URL. It&rsquo;s your site; we&rsquo;re just the engine behind it.
                   </div>
                 </div>
               </div>
@@ -375,7 +384,7 @@ export default function BlogDomain() {
         .spin { animation: spin 0.8s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
-    </AppLayout>
+    </AlShell>
   );
 }
 
@@ -385,20 +394,20 @@ const sectionTitle = { margin: '0 0 12px', fontSize: 14, fontWeight: 700, letter
 const codeInline = { background: '#f1f5f9', color: '#0f172a', padding: '1px 6px', borderRadius: 4, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, fontWeight: 600 };
 const backLinkStyle = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: 16 };
 const inputFull = { width: '100%', padding: '11px 13px', border: '1px solid #cbd5e1', borderRadius: 9, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
-const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#06b6d4)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
+const primaryBtnStyle = { padding: '11px 20px', border: 'none', borderRadius: 9, background: 'linear-gradient(135deg,#e8203f,#c8102e)', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: "'Sora', sans-serif", cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 };
 const dangerBtnStyle = { padding: '10px 12px', border: '1px solid #fecaca', borderRadius: 9, background: '#fff', color: '#b91c1c', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', flexShrink: 0 };
 const linkDangerStyle = { background: 'none', border: 'none', color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, padding: 0 };
 const errorBoxStyle = { marginTop: 12, padding: '8px 12px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 };
 const recCardStyle = { border: '1px solid #e6ebf3', borderRadius: 12, padding: '13px 14px', marginBottom: 10, background: '#fbfdff' };
-const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#0ea5e9', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#e8203f', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
 const recTag = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 10, fontWeight: 600, color: '#475569', background: '#eef2f8', border: '1px solid #e2e8f0', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
 const pasteHint = { fontSize: 12, color: '#0c4a6e', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '7px 10px', margin: '0 0 10px', lineHeight: 1.5 };
 const recRow = { display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 };
 const recKey = { fontSize: 10.5, fontWeight: 700, color: '#475569', width: 96, flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.03em' };
 const recVal = { flex: 1, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 11.5, color: '#0f172a', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 7, padding: '7px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 const copyBtn = { flexShrink: 0, background: '#0a1438', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 11px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 };
-const whatLink = { background: 'none', border: 'none', color: '#0ea5e9', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 0 0', marginTop: 3 };
-const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #6366f1', borderRadius: 8, padding: '11px 13px' };
-const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#6366f1', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
+const whatLink = { background: 'none', border: 'none', color: '#e8203f', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 0 0', marginTop: 3 };
+const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #12388f', borderRadius: 8, padding: '11px 13px' };
+const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#12388f', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
 const whatBoxBody = { fontSize: 12, color: '#475569', lineHeight: 1.6 };
 const helpStrip = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', marginTop: 13, fontSize: 12.5, color: '#92400e', lineHeight: 1.5 };

@@ -14,7 +14,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from '../utils/api';
 import {
@@ -25,7 +25,7 @@ import {
 
 const C = {
   ink: '#0a1438', ink2: '#1e2c54', dim: '#5b6b8c', line: '#e6edf8', line2: '#eef3fa',
-  cy1: '#0891b2', cy2: '#06b6d4', bg: '#f4f7fc', card: '#fff', grn: '#16a34a', amb: '#b45309',
+  cy1: '#0a1f52', cy2: '#c8102e', bg: '#f4f7fc', card: '#fff', grn: '#16a34a', amb: '#b45309',
 };
 const sora = "'Sora',sans-serif";
 const mono = "'JetBrains Mono',monospace";
@@ -358,7 +358,7 @@ export default function MySite() {
   };
 
   if (loading) {
-    return <AppLayout title="My Blog"><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AppLayout>;
+    return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AlShell>;
   }
 
   const isPro = data?.is_pro;
@@ -367,7 +367,7 @@ export default function MySite() {
   // ── gated (not a paid member) ──────────────────────────────────────────────
   if (!isPro) {
     return (
-      <AppLayout title="My Blog">
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
         <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
           <div style={{ width: 64, height: 64, borderRadius: 18, background: '#eef3fa', display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
             <Lock size={26} color={C.dim} />
@@ -378,7 +378,7 @@ export default function MySite() {
           </p>
           <a href="/upgrade" style={btn('primary')}>Activate Partner <ArrowRight size={16} /></a>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -388,14 +388,14 @@ export default function MySite() {
     const feats = [
       [PenSquare, 'Write & publish posts', 'A clean editor with AI-assisted drafting.'],
       [Palette, '6 themes & 7 palettes', 'Switch the whole look in one click.'],
-      [Mail, 'Capture subscribers', 'Opt-in forms flow into SuperLeads.'],
+      [Mail, 'Capture subscribers', 'Opt-in forms flow into Email Marketing.'],
       [Globe, 'Your own domain', 'Connect a custom domain, or use a free address.'],
     ];
     return (
-      <AppLayout title="My Blog">
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ ...cardStyle(), overflow: 'hidden' }}>
-            <div style={{ background: 'linear-gradient(135deg,#06b6d4,#1e3a8a)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
+            <div style={{ background: 'linear-gradient(135deg,#c8102e,#12388f)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(70% 110% at 50% 0%,rgba(255,255,255,.18),transparent 60%)' }} />
               <div style={{ position: 'relative' }}>
                 <div style={{ display: 'inline-block', background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.3)', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', padding: '6px 14px', borderRadius: 20, marginBottom: 20 }}>Included with your membership</div>
@@ -425,7 +425,7 @@ export default function MySite() {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -440,9 +440,19 @@ export default function MySite() {
   const tabs = ['posts', 'pages', 'comments', 'appearance', 'settings'];
 
   return (
-    <AppLayout title="My Blog">
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         {notice && <div style={{ ...noticeBox }}>{notice}</div>}
+
+        <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:22,display:'flex',alignItems:'center',gap:15}}>
+          <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg>
+          </div>
+          <div>
+            <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>My Blog</div>
+            <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Publish articles and pages on your own website &mdash; SEO-ready.</div>
+          </div>
+        </div>
 
         {/* site header */}
         <div style={{ ...cardStyle(), padding: '24px 26px', marginBottom: 22, display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
@@ -818,7 +828,7 @@ export default function MySite() {
 
             <div style={{ ...cardStyle(), padding: 24, marginTop: 18 }}>
               <div style={sectionLabel}>Custom domain</div>
-              <div style={{ fontSize: 13.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Serve your blog on your own domain (e.g. blog.yourbrand.com) instead of the SuperAdPro URL — we guide you through every step and issue the HTTPS certificate automatically.</div>
+              <div style={{ fontSize: 13.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Serve your blog on your own domain (e.g. blog.yourbrand.com) instead of the AdvantageLife URL — we guide you through every step and issue the HTTPS certificate automatically.</div>
               {domain && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: mono, fontSize: 14.5, color: C.ink, fontWeight: 600 }}>{domain.domain}</span>
@@ -842,7 +852,7 @@ export default function MySite() {
           </div>
         )}
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }
 
@@ -888,7 +898,7 @@ const fullInput = { width: '100%', border: `1px solid ${C.line}`, borderRadius: 
 function cardStyle() { return { background: C.card, border: `1px solid ${C.line}`, borderRadius: 16 }; }
 function btn(kind) {
   const base = { fontFamily: sora, fontWeight: 600, fontSize: 14, border: 'none', borderRadius: 10, padding: '11px 18px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' };
-  if (kind === 'primary') return { ...base, background: 'linear-gradient(135deg,#0891b2,#0ea5e9)', color: '#fff' };
+  if (kind === 'primary') return { ...base, background: 'linear-gradient(135deg,#0a1f52,#e8203f)', color: '#fff' };
   return { ...base, background: '#fff', border: `1px solid ${C.line}`, color: C.ink2 };
 }
 const sectionLabel = { fontFamily: sora, fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.dim, marginBottom: 13 };

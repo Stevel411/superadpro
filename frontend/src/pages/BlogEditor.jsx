@@ -17,7 +17,7 @@ import {
 
 const C = {
   ink: '#0a1438', ink2: '#1e2c54', dim: '#5b6b8c', line: '#e6edf8', line2: '#eef3fa',
-  cy1: '#0891b2', cy2: '#06b6d4', bg: '#f4f7fc', card: '#fff', amb: '#b45309',
+  cy1: '#0a1f52', cy2: '#c8102e', bg: '#f4f7fc', card: '#fff', amb: '#b45309',
 };
 const sora = "'Sora',sans-serif";
 const mono = "'JetBrains Mono',monospace";
@@ -293,7 +293,7 @@ export default function BlogEditor({ kind = 'post' }) {
                   {ready && (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f0f9ff', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
-                        <ImageIcon size={15} color="#0ea5e9" style={{ flex: 'none' }} />
+                        <ImageIcon size={15} color="#e8203f" style={{ flex: 'none' }} />
                         <span><b>Add images to your post:</b> drag &amp; drop or paste one straight into the writing area, or use the image button. Select an image to set its <b>size &amp; position</b> — watch the Preview to see exactly where it lands.</span>
                       </div>
                       <RichTextEditor content={body} onChange={onBody} onImageUpload={uploadImage} richBlocks placeholder="Write your post… drag or paste images in, or use the toolbar for headings, callouts, video, buttons and links." />
@@ -396,6 +396,6 @@ const seoInput = { width: '100%', boxSizing: 'border-box', fontFamily: sora, fon
 
 function btn(kind) {
   const base = { fontFamily: sora, fontWeight: 600, fontSize: 13.5, border: 'none', borderRadius: 9, padding: '9px 15px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, textDecoration: 'none' };
-  if (kind === 'primary') return { ...base, background: 'linear-gradient(135deg,#0891b2,#0ea5e9)', color: '#fff' };
+  if (kind === 'primary') return { ...base, background: 'linear-gradient(135deg,#0a1f52,#e8203f)', color: '#fff' };
   return { ...base, background: '#fff', border: `1px solid ${C.line}`, color: C.ink2 };
 }
