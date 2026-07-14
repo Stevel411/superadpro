@@ -86,7 +86,7 @@
 .cs-model-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 .cs-model { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; background: #fff; transition: all .12s; }
 .cs-model:hover { border-color: #cbd5e1; background: #f8fafc; }
-.cs-model.sel { border-color: var(--purple); background: #f5f3ff; }
+.cs-model.sel { border-color: var(--purple); background: #fdf0f2; }
 .cs-model-dot { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; flex-shrink: 0; }
 .cs-model-name { font-size: 13px; font-weight: 700; color: #0f172a; }
 .cs-model-desc { font-size: 11px; color: #64748b; }
@@ -145,9 +145,9 @@
 
 /* ── Generate Button ── */
 .cs-gen-row { display: flex; gap: 12px; align-items: center; max-width: 900px; margin: 8px auto 0; }
-.cs-gen-btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; background: linear-gradient(135deg, #12388f, #7c3aed); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 0 #5b21b6, 0 6px 20px rgba(124,58,237,.3); transition: all .1s; }
+.cs-gen-btn { flex: 1; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; background: linear-gradient(135deg, #12388f, #c8102e); color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 0 #8f0c20, 0 6px 20px rgba(200,16,46,.3); transition: all .1s; }
 .cs-gen-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
-.cs-gen-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
+.cs-gen-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #8f0c20; }
 .cs-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cs-gen-info { font-size: 13px; color: #475569; text-align: right; min-width: 120px; }
 .cs-gen-info b { color: #0f172a; font-size: 14px; display: block; }
@@ -161,12 +161,12 @@
 .cs-recent-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ── Credit Matrix Earnings Banner ── */
-.cs-matrix-banner { max-width: 900px; margin: 24px auto 0; display: flex; align-items: center; gap: 16px; padding: 18px 24px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #e9e5ff; border-radius: 12px; }
-.cs-matrix-banner-icon { width: 48px; height: 48px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #e9e5ff; }
+.cs-matrix-banner { max-width: 900px; margin: 24px auto 0; display: flex; align-items: center; gap: 16px; padding: 18px 24px; background: linear-gradient(135deg, #fdf0f2, #fdeaec); border: 1px solid #f6d9de; border-radius: 12px; }
+.cs-matrix-banner-icon { width: 48px; height: 48px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #f6d9de; }
 .cs-matrix-banner-text { flex: 1; }
 .cs-matrix-banner-title { font-size: 14px; font-weight: 700; color: #172554; margin-bottom: 2px; }
 .cs-matrix-banner-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
-.cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #12388f; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #e9e5ff; background: #fff; transition: all .15s; flex-shrink: 0; }
+.cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #12388f; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #f6d9de; background: #fff; transition: all .15s; flex-shrink: 0; }
 .cs-matrix-banner-link:hover { background: #12388f; color: #fff; border-color: #12388f; }
 
 /* ── Override AppLayout overflow restriction ── */

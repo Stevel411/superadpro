@@ -637,7 +637,7 @@ export default function CreativeStudio() {
             padding: '14px 20px',
             marginBottom: 14,
             borderRadius: 12,
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%)',
+            background: 'linear-gradient(135deg, #0a1f52 0%, #8f0c20 50%, #c8102e 100%)',
             border: '1px solid rgba(251, 191, 36, 0.4)',
             textDecoration: 'none',
             color: '#fff',
@@ -1230,7 +1230,7 @@ export default function CreativeStudio() {
                   <textarea className="cs-ta" rows={musicCustom ? 8 : 4} value={musicPrompt} onChange={function(e) { setMusicPrompt(e.target.value); }}
                     placeholder={musicCustom ? '[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again...' : 'Upbeat pop song for Instagram Reels, energetic and fun'}/>
                   {musicCustom && <div className="cs-ta-foot">
-                    <button style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
+                    <button style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-purple)', background: '#fdf0f2', border: '1px solid #f6d9de', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
                     <span className="cs-ta-ct">{musicPrompt.length}/3000</span>
                   </div>}
                 </div>
@@ -1394,7 +1394,7 @@ export default function CreativeStudio() {
                   ) : (
                     <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 14 }}>
                       <div style={{ marginBottom: 8 }}>{t('creativeStudio.noAudioYet')}</div>
-                      <button style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>{t('creativeStudio.goToVoiceover')}</button>
+                      <button style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-purple)', background: '#fdf0f2', border: '1px solid #f6d9de', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>{t('creativeStudio.goToVoiceover')}</button>
                     </div>
                   )}
                 </div>
