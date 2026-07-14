@@ -1,12 +1,4 @@
-import AlShell from '../components/layout/AlShell';
-
-// Light-theme "3 Income Streams" compensation plan — web rendering of the
-// marketing deck. Rebuilt 23 Jun 2026 to the LIVE v2 grid economics
-// (50% direct / 25% uni-level [5% x 5 levels] / 25% bonus pool / 0% company),
-// matching app/database.py V2_* constants and the AdvantageLife-3-Income-Streams
-// deck. All numbers reconciled to the live grid engine. Styles scoped under
-// .cproot / cp-prefixed so they cannot collide with the rest of the app.
-var CP_HTML = `
+import{j as e}from"./vendor-rOWelCtb.js";import{c as t}from"./index-C79xLIf8.js";import"./vendor-charts-sutgcRna.js";var i=`
 <style>
 .cproot{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .cproot .cpsora{font-family:'Sora',sans-serif}
@@ -247,21 +239,4 @@ var CP_HTML = `
   <div style="text-align:center"><a class="cpdl" href="/static/downloads/income-streams/AdvantageLife-3-Income-Streams-EN.pptx?v=20260623" download><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download the presentation</a></div>
   <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">Earnings depend on individual effort, referrals and tier activity. No income is guaranteed.</div>
 </div>
-`;
-
-export default function CompensationPlan() {
-  return (
-    <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
-      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
-        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-        </div>
-        <div>
-          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Compensation Plan</div>
-          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>The 3 ways to earn with AdvantageLife.</div>
-        </div>
-      </div>
-      <div className="cproot" dangerouslySetInnerHTML={{ __html: CP_HTML }} />
-    </AlShell>
-  );
-}
+`;function s(){return e.jsxs(t,{active:"dashboard",back:{to:"/my-marketing",label:"My Marketing"},children:[e.jsxs("div",{style:{background:"#0a1f52",borderRadius:20,color:"#fff",padding:"22px 26px",boxShadow:"0 24px 50px -28px rgba(10,31,82,.55)",marginBottom:18,display:"flex",alignItems:"center",gap:15},children:[e.jsx("div",{style:{width:52,height:52,borderRadius:14,background:"linear-gradient(120deg,#c8102e,#e8203f)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0},children:e.jsxs("svg",{width:"26",height:"26",viewBox:"0 0 24 24",fill:"none",stroke:"#fff",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",children:[e.jsx("path",{d:"M3 3v18h18"}),e.jsx("path",{d:"M7 15l4-4 3 3 5-6"})]})}),e.jsxs("div",{children:[e.jsx("div",{style:{fontWeight:900,fontSize:23,letterSpacing:-.6},children:"Compensation Plan"}),e.jsx("div",{style:{fontSize:13.5,color:"#c9d6f7",fontWeight:600,marginTop:2},children:"The 3 ways to earn with AdvantageLife."})]})]}),e.jsx("div",{className:"cproot",dangerouslySetInnerHTML:{__html:i}})]})}export{s as default};

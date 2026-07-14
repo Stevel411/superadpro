@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 
 var LANGUAGES = [
   { code: 'EN', flag: '🇬🇧', name: 'English' },
@@ -26,7 +26,7 @@ var LANGUAGES = [
 ];
 
 var SLIDE_NAMES = ['3 Income Streams', 'The $10 Launchpad', 'Membership Referrals', 'Annual Upfront', 'Campaign Grid', 'One Full Grid Cycle', 'Creator Credits', 'Repurchase Engine'];
-var SLIDE_COLORS = ['#172554', '#16a34a', '#0ea5e9', '#0ea5e9', '#06b6d4', '#06b6d4', '#8b5cf6', '#8b5cf6'];
+var SLIDE_COLORS = ['#172554', '#16a34a', '#c8102e', '#c8102e', '#e8203f', '#e8203f', '#12388f', '#12388f'];
 var SLIDE_EMOJIS = ['📊', '⚡', '💰', '💵', '🎯', '📈', '✨', '♻️'];
 
 export default function MarketingMaterials() {
@@ -53,7 +53,7 @@ export default function MarketingMaterials() {
   }, []);
 
   var selected = LANGUAGES.find(function(l) { return l.code === selectedLang; }) || LANGUAGES[0];
-  var downloadUrl = '/static/downloads/income-streams/SuperAdPro-3-Income-Streams-EN.pptx?v=20260623';
+  var downloadUrl = '/static/downloads/income-streams/AdvantageLife-3-Income-Streams-EN.pptx?v=20260623';
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.origin + downloadUrl);
@@ -61,7 +61,16 @@ export default function MarketingMaterials() {
     setTimeout(function() { setCopied(false); }, 2000);
   }
 
-  return <AppLayout title={t('marketingMaterials.pageTitle')} activePage="marketing-materials">
+  return <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('marketingMaterials.pageTitle')}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Downloadable presentations and brand assets.</div>
+        </div>
+      </div>
     <style>{'.mm-lang-option:hover{background:#f8fafc !important}'}</style>
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
@@ -77,7 +86,7 @@ export default function MarketingMaterials() {
         <div ref={dropRef} style={{ position: 'relative', flex: 1, maxWidth: 280 }}>
           <div onClick={function() { setDropdownOpen(!dropdownOpen); }} style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
-            borderRadius: 10, border: '1.5px solid ' + (dropdownOpen ? '#8b5cf6' : '#e2e8f0'),
+            borderRadius: 10, border: '1.5px solid ' + (dropdownOpen ? '#12388f' : '#e2e8f0'),
             background: dropdownOpen ? '#faf5ff' : '#f8fafc', cursor: 'pointer', transition: 'all .15s'
           }}>
             <span style={{ fontSize: 20 }}>{selected.flag}</span>
@@ -98,12 +107,12 @@ export default function MarketingMaterials() {
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
                 cursor: 'pointer',
                 background: isSelected ? '#f5f3ff' : 'transparent',
-                borderLeft: isSelected ? '3px solid #8b5cf6' : '3px solid transparent',
+                borderLeft: isSelected ? '3px solid #12388f' : '3px solid transparent',
               }}>
                 <span style={{ fontSize: 18 }}>{lang.flag}</span>
-                <span style={{ flex: 1, fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#7c3aed' : '#334155' }}>{lang.name}</span>
+                <span style={{ flex: 1, fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#0e2a6e' : '#334155' }}>{lang.name}</span>
                 <span style={{ fontSize: 13, color: '#7a8899', fontWeight: 600 }}>{lang.code}</span>
-                {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#12388f" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>;
             })}
           </div>}
@@ -138,7 +147,7 @@ export default function MarketingMaterials() {
             <div style={{ fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ English</div>
           </div>
           <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 14 }}>
-            Professional presentation covering all three SuperAdPro income streams — Membership Referrals, Campaign Grid, and Creator Credits — plus the $10 Launchpad on-ramp. Perfect for prospect meetings, team calls, or sharing online.
+            Professional presentation covering all three AdvantageLife income streams — Membership Referrals, Campaign Grid, and Creator Credits — plus the $10 Launchpad on-ramp. Perfect for prospect meetings, team calls, or sharing online.
           </p>
 
           {/* Meta */}
@@ -151,14 +160,14 @@ export default function MarketingMaterials() {
           {/* Download selected language */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: 14 }}>
             <span style={{ fontSize: 20 }}>{selected.flag}</span>
-            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#334155' }}>{selectedLang === 'EN' ? <span>Downloading in: <span style={{ color: '#7c3aed' }}>English</span></span> : <span>Download is in <span style={{ color: '#7c3aed' }}>English</span> — {selected.name} coming soon</span>}</span>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#334155' }}>{selectedLang === 'EN' ? <span>Downloading in: <span style={{ color: '#0e2a6e' }}>English</span></span> : <span>Download is in <span style={{ color: '#0e2a6e' }}>English</span> — {selected.name} coming soon</span>}</span>
           </div>
 
           {/* Action buttons */}
           <div style={{ display: 'flex', gap: 10 }}>
             <a href={downloadUrl} download style={{
               flex: 1, padding: '12px 20px', borderRadius: 10, border: 'none', textDecoration: 'none',
-              background: 'linear-gradient(135deg, #172554, #1e3a8a)', color: '#fff',
+              background: 'linear-gradient(135deg, #172554, #12388f)', color: '#fff',
               fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               boxShadow: '0 2px 8px rgba(23,37,84,.2)', transition: 'all .15s'
@@ -192,5 +201,5 @@ export default function MarketingMaterials() {
         </div>
       </div>
     </div>
-  </AppLayout>;
+  </AlShell>;
 }

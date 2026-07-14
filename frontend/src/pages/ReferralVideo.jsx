@@ -34,7 +34,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
 // ── R2 asset URLs ────────────────────────────────────────────────────
-const VIDEO_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/funnel-videos/SuperAdPro%20Overview1.mp4';
+const VIDEO_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/funnel-videos/AdvantageLife%20Overview1.mp4';
 // Hero background — uploaded to R2 26 May 2026.
 const HERO_BG_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/marketing-bg/R9K1t.jpg';
 
@@ -56,7 +56,7 @@ export default function ReferralVideo() {
   }, [username]);
 
   const ctaUrl = username ? `/ref/${encodeURIComponent(username)}` : '/register';
-  const displayUsername = username ? `@${username}` : 'a SuperAdPro member';
+  const displayUsername = username ? `@${username}` : 'a AdvantageLife member';
 
   return (
     <>
@@ -116,12 +116,12 @@ export default function ReferralVideo() {
         <section className="rv-compare-section">
           <div className="rv-eyebrow">◆ The maths</div>
           <h2 className="rv-section-heading">$20 replaces $200+ of tools</h2>
-          <p className="rv-section-subhead">Most affiliates stitch together five subscriptions to run their business. SuperAdPro does it all in one.</p>
+          <p className="rv-section-subhead">Most affiliates stitch together five subscriptions to run their business. AdvantageLife does it all in one.</p>
           <div className="rv-compare-grid">
             <div className="rv-compare-row rv-header-row">
               <div>Job to be done</div>
               <div>Typical stack</div>
-              <div>SuperAdPro</div>
+              <div>AdvantageLife</div>
             </div>
             <CompareRow task="Page builder" them="$49/mo"/>
             <CompareRow task="CRM + email autoresponder" them="$49/mo"/>
@@ -139,15 +139,15 @@ export default function ReferralVideo() {
         {/* ── Final CTA — clean Join button ── */}
         <section className="rv-final-cta">
           <a href={ctaUrl} className="rv-cta-join">
-            Join SuperAdPro <span className="rv-cta-arrow">→</span>
+            Join AdvantageLife <span className="rv-cta-arrow">→</span>
           </a>
           <p className="rv-final-cta-meta">$20/month · cancel anytime · invited by <span>{displayUsername}</span></p>
         </section>
       </main>
 
       <footer className="rv-footer">
-        <p>SuperAdPro provides marketing tools and an optional compensation program. Results from the optional comp program depend entirely on the effort, skill, and network of each member. No income is guaranteed.</p>
-        <p style={{ opacity: 0.7, marginTop: 12 }}>© {new Date().getFullYear()} SuperAdPro Ltd · superadpro.com</p>
+        <p>AdvantageLife provides marketing tools and an optional compensation program. Results from the optional comp program depend entirely on the effort, skill, and network of each member. No income is guaranteed.</p>
+        <p style={{ opacity: 0.7, marginTop: 12 }}>© {new Date().getFullYear()} AdvantageLife Ltd · superadpro.com</p>
       </footer>
     </>
   );
@@ -374,9 +374,9 @@ function ProfitGridSVG() {
           <stop offset="100%" stopColor="#b45309"/>
         </radialGradient>
         <radialGradient id="rvCyan" cx="50%" cy="40%" r="65%">
-          <stop offset="0%" stopColor="#67e8f9"/>
-          <stop offset="50%" stopColor="#22d3ee"/>
-          <stop offset="100%" stopColor="#0891b2"/>
+          <stop offset="0%" stopColor="#f5b8c2"/>
+          <stop offset="50%" stopColor="#e8203f"/>
+          <stop offset="100%" stopColor="#a00d24"/>
         </radialGradient>
         <radialGradient id="rvYou" cx="50%" cy="40%" r="65%">
           <stop offset="0%" stopColor="#fef3c7"/>
@@ -449,7 +449,7 @@ function ProfitGridSVG() {
         <circle cx="372" cy="445" r="22" fill="none" stroke="#fde047" strokeWidth="1.5" opacity="0.8"/>
         <text x="372" y="450" textAnchor="middle" fontFamily="Sora, sans-serif" fontWeight="800" fontSize="11" fill="#451a03">16</text>
       </g>
-      <text x="240" y="512" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="11" fontWeight="700" fill="#0a1438" letterSpacing="0.4">4 WIDE × 4 DEEP = 16 SEATS</text>
+      <text x="240" y="512" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="11" fontWeight="700" fill="#0a1f52" letterSpacing="0.4">4 WIDE × 4 DEEP = 16 SEATS</text>
       <text x="240" y="530" textAnchor="middle" fontFamily="JetBrains Mono, monospace" fontSize="9" fontWeight="700" fill="#64748b" letterSpacing="0.3">commissions pay 8 levels deep ↓</text>
     </svg>
   );
@@ -497,15 +497,15 @@ const styles = `
   .rv-brand {
     font-family: 'Sora', sans-serif;
     font-size: 19px; font-weight: 800;
-    color: #0a1438;
+    color: #0a1f52;
     letter-spacing: -0.02em;
   }
-  .rv-brand-accent { color: #06b6d4; }
+  .rv-brand-accent { color: #e8203f; }
   .rv-header-cta {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 11px 20px;
     border-radius: 10px;
-    background: #0a1438;
+    background: #0a1f52;
     color: #fff;
     font-family: 'Sora', sans-serif;
     font-size: 13px; font-weight: 800;
@@ -516,7 +516,7 @@ const styles = `
     border: none;
   }
   .rv-header-cta:hover {
-    background: #1e3a8a;
+    background: #12388f;
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(10,20,56,0.25);
   }
@@ -529,7 +529,7 @@ const styles = `
     background-position: center top;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    color: #0a1438;
+    color: #0a1f52;
     min-height: 100vh;
     font-family: 'DM Sans', sans-serif;
     line-height: 1.55;
@@ -549,14 +549,14 @@ const styles = `
     border: 1px solid #a5f3fc;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px; font-weight: 700;
-    color: #0891b2;
+    color: #a00d24;
     letter-spacing: 0.4px;
     text-transform: uppercase;
     margin-bottom: 16px;
   }
   .rv-pill-dot {
     width: 5px; height: 5px; border-radius: 50%;
-    background: #06b6d4;
+    background: #e8203f;
   }
   .rv-h1 {
     font-family: 'Sora', sans-serif;
@@ -564,11 +564,11 @@ const styles = `
     font-weight: 900;
     line-height: 1.05;
     letter-spacing: -0.03em;
-    color: #0a1438;
+    color: #0a1f52;
     margin: 0 0 14px;
   }
   .rv-highlight {
-    background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+    background: linear-gradient(135deg, #e8203f 0%, #c8102e 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -588,7 +588,7 @@ const styles = `
     letter-spacing: 0.3px;
   }
   .rv-meta-item { display: inline-flex; align-items: center; gap: 6px; }
-  .rv-meta-item::before { content: '◆'; color: #06b6d4; font-size: 8px; }
+  .rv-meta-item::before { content: '◆'; color: #e8203f; font-size: 8px; }
 
   /* Video player */
   .rv-video-wrap { max-width: 1120px; margin: 16px auto 0; padding: 0 24px; }
@@ -597,7 +597,7 @@ const styles = `
     content: '';
     position: absolute;
     inset: -12px -12px 12px 12px;
-    background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+    background: linear-gradient(135deg, #e8203f 0%, #c8102e 100%);
     border-radius: 22px;
     z-index: 0;
     opacity: 0.18;
@@ -639,7 +639,7 @@ const styles = `
     width: 88px; height: 88px;
     border-radius: 50%;
     background: rgba(255,255,255,0.96);
-    color: #0a1438;
+    color: #0a1f52;
     display: flex; align-items: center; justify-content: center;
     box-shadow:
       0 12px 40px rgba(0,0,0,0.35),
@@ -652,7 +652,7 @@ const styles = `
   .rv-video-frame:hover .rv-play-big { transform: scale(1.06); }
   .rv-play-big svg { width: 32px; height: 32px; margin-left: 4px; }
   .rv-controls {
-    background: linear-gradient(180deg, #0e1a3e 0%, #0a1438 100%);
+    background: linear-gradient(180deg, #0e1a3e 0%, #0a1f52 100%);
     padding: 12px 16px 14px;
     display: flex; align-items: center; gap: 12px;
     color: #fff;
@@ -679,7 +679,7 @@ const styles = `
     margin: 0 4px;
   }
   .rv-scrub-buffer { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.25); border-radius: 999px; }
-  .rv-scrub-progress { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, #06b6d4, #22d3ee); border-radius: 999px; }
+  .rv-scrub-progress { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, #e8203f, #e8203f); border-radius: 999px; }
   .rv-scrub-thumb {
     position: absolute; top: 50%;
     width: 14px; height: 14px;
@@ -735,7 +735,7 @@ const styles = `
   .rv-eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11.5px; font-weight: 700;
-    color: #06b6d4;
+    color: #e8203f;
     letter-spacing: 1.4px;
     text-transform: uppercase;
     margin-bottom: 12px;
@@ -748,7 +748,7 @@ const styles = `
     font-weight: 900;
     line-height: 1.05;
     letter-spacing: -0.03em;
-    color: #0a1438;
+    color: #0a1f52;
     margin: 0 0 18px;
   }
   .rv-pg-headline-accent {
@@ -763,7 +763,7 @@ const styles = `
     line-height: 1.6;
     margin: 0 0 28px;
   }
-  .rv-pg-subhead strong { color: #0a1438; font-weight: 800; }
+  .rv-pg-subhead strong { color: #0a1f52; font-weight: 800; }
   .rv-pg-bullets { display: flex; flex-direction: column; gap: 18px; margin-bottom: 28px; }
   .rv-pg-bullet { display: flex; gap: 14px; align-items: flex-start; }
   .rv-pg-bullet-dot {
@@ -778,7 +778,7 @@ const styles = `
     box-shadow: 0 0 0 3px rgba(251,191,36,0.18), 0 0 12px rgba(251,191,36,0.5);
   }
   .rv-dot-cyan {
-    background: radial-gradient(circle at 30% 30%, #67e8f9, #0891b2);
+    background: radial-gradient(circle at 30% 30%, #f5b8c2, #a00d24);
     box-shadow: 0 0 0 3px rgba(34,211,238,0.18), 0 0 12px rgba(34,211,238,0.4);
   }
   .rv-dot-pulse {
@@ -793,7 +793,7 @@ const styles = `
   .rv-pg-bullet-title {
     font-family: 'Sora', sans-serif;
     font-size: 15px; font-weight: 800;
-    color: #0a1438;
+    color: #0a1f52;
     margin-bottom: 3px;
     letter-spacing: -0.005em;
   }
@@ -802,7 +802,7 @@ const styles = `
     color: #64748b;
     line-height: 1.5;
   }
-  .rv-pg-bullet-body strong { color: #0a1438; font-weight: 800; }
+  .rv-pg-bullet-body strong { color: #0a1f52; font-weight: 800; }
   .rv-pg-visual { display: flex; align-items: center; justify-content: center; }
   .rv-pg-visual-frame { position: relative; width: 100%; max-width: 480px; aspect-ratio: 480 / 540; }
   .rv-pg-svg { width: 100%; height: 100%; display: block; }
@@ -824,7 +824,7 @@ const styles = `
   }
   .rv-pg-tag-cyan {
     top: 50%; right: -8px;
-    background: linear-gradient(135deg, #67e8f9, #06b6d4);
+    background: linear-gradient(135deg, #f5b8c2, #e8203f);
     color: #083344;
     border: 1px solid rgba(8, 145, 178, 0.4);
   }
@@ -836,13 +836,13 @@ const styles = `
     border: 1px solid rgba(6,182,212,0.3);
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px; font-weight: 700;
-    color: #0891b2;
+    color: #a00d24;
     letter-spacing: 0.4px;
   }
   .rv-pg-footer-dot {
     width: 7px; height: 7px;
     border-radius: 50%;
-    background: #22d3ee;
+    background: #e8203f;
     box-shadow: 0 0 10px rgba(34,211,238,0.8);
   }
 
@@ -852,7 +852,7 @@ const styles = `
     font-family: 'Sora', sans-serif;
     font-size: clamp(28px, 4.5vw, 44px);
     font-weight: 900;
-    color: #0a1438;
+    color: #0a1f52;
     letter-spacing: -0.025em;
     line-height: 1.1;
     text-align: center;
@@ -881,7 +881,7 @@ const styles = `
     overflow: hidden;
   }
   .rv-value-card:hover {
-    border-color: #06b6d4;
+    border-color: #e8203f;
     transform: translateY(-3px);
     box-shadow: 0 12px 32px -8px rgba(6,182,212,0.18);
   }
@@ -889,7 +889,7 @@ const styles = `
     content: '';
     position: absolute;
     bottom: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, #06b6d4, #0ea5e9);
+    background: linear-gradient(90deg, #e8203f, #c8102e);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform .25s;
@@ -911,7 +911,7 @@ const styles = `
   .rv-value-title {
     font-family: 'Sora', sans-serif;
     font-size: 18px; font-weight: 800;
-    color: #0a1438;
+    color: #0a1f52;
     margin-bottom: 8px;
     letter-spacing: -0.01em;
   }
@@ -962,21 +962,21 @@ const styles = `
     letter-spacing: 0.8px;
   }
   .rv-compare-row.rv-total-row {
-    background: #0a1438;
+    background: #0a1f52;
     color: #fff;
-    border-color: #0a1438;
+    border-color: #0a1f52;
   }
-  .rv-compare-task { font-weight: 600; color: #0a1438; }
+  .rv-compare-task { font-weight: 600; color: #0a1f52; }
   .rv-compare-row.rv-total-row .rv-compare-task { color: #fff; }
   .rv-compare-them { color: #94a3b8; text-align: right; font-weight: 600; }
   .rv-compare-them-strike { color: rgba(255,255,255,0.6); text-align: right; font-weight: 600; text-decoration: line-through; }
   .rv-compare-us {
-    color: #06b6d4; font-weight: 800;
+    color: #e8203f; font-weight: 800;
     text-align: right;
     font-family: 'Sora', sans-serif;
   }
   .rv-compare-us-bright {
-    color: #22d3ee; font-weight: 800;
+    color: #e8203f; font-weight: 800;
     text-align: right;
     font-family: 'Sora', sans-serif;
   }
@@ -992,7 +992,7 @@ const styles = `
     display: inline-flex; align-items: center; gap: 12px;
     padding: 22px 56px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+    background: linear-gradient(135deg, #e8203f 0%, #c8102e 100%);
     color: #fff;
     font-family: 'Sora', sans-serif;
     font-size: 22px; font-weight: 800;
@@ -1014,7 +1014,7 @@ const styles = `
     color: #64748b;
     letter-spacing: 0.3px;
   }
-  .rv-final-cta-meta span { color: #06b6d4; }
+  .rv-final-cta-meta span { color: #e8203f; }
 
   /* ── Footer ── */
   .rv-footer {

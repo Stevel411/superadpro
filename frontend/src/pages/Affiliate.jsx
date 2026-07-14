@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 
@@ -27,8 +27,8 @@ var SHARE_URLS = {
   linkedin: function(link) { return 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(link); },
   whatsapp: function(link, text) { return 'https://wa.me/?text=' + encodeURIComponent(text); },
   telegram: function(link, text) { return 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text); },
-  reddit: function(link) { return 'https://www.reddit.com/submit?url=' + encodeURIComponent(link) + '&title=' + encodeURIComponent('SuperAdPro — Earn from Video Advertising'); },
-  email: function(link, text) { return 'mailto:?subject=' + encodeURIComponent('Check out SuperAdPro') + '&body=' + encodeURIComponent(text); },
+  reddit: function(link) { return 'https://www.reddit.com/submit?url=' + encodeURIComponent(link) + '&title=' + encodeURIComponent('AdvantageLife — Earn from Video Advertising'); },
+  email: function(link, text) { return 'mailto:?subject=' + encodeURIComponent('Check out AdvantageLife') + '&body=' + encodeURIComponent(text); },
   pinterest: function(link, text) { return 'https://pinterest.com/pin/create/button/?url=' + encodeURIComponent(link) + '&description=' + encodeURIComponent(text); },
 };
 
@@ -51,7 +51,7 @@ export default function Affiliate() {
   function generate() {
     setGenerating(true); setPost('');
     apiPost('/api/social-posts/generate', {
-      topic: 'SuperAdPro — earn by watching video ads and building an affiliate network',
+      topic: 'AdvantageLife — earn by watching video ads and building an affiliate network',
       platform: platform, tone: tone.toLowerCase(), niche: niche || 'affiliate marketing',
       link: refLink, goal: 'drive signups through referral link'
     }).then(function(r) { setPost(r.posts || r.result || r.content || ''); setGenerating(false); })
@@ -59,14 +59,23 @@ export default function Affiliate() {
   }
 
   function shareNow() {
-    var text = post || 'Check out SuperAdPro — earn real income from video advertising! ' + refLink;
+    var text = post || 'Check out AdvantageLife — earn real income from video advertising! ' + refLink;
     var fn = SHARE_URLS[platform];
     if (fn) { window.open(fn(refLink, text), '_blank'); }
     else { navigator.clipboard.writeText(text); setPostCopied(true); setTimeout(function() { setPostCopied(false); }, 2000); }
   }
 
   return (
-    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }} title={t('socialShare.title')}>
+    <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('socialShare.title')}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Your referral link, QR code and ready-made social posts.</div>
+        </div>
+      </div>
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #172554, #172554)', padding: '20px 24px 16px' }}>
@@ -77,8 +86,8 @@ export default function Affiliate() {
       <div style={{ background: 'linear-gradient(180deg, #172554, #172554)', padding: '0 24px 14px' }}>
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
-          <span style={{ flex: 1, fontSize: 14, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
+          <span style={{ flex: 1, fontSize: 14, color: '#e8203f', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
+          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#e8203f', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
 
@@ -142,7 +151,7 @@ export default function Affiliate() {
             style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 15, fontFamily: 'inherit', background: 'var(--sap-bg-elevated)', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
 
           <button onClick={generate} disabled={generating}
-            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? 'var(--sap-text-faint)' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
+            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? 'var(--sap-text-faint)' : 'linear-gradient(135deg, #c8102e, #e8203f)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
             {generating ? t('socialShare.generating') : t('socialShare.generateFor', {platform: selected.label})}
           </button>
         </div>
@@ -194,6 +203,6 @@ export default function Affiliate() {
       </div>
       <style>{'@keyframes ssspin{to{transform:rotate(360deg)}}'}</style>
     </div>
-    </AppLayout>
+    </AlShell>
   );
 }

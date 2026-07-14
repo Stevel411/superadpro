@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiGet } from '../../utils/api';
-import AppLayout from '../../components/layout/AppLayout';
+import AlShell from '../../components/layout/AlShell';
 import { Lock, Sparkles, Image as ImageIcon, ArrowRight, Clock } from 'lucide-react';
 
 // Category labels and accent colours for the gallery filter pills
 var CATEGORIES = [
   { key: 'all',          label: 'All templates',  colour: 'var(--sap-accent)' },
-  { key: 'professional', label: 'Professional',   colour: '#0ea5e9' },
-  { key: 'lifestyle',    label: 'Lifestyle',      colour: '#a855f7' },
+  { key: 'professional', label: 'Professional',   colour: '#c8102e' },
+  { key: 'lifestyle',    label: 'Lifestyle',      colour: '#12388f' },
   { key: 'generosity',   label: 'Pay It Forward', colour: '#ec4899' },
-  { key: 'tech',         label: 'Tech',           colour: '#22d3ee' },
+  { key: 'tech',         label: 'Tech',           colour: '#e8203f' },
 ];
 
 export default function BrandPostersGallery() {
@@ -38,12 +38,17 @@ export default function BrandPostersGallery() {
     : [];
 
   return (
-    <AppLayout
-      categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}
-      title="Brand Poster Generator"
-      subtitle="Generate complete branded marketing posters in 60 seconds"
-    >
+    <AlShell active="ai-tools" back={{ to: '/my-marketing', label: 'My Marketing' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Brand Poster Generator</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Generate complete branded marketing posters in 60 seconds.</div>
+        </div>
+      </div>
 
         {/* Hero / access banner */}
         {!loading && data && (
@@ -197,7 +202,7 @@ export default function BrandPostersGallery() {
                   {t.preview_image_url ? (
                     <div style={{
                       aspectRatio: '3/4',
-                      background: '#0a1438',
+                      background: '#0a1f52',
                       overflow: 'hidden',
                     }}>
                       <img
@@ -215,7 +220,7 @@ export default function BrandPostersGallery() {
                   ) : (
                     <div style={{
                       aspectRatio: '3/4',
-                      background: 'linear-gradient(135deg, #1e3a8a 0%, #0ea5e9 100%)',
+                      background: 'linear-gradient(135deg, #12388f 0%, #c8102e 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -279,6 +284,6 @@ export default function BrandPostersGallery() {
           </div>
         )}
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }

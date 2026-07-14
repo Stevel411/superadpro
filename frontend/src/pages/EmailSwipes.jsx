@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
 
 // ── Email Swipes library (6 Jul 2026) ─────────────────────────────────
-// 20 professional swipes across 5 categories. {{name}} is SuperLeads'
+// 20 professional swipes across 5 categories. {{name}} is Email Marketing'
 // native merge tag (substituted at send time). {{YOUR_LINK}} and
 // {{YOUR_NAME}} are substituted client-side on copy with the member's
 // real ref link + name, so every copied email is ready to paste.
@@ -13,9 +13,9 @@ import { useAuth } from '../hooks/useAuth';
 // makes claims the platform wouldn't make itself.
 
 const CATS = [
-  { key: 'invite', label: 'Invite to SuperAdPro', color: '#0891b2' },
+  { key: 'invite', label: 'Invite to AdvantageLife', color: '#a00d24' },
   { key: 'welcome', label: 'Welcome & nurture', color: '#16a34a' },
-  { key: 'value', label: 'Value & trust', color: '#7c3aed' },
+  { key: 'value', label: 'Value & trust', color: '#0e2a6e' },
   { key: 'reengage', label: 'Re-engagement', color: '#f59e0b' },
   { key: 'promo', label: 'Promotion & launch', color: '#db2777' },
 ];
@@ -26,7 +26,7 @@ body:`Hi {{name}},
 
 You asked what I'm using to run my marketing these days — here it is.
 
-It's called SuperAdPro. One membership, and I get a page builder, an autoresponder, an AI creative studio for videos and images, and video advertising that's watched by real logged-in members (not bots).
+It's called AdvantageLife. One membership, and I get a page builder, an autoresponder, an AI creative studio for videos and images, and video advertising that's watched by real logged-in members (not bots).
 
 I was paying for three separate tools before. This replaced all of them for $20/month — and the account is free to open, so you can poke around before spending a penny.
 
@@ -42,21 +42,21 @@ body:`Hi {{name}},
 
 Quick story. Last month I sat down and added up what I was paying for marketing tools — a page builder here, an email tool there, an AI subscription on top. It was embarrassing.
 
-So I moved everything to one platform: SuperAdPro. Pages, email sequences, AI video and image creation, and an advertising network where real members watch your videos — all under one $20/month roof.
+So I moved everything to one platform: AdvantageLife. Pages, email sequences, AI video and image creation, and an advertising network where real members watch your videos — all under one $20/month roof.
 
 The bit that sold me: you can open a free account and use it before deciding anything.
 
 Here's my link if you want to see it: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this email as my own story. The facts: I consolidated my marketing tools into SuperAdPro. My previous tools were [list yours]. Keep the "added up what I was paying" hook, keep it honest and conversational, end with a soft link CTA.` },
+prompt:`Rewrite this email as my own story. The facts: I consolidated my marketing tools into AdvantageLife. My previous tools were [list yours]. Keep the "added up what I was paying" hook, keep it honest and conversational, end with a soft link CTA.` },
 
 { id:3, cat:'invite', title:'The advertising angle', subject:'Ads watched by real people (who can join your list)',
 body:`Hi {{name}},
 
 Most online ads are a coin toss — you pay, something "views" it, nothing happens.
 
-Here's a different model: on SuperAdPro, video campaigns are watched by real, logged-in members. And under every video there's a Subscribe button — viewers who like what they see join YOUR email list with one tap.
+Here's a different model: on AdvantageLife, video campaigns are watched by real, logged-in members. And under every video there's a Subscribe button — viewers who like what they see join YOUR email list with one tap.
 
 Views are nice. A list is a business.
 
@@ -70,7 +70,7 @@ prompt:`Rewrite this email in my voice for an audience of [describe]. Keep the t
 { id:4, cat:'invite', title:'The income-curious follow-up', subject:'You asked about the earning side — straight answer',
 body:`Hi {{name}},
 
-You asked how the earning side of SuperAdPro works, so here it is, plainly.
+You asked how the earning side of AdvantageLife works, so here it is, plainly.
 
 Two streams. Memberships: refer someone, earn $10/month for every month they stay active. Campaigns: when your team buys video advertising, 100% of that revenue is shared with members — 50% direct, a share through five team levels, and completion bonuses.
 
@@ -340,15 +340,24 @@ export default function EmailSwipes() {
   const catOf = k => CATS.find(c => c.key === k);
 
   return (
-    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }} title="Email Swipes" subtitle="20 professional emails — your link baked in">
+    <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 5L2 7"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Email Swipes</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>20 professional emails — your link baked in.</div>
+        </div>
+      </div>
       <style>{`
         .es-strip{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
         .es-strip p{font-size:13.5px;color:#475569;font-weight:600;margin:0;line-height:1.5}
         .es-strip p b{color:#0f172a}
-        .es-gen{background:linear-gradient(135deg,#0891b2,#1e3a8a);color:#fff;border-radius:10px;padding:11px 18px;font-family:Sora,sans-serif;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap}
+        .es-gen{background:linear-gradient(135deg,#a00d24,#12388f);color:#fff;border-radius:10px;padding:11px 18px;font-family:Sora,sans-serif;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap}
         .es-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
         .es-cat{border:1.5px solid #dfe6f0;background:#fff;border-radius:20px;padding:8px 15px;font-family:Sora,sans-serif;font-size:12px;font-weight:800;color:#475569;cursor:pointer}
-        .es-cat.on{background:#0a1438;border-color:#0a1438;color:#fff}
+        .es-cat.on{background:#0a1f52;border-color:#0a1f52;color:#fff}
         .es-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
         .es-card{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:18px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05);display:flex;flex-direction:column}
         .es-tag{display:inline-flex;align-self:flex-start;font-family:Sora,sans-serif;font-size:9.5px;font-weight:800;letter-spacing:.06em;border-radius:12px;padding:4px 10px;color:#fff;margin-bottom:10px}
@@ -359,14 +368,14 @@ export default function EmailSwipes() {
         .es-body.open{max-height:none}
         .es-body:not(.open)::after{content:"";position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,#fbfdff)}
         .es-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
-        .es-btn{border:1.5px solid #dfe6f0;background:#fff;border-radius:9px;padding:9px 13px;font-family:Sora,sans-serif;font-size:11.5px;font-weight:800;color:#1e3a8a;cursor:pointer}
-        .es-btn.primary{background:linear-gradient(135deg,#0ea5e9,#06b6d4);border:none;color:#fff}
+        .es-btn{border:1.5px solid #dfe6f0;background:#fff;border-radius:9px;padding:9px 13px;font-family:Sora,sans-serif;font-size:11.5px;font-weight:800;color:#12388f;cursor:pointer}
+        .es-btn.primary{background:linear-gradient(135deg,#c8102e,#e8203f);border:none;color:#fff}
         .es-btn.done{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
         .es-note{font-size:11px;color:#94a3b8;font-weight:600;margin-top:18px;line-height:1.6}
       `}</style>
 
       <div className="es-strip">
-        <p><b>20 swipes, ready to send.</b> Every copy carries <b>your</b> referral link and name automatically — paste straight into a SuperLeads broadcast ({'{{name}}'} personalises per subscriber at send time). Square brackets = fill in your specifics.</p>
+        <p><b>20 swipes, ready to send.</b> Every copy carries <b>your</b> referral link and name automatically — paste straight into a Email Marketing broadcast ({'{{name}}'} personalises per subscriber at send time). Square brackets = fill in your specifics.</p>
         <Link className="es-gen" to="/email-swipes/generator">✨ AI generator →</Link>
       </div>
 
@@ -398,6 +407,6 @@ export default function EmailSwipes() {
       </div>
 
       <div className="es-note">Swipes that mention earning keep to the published plan facts and results-vary language — please keep those lines intact when personalising. Emails send under your name and your sending reputation; the honest ones are the ones that keep working.</div>
-    </AppLayout>
+    </AlShell>
   );
 }

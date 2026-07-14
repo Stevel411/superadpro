@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet } from '../utils/api';
 import {
   Copy, Check, ExternalLink, FileText, Users, ArrowRight, Info, Lock,
@@ -42,16 +42,16 @@ export default function LeadMagnetDetail() {
   const shareEmail = () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('A free course for you') + '&body=' + encodeURIComponent('Grab it free here: ' + url); };
 
   if (loading) {
-    return <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet"><div style={{ padding: '40px', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>Loading…</div></AppLayout>;
+    return <AlShell active="dashboard" back={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet"><div style={{ padding: '40px', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>Loading…</div></AlShell>;
   }
   if (!m || m.status !== 'live') {
     return (
-      <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet">
+      <AlShell active="dashboard" back={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet">
         <div style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>
           <Lock size={28} style={{ color: 'var(--sap-text-faint)', marginBottom: 10 }} />
           <p>This lead magnet isn’t available yet.</p>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -62,18 +62,18 @@ export default function LeadMagnetDetail() {
   ];
 
   return (
-    <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }}
+    <AlShell active="dashboard" back={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }}
                title={m.title} subtitle="Share your link — every signup joins your list automatically">
       {toast ? (
         <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: 'var(--sap-text-primary)', color: '#fff', fontSize: 13, fontWeight: 500, padding: '10px 18px', borderRadius: 999, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'var(--sap-shadow-md)' }}>
-          <Check size={15} style={{ color: 'var(--sap-accent-light, #38bdf8)' }} /> {toast}
+          <Check size={15} style={{ color: 'var(--sap-accent-light, #e8203f)' }} /> {toast}
         </div>
       ) : null}
 
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
 
         <div style={{ ...card, display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'stretch' }}>
-          <div style={{ width: 100, height: 132, borderRadius: 11, flexShrink: 0, background: 'linear-gradient(160deg,#0a1438 0%,#15346b 55%,#0ea5e9 130%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 12, color: '#fff', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 22px rgba(10,20,56,0.28)' }}>
+          <div style={{ width: 100, height: 132, borderRadius: 11, flexShrink: 0, background: 'linear-gradient(160deg,#0a1f52 0%,#15346b 55%,#c8102e 130%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 12, color: '#fff', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 22px rgba(10,20,56,0.28)' }}>
             <span style={{ fontFamily: 'var(--sap-font-mono)', fontSize: 8, letterSpacing: '0.1em', color: '#9ff0ff', border: '1px solid rgba(125,211,238,0.4)', padding: '2px 6px', borderRadius: 999, alignSelf: 'flex-start', marginBottom: 7 }}>{m.badge}</span>
             <div style={{ fontFamily: 'var(--sap-font-heading)', fontWeight: 800, fontSize: 17, lineHeight: 1.04 }}>{m.cover_title}</div>
           </div>
@@ -129,9 +129,9 @@ export default function LeadMagnetDetail() {
         </div>
 
         <div style={{ marginTop: 18, fontSize: 12, color: 'var(--sap-text-faint)', textAlign: 'center' }}>
-          Your link automatically tags every lead to you. Powered by SuperAdPro.
+          Your link automatically tags every lead to you. Powered by AdvantageLife.
         </div>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }

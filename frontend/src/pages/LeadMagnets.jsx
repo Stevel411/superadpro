@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet } from '../utils/api';
 import { Copy, Check, SlidersHorizontal, Lock, Library } from 'lucide-react';
 
@@ -13,10 +13,10 @@ function Cover({ m, height }) {
     const email = m.cover === 'email';
     const attraction = m.cover === 'attraction';
     const grad = attraction
-      ? 'linear-gradient(150deg,#0a1438 0%,#2d1b69 52%,#7c3aed 145%)'
+      ? 'linear-gradient(150deg,#0a1f52 0%,#2d1b69 52%,#0e2a6e 145%)'
       : email
-      ? 'linear-gradient(150deg,#0a1438 0%,#163a66 52%,#16a34a 145%)'
-      : 'linear-gradient(150deg,#0a1438 0%,#15346b 55%,#0ea5e9 135%)';
+      ? 'linear-gradient(150deg,#0a1f52 0%,#163a66 52%,#16a34a 145%)'
+      : 'linear-gradient(150deg,#0a1f52 0%,#15346b 55%,#c8102e 135%)';
     const blob = attraction ? 'rgba(167,139,250,0.20)' : email ? 'rgba(56,189,248,0.18)' : 'rgba(125,211,238,0.16)';
     return (
       <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: grad }}>
@@ -78,12 +78,19 @@ export default function LeadMagnets() {
   const comingSoon = [0];
 
   return (
-    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}
-               title="Lead Magnets"
-               subtitle="Free done-for-you giveaways you can share to grow your list">
+    <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M12 8S9.5 3 7 4.5 9 8 12 8zM12 8s2.5-5 5-3.5S15 8 12 8z"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Lead Magnets</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Free done-for-you giveaways you can share to grow your list.</div>
+        </div>
+      </div>
       {toast ? (
         <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: 'var(--sap-text-primary)', color: '#fff', fontSize: 13, fontWeight: 500, padding: '10px 18px', borderRadius: 999, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'var(--sap-shadow-md)' }}>
-          <Check size={15} style={{ color: 'var(--sap-accent-light, #38bdf8)' }} /> {toast}
+          <Check size={15} style={{ color: 'var(--sap-accent-light, #e8203f)' }} /> {toast}
         </div>
       ) : null}
 
@@ -149,6 +156,6 @@ export default function LeadMagnets() {
           Every lead magnet tags signups to you automatically and feeds your own list.
         </div>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }
