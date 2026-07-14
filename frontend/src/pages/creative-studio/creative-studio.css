@@ -172,6 +172,11 @@
 /* ── Override AppLayout overflow restriction ── */
 .cs-page { overflow: visible !important; }
 .cs-page > * { overflow: visible !important; }
+/* 13 Jul: keep the tab strip scrolling horizontally — the blanket rule above
+   was overriding its overflow-x:auto and forcing it to full intrinsic width,
+   which pushed the whole page past the viewport inside the AlShell column. */
+.cs-page > .cs-tab-bar { overflow-x: auto !important; }
+.cs-page, .cs-main, .cs-tab-bar { max-width: 100%; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

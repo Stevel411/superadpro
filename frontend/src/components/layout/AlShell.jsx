@@ -32,6 +32,7 @@ const CHROME = `
 .al .menu .sep{height:1.5px;background:#eef1f8;margin:6px 0}
 .al .menu .out{color:#c8102e}
 .al .cols{display:grid;grid-template-columns:272px 1fr;gap:20px;align-items:stretch}
+.al .cols > main{min-width:0;max-width:100%}
 @media(max-width:980px){.al .cols{grid-template-columns:1fr}.al .side{display:none}}
 .al .side{background:linear-gradient(175deg,#0e2a6e,#0a1f52);border-radius:22px;padding:20px 14px;box-shadow:0 24px 50px -24px rgba(10,31,82,.6);display:flex;flex-direction:column}
 .al .side a{display:flex;align-items:center;gap:12px;color:#c7d3f2;font-weight:800;font-size:15px;padding:14px 16px;border-radius:13px;margin-bottom:5px}
