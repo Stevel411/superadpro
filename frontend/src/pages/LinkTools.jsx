@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet, apiPost } from '../utils/api';
 import QRCode from 'qrcode';
 import LinkToolsHelp from './LinkToolsHelp';
@@ -247,20 +247,28 @@ export default function LinkTools() {
   const totalClicks = links.reduce((a, l) => a + (l.click_count || 0), 0) + rotators.reduce((a, r) => a + (r.click_count || 0), 0);
 
   if (loading) return (
-    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title={t('linkTools.title')}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 
   return (
-    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title={t("linkTools.title")} subtitle={t("linkTools.subtitle")} topbarActions={
-      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'#eff6ff',color:'#0284c7',border:'1px solid #dbeafe'}}>
-        <HelpCircle size={14}/> Help
-      </button>
-    }>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div style={{minWidth:0}}>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t("linkTools.title")}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t("linkTools.subtitle")}</div>
+        </div>
+        <button onClick={() => setShowHelp(true)} style={{marginLeft:'auto',display:'inline-flex',alignItems:'center',gap:6,padding:'9px 15px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,.1)',color:'#fff',border:'1.5px solid rgba(255,255,255,.2)'}}>
+          <HelpCircle size={14}/> Help
+        </button>
+      </div>
 
       {/* ── Stats Cards + Controls ── */}
       <style>{`
@@ -272,15 +280,15 @@ export default function LinkTools() {
         .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .8s ease both}
         .lt-stat:hover{transform:translateY(-6px) scale(1.02)!important}
         .lt-action-btn{transition:all .18s ease}
-        .lt-action-btn:hover{background:#f0f9ff!important;color:#0ea5e9!important;border-color:#bae6fd!important}
+        .lt-action-btn:hover{background:#f0f9ff!important;color:#c8102e!important;border-color:#f5b8c2!important}
         .lt-create-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1)}
         .lt-create-btn:hover{transform:translateY(-3px) scale(1.04)!important}
       `}</style>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18,marginBottom:24}}>
         {[
-          {label:t('linkTools.shortLinks'),val:links.length,sub:'active links',grad:'linear-gradient(135deg,#0284c7 0%,#0ea5e9 50%,#38bdf8 100%)',shadow:'rgba(14,165,233,.45)',icon:Link2,emoji:'🔗',delay:0},
-          {label:t('linkTools.rotators'),val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#6d28d9 0%,#8b5cf6 50%,#a78bfa 100%)',shadow:'rgba(139,92,246,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
+          {label:t('linkTools.shortLinks'),val:links.length,sub:'active links',grad:'linear-gradient(135deg,#a00d24 0%,#c8102e 50%,#e8203f 100%)',shadow:'rgba(200,16,46,.45)',icon:Link2,emoji:'🔗',delay:0},
+          {label:t('linkTools.rotators'),val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#0e2a6e 0%,#12388f 50%,#9db0e0 100%)',shadow:'rgba(18,56,143,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
           {label:t('linkTools.totalClicks'),val:totalClicks,sub:'all time',grad:'linear-gradient(135deg,#065f46 0%,#10b981 50%,#34d399 100%)',shadow:'rgba(16,185,129,.45)',icon:MousePointer,emoji:'👆',delay:.16},
           {label:t('linkTools.protected'),val:links.filter(l=>l.has_password).length,sub:'password locked',grad:'linear-gradient(135deg,#92400e 0%,#f59e0b 50%,#fbbf24 100%)',shadow:'rgba(245,158,11,.45)',icon:Shield,emoji:'🔒',delay:.24},
         ].map((s,i) => (
@@ -333,8 +341,8 @@ export default function LinkTools() {
         <button onClick={() => tab==='links'?setShowCreate(true):setShowRotatorCreate(true)} className="lt-create-btn" style={{
           display:'flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:12,fontSize:14,fontWeight:800,
           border:'none',cursor:'pointer',fontFamily:'inherit',
-          background:'linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8)',color:'#fff',
-          boxShadow:'0 8px 24px rgba(14,165,233,.4)',
+          background:'linear-gradient(135deg,#a00d24,#c8102e,#e8203f)',color:'#fff',
+          boxShadow:'0 8px 24px rgba(200,16,46,.4)',
           letterSpacing:.2,
         }}><Plus size={16}/> {tab==='links'?'New Short Link':'New Rotator'}</button>
       </div>
@@ -356,7 +364,7 @@ export default function LinkTools() {
             return (
               <div key={l.id} className="lt-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',opacity:isExpired?0.5:1,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                 <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
-                  <div style={{width:42,height:42,borderRadius:10,background: l.has_password ? 'rgba(245,158,11,.08)' : 'rgba(14,165,233,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:l.has_password?'1px solid rgba(245,158,11,.2)':'1px solid rgba(14,165,233,.2)'}}>
+                  <div style={{width:42,height:42,borderRadius:10,background: l.has_password ? 'rgba(245,158,11,.08)' : 'rgba(200,16,46,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:l.has_password?'1px solid rgba(245,158,11,.2)':'1px solid rgba(200,16,46,.2)'}}>
                     {l.has_password ? <Lock size={18} color="var(--sap-amber)"/> : <Link2 size={18} color="var(--sap-accent)"/>}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
@@ -376,8 +384,8 @@ export default function LinkTools() {
                       </div>
                     )}
                   </div>
-                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
+                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #f5b8c2',minWidth:64}}>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#a00d24',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
                     <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                     {l.click_cap && (
                       <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
@@ -423,7 +431,7 @@ export default function LinkTools() {
           {rotators.map(r => (
             <div key={r.id} className="lt-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
               <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
-                <div style={{width:42,height:42,borderRadius:10,background:'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'1px solid rgba(139,92,246,.2)'}}>
+                <div style={{width:42,height:42,borderRadius:10,background:'rgba(18,56,143,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'1px solid rgba(18,56,143,.2)'}}>
                   <Shuffle size={18} color="var(--sap-purple)"/>
                 </div>
                 <div style={{flex:1,minWidth:0}}>
@@ -510,8 +518,8 @@ export default function LinkTools() {
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
-                border:rotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
+                border:rotMode===k?'2px solid #12388f':'2px solid #e2e8f0',
+                background:rotMode===k?'rgba(18,56,143,.06)':'#fff',color:rotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
             ))}
           </div>
@@ -585,8 +593,8 @@ export default function LinkTools() {
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setEditRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
-                border:editRotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
+                border:editRotMode===k?'2px solid #12388f':'2px solid #e2e8f0',
+                background:editRotMode===k?'rgba(18,56,143,.06)':'#fff',color:editRotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
             ))}
           </div>
@@ -783,7 +791,7 @@ export default function LinkTools() {
 
       {/* ── Help Panel ── */}
       <LinkToolsHelp visible={showHelp} onClose={() => setShowHelp(false)} />
-    </AppLayout>
+    </AlShell>
   );
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import { Copy, Check, Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Upload, AlignLeft, AlignCenter, AlignRight, ChevronRight, ArrowRight, ArrowUpRight, MoveRight } from 'lucide-react';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 
 var FONTS = ['DM Sans','Sora','Inter','Poppins','Playfair Display','Space Grotesk','Nunito','Raleway',
@@ -180,10 +180,19 @@ export default function LinkHub() {
   var arrowObj = ARROW_STYLES.find(function(a){return a.key===style.arrow_style;}) || ARROW_STYLES[0];
   var pubUrl = window.location.origin + '/u/' + (data?.username || 'me');
 
-  if (!data) return <AppLayout title={t("linkHub.title")} subtitle={t("linkHub.subtitle")}><div style={{display:'flex',height:'60vh',alignItems:'center',justifyContent:'center'}}><Spin/></div></AppLayout>;
+  if (!data) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{display:'flex',height:'60vh',alignItems:'center',justifyContent:'center'}}><Spin/></div></AlShell>;
 
   return (
-    <AppLayout title={t("linkHub.title")} subtitle={t("linkHub.subtitle")}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t("linkHub.title")}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t("linkHub.subtitle")}</div>
+        </div>
+      </div>
     <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0,gap:0}}>
       {/* ═══ LEFT PANEL ═══ */}
       <div style={{width:16,flexShrink:0,background:'#f0f3f9'}}/>
@@ -215,8 +224,8 @@ export default function LinkHub() {
         `}</style>
         <div style={{display:'flex',gap:8,padding:'10px 12px',borderBottom:'1px solid #e5e7eb',flexShrink:0}}>
           {[
-            {v:stats.total_views,l:'Views',sub:'all time',grad:'linear-gradient(135deg,#0284c7,#38bdf8)',shadow:'rgba(14,165,233,.4)',emoji:'👁️',delay:0},
-            {v:stats.total_clicks,l:'Clicks',sub:'total',grad:'linear-gradient(135deg,#6d28d9,#a78bfa)',shadow:'rgba(139,92,246,.4)',emoji:'🖱️',delay:.07},
+            {v:stats.total_views,l:'Views',sub:'all time',grad:'linear-gradient(135deg,#a00d24,#e8203f)',shadow:'rgba(200,16,46,.4)',emoji:'👁️',delay:0},
+            {v:stats.total_clicks,l:'Clicks',sub:'total',grad:'linear-gradient(135deg,#0e2a6e,#9db0e0)',shadow:'rgba(18,56,143,.4)',emoji:'🖱️',delay:.07},
             {v:stats.click_30d,l:'Last 30d',sub:'clicks',grad:'linear-gradient(135deg,#065f46,#34d399)',shadow:'rgba(16,185,129,.4)',emoji:'📈',delay:.14},
           ].map(function(s,i) {
             return (
@@ -243,7 +252,7 @@ export default function LinkHub() {
         {/* Tabs — pill buttons */}
         <div style={{display:'flex',gap:6,flexShrink:0,padding:'10px 12px',background:'var(--sap-bg-input)',borderBottom:'1px solid #e5e7eb'}}>
           {[
-            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#7c3aed,#8b5cf6)',color:'var(--sap-violet)',shadow:'rgba(124,58,237,.35)'},
+            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#0e2a6e,#12388f)',color:'var(--sap-violet)',shadow:'rgba(124,58,237,.35)'},
             {k:'style',l:'🎨 Style',bg:'#fdf2f8',bgOn:'linear-gradient(135deg,#db2777,#ec4899)',color:'#db2777',shadow:'rgba(219,39,119,.35)'},
             {k:'profile',l:'👤 Profile',bg:'#eff6ff',bgOn:'linear-gradient(135deg,#2563eb,#3b82f6)',color:'#2563eb',shadow:'rgba(37,99,235,.35)'},
           ].map(function(tb) {
@@ -279,7 +288,7 @@ export default function LinkHub() {
             />
           </div>
           <button onClick={save} disabled={saving}
-            style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'var(--sap-green)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
+            style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'var(--sap-green)':'linear-gradient(135deg,#12388f,#9db0e0)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(18,56,143,.3)',opacity:saving?0.6:1}}>
             {saving?t('linkHub.saving'):saved?t('linkHub.saved'):t('linkHub.savePublish')}
           </button>
         </div>
@@ -348,7 +357,7 @@ export default function LinkHub() {
         </div>
       </div>
     </div>
-    </AppLayout>
+    </AlShell>
   );
 }
 
@@ -381,7 +390,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                   <button onClick={function(){setEmojiPicker(showEmoji?null:link.id);}}
                     title={parseIcon(link.icon) ? 'Change icon' : 'Add icon'}
                     style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'var(--sap-bg-page)',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #94a3b8',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
-                    onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.background='rgba(139,92,246,.06)';}}
+                    onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.background='rgba(18,56,143,.06)';}}
                     onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'var(--sap-text-faint)';e.currentTarget.style.background=parseIcon(link.icon)?'none':'var(--sap-bg-page)';}}>
                     {parseIcon(link.icon)
                       ? <IconDisplay icon={parseIcon(link.icon)} color='var(--sap-text-secondary)' size={18}/>
@@ -403,7 +412,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                   {/* No icon option */}
                   <div style={{padding:'8px 12px',borderBottom:'1px solid #f1f5f9',display:'flex',alignItems:'center',gap:8}}>
                     <button onClick={function(){updateLink(link.id,'icon','none');setEmojiPicker(null);}}
-                      style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #8b5cf6':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(139,92,246,.06)':'var(--sap-bg-input)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',fontFamily:'inherit'}}>
+                      style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #12388f':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(18,56,143,.06)':'var(--sap-bg-input)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',fontFamily:'inherit'}}>
                       <span style={{fontSize:16}}>✕</span> No Icon
                     </button>
                     <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{t('linkHub.clickCategory')}</span>
@@ -418,7 +427,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                             return (
                               <button key={ic.id} title={ic.label}
                                 onClick={function(){updateLink(link.id,'icon',ic.id);setEmojiPicker(null);}}
-                                style={{width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:isSelected?'2px solid #8b5cf6':'2px solid transparent',background:isSelected?'rgba(139,92,246,.08)':'var(--sap-bg-page)',cursor:'pointer',padding:0,color:'var(--sap-text-secondary)',transition:'all .1s'}}
+                                style={{width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:isSelected?'2px solid #12388f':'2px solid transparent',background:isSelected?'rgba(18,56,143,.08)':'var(--sap-bg-page)',cursor:'pointer',padding:0,color:'var(--sap-text-secondary)',transition:'all .1s'}}
                                 onMouseEnter={function(e){if(!isSelected){e.currentTarget.style.background='var(--sap-border-light)';}}}
                                 onMouseLeave={function(e){if(!isSelected){e.currentTarget.style.background='var(--sap-bg-page)';}}}>
                                 <IconDisplay icon={ic} color='var(--sap-text-secondary)' size={18}/>
@@ -544,7 +553,7 @@ function StylePanel({ style, setStyle }) {
             var on = style.btn_style_type===bs.k;
             return (
               <button key={bs.k} onClick={function(){setStyle(function(s){return Object.assign({},s,{btn_style_type:bs.k,btn_radius:bs.r+'px'});});}}
-                style={{flex:1,padding:'8px 4px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                style={{flex:1,padding:'8px 4px',borderRadius:8,border:on?'2px solid #12388f':'2px solid #e5e7eb',background:on?'rgba(18,56,143,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                 <div style={{width:48,height:18,borderRadius:bs.r,background:bs.k==='outline'?'transparent':(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'),border:bs.k==='outline'?'2px solid '+(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'):'none'}}/>
                 <span style={{fontSize:13,fontWeight:on?700:500,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{bs.label}</span>
               </button>
@@ -561,7 +570,7 @@ function StylePanel({ style, setStyle }) {
             var on = style.btn_align===a.k;
             return (
               <button key={a.k} onClick={function(){setStyle(function(s){return Object.assign({},s,{btn_align:a.k});});}}
-                style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',display:'flex',justifyContent:'center'}}>
+                style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #12388f':'2px solid #e5e7eb',background:on?'rgba(18,56,143,.06)':'#fff',cursor:'pointer',display:'flex',justifyContent:'center'}}>
                 <a.Icon size={16} color={on?'var(--sap-purple)':'var(--sap-text-faint)'}/>
               </button>
             );
@@ -577,7 +586,7 @@ function StylePanel({ style, setStyle }) {
             var on = style.arrow_style===a.key;
             return (
               <button key={a.key} onClick={function(){setStyle(function(s){return Object.assign({},s,{arrow_style:a.key});});}}
-                style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #12388f':'2px solid #e5e7eb',background:on?'rgba(18,56,143,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
                 <span style={{fontSize:14}}>{a.label}</span>
                 <span style={{fontSize:8,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{a.key}</span>
               </button>
@@ -626,7 +635,7 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
 
       {/* Avatar */}
       <div style={{marginBottom:18,textAlign:'center'}}>
-        <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 10px',overflow:'hidden',border:'3px solid #8b5cf6',background:'var(--sap-border-light)'}}>
+        <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 10px',overflow:'hidden',border:'3px solid #12388f',background:'var(--sap-border-light)'}}>
           {profile.avatar_url ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'var(--sap-text-faint)'}}>{(profile.display_name||'?')[0]}</div>}
         </div>
         <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center'}}>

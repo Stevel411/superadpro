@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiPost } from '../utils/api';
 import { Send, Bot, User, Sparkles, Target, TrendingUp, MessageSquare, Copy, Check, RefreshCw } from 'lucide-react';
 
 var PROMPT_CATEGORIES = [
-  {title:'Get Started',icon:Sparkles,color:'var(--sap-purple-light)',gradient:'linear-gradient(135deg,#7c3aed,#8b5cf6)',prompts:['How do I get my first referral?','What should I do in my first week?','Explain the compensation plan simply']},
-  {title:'Content & Marketing',icon:MessageSquare,color:'var(--sap-accent-light)',gradient:'linear-gradient(135deg,#0284c7,#0ea5e9)',prompts:['Write a Facebook post promoting SuperAdPro','Create an Instagram story script about passive income','Write 5 YouTube video headlines for affiliate marketing']},
+  {title:'Get Started',icon:Sparkles,color:'var(--sap-purple-light)',gradient:'linear-gradient(135deg,#0e2a6e,#12388f)',prompts:['How do I get my first referral?','What should I do in my first week?','Explain the compensation plan simply']},
+  {title:'Content & Marketing',icon:MessageSquare,color:'var(--sap-accent-light)',gradient:'linear-gradient(135deg,#a00d24,#c8102e)',prompts:['Write a Facebook post promoting AdvantageLife','Create an Instagram story script about passive income','Write 5 YouTube video headlines for affiliate marketing']},
   {title:'Sales & Objections',icon:Target,color:'#f87171',gradient:'linear-gradient(135deg,#dc2626,#ef4444)',prompts:['"Is this a pyramid scheme?" — how do I respond?','My prospect says "$20/month is too expensive"','Write a DM script for reaching out to prospects']},
   {title:'Growth Strategies',icon:TrendingUp,color:'#34d399',gradient:'linear-gradient(135deg,#059669,#10b981)',prompts:['Best free traffic strategies for affiliate marketing','Build a team of 10 active members in 30 days','Create a 7-day launch plan for new members']},
 ];
@@ -39,7 +39,16 @@ export default function ProSeller() {
   var hasMessages=messages.length>0;
 
   return(
-    <AppLayout categoryBack={{ to: '/toolkit', label: 'Tool Kit' }} title={t('proSeller.title')} subtitle={t('proSeller.aiSalesAssistant')}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('proSeller.title')}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t('proSeller.aiSalesAssistant')}</div>
+        </div>
+      </div>
       <div style={{maxWidth:900,margin:'0 auto',display:'flex',flexDirection:'column',height:'calc(100vh - 180px)'}}>
 
         {/* Chat area */}
@@ -56,7 +65,7 @@ export default function ProSeller() {
                 })}
                 <style>{`@keyframes pulse{0%,100%{transform:scale(1);opacity:.1}50%{transform:scale(2.5);opacity:.25}}`}</style>
 
-                <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(139,92,246,.4)',position:'relative',zIndex:1}}>
+                <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#12388f,#9db0e0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(139,92,246,.4)',position:'relative',zIndex:1}}>
                   <Bot size={36} color="#fff"/>
                 </div>
                 <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>{t('proSeller.proSellerAI')}</h2>
@@ -101,7 +110,7 @@ export default function ProSeller() {
                 var isUser=m.role==='user';
                 return(
                   <div key={i} style={{padding:'14px 32px',display:'flex',gap:14,alignItems:'flex-start',background:isUser?'transparent':'#faf8ff',borderBottom:'1px solid '+(isUser?'transparent':'#f5f0ff')}}>
-                    <div style={{width:36,height:36,borderRadius:10,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:isUser?'linear-gradient(135deg,#0ea5e9,#38bdf8)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:'0 4px 12px '+(isUser?'rgba(14,165,233,.2)':'rgba(139,92,246,.2)')}}>
+                    <div style={{width:36,height:36,borderRadius:10,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:isUser?'linear-gradient(135deg,#c8102e,#e8203f)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:'0 4px 12px '+(isUser?'rgba(14,165,233,.2)':'rgba(139,92,246,.2)')}}>
                       {isUser?<User size={17} color="#fff"/>:<Bot size={17} color="#fff"/>}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
@@ -118,7 +127,7 @@ export default function ProSeller() {
               })}
               {loading&&(
                 <div style={{padding:'14px 32px',display:'flex',gap:14,alignItems:'flex-start',background:'#faf8ff'}}>
-                  <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center'}}><Bot size={17} color="#fff"/></div>
+                  <div style={{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#12388f,#9db0e0)',display:'flex',alignItems:'center',justifyContent:'center'}}><Bot size={17} color="#fff"/></div>
                   <div style={{paddingTop:10,display:'flex',gap:5}}>
                     {[0,1,2].map(function(d){return <div key={d} style={{width:9,height:9,borderRadius:'50%',background:'var(--sap-purple-light)',animation:'dot 1.4s infinite',animationDelay:(d*0.2)+'s'}}/>;})}<style>{`@keyframes dot{0%,60%,100%{opacity:.15;transform:scale(.8)}30%{opacity:1;transform:scale(1.2)}}`}</style>
                   </div>
@@ -134,12 +143,12 @@ export default function ProSeller() {
           {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>{t('proSeller.newConversation')}</button></div>}
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
             <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder={t("proSeller.askPlaceholder")} style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
-            <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>
+            <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>
               <Send size={20} color={(loading||!input.trim())?'var(--sap-text-muted)':'#fff'}/>
             </button>
           </div>
         </div>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }
