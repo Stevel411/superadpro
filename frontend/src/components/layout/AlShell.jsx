@@ -47,6 +47,7 @@ const NAV = [
   { key: 'ai-tools', label: 'AI Tools', to: '/ai-tools', link: true },
   { key: 'campaigns', label: 'Campaigns', to: '/video-library', link: true },
   { key: 'watch', label: 'Watch-to-Earn', to: '/watch', link: true },
+  { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'packs', label: 'Buy Packs', to: '/packs', link: false },
   { key: 'sales', label: 'Confirm Sale', to: '/my-sales', link: false },
   { key: 'wallet', label: 'Wallet', to: '/payout-methods', link: false },

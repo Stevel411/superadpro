@@ -84,7 +84,7 @@ export default function MyMarketing() {
   ];
 
   return (
-    <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="marketing" back={{ to: '/home-preview', label: 'Dashboard' }}>
       <style>{css}</style>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
 

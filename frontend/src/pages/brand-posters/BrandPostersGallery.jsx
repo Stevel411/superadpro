@@ -38,7 +38,7 @@ export default function BrandPostersGallery() {
     : [];
 
   return (
-    <AlShell active="ai-tools" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+    <AlShell active="marketing" back={{ to: '/my-marketing', label: 'My Marketing' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>

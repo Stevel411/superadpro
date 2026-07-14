@@ -61,7 +61,7 @@ export default function MarketingMaterials() {
     setTimeout(function() { setCopied(false); }, 2000);
   }
 
-  return <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+  return <AlShell active="marketing" back={{ to: '/my-marketing', label: 'My Marketing' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>

@@ -340,7 +340,7 @@ export default function EmailSwipes() {
   const catOf = k => CATS.find(c => c.key === k);
 
   return (
-    <AlShell active="dashboard" back={{ to: '/my-marketing', label: 'My Marketing' }}>
+    <AlShell active="marketing" back={{ to: '/my-marketing', label: 'My Marketing' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 5L2 7"/></svg>
