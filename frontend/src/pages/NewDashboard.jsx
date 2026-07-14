@@ -359,6 +359,7 @@ export default function NewDashboard() {
               ) : (
                 <div className="empty">The board opens with the first confirmed sale of the month — every figure here is a real member-to-member payment.</div>
               )}
+              <Link className="cbtn" to="/leaderboard">See full leaderboard →</Link>
               </div>
 
               <div className="card cteam">
