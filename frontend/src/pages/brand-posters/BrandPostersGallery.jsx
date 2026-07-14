@@ -39,7 +39,7 @@ export default function BrandPostersGallery() {
 
   return (
     <AppLayout
-      categoryBack={{ to: '/marketing', label: 'Marketing' }}
+      categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}
       title="Brand Poster Generator"
       subtitle="Generate complete branded marketing posters in 60 seconds"
     >

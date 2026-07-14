@@ -14,7 +14,6 @@ import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
 import AIToolsHub from './pages/AIToolsHub';
 import ToolKitPage from './pages/ToolKitPage';
-import MarketingPage from './pages/MarketingPage';
 import CampaignsPage from './pages/CampaignsPage';
 import TeamPage from './pages/TeamPage';
 import Wallet from './pages/Wallet';
@@ -332,7 +331,6 @@ function AppRoutes() {
       <Route path="/grid-calculator" element={<HardRedirect to="/plan" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
-      <Route path="/marketing" element={<ProtectedRoute><MarketingPage /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
@@ -353,8 +351,6 @@ function AppRoutes() {
       <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
-      <Route path="/marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
-      <Route path="/marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
       <Route path="/campaign-videos" element={<ProtectedRoute><CampaignVideos /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />

@@ -340,7 +340,7 @@ export default function EmailSwipes() {
   const catOf = k => CATS.find(c => c.key === k);
 
   return (
-    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }} title="Email Swipes" subtitle="20 professional emails — your link baked in">
+    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }} title="Email Swipes" subtitle="20 professional emails — your link baked in">
       <style>{`
         .es-strip{background:#fff;border:1.5px solid #dfe6f0;border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;box-shadow:0 4px 16px rgba(23,37,84,.09),0 1px 3px rgba(23,37,84,.05)}
         .es-strip p{font-size:13.5px;color:#475569;font-weight:600;margin:0;line-height:1.5}

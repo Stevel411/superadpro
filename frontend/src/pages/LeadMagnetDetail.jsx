@@ -42,11 +42,11 @@ export default function LeadMagnetDetail() {
   const shareEmail = () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('A free course for you') + '&body=' + encodeURIComponent('Grab it free here: ' + url); };
 
   if (loading) {
-    return <AppLayout categoryBack={{ to: '/marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet"><div style={{ padding: '40px', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>Loading…</div></AppLayout>;
+    return <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet"><div style={{ padding: '40px', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>Loading…</div></AppLayout>;
   }
   if (!m || m.status !== 'live') {
     return (
-      <AppLayout categoryBack={{ to: '/marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet">
+      <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }} title="Lead magnet">
         <div style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center', color: 'var(--sap-text-secondary)' }}>
           <Lock size={28} style={{ color: 'var(--sap-text-faint)', marginBottom: 10 }} />
           <p>This lead magnet isn’t available yet.</p>
@@ -62,7 +62,7 @@ export default function LeadMagnetDetail() {
   ];
 
   return (
-    <AppLayout categoryBack={{ to: '/marketing/lead-magnets', label: 'Lead Magnets' }}
+    <AppLayout categoryBack={{ to: '/my-marketing/lead-magnets', label: 'Lead Magnets' }}
                title={m.title} subtitle="Share your link — every signup joins your list automatically">
       {toast ? (
         <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: 'var(--sap-text-primary)', color: '#fff', fontSize: 13, fontWeight: 500, padding: '10px 18px', borderRadius: 999, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8, boxShadow: 'var(--sap-shadow-md)' }}>

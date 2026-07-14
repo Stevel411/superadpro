@@ -78,7 +78,7 @@ export default function LeadMagnets() {
   const comingSoon = [0];
 
   return (
-    <AppLayout categoryBack={{ to: '/marketing', label: 'Marketing' }}
+    <AppLayout categoryBack={{ to: '/my-marketing', label: 'My Marketing' }}
                title="Lead Magnets"
                subtitle="Free done-for-you giveaways you can share to grow your list">
       {toast ? (
