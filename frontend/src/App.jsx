@@ -332,7 +332,6 @@ function AppRoutes() {
       <Route path="/grid-calculator" element={<HardRedirect to="/plan" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
-      <Route path="/toolkit" element={<ProtectedRoute><ToolKitPage /></ProtectedRoute>} />
       <Route path="/marketing" element={<ProtectedRoute><MarketingPage /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
@@ -348,7 +347,6 @@ function AppRoutes() {
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/purchases" element={<Navigate to="/account?tab=billing" replace />} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><RequireTier tier="basic"><Courses /></RequireTier></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
@@ -357,7 +355,6 @@ function AppRoutes() {
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
       <Route path="/marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
-      <Route path="/business-hub" element={<ProtectedRoute><BusinessHub /></ProtectedRoute>} />
       <Route path="/campaign-videos" element={<ProtectedRoute><CampaignVideos /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
@@ -407,7 +404,6 @@ function AppRoutes() {
           checkout sessions that haven't completed yet — that page now short-circuits
           the deprecated pro-upgrade path with a clear message. */}
       <Route path="/upgrade" element={<ProtectedRoute><PartnerPayment /></ProtectedRoute>} />
-      <Route path="/upgrade/legacy" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
       <Route path="/upgrade/checkout" element={<ProtectedRoute><UpgradeCheckout /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
@@ -449,7 +445,6 @@ function AppRoutes() {
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><LabsSuperPagesEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck" element={<Navigate to="/tools" replace />} />
-      <Route path="/video-creator" element={<ProtectedRoute><RequireTier tier="basic"><VideoCreator /></RequireTier></ProtectedRoute>} />
       <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
@@ -458,7 +453,6 @@ function AppRoutes() {
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#c8102e',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />
-      <Route path="/content-creator" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Content Creator…'}</div>}><ContentCreatorPage /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
       <Route path="/new-grid" element={<Navigate to="/campaign-tiers" replace />} />
@@ -479,8 +473,6 @@ function AppRoutes() {
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
       <Route path="/learn/community" element={<HardRedirect to="/learn" />} />
       <Route path="/income-chains" element={<ProtectedRoute><RequireTier tier="basic"><IncomeChains /></RequireTier></ProtectedRoute>} />
-      <Route path="/courses/commissions" element={<Navigate to="/wallet" replace />} />
-      <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
@@ -513,17 +505,12 @@ function AppRoutes() {
       <Route path="/packages" element={<Navigate to="/register" replace />} />
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
-      <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
-      <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
       {/* Internal tool versions — same engine, light theme + AppLayout, login required */}
       <Route path="/tools/qr-code-generator" element={<Navigate to="/tools" replace />} />
-      <Route path="/tools/meme-generator" element={<ProtectedRoute><Lazy><MemeGeneratorInternal /></Lazy></ProtectedRoute>} />
-      <Route path="/tools/banner-creator" element={<ProtectedRoute><Lazy><BannerCreatorInternal /></Lazy></ProtectedRoute>}/>
       <Route path="/join/:username" element={<SuperLinkPage />} />
       <Route path="/ref/:username/video" element={<ReferralVideo />} />
 
       {/* Phase 4 member pages */}
-      <Route path="/courses/learn/:courseId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
 
       {/* Auth pages — no sidebar, no auth required */}
       <Route path="/login" element={<Login />} />

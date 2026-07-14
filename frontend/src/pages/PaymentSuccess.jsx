@@ -59,7 +59,7 @@ function getTypeConfig(t) {
     icon: '🎓',
     title: t('paymentSuccess.courseUnlocked'),
     desc: t('paymentSuccess.courseReady'),
-    action: '/courses',
+    action: '/ai-tools',
     actionLabel: t('paymentSuccess.goToCourseLibrary'),
     color: 'var(--sap-cyan, #06b6d4)',
   },
