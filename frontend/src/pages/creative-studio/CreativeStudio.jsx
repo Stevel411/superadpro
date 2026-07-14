@@ -637,7 +637,7 @@ export default function CreativeStudio() {
             padding: '14px 20px',
             marginBottom: 14,
             borderRadius: 12,
-            background: 'linear-gradient(135deg, #0a1f52 0%, #8f0c20 50%, #c8102e 100%)',
+            background: 'linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #f97316 100%)',
             border: '1px solid rgba(251, 191, 36, 0.4)',
             textDecoration: 'none',
             color: '#fff',
