@@ -52818,10 +52818,12 @@ async def api_share_view_complete(token: str, request: Request, db: Session = De
     return {"ok": True, "verified": True}
 
 
-@app.get("/w/{token}", response_class=HTMLResponse)
+@app.get("/w/{token}")
 def public_share_page(token: str):
     """PUBLIC share page shell — the SPA renders it from /api/share/{token}/page."""
-    return FileResponse("static/app/index.html")
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/api/leaderboard/weekly")
