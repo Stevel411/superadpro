@@ -52826,162 +52826,6 @@ def public_share_page(token: str):
     return RedirectResponse(url="/", status_code=302)
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# AdvantageLife ADMIN — rebuilt for the pack / pass-up model (Jul 2026)
-# ═══════════════════════════════════════════════════════════════════════
-# The legacy AdminDashboard reports the retired business (grids, memberships,
-# Creator Credits) and never touches PackCommission — the table AL actually
-# pays from. These endpoints back the new AL admin, which reports what the
-# platform IS now. Old panels stay untouched until fully replaced so nobody
-# mistakes stale numbers for current ones.
-
-@app.get("/admin/api/al/overview")
-def al_admin_overview(user: User = Depends(_al_user), db: Session = Depends(get_db)):
-    """Platform pulse on the REAL model: packs, pass-ups, settlements, share queue."""
-    _require_admin(user)
-    now = datetime.utcnow()
-    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-
-    def _sales(since):
-        r = (db.query(func.count(PackPurchase.id), func.coalesce(func.sum(PackPurchase.amount), 0))
-             .filter(PackPurchase.status == "active", PackPurchase.created_at >= since).first())
-        return {"count": int(r[0] or 0), "value": round(float(r[1] or 0), 2)}
-
-    # Commission split by type — 'company' rising is the early warning that
-    # members are failing the earning gates.
-    split = {}
-    for ctype, cnt, amt in (db.query(PackCommission.commission_type,
-                                     func.count(PackCommission.id),
-                                     func.coalesce(func.sum(PackCommission.amount), 0))
-                            .filter(PackCommission.created_at >= week_start)
-                            .group_by(PackCommission.commission_type).all()):
-        split[ctype or "unknown"] = {"count": int(cnt or 0), "value": round(float(amt or 0), 2)}
-
-    return {
-        "members": {
-            "total": db.query(func.count(User.id)).scalar() or 0,
-            "with_packs": db.query(func.count(func.distinct(PackPurchase.user_id)))
-                            .filter(PackPurchase.status == "active").scalar() or 0,
-            "new_this_week": db.query(func.count(User.id))
-                               .filter(User.created_at >= week_start).scalar() or 0,
-        },
-        "sales": {"today": _sales(today), "week": _sales(week_start)},
-        "commissions_this_week": split,
-        "settlements": {st: db.query(func.count(P2PIntent.id))
-                            .filter(P2PIntent.status == st).scalar() or 0
-                        for st in ("pending", "proof_submitted", "disputed", "expired")},
-        "share_queue": {
-            "awaiting_approval": db.query(func.count(VideoCampaign.id))
-                                   .filter(VideoCampaign.share_approved == False,
-                                           VideoCampaign.status == "active").scalar() or 0,
-            "approved": db.query(func.count(VideoCampaign.id))
-                          .filter(VideoCampaign.share_approved == True).scalar() or 0,
-            "verified_views_this_week": db.query(func.count(ShareView.id))
-                                          .filter(ShareView.is_verified == True,
-                                                  ShareView.verified_at >= week_start).scalar() or 0,
-        },
-    }
-
-
-@app.get("/admin/api/al/share-queue")
-def al_admin_share_queue(state: str = "pending", user: User = Depends(_al_user),
-                         db: Session = Depends(get_db)):
-    """Campaigns awaiting (or holding) approval for PUBLIC share pages.
-    Members promote these to their own friends and family, so nothing goes
-    public without a human deciding."""
-    _require_admin(user)
-    q = db.query(VideoCampaign).filter(VideoCampaign.status == "active")
-    q = q.filter(VideoCampaign.share_approved == (state == "approved"))
-    rows = q.order_by(VideoCampaign.created_at.desc()).limit(200).all()
-    owners = {}
-    if rows:
-        for uid, un in db.query(User.id, User.username).filter(
-                User.id.in_([r.user_id for r in rows])).all():
-            owners[uid] = un
-    return {"state": state, "campaigns": [{
-        "id": c.id, "title": c.title, "description": (c.description or "")[:400],
-        "category": c.category, "platform": c.platform, "embed_url": c.embed_url,
-        "video_url": c.video_url, "cta_url": c.cta_url,
-        "owner": owners.get(c.user_id, "?"), "owner_tier": c.owner_tier,
-        "views_target": c.views_target, "views_delivered": c.views_delivered,
-        "created_at": c.created_at.isoformat() if c.created_at else None,
-        "share_approved_at": c.share_approved_at.isoformat() if c.share_approved_at else None,
-    } for c in rows]}
-
-
-@app.post("/admin/api/al/share-approve")
-async def al_admin_share_approve(request: Request, user: User = Depends(_al_user),
-                                 db: Session = Depends(get_db)):
-    """Approve / revoke a campaign for public share pages."""
-    _require_admin(user)
-    body = await request.json()
-    cid, approve = body.get("campaign_id"), bool(body.get("approve", True))
-    c = db.query(VideoCampaign).filter(VideoCampaign.id == cid).first()
-    if not c:
-        return JSONResponse({"error": "Campaign not found"}, status_code=404)
-    c.share_approved = approve
-    c.share_approved_at = datetime.utcnow() if approve else None
-    c.share_approved_by = user.id if approve else None
-    db.commit()
-    return {"ok": True, "campaign_id": cid, "share_approved": approve}
-
-
-@app.get("/admin/api/al/pack-sales")
-def al_admin_pack_sales(limit: int = 100, user: User = Depends(_al_user),
-                        db: Session = Depends(get_db)):
-    """Real money: pack purchases and the commissions they generated —
-    direct, pass-up, or company (and which way it went)."""
-    _require_admin(user)
-    rows = (db.query(PackPurchase).filter(PackPurchase.status == "active")
-              .order_by(PackPurchase.id.desc()).limit(min(limit, 300)).all())
-    names = {}
-    ids = {r.user_id for r in rows}
-    coms = {}
-    if rows:
-        for c in db.query(PackCommission).filter(
-                PackCommission.purchase_id.in_([r.id for r in rows])).all():
-            coms.setdefault(c.purchase_id, []).append(c)
-            if c.earner_id:
-                ids.add(c.earner_id)
-        for uid, un in db.query(User.id, User.username).filter(User.id.in_(ids)).all():
-            names[uid] = un
-    return {"sales": [{
-        "id": r.id, "buyer": names.get(r.user_id, "?"), "pack_level": r.pack_level,
-        "amount": float(r.amount or 0),
-        "created_at": r.created_at.isoformat() if r.created_at else None,
-        "commissions": [{
-            "earner": names.get(c.earner_id) if c.earner_id else "COMPANY",
-            "type": c.commission_type, "amount": float(c.amount or 0),
-            "status": c.status, "pass_up_depth": c.pass_up_depth,
-        } for c in coms.get(r.id, [])],
-    } for r in rows]}
-
-
-@app.get("/admin/api/al/members")
-def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user),
-                     db: Session = Depends(get_db)):
-    """Members on the AL model: pack owned, sales made, qualification state."""
-    _require_admin(user)
-    qq = db.query(User)
-    if q:
-        qq = qq.filter(User.username.ilike(f"%{q}%"))
-    rows = qq.order_by(User.id.desc()).limit(min(limit, 200)).all()
-    out = []
-    for u in rows:
-        out.append({
-            "id": u.id, "username": u.username,
-            "sponsor_id": u.sponsor_id, "pass_up_sponsor_id": u.pass_up_sponsor_id,
-            "pack_sale_count": u.pack_sale_count or 0,
-            "owned_level": _ale.owned_level(db, u.id),
-            "watch_qualified": _ale.watch_qualified(db, u.id),
-            "payable": _ale.payable(db, u.id),
-            "is_admin": bool(u.is_admin),
-            "created_at": u.created_at.isoformat() if u.created_at else None,
-        })
-    return {"members": out}
-
-
 @app.get("/api/leaderboard/weekly")
 def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """AdvantageLife weekly pack leaderboard (whole platform). Ranks members by
@@ -67542,6 +67386,162 @@ def _al_intent_json(db, intent, viewer_id=None):
                        if intent.created_at and intent.status == "pending" else None),
         "confirmed_at": intent.confirmed_at.isoformat() if intent.confirmed_at else None,
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# AdvantageLife ADMIN — rebuilt for the pack / pass-up model (Jul 2026)
+# ═══════════════════════════════════════════════════════════════════════
+# The legacy AdminDashboard reports the retired business (grids, memberships,
+# Creator Credits) and never touches PackCommission — the table AL actually
+# pays from. These endpoints back the new AL admin, which reports what the
+# platform IS now. Old panels stay untouched until fully replaced so nobody
+# mistakes stale numbers for current ones.
+
+@app.get("/admin/api/al/overview")
+def al_admin_overview(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Platform pulse on the REAL model: packs, pass-ups, settlements, share queue."""
+    _require_admin(user)
+    now = datetime.utcnow()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def _sales(since):
+        r = (db.query(func.count(PackPurchase.id), func.coalesce(func.sum(PackPurchase.amount), 0))
+             .filter(PackPurchase.status == "active", PackPurchase.created_at >= since).first())
+        return {"count": int(r[0] or 0), "value": round(float(r[1] or 0), 2)}
+
+    # Commission split by type — 'company' rising is the early warning that
+    # members are failing the earning gates.
+    split = {}
+    for ctype, cnt, amt in (db.query(PackCommission.commission_type,
+                                     func.count(PackCommission.id),
+                                     func.coalesce(func.sum(PackCommission.amount), 0))
+                            .filter(PackCommission.created_at >= week_start)
+                            .group_by(PackCommission.commission_type).all()):
+        split[ctype or "unknown"] = {"count": int(cnt or 0), "value": round(float(amt or 0), 2)}
+
+    return {
+        "members": {
+            "total": db.query(func.count(User.id)).scalar() or 0,
+            "with_packs": db.query(func.count(func.distinct(PackPurchase.user_id)))
+                            .filter(PackPurchase.status == "active").scalar() or 0,
+            "new_this_week": db.query(func.count(User.id))
+                               .filter(User.created_at >= week_start).scalar() or 0,
+        },
+        "sales": {"today": _sales(today), "week": _sales(week_start)},
+        "commissions_this_week": split,
+        "settlements": {st: db.query(func.count(P2PIntent.id))
+                            .filter(P2PIntent.status == st).scalar() or 0
+                        for st in ("pending", "proof_submitted", "disputed", "expired")},
+        "share_queue": {
+            "awaiting_approval": db.query(func.count(VideoCampaign.id))
+                                   .filter(VideoCampaign.share_approved == False,
+                                           VideoCampaign.status == "active").scalar() or 0,
+            "approved": db.query(func.count(VideoCampaign.id))
+                          .filter(VideoCampaign.share_approved == True).scalar() or 0,
+            "verified_views_this_week": db.query(func.count(ShareView.id))
+                                          .filter(ShareView.is_verified == True,
+                                                  ShareView.verified_at >= week_start).scalar() or 0,
+        },
+    }
+
+
+@app.get("/admin/api/al/share-queue")
+def al_admin_share_queue(state: str = "pending", user: User = Depends(_al_user),
+                         db: Session = Depends(get_db)):
+    """Campaigns awaiting (or holding) approval for PUBLIC share pages.
+    Members promote these to their own friends and family, so nothing goes
+    public without a human deciding."""
+    _require_admin(user)
+    q = db.query(VideoCampaign).filter(VideoCampaign.status == "active")
+    q = q.filter(VideoCampaign.share_approved == (state == "approved"))
+    rows = q.order_by(VideoCampaign.created_at.desc()).limit(200).all()
+    owners = {}
+    if rows:
+        for uid, un in db.query(User.id, User.username).filter(
+                User.id.in_([r.user_id for r in rows])).all():
+            owners[uid] = un
+    return {"state": state, "campaigns": [{
+        "id": c.id, "title": c.title, "description": (c.description or "")[:400],
+        "category": c.category, "platform": c.platform, "embed_url": c.embed_url,
+        "video_url": c.video_url, "cta_url": c.cta_url,
+        "owner": owners.get(c.user_id, "?"), "owner_tier": c.owner_tier,
+        "views_target": c.views_target, "views_delivered": c.views_delivered,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+        "share_approved_at": c.share_approved_at.isoformat() if c.share_approved_at else None,
+    } for c in rows]}
+
+
+@app.post("/admin/api/al/share-approve")
+async def al_admin_share_approve(request: Request, user: User = Depends(_al_user),
+                                 db: Session = Depends(get_db)):
+    """Approve / revoke a campaign for public share pages."""
+    _require_admin(user)
+    body = await request.json()
+    cid, approve = body.get("campaign_id"), bool(body.get("approve", True))
+    c = db.query(VideoCampaign).filter(VideoCampaign.id == cid).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    c.share_approved = approve
+    c.share_approved_at = datetime.utcnow() if approve else None
+    c.share_approved_by = user.id if approve else None
+    db.commit()
+    return {"ok": True, "campaign_id": cid, "share_approved": approve}
+
+
+@app.get("/admin/api/al/pack-sales")
+def al_admin_pack_sales(limit: int = 100, user: User = Depends(_al_user),
+                        db: Session = Depends(get_db)):
+    """Real money: pack purchases and the commissions they generated —
+    direct, pass-up, or company (and which way it went)."""
+    _require_admin(user)
+    rows = (db.query(PackPurchase).filter(PackPurchase.status == "active")
+              .order_by(PackPurchase.id.desc()).limit(min(limit, 300)).all())
+    names = {}
+    ids = {r.user_id for r in rows}
+    coms = {}
+    if rows:
+        for c in db.query(PackCommission).filter(
+                PackCommission.purchase_id.in_([r.id for r in rows])).all():
+            coms.setdefault(c.purchase_id, []).append(c)
+            if c.earner_id:
+                ids.add(c.earner_id)
+        for uid, un in db.query(User.id, User.username).filter(User.id.in_(ids)).all():
+            names[uid] = un
+    return {"sales": [{
+        "id": r.id, "buyer": names.get(r.user_id, "?"), "pack_level": r.pack_level,
+        "amount": float(r.amount or 0),
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+        "commissions": [{
+            "earner": names.get(c.earner_id) if c.earner_id else "COMPANY",
+            "type": c.commission_type, "amount": float(c.amount or 0),
+            "status": c.status, "pass_up_depth": c.pass_up_depth,
+        } for c in coms.get(r.id, [])],
+    } for r in rows]}
+
+
+@app.get("/admin/api/al/members")
+def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user),
+                     db: Session = Depends(get_db)):
+    """Members on the AL model: pack owned, sales made, qualification state."""
+    _require_admin(user)
+    qq = db.query(User)
+    if q:
+        qq = qq.filter(User.username.ilike(f"%{q}%"))
+    rows = qq.order_by(User.id.desc()).limit(min(limit, 200)).all()
+    out = []
+    for u in rows:
+        out.append({
+            "id": u.id, "username": u.username,
+            "sponsor_id": u.sponsor_id, "pass_up_sponsor_id": u.pass_up_sponsor_id,
+            "pack_sale_count": u.pack_sale_count or 0,
+            "owned_level": _ale.owned_level(db, u.id),
+            "watch_qualified": _ale.watch_qualified(db, u.id),
+            "payable": _ale.payable(db, u.id),
+            "is_admin": bool(u.is_admin),
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+        })
+    return {"members": out}
 
 
 @app.get("/api/al/packs")
