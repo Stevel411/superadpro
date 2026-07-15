@@ -458,7 +458,7 @@ export default function Watch() {
 @keyframes badgeSlide{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes fadeUp{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
         `}</style>
-        <div style={{flex:1,background:'linear-gradient(145deg,#ecfeff,#e0f7fa,#ecfdf5)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',padding:'40px 24px'}}>
+        <div style={{flex:1,background:'linear-gradient(145deg,#f3f5fb,#eaf0fb,#f7f9fd)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden',padding:'40px 24px'}}>
 
             {/* Confetti particles */}
             <div style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
@@ -467,7 +467,7 @@ export default function Watch() {
                 {w:6,h:10,bg:'var(--sap-accent)',t:'6%',l:'18%',a:'confFall2',d:'2.6s',dl:'0.3s',r:'0deg'},
                 {w:9,h:6,bg:'var(--sap-green-bright)',t:'4%',l:'32%',a:'confFall3',d:'3.2s',dl:'0.7s',r:'30deg'},
                 {w:6,h:8,bg:'var(--sap-pink)',t:'9%',l:'46%',a:'confFall1',d:'2.8s',dl:'0.5s',r:'60deg'},
-                {w:8,h:5,bg:'var(--sap-purple)',t:'7%',l:'58%',a:'confFall2',d:'3.4s',dl:'1s',r:'15deg'},
+                {w:8,h:5,bg:'#12388f',t:'7%',l:'58%',a:'confFall2',d:'3.4s',dl:'1s',r:'15deg'},
                 {w:7,h:7,bg:'#f97316',t:'11%',l:'70%',a:'confFall3',d:'2.5s',dl:'0.2s',r:'0deg'},
                 {w:5,h:9,bg:'#c8102e',t:'14%',l:'82%',a:'confFall1',d:'3.1s',dl:'1.2s',r:'75deg'},
                 {w:8,h:5,bg:'#eab308',t:'3%',l:'92%',a:'confFall2',d:'2.9s',dl:'0.8s',r:'40deg'},
@@ -483,7 +483,7 @@ export default function Watch() {
             </div>
 
             {/* Glow ring */}
-            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(6,182,212,.15),transparent 70%)',animation:'glowPulse 2s ease-in-out infinite',pointerEvents:'none'}}/>
+            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(200,16,46,.15),transparent 70%)',animation:'glowPulse 2s ease-in-out infinite',pointerEvents:'none'}}/>
 
             <div style={{position:'relative',zIndex:1}}>
               {/* Trophy circle */}
@@ -495,8 +495,8 @@ export default function Watch() {
               <div style={{display:'inline-block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#12388f,#0a1f52)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(18,56,143,.3)',animation:'badgeSlide .6s ease-out'}}>{t('watch.fullyQualified')}</div>
 
               {/* Title */}
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0c4a6e',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
-              <div style={{fontSize:16,color:'#0e7490',lineHeight:1.7,maxWidth:420,margin:'0 auto 28px',opacity:.7,animation:'fadeUp 1s ease-out'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0a1f52',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
+              <div style={{fontSize:16,color:'#5a6584',lineHeight:1.7,maxWidth:420,margin:'0 auto 28px',opacity:.7,animation:'fadeUp 1s ease-out'}}>
                 {t('watch.watchedAllRequired', {count: done})}
               </div>
 
@@ -506,11 +506,11 @@ export default function Watch() {
                   {v:done,l:t('watch.watched'),c:'#12388f'},
                   {v:`${Math.floor(done*30/60)}m ${done*30%60>0?(done*30%60)+'s':''}`.trim(),l:t('watch.watchTime'),c:'var(--sap-accent-light)'},
                   {v:d.streak_days||0,l:t('watch.streak'),c:'var(--sap-amber)'},
-                  {v:t('watch.tier', {n:d.tier||1}),l:t('watch.level'),c:'var(--sap-purple)'},
+                  {v:t('watch.tier', {n:d.tier||1}),l:t('watch.level'),c:'#12388f'},
                 ].map((s,i)=>(
-                  <div key={i} style={{background:'#fff',border:'1px solid rgba(6,182,212,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+                  <div key={i} style={{background:'#fff',border:'1px solid rgba(10,31,82,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#f5b8c2',marginTop:3}}>{s.l}</div>
+                    <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#5a6584',marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
               </div>
@@ -524,10 +524,10 @@ export default function Watch() {
 
               {/* Streak message */}
               {(d.streak_days||0) > 1 && (
-                <div style={{background:'#fff',borderRadius:12,padding:'14px 20px',border:'1px solid rgba(6,182,212,.1)',marginBottom:24,display:'inline-flex',alignItems:'center',gap:10,boxShadow:'0 2px 8px rgba(0,0,0,.03)',animation:'fadeUp 1.6s ease-out'}}>
+                <div style={{background:'#fff',borderRadius:12,padding:'14px 20px',border:'1px solid rgba(10,31,82,.1)',marginBottom:24,display:'inline-flex',alignItems:'center',gap:10,boxShadow:'0 2px 8px rgba(0,0,0,.03)',animation:'fadeUp 1.6s ease-out'}}>
                   <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#fef3c7,#fde68a)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#b45309',flexShrink:0}}>{d.streak_days}</div>
                   <div style={{textAlign:'left'}}>
-                    <div style={{fontSize:14,fontWeight:700,color:'#0c4a6e'}}>{d.streak_days} {t('watch.dayStreak')}</div>
+                    <div style={{fontSize:14,fontWeight:700,color:'#0a1f52'}}>{d.streak_days} {t('watch.dayStreak')}</div>
                     <div style={{fontSize:14,color:'#ff5a70',marginTop:1}}>{t('watch.topEarners')}</div>
                   </div>
                 </div>
@@ -787,7 +787,7 @@ export default function Watch() {
                   </div>
                 </div>
                 {advSubscribed ? (
-                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#ecfdf5',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#f3f5fb',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
                 ) : advCanSub ? (
                   <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(200,16,46,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
                 ) : (
