@@ -67505,15 +67505,12 @@ def al_admin_finances(user: User = Depends(_al_user), db: Session = Depends(get_
             "paid": round(paid, 2), "pending": round(pending, 2),
             "by_type_all_time": all_types, "by_type_this_week": week_types,
         },
-        "withdrawals": {
-            "paid": float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
-                          .filter(Withdrawal.status == "paid").scalar() or 0),
-            "pending": float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
-                             .filter(Withdrawal.status == "pending").scalar() or 0),
-            "pending_count": db.query(func.count(Withdrawal.id))
-                               .filter(Withdrawal.status == "pending").scalar() or 0,
-        },
-        "member_balances": float(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0),
+        "settlement_note": ("AdvantageLife never holds member money: buyers pay earners "
+                            "directly using the payee's PayoutMethod. There are no member "
+                            "balances and no withdrawal queue — those are SuperAdPro "
+                            "concepts. Money-flow health is measured in Settlements "
+                            "(intents, proofs, disputes), not in a payout queue."),
+        "house_account_earnings": to_company,
     }
 
 

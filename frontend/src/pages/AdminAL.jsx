@@ -276,13 +276,10 @@ function Finances() {
         </div>
       </div>
 
-      <div>
-        <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Money out</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
-          <Stat n={money(w.paid)} l="Withdrawals paid" />
-          <Stat n={money(w.pending)} l={`Withdrawals pending (${w.pending_count ?? 0})`} color={(w.pending_count > 0) ? RED : NAVY} />
-          <Stat n={money(d.member_balances)} l="Member balances held" />
-        </div>
+      <div style={{ background: '#f8fafd', border: '1px solid ' + LINE, borderRadius: 12, padding: '13px 16px', fontSize: 12.5, color: MUTED, fontWeight: 600, lineHeight: 1.55 }}>
+        <b style={{ color: NAVY }}>No withdrawals, no balances.</b> AdvantageLife never holds member money —
+        buyers pay earners directly using the payee's payout details. Member balances and withdrawal queues are
+        SuperAdPro concepts. Money-flow health lives in <b style={{ color: NAVY }}>Settlements</b> (intents, proofs, disputes).
       </div>
     </div>
   );
