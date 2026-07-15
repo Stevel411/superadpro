@@ -31,6 +31,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 # payment_method on User tracks which rail; renewals route by that value.
 from . import stripe_service
 from .database import StripeCharge
+from .database import ShareLink, ShareView
 from .database import GridPlanFeedback
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
 from .database import AppConfig  # used by security-watch helpers (and others) at module scope
@@ -52591,6 +52592,238 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
     }
+# ═══════════════════════════════════════════════════════════════════════
+# Public video share system — PHASE 1 (Jul 2026, Steve)
+# ═══════════════════════════════════════════════════════════════════════
+# Members share ONE public link (/w/{token}); the page shows a rotating set
+# of admin-approved campaigns, so a single weekly share stays evergreen.
+#
+# PHASE 1 IS TRACKING ONLY — none of this gates commission yet. Phase 2 adds
+# share_qualified() once real data shows what an honest share actually
+# produces, so the threshold is set from evidence, not a guess. Members are
+# told this up-front (Steve: "make it clear... so nobody is surprised").
+
+SHARE_PAGE_SLOTS   = 8    # videos shown per share page
+SHARE_VIEW_SECONDS = 30   # watch time before a view counts — matches YouTube's
+                          # view standard, so our CPM stays defensible.
+
+
+def _share_fingerprint(request: Request) -> str:
+    """Salted hash of IP + user-agent. Never store a raw IP: we only need it
+    for dedup and rate limiting, so hashing keeps this table free of personal
+    data while doing the same job."""
+    import hashlib
+    ip = (request.headers.get("x-forwarded-for") or
+          (request.client.host if request.client else "") or "").split(",")[0].strip()
+    ua = (request.headers.get("user-agent") or "")[:200]
+    salt = os.environ.get("SECRET_KEY", "al-share")
+    return hashlib.sha256(f"{salt}|{ip}|{ua}".encode()).hexdigest()
+
+
+def _looks_like_bot(request: Request) -> bool:
+    ua = (request.headers.get("user-agent") or "").lower()
+    if not ua:
+        return True
+    return any(sig in ua for sig in (
+        "bot", "crawler", "spider", "headless", "phantom", "puppeteer",
+        "playwright", "selenium", "curl/", "wget", "python-requests", "scrapy",
+    ))
+
+
+def _get_or_create_share_link(db: Session, user: User) -> ShareLink:
+    link = db.query(ShareLink).filter(ShareLink.user_id == user.id).first()
+    if link:
+        return link
+    import secrets
+    for _ in range(5):
+        token = secrets.token_urlsafe(9)[:12]
+        if not db.query(ShareLink.id).filter(ShareLink.token == token).first():
+            link = ShareLink(user_id=user.id, token=token)
+            db.add(link)
+            db.commit()
+            db.refresh(link)
+            return link
+    raise HTTPException(status_code=500, detail="Could not allocate share token")
+
+
+def _rotate_share_campaigns(db: Session, exclude_user_id=None):
+    """Pick the campaigns for one page render, weighted by pack level.
+
+    A $1,000 advertiser bought ~160x the views of a $10 one, so they must
+    appear proportionally more often — otherwise big advertisers quietly
+    subsidise small ones and stop buying. Weight by owner_tier and starve
+    campaigns that have already hit their target.
+    """
+    import random
+    q = (db.query(VideoCampaign)
+           .filter(VideoCampaign.status == "active",
+                   VideoCampaign.share_approved == True,
+                   VideoCampaign.is_completed == False))
+    if exclude_user_id:
+        q = q.filter(VideoCampaign.user_id != exclude_user_id)
+    pool = q.limit(400).all()
+    if not pool:
+        return []
+    weights = []
+    for c in pool:
+        w = float(max(1, (c.owner_tier or 1))) ** 1.5      # bigger pack → more airtime
+        w *= 1.0 + 0.5 * float(c.priority_level or 0)      # paid priority
+        if c.is_featured:
+            w *= 1.5
+        target, done = int(c.views_target or 0), int(c.views_delivered or 0)
+        if target > 0:
+            w *= max(0.15, 1.0 - (done / float(target)))   # near-complete → less airtime
+        weights.append(max(w, 0.01))
+    picks, seen = [], set()
+    for _ in range(min(SHARE_PAGE_SLOTS * 4, len(pool) * 3)):
+        if len(picks) >= min(SHARE_PAGE_SLOTS, len(pool)):
+            break
+        c = random.choices(pool, weights=weights, k=1)[0]
+        if c.id in seen:
+            continue
+        seen.add(c.id)
+        picks.append(c)
+    return picks
+
+
+@app.get("/api/share/my-link")
+def api_share_my_link(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """The member's own share link + this week's sharing status (Phase 1:
+    informational only — it does not affect commission yet)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    link = _get_or_create_share_link(db, user)
+    week_start = (datetime.utcnow() - timedelta(days=datetime.utcnow().weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    views_this_week = (db.query(func.count(ShareView.id))
+                       .filter(ShareView.share_link_id == link.id,
+                               ShareView.is_verified == True,
+                               ShareView.is_self == False,
+                               ShareView.verified_at >= week_start).scalar()) or 0
+    shared_this_week = bool(link.last_shared_at and link.last_shared_at >= week_start)
+    return {
+        "token": link.token,
+        "url": f"/w/{link.token}",
+        "shared_this_week": shared_this_week,
+        "last_shared_at": link.last_shared_at.isoformat() if link.last_shared_at else None,
+        "verified_views_this_week": int(views_this_week),
+        "share_count": int(link.share_count or 0),
+        # Phase 1 honesty — surfaced in the UI so nobody is blindsided later.
+        "phase": 1,
+        "gates_commission": False,
+        "notice": ("Sharing doesn't affect your commission yet. It will in a later "
+                   "release — we're measuring real sharing first so the required "
+                   "number is fair, and we'll tell you before it changes."),
+    }
+
+
+@app.post("/api/share/mark-shared")
+def api_share_mark_shared(user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Member reports that they've posted their link. Recorded for analytics
+    ONLY — deliberately NOT proof of sharing, because a button click is
+    trivially faked. Qualification (Phase 2) reads verified public views."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    link = _get_or_create_share_link(db, user)
+    link.last_shared_at = datetime.utcnow()
+    link.share_count = (link.share_count or 0) + 1
+    db.commit()
+    return {"ok": True, "url": f"/w/{link.token}", "share_count": link.share_count}
+
+
+@app.get("/api/share/{token}/page")
+def api_share_page_data(token: str, db: Session = Depends(get_db)):
+    """PUBLIC — the rotating video set for a share page. No auth: this is the
+    first non-gated campaign surface, which is the entire point."""
+    link = db.query(ShareLink).filter(ShareLink.token == token,
+                                      ShareLink.is_active == True).first()
+    if not link:
+        return JSONResponse({"error": "Share page not found"}, status_code=404)
+    sharer = db.query(User).filter(User.id == link.user_id).first()
+    campaigns = _rotate_share_campaigns(db, exclude_user_id=link.user_id)
+    return {
+        "sharer": {"username": sharer.username if sharer else "a member"},
+        "videos": [{
+            "id": c.id,
+            "title": c.title,
+            "advertiser": (c.category or "Advertiser"),
+            "embed_url": c.embed_url,
+            "platform": c.platform,
+            "cta_url": f"/campaign-cta/{c.id}" if c.cta_url else None,
+        } for c in campaigns],
+        "view_seconds": SHARE_VIEW_SECONDS,
+    }
+
+
+@app.post("/api/share/{token}/view-start")
+@limiter.limit("40/minute")
+async def api_share_view_start(token: str, request: Request, db: Session = Depends(get_db)):
+    """PUBLIC — playback started. Creates the unverified start row that
+    /view-complete checks against, mirroring the member watch anti-cheat:
+    without a start row you cannot curl your way to a counted view."""
+    link = db.query(ShareLink).filter(ShareLink.token == token,
+                                      ShareLink.is_active == True).first()
+    if not link:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    if _looks_like_bot(request):
+        return {"ok": True, "tracked": False}
+    body = await request.json()
+    campaign_id = body.get("campaign_id")
+    campaign = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
+    if not campaign or not campaign.share_approved:
+        return JSONResponse({"error": "Video not available"}, status_code=404)
+
+    fp = _share_fingerprint(request)
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    # Dedup: one counted view per fingerprint per campaign per day.
+    existing = (db.query(ShareView)
+                .filter(ShareView.fingerprint == fp,
+                        ShareView.campaign_id == campaign_id,
+                        ShareView.view_date == today).first())
+    if existing:
+        return {"ok": True, "tracked": False, "reason": "already_viewed_today"}
+    row = ShareView(share_link_id=link.id, campaign_id=campaign_id, fingerprint=fp,
+                    view_date=today, started_at=datetime.utcnow())
+    db.add(row)
+    db.commit()
+    return {"ok": True, "tracked": True, "view_id": row.id}
+
+
+@app.post("/api/share/{token}/view-complete")
+@limiter.limit("40/minute")
+async def api_share_view_complete(token: str, request: Request, db: Session = Depends(get_db)):
+    """PUBLIC — 30s reached. Verifies server-side that 30 real seconds elapsed
+    since the start row; a script that posts both calls instantly is rejected."""
+    body = await request.json()
+    view_id = body.get("view_id")
+    row = db.query(ShareView).filter(ShareView.id == view_id).first()
+    if not row or row.is_verified:
+        return {"ok": True, "verified": False}
+    elapsed = (datetime.utcnow() - row.started_at).total_seconds()
+    if elapsed < SHARE_VIEW_SECONDS - 2:          # 2s tolerance for clock/network skew
+        return {"ok": True, "verified": False, "reason": "too_fast"}
+    if _share_fingerprint(request) != row.fingerprint:
+        return {"ok": True, "verified": False, "reason": "fingerprint_mismatch"}
+
+    row.is_verified   = True
+    row.verified_at   = datetime.utcnow()
+    row.watched_secs  = int(min(elapsed, 3600))
+    # Credit the advertiser's delivery — this is what they actually bought.
+    db.query(VideoCampaign).filter(VideoCampaign.id == row.campaign_id).update(
+        {VideoCampaign.views_delivered: (VideoCampaign.views_delivered or 0) + 1},
+        synchronize_session=False)
+    db.commit()
+    return {"ok": True, "verified": True}
+
+
+@app.get("/w/{token}", response_class=HTMLResponse)
+def public_share_page(token: str):
+    """PUBLIC share page shell — the SPA renders it from /api/share/{token}/page."""
+    return FileResponse("static/app/index.html")
+
+
 @app.get("/api/leaderboard/weekly")
 def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """AdvantageLife weekly pack leaderboard (whole platform). Ranks members by

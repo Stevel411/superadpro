@@ -32,6 +32,7 @@ const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
 const UpgradeFromBalance = React.lazy(() => import('./pages/UpgradeFromBalance'));
 const Courses = React.lazy(() => import('./pages/Courses'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
+const SharePage = React.lazy(() => import('./pages/SharePage'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
@@ -340,6 +341,7 @@ function AppRoutes() {
       <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
+      <Route path="/w/:token" element={<SharePage />} />
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
       <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />

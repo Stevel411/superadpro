@@ -1020,6 +1020,14 @@ class VideoCampaign(Base):
     # CTA — optional "Visit Website" button shown after watch completes
     cta_url         = Column(String, nullable=True)    # destination URL (validated on input)
     cta_clicks      = Column(Integer, default=0)       # total clicks through the CTA
+    # Public share page (Jul 2026, Steve): a campaign only appears on members'
+    # PUBLIC share pages once an admin approves it. Members promote these to
+    # their own friends and family off-platform, so unvetted third-party ads
+    # would put both the AdvantageLife brand and the member's reputation at
+    # risk. Default False = opt-in, never accidental.
+    share_approved    = Column(Boolean, default=False, index=True)
+    share_approved_at = Column(DateTime, nullable=True)
+    share_approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -1060,6 +1068,52 @@ class WatchQuota(Base):
     total_watched       = Column(Integer, default=0)      # lifetime videos watched
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+# ─────────────────────────────────────────────────────────────────────────
+# Public video share system (Phase 1, Jul 2026)
+# ─────────────────────────────────────────────────────────────────────────
+# Members get ONE public share link each (/w/{token}). The page shows a
+# rotating set of approved campaigns, so a single weekly share stays
+# evergreen. Views from the public are recorded here — NOT in VideoWatch,
+# which is member/quota-specific and needs a user_id.
+#
+# PHASE 1 = tracking only. Nothing here gates commission yet. Phase 2 will
+# add share_qualified() reading verified views over a rolling window; the
+# threshold gets set from REAL data rather than a guess (Steve, 15 Jul).
+
+class ShareLink(Base):
+    """A member's own public share page token. One per member — the page
+    rotates its campaigns, so the link never goes stale."""
+    __tablename__ = "share_links"
+    id             = Column(Integer, primary_key=True, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    token          = Column(String(24), unique=True, index=True, nullable=False)
+    is_active      = Column(Boolean, default=True)
+    share_count    = Column(Integer, default=0)      # times the member reported sharing it
+    last_shared_at = Column(DateTime, nullable=True) # last time they hit Share
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+
+class ShareView(Base):
+    """A public view on a share page. Created (unverified) when playback
+    starts; promoted to verified once 30s of watch time is proven server-side
+    — mirrors the VideoWatch start-row + elapsed-check anti-cheat pattern.
+
+    fingerprint = salted hash of IP + user-agent. We never store a raw IP:
+    it's only ever needed for dedup and rate limiting, so hashing keeps this
+    table free of personal data while still doing the job."""
+    __tablename__ = "share_views"
+    id            = Column(Integer, primary_key=True, index=True)
+    share_link_id = Column(Integer, ForeignKey("share_links.id"), index=True)
+    campaign_id   = Column(Integer, ForeignKey("video_campaigns.id"), index=True)
+    fingerprint   = Column(String(64), index=True)
+    view_date     = Column(String(10), index=True)      # YYYY-MM-DD — dedup window
+    started_at    = Column(DateTime, default=datetime.utcnow)
+    verified_at   = Column(DateTime, nullable=True)
+    watched_secs  = Column(Integer, default=0)
+    is_verified   = Column(Boolean, default=False, index=True)  # cleared the 30s bar
+    is_self       = Column(Boolean, default=False)      # sharer's own session — never counts
+    created_at    = Column(DateTime, default=datetime.utcnow)
 
 
 class MembershipRenewal(Base):
@@ -2339,6 +2393,16 @@ def run_migrations():
         "ALTER TABLE withdrawal_approvals ADD COLUMN IF NOT EXISTS signature VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
+        # ── Public video share system (Jul 2026, Steve) ──────────────────
+        # A campaign is only eligible for members' PUBLIC share pages once an
+        # admin approves it. Default FALSE so nothing existing goes public by
+        # accident when this ships — approval is a deliberate act.
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
+        "CREATE INDEX IF NOT EXISTS ix_video_campaigns_share_approved ON video_campaigns (share_approved)",
+        "CREATE INDEX IF NOT EXISTS ix_share_views_link_verified ON share_views (share_link_id, is_verified)",
+        "CREATE INDEX IF NOT EXISTS ix_share_views_dedup ON share_views (fingerprint, campaign_id, view_date)",
         # ── Explainer/pipeline refund-proof billing (29 May 2026) ──
         # Per-scene credit accounting: a failed scene is refunded exactly
         # what it cost, exactly once. aspect lets the wizard's 9:16 / 1:1
