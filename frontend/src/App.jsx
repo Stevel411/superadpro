@@ -33,6 +33,7 @@ const UpgradeFromBalance = React.lazy(() => import('./pages/UpgradeFromBalance')
 const Courses = React.lazy(() => import('./pages/Courses'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const SharePage = React.lazy(() => import('./pages/SharePage'));
+const AdminAL = React.lazy(() => import('./pages/AdminAL'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
@@ -432,6 +433,7 @@ function AppRoutes() {
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<HardRedirect to="/home-preview" />} />
       <Route path="/qr-generator" element={<Navigate to="/tools" replace />} />
+      <Route path="/admin/al" element={<ProtectedRoute><AdminAL /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />
       <Route path="/admin/rotator" element={<ProtectedRoute><Lazy><AdminRotatorState /></Lazy></ProtectedRoute>} />
