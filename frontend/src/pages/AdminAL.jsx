@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost } from '../utils/api';
 import AlShell from '../components/layout/AlShell';
-import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink } from 'lucide-react';
+import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake } from 'lucide-react';
 
 /* ────────────────────────────────────────────────────────────────
    AdvantageLife admin — built for the pack / pass-up model.
@@ -16,6 +16,8 @@ const TABS = [
   { key: 'overview', label: 'Overview', Icon: Gauge },
   { key: 'share', label: 'Share Approval', Icon: ShieldCheck },
   { key: 'sales', label: 'Pack Sales', Icon: Coins },
+  { key: 'finances', label: 'Finances', Icon: Wallet },
+  { key: 'settlements', label: 'Settlements', Icon: Handshake },
   { key: 'members', label: 'Members', Icon: Users },
 ];
 
@@ -215,6 +217,125 @@ function Members() {
   );
 }
 
+
+function Finances() {
+  const [d, setD] = useState(null);
+  useEffect(() => { apiGet('/admin/api/al/finances').then(setD).catch(() => setD(null)); }, []);
+  if (!d) return <div style={{ color: MUTED, fontWeight: 600, padding: 20 }}>Loading…</div>;
+  const pi = d.platform_income || {}, gm = d.member_gmv || {}, c = d.commissions || {}, w = d.withdrawals || {};
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div style={{ background: '#fff7ed', border: '1.5px solid #fed7aa', borderRadius: 12, padding: '12px 15px', fontSize: 12.5, color: '#7c2d12', fontWeight: 600, lineHeight: 1.55 }}>
+        Pack money is 100% member-to-member and moves off-platform — it is <b>member GMV, not platform revenue</b>.
+        The platform earns from $100 lifetime joins, plus commissions that fell to the company because a member failed a gate.
+      </div>
+
+      <div>
+        <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Platform income</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
+          <Stat n={money(pi.total)} l="Total platform income" color={GREEN} />
+          <Stat n={money(pi.lifetime_joins?.value)} l={`Lifetime joins (${pi.lifetime_joins?.members ?? 0})`} />
+          <Stat n={money(pi.company_fallback_commissions)} l="Fell to company" color={RED} />
+        </div>
+        <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, marginTop: 7 }}>{pi.note}</div>
+      </div>
+
+      <div>
+        <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Member-to-member (pack sales)</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
+          <Stat n={money(gm.all_time)} l="GMV all time" />
+          <Stat n={money(gm.this_week)} l="GMV this week" />
+          <Stat n={c.member_share_pct != null ? c.member_share_pct + '%' : '—'} l="Commission reaching members" color={GREEN} />
+        </div>
+      </div>
+
+      <div>
+        <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Commissions</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
+          <Stat n={money(c.to_members_all_time)} l="To members (all time)" color={GREEN} />
+          <Stat n={money(c.to_company_all_time)} l="To company (all time)" color={RED} />
+          <Stat n={money(c.paid)} l="Paid" />
+          <Stat n={money(c.pending)} l="Pending" />
+        </div>
+        <div style={{ marginTop: 12, background: '#fff', border: '1px solid ' + LINE, borderRadius: 14, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
+            <thead><tr style={{ background: '#f8fafd' }}><th style={th}>Type</th><th style={th}>All time</th><th style={th}>This week</th></tr></thead>
+            <tbody>
+              {Object.keys(c.by_type_all_time || {}).length === 0 && <tr><td style={{ ...td, color: MUTED }} colSpan={3}>No commissions recorded yet.</td></tr>}
+              {Object.entries(c.by_type_all_time || {}).map(([k, v]) => {
+                const wk = (c.by_type_this_week || {})[k];
+                const isCo = k.includes('company');
+                return <tr key={k}>
+                  <td style={{ ...td, fontWeight: 800, color: isCo ? RED : NAVY }}>{k.replace(/_/g, ' ')}</td>
+                  <td style={td}>{money(v.value)} <span style={{ color: MUTED }}>({v.count})</span></td>
+                  <td style={td}>{wk ? money(wk.value) + ' (' + wk.count + ')' : '—'}</td>
+                </tr>;
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Money out</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
+          <Stat n={money(w.paid)} l="Withdrawals paid" />
+          <Stat n={money(w.pending)} l={`Withdrawals pending (${w.pending_count ?? 0})`} color={(w.pending_count > 0) ? RED : NAVY} />
+          <Stat n={money(d.member_balances)} l="Member balances held" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Settlements() {
+  const [status, setStatus] = useState('');
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    setD(null);
+    apiGet('/admin/api/al/settlements-view' + (status ? '?status=' + status : '')).then(setD).catch(() => setD({ intents: [], counts: {} }));
+  }, [status]);
+  const counts = (d && d.counts) || {};
+  const chip = (s, label) => {
+    const on = status === s;
+    return <button key={s || 'all'} onClick={() => setStatus(s)} style={{ padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 12.5, cursor: 'pointer', fontFamily: 'inherit', background: on ? NAVY : '#fff', color: on ? '#fff' : NAVY, border: '1.5px solid ' + (on ? NAVY : LINE) }}>
+      {label}{s && counts[s] != null ? ` (${counts[s]})` : ''}
+    </button>;
+  };
+  const tone = { disputed: RED, proof_submitted: '#b45309', confirmed: GREEN, pending: MUTED, expired: MUTED, cancelled: MUTED };
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+        {chip('', 'All')}{chip('pending', 'Pending')}{chip('proof_submitted', 'Proof submitted')}
+        {chip('disputed', 'Disputed')}{chip('confirmed', 'Confirmed')}{chip('expired', 'Expired')}
+      </div>
+      {!d ? <div style={{ color: MUTED, fontWeight: 600, padding: 20 }}>Loading…</div>
+        : (d.intents || []).length === 0 ? <div style={{ ...card, textAlign: 'center', color: MUTED, fontWeight: 600, padding: 34 }}>No settlements here.</div>
+          : <div style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + LINE, overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 780 }}>
+              <thead><tr style={{ background: '#f8fafd' }}>
+                <th style={th}>#</th><th style={th}>Buyer pays</th><th style={th}>Earner</th><th style={th}>Pack</th><th style={th}>Amount</th><th style={th}>Type</th><th style={th}>Status</th><th style={th}>Proof</th>
+              </tr></thead>
+              <tbody>
+                {d.intents.map(i => (
+                  <tr key={i.id}>
+                    <td style={{ ...td, color: MUTED, fontWeight: 700 }}>{i.id}</td>
+                    <td style={{ ...td, fontWeight: 800, color: NAVY }}>@{i.buyer}</td>
+                    <td style={{ ...td, fontWeight: 800, color: i.earner === 'COMPANY' ? RED : NAVY }}>{i.earner === 'COMPANY' ? 'COMPANY' : '@' + i.earner}</td>
+                    <td style={{ ...td, fontWeight: 800, color: '#12388f' }}>L{i.pack_level}</td>
+                    <td style={{ ...td, fontWeight: 800 }}>{money(i.amount)}</td>
+                    <td style={{ ...td, fontSize: 12, color: MUTED }}>{(i.commission_type || '').replace(/_/g, ' ')}{i.pass_up_depth ? ' · d' + i.pass_up_depth : ''}</td>
+                    <td style={td}><span style={{ fontSize: 10.5, fontWeight: 900, padding: '2px 8px', borderRadius: 20, background: '#f1f4fa', color: tone[i.status] || NAVY }}>{(i.status || '').replace(/_/g, ' ')}</span></td>
+                    <td style={td}>{i.proof_url ? <a href={i.proof_url} target="_blank" rel="noreferrer" style={{ color: '#12388f', fontWeight: 700, fontSize: 12 }}>View</a> : <span style={{ color: MUTED }}>—</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>}
+    </div>
+  );
+}
+
 export default function AdminAL() {
   const [tab, setTab] = useState('overview');
   const [ov, setOv] = useState(null);
@@ -247,6 +368,8 @@ export default function AdminAL() {
         {tab === 'overview' && <Overview d={ov} />}
         {tab === 'share' && <ShareQueue reload={loadOv} />}
         {tab === 'sales' && <PackSales />}
+        {tab === 'finances' && <Finances />}
+        {tab === 'settlements' && <Settlements />}
         {tab === 'members' && <Members />}
       </div>
     </AlShell>

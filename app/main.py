@@ -67408,6 +67408,115 @@ def _al_intent_json(db, intent, viewer_id=None):
 # platform IS now. Old panels stay untouched until fully replaced so nobody
 # mistakes stale numbers for current ones.
 
+@app.get("/admin/api/al/settlements-view")
+def al_admin_settlements_view(status: str = "", user: User = Depends(_al_user),
+                              db: Session = Depends(get_db)):
+    """P2P settlement intents for the admin UI — who owes whom, proof state,
+    and disputes. Previously these existed only as curl-only endpoints."""
+    _require_admin(user)
+    q = db.query(P2PIntent)
+    if status:
+        q = q.filter(P2PIntent.status == status)
+    rows = q.order_by(P2PIntent.id.desc()).limit(150).all()
+    ids = set()
+    for i in rows:
+        ids.add(i.buyer_id)
+        if i.earner_id:
+            ids.add(i.earner_id)
+    names = {}
+    if ids:
+        for uid, un in db.query(User.id, User.username).filter(User.id.in_(ids)).all():
+            names[uid] = un
+    return {
+        "counts": {st: db.query(func.count(P2PIntent.id)).filter(P2PIntent.status == st).scalar() or 0
+                   for st in ("pending", "proof_submitted", "confirmed", "disputed", "expired", "cancelled")},
+        "intents": [{
+            "id": i.id,
+            "buyer": names.get(i.buyer_id, "?"),
+            "earner": names.get(i.earner_id, "COMPANY") if i.earner_id else "COMPANY",
+            "pack_level": i.pack_level, "amount": float(i.amount or 0),
+            "status": i.status, "commission_type": i.commission_type,
+            "pass_up_depth": i.pass_up_depth, "tx_ref": i.tx_ref,
+            "proof_url": i.proof_url,
+        } for i in rows],
+    }
+
+
+@app.get("/admin/api/al/finances")
+def al_admin_finances(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """AL finances on the REAL model.
+
+    The critical distinction the cloned SuperAdPro dashboard gets wrong: pack
+    money is 100% member-to-member and moves OFF-platform, so pack sales are
+    member GMV, NOT platform revenue. The platform's actual income is:
+      • $100 lifetime club joins (paid to the platform; sponsor earns nothing)
+      • commissions that FELL to the company because a member failed a gate
+    Company income rising is therefore not good news — it means members are
+    failing to qualify. It's a warning light, not a revenue line.
+    """
+    _require_admin(user)
+    now = datetime.utcnow()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    lifetime_members = db.query(func.count(User.id)).filter(User.access_level == "lifetime").scalar() or 0
+
+    # Member-to-member GMV (pack sales) — never platform revenue.
+    gmv_all = float(db.query(func.coalesce(func.sum(PackPurchase.amount), 0))
+                    .filter(PackPurchase.status == "active").scalar() or 0)
+    gmv_week = float(db.query(func.coalesce(func.sum(PackPurchase.amount), 0))
+                     .filter(PackPurchase.status == "active",
+                             PackPurchase.created_at >= week_start).scalar() or 0)
+
+    def _by_type(since=None):
+        q = db.query(PackCommission.commission_type,
+                     func.count(PackCommission.id),
+                     func.coalesce(func.sum(PackCommission.amount), 0))
+        if since is not None:
+            q = q.filter(PackCommission.created_at >= since)
+        return {(t or "unknown"): {"count": int(c or 0), "value": round(float(a or 0), 2)}
+                for t, c, a in q.group_by(PackCommission.commission_type).all()}
+
+    all_types, week_types = _by_type(), _by_type(week_start)
+    company_keys = ("direct_company", "pass_up_company")
+    to_company = round(sum(v["value"] for k, v in all_types.items() if k in company_keys), 2)
+    to_members = round(sum(v["value"] for k, v in all_types.items() if k not in company_keys), 2)
+
+    paid = float(db.query(func.coalesce(func.sum(PackCommission.amount), 0))
+                 .filter(PackCommission.status == "paid").scalar() or 0)
+    pending = float(db.query(func.coalesce(func.sum(PackCommission.amount), 0))
+                    .filter(PackCommission.status == "pending").scalar() or 0)
+
+    return {
+        "platform_income": {
+            "lifetime_joins": {"members": int(lifetime_members),
+                               "value": round(lifetime_members * 100.0, 2)},
+            "company_fallback_commissions": to_company,
+            "total": round(lifetime_members * 100.0 + to_company, 2),
+            "note": ("Company-fallback money is a warning light, not revenue: it only "
+                     "arrives when a member failed the own-level / watch gate."),
+        },
+        "member_gmv": {"all_time": round(gmv_all, 2), "this_week": round(gmv_week, 2),
+                       "note": "Pack sales are 100% member-to-member and move off-platform."},
+        "commissions": {
+            "to_members_all_time": to_members,
+            "to_company_all_time": to_company,
+            "member_share_pct": (round(to_members / (to_members + to_company) * 100, 1)
+                                 if (to_members + to_company) > 0 else None),
+            "paid": round(paid, 2), "pending": round(pending, 2),
+            "by_type_all_time": all_types, "by_type_this_week": week_types,
+        },
+        "withdrawals": {
+            "paid": float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
+                          .filter(Withdrawal.status == "paid").scalar() or 0),
+            "pending": float(db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
+                             .filter(Withdrawal.status == "pending").scalar() or 0),
+            "pending_count": db.query(func.count(Withdrawal.id))
+                               .filter(Withdrawal.status == "pending").scalar() or 0,
+        },
+        "member_balances": float(db.query(func.coalesce(func.sum(User.balance), 0)).scalar() or 0),
+    }
+
+
 @app.get("/admin/api/al/overview")
 def al_admin_overview(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Platform pulse on the REAL model: packs, pass-ups, settlements, share queue."""
