@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost } from '../utils/api';
 import AlShell from '../components/layout/AlShell';
-import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake } from 'lucide-react';
+import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake, Activity } from 'lucide-react';
 
 /* ────────────────────────────────────────────────────────────────
    AdvantageLife admin — built for the pack / pass-up model.
@@ -19,6 +19,7 @@ const TABS = [
   { key: 'finances', label: 'Finances', Icon: Wallet },
   { key: 'settlements', label: 'Settlements', Icon: Handshake },
   { key: 'members', label: 'Members', Icon: Users },
+  { key: 'health', label: 'Health', Icon: Activity },
 ];
 
 const card = { background: '#fff', border: '1px solid ' + LINE, borderRadius: 14, padding: '15px 17px' };
@@ -333,6 +334,41 @@ function Settlements() {
   );
 }
 
+
+function Health() {
+  const [d, setD] = useState(null);
+  const load = useCallback(() => { setD(null); apiGet('/admin/api/al/health').then(setD).catch(() => setD(null)); }, []);
+  useEffect(() => { load(); }, [load]);
+  if (!d) return <div style={{ color: MUTED, fontWeight: 600, padding: 20 }}>Running checks…</div>;
+  const tone = { critical: RED, warn: '#b45309', info: '#12388f' };
+  const bg = { critical: '#fdeaec', warn: '#fff7ed', info: '#eef4ff' };
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: d.healthy ? '#e7f6ee' : '#fff7ed', color: d.healthy ? GREEN : '#b45309', border: '1.5px solid ' + (d.healthy ? '#a7e0c0' : '#fed7aa'), borderRadius: 30, padding: '8px 16px', fontWeight: 900, fontSize: 13 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.healthy ? GREEN : '#b45309' }} />
+          {d.healthy ? 'All clear' : 'Needs attention'}
+        </span>
+        <button onClick={load} style={{ background: '#fff', color: NAVY, border: '1.5px solid ' + LINE, borderRadius: 10, padding: '8px 14px', fontWeight: 800, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RefreshCw size={13} /> Re-run</button>
+      </div>
+      <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginBottom: 14, maxWidth: 720, lineHeight: 1.55 }}>{d.note}</div>
+      {(d.issues || []).length === 0
+        ? <div style={{ ...card, textAlign: 'center', color: MUTED, fontWeight: 600, padding: 34 }}>Nothing to report — every check passed.</div>
+        : <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {d.issues.map((i, n) => (
+            <div key={n} style={{ background: bg[i.severity] || '#fff', border: '1.5px solid ' + LINE, borderLeft: '4px solid ' + (tone[i.severity] || NAVY), borderRadius: 12, padding: '13px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.06em', color: tone[i.severity] }}>{i.severity}</span>
+                <b style={{ fontSize: 14, color: NAVY }}>{i.message}</b>
+              </div>
+              {i.hint && <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginTop: 4 }}>{i.hint}</div>}
+            </div>
+          ))}
+        </div>}
+    </div>
+  );
+}
+
 export default function AdminAL() {
   const [tab, setTab] = useState('overview');
   const [ov, setOv] = useState(null);
@@ -368,6 +404,7 @@ export default function AdminAL() {
         {tab === 'finances' && <Finances />}
         {tab === 'settlements' && <Settlements />}
         {tab === 'members' && <Members />}
+        {tab === 'health' && <Health />}
       </div>
     </AlShell>
   );

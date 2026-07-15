@@ -82,7 +82,6 @@ const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const MySite = React.lazy(() => import('./pages/MySite'));
 const BlogEditor = React.lazy(() => import('./pages/BlogEditor'));
 const BlogDomain = React.lazy(() => import('./pages/BlogDomain'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminNetworkTree = React.lazy(() => import('./pages/AdminNetworkTree'));
 const AdminRotatorState = React.lazy(() => import('./pages/admin/AdminRotatorState'));
 const AdminEmailBroadcast = React.lazy(() => import('./pages/AdminEmailBroadcast'));
@@ -434,7 +433,6 @@ function AppRoutes() {
       <Route path="/team-messenger" element={<HardRedirect to="/home-preview" />} />
       <Route path="/qr-generator" element={<Navigate to="/tools" replace />} />
       <Route path="/admin/al" element={<ProtectedRoute><AdminAL /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />
       <Route path="/admin/rotator" element={<ProtectedRoute><Lazy><AdminRotatorState /></Lazy></ProtectedRoute>} />
       <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />

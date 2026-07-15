@@ -26166,12 +26166,18 @@ def admin_al_panel(request: Request, user: User = Depends(get_current_user)):
 
 @app.get("/admin")
 def admin_panel(request: Request, user: User = Depends(get_current_user)):
+    """Legacy SuperAdPro admin — RETIRED for AdvantageLife (15 Jul 2026).
+
+    It reported the retired business (grids, memberships, Creator Credits) and
+    never read PackCommission, so its headline numbers were wrong for AL. The
+    replacement is /admin/al. Old bookmarks land there rather than 404.
+    NOTE: the underlying withdrawal/KYC/grid SYSTEMS are untouched — SuperAdPro
+    is still live on its own deployment and still needs them.
+    """
     if not user or not is_admin(user):
         logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
         raise HTTPException(status_code=403, detail="Access denied")
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/dashboard")
+    return RedirectResponse(url="/admin/al", status_code=302)
 
 
 @app.get("/admin/rotator")
@@ -67407,6 +67413,90 @@ def _al_intent_json(db, intent, viewer_id=None):
 # pays from. These endpoints back the new AL admin, which reports what the
 # platform IS now. Old panels stay untouched until fully replaced so nobody
 # mistakes stale numbers for current ones.
+
+@app.get("/admin/api/al/health")
+def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """AL-native health. The legacy /admin/api/health checks negative balances,
+    stuck withdrawals and stuck grids — all SuperAdPro concepts that cannot
+    occur here. These are the things that can actually go wrong on AL."""
+    _require_admin(user)
+    now = datetime.utcnow()
+    issues = []
+
+    def add(sev, kind, msg, count=0, hint=None):
+        issues.append({"severity": sev, "type": kind, "message": msg,
+                       "count": count, "hint": hint})
+
+    # 1. Settlements stuck awaiting proof/confirmation — a buyer has paid (or
+    #    hasn't) and the sale is in limbo. Real money, real member frustration.
+    stale_cut = now - timedelta(hours=48)
+    stuck = db.query(func.count(P2PIntent.id)).filter(
+        P2PIntent.status.in_(("pending", "proof_submitted")),
+        P2PIntent.created_at < stale_cut).scalar() or 0
+    if stuck:
+        add("warn", "stuck_intents", f"{stuck} settlement(s) unresolved for over 48h", stuck,
+            "Check Settlements — buyer may have paid without the sale being confirmed.")
+
+    disputed = db.query(func.count(P2PIntent.id)).filter(P2PIntent.status == "disputed").scalar() or 0
+    if disputed:
+        add("critical", "disputes", f"{disputed} disputed settlement(s) need a decision", disputed,
+            "Resolve in Settlements — disputes block both members.")
+
+    # 2. Company-fallback rate. Money reaching the company instead of members
+    #    means members are failing the earning gates. Rising = comp plan pain.
+    week = now - timedelta(days=7)
+    rows = dict((t or "", int(c or 0)) for t, c in
+                db.query(PackCommission.commission_type, func.count(PackCommission.id))
+                  .filter(PackCommission.created_at >= week)
+                  .group_by(PackCommission.commission_type).all())
+    total_c = sum(rows.values())
+    company_c = rows.get("direct_company", 0) + rows.get("pass_up_company", 0)
+    if total_c and (company_c / total_c) > 0.25:
+        pct = round(company_c / total_c * 100)
+        add("warn", "company_fallback_high",
+            f"{pct}% of this week's commissions fell to the company", company_c,
+            "Members are failing the own-level or watch gate — check Members for gate status.")
+
+    # 3. Genealogy integrity — an orphaned member breaks the pass-up chain.
+    orphan_passup = db.query(func.count(User.id)).filter(
+        User.sponsor_id.isnot(None), User.pass_up_sponsor_id.is_(None)).scalar() or 0
+    if orphan_passup:
+        add("warn", "passup_unassigned",
+            f"{orphan_passup} member(s) have a sponsor but no pass-up sponsor", orphan_passup,
+            "Pass-up chain can't resolve for these members.")
+
+    # 4. Share pipeline
+    waiting = db.query(func.count(VideoCampaign.id)).filter(
+        VideoCampaign.share_approved == False, VideoCampaign.status == "active").scalar() or 0
+    if waiting:
+        add("info", "share_queue", f"{waiting} campaign(s) awaiting share approval", waiting,
+            "Nothing reaches public share pages until approved.")
+
+    approved = db.query(func.count(VideoCampaign.id)).filter(
+        VideoCampaign.share_approved == True, VideoCampaign.status == "active").scalar() or 0
+    if approved == 0:
+        add("info", "no_shareable", "No approved campaigns — public share pages will be empty", 0,
+            "Approve campaigns so members' shared links show something.")
+
+    # 5. Earners with no payout method can't be paid — the sale skips them.
+    unpayable = db.query(func.count(User.id)).filter(
+        User.pack_sale_count > 0,
+        ~User.id.in_(db.query(PayoutMethod.user_id).distinct())).scalar() or 0
+    if unpayable:
+        add("warn", "no_payout_method",
+            f"{unpayable} member(s) with sales have no payout method", unpayable,
+            "Buyers have nowhere to send money — their commissions skip to the upline.")
+
+    order = {"critical": 0, "warn": 1, "info": 2}
+    issues.sort(key=lambda i: order.get(i["severity"], 3))
+    return {
+        "healthy": not any(i["severity"] in ("critical", "warn") for i in issues),
+        "checked_at": now.isoformat(),
+        "issues": issues,
+        "note": ("AL-native checks. Balances, withdrawals and grids are SuperAdPro "
+                 "concepts and cannot occur here — AL never holds member money."),
+    }
+
 
 @app.get("/admin/api/al/settlements-view")
 def al_admin_settlements_view(status: str = "", user: User = Depends(_al_user),

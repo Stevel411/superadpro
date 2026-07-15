@@ -130,8 +130,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
             {user && user.is_admin && (
               <>
                 <div className="sep"></div>
-                <Link to="/admin/al" style={{ color: '#c8102e', fontWeight: 900 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8102e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>AdvantageLife Admin</Link>
-                <Link to="/admin" style={{ color: '#5a6584', fontWeight: 600, fontSize: 12.5 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a6584" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Legacy admin (SuperAdPro)</Link>
+                <Link to="/admin/al" style={{ color: '#c8102e', fontWeight: 900 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8102e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Admin</Link>
               </>
             )}
             <div className="sep"></div>
