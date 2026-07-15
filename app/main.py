@@ -26153,6 +26153,17 @@ def cron_backup(secret: str = ""):
     from .db_backup import run_backup
     result = run_backup()
     return JSONResponse(result)
+@app.get("/admin/al")
+def admin_al_panel(request: Request, user: User = Depends(get_current_user)):
+    """AdvantageLife admin SPA shell — same guard as /admin."""
+    if not user or not is_admin(user):
+        logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
+        raise HTTPException(status_code=403, detail="Access denied")
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/dashboard")
+
+
 @app.get("/admin")
 def admin_panel(request: Request, user: User = Depends(get_current_user)):
     if not user or not is_admin(user):
