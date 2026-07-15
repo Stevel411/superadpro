@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { apiGet } from '../utils/api';
 import { Film, Eye, Play, CheckCircle, Clock, AlertCircle, Trash2, Plus } from 'lucide-react';
 import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
@@ -28,7 +28,7 @@ export default function VideoLibrary() {
     setDeleting(null);
   }
 
-  if (loading) return <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("videos.title")}><Spin/></AppLayout>;
+  if (loading) return <AlShell active="campaigns" back={{ to: '/home-preview', label: 'Dashboard' }}><Spin/></AlShell>;
 
   var d = data || {};
   var campaigns = d.campaigns || [];
@@ -61,8 +61,17 @@ export default function VideoLibrary() {
   }
 
   return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t("videos.title")} subtitle={t("videos.subtitle")}>
+    <AlShell active="campaigns" back={{ to: '/home-preview', label: 'Dashboard' }}>
       <div style={{maxWidth:960,margin:'0 auto'}}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 8l-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        </div>
+        <div>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t("videos.title")}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t("videos.subtitle")}</div>
+        </div>
+      </div>
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginBottom:22}}>
         {[
@@ -193,7 +202,7 @@ export default function VideoLibrary() {
         )}
       </div>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 }
 

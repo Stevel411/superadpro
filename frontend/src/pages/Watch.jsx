@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 
@@ -280,12 +280,12 @@ export default function Watch() {
   };
 
   if (loading) return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
+    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 
   // Tier-locked screen — Watch-to-Earn requires an active Campaign Tier.
@@ -298,7 +298,7 @@ export default function Watch() {
   // (Removed the client-side tier lock that dead-ended tier-less members here.)
 
   if (!data) return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')}>
+    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
       <div style={{textAlign:'center',padding:'64px 24px',maxWidth:420,margin:'0 auto'}}>
         <div style={{fontSize:48,marginBottom:12,lineHeight:1}}>📺</div>
         <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>
@@ -315,7 +315,7 @@ export default function Watch() {
           ↻ Try again
         </button>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 
   const d = data;
@@ -419,7 +419,7 @@ export default function Watch() {
   // ── ALL AVAILABLE VIDEOS WATCHED BUT QUOTA NOT MET ──
   if (allWatched && !quotaComplete) {
     return (
-      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}>
+      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -438,7 +438,7 @@ export default function Watch() {
             <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#c8102e,#e8203f)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.backToDashboard')}</a>
           </div>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -447,8 +447,7 @@ export default function Watch() {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
-      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.quotaComplete')}
-        bgStyle={{padding:0,margin:0,display:'flex',flexDirection:'column',minHeight:'calc(100dvh - 72px)'}}>
+      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <style>{`
 @keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(800px) rotate(720deg);opacity:0}}
@@ -474,7 +473,7 @@ export default function Watch() {
                 {w:8,h:5,bg:'#eab308',t:'3%',l:'92%',a:'confFall2',d:'2.9s',dl:'0.8s',r:'40deg'},
                 {w:6,h:8,bg:'var(--sap-red-bright)',t:'8%',l:'25%',a:'confFall3',d:'3.3s',dl:'0.4s',r:'55deg'},
                 {w:7,h:6,bg:'#14b8a6',t:'16%',l:'55%',a:'confFall1',d:'3s',dl:'0.6s',r:'20deg'},
-                {w:5,h:7,bg:'#a855f7',t:'5%',l:'42%',a:'confFall2',d:'2.7s',dl:'1.1s',r:'70deg'},
+                {w:5,h:7,bg:'#12388f',t:'5%',l:'42%',a:'confFall2',d:'2.7s',dl:'1.1s',r:'70deg'},
                 {w:8,h:6,bg:'#fb923c',t:'13%',l:'75%',a:'confFall3',d:'3.5s',dl:'0.9s',r:'35deg'},
                 {w:6,h:9,bg:'var(--sap-accent-light)',t:'10%',l:'5%',a:'confFall1',d:'2.4s',dl:'0.1s',r:'50deg'},
                 {w:7,h:5,bg:'#34d399',t:'2%',l:'65%',a:'confFall2',d:'3.6s',dl:'1.4s',r:'25deg'},
@@ -511,7 +510,7 @@ export default function Watch() {
                 ].map((s,i)=>(
                   <div key={i} style={{background:'#fff',border:'1px solid rgba(6,182,212,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#67e8f9',marginTop:3}}>{s.l}</div>
+                    <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#f5b8c2',marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
               </div>
@@ -539,7 +538,7 @@ export default function Watch() {
               </div>
             </div>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -547,7 +546,7 @@ export default function Watch() {
   if (videos.length === 0 && !quotaComplete) {
     const userHasTier = d?.has_campaign_tier;
     return (
-      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.noActiveCampaigns')}>
+      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -568,7 +567,7 @@ export default function Watch() {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
@@ -577,12 +576,16 @@ export default function Watch() {
     const doneRingR = 38;
     const doneRingC = 2 * Math.PI * doneRingR;
     return (
-      <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.quotaComplete') + '!'}
-        topbarActions={<>
-          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'var(--sap-green-bright)'}}>
-            <span style={{width:7,height:7,borderRadius:'50%',background:'var(--sap-green-bright)'}}/>{t('watch.qualified')}
+      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+        <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'20px 24px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15,flexWrap:'wrap'}}>
+          <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
           </div>
-        </>}>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('watch.title')}</div>
+          <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:800,padding:'7px 13px',borderRadius:9,background:'rgba(22,163,74,.16)',border:'1px solid rgba(22,163,74,.35)',color:'#4ade80'}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#4ade80'}}/>{t('watch.qualified')}
+          </div>
+        </div>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:16,padding:'48px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -619,27 +622,32 @@ export default function Watch() {
             <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#16a34a,#22c55e)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>{t('watch.backToDashboard')}</Link>
           </div>
         </div>
-      </AppLayout>
+      </AlShell>
     );
   }
 
   // ── MAIN WATCH SESSION ──
   return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}
-      bgStyle={window.innerWidth < 768 ? {padding: 0, paddingBottom: 80} : {}}
-      topbarActions={<>
-        <div style={{background:'rgba(200,16,46,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-accent-light)'}}>{t('watch.tier', {n:d.tier})}</div>
-          <div style={{fontSize:14,color:'rgba(186,230,253,.55)',marginTop:1}}>
+    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'20px 24px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15,flexWrap:'wrap'}}>
+        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+        </div>
+        <div style={{minWidth:0}}>
+          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('watch.title')}</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>
             {isExempt ? t('watch.exempt', {defaultValue: 'No daily quota'}) : t('watch.videosPerDay', {count:limit})}
           </div>
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,
-          ...(quotaComplete?{background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'var(--sap-green-bright)'}:{background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',color:'var(--sap-accent-light)'})}}>
-          <span style={{width:7,height:7,borderRadius:'50%',background:quotaComplete?'var(--sap-green-bright)':'var(--sap-accent-light)',animation:'pulse 1.5s infinite'}}/>
-          {quotaComplete?t('watch.qualified'):t('watch.watching')}
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:9,flexWrap:'wrap'}}>
+          <div style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:9,padding:'7px 13px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800,color:'#fff'}}>{t('watch.tier', {n:d.tier})}</div>
+          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:800,padding:'7px 13px',borderRadius:9,
+            ...(quotaComplete?{background:'rgba(22,163,74,.16)',border:'1px solid rgba(22,163,74,.35)',color:'#4ade80'}:{background:'rgba(232,32,63,.16)',border:'1px solid rgba(232,32,63,.35)',color:'#ff8090'})}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:quotaComplete?'#4ade80':'#ff8090',animation:'pulse 1.5s infinite'}}/>
+            {quotaComplete?t('watch.qualified'):t('watch.watching')}
+          </div>
         </div>
-      </>}>
+      </div>
 
       <style>{CSS}</style>
 
@@ -970,6 +978,6 @@ export default function Watch() {
           </div>
         </div>
       )}
-    </AppLayout>
+    </AlShell>
   );
 }
