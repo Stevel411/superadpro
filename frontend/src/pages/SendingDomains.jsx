@@ -218,12 +218,12 @@ export default function SendingDomains() {
             <h2 style={sectionTitle}>Add your sending domain</h2>
 
             <div style={tipBox}>
-              <Sparkles size={15} color="#0284c7" style={{ flexShrink: 0, marginTop: 1 }} />
+              <Sparkles size={15} color="#a00d24" style={{ flexShrink: 0, marginTop: 1 }} />
               <div>
                 <strong>Tip:</strong> use a <strong>subdomain</strong> like <code style={codeInline}>mail.yourbrand.com</code> rather
                 than your main domain. It keeps your website email and your marketing email separate, which protects
                 your reputation.{' '}
-                <Link to="/help/sending-domain" style={{ color: '#0284c7', fontWeight: 700 }}>
+                <Link to="/help/sending-domain" style={{ color: '#a00d24', fontWeight: 700 }}>
                   Don&rsquo;t have a domain? Get one in 5 minutes &rarr;
                 </Link>
               </div>
@@ -476,7 +476,7 @@ const cardStyle = { background: '#fff', border: '1px solid #e2e8f0', borderRadiu
 const sectionTitle = { margin: '0 0 14px', fontSize: 14, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b' };
 const codeInline = { background: '#f1f5f9', color: '#0f172a', padding: '1px 6px', borderRadius: 4, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, fontWeight: 600 };
 const backLinkStyle = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b', textDecoration: 'none', fontWeight: 600, marginBottom: 16 };
-const tipBox = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 11, padding: '12px 14px', fontSize: 12.5, color: '#0c4a6e', lineHeight: 1.55, marginBottom: 16 };
+const tipBox = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#f3f5fb', border: '1px solid #dbe4f5', borderRadius: 11, padding: '12px 14px', fontSize: 12.5, color: '#0a1f52', lineHeight: 1.55, marginBottom: 16 };
 const fieldLabel = { display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 };
 const inputFull = { width: '100%', padding: '11px 13px', border: '1px solid #cbd5e1', borderRadius: 9, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
 const atSuffix = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12, color: '#64748b', background: '#f1f5f9', border: '1px solid #cbd5e1', borderLeft: 'none', borderTopRightRadius: 9, borderBottomRightRadius: 9, padding: '11px 10px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '55%' };
@@ -487,7 +487,7 @@ const recCardStyle = { border: '1px solid #e6ebf3', borderRadius: 12, padding: '
 const recNumStyle = { width: 26, height: 26, borderRadius: '50%', background: '#c8102e', color: '#fff', fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
 const recTag = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 10, fontWeight: 600, color: '#475569', background: '#eef2f8', border: '1px solid #e2e8f0', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
 const recTagOk = { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10.5, fontWeight: 700, color: '#15803d', background: '#dcfce7', padding: '3px 8px', borderRadius: 6, flexShrink: 0 };
-const pasteHint = { fontSize: 12, color: '#0c4a6e', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '7px 10px', margin: '0 0 10px', lineHeight: 1.5 };
+const pasteHint = { fontSize: 12, color: '#0a1f52', background: '#f3f5fb', border: '1px solid #dbe4f5', borderRadius: 8, padding: '7px 10px', margin: '0 0 10px', lineHeight: 1.5 };
 const recRow = { display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 };
 const recKey = { fontSize: 10.5, fontWeight: 700, color: '#475569', width: 96, flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.03em' };
 const recVal = { flex: 1, fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 11.5, color: '#0f172a', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 7, padding: '7px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
@@ -497,5 +497,5 @@ const whatBox = { marginTop: 9, background: '#f8fafc', border: '1px solid #e2e8f
 const whatBoxTitle = { fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12, color: '#12388f', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 };
 const whatBoxBody = { fontSize: 12, color: '#475569', lineHeight: 1.6 };
 const helpStrip = { display: 'flex', gap: 9, alignItems: 'flex-start', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', marginTop: 13, fontSize: 12.5, color: '#92400e', lineHeight: 1.5 };
-const providerChip = { fontSize: 11, color: '#c8102e', border: '1px solid #cfe8f7', background: '#f0f9ff', borderRadius: 6, padding: '4px 9px', fontWeight: 600, textDecoration: 'none' };
+const providerChip = { fontSize: 11, color: '#c8102e', border: '1px solid #cfe8f7', background: '#f3f5fb', borderRadius: 6, padding: '4px 9px', fontWeight: 600, textDecoration: 'none' };
 const fromLineStyle = { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12.5, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 12px', margin: '6px 0 12px', color: '#0f172a' };

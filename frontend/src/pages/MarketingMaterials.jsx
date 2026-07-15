@@ -106,7 +106,7 @@ export default function MarketingMaterials() {
               return <div key={lang.code} onClick={function(e) { e.stopPropagation(); setSelectedLang(lang.code); setDropdownOpen(false); }} className="mm-lang-option" style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
                 cursor: 'pointer',
-                background: isSelected ? '#f5f3ff' : 'transparent',
+                background: isSelected ? '#f3f5fb' : 'transparent',
                 borderLeft: isSelected ? '3px solid #12388f' : '3px solid transparent',
               }}>
                 <span style={{ fontSize: 18 }}>{lang.flag}</span>

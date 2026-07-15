@@ -310,7 +310,7 @@ export default function Watch() {
         <button onClick={() => window.location.reload()} style={{
           display:'inline-flex',alignItems:'center',gap:8,padding:'12px 26px',borderRadius:11,border:'none',
           background:'linear-gradient(135deg,#c8102e,#a30d26)',color:'#fff',fontWeight:800,fontSize:14,
-          fontFamily:'Sora,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(14,165,233,0.35)',
+          fontFamily:'Sora,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(200,16,46,0.35)',
         }}>
           ↻ Try again
         </button>
@@ -672,7 +672,7 @@ export default function Watch() {
                 <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||t('watch.loading')}</div>
                 <div style={{fontSize:14,color:'var(--sap-text-muted)',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||t('watch.general')}</div>
               </div>
-              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.06)',border:'1px solid rgba(200,16,46,.1)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>{isPreviewMode ? '👁 ' + t('watch.previewMode', { defaultValue: 'Preview' }) : '▶ ' + t('watch.watching')}</div>
+              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(200,16,46,.06)',border:'1px solid rgba(200,16,46,.1)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>{isPreviewMode ? '👁 ' + t('watch.previewMode', { defaultValue: 'Preview' }) : '▶ ' + t('watch.watching')}</div>
             </div>
 
             {/* Video */}
@@ -704,7 +704,7 @@ export default function Watch() {
 
             {/* CTA — "Visit Website" — only shown after 30s watch complete and if advertiser set one */}
             {timerDone && current?.cta_url && (
-              <div style={{padding:'10px 16px',background:'linear-gradient(90deg, rgba(14,165,233,.06), rgba(124,58,237,.06))',borderTop:'1px solid #e8ecf2',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+              <div style={{padding:'10px 16px',background:'linear-gradient(90deg, rgba(200,16,46,.06), rgba(18,56,143,.06))',borderTop:'1px solid #e8ecf2',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
                 <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>
                   {t('watch.ctaPrompt', { defaultValue: 'Interested? Visit the advertiser\u2019s site.' })}
                 </div>
@@ -733,9 +733,9 @@ export default function Watch() {
 
             {/* Desktop footer */}
             {isPreviewMode ? (
-              <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'linear-gradient(90deg, rgba(14,165,233,.08), rgba(124,58,237,.08))',borderTop:'1px solid rgba(14,165,233,.18)'}}>
+              <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'linear-gradient(90deg, rgba(200,16,46,.08), rgba(18,56,143,.08))',borderTop:'1px solid rgba(200,16,46,.18)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
+                  <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(200,16,46,.1)',border:'1px solid rgba(200,16,46,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
                   <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.previewHint', { defaultValue: 'You\u2019re viewing your own ad — no timer, no view counted.' })}</div>
                 </div>
                 <Link to="/video-library"
@@ -799,8 +799,8 @@ export default function Watch() {
 
           {/* ── MOBILE: Timer + Mark button ── */}
           {isPreviewMode ? (
-            <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:10,padding:'14px 20px',background:'linear-gradient(90deg, rgba(14,165,233,.08), rgba(124,58,237,.08))',borderTop:'1px solid rgba(14,165,233,.18)',borderBottom:'1px solid rgba(14,165,233,.18)',flexWrap:'wrap'}}>
-              <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
+            <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:10,padding:'14px 20px',background:'linear-gradient(90deg, rgba(200,16,46,.08), rgba(18,56,143,.08))',borderTop:'1px solid rgba(200,16,46,.18)',borderBottom:'1px solid rgba(200,16,46,.18)',flexWrap:'wrap'}}>
+              <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(200,16,46,.1)',border:'1px solid rgba(200,16,46,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
               <Link to="/video-library"
                 style={{marginLeft:'auto',display:'inline-flex',alignItems:'center',gap:6,padding:'10px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
                 ← {t('watch.backToCampaigns', { defaultValue: 'Back to My Campaigns' })}
@@ -844,8 +844,8 @@ export default function Watch() {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,
-                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(14,165,233,.06)',
-                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(14,165,233,.18)'}`}}>
+                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(200,16,46,.06)',
+                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(200,16,46,.18)'}`}}>
                 <div style={{fontSize:16}}>{watched >= 1 ? '✅' : '▶️'}</div>
                 <div style={{fontSize:13,fontWeight:700,color: watched >= 1 ? 'var(--sap-green)' : 'var(--sap-accent)'}}>
                   {watched >= 1 ? t('watch.quotaCompleteLabel') : t('watch.watchOneToQualify')}
@@ -920,8 +920,8 @@ export default function Watch() {
             {limit > 1 && <ProgressDots/>}
             {limit === 1 && (
               <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,
-                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(14,165,233,.06)',
-                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(14,165,233,.18)'}`}}>
+                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(200,16,46,.06)',
+                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(200,16,46,.18)'}`}}>
                 <div style={{fontSize:16}}>{watched >= 1 ? '✅' : '▶️'}</div>
                 <div style={{fontSize:13,fontWeight:700,color: watched >= 1 ? 'var(--sap-green)' : 'var(--sap-accent)'}}>
                   {watched >= 1 ? t('watch.quotaCompleteLabel') : t('watch.watchOneToQualify')}
@@ -945,7 +945,7 @@ export default function Watch() {
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {videos.map((v,i) => (
                   <button key={v.id} onClick={()=>{setCurrentIdx(-1);setTimeout(()=>setCurrentIdx(i),50);}}
-                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`1px solid ${i===currentIdx?'rgba(200,16,46,.3)':'rgba(15,25,60,.07)'}`,background:i===currentIdx?'rgba(14,165,233,.06)':'var(--sap-bg-input)',cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .15s'}}>
+                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`1px solid ${i===currentIdx?'rgba(200,16,46,.3)':'rgba(15,25,60,.07)'}`,background:i===currentIdx?'rgba(200,16,46,.06)':'var(--sap-bg-input)',cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .15s'}}>
                     <div style={{width:28,height:28,borderRadius:'50%',background:v.is_watched?'linear-gradient(135deg,#c8102e,#e8203f)':i===currentIdx?'rgba(200,16,46,.1)':'var(--sap-border)',border:i===currentIdx&&!v.is_watched?'2px solid #c8102e':'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:v.is_watched?'#fff':i===currentIdx?'var(--sap-accent)':'var(--sap-text-muted)',flexShrink:0}}>
                       {v.is_watched ? '✓' : i + 1}
                     </div>
@@ -953,7 +953,7 @@ export default function Watch() {
                       <div style={{fontSize:13,fontWeight:600,color:i===currentIdx?'var(--sap-accent)':'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{v.title}</div>
                       <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:1}}>{v.platform} · {v.category}</div>
                     </div>
-                    {i===currentIdx&&!v.is_watched && <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)',background:'rgba(14,165,233,.08)',border:'1px solid rgba(14,165,233,.15)',padding:'2px 8px',borderRadius:4,flexShrink:0}}>{t('watch.playing')}</div>}
+                    {i===currentIdx&&!v.is_watched && <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)',background:'rgba(200,16,46,.08)',border:'1px solid rgba(200,16,46,.15)',padding:'2px 8px',borderRadius:4,flexShrink:0}}>{t('watch.playing')}</div>}
                   </button>
                 ))}
               </div>

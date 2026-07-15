@@ -44,7 +44,7 @@ var CP_HTML = `
 .cproot .cprc{border:1px solid #e6ebf3;border-radius:14px;padding:18px 18px;background:#fbfdff}
 .cproot .cprc h5{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0f172a;margin:0 0 8px}
 .cproot .cprc li{font-size:12.5px;color:#52617a;line-height:1.8;list-style:none}
-.cproot .cpdl{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:13px 26px;border-radius:13px;background:linear-gradient(135deg,#a00d24,#12388f);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;text-decoration:none;box-shadow:0 8px 22px -8px rgba(8,145,178,.5)}
+.cproot .cpdl{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:13px 26px;border-radius:13px;background:linear-gradient(135deg,#a00d24,#12388f);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;text-decoration:none;box-shadow:0 8px 22px -8px rgba(160,13,36,.5)}
 .cproot .cpdl svg{width:18px;height:18px}
 .cproot .cpdlsub{font-size:11.5px;color:#94a3b8;margin-top:9px}
 @media(max-width:760px){
@@ -62,8 +62,8 @@ var CP_HTML = `
   <div class="cplead" style="max-width:640px;margin:0 auto 20px">One $20/month membership unlocks the full toolkit &mdash; and three ways the money comes back to you. Stack them together; every stream compounds your results.</div>
   <div class="cpstreamcards">
     <div class="cpstreamcard" style="border-color:#bfdbfe;background:#f5f9ff"><div class="cpscn" style="color:#2563eb">STREAM 1</div><div class="cpscname">Membership</div><div class="cpscval" style="background:#dbeafe;color:#2563eb">$10/mo per referral</div></div>
-    <div class="cpstreamcard" style="border-color:#a5e8f0;background:#f0fcff"><div class="cpscn" style="color:#a00d24">STREAM 2</div><div class="cpscname">Campaign Grid</div><div class="cpscval" style="background:#cffafe;color:#a00d24">100% to members</div></div>
-    <div class="cpstreamcard" style="border-color:#ddd0fb;background:#faf7ff"><div class="cpscn" style="color:#0e2a6e">STREAM 3</div><div class="cpscname">Creator Credits</div><div class="cpscval" style="background:#ede9fe;color:#0e2a6e">20% flat to sponsor</div></div>
+    <div class="cpstreamcard" style="border-color:#a5e8f0;background:#f0fcff"><div class="cpscn" style="color:#a00d24">STREAM 2</div><div class="cpscname">Campaign Grid</div><div class="cpscval" style="background:#f6d9de;color:#a00d24">100% to members</div></div>
+    <div class="cpstreamcard" style="border-color:#ddd0fb;background:#faf7ff"><div class="cpscn" style="color:#0e2a6e">STREAM 3</div><div class="cpscname">Creator Credits</div><div class="cpscval" style="background:#eaf0fb;color:#0e2a6e">20% flat to sponsor</div></div>
   </div>
   <div class="cppill" style="background:#ecfdf3;border:1.5px solid #86efac;color:#15803d;display:inline-block">&#9889; Start earning for just <b>$10</b> with the Launchpad on-ramp</div>
   <div><a class="cpdl" href="/static/downloads/income-streams/AdvantageLife-3-Income-Streams-EN.pptx?v=20260623" download><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download the presentation</a></div>
@@ -142,7 +142,7 @@ var CP_HTML = `
   <div class="cpsplit">
     <div class="cpseg" style="flex:50;background:linear-gradient(135deg,#a00d24,#e8203f)"><div class="sp">50%</div><div class="st">Direct sponsor</div></div>
     <div class="cpseg" style="flex:25;background:linear-gradient(135deg,#c8102e,#e8203f)"><div class="sp">25%</div><div class="st">Uni-level &middot; 5% &times; 5</div></div>
-    <div class="cpseg" style="flex:25;background:linear-gradient(135deg,#0e2a6e,#a78bfa)"><div class="sp">25%</div><div class="st">Bonus pool</div></div>
+    <div class="cpseg" style="flex:25;background:linear-gradient(135deg,#0e2a6e,#9db0e0)"><div class="sp">25%</div><div class="st">Bonus pool</div></div>
   </div>
   <div style="text-align:center;color:#15803d;font-weight:700;font-size:13.5px;margin-bottom:6px"><span style="background:#ecfdf3;border:1.5px solid #86efac;border-radius:10px;padding:4px 12px">0% company &mdash; the whole entry is paid out to members</span></div>
   <div class="cpgrid2">
@@ -158,19 +158,19 @@ var CP_HTML = `
         <div class="cpcell" style="background:linear-gradient(140deg,#f59e0b,#fde047);color:#3a1d00">1</div>
         <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">2</div>
         <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">3</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#a78bfa);color:#fff">4&#9733;</div>
+        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">4&#9733;</div>
         <div class="cpcell" style="background:linear-gradient(140deg,#f59e0b,#fde047);color:#3a1d00">5</div>
         <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">6</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">7</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#a78bfa);color:#fff">8&#9733;</div>
+        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">8&#9733;</div>
         <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">9</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">10</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">11</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#a78bfa);color:#fff">12&#9733;</div>
+        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">12&#9733;</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">13</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">14</div>
         <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">15</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#a78bfa);color:#fff">16&#9733;</div>
+        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">16&#9733;</div>
       </div>
       <div style="text-align:center;font-size:11.5px;color:#64748b;margin-top:12px"><span style="color:#d97706">&#9679;</span> Direct &nbsp; <span style="color:#a00d24">&#9679;</span> Spillover &nbsp; <span style="color:#0e2a6e">&#9733;</span> Bonus seats 4&middot;8&middot;12&middot;16</div>
       <div style="background:#f8fafc;border:1px solid #e6ebf3;border-radius:12px;padding:12px;margin-top:14px;text-align:center">
@@ -211,7 +211,7 @@ var CP_HTML = `
       <div class="cpstat" style="background:#faf7ff"><div class="cpstatnum" style="color:#0e2a6e">0</div><div><div class="cpstath" style="color:#0e2a6e">NO TIER REQUIRED</div><div class="cpstatd">Earn on your referrals' packs no matter what you own.</div></div></div>
       <div class="cppill" style="background:#faf7ff;border:1.5px solid #ddd0fb;color:#0e2a6e;margin-top:4px">Flat 20% to the direct sponsor &middot; every repurchase</div>
     </div>
-    <div style="background:#faf7ff;border:1px solid #ede9fe;border-radius:14px;padding:22px;text-align:center">
+    <div style="background:#faf7ff;border:1px solid #eaf0fb;border-radius:14px;padding:22px;text-align:center">
       <div class="cprhead" style="margin-bottom:16px">How it flows</div>
       <div style="background:#fff;border:1px solid #ddd0fb;border-radius:11px;padding:14px;font-weight:700;color:#334155">Your referral buys a credit pack</div>
       <div style="color:#0e2a6e;font-size:20px;margin:6px 0">&darr;</div>
@@ -227,10 +227,10 @@ var CP_HTML = `
   <div class="cph2">Credits get used, then bought again</div>
   <div class="cplead" style="max-width:840px">Credit packs are consumed by the Creative Studio &mdash; AI video, image and voiceover. When members run out, they buy again, and each purchase pays you 20% again.</div>
   <div class="cpsteps">
-    <div style="border:1px solid #ede9fe;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">1</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">BUY CREDITS</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Referral buys a pack</div></div>
-    <div style="border:1px solid #ede9fe;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">2</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">YOU EARN</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">20% to your wallet</div></div>
-    <div style="border:1px solid #ede9fe;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">3</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">CONSUMED</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">They use the credits</div></div>
-    <div style="border:1px solid #ede9fe;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">4</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">REPEAT</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Buy again, earn again</div></div>
+    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">1</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">BUY CREDITS</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Referral buys a pack</div></div>
+    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">2</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">YOU EARN</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">20% to your wallet</div></div>
+    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">3</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">CONSUMED</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">They use the credits</div></div>
+    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">4</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">REPEAT</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Buy again, earn again</div></div>
   </div>
   <div style="text-align:center;margin-top:18px"><span style="display:inline-block;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 26px;font-size:15px;font-weight:700;color:#334155">$200 pack = <span style="color:#16a34a">$40 to you</span> &middot; every purchase</span></div>
 </div>

@@ -289,7 +289,7 @@ export default function LeadFinder() {
                 title: t('leadFinder.libHealthWellness'),
                 icon: '🌿',
                 color: '#10b981',
-                bg: '#ecfdf5',
+                bg: '#f3f5fb',
                 searches: [
                   { n: 'Herbalife distributor', l: 'UK' },
                   { n: 'doTERRA wellness advocate', l: '' },
@@ -354,7 +354,7 @@ export default function LeadFinder() {
                 title: t('leadFinder.libEcommerce'),
                 icon: '🛒',
                 color: '#c8102e',
-                bg: '#f5f3ff',
+                bg: '#f3f5fb',
                 searches: [
                   { n: 'dropshipping coach', l: '' },
                   { n: 'Amazon FBA mentor', l: '' },
@@ -405,7 +405,7 @@ export default function LeadFinder() {
                 title: t('leadFinder.libHealthFitness'),
                 icon: '💪',
                 color: '#10b981',
-                bg: '#ecfdf5',
+                bg: '#f3f5fb',
                 searches: [
                   { n: 'Gyms', l: 'Dubai' },
                   { n: 'Personal trainers', l: 'Miami' },
@@ -457,7 +457,7 @@ export default function LeadFinder() {
                 title: t('leadFinder.libRetail'),
                 icon: '🛍️',
                 color: '#c8102e',
-                bg: '#f5f3ff',
+                bg: '#f3f5fb',
                 searches: [
                   { n: 'Boutiques', l: 'Brighton' },
                   { n: 'Jewellers', l: 'Cambridge' },

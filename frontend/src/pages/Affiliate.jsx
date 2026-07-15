@@ -87,7 +87,7 @@ export default function Affiliate() {
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
           <span style={{ flex: 1, fontSize: 14, color: '#e8203f', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#e8203f', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
+          <button onClick={copyRef} style={{ background: 'rgba(232,32,63,.15)', color: '#e8203f', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
 

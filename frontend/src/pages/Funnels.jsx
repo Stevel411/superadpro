@@ -617,7 +617,7 @@ export default function Funnels() {
                           />
                         )}
                         <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={16} color="var(--sap-text-muted)"/></button>
-                        <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer'}}><Share2 size={16} color="#0284c7"/></button>
+                        <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #dbe4f5',background:'#f3f5fb',cursor:'pointer'}}><Share2 size={16} color="#a00d24"/></button>
                         <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={16} color="var(--sap-red)"/></button>
                       </div>
                     </>
@@ -729,10 +729,10 @@ export default function Funnels() {
             }}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
               <div style={{
-                width:36, height:36, borderRadius:8, background:'#f0f9ff',
+                width:36, height:36, borderRadius:8, background:'#f3f5fb',
                 display:'flex', alignItems:'center', justifyContent:'center',
               }}>
-                <Share2 size={18} color="#0284c7" />
+                <Share2 size={18} color="#a00d24" />
               </div>
               <div style={{flex:1}}>
                 <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1f52'}}>
@@ -777,8 +777,8 @@ export default function Funnels() {
             {shareModal.code && (
               <>
                 <div style={{
-                  background:'linear-gradient(135deg, #f0f9ff 0%, #ecfeff 100%)',
-                  border:'1px solid #bae6fd', borderRadius:10,
+                  background:'linear-gradient(135deg, #f3f5fb 0%, #f3f5fb 100%)',
+                  border:'1px solid #dbe4f5', borderRadius:10,
                   padding:'18px 16px', textAlign:'center', marginBottom:12,
                 }}>
                   <div style={{
@@ -831,10 +831,10 @@ export default function Funnels() {
             }}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
               <div style={{
-                width:36, height:36, borderRadius:8, background:'#f0f9ff',
+                width:36, height:36, borderRadius:8, background:'#f3f5fb',
                 display:'flex', alignItems:'center', justifyContent:'center',
               }}>
-                <Share2 size={18} color="#0284c7" />
+                <Share2 size={18} color="#a00d24" />
               </div>
               <div style={{flex:1}}>
                 <div style={{fontFamily:'Sora, sans-serif',fontWeight:700,fontSize:16,color:'#0a1f52'}}>

@@ -65,7 +65,7 @@ export default function ProSeller() {
                 })}
                 <style>{`@keyframes pulse{0%,100%{transform:scale(1);opacity:.1}50%{transform:scale(2.5);opacity:.25}}`}</style>
 
-                <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#12388f,#9db0e0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(139,92,246,.4)',position:'relative',zIndex:1}}>
+                <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#12388f,#9db0e0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(18,56,143,.4)',position:'relative',zIndex:1}}>
                   <Bot size={36} color="#fff"/>
                 </div>
                 <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>{t('proSeller.proSellerAI')}</h2>
@@ -74,7 +74,7 @@ export default function ProSeller() {
                 {/* Quick stat pills */}
                 <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20,position:'relative',zIndex:1}}>
                   {['Content Writer','Objection Handler','Strategy Coach','Growth Planner'].map(function(s){
-                    return <span key={s} style={{padding:'5px 14px',borderRadius:20,background:'rgba(139,92,246,.12)',border:'1px solid rgba(139,92,246,.2)',fontSize:13,fontWeight:700,color:'var(--sap-purple-light)'}}>{s}</span>;
+                    return <span key={s} style={{padding:'5px 14px',borderRadius:20,background:'rgba(18,56,143,.12)',border:'1px solid rgba(18,56,143,.2)',fontSize:13,fontWeight:700,color:'var(--sap-purple-light)'}}>{s}</span>;
                   })}
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function ProSeller() {
                 var isUser=m.role==='user';
                 return(
                   <div key={i} style={{padding:'14px 32px',display:'flex',gap:14,alignItems:'flex-start',background:isUser?'transparent':'#faf8ff',borderBottom:'1px solid '+(isUser?'transparent':'#f5f0ff')}}>
-                    <div style={{width:36,height:36,borderRadius:10,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:isUser?'linear-gradient(135deg,#c8102e,#e8203f)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:'0 4px 12px '+(isUser?'rgba(14,165,233,.2)':'rgba(139,92,246,.2)')}}>
+                    <div style={{width:36,height:36,borderRadius:10,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:isUser?'linear-gradient(135deg,#c8102e,#e8203f)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:'0 4px 12px '+(isUser?'rgba(200,16,46,.2)':'rgba(18,56,143,.2)')}}>
                       {isUser?<User size={17} color="#fff"/>:<Bot size={17} color="#fff"/>}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
@@ -142,8 +142,8 @@ export default function ProSeller() {
         <div style={{background:'#fff',borderRadius:'0 0 16px 16px',border:'1px solid #e8ecf2',borderTop:'none',padding:'16px 20px'}}>
           {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>{t('proSeller.newConversation')}</button></div>}
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
-            <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder={t("proSeller.askPlaceholder")} style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
-            <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>
+            <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder={t("proSeller.askPlaceholder")} style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(18,56,143,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
+            <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#12388f,#9db0e0)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(18,56,143,.3)',transition:'all .2s'}}>
               <Send size={20} color={(loading||!input.trim())?'var(--sap-text-muted)':'#fff'}/>
             </button>
           </div>

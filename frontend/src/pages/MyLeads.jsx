@@ -34,7 +34,7 @@ var STATUS_PALETTE = {
   new:          { bg:'var(--sap-purple-pale)',  color:'var(--sap-violet)',     labelKey:'statusNew' },
   nurturing:    { bg:'var(--sap-green-bg)',      color:'var(--sap-green-dark)', labelKey:'statusNurturing' },
   hot:          { bg:'#fce7f3',                  color:'#db2777',               labelKey:'statusHot' },
-  converted:    { bg:'#ecfeff',                  color:'#0891b2',               labelKey:'statusConverted' },
+  converted:    { bg:'#f3f5fb',                  color:'#0891b2',               labelKey:'statusConverted' },
   unsubscribed: { bg:'var(--sap-bg-page)',       color:'var(--sap-text-muted)', labelKey:'statusUnsubscribed' },
 };
 
@@ -291,7 +291,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash,statusJump,goImport}) {
             <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Upload a CSV of people you already know</div>
           </div>
           <Link to="/funnels" style={{textDecoration:'none',border:'1.5px solid #dfe6f0',borderRadius:13,padding:'20px 16px',textAlign:'center',background:'#fff',display:'block',boxShadow:'0 2px 8px rgba(23,37,84,.07)'}}>
-            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#ecfeff'}}><Sparkles size={19} color="#0891b2"/></div>
+            <div style={{width:42,height:42,borderRadius:11,margin:'0 auto 10px',display:'flex',alignItems:'center',justifyContent:'center',background:'#f3f5fb'}}><Sparkles size={19} color="#0891b2"/></div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Capture from your pages</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:500,lineHeight:1.5}}>Every SuperPages opt-in lands here automatically</div>
           </Link>
@@ -329,9 +329,9 @@ function SeqTab({sequences,refresh,flash}) {
   return <div>
     <div style={{display:'flex',gap:10,marginBottom:16}}>
       <button onClick={startNew} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#818cf8)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={16}/> {t('myLeads.createSequenceBtn')}</button>
-      <button onClick={genAI} disabled={gen} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#a78bfa)',color:'#fff',fontSize:13,fontWeight:700,cursor:gen?'wait':'pointer',fontFamily:'inherit'}}><Sparkles size={16}/> {gen?'Generating...':'Generate with AI'}</button>
+      <button onClick={genAI} disabled={gen} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:14,borderRadius:10,border:'none',background:'linear-gradient(135deg,#12388f,#9db0e0)',color:'#fff',fontSize:13,fontWeight:700,cursor:gen?'wait':'pointer',fontFamily:'inherit'}}><Sparkles size={16}/> {gen?'Generating...':'Generate with AI'}</button>
     </div>
-    {nicheOpen && <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center',background:'#fff',border:'1.5px dashed #a78bfa',borderRadius:12,padding:'10px 12px',flexWrap:'wrap'}}>
+    {nicheOpen && <div style={{display:'flex',gap:8,marginBottom:14,alignItems:'center',background:'#fff',border:'1.5px dashed #9db0e0',borderRadius:12,padding:'10px 12px',flexWrap:'wrap'}}>
       <div style={{fontSize:12.5,fontWeight:700,color:'#334155'}}>What niche?</div>
       <input autoFocus value={niche} onChange={function(e){setNiche(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')genAI();}} placeholder="e.g. fitness, crypto, marketing" style={{flex:1,minWidth:160,padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:9,fontSize:13,fontFamily:'inherit',outline:'none',color:'#1e293b',fontWeight:500}}/>
       <button onClick={genAI} disabled={!niche.trim()||gen} style={{background:'#12388f',color:'#fff',border:'none',borderRadius:9,fontWeight:700,fontSize:12.5,padding:'9px 16px',fontFamily:'inherit',cursor:'pointer',opacity:(!niche.trim()||gen)?0.5:1}}>{gen?'Generating…':'Create'}</button>
@@ -376,8 +376,8 @@ function SlimStatus({emailStats, hot, onBuy, onHot, extra}) {
         <div style={{display:'block',height:'100%',width:usedPct+'%',background:'linear-gradient(90deg,#c8102e,#e8203f)',transition:'width .3s'}}/>
       </div>
     </div>
-    {d && <span title={"Daily protection ('" + d.tier + "' tier) — resets at midnight UTC. Grows with your sending history."} style={{fontSize:12.5,fontWeight:800,borderRadius:20,padding:'7px 13px',background:dayHot?'#fef3c7':'#f0f9ff',color:dayHot?'#b45309':'#0369a1',whiteSpace:'nowrap'}}>Today {d.sent_today.toLocaleString()} / {d.cap.toLocaleString()}</span>}
-    {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#ede9fe',color:'#7c3aed',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
+    {d && <span title={"Daily protection ('" + d.tier + "' tier) — resets at midnight UTC. Grows with your sending history."} style={{fontSize:12.5,fontWeight:800,borderRadius:20,padding:'7px 13px',background:dayHot?'#fef3c7':'#f3f5fb',color:dayHot?'#b45309':'#12388f',whiteSpace:'nowrap'}}>Today {d.sent_today.toLocaleString()} / {d.cap.toLocaleString()}</span>}
+    {credits > 0 && <span title="Purchased credits — never expire" style={{fontSize:13,fontWeight:800,borderRadius:20,padding:'7px 13px',background:'#eaf0fb',color:'#12388f',whiteSpace:'nowrap'}}>&#9889; {credits.toLocaleString()}</span>}
     {hot > 0 && <button onClick={function(){if(onHot)onHot();}} style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:13.5,fontWeight:800,borderRadius:20,padding:'7px 14px',background:'#fce7f3',color:'#db2777',border:'none',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>&#128293; {hot} hot &rarr;</button>}
     <button onClick={function(){if(onBuy)onBuy();}} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'10px 18px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#12388f,#2b4bb5)',color:'#fff',fontSize:13.5,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0,boxShadow:'0 4px 12px rgba(30,58,138,.3)'}}><Rocket size={13}/> Buy</button>
     {extra}
@@ -506,7 +506,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
       </div>
 
       {/* Upload area */}
-      <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:32,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s,background .15s',background:'#fafbfc'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-indigo)';e.currentTarget.style.background='#f5f3ff';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#fafbfc';}}>
+      <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:32,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s,background .15s',background:'#fafbfc'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-indigo)';e.currentTarget.style.background='#f3f5fb';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#fafbfc';}}>
         <Upload size={28} color="var(--sap-indigo)"/>
         <span style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('myLeads.uploadCsv')}</span>
         <span style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.orPasteBelow')}</span>
@@ -587,11 +587,11 @@ function HowTab({emailStats}) {
       <div style={{display:'flex',gap:10,flexWrap:'wrap',margin:'14px 0 4px'}}>
         {tiers.map(function(tr,i){
           var active = d.tier===tr.label;
-          return <div key={i} style={{flex:'1 1 160px',border:'1.5px solid '+(active?'#c8102e':'#dfe6f0'),borderRadius:12,padding:'14px 16px',background:active?'#f0f9ff':'#fff',position:'relative'}}>
+          return <div key={i} style={{flex:'1 1 160px',border:'1.5px solid '+(active?'#c8102e':'#dfe6f0'),borderRadius:12,padding:'14px 16px',background:active?'#f3f5fb':'#fff',position:'relative'}}>
             {active && <div style={{position:'absolute',top:-9,right:12,background:'#c8102e',color:'#fff',fontSize:10,fontWeight:800,borderRadius:10,padding:'2px 9px'}}>YOU ARE HERE</div>}
             <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:14,color:'#0f172a'}}>{tr.label}</div>
             <div style={{fontSize:12.5,color:'#334155',fontWeight:600,marginTop:2}}>{tr.below?('Under '+tr.below.toLocaleString()+' lifetime sends'):'10,000+ lifetime sends'}</div>
-            <div style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:16,fontWeight:600,color:'#0369a1',marginTop:6}}>{tr.cap.toLocaleString()} / day</div>
+            <div style={{fontFamily:'ui-monospace,Menlo,monospace',fontSize:16,fontWeight:600,color:'#12388f',marginTop:6}}>{tr.cap.toLocaleString()} / day</div>
           </div>;
         })}
       </div>

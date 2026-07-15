@@ -370,7 +370,7 @@ export default function EmailSwipes() {
         .es-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
         .es-btn{border:1.5px solid #dfe6f0;background:#fff;border-radius:9px;padding:9px 13px;font-family:Sora,sans-serif;font-size:11.5px;font-weight:800;color:#12388f;cursor:pointer}
         .es-btn.primary{background:linear-gradient(135deg,#c8102e,#e8203f);border:none;color:#fff}
-        .es-btn.done{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+        .es-btn.done{background:#f3f5fb;border-color:#a7f3d0;color:#047857}
         .es-note{font-size:11px;color:#94a3b8;font-weight:600;margin-top:18px;line-height:1.6}
       `}</style>
 

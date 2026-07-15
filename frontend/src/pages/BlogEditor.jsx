@@ -292,7 +292,7 @@ export default function BlogEditor({ kind = 'post' }) {
                   )}
                   {ready && (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f0f9ff', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: '#075985', marginBottom: 10, padding: '9px 13px', background: '#f3f5fb', border: '1px dashed #7dd3fc', borderRadius: 9 }}>
                         <ImageIcon size={15} color="#e8203f" style={{ flex: 'none' }} />
                         <span><b>Add images to your post:</b> drag &amp; drop or paste one straight into the writing area, or use the image button. Select an image to set its <b>size &amp; position</b> — watch the Preview to see exactly where it lands.</span>
                       </div>

@@ -252,7 +252,7 @@ export default function LinkHub() {
         {/* Tabs — pill buttons */}
         <div style={{display:'flex',gap:6,flexShrink:0,padding:'10px 12px',background:'var(--sap-bg-input)',borderBottom:'1px solid #e5e7eb'}}>
           {[
-            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#0e2a6e,#12388f)',color:'var(--sap-violet)',shadow:'rgba(124,58,237,.35)'},
+            {k:'links',l:'🔗 Links',bg:'#f3f5fb',bgOn:'linear-gradient(135deg,#0e2a6e,#12388f)',color:'var(--sap-violet)',shadow:'rgba(18,56,143,.35)'},
             {k:'style',l:'🎨 Style',bg:'#fdf2f8',bgOn:'linear-gradient(135deg,#db2777,#ec4899)',color:'#db2777',shadow:'rgba(219,39,119,.35)'},
             {k:'profile',l:'👤 Profile',bg:'#eff6ff',bgOn:'linear-gradient(135deg,#2563eb,#3b82f6)',color:'#2563eb',shadow:'rgba(37,99,235,.35)'},
           ].map(function(tb) {

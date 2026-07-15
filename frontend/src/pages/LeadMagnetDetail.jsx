@@ -12,7 +12,7 @@ import {
 
 const card = { background: 'var(--sap-bg-card)', border: '1px solid var(--sap-border-light)', borderRadius: 'var(--sap-radius-xl)', boxShadow: 'var(--sap-shadow-md)', padding: '20px 22px' };
 const btn = { fontFamily: 'var(--sap-font-body)', fontWeight: 600, fontSize: 13, padding: '10px 15px', borderRadius: 'var(--sap-radius-md)', border: '1px solid var(--sap-border-light)', background: 'var(--sap-bg-card)', color: 'var(--sap-text-primary)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap' };
-const btnPri = { ...btn, background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)', boxShadow: '0 2px 8px rgba(14,165,233,0.3)' };
+const btnPri = { ...btn, background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)', boxShadow: '0 2px 8px rgba(200,16,46,0.3)' };
 
 export default function LeadMagnetDetail() {
   const { key } = useParams();

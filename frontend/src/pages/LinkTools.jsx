@@ -15,10 +15,10 @@ import {
 const TAG_COLORS = [
   { name:'Blue', bg:'#dbeafe', text:'#1d4ed8' },
   { name:'Green', bg:'var(--sap-green-bg-mid)', text:'#15803d' },
-  { name:'Purple', bg:'#f3e8ff', text:'var(--sap-violet)' },
+  { name:'Purple', bg:'#eaf0fb', text:'var(--sap-violet)' },
   { name:'Orange', bg:'#ffedd5', text:'#c2410c' },
   { name:'Pink', bg:'#fce7f3', text:'#be185d' },
-  { name:'Cyan', bg:'#cffafe', text:'#0e7490' },
+  { name:'Cyan', bg:'#f6d9de', text:'#a00d24' },
   { name:'Red', bg:'#fee2e2', text:'var(--sap-red)' },
   { name:'Yellow', bg:'#fef9c3', text:'#a16207' },
 ];
@@ -280,7 +280,7 @@ export default function LinkTools() {
         .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .8s ease both}
         .lt-stat:hover{transform:translateY(-6px) scale(1.02)!important}
         .lt-action-btn{transition:all .18s ease}
-        .lt-action-btn:hover{background:#f0f9ff!important;color:#c8102e!important;border-color:#f5b8c2!important}
+        .lt-action-btn:hover{background:#f3f5fb!important;color:#c8102e!important;border-color:#f5b8c2!important}
         .lt-create-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1)}
         .lt-create-btn:hover{transform:translateY(-3px) scale(1.04)!important}
       `}</style>
@@ -384,11 +384,11 @@ export default function LinkTools() {
                       </div>
                     )}
                   </div>
-                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #f5b8c2',minWidth:64}}>
+                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f3f5fb,#eaf0fb)',borderRadius:10,flexShrink:0,border:'1px solid #f5b8c2',minWidth:64}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#a00d24',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
                     <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                     {l.click_cap && (
-                      <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
+                      <div style={{height:3,background:'#eaf0fb',borderRadius:2,marginTop:4,overflow:'hidden'}}>
                         <div style={{height:'100%',background:((l.click_count||0)/l.click_cap)>0.8?'var(--sap-red-bright)':'var(--sap-accent)',borderRadius:2,width:Math.min(100,Math.round(((l.click_count||0)/l.click_cap)*100))+'%'}}/>
                       </div>
                     )}
@@ -438,7 +438,7 @@ export default function LinkTools() {
                   <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{r.name}</div>
                   <div style={{fontSize:12,color:'var(--sap-purple)',fontWeight:600}}>{BASE}/go/{r.short_code}</div>
                 </div>
-                <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#faf5ff,#ede9fe)',borderRadius:10,border:'1px solid #ddd6fe'}}>
+                <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#faf5ff,#eaf0fb)',borderRadius:10,border:'1px solid #dbe4f5'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'var(--sap-violet)',lineHeight:1}}>{r.click_count||0}</div>
                   <div style={{fontSize:8,color:'var(--sap-purple)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                 </div>

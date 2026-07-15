@@ -17,7 +17,7 @@ function Cover({ m, height }) {
       : email
       ? 'linear-gradient(150deg,#0a1f52 0%,#163a66 52%,#16a34a 145%)'
       : 'linear-gradient(150deg,#0a1f52 0%,#15346b 55%,#c8102e 135%)';
-    const blob = attraction ? 'rgba(167,139,250,0.20)' : email ? 'rgba(56,189,248,0.18)' : 'rgba(125,211,238,0.16)';
+    const blob = attraction ? 'rgba(167,139,250,0.20)' : email ? 'rgba(232,32,63,0.18)' : 'rgba(125,211,238,0.16)';
     return (
       <div style={{ height, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 14, color: '#fff', background: grad }}>
         <div style={{ position: 'absolute', top: -34, right: -30, width: 110, height: 110, borderRadius: '50%', background: blob }} />
@@ -45,7 +45,7 @@ const btn = (variant) => ({
   background: variant === 'pri' ? 'var(--sap-accent)' : (variant === 'soon' ? 'transparent' : 'var(--sap-bg-card)'),
   color: variant === 'pri' ? '#fff' : (variant === 'soon' ? 'var(--sap-text-faint)' : 'var(--sap-text-primary)'),
   borderColor: variant === 'pri' ? 'var(--sap-accent)' : 'var(--sap-border-light)',
-  boxShadow: variant === 'pri' ? '0 2px 8px rgba(14,165,233,0.3)' : 'none',
+  boxShadow: variant === 'pri' ? '0 2px 8px rgba(200,16,46,0.3)' : 'none',
 });
 
 export default function LeadMagnets() {

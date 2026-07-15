@@ -95,7 +95,7 @@ export default function MySite() {
   // drift); this fallback only covers the brief window before load.
   const [themeAccents, setThemeAccents] = useState({
     banner: '#0f6e4f', 'classic-sidebar': '#8a1f3d', journal: '#1c1a17',
-    bento: '#7c3aed', cinematic: '#a855f7', glass: '#6d28d9',
+    bento: '#12388f', cinematic: '#a855f7', glass: '#6d28d9',
   });
   const [pages, setPages] = useState([]);
   const [menu, setMenu] = useState([]);
@@ -384,7 +384,7 @@ export default function MySite() {
 
   // ── launch screen (no blog yet) ────────────────────────────────────────────
   if (!blog) {
-    const themeStrip = ['linear-gradient(135deg,#0f6e4f,#0a4d37)', '#1d2c4a', '#faf8f3', 'linear-gradient(135deg,#7c3aed,#5b21b6)', '#0a0a12', 'linear-gradient(135deg,#b8e6ff,#d7c9ff)'];
+    const themeStrip = ['linear-gradient(135deg,#0f6e4f,#0a4d37)', '#1d2c4a', '#faf8f3', 'linear-gradient(135deg,#12388f,#12388f)', '#0a0a12', 'linear-gradient(135deg,#b8e6ff,#d7c9ff)'];
     const feats = [
       [PenSquare, 'Write & publish posts', 'A clean editor with AI-assisted drafting.'],
       [Palette, '6 themes & 7 palettes', 'Switch the whole look in one click.'],
@@ -631,7 +631,7 @@ export default function MySite() {
                   const info = blockInfo(e.id);
                   const shown = e.show !== false;
                   const tag = info.kind === 'links' ? { bg: '#f1e9fe', fg: '#6d28d9', label: 'Link widget' }
-                    : info.kind === 'optin' ? { bg: '#e7f7fb', fg: '#0e7490', label: 'Optin' }
+                    : info.kind === 'optin' ? { bg: '#e7f7fb', fg: '#a00d24', label: 'Optin' }
                     : { bg: '#eef2fb', fg: '#5566a0', label: 'Built-in' };
                   return (
                     <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, border: `1px solid ${C.line}`,
@@ -907,6 +907,6 @@ const miniSelect = { border: `1px solid ${C.line}`, borderRadius: 7, padding: '7
 const miniInput = (w) => ({ border: `1px solid ${C.line}`, borderRadius: 7, padding: '7px 9px', fontSize: 12.5, color: C.ink2, outline: 'none', width: w, flex: '0 1 auto', minWidth: 0 });
 const iconBtn = { width: 32, height: 32, borderRadius: 8, border: `1px solid ${C.line}`, display: 'grid', placeItems: 'center', color: C.dim, cursor: 'pointer' };
 const errBox = { background: '#fdecec', border: '1px solid #f5c2c2', color: '#b42318', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16 };
-const noticeBox = { background: '#e8f7fb', border: '1px solid #b6e3ef', color: '#0e7490', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16, fontWeight: 500 };
+const noticeBox = { background: '#e8f7fb', border: '1px solid #b6e3ef', color: '#a00d24', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, marginBottom: 16, fontWeight: 500 };
 const GRADS = ['linear-gradient(135deg,#cfe8dd,#a7d3c0)', 'linear-gradient(135deg,#f3e6d0,#e6c894)', 'linear-gradient(135deg,#dbe7f5,#aac6e6)', 'linear-gradient(135deg,#ecdcef,#cbabd6)', 'linear-gradient(135deg,#d3ece4,#a3cdbb)', 'linear-gradient(135deg,#f6dcd8,#e6aaa0)'];
 function gradFor(id) { return GRADS[(id || 0) % GRADS.length]; }

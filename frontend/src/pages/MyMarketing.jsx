@@ -142,11 +142,11 @@ var css = `
   .mm-hero{background:linear-gradient(135deg,#0a1f52,#12388f);border-radius:14px;padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden}
   .mm-hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;color:#fff;margin:0 0 5px;letter-spacing:-0.4px}
   .mm-hero p{font-size:14.5px;color:#9fb4d8;margin:0;font-weight:500;max-width:580px;line-height:1.5}
-  .mm-hero-ico{position:absolute;right:-6px;top:-10px;color:rgba(56,189,248,0.10);transform:rotate(-12deg);pointer-events:none}
+  .mm-hero-ico{position:absolute;right:-6px;top:-10px;color:rgba(232,32,63,0.10);transform:rotate(-12deg);pointer-events:none}
   .mm-feature{position:relative;display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid #bfe3fb;border-radius:16px;padding:18px 22px 18px 26px;margin-bottom:8px;cursor:pointer;overflow:hidden;transition:transform .15s ease, box-shadow .15s ease;box-shadow:0 8px 24px rgba(14,116,180,0.10)}
   .mm-feature::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#c8102e,#16a34a)}
   .mm-feature:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(14,116,180,0.16)}
-  .mm-feature:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(34,211,238,0.35)}
+  .mm-feature:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,32,63,0.35)}
   .mm-feature-ico{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#0a1f52,#c8102e);display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .mm-feature-txt{flex:1;min-width:0}
   .mm-feature-tag{font-family:'Sora',sans-serif;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#a00d24;margin-bottom:3px}
@@ -157,7 +157,7 @@ var css = `
   .mm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:6px}
   .mm-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 17px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
   .mm-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(10,20,56,0.12)}
-  .mm-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(34,211,238,0.35)}
+  .mm-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,32,63,0.35)}
   .mm-card.soon{cursor:default;opacity:0.72}
   .mm-card.soon:hover{transform:none;box-shadow:none}
   .mm-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:11px;flex-shrink:0}
