@@ -416,7 +416,7 @@ function CopyLinkButton({ username, t }) {
     <button
       type="button"
       onClick={() => {
-        const link = `https://www.superadpro.com/ref/${username}`;
+        const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club'}/ref/${username}`;
         navigator.clipboard.writeText(link).then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);

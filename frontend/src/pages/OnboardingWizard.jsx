@@ -26,7 +26,7 @@ export default function OnboardingWizard() {
   var [saving, setSaving] = useState(false);
   var fileRef = useRef(null);
 
-  var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+  var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
   var current = STEPS[step];
   var progress = ((step + 1) / STEPS.length) * 100;
 

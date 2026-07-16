@@ -29,7 +29,7 @@ const MATS = [
 export default function MarketingPage() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+  const refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
   function copyLink() {
     try { navigator.clipboard.writeText(refLink); setCopied(true); setTimeout(function () { setCopied(false); }, 1800); } catch (e) {}
   }
@@ -73,7 +73,7 @@ export default function MarketingPage() {
           { t:'emerald', cls:'to3', name:'Emerald', desc:'Greens and gold — the money palette, bright and fresh.' },
           { t:'voltage', cls:'to4', name:'Voltage', desc:'Neon violet and magenta — the scroll-stopper for social.' },
         ].map(function (o) {
-          var url = 'https://www.superadpro.com/m/offer/' + (user?.username || '') + (o.t ? '?t=' + o.t : '');
+          var url = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/m/offer/' + (user?.username || '') + (o.t ? '?t=' + o.t : '');
           return (
             <a className="tile" href={url} target="_blank" rel="noopener noreferrer" key={o.name}>
               <div className={'ti ' + o.cls}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>

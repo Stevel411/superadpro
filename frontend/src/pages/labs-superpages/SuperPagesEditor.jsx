@@ -777,7 +777,7 @@ export default function LabsSuperPagesEditor() {
           ? (isSandbox
               ? 'Sandbox · localStorage only · Doesn\'t touch live site'
               : (pageSettings.slug ? '/' + pageSettings.slug + ' · Editing in Labs sandbox' : 'Editing in Labs sandbox'))
-          : (pageSettings.slug ? 'superadpro.com/p/' + pageSettings.slug : 'Draft page')
+          : (pageSettings.slug ? 'advantagelife.club/p/' + pageSettings.slug : 'Draft page')
       }
       fullHeight
       // 20 May 2026: AppLayout chrome hidden in BOTH sandbox and DB-backed

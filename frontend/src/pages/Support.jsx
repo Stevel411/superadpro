@@ -191,7 +191,7 @@ export default function Support() {
         display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <Mail size={16} color="var(--sap-text-muted)"/>
-          <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('support.emailDirectly')} <span style={{fontWeight:700,color:'var(--sap-accent)'}}>steve@superadpro.com</span></span>
+          <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('support.emailDirectly')} <span style={{fontWeight:700,color:'var(--sap-accent)'}}>steve@advantagelife.club</span></span>
         </div>
         <div style={{fontSize:13,color:'var(--sap-text-ghost)'}}>{t('support.responseTime')}</div>
       </div>

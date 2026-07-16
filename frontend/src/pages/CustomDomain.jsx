@@ -111,7 +111,7 @@ export default function CustomDomain() {
   };
 
   const handleDelete = async (id, domain) => {
-    if (!window.confirm(`Release ${domain}? Your pages will still work at superadpro.com/p/... — only this custom domain mapping is removed.`)) return;
+    if (!window.confirm(`Release ${domain}? Your pages will still work at advantagelife.club/p/... — only this custom domain mapping is removed.`)) return;
     try {
       await apiDelete(`/api/custom-domains/${id}`);
       await load();
@@ -168,7 +168,7 @@ export default function CustomDomain() {
                 </div>
                 <div style={{ fontSize: 13, color: '#92400e', lineHeight: 1.55 }}>
                   Activate your membership to claim a domain and start serving your SuperPages from your own URL.
-                  Your free pages remain accessible at <code style={codeInline}>superadpro.com/p/yourname/...</code> as always.
+                  Your free pages remain accessible at <code style={codeInline}>advantagelife.club/p/yourname/...</code> as always.
                 </div>
               </div>
             </div>
@@ -395,7 +395,7 @@ export default function CustomDomain() {
             </div>
 
             <div style={helpBlock}>
-              <div style={helpQ}>Will my existing <code style={codeInline}>superadpro.com/p/...</code> URLs still work?</div>
+              <div style={helpQ}>Will my existing <code style={codeInline}>advantagelife.club/p/...</code> URLs still work?</div>
               <div>Yes. Your custom domain is in <em>addition</em> to the platform URL, not a replacement. Any old links you've shared continue to work — no broken links.</div>
             </div>
 
@@ -421,7 +421,7 @@ export default function CustomDomain() {
 
             <div style={helpBlock}>
               <div style={helpQ}>How do I change my domain later?</div>
-              <div>Click the trash icon next to your domain above to release it, then claim a new one. Your pages stay accessible at <code style={codeInline}>superadpro.com/p/...</code> the whole time — no downtime.</div>
+              <div>Click the trash icon next to your domain above to release it, then claim a new one. Your pages stay accessible at <code style={codeInline}>advantagelife.club/p/...</code> the whole time — no downtime.</div>
             </div>
 
             <div style={helpBlock}>

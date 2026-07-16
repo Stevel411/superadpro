@@ -21,7 +21,7 @@ export default function MyMarketing() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const refBase = 'https://www.superadpro.com/ref/' + (user && user.username ? user.username : '');
+  const refBase = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user && user.username ? user.username : '');
 
   // Card factory. external=true uses window.open (for the member's own
   // public referral video page, which lives outside the app shell).

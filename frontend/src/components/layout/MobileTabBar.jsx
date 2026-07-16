@@ -30,7 +30,7 @@ export default function MobileTabBar() {
     };
   }, []);
 
-  var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+  var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
   var shareText = 'Join me on SuperAdPro and start earning! Watch ads, refer others, and build passive income.\n\n' + refLink;
 
   function handleShare() {

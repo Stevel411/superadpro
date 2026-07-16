@@ -470,12 +470,12 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
               color: '#fff',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
-              superadpro.com/ref/{username}
+              advantagelife.club/ref/{username}
             </div>
           </div>
           <button
             type="button"
-            onClick={() => copyRefLink('https://www.superadpro.com/ref/' + (username || ''))}
+            onClick={() => copyRefLink((typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (username || ''))}
             style={{
               padding: '8px 14px', borderRadius: 8, border: 'none',
               background: '#fff', color: 'var(--sap-cobalt-mid)',

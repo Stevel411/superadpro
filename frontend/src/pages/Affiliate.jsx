@@ -43,7 +43,7 @@ export default function Affiliate() {
   var [copied, setCopied] = useState(false);
   var [postCopied, setPostCopied] = useState(false);
 
-  var refLink = 'https://www.superadpro.com/ref/' + (user ? user.username : '');
+  var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user ? user.username : '');
   var selected = PLATFORMS.find(function(p) { return p.key === platform; }) || PLATFORMS[0];
 
   function copyRef() { navigator.clipboard.writeText(refLink); setCopied(true); setTimeout(function() { setCopied(false); }, 2000); }

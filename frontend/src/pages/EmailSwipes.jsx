@@ -327,7 +327,7 @@ export default function EmailSwipes() {
   const [cat, setCat] = useState('all');
   const [open, setOpen] = useState(null);
   const [copied, setCopied] = useState(null);
-  const refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+  const refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
   const myName = (user?.first_name || user?.username || 'Me');
 
   function fill(text) {

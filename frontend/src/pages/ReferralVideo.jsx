@@ -147,7 +147,7 @@ export default function ReferralVideo() {
 
       <footer className="rv-footer">
         <p>AdvantageLife provides marketing tools and an optional compensation program. Results from the optional comp program depend entirely on the effort, skill, and network of each member. No income is guaranteed.</p>
-        <p style={{ opacity: 0.7, marginTop: 12 }}>© {new Date().getFullYear()} AdvantageLife Ltd · superadpro.com</p>
+        <p style={{ opacity: 0.7, marginTop: 12 }}>© {new Date().getFullYear()} AdvantageLife Ltd · advantagelife.club</p>
       </footer>
     </>
   );

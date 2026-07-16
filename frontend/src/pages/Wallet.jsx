@@ -138,7 +138,7 @@ export default function Wallet() {
     // UUID and is correctly treated as a new withdrawal attempt.
     //
     // crypto.randomUUID() needs a secure context (HTTPS), which we have
-    // on superadpro.com. The fallback is here purely as belt-and-braces
+    // on advantagelife.club. The fallback is here purely as belt-and-braces
     // for any future embedded webview that might surface insecurely; the
     // server will still accept it as long as the value is unique enough.
     let idempotencyKey;

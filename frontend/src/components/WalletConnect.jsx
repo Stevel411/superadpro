@@ -78,8 +78,8 @@ function getBootstrap() {
       metadata: {
         name: 'SuperAdPro',
         description: 'Pay with your own wallet — USDT on BNB Chain',
-        url: 'https://www.superadpro.com',
-        icons: ['https://www.superadpro.com/static/sap-icon.png'],
+        url: (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club'),
+        icons: ['https://www.advantagelife.club/static/sap-icon.png'],
       },
       features: {
         email: false,
@@ -664,7 +664,7 @@ export function WalletConnectGate(props) {
       </button>
       {/* Wallet-picker tip — added 9 May 2026.
           When a member previously connected a different wallet to
-          superadpro.com, MetaMask remembers that choice and only shows
+          advantagelife.club, MetaMask remembers that choice and only shows
           the previously-connected wallet on subsequent connect attempts.
           The 'Edit accounts' button in the popup lets them switch to a
           different wallet, but it's small text and easy to miss.

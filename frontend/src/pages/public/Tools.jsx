@@ -144,7 +144,7 @@ export default function Tools() {
                 <div className="studio-dot"></div>
                 <div className="studio-dot"></div>
                 <div className="studio-dot"></div>
-                <div className="studio-title">creative-studio.superadpro.com</div>
+                <div className="studio-title">creative-studio.advantagelife.club</div>
               </div>
               <div className="studio-body">
                 <div className="studio-side">

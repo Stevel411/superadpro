@@ -338,7 +338,7 @@ export default function Dashboard() {
 
   const d = data;
   const copyRef = () => {
-    const link = `https://www.superadpro.com/ref/${user?.username}`;
+    const link = `${typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club'}/ref/${user?.username}`;
     navigator.clipboard.writeText(link);
     setRefCopied(true);
     setTimeout(() => setRefCopied(false), 2000);
@@ -452,7 +452,7 @@ export default function Dashboard() {
           preserved — only the clutter blocks were removed.
           ════════════════════════════════════════════════════════════ */}
       {(function() {
-        var refLink = 'https://www.superadpro.com/ref/' + (user?.username || '');
+        var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
         var vspLink = refLink + '/video';
         var goalsList = Array.isArray(goals) ? goals : (goals && Array.isArray(goals.goals) ? goals.goals : []);
         var watchGoal = goalsList.find(function(g) { return g.type === 'watch'; });
@@ -602,7 +602,7 @@ export default function Dashboard() {
               <div className="dc-sg-block">
                 <div className="dc-sg-lab">{t('dashboard.yourReferralLink', { defaultValue: 'Referral link' })}</div>
                 <div className="dc-sg-link">
-                  <span className="u">superadpro.com/ref/{user?.username}</span>
+                  <span className="u">advantagelife.club/ref/{user?.username}</span>
                   <button className="cp" onClick={function() { copyRefLink(refLink); }}>{refCopied ? t('dashboard.copied', { defaultValue: 'Copied' }) : t('dashboard.copy', { defaultValue: 'Copy' })}</button>
                 </div>
               </div>

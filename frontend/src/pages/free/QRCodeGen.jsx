@@ -40,7 +40,7 @@ export default function QRCodeGenerator() {
   }, []);
 
   const [mode, setMode] = useState('url');
-  const [url, setUrl] = useState('https://www.superadpro.com');
+  const [url, setUrl] = useState((typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club'));
   const [text, setText] = useState('');
   const [email, setEmail] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
@@ -60,13 +60,13 @@ export default function QRCodeGenerator() {
   // Build the QR content string based on mode
   const getContent = useCallback(() => {
     switch (mode) {
-      case 'url': return url || 'https://www.superadpro.com';
+      case 'url': return url || (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club');
       case 'text': return text || 'Hello from SuperAdPro!';
       case 'email': return `mailto:${email}${emailSubject ? '?subject=' + encodeURIComponent(emailSubject) : ''}`;
       case 'phone': return `tel:${phone}`;
       case 'sms': return `sms:${phone}${smsBody ? '?body=' + encodeURIComponent(smsBody) : ''}`;
       case 'wifi': return `WIFI:T:${wifiType};S:${wifiName};P:${wifiPass};;`;
-      default: return url || 'https://www.superadpro.com';
+      default: return url || (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club');
     }
   }, [mode, url, text, email, emailSubject, phone, smsBody, wifiName, wifiPass, wifiType]);
 
@@ -111,7 +111,7 @@ export default function QRCodeGenerator() {
   };
 
   const reset = () => {
-    setMode('url'); setUrl('https://www.superadpro.com'); setText(''); setEmail('');
+    setMode('url'); setUrl((typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club')); setText(''); setEmail('');
     setEmailSubject(''); setPhone(''); setSmsBody(''); setWifiName(''); setWifiPass('');
     setWifiType('WPA'); setFgColor('#000000'); setBgColor('#FFFFFF'); setSize(300); setEcLevel('M');
   };
