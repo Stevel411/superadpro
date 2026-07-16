@@ -29,7 +29,6 @@ const MyTeam = React.lazy(() => import('./pages/MyTeam'));
 const OnboardingWizard = React.lazy(() => import('./pages/OnboardingWizard'));
 const AnalyticsPage = React.lazy(() => import('./pages/Analytics'));
 const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
-const UpgradeFromBalance = React.lazy(() => import('./pages/UpgradeFromBalance'));
 const Courses = React.lazy(() => import('./pages/Courses'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const SharePage = React.lazy(() => import('./pages/SharePage'));
@@ -66,8 +65,6 @@ const AiTool = React.lazy(() => import('./pages/AiTool'));
 const IncomeChains = React.lazy(() => import('./pages/IncomeChains'));
 const IncomePage = React.lazy(() => import('./pages/IncomePage'));
 const ToolsPage = React.lazy(() => import('./pages/ToolsPage'));
-const AIContentToolsPage = React.lazy(() => import('./pages/AIContentToolsPage'));
-const BuilderToolsPage = React.lazy(() => import('./pages/BuilderToolsPage'));
 const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPage'));
 const LearnPage = React.lazy(() => import('./pages/LearnPage'));
 const EducationPage = React.lazy(() => import('./pages/EducationPage'));
@@ -136,7 +133,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/BucketList'),
   () => import('./pages/Analytics'),
   () => import('./pages/CreateCampaign'),
-  () => import('./pages/UpgradeFromBalance'),
   () => import('./pages/Courses'),
   () => import('./pages/Leaderboard'),
   () => import('./pages/Affiliate'),
@@ -153,8 +149,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/IncomeChains'),
   () => import('./pages/IncomePage'),
   () => import('./pages/ToolsPage'),
-  () => import('./pages/AIContentToolsPage'),
-  () => import('./pages/BuilderToolsPage'),
   () => import('./pages/IncomeMembershipPage'),
   () => import('./pages/LearnPage'),
   () => import('./pages/EducationPage'),
@@ -231,7 +225,6 @@ import ExplorePage from './pages/public/ExplorePage';
 import ExploreHub from './pages/public/ExploreHub';
 import FreeTools from './pages/public/FreeTools';
 import JoinFunnel from './pages/public/JoinFunnel';
-const StartPage = React.lazy(() => import('./pages/public/start/StartPage'));
 import { FAQ, Legal } from './pages/public/PublicPages';
 import InternalFAQ from './pages/FAQ';
 import PublicIncomeDisclosure from './pages/public/PublicIncomeDisclosure';
@@ -343,7 +336,6 @@ function AppRoutes() {
       <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
       <Route path="/w/:token" element={<SharePage />} />
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
-      <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/purchases" element={<Navigate to="/account?tab=billing" replace />} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
@@ -459,8 +451,6 @@ function AppRoutes() {
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><ToolsPage /></ProtectedRoute>} />
-      <Route path="/tools/ai-content" element={<ProtectedRoute><AIContentToolsPage /></ProtectedRoute>} />
-      <Route path="/tools/builder" element={<ProtectedRoute><BuilderToolsPage /></ProtectedRoute>} />
       {/* Legacy routes — redirect to the new structure. Free + Basic AI tools
           live under AI Content; Basic builder tools + Pro tools live under Builder. */}
       <Route path="/tools/free" element={<Navigate to="/tools/ai-content" replace />} />
@@ -495,7 +485,6 @@ function AppRoutes() {
       <Route path="/membership" element={<Navigate to="/explore" replace />} />
       <Route path="/explore/compensation" element={<Navigate to="/compensation" replace />} />
       <Route path="/compensation" element={<Lazy><CompensationPublic /></Lazy>} />
-      <Route path="/start" element={<Lazy><StartPage /></Lazy>} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />
