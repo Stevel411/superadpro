@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost } from '../utils/api';
 import AlShell from '../components/layout/AlShell';
-import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake, Activity } from 'lucide-react';
+import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake, Activity, Share2 } from 'lucide-react';
 
 /* ────────────────────────────────────────────────────────────────
    AdvantageLife admin — built for the pack / pass-up model.
@@ -19,6 +19,7 @@ const TABS = [
   { key: 'finances', label: 'Finances', Icon: Wallet },
   { key: 'settlements', label: 'Settlements', Icon: Handshake },
   { key: 'members', label: 'Members', Icon: Users },
+  { key: 'sharing', label: 'Sharing', Icon: Share2 },
   { key: 'health', label: 'Health', Icon: Activity },
 ];
 
@@ -369,6 +370,73 @@ function Health() {
   );
 }
 
+
+function Sharing() {
+  const [d, setD] = useState(null);
+  const load = useCallback(() => { setD(null); apiGet('/admin/api/al/share-performance').then(setD).catch(() => setD(null)); }, []);
+  useEffect(() => { load(); }, [load]);
+  if (!d) return <div style={{ color: MUTED, fontWeight: 600, padding: 20 }}>Loading…</div>;
+  const t = d.totals || {};
+  return (
+    <div>
+      <div style={{ background: '#f8fafd', border: '1px solid ' + LINE, borderLeft: '4px solid ' + NAVY, borderRadius: 12, padding: '13px 16px', fontSize: 12.5, color: MUTED, fontWeight: 600, lineHeight: 1.6, marginBottom: 16 }}>
+        {d.note}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 18 }}>
+        <Stat n={t.links_created ?? 0} l="Share links created" />
+        <Stat n={t.shared_this_week ?? 0} l="Shared this week" color={RED} />
+        <Stat n={t.views_verified_week ?? 0} l="Verified views (wk)" color={GREEN} />
+        <Stat n={t.views_verified ?? 0} l="Verified views (all)" color={GREEN} />
+        <Stat n={t.views_started ?? 0} l="Views started" />
+        <Stat n={t.verify_rate_pct != null ? t.verify_rate_pct + '%' : '—'} l="Reached 30s" color={NAVY2} />
+      </div>
+
+      <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Per member — did their link actually produce views?</div>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + LINE, overflowX: 'auto', marginBottom: 20 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+          <thead><tr style={{ background: '#f8fafd' }}>
+            <th style={th}>Member</th><th style={th}>Showcase link</th><th style={th}>Shared?</th>
+            <th style={th}>Times shared</th><th style={th}>Verified views (wk)</th><th style={th}>Verified (all)</th>
+          </tr></thead>
+          <tbody>
+            {(d.members || []).length === 0 && <tr><td style={{ ...td, color: MUTED }} colSpan={6}>No share links yet — they're created when a member first loads the dashboard.</td></tr>}
+            {(d.members || []).map((m, i) => (
+              <tr key={i}>
+                <td style={{ ...td, fontWeight: 800, color: NAVY }}>@{m.username}</td>
+                <td style={td}><a href={m.url} target="_blank" rel="noreferrer" style={{ color: '#12388f', fontFamily: 'monospace', fontSize: 12, fontWeight: 700 }}>{m.url}</a></td>
+                <td style={td}><span style={{ fontSize: 10.5, fontWeight: 900, padding: '2px 8px', borderRadius: 20, background: m.shared_this_week ? '#e7f6ee' : '#eef1f8', color: m.shared_this_week ? GREEN : MUTED }}>{m.shared_this_week ? 'This week' : (m.last_shared_at ? 'Not this week' : 'Never')}</span></td>
+                <td style={{ ...td, color: MUTED, fontWeight: 700 }}>{m.share_count}</td>
+                <td style={{ ...td, fontWeight: 900, color: m.verified_views_week > 0 ? GREEN : MUTED }}>{m.verified_views_week}</td>
+                <td style={{ ...td, fontWeight: 800, color: NAVY2 }}>{m.verified_views}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 4 }}>Evidence trail — most recent verified views</div>
+      <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600, marginBottom: 9 }}>Each row is a real person who watched 30+ seconds on that member's link.</div>
+      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid ' + LINE, overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
+          <thead><tr style={{ background: '#f8fafd' }}><th style={th}>Shared by</th><th style={th}>Campaign</th><th style={th}>Watched</th><th style={th}>When</th></tr></thead>
+          <tbody>
+            {(d.recent_views || []).length === 0 && <tr><td style={{ ...td, color: MUTED }} colSpan={4}>No verified views yet. Approve a campaign for sharing, then open a showcase link and watch 30 seconds — it'll appear here.</td></tr>}
+            {(d.recent_views || []).map((v, i) => (
+              <tr key={i}>
+                <td style={{ ...td, fontWeight: 800, color: NAVY }}>@{v.sharer}</td>
+                <td style={td}>{v.campaign}</td>
+                <td style={{ ...td, fontWeight: 800, color: GREEN }}>{v.watched_secs}s</td>
+                <td style={{ ...td, color: MUTED, fontSize: 12.5 }}>{v.verified_at ? new Date(v.verified_at).toLocaleString() : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button onClick={load} style={{ marginTop: 14, background: '#fff', color: NAVY, border: '1.5px solid ' + LINE, borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RefreshCw size={13} /> Refresh</button>
+    </div>
+  );
+}
+
 export default function AdminAL() {
   const [tab, setTab] = useState('overview');
   const [ov, setOv] = useState(null);
@@ -404,6 +472,7 @@ export default function AdminAL() {
         {tab === 'finances' && <Finances />}
         {tab === 'settlements' && <Settlements />}
         {tab === 'members' && <Members />}
+        {tab === 'sharing' && <Sharing />}
         {tab === 'health' && <Health />}
       </div>
     </AlShell>

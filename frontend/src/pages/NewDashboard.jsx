@@ -81,7 +81,14 @@ const CSS = `
 .al .showcase .sc-view{text-align:center;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px 16px;font-weight:800;font-size:13px;text-decoration:none;font-family:'Inter',sans-serif}
 .al .showcase .sc-view:hover{background:rgba(255,255,255,.16)}
 .al .showcase .sc-copy{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter',sans-serif;font-weight:900;font-size:13.5px;cursor:pointer;box-shadow:0 12px 26px -10px rgba(200,16,46,.7)}
-@media(max-width:640px){.al .showcase .sc-actions{width:100%;flex-direction:row}.al .showcase .sc-actions>*{flex:1}}
+.al .showcase .sc-social{display:flex;gap:7px}
+.al .showcase .sc-btn{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);color:#fff;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;transition:transform .12s}
+.al .showcase .sc-btn:hover{transform:translateY(-2px)}
+.al .showcase .sc-btn.fb:hover{background:#1877f2;border-color:#1877f2}
+.al .showcase .sc-btn.x:hover{background:#000;border-color:#000}
+.al .showcase .sc-btn.wa:hover{background:#25d366;border-color:#25d366}
+.al .showcase .sc-btn.tg:hover{background:#229ed9;border-color:#229ed9}
+@media(max-width:640px){.al .showcase .sc-actions{width:100%}.al .showcase .sc-social{justify-content:space-between}.al .showcase .sc-btn{flex:1}}
 /* ── cards row ── */
 .al .row{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch}
 .al .card.cwatch{min-width:0}
@@ -276,6 +283,40 @@ export default function NewDashboard() {
     ? (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url
     : '';
 
+  // Social share. IMPORTANT: none of these can prove a post happened — no
+  // platform reports back. They exist to remove friction so more members
+  // actually share; the PROOF is verified views on /w/{token}. We still call
+  // mark-shared for analytics, never for qualification.
+  function shareTo(where) {
+    if (!shareData) return;
+    var u = encodeURIComponent(shareUrl);
+    var txt = encodeURIComponent("This week's video showcase — worth a look:");
+    var urls = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + u,
+      x:        'https://twitter.com/intent/tweet?url=' + u + '&text=' + txt,
+      whatsapp: 'https://api.whatsapp.com/send?text=' + txt + '%20' + u,
+      telegram: 'https://t.me/share/url?url=' + u + '&text=' + txt,
+    };
+    if (urls[where]) window.open(urls[where], '_blank', 'noopener,width=640,height=560');
+    markShared();
+  }
+
+  function nativeShare() {
+    if (!shareData) return;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title: 'AdvantageLife — Video Showcase', url: shareUrl })
+        .then(markShared).catch(function () {});
+    } else {
+      copyShare();
+    }
+  }
+
+  function markShared() {
+    apiPost('/api/share/mark-shared', {})
+      .then(function () { apiGet('/api/share/my-link').then(setShareData).catch(function () {}); })
+      .catch(function () {});
+  }
+
   function copyShare() {
     if (!shareData) return;
     var full = (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url;
@@ -395,8 +436,18 @@ export default function NewDashboard() {
                 )}
               </div>
               <div className="sc-actions">
+                <div className="sc-social">
+                  <button className="sc-btn fb" onClick={function () { shareTo('facebook'); }} title="Share to Facebook">f</button>
+                  <button className="sc-btn x" onClick={function () { shareTo('x'); }} title="Share to X">𝕏</button>
+                  <button className="sc-btn wa" onClick={function () { shareTo('whatsapp'); }} title="Share to WhatsApp">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4 0-.5 0-.2-.6-1.5-.9-2-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2"/></svg>
+                  </button>
+                  <button className="sc-btn tg" onClick={function () { shareTo('telegram'); }} title="Share to Telegram">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.2c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.7L17.4 5c.4-.3-.1-.5-.6-.2L6.2 11.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.2 1.4"/></svg>
+                  </button>
+                </div>
+                <button className="sc-copy" onClick={nativeShare}>{shareCopied ? 'Copied ✓' : 'Share my page'}</button>
                 <a className="sc-view" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">View my page</a>
-                <button className="sc-copy" onClick={copyShare}>{shareCopied ? 'Copied ✓' : 'Copy & share'}</button>
               </div>
             </div>
 

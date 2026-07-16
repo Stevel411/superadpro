@@ -67427,6 +67427,91 @@ def _al_intent_json(db, intent, viewer_id=None):
 # platform IS now. Old panels stay untouched until fully replaced so nobody
 # mistakes stale numbers for current ones.
 
+@app.get("/admin/api/al/share-performance")
+def al_admin_share_performance(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Proof the share system is working: who shared, and what real views their
+    link actually produced.
+
+    The share BUTTON proves nothing — no social platform reports back whether a
+    post happened. What is provable is this: verified views recorded against a
+    member's own /w/{token}, each one a stranger who watched 30+ seconds, checked
+    server-side against a start row. This endpoint surfaces that evidence.
+    """
+    _require_admin(user)
+    now = datetime.utcnow()
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    totals = {
+        "links_created": db.query(func.count(ShareLink.id)).scalar() or 0,
+        "members_who_shared": db.query(func.count(ShareLink.id))
+                                .filter(ShareLink.last_shared_at.isnot(None)).scalar() or 0,
+        "shared_this_week": db.query(func.count(ShareLink.id))
+                              .filter(ShareLink.last_shared_at >= week_start).scalar() or 0,
+        "views_started": db.query(func.count(ShareView.id)).scalar() or 0,
+        "views_verified": db.query(func.count(ShareView.id))
+                            .filter(ShareView.is_verified == True).scalar() or 0,
+        "views_verified_week": db.query(func.count(ShareView.id))
+                                 .filter(ShareView.is_verified == True,
+                                         ShareView.verified_at >= week_start).scalar() or 0,
+    }
+    started = totals["views_started"] or 0
+    totals["verify_rate_pct"] = (round(totals["views_verified"] / started * 100, 1)
+                                 if started else None)
+
+    # Per-member: link, whether they shared, and the views it actually produced.
+    rows = (db.query(ShareLink, User.username)
+              .join(User, User.id == ShareLink.user_id)
+              .order_by(ShareLink.id.desc()).limit(100).all())
+    verified_by_link, week_by_link = {}, {}
+    if rows:
+        ids = [l.id for l, _ in rows]
+        for lid, n in (db.query(ShareView.share_link_id, func.count(ShareView.id))
+                       .filter(ShareView.share_link_id.in_(ids), ShareView.is_verified == True)
+                       .group_by(ShareView.share_link_id).all()):
+            verified_by_link[lid] = int(n or 0)
+        for lid, n in (db.query(ShareView.share_link_id, func.count(ShareView.id))
+                       .filter(ShareView.share_link_id.in_(ids), ShareView.is_verified == True,
+                               ShareView.verified_at >= week_start)
+                       .group_by(ShareView.share_link_id).all()):
+            week_by_link[lid] = int(n or 0)
+
+    members = [{
+        "username": un,
+        "url": f"/w/{l.token}",
+        "share_count": int(l.share_count or 0),
+        "last_shared_at": l.last_shared_at.isoformat() if l.last_shared_at else None,
+        "shared_this_week": bool(l.last_shared_at and l.last_shared_at >= week_start),
+        "verified_views": verified_by_link.get(l.id, 0),
+        "verified_views_week": week_by_link.get(l.id, 0),
+    } for l, un in rows]
+    members.sort(key=lambda m: -m["verified_views_week"])
+
+    # Most recent verified views — the raw evidence trail.
+    recent = (db.query(ShareView, ShareLink.token, User.username)
+                .join(ShareLink, ShareLink.id == ShareView.share_link_id)
+                .join(User, User.id == ShareLink.user_id)
+                .filter(ShareView.is_verified == True)
+                .order_by(ShareView.verified_at.desc()).limit(25).all())
+    titles = {}
+    if recent:
+        for cid, t in db.query(VideoCampaign.id, VideoCampaign.title).filter(
+                VideoCampaign.id.in_([v.campaign_id for v, _, _ in recent])).all():
+            titles[cid] = t
+    return {
+        "totals": totals,
+        "members": members,
+        "recent_views": [{
+            "sharer": un,
+            "campaign": titles.get(v.campaign_id, f"#{v.campaign_id}"),
+            "watched_secs": int(v.watched_secs or 0),
+            "verified_at": v.verified_at.isoformat() if v.verified_at else None,
+        } for v, tok, un in recent],
+        "note": ("A share button can never prove a post happened — no platform reports back. "
+                 "Verified views are the proof: each is a distinct viewer who watched 30+ seconds "
+                 "on that member's own link, checked server-side against a start row."),
+    }
+
+
 @app.get("/admin/api/al/health")
 def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """AL-native health. The legacy /admin/api/health checks negative balances,
