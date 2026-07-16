@@ -9528,6 +9528,21 @@ def marketing_materials(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/ai-tools")
+def ai_tools_page(request: Request):
+    """Serve React SPA — AI Tools hub.
+
+    This had no server route, so the path only worked via in-app navigation
+    (client-side routing never hits the server). Typing the URL, bookmarking
+    it, or sharing it returned a 404 — on a top-level sidebar item that all
+    eight tools sit under. There's no SPA catch-all here: every React path
+    needs its own route.
+    """
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/my-marketing")
 def my_marketing(request: Request):
     """Serve React SPA — My Marketing hub."""
