@@ -52849,11 +52849,59 @@ async def api_share_view_complete(token: str, request: Request, db: Session = De
 
 
 @app.get("/w/{token}")
-def public_share_page(token: str):
-    """PUBLIC share page shell — the SPA renders it from /api/share/{token}/page."""
-    if _react_index.exists():
+def public_share_page(token: str, db: Session = Depends(get_db)):
+    """PUBLIC share page shell — the SPA renders it from /api/share/{token}/page.
+
+    We inject per-share Open Graph tags server-side. Facebook/X/WhatsApp fetch
+    this URL with a scraper that does NOT run JavaScript, so whatever is in the
+    static shell is what gets posted — the SPA's own <title> never reaches them.
+    Without this, every share posted the shell's generic card. Naming the sharer
+    also lifts click-through: a link from a person beats a link from a brand.
+    """
+    if not _react_index.exists():
+        return RedirectResponse(url="/", status_code=302)
+
+    sharer = None
+    link = db.query(ShareLink).filter(ShareLink.token == token,
+                                      ShareLink.is_active == True).first()
+    if link:
+        sharer = db.query(User.username).filter(User.id == link.user_id).scalar()
+
+    base = os.environ.get("PUBLIC_BASE_URL", "https://www.advantagelife.club").rstrip("/")
+    title = (f"{sharer}'s video showcase" if sharer else "This week's video showcase")
+    desc = ("Videos from independent creators and businesses — watch whatever "
+            "interests you. Updated continuously.")
+    img = f"{base}/static/images/al-hero-bg.jpg"
+    url = f"{base}/w/{token}"
+
+    def esc(v: str) -> str:
+        return (v.replace("&", "&amp;").replace("<", "&lt;")
+                 .replace(">", "&gt;").replace('"', "&quot;"))
+
+    og = (
+        f'<meta property="og:site_name" content="AdvantageLife">'
+        f'<meta property="og:type" content="website">'
+        f'<meta property="og:title" content="{esc(title)}">'
+        f'<meta property="og:description" content="{esc(desc)}">'
+        f'<meta property="og:url" content="{esc(url)}">'
+        f'<meta property="og:image" content="{esc(img)}">'
+        f'<meta name="twitter:card" content="summary_large_image">'
+        f'<meta name="twitter:title" content="{esc(title)}">'
+        f'<meta name="twitter:description" content="{esc(desc)}">'
+        f'<meta name="twitter:image" content="{esc(img)}">'
+    )
+    try:
+        html = _react_index.read_text(encoding="utf-8")
+        # Drop the shell's default OG/twitter tags so the scraper can't pick the
+        # generic ones ahead of these, then inject the share-specific set.
+        html = re.sub(r'<meta\s+(?:property="og:[^"]*"|name="twitter:[^"]*")[^>]*>', "", html)
+        html = html.replace("<title>", f"{og}<title>", 1)
+        html = re.sub(r"<title>.*?</title>", f"<title>{esc(title)} · AdvantageLife</title>",
+                      html, count=1, flags=re.S)
+        return HTMLResponse(html)
+    except Exception as e:
+        logger.warning(f"[share] OG injection failed for {token}: {e}")
         return _spa_shell()
-    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/api/leaderboard/weekly")
