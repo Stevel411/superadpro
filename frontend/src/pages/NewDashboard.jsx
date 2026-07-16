@@ -68,8 +68,15 @@ const CSS = `
 .al .card.cwatch{min-width:0}
 .al .cwatch .vid{flex:1;aspect-ratio:auto;min-height:300px}
 .al .rightcol{display:flex;flex-direction:column;gap:20px;min-width:0}
-.al .rightcol>.card{flex:0 0 auto}
-.al .rightcol{justify-content:flex-start}
+/* The right column must finish level with the video card on its left.
+   Previously the cards were pinned to natural height (flex:0 0 auto) and
+   packed to the top, so any surplus height fell out of the bottom of the
+   column as dead space — the row looked unbalanced against the sidebar.
+   space-between spreads the two cards to the full height, so the last one
+   lands flush with the video's bottom edge without stretching a card's
+   internals or leaving a hole inside it. */
+.al .rightcol{justify-content:space-between}
+.al .rightcol>.card{flex:0 1 auto}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}
 .al .card.cboard{overflow:hidden}
