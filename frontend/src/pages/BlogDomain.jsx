@@ -180,13 +180,13 @@ export default function BlogDomain() {
                   <Lock size={20} color="#b45309" style={{ flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <div style={{ fontWeight: 700, color: '#78350f', fontSize: 15, marginBottom: 4 }}>
-                      Custom domains are a Partner feature
+                      Custom domains are included with the club
                     </div>
                     <div style={{ fontSize: 13, color: '#92400e', lineHeight: 1.55, marginBottom: 10 }}>
-                      Upgrade to Partner or Founder to serve your blog on your own domain under your brand.
+                      Lifetime access lets you serve your blog on your own domain, under your own brand. One payment of $100, never monthly.
                     </div>
-                    <Link to="/pay-membership" style={{ ...primaryBtnStyle, textDecoration: 'none' }}>
-                      Upgrade my account &rarr;
+                    <Link to="/join" style={{ ...primaryBtnStyle, textDecoration: 'none' }}>
+                      Get lifetime access &rarr;
                     </Link>
                   </div>
                 </div>

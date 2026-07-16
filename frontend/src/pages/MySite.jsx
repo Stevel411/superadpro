@@ -364,19 +364,22 @@ export default function MySite() {
   const isPro = data?.is_pro;
   const blog = data?.blog;
 
-  // ── gated (not a paid member) ──────────────────────────────────────────────
+  // ── gated (hasn't joined the club) ────────────────────────────────────────
+  // AL model: the $100 one-time join unlocks every tool for life. There is no
+  // "Partner membership" and no monthly tier — those are SuperAdPro concepts.
   if (!isPro) {
     return (
       <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
         <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
-          <div style={{ width: 64, height: 64, borderRadius: 18, background: '#eef3fa', display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
-            <Lock size={26} color={C.dim} />
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(120deg,#c8102e,#e8203f)', display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
+            <Lock size={26} color="#fff" />
           </div>
-          <h2 style={{ fontFamily: sora, fontSize: 24, fontWeight: 800, color: C.ink }}>Your own website is a Partner feature</h2>
+          <h2 style={{ fontFamily: sora, fontSize: 24, fontWeight: 800, color: C.ink }}>Your own website is included with the club</h2>
           <p style={{ color: C.dim, fontSize: 16, lineHeight: 1.6, margin: '12px 0 24px' }}>
-            Build a full blog and website — your posts, your pages, your brand, your domain. Included with Partner membership.
+            Build a full blog and website — your posts, your pages, your brand, your domain.
+            Included with lifetime access, along with every other tool. One payment of $100, never monthly.
           </p>
-          <a href="/upgrade" style={btn('primary')}>Activate Partner <ArrowRight size={16} /></a>
+          <a href="/join" style={btn('primary')}>Get lifetime access <ArrowRight size={16} /></a>
         </div>
       </AlShell>
     );
