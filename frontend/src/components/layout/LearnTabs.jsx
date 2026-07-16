@@ -70,7 +70,6 @@ function buildTabs(t) {
       path: '/learn/assets',
       match: [
         '/learn/assets',
-        '/marketing-materials',
         '/email-swipes',
         '/social-share',
       ],
@@ -83,7 +82,6 @@ function buildTabs(t) {
       match: [
         '/learn/community',
         '/leaderboard',
-        '/share-story',
       ],
     },
   ];
@@ -262,11 +260,9 @@ export function isLearnFamilyRoute(pathname) {
     '/learn',
     '/training',
     '/crypto-guide',
-    '/marketing-materials',
     '/email-swipes',
     '/social-share',
     '/leaderboard',
-    '/share-story',
   ];
   for (var i = 0; i < LEARN_PATHS.length; i++) {
     var p = LEARN_PATHS[i];

@@ -30,12 +30,8 @@ function buildTabs(t) {
       icon: Gift, tone: 'pink', path: '/pay-it-forward', match: ['/pay-it-forward'] },
     { id: 'plan', label: t('myMarketing.tabs.plan', { defaultValue: 'Comp Plan' }),
       icon: FileText, tone: 'cobalt', path: '/compensation-plan', match: ['/compensation-plan'] },
-    { id: 'story', label: t('myMarketing.tabs.story', { defaultValue: 'Share Your Story' }),
-      icon: Sparkles, tone: 'cyan', path: '/share-story', match: ['/share-story'] },
     { id: 'posters', label: t('myMarketing.tabs.posters', { defaultValue: 'Brand Posters' }),
       icon: Image, tone: 'cobalt', path: '/brand-posters', match: ['/brand-posters'] },
-    { id: 'decks', label: t('myMarketing.tabs.decks', { defaultValue: 'Marketing Decks' }),
-      icon: Files, tone: 'cyan', path: '/marketing-materials', match: ['/marketing-materials'] },
     { id: 'email', label: t('myMarketing.tabs.email', { defaultValue: 'Email Swipes' }),
       icon: Mail, tone: 'cobalt', path: '/email-swipes', match: ['/email-swipes'] },
   ];
@@ -159,9 +155,7 @@ export function isMyMarketingFamilyRoute(pathname) {
     '/social-share',
     '/pay-it-forward',
     '/compensation-plan',
-    '/share-story',
     '/brand-posters',
-    '/marketing-materials',
     '/email-swipes',
   ];
   for (var i = 0; i < PATHS.length; i++) {

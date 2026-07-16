@@ -35,7 +35,6 @@ const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const SharePage = React.lazy(() => import('./pages/SharePage'));
 const AdminAL = React.lazy(() => import('./pages/AdminAL'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
-const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
 const EmailSwipes = React.lazy(() => import('./pages/EmailSwipes'));
 const LeadMagnets = React.lazy(() => import('./pages/LeadMagnets'));
@@ -142,7 +141,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/Courses'),
   () => import('./pages/Leaderboard'),
   () => import('./pages/Affiliate'),
-  () => import('./pages/MarketingMaterials'),
   () => import('./pages/LeadFinder'),
   () => import('./pages/CampaignTiers'),
   () => import('./pages/Watch'),
@@ -349,7 +347,6 @@ function AppRoutes() {
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
-      <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
       <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
@@ -365,7 +362,6 @@ function AppRoutes() {
       <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/result/:generationId" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterResult /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/history" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterHistory /></RequireTier></ProtectedRoute>} />
-      <Route path="/share-story" element={<HardRedirect to="/home-preview" />} />
       <Route path="/gift/team/:code" element={<ProtectedRoute><TeamGiftAccept /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />

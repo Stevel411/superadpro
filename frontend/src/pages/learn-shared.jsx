@@ -53,7 +53,6 @@ export function getEducationItems(t) {
 
 export function getAssetItems(t) {
   return [
-    { id: 'materials', icon: Download, name: t('learn.assets.materials.name', { defaultValue: 'Marketing Materials' }), desc: t('learn.assets.materials.desc', { defaultValue: 'Banners, graphics, social posts ready to download and share.' }),                            to: '/marketing-materials' },
     { id: 'swipes',    icon: Mail,     name: t('learn.assets.swipes.name',    { defaultValue: 'Email Swipes' }),        desc: t('learn.assets.swipes.desc',    { defaultValue: 'AI-generated email templates for outreach campaigns. Copy-and-paste ready.' }),           to: '/email-swipes' },
     { id: 'social',    icon: Share2,   name: t('learn.assets.social.name',    { defaultValue: 'Social Share' }),        desc: t('learn.assets.social.desc',    { defaultValue: 'One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy.' }), to: '/social-share' },
   ];
@@ -62,7 +61,6 @@ export function getAssetItems(t) {
 export function getCommunityItems(t) {
   return [
     { id: 'leaderboard', icon: Trophy,    name: t('learn.community.leaderboard.name', { defaultValue: 'Leaderboard' }),       desc: t('learn.community.leaderboard.desc', { defaultValue: 'Top earners and top recruiters across the platform. See where you rank.' }),       to: '/leaderboard' },
-    { id: 'story',       icon: Sparkles,  name: t('learn.community.story.name',       { defaultValue: 'Share Your Story' }), desc: t('learn.community.story.desc',       { defaultValue: 'Submit your success milestone. Inspire others, get featured on the homepage.' }), to: '/share-story' },
   ];
 }
 
