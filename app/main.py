@@ -35653,14 +35653,27 @@ def compute_user_earnings(db: Session, user_id: int, since=None, until=None) -> 
 
 
 def get_user_highest_tier(db: Session, user_id: int) -> int:
-    """Return the user's highest active grid tier (-1 if none). Admin = all tiers."""
+    """AdvantageLife: the member's highest ACTIVE pack level (-1 if none).
+
+    WAS "highest active GRID tier". Grids are the retired SuperAdPro system and
+    the AL engine never creates Grid rows — so every real AL member resolved to
+    -1 and was locked out of campaign creation. Admins bypassed via the
+    hardcoded return below, which is exactly why it went unnoticed.
+
+    AL gates on PACK OWNERSHIP: buy a pack -> unlock Create Campaign -> the
+    pack's views are delivered to the campaigns you make. That's the whole
+    advertising premise, so this must read PackPurchase, not Grid.
+
+    Contract preserved for the 13 call sites: -1 = owns nothing, >= 1 = owned
+    pack level. Never return 0 — callers test `< 0` and `>= 0`.
+    """
     user = db.query(User).filter(User.id == user_id).first()
     if user and user.is_admin:
-        return 8  # Master affiliate — qualified for all tiers
-    highest = db.query(Grid).filter(
-        Grid.owner_id == user_id, Grid.is_complete == False
-    ).order_by(Grid.package_tier.desc()).first()
-    return highest.package_tier if highest else -1
+        # Kept at 8 rather than al_engine._ADMIN_LEVEL (1e9), which would blow
+        # up TIER_AI_MULTIPLIERS lookups and any tier label rendered in the UI.
+        return 8
+    lvl = _ale.owned_level(db, user_id)
+    return lvl if lvl > 0 else -1
 
 def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
     """Check daily limit based on user's tier. If within limit, increment and return allowed=True."""

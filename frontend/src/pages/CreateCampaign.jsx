@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import AppLayout from '../components/layout/AppLayout';
+import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
 import { Video, Globe, BarChart3, Zap, ChevronRight } from 'lucide-react';
 
@@ -73,49 +73,51 @@ export default function CreateCampaign() {
       .catch(function(e) { setSubmitting(false); setError(e.message); });
   }
 
-  var inputStyle = { width:'100%', padding:'12px 16px', borderRadius:12, border:'1.5px solid #e2e8f0', fontSize:14, fontFamily:'inherit', outline:'none', background:'#f8fafc', boxSizing:'border-box', transition:'border-color 0.2s', color:'#0f172a' };
+  var inputStyle = { width:'100%', padding:'12px 16px', borderRadius:12, border:'1.5px solid #e6ecf5', fontSize:14, fontFamily:'inherit', outline:'none', background:'#f8fafc', boxSizing:'border-box', transition:'border-color 0.2s', color:'#0a1f52' };
   var labelStyle = { display:'block', fontSize:12, fontWeight:700, color:'#475569', marginBottom:6, marginTop:18, textTransform:'uppercase', letterSpacing:0.5 };
 
-  // Tier-locked screen — Create Campaign requires an active Campaign Tier.
-  // Admins and existing tier holders bypass; everyone else gets a clean CTA
-  // straight to /campaign-tiers rather than seeing a form that fails on submit.
-  // Mirrors the pattern shipped on Watch.jsx in commit 1472d316.
+  // Pack-locked screen — Create Campaign requires an owned VideoView pack.
+  // That's the AL premise: buy a pack -> unlock campaign creation -> your
+  // pack's views get delivered to the campaigns you make. Admins bypass;
+  // everyone else gets a clean CTA to /packs rather than a form that fails
+  // on submit. (highest_tier now resolves from PackPurchase, not the retired
+  // Grid table — see get_user_highest_tier in app/main.py.)
   if (user && !user.is_admin && !(user.highest_tier && user.highest_tier > 0)) return (
-    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
-      <div style={{maxWidth:520,margin:'80px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e2e8f0',boxShadow:'0 8px 32px rgba(0,0,0,0.06)'}}>
-        <div style={{fontSize:64,marginBottom:16,lineHeight:1}}>🔒</div>
-        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,marginBottom:12,color:'var(--sap-text-primary)'}}>
+    <AlShell active="campaigns" back={{ to: '/campaigns', label: 'Campaigns' }}>
+      <div style={{maxWidth:520,margin:'60px auto',textAlign:'center',padding:'48px 32px',background:'#fff',borderRadius:20,border:'1px solid #e6ecf5',boxShadow:'0 10px 30px -18px rgba(10,31,82,.3)'}}>
+        <div style={{width:64,height:64,borderRadius:18,margin:'0 auto 18px',background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <h2 style={{fontFamily:'Inter,sans-serif',fontSize:23,fontWeight:900,marginBottom:12,color:'#0a1f52',letterSpacing:-.5}}>
           {t('createCampaign.lockedTitle', {defaultValue: 'Campaign creation is locked'})}
         </h2>
-        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:28,maxWidth:380,margin:'0 auto 28px'}}>
-          {t('createCampaign.lockedDesc', {defaultValue: 'Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.'})}
+        <p style={{fontSize:14.5,color:'#5a6584',lineHeight:1.65,maxWidth:400,margin:'0 auto 28px',fontWeight:600}}>
+          {t('createCampaign.lockedDesc', {defaultValue: 'Buy a VideoView pack to create your own video campaigns. Your pack\u2019s views are delivered to the campaigns you make \u2014 watched by real members for 30 seconds or more.'})}
         </p>
-        <Link to="/campaign-tiers" style={{
+        <Link to="/packs" style={{
           display:'inline-flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,
-          background:'linear-gradient(135deg,#0ea5e9,#0284c7)',color:'#fff',
-          fontWeight:800,fontSize:14,fontFamily:'Sora,sans-serif',
-          textDecoration:'none',boxShadow:'0 6px 20px rgba(14,165,233,0.4)',
+          background:'linear-gradient(120deg,#c8102e,#e8203f)',color:'#fff',
+          fontWeight:900,fontSize:14,fontFamily:'inherit',
+          textDecoration:'none',boxShadow:'0 14px 30px -12px rgba(200,16,46,.7)',
         }}>
-          {t('createCampaign.lockedCta', {defaultValue: 'View Campaign Tiers'})} →
+          {t('createCampaign.lockedCta', {defaultValue: 'Buy a pack'})} →
         </Link>
       </div>
-    </AppLayout>
+    </AlShell>
   );
 
   return (
-    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
+    <AlShell active="campaigns" back={{ to: '/campaigns', label: 'Campaigns' }}>
 
       {/* Hero */}
-      <div style={{ background:'linear-gradient(135deg,#0f172a,#1e3a8a,#4338ca)', borderRadius:18, padding:'32px 36px', marginBottom:20, position:'relative', overflow:'hidden' }}>
-        <div style={{position:'absolute',top:-50,right:-50,width:180,height:180,borderRadius:'50%',background:'rgba(99,102,241,0.1)',pointerEvents:'none'}}/>
-        <div style={{position:'absolute',bottom:-30,left:-30,width:120,height:120,borderRadius:'50%',background:'rgba(14,165,233,0.08)',pointerEvents:'none'}}/>
-        <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-          <div style={{ width:56, height:56, borderRadius:16, background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <Video size={28} color="#38bdf8"/>
+      <div style={{ background:'#0a1f52', borderRadius:20, padding:'22px 26px', marginBottom:18, boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:15 }}>
+          <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(120deg,#c8102e,#e8203f)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <Video size={26} color="#fff"/>
           </div>
           <div>
-            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:22, fontWeight:800, color:'#fff' }}>{t('createCampaign.campaignDetails')}</div>
-            <div style={{ fontSize:14, color:'rgba(255,255,255,0.5)', marginTop:4 }}>{t('createCampaign.campaignDetailsDesc')}</div>
+            <div style={{ fontWeight:900, fontSize:23, letterSpacing:-.6, color:'#fff' }}>{t('createCampaign.campaignDetails')}</div>
+            <div style={{ fontSize:13.5, color:'#c9d6f7', fontWeight:600, marginTop:2 }}>{t('createCampaign.campaignDetailsDesc')}</div>
           </div>
         </div>
       </div>
@@ -125,38 +127,38 @@ export default function CreateCampaign() {
         {[
           { Icon:Video, title:t('createCampaign.pasteAndGo'), desc:t('createCampaign.pasteAndGoDesc'), gradient:'linear-gradient(135deg,#0f766e,#14b8a6)' },
           { Icon:Globe, title:t('createCampaign.realViews'), desc:t('createCampaign.realViewsDesc'), gradient:'linear-gradient(135deg,#1e40af,#3b82f6)' },
-          { Icon:BarChart3, title:t('createCampaign.liveAnalytics'), desc:t('createCampaign.liveAnalyticsDesc'), gradient:'linear-gradient(135deg,#6d28d9,#a78bfa)' },
+          { Icon:BarChart3, title:t('createCampaign.liveAnalytics'), desc:t('createCampaign.liveAnalyticsDesc'), gradient:'linear-gradient(135deg,#6d28d9,#9db0e0)' },
         ].map(function(card, i) {
-          return <div key={i} style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px', position:'relative', overflow:'hidden' }}>
+          return <div key={i} style={{ background:'#fff', border:'1px solid #e6ecf5', borderRadius:14, padding:'20px', position:'relative', overflow:'hidden' }}>
             <div style={{ width:40, height:40, borderRadius:12, background:card.gradient, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12 }}>
               <card.Icon size={20} color="#fff"/>
             </div>
-            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:4 }}>{card.title}</div>
+            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#0a1f52', marginBottom:4 }}>{card.title}</div>
             <div style={{ fontSize:13, color:'#475569', lineHeight:1.6 }}>{card.desc}</div>
           </div>;
         })}
       </div>
 
       {/* Form */}
-      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'28px 32px', marginBottom:20 }}>
+      <div style={{ background:'#fff', border:'1px solid #e6ecf5', borderRadius:16, padding:'28px 32px', marginBottom:20 }}>
 
         <label style={labelStyle}>{t('createCampaign.campaignTitle')}</label>
         <input style={inputStyle} value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("createCampaign.campaignTitlePlaceholder")} maxLength={120}
-          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
 
         <label style={labelStyle}>{t('createCampaign.videoUrl')}</label>
         <input style={inputStyle} value={videoUrl} onChange={function(e){handleUrlChange(e.target.value);}} placeholder={t("createCampaign.videoUrlPlaceholder")}
-          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
         {videoUrl && !preview && <div style={{ fontSize:12, color:'#ef4444', marginTop:6, fontWeight:600 }}>{t('createCampaign.unsupportedUrl')}</div>}
 
         {/* Video preview */}
         {preview && (
-          <div style={{ marginTop:16, borderRadius:14, overflow:'hidden', border:'1px solid #e2e8f0' }}>
+          <div style={{ marginTop:16, borderRadius:14, overflow:'hidden', border:'1px solid #e6ecf5' }}>
             <iframe src={preview.embed} style={{ width:'100%', height:360, border:'none', background:'#000' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={t('createCampaign.previewLabel')}/>
-            <div style={{ padding:'10px 16px', background:'#f8fafc', display:'flex', alignItems:'center', gap:8, borderTop:'1px solid #e2e8f0' }}>
+            <div style={{ padding:'10px 16px', background:'#f8fafc', display:'flex', alignItems:'center', gap:8, borderTop:'1px solid #e6ecf5' }}>
               <span style={{ padding:'3px 10px', borderRadius:6, fontSize:13, fontWeight:800, textTransform:'uppercase',
-                background:preview.platform==='youtube'?'rgba(239,68,68,0.08)':'rgba(14,165,233,0.08)',
-                color:preview.platform==='youtube'?'#ef4444':'#0ea5e9' }}>{preview.platform}</span>
+                background:preview.platform==='youtube'?'rgba(239,68,68,0.08)':'rgba(200,16,46,0.08)',
+                color:preview.platform==='youtube'?'#ef4444':'#c8102e' }}>{preview.platform}</span>
               <span style={{ fontSize:12, color:'#7a8899' }}>ID: {preview.id}</span>
             </div>
           </div>
@@ -169,25 +171,25 @@ export default function CreateCampaign() {
 
         <label style={labelStyle}>{t('createCampaign.description')}</label>
         <textarea style={{...inputStyle, minHeight:90, resize:'vertical'}} value={description} onChange={function(e){setDescription(e.target.value);}} placeholder={t("createCampaign.descPlaceholder")} maxLength={500}
-          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
           <div>
             <label style={labelStyle}>{t('createCampaign.targetCountry')}</label>
             <input style={inputStyle} value={targetCountry} onChange={function(e){setTargetCountry(e.target.value);}} placeholder={t("createCampaign.targetCountryPlaceholder")} maxLength={200}
-              onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+              onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
           </div>
           <div>
             <label style={labelStyle}>{t('createCampaign.targetInterests')}</label>
             <input style={inputStyle} value={targetInterests} onChange={function(e){setTargetInterests(e.target.value);}} placeholder={t("createCampaign.targetInterestsPlaceholder")} maxLength={200}
-              onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+              onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
           </div>
         </div>
 
         <label style={labelStyle}>{t('createCampaign.ctaUrl', { defaultValue: 'Call-to-action URL (optional)' })}</label>
         <input style={inputStyle} value={ctaUrl} onChange={function(e){setCtaUrl(e.target.value);}}
           placeholder={t("createCampaign.ctaUrlPlaceholder", { defaultValue: 'https://your-website.com' })} maxLength={500} type="url"
-          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          onFocus={function(e){e.target.style.borderColor='#c8102e';}} onBlur={function(e){e.target.style.borderColor='#e6ecf5';}}/>
         <div style={{ fontSize:13, color:'#475569', marginTop:6, lineHeight:1.4 }}>
           {t('createCampaign.ctaUrlHelp', { defaultValue: 'Optional. If set, a "Visit Website" button appears below your video once members have watched the full 30 seconds.' })}
         </div>
@@ -201,13 +203,13 @@ export default function CreateCampaign() {
         <div style={{ display:'flex', alignItems:'center', gap:16, marginTop:24 }}>
           <button onClick={handleSubmit} disabled={submitting}
             style={{ padding:'14px 36px', borderRadius:12, fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, border:'none', cursor:submitting?'not-allowed':'pointer',
-              background:submitting?'#7a8899':'linear-gradient(135deg,#0ea5e9,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
+              background:submitting?'#7a8899':'linear-gradient(135deg,#c8102e,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
             {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
           </button>
           <div style={{ fontSize:13, color:'#7a8899' }}>{t('createCampaign.tierNote')}</div>
         </div>
       </div>
 
-    </AppLayout>
+    </AlShell>
   );
 }
