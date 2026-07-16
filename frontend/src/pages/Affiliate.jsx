@@ -67,29 +67,24 @@ export default function Affiliate() {
 
   return (
     <AlShell active="marketing" back={{ to: '/my-marketing', label: 'My Marketing' }}>
-      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
-        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18}}>
+        <div style={{display:'flex',alignItems:'center',gap:15}}>
+          <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          </div>
+          <div style={{minWidth:0}}>
+            <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('socialShare.title')}</div>
+            <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>{t('socialShare.subtitle')}</div>
+          </div>
         </div>
-        <div>
-          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('socialShare.title')}</div>
-          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Your referral link, QR code and ready-made social posts.</div>
+        {/* Referral link — folded into the hero (was a duplicate banner below) */}
+        <div style={{ marginTop: 16, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.14)', borderRadius: 11, padding: '11px 16px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#ff8090', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '.08em' }}>{t('socialShare.yourLink')}</span>
+          <span style={{ flex: 1, minWidth: 160, fontSize: 14, color: '#fff', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
+          <button onClick={copyRef} style={{ background: copied ? 'rgba(22,163,74,.9)' : 'linear-gradient(120deg,#c8102e,#e8203f)', color: '#fff', padding: '8px 16px', borderRadius: 9, fontSize: 13, fontWeight: 900, border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>
-      {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #172554, #172554)', padding: '20px 24px 16px' }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', fontFamily: "'Sora','Rethink Sans',sans-serif" }}>{t('socialShare.title')}</div>
-        <div style={{ fontSize: 16, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>{t('socialShare.subtitle')}</div>
-      </div>
-      {/* Referral link bar */}
-      <div style={{ background: 'linear-gradient(180deg, #172554, #172554)', padding: '0 24px 14px' }}>
-        <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
-          <span style={{ flex: 1, fontSize: 14, color: '#e8203f', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(232,32,63,.15)', color: '#e8203f', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
-        </div>
-      </div>
 
       {/* Workspace */}
       <style>{`

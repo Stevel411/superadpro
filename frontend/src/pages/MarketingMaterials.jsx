@@ -68,17 +68,11 @@ export default function MarketingMaterials() {
         </div>
         <div>
           <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>{t('marketingMaterials.pageTitle')}</div>
-          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Downloadable presentations and brand assets.</div>
+          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>Download ready-made presentations to share with prospects.</div>
         </div>
       </div>
     <style>{'.mm-lang-option:hover{background:#f8fafc !important}'}</style>
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
-
-      {/* Page header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 }}>{t('marketingMaterials.pageTitle')}</h1>
-        <p style={{ fontSize: 14, color: '#475569', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects.</p>
-      </div>
 
       {/* Language selector — premium dropdown */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, padding: '14px 18px', background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0' }}>
