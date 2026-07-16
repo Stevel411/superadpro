@@ -373,6 +373,8 @@ function Health() {
 
 function Sharing() {
   const [d, setD] = useState(null);
+  const [resetUser, setResetUser] = useState('');
+  const [resetMsg, setResetMsg] = useState('');
   const load = useCallback(() => { setD(null); apiGet('/admin/api/al/share-performance').then(setD).catch(() => setD(null)); }, []);
   useEffect(() => { load(); }, [load]);
   if (!d) return <div style={{ color: MUTED, fontWeight: 600, padding: 20 }}>Loading…</div>;
@@ -432,7 +434,22 @@ function Sharing() {
           </tbody>
         </table>
       </div>
-      <button onClick={load} style={{ marginTop: 14, background: '#fff', color: NAVY, border: '1.5px solid ' + LINE, borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RefreshCw size={13} /> Refresh</button>
+      <div style={{ marginTop: 14, display: 'flex', gap: 9, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button onClick={load} style={{ background: '#fff', color: NAVY, border: '1.5px solid ' + LINE, borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 12.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RefreshCw size={13} /> Refresh</button>
+        <input value={resetUser} onChange={e => setResetUser(e.target.value)} placeholder="username (blank = you)"
+               style={{ padding: '9px 12px', borderRadius: 10, border: '1.5px solid ' + LINE, fontSize: 12.5, fontFamily: 'inherit', width: 180 }} />
+        <button onClick={async () => {
+          try { await apiPost('/admin/api/al/share-reset', { username: resetUser }); setResetMsg('Cleared — reload the dashboard'); load(); }
+          catch (e) { setResetMsg('Failed'); }
+          setTimeout(() => setResetMsg(''), 2500);
+        }} style={{ background: '#fff', color: RED, border: '1.5px solid ' + RED, borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 12.5, cursor: 'pointer' }}>
+          Reset weekly share state
+        </button>
+        {resetMsg && <span style={{ fontSize: 12.5, fontWeight: 700, color: GREEN }}>{resetMsg}</span>}
+      </div>
+      <div style={{ fontSize: 11.5, color: MUTED, fontWeight: 600, marginTop: 7 }}>
+        Testing aid — clears "shared this week" so the card returns to its un-shared state. Verified views are never touched.
+      </div>
     </div>
   );
 }

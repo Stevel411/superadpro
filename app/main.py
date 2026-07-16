@@ -67475,6 +67475,32 @@ def _al_intent_json(db, intent, viewer_id=None):
 # platform IS now. Old panels stay untouched until fully replaced so nobody
 # mistakes stale numbers for current ones.
 
+@app.post("/admin/api/al/share-reset")
+async def al_admin_share_reset(request: Request, user: User = Depends(_al_user),
+                               db: Session = Depends(get_db)):
+    """Clear a member's weekly share state so the card returns to 'not shared'.
+
+    Testing aid: share state resets on Monday, which is useless when you need
+    to see the un-shared card now. Clears last_shared_at only — verified
+    ShareView rows are evidence and are never touched.
+    """
+    _require_admin(user)
+    body = await request.json()
+    uname = (body.get("username") or "").strip().lstrip("@")
+    target = (db.query(User).filter(User.username == uname).first()
+              if uname else user)
+    if not target:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    link = db.query(ShareLink).filter(ShareLink.user_id == target.id).first()
+    if not link:
+        return JSONResponse({"error": "no share link for that user"}, status_code=404)
+    link.last_shared_at = None
+    link.share_count = 0
+    db.commit()
+    return {"ok": True, "username": target.username,
+            "note": "Weekly share state cleared. Verified views were NOT touched."}
+
+
 @app.get("/admin/api/al/share-performance")
 def al_admin_share_performance(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Proof the share system is working: who shared, and what real views their
