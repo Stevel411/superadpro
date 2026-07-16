@@ -10,7 +10,7 @@ import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wa
    the table AL actually pays from. This reports what AL IS now.
    ──────────────────────────────────────────────────────────────── */
 
-const NAVY = '#0a1f52', RED = '#c8102e', MUTED = '#5a6584', LINE = '#e6ecf5', GREEN = '#0b7a3e';
+const NAVY = '#0a1f52', NAVY2 = '#12388f', RED = '#c8102e', MUTED = '#5a6584', LINE = '#e6ecf5', GREEN = '#0b7a3e';
 const money = (n) => '$' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 const TABS = [
   { key: 'overview', label: 'Overview', Icon: Gauge },
