@@ -88,19 +88,28 @@ function ShareQueue({ reload }) {
   const [state, setState] = useState('pending');
   const [rows, setRows] = useState(null);
   const [busy, setBusy] = useState(null);
+  const [err, setErr] = useState('');
   const load = useCallback(() => {
     setRows(null);
     apiGet(`/admin/api/al/share-queue?state=${state}`).then(d => setRows(d.campaigns || [])).catch(() => setRows([]));
   }, [state]);
   useEffect(() => { load(); }, [load]);
 
+  // Refetch from the server rather than filtering locally — a local filter
+  // makes the UI *look* right even when the write failed, so the list and the
+  // database silently drift apart. And never swallow the error: if approval
+  // fails, say so.
   const act = async (id, approve) => {
     setBusy(id);
+    setErr('');
     try {
-      await apiPost('/admin/api/al/share-approve', { campaign_id: id, approve });
-      setRows(r => r.filter(x => x.id !== id));
+      const r = await apiPost('/admin/api/al/share-approve', { campaign_id: id, approve });
+      if (r && r.error) throw new Error(r.error);
+      await load();
       reload && reload();
-    } catch (e) { /* leave row in place */ }
+    } catch (e) {
+      setErr((approve ? 'Approve' : 'Revoke') + ' failed: ' + (e && e.message ? e.message : 'unknown error'));
+    }
     setBusy(null);
   };
 
@@ -110,6 +119,7 @@ function ShareQueue({ reload }) {
         Approved campaigns appear on members' <b>public</b> share pages, promoted to their own friends and family.
         Nothing goes public without a decision here.
       </div>
+      {err && <div style={{ background: '#fdeaec', border: '1.5px solid ' + RED, color: RED, borderRadius: 10, padding: '10px 14px', fontWeight: 800, fontSize: 13, marginBottom: 12 }}>{err}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         {['pending', 'approved'].map(s => (
           <button key={s} onClick={() => setState(s)} style={{ padding: '8px 15px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', background: state === s ? NAVY : '#fff', color: state === s ? '#fff' : NAVY, border: '1.5px solid ' + (state === s ? NAVY : LINE) }}>

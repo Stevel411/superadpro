@@ -52687,7 +52687,7 @@ def _rotate_share_campaigns(db: Session, exclude_user_id=None):
     import random
     q = (db.query(VideoCampaign)
            .filter(VideoCampaign.status == "active",
-                   VideoCampaign.share_approved == True,
+                   VideoCampaign.share_approved.is_(True),
                    VideoCampaign.is_completed == False))
     if exclude_user_id:
         q = q.filter(VideoCampaign.user_id != exclude_user_id)
@@ -67639,13 +67639,13 @@ def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db
 
     # 4. Share pipeline
     waiting = db.query(func.count(VideoCampaign.id)).filter(
-        VideoCampaign.share_approved == False, VideoCampaign.status == "active").scalar() or 0
+        VideoCampaign.share_approved.isnot(True), VideoCampaign.status == "active").scalar() or 0
     if waiting:
         add("info", "share_queue", f"{waiting} campaign(s) awaiting share approval", waiting,
             "Nothing reaches public share pages until approved.")
 
     approved = db.query(func.count(VideoCampaign.id)).filter(
-        VideoCampaign.share_approved == True, VideoCampaign.status == "active").scalar() or 0
+        VideoCampaign.share_approved.is_(True), VideoCampaign.status == "active").scalar() or 0
     if approved == 0:
         add("info", "no_shareable", "No approved campaigns — public share pages will be empty", 0,
             "Approve campaigns so members' shared links show something.")
@@ -67814,10 +67814,10 @@ def al_admin_overview(user: User = Depends(_al_user), db: Session = Depends(get_
                         for st in ("pending", "proof_submitted", "disputed", "expired")},
         "share_queue": {
             "awaiting_approval": db.query(func.count(VideoCampaign.id))
-                                   .filter(VideoCampaign.share_approved == False,
+                                   .filter(VideoCampaign.share_approved.isnot(True),
                                            VideoCampaign.status == "active").scalar() or 0,
             "approved": db.query(func.count(VideoCampaign.id))
-                          .filter(VideoCampaign.share_approved == True).scalar() or 0,
+                          .filter(VideoCampaign.share_approved.is_(True)).scalar() or 0,
             "verified_views_this_week": db.query(func.count(ShareView.id))
                                           .filter(ShareView.is_verified == True,
                                                   ShareView.verified_at >= week_start).scalar() or 0,
@@ -67830,10 +67830,20 @@ def al_admin_share_queue(state: str = "pending", user: User = Depends(_al_user),
                          db: Session = Depends(get_db)):
     """Campaigns awaiting (or holding) approval for PUBLIC share pages.
     Members promote these to their own friends and family, so nothing goes
-    public without a human deciding."""
+    public without a human deciding.
+
+    NULL-safety matters here: `share_approved == False` does NOT match NULL
+    (in SQL, NULL = false is NULL, not true). Campaigns created before the
+    column existed can hold NULL, which would make them invisible to BOTH
+    tabs — approved nowhere, pending nowhere. Pending therefore means
+    "not TRUE", which correctly catches false AND null.
+    """
     _require_admin(user)
     q = db.query(VideoCampaign).filter(VideoCampaign.status == "active")
-    q = q.filter(VideoCampaign.share_approved == (state == "approved"))
+    if state == "approved":
+        q = q.filter(VideoCampaign.share_approved.is_(True))
+    else:
+        q = q.filter(VideoCampaign.share_approved.isnot(True))
     rows = q.order_by(VideoCampaign.created_at.desc()).limit(200).all()
     owners = {}
     if rows:
