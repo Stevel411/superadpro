@@ -118,7 +118,7 @@ export default function FoundingPartnerBanner({ user }) {
     if (isActive) {
       navigate('/my-team');
     } else {
-      navigate('/upgrade');
+      navigate("/join");
     }
   }
 

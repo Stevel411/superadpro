@@ -115,7 +115,7 @@ export default function LeadFinder() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{t('leadFinder.proOnlyTitle')}</h2>
         <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20 }}>{t('leadFinder.proOnlyDesc')}</p>
-        <a href="/upgrade" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', borderRadius: 12, background: 'linear-gradient(135deg,#12388f,#c8102e)', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>{t('leadFinder.upgradeBtn')}</a>
+        <a href="/join" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', borderRadius: 12, background: 'linear-gradient(135deg,#12388f,#c8102e)', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>{t('leadFinder.upgradeBtn')}</a>
       </div>
     </AlShell>;
   }

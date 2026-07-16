@@ -162,7 +162,7 @@ export default function BusinessHub() {
         {showLaunchpad && (
           <div className="bp" role="button" tabIndex={0}
                onClick={go('/upgrade')}
-               onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/upgrade'); } }}>
+               onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate("/join"); } }}>
             <div className="bp-l">
               <span className="bp-badge">★ {t('businessHub.bpBadge', { defaultValue: 'BECOME A PARTNER' })}</span>
               <h3>{t('businessHub.bpTitle', { defaultValue: 'The full toolkit — $20/month.' })}</h3>

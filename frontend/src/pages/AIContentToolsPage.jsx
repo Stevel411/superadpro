@@ -123,7 +123,7 @@ function UpgradeCard({ t }) {
           {t('tools.ai.upgradeDesc', { defaultValue: 'Creative Studio, Content Creator, plus quick-asset tools. Generate posts, banners, and videos — all included with your Partner membership.' })}
         </div>
       </div>
-      <Link to="/upgrade" style={{
+      <Link to="/join" style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
         padding: '13px 28px',
         background: '#0ea5e9', color: '#fff',

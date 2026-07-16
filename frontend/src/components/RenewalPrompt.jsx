@@ -42,7 +42,7 @@ export default function RenewalPrompt() {
     if (!isNaN(d)) expStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   }
 
-  function goRenew() { navigate('/upgrade?renew=1'); }
+  function goRenew() { window.location.replace('/join'); }
   function dismissModal() {
     setShowModal(false);
     try { localStorage.setItem('renewalModalDay', todayKey); } catch (e) { /* ignore */ }

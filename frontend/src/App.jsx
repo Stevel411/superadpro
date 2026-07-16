@@ -59,7 +59,6 @@ const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/Su
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
 const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
 const Upgrade = React.lazy(() => import('./pages/Upgrade'));
-const PartnerPayment = React.lazy(() => import('./pages/PartnerPayment'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
@@ -300,7 +299,7 @@ function RequireTier({ tier, children }) {
   // The `tier` parameter is preserved for backward compatibility but no
   // longer differentiates access. Inactive users redirect to /upgrade
   // (the activation page), regardless of which tier was originally requested.
-  if (!isActive) return <Navigate to="/upgrade" replace />;
+  if (!isActive) return <HardRedirect to="/join" />;
   return children;
 }
 
@@ -320,6 +319,9 @@ function AppRoutes() {
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<Navigate to="/home-preview" replace />} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
+      {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them
+          instead of hitting the catch-all and bouncing to the homepage. */}
+      <Route path="/join" element={<HardRedirect to="/join" />} />
       <Route path="/packs" element={<HardRedirect to="/packs" />} />
       <Route path="/my-sales" element={<HardRedirect to="/my-sales" />} />
       <Route path="/payout-methods" element={<HardRedirect to="/payout-methods" />} />
@@ -397,7 +399,9 @@ function AppRoutes() {
           /upgrade/checkout still routes to legacy UpgradeCheckout for any in-flight
           checkout sessions that haven't completed yet — that page now short-circuits
           the deprecated pro-upgrade path with a clear message. */}
-      <Route path="/upgrade" element={<ProtectedRoute><PartnerPayment /></ProtectedRoute>} />
+      {/* /upgrade retired — PartnerPayment sold the SuperAdPro $15/$20-a-month
+          membership. AL has no monthly tier; the $100 lifetime join lives at /join. */}
+      <Route path="/upgrade" element={<HardRedirect to="/join" />} />
       <Route path="/upgrade/checkout" element={<ProtectedRoute><UpgradeCheckout /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}

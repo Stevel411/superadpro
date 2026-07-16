@@ -249,7 +249,7 @@ export function UpgradeCard({ tone, icon: Icon, eyebrow, title, desc, items, pri
         <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 24, fontWeight: 800, color: 'var(--sap-text-primary, #0f172a)', lineHeight: 1, marginBottom: 4 }}>
           {price}<small style={{ fontSize: 14, color: 'var(--sap-text-muted, #64748b)', fontWeight: 500 }}>{period}</small>
         </div>
-        <Link to="/upgrade" style={{
+        <Link to="/join" style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '12px 22px',
           background: accent,
@@ -390,7 +390,7 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
               var isPartner = !isFounder && (t_lower === 'partner' || t_lower === 'basic' || t_lower === 'pro');
               if (!isFounder && !isPartner) {
                 return (
-                  <Link to="/upgrade" style={{
+                  <Link to="/join" style={{
                     padding: '3px 11px', borderRadius: 6,
                     background: 'linear-gradient(135deg, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.18) 100%)',
                     border: '1px solid rgba(251,191,36,0.4)',

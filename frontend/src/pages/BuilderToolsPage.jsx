@@ -121,7 +121,7 @@ function UpgradeCard({ t }) {
           {t('tools.builder.upgradeDesc', { defaultValue: 'SuperPages, LinkHub, Link Tools, AutoResponder, Lead Finder, ProSeller. Build pages, capture leads, run sequences — all included with your Partner membership.' })}
         </div>
       </div>
-      <Link to="/upgrade" style={{
+      <Link to="/join" style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
         padding: '13px 28px',
         background: '#6366f1', color: '#fff',
