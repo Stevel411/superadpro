@@ -88,6 +88,31 @@ const CSS = `
 .al .showcase .sc-btn.x:hover{background:#000;border-color:#000}
 .al .showcase .sc-btn.wa:hover{background:#25d366;border-color:#25d366}
 .al .showcase .sc-btn.tg:hover{background:#229ed9;border-color:#229ed9}
+/* ── Share modal ───────────────────────────────────────────────────── */
+.al .shmodal{position:fixed;inset:0;background:rgba(10,31,82,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:shfade .16s ease-out}
+@keyframes shfade{from{opacity:0}to{opacity:1}}
+@keyframes shpop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.al .shcard{background:#fff;border-radius:22px;padding:30px;max-width:460px;width:100%;position:relative;box-shadow:0 40px 90px -30px rgba(10,31,82,.7);animation:shpop .2s ease-out}
+.al .shx{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:9px;border:none;background:#f3f5fb;color:#5a6584;font-size:20px;line-height:1;cursor:pointer;font-family:'Inter',sans-serif}
+.al .shx:hover{background:#e6ecf5;color:#0a1f52}
+.al .shk{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#c8102e}
+.al .shh{font-size:23px;font-weight:900;letter-spacing:-.5px;color:#0a1f52;margin:6px 0 0}
+.al .shp{font-size:13.5px;color:#5a6584;font-weight:600;line-height:1.6;margin:8px 0 18px}
+.al .shlink{display:flex;align-items:center;gap:10px;background:#f3f5fb;border:1.5px solid #e6ecf5;border-radius:12px;padding:10px 10px 10px 14px;margin-bottom:16px}
+.al .shurl{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#12388f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al .shcopy{background:#0a1f52;color:#fff;border:none;border-radius:9px;padding:9px 16px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.al .shgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.al .shb{display:flex;align-items:center;gap:10px;padding:13px 15px;border-radius:12px;border:1.5px solid #e6ecf5;background:#fff;color:#0a1f52;font-weight:800;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .12s,border-color .12s}
+.al .shb:hover{transform:translateY(-2px)}
+.al .shi{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;flex-shrink:0}
+.al .shb.fb .shi{background:#1877f2}.al .shb.fb:hover{border-color:#1877f2}
+.al .shb.x .shi{background:#000}.al .shb.x:hover{border-color:#000}
+.al .shb.wa .shi{background:#25d366}.al .shb.wa:hover{border-color:#25d366}
+.al .shb.tg .shi{background:#229ed9}.al .shb.tg:hover{border-color:#229ed9}
+.al .shmore{width:100%;margin-top:9px;padding:12px;border-radius:12px;border:1.5px dashed #dbe4f5;background:#fff;color:#5a6584;font-weight:800;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+.al .shmore:hover{border-color:#12388f;color:#12388f}
+.al .shview{display:block;text-align:center;margin-top:16px;color:#c8102e;font-weight:800;font-size:13px;text-decoration:none}
+@media(max-width:480px){.al .shgrid{grid-template-columns:1fr}.al .shcard{padding:24px}}
 @media(max-width:640px){.al .showcase .sc-actions{width:100%}.al .showcase .sc-social{justify-content:space-between}.al .showcase .sc-btn{flex:1}}
 /* ── cards row ── */
 .al .row{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch}
@@ -187,6 +212,7 @@ export default function NewDashboard() {
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
@@ -301,8 +327,16 @@ export default function NewDashboard() {
     markShared();
   }
 
-  function nativeShare() {
+  // Always open OUR modal — the OS share sheet is fine on a phone but on
+  // desktop it offers Reading List / Notes / Reminders, which is noise and
+  // looks nothing like the platform. Native stays available INSIDE the modal
+  // via "More apps…", where it's genuinely useful (WhatsApp, Instagram, etc).
+  function openShare() {
     if (!shareData) return;
+    setShareOpen(true);
+  }
+
+  function moreApps() {
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({ title: 'AdvantageLife — Video Showcase', url: shareUrl })
         .then(markShared).catch(function () {});
@@ -310,6 +344,8 @@ export default function NewDashboard() {
       copyShare();
     }
   }
+
+  const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
   function markShared() {
     apiPost('/api/share/mark-shared', {})
@@ -446,7 +482,7 @@ export default function NewDashboard() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.2c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.7L17.4 5c.4-.3-.1-.5-.6-.2L6.2 11.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.2 1.4"/></svg>
                   </button>
                 </div>
-                <button className="sc-copy" onClick={nativeShare}>{shareCopied ? 'Copied ✓' : 'Share my page'}</button>
+                <button className="sc-copy" onClick={openShare}>Share my page</button>
                 <a className="sc-view" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">View my page</a>
               </div>
             </div>
@@ -506,6 +542,47 @@ export default function NewDashboard() {
           </main>
         </div>
       </div>
+
+      {/* ── Share modal ──────────────────────────────────────────────
+          Ours, not the OS sheet. Everything a member needs in one place:
+          the link, one-tap platforms, and (on mobile only, where it's
+          actually useful) a route into the native sheet. */}
+      {shareOpen && (
+        <div className="shmodal" onClick={function () { setShareOpen(false); }}>
+          <div className="shcard" onClick={function (e) { e.stopPropagation(); }}>
+            <button className="shx" onClick={function () { setShareOpen(false); }} aria-label="Close">×</button>
+            <div className="shk">Weekly · Video Showcase</div>
+            <h3 className="shh">Share your page</h3>
+            <p className="shp">One post a week keeps it working — the page refreshes its videos on every visit, so the same link stays current all week.</p>
+
+            <div className="shlink">
+              <span className="shurl">{shareUrl}</span>
+              <button className="shcopy" onClick={copyShare}>{shareCopied ? 'Copied ✓' : 'Copy'}</button>
+            </div>
+
+            <div className="shgrid">
+              <button className="shb fb" onClick={function () { shareTo('facebook'); setShareOpen(false); }}>
+                <span className="shi">f</span> Facebook
+              </button>
+              <button className="shb x" onClick={function () { shareTo('x'); setShareOpen(false); }}>
+                <span className="shi">𝕏</span> X
+              </button>
+              <button className="shb wa" onClick={function () { shareTo('whatsapp'); setShareOpen(false); }}>
+                <span className="shi"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4 0-.5 0-.2-.6-1.5-.9-2-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2"/></svg></span> WhatsApp
+              </button>
+              <button className="shb tg" onClick={function () { shareTo('telegram'); setShareOpen(false); }}>
+                <span className="shi"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.2c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.7L17.4 5c.4-.3-.1-.5-.6-.2L6.2 11.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.2 1.4"/></svg></span> Telegram
+              </button>
+            </div>
+
+            {hasNativeShare && (
+              <button className="shmore" onClick={function () { moreApps(); setShareOpen(false); }}>More apps…</button>
+            )}
+
+            <a className="shview" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">Preview my page →</a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
