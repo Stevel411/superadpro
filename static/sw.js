@@ -1,10 +1,13 @@
-// SuperAdPro Service Worker v3
-var CACHE = 'superadpro-v3';
+// AdvantageLife Service Worker v4
+// CACHE renamed superadpro-v3 -> advantagelife-v4 deliberately: a new cache
+// name makes every returning browser drop the old one, so members stop being
+// served stale SuperAdPro-era assets from disk.
+var CACHE = 'advantagelife-v4';
 var STATIC = [
   '/',
   '/watch',
-  '/wallet',
-  '/network',
+  '/home-preview',
+  '/payout-methods',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',

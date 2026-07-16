@@ -1,26 +1,74 @@
 {
-  "name": "SuperAdPro",
-  "short_name": "SuperAdPro",
-  "description": "Video advertising, affiliate commissions, AI marketing tools and multiple income streams.",
+  "name": "AdvantageLife",
+  "short_name": "AdvantageLife",
+  "description": "Video advertising watched by real people, and the marketing toolkit to go with it.",
   "start_url": "/watch",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#050d1a",
-  "theme_color": "#0ea5e9",
+  "background_color": "#0a1f52",
+  "theme_color": "#0a1f52",
   "orientation": "portrait-primary",
-  "categories": ["business", "productivity", "finance"],
+  "categories": [
+    "business",
+    "productivity",
+    "finance"
+  ],
   "lang": "en",
   "icons": [
-    { "src": "/static/icons/icon-72.png", "sizes": "72x72", "type": "image/png" },
-    { "src": "/static/icons/icon-96.png", "sizes": "96x96", "type": "image/png" },
-    { "src": "/static/icons/icon-128.png", "sizes": "128x128", "type": "image/png" },
-    { "src": "/static/icons/icon-144.png", "sizes": "144x144", "type": "image/png" },
-    { "src": "/static/icons/icon-152.png", "sizes": "152x152", "type": "image/png" },
-    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/static/icons/icon-384.png", "sizes": "384x384", "type": "image/png" },
-    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/static/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "screenshots": [
     {
@@ -28,7 +76,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "SuperAdPro Dashboard"
+      "label": "AdvantageLife Dashboard"
     }
   ],
   "shortcuts": [
@@ -37,21 +85,36 @@
       "short_name": "Watch",
       "description": "Complete your daily view quota",
       "url": "/watch",
-      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Wallet",
       "short_name": "Wallet",
-      "description": "Check your balance and earnings",
-      "url": "/wallet",
-      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+      "description": "Your payout details",
+      "url": "/payout-methods",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
-      "name": "My Network",
-      "short_name": "Network",
-      "description": "View your team and downline",
-      "url": "/network",
-      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+      "name": "My Team",
+      "short_name": "Team",
+      "description": "Your direct referrals",
+      "url": "/my-team",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
