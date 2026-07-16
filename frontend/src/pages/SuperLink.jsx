@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-var IncomeGrid3D = lazy(function() { return import('../components/IncomeGrid3D'); });
 
 // ═══ THEME PALETTES ═══
 var THEMES = {
@@ -85,29 +84,43 @@ var THEMES = {
   },
 };
 
-var TIERS = [
-  { tier:1, price:20, payout:144, color:'var(--sap-accent-light)' }, { tier:2, price:50, payout:360, color:'var(--sap-indigo)' },
-  { tier:3, price:100, payout:720, color:'var(--sap-purple)' }, { tier:4, price:200, payout:1440, color:'var(--sap-green-mid)' },
-  { tier:5, price:400, payout:2880, color:'var(--sap-amber)' }, { tier:6, price:600, payout:4320, color:'#f97316' },
-  { tier:7, price:800, payout:5760, color:'var(--sap-red-bright)' }, { tier:8, price:1000, payout:7200, color:'var(--sap-amber-bright)' },
+// The real product: VideoView packs. Was an 8-tier GRID payout table
+// ($144…$7,200 per cycle) — grids don't exist in AL, and those were income
+// claims on a public page. This shows what an advertiser actually buys.
+var PACKS = [
+  { price:10,   views:'1,000',   color:'#e8203f' },
+  { price:20,   views:'2,200',   color:'#e8203f' },
+  { price:50,   views:'6,000',   color:'#c8102e' },
+  { price:100,  views:'12,500',  color:'#c8102e' },
+  { price:200,  views:'26,000',  color:'#12388f' },
+  { price:400,  views:'55,000',  color:'#12388f' },
+  { price:600,  views:'85,000',  color:'#0e2a6e' },
+  { price:800,  views:'120,000', color:'#0e2a6e' },
+  { price:1000, views:'160,000', color:'#0a1f52' },
 ];
 function getTools(t) {
   return [
-    { name:'AI Content Creator', desc:t('superLink.marketing.aiContent'), badge:'PARTNER', color:'var(--sap-accent-light)', icon:'M13,2 L3,14 L12,14 L11,22 L21,10 L12,10Z' },
-    { name:'Campaign Studio', desc:'AI content for any niche — captions, blogs, emails, ad copy', badge:'PARTNER', color:'#818cf8', grid:true },
-    { name:'LinkHub', desc:'Your bio link page — all your offers, one URL', badge:'PARTNER', color:'#34d399', people:true },
-    { name:'SuperPages', desc:'Drag-and-drop landing pages, funnels, opt-ins — no code', badge:'PARTNER', color:'var(--sap-purple-light)', check:true },
-    { name:'Email Autoresponder', desc:t('superLink.marketing.autoFollowup'), badge:'PARTNER', color:'#f43f5e', screen:true },
-    { name:'Training Centre', desc:'Step-by-step from zero to earning — marketing mastery', badge:'PARTNER', color:'var(--sap-amber-bright)', cap:true },
-    { name:'Link Tools', desc:t('superLink.marketing.smartLinks'), badge:'PARTNER', color:'var(--sap-pink)', icon:'M15,3 L21,3 L21,9 M9,21 L3,21 L3,15 M21,3 L14,10 M3,21 L10,14' },
-    { name:'Social Share Suite', desc:t('superLink.marketing.readyMade'), badge:'PARTNER', color:'#22d3ee', clock:true },
-    { name:'ProSeller AI', desc:'AI sales assistant — handles prospect objections 24/7', badge:'PARTNER', color:'#a855f7', chat:true },
+    { name:'AI Content Creator', desc:t('superLink.marketing.aiContent'), badge:'INCLUDED', color:'var(--sap-accent-light)', icon:'M13,2 L3,14 L12,14 L11,22 L21,10 L12,10Z' },
+    { name:'Campaign Studio', desc:'AI content for any niche — captions, blogs, emails, ad copy', badge:'INCLUDED', color:'#818cf8', grid:true },
+    { name:'LinkHub', desc:'Your bio link page — all your offers, one URL', badge:'INCLUDED', color:'#34d399', people:true },
+    { name:'SuperPages', desc:'Drag-and-drop landing pages, funnels, opt-ins — no code', badge:'INCLUDED', color:'var(--sap-purple-light)', check:true },
+    { name:'Email Autoresponder', desc:t('superLink.marketing.autoFollowup'), badge:'INCLUDED', color:'#f43f5e', screen:true },
+    { name:'Training Centre', desc:'Step-by-step from zero to earning — marketing mastery', badge:'INCLUDED', color:'var(--sap-amber-bright)', cap:true },
+    { name:'Link Tools', desc:t('superLink.marketing.smartLinks'), badge:'INCLUDED', color:'var(--sap-pink)', icon:'M15,3 L21,3 L21,9 M9,21 L3,21 L3,15 M21,3 L14,10 M3,21 L10,14' },
+    { name:'Social Share Suite', desc:t('superLink.marketing.readyMade'), badge:'INCLUDED', color:'#22d3ee', clock:true },
+    { name:'ProSeller AI', desc:'AI sales assistant — handles prospect objections 24/7', badge:'INCLUDED', color:'#a855f7', chat:true },
   ];
 }
 var STREAMS = [
-  { name:'Membership Commissions', rate:'$10 recurring', rc:'#34d399', desc:'Earn $10 per active member every month — for as long as they stay. Flat partner pricing means simple, predictable income on every signup.', ac:'var(--sap-green-mid)' },
-  { name:'4×4 Profit Grid', rate:'Up to $5,850 per cycle', rc:'#818cf8', desc:'8 campaign tiers from $20 to $1,000. Your grid has 16 positions — each one pays you 6.25%. Grids auto-renew on completion.', ac:'var(--sap-indigo)' },
-  { name:'Course Academy', rate:'100% commissions', rc:'var(--sap-amber-bright)', desc:"Keep 100% of every sale. Sales 2, 4, 6, 8 pass up — cascading infinitely deep. Income from people you've never met.", ac:'var(--sap-amber)' },
+  { name:'Pack sales — person to person', rate:'100% to a member', rc:'#34d399',
+    desc:'Members buy VideoView packs, from $10 for 1,000 views up to $1,000. The full price goes wallet-to-wallet to another member. The company keeps none of it.',
+    ac:'var(--sap-green-mid)' },
+  { name:'The 3/6/9 pass-up', rate:'From your 10th, all yours', rc:'#e8203f',
+    desc:'You keep your 1st and 2nd sales; your 3rd passes up to your sponsor. Same again at 6 and 9. From your 10th sale onward, every single sale is yours.',
+    ac:'#c8102e' },
+  { name:'What it actually takes', rate:'Two conditions', rc:'#9db0e0',
+    desc:"You only earn on a pack level you own yourself, and you have to watch your daily videos to stay qualified. No screenshots here — what you make depends entirely on what you do.",
+    ac:'var(--sap-cobalt-mid)' },
 ];
 
 function TI({ t }) { var s=24; if(t.icon)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d={t.icon} fill={t.grid||t.people||t.check||t.screen||t.cap||t.clock||t.chat?'none':t.color} stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>; if(t.grid)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill={t.color}/><rect x="14" y="3" width="7" height="7" rx="1.5" fill={t.color} opacity="0.6"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill={t.color} opacity="0.6"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill={t.color}/></svg>; if(t.people)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" fill={t.color}/><path d="M2 20v-1a6 6 0 0114 0v1" fill={t.color} opacity="0.4"/><circle cx="18" cy="8" r="2.5" fill={t.color} opacity="0.7"/></svg>; if(t.check)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill={t.color} opacity="0.3"/><rect x="6" y="6" width="12" height="12" rx="2" fill={t.color}/><path d="M10 10l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>; if(t.screen)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="12" rx="2" fill={t.color} opacity="0.3" stroke={t.color} strokeWidth="1.5"/><path d="M8 20h8M12 16v4" stroke={t.color} strokeWidth="1.5" strokeLinecap="round"/></svg>; if(t.cap)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 10-5-10-5z" fill={t.color}/><path d="M2 16l10 5 10-5" stroke={t.color} strokeWidth="1.8" opacity="0.5"/><path d="M2 12l10 5 10-5" stroke={t.color} strokeWidth="1.8" opacity="0.7"/></svg>; if(t.clock)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={t.color} strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke={t.color} strokeWidth="2" strokeLinecap="round"/></svg>; if(t.chat)return<svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill={t.color} opacity="0.3" stroke={t.color} strokeWidth="1.5"/></svg>; return null; }
@@ -149,22 +162,28 @@ export default function SuperLinkPage() {
           <R><div style={{ display:'inline-flex', alignItems:'center', gap:10, padding:'8px 22px 8px 8px', borderRadius:99, background:T.sponsorBg, border:'1px solid '+T.sponsorBorder, fontSize:15, fontWeight:600, color:T.sponsorText, marginBottom:20, backdropFilter:'blur(8px)' }}><div style={{ width:34, height:34, borderRadius:'50%', background:T.avatarGrad, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#fff' }}>{si}</div>{sponsor} invited you to…</div></R>
           <R delay={0.1}><h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(42px,8vw,84px)', fontWeight:900, lineHeight:0.92, color:T.heading, marginBottom:12 }}>{t('superLink.buildReal')}<br/>{t('superLink.onlineIncome')}</h1></R>
           <R delay={0.2}><div style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(18px,2.5vw,26px)', fontWeight:700, color:T.textMuted, marginBottom:32, fontStyle:'italic' }}>{t('superLink.oneLinkHeadingFull')}</div></R>
-          <R delay={0.3}><p style={{ fontSize:'clamp(15px,1.8vw,18px)', color:T.textMuted, maxWidth:620, margin:'0 auto 20px', lineHeight:1.7 }}>Your business = <strong style={{color:T.strong}}>{t('superLink.fourIncomeStreams')}</strong>. AI-powered tools. A Profit Grid that pays you up to <strong style={gold}>$22,824</strong>{t('superLink.linkDescFull')}</p></R>
+          <R delay={0.3}><p style={{ fontSize:'clamp(15px,1.8vw,18px)', color:T.textMuted, maxWidth:620, margin:'0 auto 20px', lineHeight:1.7 }}>Video advertising watched by <strong style={{color:T.strong}}>real people</strong>, and the full marketing toolkit to go with it. One payment of <strong style={gold}>$100</strong> — lifetime access, never monthly.</p></R>
           <R delay={0.35}><div style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(16px,2vw,22px)', fontWeight:800, marginBottom:44 }}><span style={gold}>{t("superLink.yourOneLink")}</span></div></R>
           <R delay={0.4}><div><a href="/register" style={cta}>{t('superLink.createFreeAccount')}</a><div style={{fontSize:13,color:T.textFaint,marginTop:14}}>{t('superLink.freeToJoinFull')}</div></div></R>
-          <R delay={0.55}><div style={{display:'flex',justifyContent:'center',gap:10,flexWrap:'wrap',marginTop:36}}>{TIERS.map(function(t){return<div key={t.tier} style={{padding:'14px 20px',borderRadius:14,textAlign:'center',background:T.tierBg,border:'1px solid '+T.tierBorder,minWidth:105,transition:'all 0.3s',cursor:'default'}}><div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:T.textFaint}}>Tier {t.tier}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:t.color,marginTop:4}}>${t.payout.toLocaleString()}</div></div>})}</div></R>
+          {/* The product: VideoView packs. Was a grid-tier payout row. */}
+          <R delay={0.55}><div style={{display:'flex',justifyContent:'center',gap:10,flexWrap:'wrap',marginTop:36}}>{PACKS.map(function(p){return<div key={p.price} style={{padding:'14px 18px',borderRadius:14,textAlign:'center',background:T.tierBg,border:'1px solid '+T.tierBorder,minWidth:100,transition:'all 0.3s',cursor:'default'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:p.color}}>${p.price.toLocaleString()}</div><div style={{fontSize:12,fontWeight:700,color:T.textFaint,marginTop:3}}>{p.views} views</div></div>})}</div></R>
         </div>
       </section>
 
-      {/* ═══ FOUR WAYS TO EARN ═══ */}
+      {/* ═══ HOW EARNING WORKS ═══ */}
       <section style={{...sec,background:T.grad1}}>
         <div style={{maxWidth:960,margin:'0 auto',textAlign:'center'}}>
-          <R><h2 style={h2s}>{t('superLink.fourWaysToEarn')}</h2></R>
-          <R delay={0.1}><p style={{fontSize:17,color:T.textDim,maxWidth:540,margin:'12px auto 0'}}>{t("superLink.fourWaysDesc")}</p></R>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:20,marginTop:48}}>
-            {STREAMS.map(function(s,i){return<R key={i} delay={i*0.1}><div style={{padding:'36px 28px',borderRadius:24,background:T.card,border:'1px solid '+T.cardBorder,borderTop:'3px solid '+s.ac,textAlign:'left',height:'100%'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:800,color:T.heading,marginBottom:6}}>{s.name}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:900,color:s.rc,marginBottom:12}}>{s.rate}</div><div style={{fontSize:14,color:T.textDim,lineHeight:1.6}}>{s.desc}</div></div></R>})}
+          <R><h2 style={h2s}>How earning works</h2></R>
+          <R delay={0.1}><p style={{fontSize:17,color:T.textDim,maxWidth:560,margin:'12px auto 0'}}>Plainly, including the parts most platforms leave out.</p></R>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20,marginTop:48}}>
+            {STREAMS.map(function(s,i){return<R key={i} delay={i*0.1}><div style={{padding:'36px 28px',borderRadius:24,background:T.card,border:'1px solid '+T.cardBorder,borderTop:'3px solid '+s.ac,textAlign:'left',height:'100%'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:800,color:T.heading,marginBottom:6}}>{s.name}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:24,fontWeight:900,color:s.rc,marginBottom:12}}>{s.rate}</div><div style={{fontSize:14,color:T.textDim,lineHeight:1.6}}>{s.desc}</div></div></R>})}
           </div>
-          <R delay={0.2}><div style={{marginTop:60,borderRadius:24,overflow:'hidden',border:'1px solid '+T.cardBorder,background:T.gridBg}}><div style={{textAlign:'center',padding:'24px 20px 0'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(18px,3vw,24px)',fontWeight:900,color:T.gridText}}>{t('superLink.watchYour')} <span style={{color:T.gridAccent}}>{t('superLink.profitGrid')}</span> Build</div><p style={{fontSize:13,color:'rgba(200,220,255,0.4)',marginTop:6}}>{t("superLink.selectTierDesc")}</p></div><div style={{height:380,padding:'8px 16px 16px'}}><Suspense fallback={<div style={{height:380,display:'flex',alignItems:'center',justifyContent:'center',color:T.gridAccent,fontFamily:"'Sora',sans-serif",fontSize:14,fontWeight:700}}>{t('common.loading3D')}</div>}><IncomeGrid3D height={360} showControls autoPlay /></Suspense></div></div></R>
+          {/* The $100 join pays the sponsor nothing — say it before they wonder. */}
+          <R delay={0.3}><div style={{marginTop:40,padding:'20px 24px',borderRadius:16,background:T.card,border:'1px solid '+T.cardBorder,maxWidth:620,margin:'40px auto 0'}}>
+            <div style={{fontSize:14.5,color:T.textMuted,lineHeight:1.7}}>
+              <strong style={{color:T.strong}}>The bit nobody says:</strong> the $100 lifetime join earns your sponsor nothing. It goes to the platform. Nobody makes money from you joining — the earning is on the advertising side, and only when you own a pack yourself.
+            </div>
+          </div></R>
         </div>
       </section>
 
@@ -176,9 +195,10 @@ export default function SuperLinkPage() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginTop:48}}>
             {TOOLS.map(function(t,i){return<R key={i} delay={i*0.05}><div style={{padding:'28px 22px',borderRadius:20,textAlign:'center',background:T.card,border:'1px solid '+T.cardBorder,transition:'all 0.4s',height:'100%'}}><div style={{width:56,height:56,borderRadius:16,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',background:t.color+T.iconAlpha,border:'1px solid '+t.color+T.iconBorderAlpha}}><TI t={t}/></div><h3 style={{fontFamily:"'Sora',sans-serif",fontSize:15,fontWeight:800,color:T.heading,marginBottom:6}}>{t.name}</h3><p style={{fontSize:13,color:T.textDim,lineHeight:1.5,marginBottom:10}}>{t.desc}</p><span style={{display:'inline-block',padding:'3px 10px',borderRadius:6,fontSize:13,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:t.badge==='PRO'?T.proBg:T.basicBg,color:t.badge==='PRO'?T.proC:T.basicC,border:'1px solid '+(t.badge==='PRO'?T.proBd:T.basicBd)}}>{t.badge}</span></div></R>})}
           </div>
-          {/* Pricing — single Partner membership */}
+          {/* Pricing — one-time lifetime join. AL has NO monthly tier: the
+              $100 goes to the platform and the sponsor earns nothing on it. */}
           <div style={{maxWidth:380,margin:'48px auto 0'}}>
-            <R><div style={{padding:'40px 28px',borderRadius:24,textAlign:'center',background:T.card,border:'1px solid '+T.cardBorder}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:T.textDim,marginBottom:6}}>Partner</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:52,fontWeight:900,color:T.heading,lineHeight:1}}>$20<span style={{fontSize:16,color:T.textDim,fontWeight:600}}>{t('superLink.perMonth')}</span></div><div style={{fontSize:13,color:T.textDim,margin:'6px 0 4px',fontWeight:700}}>Full platform access</div><div style={{fontSize:12,color:T.textFaint,marginBottom:20}}>Cancel anytime · No hidden fees</div>{['The full SuperAdPro platform','Recurring referral commissions','4×4 Profit Grid','Creative Studio + Brand Posters','MyLeads CRM','Campaign Studio','Course Academy','AI-powered tools'].map(function(f,i){return<div key={i} style={{fontSize:13,color:T.textMuted,padding:'7px 0',textAlign:'left',borderBottom:'1px solid '+T.featBorder}}><span style={{color:T.check,fontWeight:800}}>✓</span> {f}</div>})}</div></R>
+            <R><div style={{padding:'40px 28px',borderRadius:24,textAlign:'center',background:T.card,border:'1px solid '+T.cardBorder}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:T.textDim,marginBottom:6}}>Lifetime access</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:52,fontWeight:900,color:T.heading,lineHeight:1}}>$100<span style={{fontSize:16,color:T.textDim,fontWeight:600}}> once</span></div><div style={{fontSize:13,color:T.textDim,margin:'6px 0 4px',fontWeight:700}}>Every tool, for life</div><div style={{fontSize:12,color:T.textFaint,marginBottom:20}}>One payment · Never monthly · No subscription</div>{['The full AdvantageLife toolkit','Page Builder & hosting','Email Marketing','Creative Studio — AI video &amp; images','My Blog & custom domain','Link Hub & Link Tools','Lead Finder & ProSeller','All marketing materials'].map(function(f,i){return<div key={i} style={{fontSize:13,color:T.textMuted,padding:'7px 0',textAlign:'left',borderBottom:'1px solid '+T.featBorder}}><span style={{color:T.check,fontWeight:800}}>✓</span> {f}</div>})}</div></R>
           </div>
         </div>
       </section>
@@ -193,7 +213,7 @@ export default function SuperLinkPage() {
       </section>
 
       <footer style={{position:'relative',zIndex:1,textAlign:'center',padding:'40px 24px',borderTop:'1px solid '+T.footerBorder}}>
-        <p style={{fontSize:13,color:T.footerText,lineHeight:1.7}}>SuperAdPro · <a href="/legal" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.terms')}</a> · <a href="/legal" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.privacy')}</a> · <a href="/support" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.support')}</a></p>
+        <p style={{fontSize:13,color:T.footerText,lineHeight:1.7}}>AdvantageLife · <a href="/legal" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.terms')}</a> · <a href="/legal" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.privacy')}</a> · <a href="/support" style={{color:T.footerLink,textDecoration:'none'}}>{t('superLink.support')}</a></p>
         <p style={{fontSize:13,color:T.footerText,marginTop:6}}>{t('superLink.incomeDisclaimerBody')}on individual effort, market conditions, and team activity.</p>
       </footer>
     </div>
