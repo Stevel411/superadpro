@@ -419,7 +419,7 @@ export default function NewDashboard() {
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
                 <Link to="/account">Profile</Link>
                 <Link to="/account?tab=security">Security</Link>
-                {user && user.is_admin && (<><div className="sep"></div><Link to="/admin" style={{ color: '#12388f' }}>Admin</Link></>)}
+                {user && user.is_admin && (<><div className="sep"></div><Link to="/admin/al" style={{ color: '#c8102e', fontWeight: 900 }}>Admin</Link></>)}
                 <div className="sep"></div>
                 <a className="out" href="/logout">Sign out</a>
               </div>

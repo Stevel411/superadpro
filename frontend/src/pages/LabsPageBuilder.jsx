@@ -408,7 +408,7 @@ export default function LabsPageBuilder() {
           <Link to="/pro/funnels" style={linkStyle}>
             View live page builder list <ArrowRight size={14} />
           </Link>
-          <Link to="/admin" style={linkStyle}>
+          <Link to="/admin/al" style={linkStyle}>
             Admin dashboard <ArrowRight size={14} />
           </Link>
         </div>
