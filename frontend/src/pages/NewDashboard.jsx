@@ -63,31 +63,28 @@ const CSS = `
 .al .share .lbl{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#5a6584}
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
-/* ── Weekly Video Showcase ─────────────────────────────────────────── */
-.al .showcase{background:linear-gradient(120deg,#0e2a6e,#0a1f52);border-radius:18px;box-shadow:0 20px 44px -26px rgba(10,31,82,.6);display:flex;align-items:center;gap:20px;padding:20px 24px;margin-top:16px;flex-wrap:wrap;border:1px solid rgba(255,255,255,.1)}
-.al .showcase.done{border-color:rgba(22,163,74,.4)}
-.al .showcase .sc-main{flex:1;min-width:240px}
-.al .showcase .sc-k{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ff8090;flex-wrap:wrap}
-.al .showcase .sc-dot{width:8px;height:8px;border-radius:50%;background:#e8203f;box-shadow:0 0 0 4px rgba(232,32,63,.22)}
-.al .showcase.done .sc-dot{background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.22)}
-.al .showcase .sc-badge{font-size:9.5px;font-weight:900;letter-spacing:.08em;padding:3px 9px;border-radius:20px;background:rgba(232,32,63,.2);color:#ff8090;border:1px solid rgba(232,32,63,.35)}
-.al .showcase .sc-badge.done{background:rgba(22,163,74,.2);color:#4ade80;border-color:rgba(74,222,128,.4)}
-.al .showcase .sc-h{font-size:17px;font-weight:900;color:#fff;letter-spacing:-.3px;margin-top:7px}
-.al .showcase .sc-lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:8px 12px;margin-top:9px;word-break:break-all}
-.al .showcase .sc-sub{font-size:12.5px;color:#c9d6f7;font-weight:600;margin-top:8px;line-height:1.5}
-.al .showcase .sc-note{font-size:11.5px;color:#9aabd6;font-weight:600;margin-top:9px;line-height:1.55;display:flex;gap:6px;align-items:flex-start}
-.al .showcase .sc-note i{font-style:normal;color:#ff8090}
-.al .showcase .sc-actions{display:flex;flex-direction:column;gap:9px;min-width:150px}
-.al .showcase .sc-view{text-align:center;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px 16px;font-weight:800;font-size:13px;text-decoration:none;font-family:'Inter',sans-serif}
-.al .showcase .sc-view:hover{background:rgba(255,255,255,.16)}
-.al .showcase .sc-copy{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter',sans-serif;font-weight:900;font-size:13.5px;cursor:pointer;box-shadow:0 12px 26px -10px rgba(200,16,46,.7)}
-.al .showcase .sc-social{display:flex;gap:7px}
-.al .showcase .sc-btn{width:38px;height:38px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);color:#fff;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;transition:transform .12s}
-.al .showcase .sc-btn:hover{transform:translateY(-2px)}
-.al .showcase .sc-btn.fb:hover{background:#1877f2;border-color:#1877f2}
-.al .showcase .sc-btn.x:hover{background:#000;border-color:#000}
-.al .showcase .sc-btn.wa:hover{background:#25d366;border-color:#25d366}
-.al .showcase .sc-btn.tg:hover{background:#229ed9;border-color:#229ed9}
+/* ── Weekly share card (sidebar on desktop, main column on mobile) ──── */
+.al .side .ssp{flex:1;min-height:10px}
+.al .sdv{height:1px;background:rgba(255,255,255,.1);margin:12px 6px}
+.al .shc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:14px;margin:0 2px}
+.al .shc.done{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.07)}
+.al .shc .k{display:flex;align-items:center;gap:7px;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#ff8090}
+.al .shc.done .k{color:#4ade80}
+.al .shc .dot{width:7px;height:7px;border-radius:50%;background:#e8203f;box-shadow:0 0 0 3px rgba(232,32,63,.25);flex-shrink:0}
+.al .shc.done .dot{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
+.al .shc .h{font-size:13.5px;font-weight:900;color:#fff;margin-top:7px;line-height:1.35}
+.al .shc .s{font-size:11.5px;color:#9aabd6;font-weight:600;margin-top:5px;line-height:1.5}
+.al .shc .b{width:100%;margin-top:11px;background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:900;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
+.al .shc.done .b{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);box-shadow:none}
+.al .shc .v{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700;color:#9aabd6}
+.al .shc .v b{color:#4ade80;font-size:14px;font-variant-numeric:tabular-nums}
+/* the sidebar holds it on desktop; the main-column copy only shows once the
+   sidebar is gone (matches the existing 980px sidebar breakpoint) */
+.al .shmob{display:none}
+@media(max-width:980px){
+  .al .shmob{display:block;margin-top:16px;background:linear-gradient(120deg,#0e2a6e,#0a1f52);border-radius:18px;padding:6px;box-shadow:0 20px 44px -26px rgba(10,31,82,.6)}
+  .al .shmob .shc{border:none;background:transparent;padding:14px}
+}
 /* ── Share modal ───────────────────────────────────────────────────── */
 .al .shmodal{position:fixed;inset:0;background:rgba(10,31,82,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:shfade .16s ease-out}
 @keyframes shfade{from{opacity:0}to{opacity:1}}
@@ -113,7 +110,6 @@ const CSS = `
 .al .shmore:hover{border-color:#12388f;color:#12388f}
 .al .shview{display:block;text-align:center;margin-top:16px;color:#c8102e;font-weight:800;font-size:13px;text-decoration:none}
 @media(max-width:480px){.al .shgrid{grid-template-columns:1fr}.al .shcard{padding:24px}}
-@media(max-width:640px){.al .showcase .sc-actions{width:100%}.al .showcase .sc-social{justify-content:space-between}.al .showcase .sc-btn{flex:1}}
 /* ── cards row ── */
 .al .row{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch}
 .al .card.cwatch{min-width:0}
@@ -305,6 +301,26 @@ export default function NewDashboard() {
 
   // Weekly showcase link — /w/{token}. Copying marks the share (analytics
   // only: a click is NOT proof, qualification reads verified public views).
+  // One definition, rendered twice: in the sidebar (desktop) and in the main
+  // column (mobile). The sidebar is hidden under 980px, so without the mobile
+  // copy the weekly prompt would vanish on phones — where most members share.
+  function ShareCard() {
+    if (!shareData) return null;
+    const done = !!shareData.shared_this_week;
+    const views = shareData.verified_views_this_week || 0;
+    return (
+      <div className={'shc' + (done ? ' done' : '')}>
+        <div className="k"><span className="dot" /> {done ? 'Shared this week ✓' : 'Weekly share'}</div>
+        <div className="h">{done ? 'Your page is working' : 'Share your showcase'}</div>
+        <div className="s">{done ? 'Videos rotate on every visit — your post stays fresh.' : 'One post keeps it live all week.'}</div>
+        <button className="b" onClick={done ? function () { window.open(shareData.url, '_blank'); } : openShare}>
+          {done ? 'View my page' : 'Share my page'}
+        </button>
+        <div className="v"><span>Verified views</span><b>{views}</b></div>
+      </div>
+    );
+  }
+
   const shareUrl = shareData
     ? (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url
     : '';
@@ -422,6 +438,9 @@ export default function NewDashboard() {
             <a href="/packs">Buy Packs</a>
             <a href="/my-sales">Confirm Sale</a>
             <a href="/payout-methods">Wallet</a>
+            <span className="ssp" />
+            <div className="sdv" />
+            <ShareCard />
           </aside>
 
           <main>
@@ -445,47 +464,9 @@ export default function NewDashboard() {
               <button className="copy" onClick={copyLink}>{copied ? 'Copied ✓' : 'Copy link'}</button>
             </div>
 
-            {/* Weekly Video Showcase — one share per week, the member's own
-                public page. Deliberately its own block rather than a line in
-                the affiliate bar: it's a recurring commitment, not a link to
-                copy once. Phase 1 = tracking only, and we say so plainly. */}
-            <div className={'showcase' + (shareData && shareData.shared_this_week ? ' done' : '')}>
-              <div className="sc-main">
-                <div className="sc-k">
-                  <span className="sc-dot" />
-                  Weekly · Video Showcase
-                  {shareData && shareData.shared_this_week
-                    ? <span className="sc-badge done">Shared this week ✓</span>
-                    : <span className="sc-badge">Not shared yet</span>}
-                </div>
-                <div className="sc-h">Share once a week — your page stays fresh all week</div>
-                <div className="sc-lk">{shareUrl || 'Loading your showcase…'}</div>
-                <div className="sc-sub">
-                  Eight campaigns, rotating every visit. Post it once and it keeps working —
-                  {shareData ? ` ${shareData.verified_views_this_week} verified view${shareData.verified_views_this_week === 1 ? '' : 's'} this week.` : ' loading…'}
-                </div>
-                {shareData && !shareData.gates_commission && (
-                  <div className="sc-note">
-                    <i>ⓘ</i> Sharing doesn't affect your commission yet. It will in a later release —
-                    we're measuring real sharing first so the required number is fair, and we'll tell you before it changes.
-                  </div>
-                )}
-              </div>
-              <div className="sc-actions">
-                <div className="sc-social">
-                  <button className="sc-btn fb" onClick={function () { shareTo('facebook'); }} title="Share to Facebook">f</button>
-                  <button className="sc-btn x" onClick={function () { shareTo('x'); }} title="Share to X">𝕏</button>
-                  <button className="sc-btn wa" onClick={function () { shareTo('whatsapp'); }} title="Share to WhatsApp">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4 0-.5 0-.2-.6-1.5-.9-2-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2"/></svg>
-                  </button>
-                  <button className="sc-btn tg" onClick={function () { shareTo('telegram'); }} title="Share to Telegram">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3 14.2c-.2 1-.8 1.3-1.7.8l-4.6-3.4-2.2 2.1c-.3.3-.5.5-1 .5l.3-4.7L17.4 5c.4-.3-.1-.5-.6-.2L6.2 11.4l-4.5-1.4c-1-.3-1-1 .2-1.4l17.6-6.8c.8-.3 1.5.2 1.2 1.4"/></svg>
-                  </button>
-                </div>
-                <button className="sc-copy" onClick={openShare}>Share my page</button>
-                <a className="sc-view" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">View my page</a>
-              </div>
-            </div>
+            {/* Mobile only — the sidebar (which holds this on desktop) is
+                hidden under 980px, and phones are where most sharing happens. */}
+            <div className="shmob"><ShareCard /></div>
 
             <div className="row">
 
