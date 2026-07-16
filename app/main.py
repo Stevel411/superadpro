@@ -67475,6 +67475,87 @@ def _al_intent_json(db, intent, viewer_id=None):
 # platform IS now. Old panels stay untouched until fully replaced so nobody
 # mistakes stale numbers for current ones.
 
+_SHARE_DDL = [
+    ("share_links", """
+        CREATE TABLE IF NOT EXISTS share_links (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER UNIQUE REFERENCES users(id),
+            token VARCHAR(24) UNIQUE NOT NULL,
+            is_active BOOLEAN DEFAULT TRUE,
+            share_count INTEGER DEFAULT 0,
+            last_shared_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW()
+        )"""),
+    ("share_views", """
+        CREATE TABLE IF NOT EXISTS share_views (
+            id SERIAL PRIMARY KEY,
+            share_link_id INTEGER REFERENCES share_links(id),
+            campaign_id INTEGER REFERENCES video_campaigns(id),
+            fingerprint VARCHAR(64),
+            view_date VARCHAR(10),
+            started_at TIMESTAMP DEFAULT NOW(),
+            verified_at TIMESTAMP,
+            watched_secs INTEGER DEFAULT 0,
+            is_verified BOOLEAN DEFAULT FALSE,
+            is_self BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW()
+        )"""),
+]
+_SHARE_COLS = [
+    "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved BOOLEAN DEFAULT FALSE",
+    "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
+    "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
+]
+_SHARE_IDX = [
+    "CREATE INDEX IF NOT EXISTS ix_share_links_user ON share_links (user_id)",
+    "CREATE INDEX IF NOT EXISTS ix_share_links_token ON share_links (token)",
+    "CREATE INDEX IF NOT EXISTS ix_share_views_link ON share_views (share_link_id)",
+    "CREATE INDEX IF NOT EXISTS ix_share_views_campaign ON share_views (campaign_id)",
+    "CREATE INDEX IF NOT EXISTS ix_share_views_verified ON share_views (is_verified)",
+    "CREATE INDEX IF NOT EXISTS ix_share_views_dedup ON share_views (fingerprint, campaign_id, view_date)",
+    "CREATE INDEX IF NOT EXISTS ix_video_campaigns_share_approved ON video_campaigns (share_approved)",
+]
+
+
+@app.get("/admin/api/setup-share-tables")
+def admin_setup_share_tables(request: Request,
+                             user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """One-shot: create the video share system tables + the share_approved
+    columns on video_campaigns.
+
+    Same reason as setup-blog-tables: SKIP_MIGRATIONS=true on production means
+    create_all()/run_migrations() don't build them on deploy. Idempotent
+    (CREATE/ADD ... IF NOT EXISTS). Admin-only, GET (phone-friendly).
+    Tap once after the deploy lands.
+    """
+    from sqlalchemy import text as _t
+    if not user or not is_admin(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+    results = {}
+    for name, ddl in _SHARE_DDL:
+        try:
+            db.execute(_t(ddl)); db.commit(); results[name] = "ok"
+        except Exception as e:
+            db.rollback(); results[name] = f"error: {str(e)[:120]}"
+    ok_cols = 0
+    for stmt in _SHARE_COLS:
+        try:
+            db.execute(_t(stmt)); db.commit(); ok_cols += 1
+        except Exception:
+            db.rollback()
+    results["video_campaigns share_* columns"] = f"{ok_cols}/{len(_SHARE_COLS)} ok"
+    ok_idx = 0
+    for stmt in _SHARE_IDX:
+        try:
+            db.execute(_t(stmt)); db.commit(); ok_idx += 1
+        except Exception:
+            db.rollback()
+    results["indexes"] = f"{ok_idx}/{len(_SHARE_IDX)} ok"
+    return {"ok": True, "results": results,
+            "note": "Share system tables ready. Members can generate /w/{token} pages."}
+
+
 @app.post("/admin/api/al/share-reset")
 async def al_admin_share_reset(request: Request, user: User = Depends(_al_user),
                                db: Session = Depends(get_db)):
