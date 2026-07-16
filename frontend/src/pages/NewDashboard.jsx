@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { apiGet } from '../utils/api';
+import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 
 // AdvantageLife dashboard — rebuilt 11 Jul 2026 to Steve's approved modern
@@ -63,6 +63,25 @@ const CSS = `
 .al .share .lbl{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#5a6584}
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
+/* ── Weekly Video Showcase ─────────────────────────────────────────── */
+.al .showcase{background:linear-gradient(120deg,#0e2a6e,#0a1f52);border-radius:18px;box-shadow:0 20px 44px -26px rgba(10,31,82,.6);display:flex;align-items:center;gap:20px;padding:20px 24px;margin-top:16px;flex-wrap:wrap;border:1px solid rgba(255,255,255,.1)}
+.al .showcase.done{border-color:rgba(22,163,74,.4)}
+.al .showcase .sc-main{flex:1;min-width:240px}
+.al .showcase .sc-k{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ff8090;flex-wrap:wrap}
+.al .showcase .sc-dot{width:8px;height:8px;border-radius:50%;background:#e8203f;box-shadow:0 0 0 4px rgba(232,32,63,.22)}
+.al .showcase.done .sc-dot{background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.22)}
+.al .showcase .sc-badge{font-size:9.5px;font-weight:900;letter-spacing:.08em;padding:3px 9px;border-radius:20px;background:rgba(232,32,63,.2);color:#ff8090;border:1px solid rgba(232,32,63,.35)}
+.al .showcase .sc-badge.done{background:rgba(22,163,74,.2);color:#4ade80;border-color:rgba(74,222,128,.4)}
+.al .showcase .sc-h{font-size:17px;font-weight:900;color:#fff;letter-spacing:-.3px;margin-top:7px}
+.al .showcase .sc-lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:8px 12px;margin-top:9px;word-break:break-all}
+.al .showcase .sc-sub{font-size:12.5px;color:#c9d6f7;font-weight:600;margin-top:8px;line-height:1.5}
+.al .showcase .sc-note{font-size:11.5px;color:#9aabd6;font-weight:600;margin-top:9px;line-height:1.55;display:flex;gap:6px;align-items:flex-start}
+.al .showcase .sc-note i{font-style:normal;color:#ff8090}
+.al .showcase .sc-actions{display:flex;flex-direction:column;gap:9px;min-width:150px}
+.al .showcase .sc-view{text-align:center;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:10px 16px;font-weight:800;font-size:13px;text-decoration:none;font-family:'Inter',sans-serif}
+.al .showcase .sc-view:hover{background:rgba(255,255,255,.16)}
+.al .showcase .sc-copy{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter',sans-serif;font-weight:900;font-size:13.5px;cursor:pointer;box-shadow:0 12px 26px -10px rgba(200,16,46,.7)}
+@media(max-width:640px){.al .showcase .sc-actions{width:100%;flex-direction:row}.al .showcase .sc-actions>*{flex:1}}
 /* ── cards row ── */
 .al .row{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch}
 .al .card.cwatch{min-width:0}
@@ -159,6 +178,8 @@ export default function NewDashboard() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareData, setShareData] = useState(null);
+  const [shareCopied, setShareCopied] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
@@ -214,13 +235,14 @@ export default function NewDashboard() {
     Promise.allSettled([
       apiGet('/api/dashboard'), apiGet('/api/watch'),
       apiGet('/api/al/packs'), apiGet('/api/al/my-sales'),
-      apiGet('/api/al/featured-video'),
+      apiGet('/api/al/featured-video'), apiGet('/api/share/my-link'),
     ]).then(function (res) {
       if (res[0].status === 'fulfilled') setDash(res[0].value || {});
       if (res[1].status === 'fulfilled') setWatch(res[1].value || {});
       if (res[2].status === 'fulfilled') setAlPacks(res[2].value || {});
       if (res[3].status === 'fulfilled') setAlSales(res[3].value || {});
       if (res[4].status === 'fulfilled') setFeat((res[4].value || {}).video || null);
+      if (res[5].status === 'fulfilled') setShareData(res[5].value || null);
       setLoading(false);
     });
     function loadBoard() { apiGet('/api/al/leaderboard').then(setBoard).catch(function () {}); }
@@ -247,6 +269,23 @@ export default function NewDashboard() {
   const watchedToday = !!w.watched_today;
   const refLink = 'https://www.advantagelife.club/ref/' + (user?.username || '');
   const thumb = feat ? ytThumb(feat.embed_url) : null;
+
+  // Weekly showcase link — /w/{token}. Copying marks the share (analytics
+  // only: a click is NOT proof, qualification reads verified public views).
+  const shareUrl = shareData
+    ? (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url
+    : '';
+
+  function copyShare() {
+    if (!shareData) return;
+    var full = (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url;
+    try { navigator.clipboard.writeText(full); } catch (e) {}
+    setShareCopied(true);
+    setTimeout(function () { setShareCopied(false); }, 1800);
+    apiPost('/api/share/mark-shared', {})
+      .then(function () { apiGet('/api/share/my-link').then(setShareData).catch(function () {}); })
+      .catch(function () {});
+  }
 
   function copyLink() {
     try { navigator.clipboard.writeText(refLink); setCopied(true); setTimeout(function () { setCopied(false); }, 1800); } catch (e) {}
@@ -327,6 +366,38 @@ export default function NewDashboard() {
                 <div className="lk">{refLink}</div>
               </div>
               <button className="copy" onClick={copyLink}>{copied ? 'Copied ✓' : 'Copy link'}</button>
+            </div>
+
+            {/* Weekly Video Showcase — one share per week, the member's own
+                public page. Deliberately its own block rather than a line in
+                the affiliate bar: it's a recurring commitment, not a link to
+                copy once. Phase 1 = tracking only, and we say so plainly. */}
+            <div className={'showcase' + (shareData && shareData.shared_this_week ? ' done' : '')}>
+              <div className="sc-main">
+                <div className="sc-k">
+                  <span className="sc-dot" />
+                  Weekly · Video Showcase
+                  {shareData && shareData.shared_this_week
+                    ? <span className="sc-badge done">Shared this week ✓</span>
+                    : <span className="sc-badge">Not shared yet</span>}
+                </div>
+                <div className="sc-h">Share once a week — your page stays fresh all week</div>
+                <div className="sc-lk">{shareUrl || 'Loading your showcase…'}</div>
+                <div className="sc-sub">
+                  Eight campaigns, rotating every visit. Post it once and it keeps working —
+                  {shareData ? ` ${shareData.verified_views_this_week} verified view${shareData.verified_views_this_week === 1 ? '' : 's'} this week.` : ' loading…'}
+                </div>
+                {shareData && !shareData.gates_commission && (
+                  <div className="sc-note">
+                    <i>ⓘ</i> Sharing doesn't affect your commission yet. It will in a later release —
+                    we're measuring real sharing first so the required number is fair, and we'll tell you before it changes.
+                  </div>
+                )}
+              </div>
+              <div className="sc-actions">
+                <a className="sc-view" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">View my page</a>
+                <button className="sc-copy" onClick={copyShare}>{shareCopied ? 'Copied ✓' : 'Copy & share'}</button>
+              </div>
             </div>
 
             <div className="row">
