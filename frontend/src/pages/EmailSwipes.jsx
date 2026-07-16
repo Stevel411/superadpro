@@ -21,65 +21,73 @@ const CATS = [
 ];
 
 const SWIPES = [
-{ id:1, cat:'invite', title:'The tools-first intro', subject:'The $20 toolkit I mentioned',
+{ id:1, cat:'invite', title:'The tools-first intro', subject:'The toolkit I mentioned — $100, once',
 body:`Hi {{name}},
 
 You asked what I'm using to run my marketing these days — here it is.
 
-It's called AdvantageLife. One membership, and I get a page builder, an autoresponder, an AI creative studio for videos and images, and video advertising that's watched by real logged-in members (not bots).
+It's called AdvantageLife. One payment of $100 and I have lifetime access: a page builder, email marketing, an AI creative studio for videos and images, a blog, link tools — plus all the marketing materials.
 
-I was paying for three separate tools before. This replaced all of them for $20/month — and the account is free to open, so you can poke around before spending a penny.
+Not $100 a month. $100 once. I was paying more than that every month across three separate subscriptions.
 
-Take a look here: {{YOUR_LINK}}
+The account is free to open, so you can look around properly before spending anything.
+
+Here's my link: {{YOUR_LINK}}
 
 Happy to answer any questions.
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite the email below in my natural voice. Keep the structure: personal opener, what the product replaced for me, the free-to-start close. My audience is [describe your list]. Keep it under 130 words, no hype, one link placeholder.` },
+prompt:`Rewrite the email below in my natural voice. Non-negotiables: $100 is ONE-TIME for LIFETIME access (never imply monthly), the account is free to open first, and it's a toolkit pitch — do NOT mention earning or commissions. My audience is [describe your list]. Under 130 words, no hype, one link placeholder.` },
 
 { id:2, cat:'invite', title:'The story angle', subject:'I cancelled three subscriptions last month',
 body:`Hi {{name}},
 
-Quick story. Last month I sat down and added up what I was paying for marketing tools — a page builder here, an email tool there, an AI subscription on top. It was embarrassing.
+Quick story. Last month I added up what I was paying for marketing tools — a page builder here, an email tool there, an AI subscription on top. It was embarrassing.
 
-So I moved everything to one platform: AdvantageLife. Pages, email sequences, AI video and image creation, and an advertising network where real members watch your videos — all under one $20/month roof.
+So I moved everything to one platform: AdvantageLife. Pages, email, AI video and image creation, a blog, link tools. All of it for one payment of $100 — lifetime, no monthly bill.
 
-The bit that sold me: you can open a free account and use it before deciding anything.
+That was the bit that got me. I'd already spent more than $100 that month renting tools I didn't own.
 
-Here's my link if you want to see it: {{YOUR_LINK}}
+You can open a free account and look before deciding anything: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this email as my own story. The facts: I consolidated my marketing tools into AdvantageLife. My previous tools were [list yours]. Keep the "added up what I was paying" hook, keep it honest and conversational, end with a soft link CTA.` },
+prompt:`Rewrite this as my own story. The facts: I consolidated my marketing tools into AdvantageLife; my previous tools were [list yours]. Keep the "added up what I was paying" hook and the one-time-$100-vs-monthly-rental contrast. It is NOT a subscription — never say per month. Honest and conversational, soft link CTA, no earnings talk.` },
 
 { id:3, cat:'invite', title:'The advertising angle', subject:'Ads watched by real people (who can join your list)',
 body:`Hi {{name}},
 
 Most online ads are a coin toss — you pay, something "views" it, nothing happens.
 
-Here's a different model: on AdvantageLife, video campaigns are watched by real, logged-in members. And under every video there's a Subscribe button — viewers who like what they see join YOUR email list with one tap.
+Here's a different model: on AdvantageLife, video campaigns are watched by real, logged-in members — and a view only counts after 30 seconds, the same standard YouTube uses. No bot traffic.
+
+Under every video there's a Subscribe button. Viewers who like what they see join YOUR email list with one tap.
 
 Views are nice. A list is a business.
 
-The platform also shares 100% of campaign ad revenue with its members — the company keeps none of it.
-
-Free account to look around: {{YOUR_LINK}}
+Campaign packs start at $10 for 1,000 views. Free account to look around: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this email in my voice for an audience of [describe]. Keep the three beats: ads are usually a coin toss, this platform's ads are watched by real members who can subscribe to your list, and "views are nice; a list is a business." Factual tone, no earnings promises.` },
+prompt:`Rewrite this email in my voice for an audience of [describe]. Keep the beats: ads are usually a coin toss; these are watched by real logged-in members; a view needs 30+ seconds (YouTube's own standard); the Subscribe button builds YOUR list; "views are nice, a list is a business". Packs start at $10 for 1,000 views. Factual tone, NO earnings promises.` },
 
 { id:4, cat:'invite', title:'The income-curious follow-up', subject:'You asked about the earning side — straight answer',
 body:`Hi {{name}},
 
-You asked how the earning side of AdvantageLife works, so here it is, plainly.
+You asked how the earning side of AdvantageLife works. Here it is plainly, including the parts most people leave out.
 
-Two streams. Memberships: refer someone, earn $10/month for every month they stay active. Campaigns: when your team buys video advertising, 100% of that revenue is shared with members — 50% direct, a share through five team levels, and completion bonuses.
+First, the honest bit: the $100 lifetime join earns me nothing. It goes to the platform. Nobody makes money from you joining.
 
-No inflated screenshots from me — your results depend entirely on your own activity, and the full income disclaimer is on the site. The tools work fully even if you never refer a soul.
+The earning happens on the advertising side. Members buy VideoView packs ($10 up to $1,000) and those sales are person-to-person — 100% of the pack price goes to a member. The company keeps none of it.
+
+There's a pass-up: you keep your 1st and 2nd sales, your 3rd passes to your sponsor. Same at 6 and 9. From your 10th sale on, every sale is yours.
+
+Two conditions, so you know upfront: you only earn on a pack level you own yourself, and you have to watch your daily videos to stay qualified.
+
+No screenshots from me — what you make depends entirely on what you do, and the full income disclaimer is on the site. The tools work fully even if you never refer anyone.
 
 Look at both sides here: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this email in my voice. Non-negotiables: keep the exact numbers ($10/month recurring per active referral; 100% of campaign revenue shared with members), keep the "results depend on your activity" line, and keep the tools-work-without-referring point. Audience: [describe].` },
+prompt:`Rewrite this email in my voice. NON-NEGOTIABLE FACTS — do not change these numbers or soften them: (1) the $100 lifetime join pays the sponsor NOTHING, it goes to the platform; (2) pack sales are person-to-person and 100% of the pack price goes to a member; (3) packs run $10 to $1,000; (4) the 3/6/9 pass-up — keep sales 1 and 2, the 3rd passes up; same at 6 and 9; from the 10th on all sales are yours; (5) you only earn on a pack level you own, and you must watch your daily videos to stay qualified; (6) keep the "no screenshots / depends on what you do / disclaimer on the site" honesty and the tools-work-without-referring point. Audience: [describe]. Never invent earnings figures or timeframes.` },
 
 { id:5, cat:'welcome', title:'The expectation-setter', subject:'Welcome — here\\u2019s exactly what to expect',
 body:`Hi {{name}},
