@@ -64,7 +64,6 @@ const CSS = `
 .al .share .lk{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:#12388f;word-break:break-all}
 .al .share .copy{margin-left:auto;background:#c8102e;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:0 10px 22px -10px rgba(200,16,46,.6)}
 /* ── Weekly share card (sidebar on desktop, main column on mobile) ──── */
-.al .side .ssp{flex:1;min-height:10px}
 .al .sdv{height:1px;background:rgba(255,255,255,.1);margin:12px 6px}
 .al .shc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:14px;margin:0 2px}
 .al .shc.done{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.07)}
@@ -438,7 +437,6 @@ export default function NewDashboard() {
             <a href="/packs">Buy Packs</a>
             <a href="/my-sales">Confirm Sale</a>
             <a href="/payout-methods">Wallet</a>
-            <span className="ssp" />
             <div className="sdv" />
             <ShareCard />
           </aside>
