@@ -61,7 +61,7 @@ from .course_engine import process_course_purchase, get_user_course_stats, assig
 import secrets
 from datetime import timedelta
 from .payment import (
-    process_membership_payment, process_grid_payment,
+    process_membership_payment,
     request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET,
     process_p2p_transfer, get_p2p_history, get_renewal_status,
     initialise_renewal_record, process_auto_renewals,
@@ -22394,58 +22394,6 @@ def admin_stripe_checkout_debug(request: Request, user_id: int = 0, billing: str
     return out
 
 
-@app.post("/api/stripe/checkout/campaign-tier")
-async def stripe_checkout_campaign_tier(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Create a one-time Stripe Checkout session for a Campaign Tier purchase.
-
-    Body (JSON):
-      tier_id: 1-8 (Starter $20 through Champion $1000)
-
-    Membership-gated: members must be active partners to buy campaign
-    tiers (matches the existing crypto rail rule). One-time payment mode
-    on the Stripe side — not a subscription.
-
-    Returns:
-      { checkout_url, session_id }
-    """
-    if not _stripe.is_configured():
-        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
-    if not user:
-        return JSONResponse({"error": "auth_required"}, status_code=401)
-    # Campaign tiers are gated to active partners (membership active).
-    # Mirrors the crypto rail check in /api/nowpayments/create-invoice
-    # and the various other entry points.
-    if not user.is_active:
-        return JSONResponse({"error": "membership_required", "detail": "Campaign Tiers are available to active members only."}, status_code=403)
-
-    body = await request.json()
-    try:
-        tier_id = int(body.get("tier_id") or 0)
-    except (TypeError, ValueError):
-        tier_id = 0
-    price_usd = GRID_PACKAGES.get(tier_id)
-    if not price_usd:
-        return JSONResponse({"error": "invalid_tier", "detail": f"tier_id must be 1-8, got {tier_id}"}, status_code=400)
-
-    amount_cents = int(round(float(price_usd) * 100))
-    try:
-        result = _stripe.create_checkout_session(
-            user=user,
-            db_session=db,
-            product_kind="campaign_tier",
-            amount_cents=amount_cents,
-            success_path=f"/campaign-tiers?activated=tier_{tier_id}",
-            cancel_path=f"/activate-tier/{tier_id}",
-            extra_metadata={"campaign_tier_id": str(tier_id)},
-        )
-        return result
-    except Exception as e:
-        logger.exception(f"stripe_checkout_campaign_tier failed for user {user.id} tier {tier_id}")
-        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
 @app.post("/api/stripe/checkout/launchpad")
@@ -46867,11 +46815,6 @@ def upgrade_to_pro_redirect(request: Request):
 # React component's job (ProtectedRoute / RequireTier wrappers in
 # App.jsx). Backend's only responsibility is "serve the bundle".
 
-@app.get("/activate/{tierId}")
-def react_activate_tier(request: Request, tierId: str):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/admin/showcase")
 def react_admin_showcase(request: Request):
