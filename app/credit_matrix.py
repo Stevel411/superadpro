@@ -136,10 +136,13 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
     Main entry point: member buys a credit pack.
     1. Validate pack
     2. Record the purchase
-    3. Award credits (SuperScene credits)
-    4. Place in sponsor's matrix FOR THIS PACK
-    5. Pay commissions
+    3. Award credits (Creative Studio credits)
     Returns result dict.
+
+    No commission is paid. The matrix was retired 30 May 2026 and the flat 20%
+    sponsor referral on 16 Jul 2026 — AdvantageLife sells AI credits as a
+    straight service and keeps 100%, because credit revenue is what funds the
+    AI bill against a one-time $100 join.
     """
     pack = CREDIT_PACKS.get(pack_key)
     if not pack:
@@ -229,56 +232,29 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
         db.add(new_credits)
     db.flush()
 
-    # ── Flat 20% referral commission (matrix retired 30 May 2026) ──
-    # Pay the buyer's DIRECT sponsor 20% of the pack price. No matrix, no
-    # spillover, no levels, no completion. sponsor_id is always set: a real
-    # member earns, or the company account (id 1) earns when there's no
-    # referrer (no-ref signups default sponsor_id=1 at registration), so the
-    # 20% accrues to the company in that case. Commission is written to the
-    # existing credit_matrix_commissions table (type='direct_referral') so the
-    # central earnings reader (compute_user_earnings -> nexus_earnings) and
-    # every dashboard that depends on it keep working unchanged.
-    sponsor = None
-    if buyer.sponsor_id:
-        sponsor = db.query(User).filter(User.id == buyer.sponsor_id).first()
-
-    commission_amount = None
-    commission_id = None
-    if sponsor:
-        commission_amount = (Decimal(str(price)) * FLAT_REFERRAL_RATE).quantize(Decimal("0.000001"))
-        com = CreditMatrixCommission(
-            matrix_id=None,
-            earner_id=sponsor.id,
-            from_user_id=buyer.id,
-            from_position_id=None,
-            level=1,
-            rate=FLAT_REFERRAL_RATE,
-            pack_price=Decimal(str(price)),
-            amount=commission_amount,
-            commission_type="direct_referral",
-            status="paid",
-        )
-        db.add(com)
-        # Credit the sponsor's withdrawable balance (atomic increment to avoid
-        # races when several of a sponsor's referrals buy at once).
-        from sqlalchemy import func as _sqlfunc
-        db.query(User).filter(User.id == sponsor.id).update(
-            {User.balance: _sqlfunc.coalesce(User.balance, 0) + commission_amount},
-            synchronize_session=False,
-        )
-        db.flush()
-        commission_id = com.id
-
+    # ── No commission on credit purchases (AdvantageLife, 16 Jul 2026) ──────
+    # Removed: a flat 20% of every credit pack was paid to the buyer's direct
+    # sponsor (or accrued to the company when there was no referrer), written
+    # to credit_matrix_commissions as type='direct_referral' and credited to
+    # the sponsor's withdrawable balance.
+    #
+    # Steve's call: AdvantageLife sells AI credits as a straight service and
+    # keeps 100%. The 20% was the last remnant of the retired Creator Credits /
+    # Nexus affiliate stream (the matrix itself went on 30 May 2026), and it
+    # halved the margin on a product whose whole job is to fund the AI bill —
+    # the $100 join is one-time, so credit revenue is what keeps generation
+    # costs covered. Credits cost ~$0.10 and sell at $0.20; paying 20% away
+    # took the net from $0.10 to $0.06 per credit.
+    #
+    # Note the wider AL model: members hold no platform balance (pack sales are
+    # peer-to-peer and never touch the company), so crediting User.balance here
+    # was writing to a field AL otherwise never uses.
+    #
+    # Historical CreditMatrixCommission rows are left untouched — they are the
+    # SuperAdPro ledger and must stay readable. FLAT_REFERRAL_RATE is kept as
+    # a module constant because health_scanners_tier1 validates those historical
+    # rows against it.
     db.commit()
-
-    # Invalidate the sponsor's 60s earnings cache so the new commission shows
-    # immediately on their dashboard.
-    if sponsor:
-        try:
-            from .stats_cache import cache_invalidate_user
-            cache_invalidate_user(sponsor.id)
-        except Exception:
-            pass
 
     return {
         "success": True,
@@ -286,13 +262,9 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
         "credits_awarded": credits,
         "pack": pack_key,
         "price": float(price),
-        "referral_commission": {
-            "sponsor_id": sponsor.id if sponsor else None,
-            "amount": float(commission_amount) if commission_amount is not None else 0.0,
-            "rate": float(FLAT_REFERRAL_RATE),
-            "commission_id": commission_id,
-            "to_company": bool(sponsor and sponsor.id == 1),
-        } if sponsor else None,
+        # Kept (always None) so existing callers/webhooks that read this key
+        # don't KeyError. AdvantageLife pays no commission on credit packs.
+        "referral_commission": None,
     }
 
 
