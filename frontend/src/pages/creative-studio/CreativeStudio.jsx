@@ -11,13 +11,16 @@ import './creative-studio.css';
 // ── Video Models ──────────────────────────────────────
 function getModels(t) {
   return [
-    { key: "wan26",      name: "WAN 2.6",          desc: t('creativeStudio.modelDesc.kling25Pro'),   badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
-    { key: "seedance",   name: "Seedance 1.5 Pro", desc: t('creativeStudio.modelDesc.kling25Master'),badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12], resolutions: ["480p","720p","1080p"],durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
-    { key: "kling3",     name: "Kling 3.0",        desc: t('creativeStudio.modelDesc.veo31Fast'),    badge: "POPULAR",  cost: 3,  color: "#e8203f", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
-    { key: "grok-video", name: "Grok Imagine",     desc: t('creativeStudio.modelDesc.hailuo'),       badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
-    { key: "veo31",      name: "VEO 3.1 Fast",     desc: t('creativeStudio.modelDesc.wan22'),        badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
-    { key: "kling-o3",   name: "Kling O3",         desc: t('creativeStudio.modelDesc.veo31Pro'),     badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
-    { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: t('creativeStudio.modelDesc.veo31Pro4K'),   badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
+    // ── ONE model, because there is only one ────────────────────────────────
+    // Every generation routes to Grok Imagine (_route_generate_video, 18 Jun
+    // 2026) — grok_imagine.generate_video() ignores model_key entirely. The
+    // old list offered 8 "models" (WAN 2.6 … VEO 3.1 Pro 4K) that all produced
+    // the identical 720p Grok clip at 1–16 credits: a member paid $3.20 for
+    // "4K" and got the same video as someone who paid $0.20, and 4K was never
+    // possible. Pricing now comes from the server (calc_credits) based on real
+    // seconds of Grok output, so this list carries no cost of its own.
+    { key: "grok-video", name: "AdvantageLife Video", desc: t('creativeStudio.modelDesc.hailuo'), badge: "HD + VOICE", cost: null, color: "var(--sap-accent)", i2v: true, audio: true, negPrompt: true, durations: [3,5,8,10,15], resolutions: ["480p","720p"], durationLabel: "3-15s", pricePer10s: "6 credits", tier: "standard" },
+  
   ];
 }
 
@@ -49,13 +52,21 @@ function getCameraMotions(t) {
 
 const AUDIO_EXTRA_PER_5S = 1;
 
+// Client-side mirror of app/superscene_evolink.py calc_credits(). MUST stay in
+// sync — the server is authoritative and will charge its own figure; this only
+// exists so the button can show the price before you press it.
+//
+// Every video routes to Grok Imagine ($0.05/sec, capped 15s). We charge 0.6
+// credits/sec with a floor of 4 → ~58-81% margin at every duration. Audio is
+// free (Grok generates it natively), and seconds beyond Grok's 15s cap are not
+// charged because they can't be delivered.
+var GROK_MAX_SECONDS      = 15;
+var VIDEO_CREDITS_PER_SEC = 0.6;
+var MIN_VIDEO_CREDITS     = 4;
+
 function calcCost(modelKey, dur, withAudio, MODELS) {
-  var m = MODELS.find(function(x) { return x.key === modelKey; });
-  if (!m) return 0;
-  var segs = dur / 5;
-  var c = m.cost * segs;
-  if (withAudio && m.audio) c += AUDIO_EXTRA_PER_5S * segs;
-  return c;
+  var secs = Math.max(1, Math.min(parseInt(dur, 10) || 0, GROK_MAX_SECONDS));
+  return Math.max(Math.ceil(secs * VIDEO_CREDITS_PER_SEC), MIN_VIDEO_CREDITS);
 }
 
 // ── Tab definitions ──

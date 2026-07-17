@@ -195,13 +195,78 @@ def resolve_music_model(tier: str) -> str:
     return MUSIC_TIER_ROUTES.get(tier, "suno-v4")
 
 
+# ═══════════════════════════════════════════════════════════════════════
+#  VIDEO PRICING — rebuilt 17 Jul 2026
+# ═══════════════════════════════════════════════════════════════════════
+# GROUND TRUTH: every member video generation routes to Grok Imagine via
+# _route_generate_video() (consolidated 18 Jun 2026 — "one provider, one
+# bill"). grok_imagine.generate_video() ignores model_key entirely and
+# hardcodes {"model": "grok-imagine-video"}, capped at 15s / 720p.
+#
+# WHAT WAS WRONG (all three overcharged or underpriced the member):
+#   1. Priced by MODEL (1–20 credits) for models that are never called.
+#      "WAN 2.6 CHEAPEST" charged 1 credit ($0.20) for a clip costing us
+#      $0.25–0.75 — the budget option LOST money on every generation —
+#      while "VEO 3.1 Pro 4K" charged $3.20 for the identical 720p clip.
+#   2. Billed the FULL requested duration while grok_imagine sends
+#      min(duration, 15) — members paid for seconds they cannot receive.
+#   3. Added AUDIO_EXTRA_PER_5S for audio that Grok includes free.
+#
+# NOW: price the thing we actually buy — seconds of Grok video.
+#   Grok Imagine video : $0.05/sec of output (xAI API, verified Jul 2026)
+#   1 credit           : $0.20 to the member
+#   0.6 credits/sec    : $0.12/sec revenue vs $0.05 cost → ~58% margin
+#   floor of 4 credits : a 3s clip still clears per-request overhead
+#
+# Every duration is profitable. If xAI changes the rate, update
+# GROK_COST_PER_SEC — assert_video_pricing_sane() below fails loudly if the
+# margin ever inverts, so this cannot silently start losing money again.
+GROK_COST_PER_SEC     = 0.05   # xAI grok-imagine-video, per second of output
+GROK_MAX_SECONDS      = 15     # hard cap in grok_imagine.generate_video()
+CREDIT_VALUE_USD      = 0.20   # what a member pays per credit
+VIDEO_CREDITS_PER_SEC = 0.6
+MIN_VIDEO_CREDITS     = 4
+
+
+def billable_seconds(duration_seconds: int) -> int:
+    """Seconds we can actually deliver. Grok truncates to 15s, so charging
+    beyond that bills for output the member will never receive."""
+    return max(1, min(int(duration_seconds or 0), GROK_MAX_SECONDS))
+
+
 def calc_credits(model_key: str, duration_seconds: int, with_audio: bool = False) -> int:
-    rate = CREDITS_PER_5S.get(model_key, 3)
-    segments = max(duration_seconds // 5, 1)
-    base = rate * segments
-    if with_audio and model_key in AUDIO_SUPPORTED:
-        base += AUDIO_EXTRA_PER_5S * segments
-    return base
+    """Credits for one video.
+
+    Priced on the REAL provider (Grok), not the requested model_key — every
+    generation routes to Grok regardless of what the picker said. model_key
+    and with_audio are kept in the signature for call-site compatibility:
+    model_key is logged, and audio is free on Grok (native synchronised
+    audio), so it no longer adds credits.
+    """
+    import math
+    secs = billable_seconds(duration_seconds)
+    return max(math.ceil(secs * VIDEO_CREDITS_PER_SEC), MIN_VIDEO_CREDITS)
+
+
+def video_cost_usd(duration_seconds: int) -> float:
+    """What a generation actually costs us. For admin/analytics."""
+    return round(billable_seconds(duration_seconds) * GROK_COST_PER_SEC, 4)
+
+
+def assert_video_pricing_sane() -> None:
+    """Guard: every deliverable duration must make money. Called on import so
+    a bad edit fails at boot rather than quietly bleeding margin."""
+    for secs in range(1, GROK_MAX_SECONDS + 1):
+        revenue = calc_credits("grok-video", secs) * CREDIT_VALUE_USD
+        cost = video_cost_usd(secs)
+        if revenue <= cost:
+            raise AssertionError(
+                f"Video pricing would lose money at {secs}s: "
+                f"revenue ${revenue:.2f} <= cost ${cost:.2f}"
+            )
+
+
+assert_video_pricing_sane()
 
 
 def calc_image_credits(model_key: str, quality: str = "1k") -> int:
