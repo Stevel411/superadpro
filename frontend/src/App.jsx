@@ -38,7 +38,6 @@ const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials')
 const LeadMagnetDetail = React.lazy(() => import('./pages/LeadMagnetDetail'));
 const CampaignVideos = React.lazy(() => import('./pages/CampaignVideos'));
 const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
-const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
 const Watch = React.lazy(() => import('./pages/Watch'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Support = React.lazy(() => import('./pages/Support'));
@@ -55,7 +54,6 @@ const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/Su
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
 const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
-const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
 const AiTool = React.lazy(() => import('./pages/AiTool'));
 const IncomeChains = React.lazy(() => import('./pages/IncomeChains'));
@@ -99,9 +97,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
-const GridVisualiser = React.lazy(() => import('./pages/GridVisualiser'));
-const LabsGridVisualiser = React.lazy(() => import('./pages/LabsGridVisualiser'));
-const GridCalculator = React.lazy(() => import('./pages/GridCalculator'));
 const CompensationPublic = React.lazy(() => import('./pages/public/CompensationPublic'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
@@ -122,12 +117,10 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/Leaderboard'),
   () => import('./pages/Affiliate'),
   () => import('./pages/LeadFinder'),
-  () => import('./pages/CampaignTiers'),
   () => import('./pages/Watch'),
   () => import('./pages/Support'),
   () => import('./pages/VideoLibrary'),
   () => import('./pages/UpgradeCheckout'),
-  () => import('./pages/CompensationPlan'),
   () => import('./pages/IncomeDisclaimer'),
   () => import('./pages/AiTool'),
   () => import('./pages/IncomeChains'),
@@ -150,8 +143,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/SuperLink'),
   () => import('./pages/CampaignAnalytics'),
   () => import('./pages/CreditMatrix'),
-  () => import('./pages/GridVisualiser'),
-  () => import('./pages/GridCalculator'),
 ];
 
 let preloadStarted = false;
@@ -324,7 +315,6 @@ function AppRoutes() {
       <Route path="/campaign-videos" element={<ProtectedRoute><CampaignVideos /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
-      <Route path="/campaign-tiers" element={<ProtectedRoute><RequireTier tier="basic"><CampaignTiers /></RequireTier></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><RequireTier tier="basic"><ActivateTier /></RequireTier></ProtectedRoute>} />
       <Route path="/grid/activate" element={<ProtectedRoute><RequireTier tier="basic"><GridActivatePage /></RequireTier></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<HardRedirect to="/home-preview" />} />
@@ -359,7 +349,6 @@ function AppRoutes() {
         resultLabel="Your Email" /></ProtectedRoute>} />
 
       {/* Info Pages */}
-      <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
       <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>{'Loading 3D Grid...'}</div>}><IncomeGrid3DPage /></React.Suspense>} />
       {/* /upgrade serves the new Partner Payment window (Sprint 2d, 15 May 2026).
@@ -414,9 +403,6 @@ function AppRoutes() {
       <Route path="/superdeck" element={<Navigate to="/tools" replace />} />
       <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
-      <Route path="/grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><GridVisualiser /></RequireTier></ProtectedRoute>} />
-      <Route path="/labs-grid-visualiser" element={<ProtectedRoute><RequireTier tier="basic"><LabsGridVisualiser /></RequireTier></ProtectedRoute>} />
-      <Route path="/grid-calculator" element={<ProtectedRoute><RequireTier tier="basic"><GridCalculator /></RequireTier></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#c8102e',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />
@@ -455,7 +441,6 @@ function AppRoutes() {
       <Route path="/how-it-works" element={<Navigate to="/explore" replace />} />
       <Route path="/what-you-get" element={<Navigate to="/explore" replace />} />
       <Route path="/earn" element={<Navigate to="/explore" replace />} />
-      <Route path="/tools" element={<Navigate to="/explore" replace />} />
 
       <Route path="/for-advertisers" element={<Navigate to="/compensation" replace />} />
       <Route path="/grid" element={<Navigate to="/compensation" replace />} />
