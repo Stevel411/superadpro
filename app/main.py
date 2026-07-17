@@ -7546,7 +7546,6 @@ def admin_network_tree_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 # ── Missing React page routes ──
-@app.get("/network")
 @app.get("/api/dashboard")
 def api_dashboard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -9236,30 +9235,7 @@ def wallet(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/income")
-def income_landing(request: Request):
-    """Serve React SPA for the new Income door landing page (Apr 2026).
-    Door 2 of 4 — gateway to the four income streams + wallet. The actual
-    React page is at frontend/src/pages/IncomePage.jsx with route /income
-    in App.jsx; this FastAPI handler just makes sure direct navigation to
-    /income (browser address bar, link from Dashboard, deep link) returns
-    index.html so the SPA can take over."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/income/membership")
-def income_membership_page(request: Request):
-    """Serve React SPA for /income/membership — the new Membership stream
-    deep-dive page (Apr 2026). Replaces the previous /compensation-plan#membership
-    placeholder anchor that the IncomeTabs Membership tab used to point at.
-    The React component (IncomeMembershipPage.jsx) renders different content
-    based on the viewer's direct count: 0 directs = coaching mode, 1-4 directs
-    = encouragement mode with progress bar, 5+ directs = data mode with
-    quality metrics. Real data comes from /api/membership-stream."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/tools")
 def tools_landing(request: Request):
@@ -46909,11 +46885,6 @@ def react_admin_stories(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/income-chains")
-def react_income_chains(request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/pro/funnel/{pageId}/edit")
 def react_pro_funnel_edit(request: Request, pageId: str):

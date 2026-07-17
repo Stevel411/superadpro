@@ -640,29 +640,6 @@ export default function Dashboard() {
             </div>
             <span className="dc-fb-go">{t('dashboard.fbGroupGo', { defaultValue: 'Open' })} →</span>
           </a>
-
-          {/* 4 · Income at-a-glance */}
-          <div className="dc-section-label">
-            <span className="t">{t('dashboard.yourIncome', { defaultValue: 'Your income' })}</span>
-            <span className="sub">{t('dashboard.yourIncomeSub', { defaultValue: 'Three streams, at a glance.' })}</span>
-          </div>
-          <div className="dc-income">
-            <Link to="/income" className="dc-inc-card">
-              <div className="dc-inc-ico" style={{ background: '#dcfce7' }}>👥</div>
-              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamMembership', { defaultValue: 'Membership' })}</div><div className="dc-inc-sub">{t('dashboard.directsPaying', { count: d.directs_active || 0, defaultValue: (d.directs_active || 0) + ' directs paying' })}</div></div>
-              <div className="dc-inc-amt">{formatMoney(d.membership_earned)}</div>
-            </Link>
-            <Link to="/income" className="dc-inc-card">
-              <div className="dc-inc-ico" style={{ background: '#e0f2fe' }}>🎯</div>
-              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamGrid', { defaultValue: 'Campaign Grid' })}</div><div className="dc-inc-sub">{t('dashboard.inYourTeam', { count: d.total_team || 0, defaultValue: (d.total_team || 0) + ' in your team' })}</div></div>
-              <div className="dc-inc-amt">{formatMoney(d.grid_earned)}</div>
-            </Link>
-            <Link to="/my-credits" className="dc-inc-card">
-              <div className="dc-inc-ico" style={{ background: '#cffafe' }}>⚡</div>
-              <div className="dc-inc-body"><div className="dc-inc-name">{t('dashboard.streamCredits', { defaultValue: 'Creator Credits' })}</div><div className="dc-inc-sub">{t('dashboard.referrals', { count: d.direct_referrals_count || 0, defaultValue: (d.direct_referrals_count || 0) + ' referrals' })}</div></div>
-              <div className="dc-inc-amt">{formatMoney(d.creative_studio_earned)}</div>
-            </Link>
-          </div>
         </div>
         );
       })()}
@@ -1169,18 +1146,9 @@ export default function Dashboard() {
         .dc-vid-bar{height:7px;border-radius:99px;background:#e2eefb;overflow:hidden;margin-bottom:6px}
         .dc-vid-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0ea5e9,#22d3ee)}
         .dc-vid-lab{font-size:11.5px;font-weight:600;color:var(--dc-ink3)}
-        .dc-income{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-        .dc-inc-card{background:#fff;border:1px solid var(--dc-line);border-radius:16px;padding:18px 20px;box-shadow:0 1px 2px rgba(10,20,56,.04),0 8px 24px rgba(10,20,56,.06);display:flex;align-items:center;gap:14px;text-decoration:none;transition:.2s}
-        .dc-inc-card:hover{box-shadow:0 2px 4px rgba(10,20,56,.06),0 16px 40px rgba(10,20,56,.12);transform:translateY(-2px)}
-        .dc-inc-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
-        .dc-inc-body{flex:1;min-width:0}
-        .dc-inc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:14px;color:var(--dc-ink)}
-        .dc-inc-sub{font-size:12px;color:var(--dc-ink3)}
-        .dc-inc-amt{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1438;text-align:right}
         @media(max-width:900px){
           .dc-focus{grid-template-columns:1fr}
           .dc-doors{grid-template-columns:repeat(2,1fr)}
-          .dc-income{grid-template-columns:1fr}
         }
       `}</style>
 

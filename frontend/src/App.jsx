@@ -56,10 +56,7 @@ const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSan
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
 const AiTool = React.lazy(() => import('./pages/AiTool'));
-const IncomeChains = React.lazy(() => import('./pages/IncomeChains'));
-const IncomePage = React.lazy(() => import('./pages/IncomePage'));
 const ToolsPage = React.lazy(() => import('./pages/ToolsPage'));
-const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPage'));
 const LearnPage = React.lazy(() => import('./pages/LearnPage'));
 const EducationPage = React.lazy(() => import('./pages/EducationPage'));
 const AssetsPage = React.lazy(() => import('./pages/AssetsPage'));
@@ -120,10 +117,7 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/UpgradeCheckout'),
   () => import('./pages/IncomeDisclaimer'),
   () => import('./pages/AiTool'),
-  () => import('./pages/IncomeChains'),
-  () => import('./pages/IncomePage'),
   () => import('./pages/ToolsPage'),
-  () => import('./pages/IncomeMembershipPage'),
   () => import('./pages/LearnPage'),
   () => import('./pages/EducationPage'),
   () => import('./pages/AssetsPage'),
@@ -401,9 +395,6 @@ function AppRoutes() {
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<Navigate to="/campaign-tiers" replace />} />
-      <Route path="/network" element={<Navigate to="/income" replace />} />
-      <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
-      <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><ToolsPage /></ProtectedRoute>} />
       {/* Legacy routes — redirect to the new structure. Free + Basic AI tools
           live under AI Content; Basic builder tools + Pro tools live under Builder. */}
@@ -414,7 +405,6 @@ function AppRoutes() {
       <Route path="/learn/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
       <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
       <Route path="/learn/community" element={<HardRedirect to="/learn" />} />
-      <Route path="/income-chains" element={<ProtectedRoute><RequireTier tier="basic"><IncomeChains /></RequireTier></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />

@@ -20,8 +20,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Compass, Wallet, FileText, Users, Target, Layers, GraduationCap, Clock,
-  ChevronLeft, ChevronRight,
+  Wallet, FileText, Target, Clock, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 // ──────────────────────────────────────────────────────────────────
@@ -33,13 +32,6 @@ import {
 function buildTabs(t) {
   return [
     {
-      id: 'overview',
-      label: t('income.tabs.overview', { defaultValue: 'Overview' }),
-      icon: Compass, tone: 'violet',
-      path: '/income',
-      match: ['/income'],
-    },
-    {
       id: 'wallet',
       label: t('income.tabs.wallet', { defaultValue: 'Wallet' }),
       icon: Wallet, tone: 'green',
@@ -50,15 +42,8 @@ function buildTabs(t) {
       id: 'comp-plan',
       label: t('income.tabs.compPlan', { defaultValue: 'Comp Plan' }),
       icon: FileText, tone: 'gray',
-      path: '/compensation-plan',
-      match: ['/compensation-plan'],
-    },
-    {
-      id: 'membership',
-      label: t('income.tabs.membership', { defaultValue: 'Membership' }),
-      icon: Users, tone: 'green',
-      path: '/income/membership',
-      match: ['/income/membership'],
+      path: '/plan',
+      match: ['/plan', '/compensation-plan'],
     },
     {
       id: 'campaigns',
@@ -273,8 +258,8 @@ export function isIncomeFamilyRoute(pathname) {
   // Kept as a separate function so we can extend later without touching
   // every call site.
   const INCOME_PATHS = [
-    '/income',
     '/wallet',
+    '/plan',
     '/compensation-plan',
     '/packs',
     '/campaign-tiers',
