@@ -26,7 +26,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   // AI Content tool icons
-  Sparkles, FileText, Monitor, Image, Smile, QrCode, Star,
+  Sparkles,
   // Builder tool icons
   Globe, Link2, LayoutGrid, Mail, Search, GraduationCap, Newspaper,
 } from 'lucide-react';
@@ -42,9 +42,6 @@ import {
 export function getAIContentTools(t) {
   return [
     { id: 'studio',  icon: Sparkles, name: t('tools.ai.studio.name', { defaultValue: 'Creative Studio' }), desc: t('tools.ai.studio.desc', { defaultValue: 'AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse.' }), to: '/creative-studio' },
-    { id: 'content', icon: FileText, name: t('tools.ai.content.name', { defaultValue: 'Content Creator' }), desc: t('tools.ai.content.desc', { defaultValue: 'AI-written posts, articles, captions, scripts.' }), to: '/content-creator' },
-    { id: 'banner',  icon: Image,    name: t('tools.ai.banner.name', { defaultValue: 'Banner Creator' }), desc: t('tools.ai.banner.desc', { defaultValue: 'AI-generated banners and profile images for social platforms.' }), to: '/tools/banner-creator' },
-    { id: 'meme',    icon: Smile,    name: t('tools.ai.meme.name', { defaultValue: 'Meme Generator' }), desc: t('tools.ai.meme.desc', { defaultValue: 'Quick template-based memes and viral images.' }), to: '/tools/meme-generator' },
   ];
 }
 

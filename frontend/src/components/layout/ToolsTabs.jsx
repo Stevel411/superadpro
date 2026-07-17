@@ -67,15 +67,10 @@ function buildTabs(t) {
       match: [
         '/tools/ai-content',
         '/creative-studio',
-        '/content-creator',
-        '/tools/banner-creator',
-        '/tools/meme-generator',
         // Legacy paths kept here so deep-pages still highlight correctly
         // until the legacy redirects clear out of cache.
         '/tools/free',
         '/tools/basic',
-        '/free/banner-creator',
-        '/free/meme-generator',
       ],
       requiresTier: 'paid',
     },
@@ -314,7 +309,6 @@ export function isToolsFamilyRoute(pathname) {
     '/tools',
     // AI Content tools (deep pages)
     '/creative-studio',
-    '/content-creator',
     // Builder tools (deep pages)
     '/linkhub',
     '/link-tools',
@@ -324,10 +318,6 @@ export function isToolsFamilyRoute(pathname) {
     // Note: /pro/funnels deliberately excluded — it's a focused page-
     // gateway, not a tools-family page. The persistent tabs strip
     // adds noise without value on this surface.
-    // Legacy quick-tool routes — kept until the /free/* paths are
-    // confirmed retired or redirected.
-    '/free/banner-creator',
-    '/free/meme-generator',
   ];
   for (var i = 0; i < TOOLS_PATHS.length; i++) {
     var p = TOOLS_PATHS[i];

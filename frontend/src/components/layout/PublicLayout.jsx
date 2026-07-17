@@ -109,15 +109,6 @@ export default function PublicLayout({ children }) {
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}
             </div>
-
-            {/* Free Tools */}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.freeTools')}</div>
-              {[['Meme Generator', '/free/meme-generator'], ['Banner & Profile Creator', '/free/banner-creator']].map(function([l,h]){
-                return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
-                  onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
-              })}
-            </div>
           </div>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>

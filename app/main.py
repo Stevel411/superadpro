@@ -4090,13 +4090,6 @@ def grid_calculator(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/matrix-visualiser")
-def matrix_visualiser(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
     """Return spillover grid data for the current user at a given tier.
@@ -7551,19 +7544,8 @@ def dashboard(request: Request):
 # ── Free tools (public, unauthenticated) ──────────────────────────
 # Each React route needs an explicit FastAPI handler so direct URL
 # access + refresh work — without these the server returns 404.
-@app.get("/free/qr-code-generator")
-@app.get("/free/meme-generator")
-@app.get("/free/banner-creator")
-def free_tools_pages(request: Request):
-    """Serve React SPA for public free tools."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 # ── Internal tools (members, light-themed AppLayout versions) ─────
 @app.get("/tools/qr-code-generator")
-@app.get("/tools/meme-generator")
-@app.get("/tools/banner-creator")
 def internal_tools_pages(request: Request):
     """Serve React SPA for internal members-area tools."""
     if _react_index.exists():
@@ -9142,18 +9124,6 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 # canvas substrate and Grok to overwrite copy fields — no fabricated stats,
 # no hardcoded testimonials, no schema mismatch.
 # ─────────────────────────────────────────────────────────────────────
-@app.get("/income-grid")
-def income_grid(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/superseller")
-def superseller_page(request: Request):
-    """Serve React SPA for SuperSeller."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/training")
 def training_page(request: Request):
     if _react_index.exists():
@@ -9568,26 +9538,18 @@ def my_marketing_lead_magnet_detail(key: str, request: Request):
 
 
 @app.get("/marketing/lead-magnets")
-def marketing_lead_magnets(request: Request):
-    """Serve React SPA — Lead Magnets library (new /marketing namespace)."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+def marketing_lead_magnets():
+    """Legacy namespace. The live library is /my-marketing/lead-magnets — this
+    route served the SPA shell but no React route existed, so it silently
+    bounced the visitor to '/'. Members share lead-magnet URLs publicly, so old
+    links must survive: 301 to the real page rather than 404."""
+    return RedirectResponse(url="/my-marketing/lead-magnets", status_code=301)
 
 
 @app.get("/marketing/lead-magnets/{key}")
-def marketing_lead_magnet_detail(key: str, request: Request):
-    """Serve React SPA — per-magnet lead-magnet detail / share page (new namespace)."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-@app.get("/business-hub")
-def business_hub(request: Request):
-    """Serve React SPA — Business Hub (My Business) door."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+def marketing_lead_magnet_detail(key: str):
+    """Legacy per-magnet share URL — 301 to the live /my-marketing namespace."""
+    return RedirectResponse(url=f"/my-marketing/lead-magnets/{key}", status_code=301)
 
 @app.get("/campaign-videos")
 def campaign_videos(request: Request):
@@ -37415,13 +37377,6 @@ def funnel_analytics_dashboard(request: Request, user: User = Depends(get_curren
                                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
     return RedirectResponse(url="/pro/funnels", status_code=302)
-@app.get("/funnels/leads")
-def funnel_leads_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 def _old_funnel_leads_DISABLED(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
@@ -40026,13 +39981,6 @@ def check_achievements(db: Session, user: User):
     if new_badges:
         db.commit()
     return new_badges
-@app.get("/achievements")
-def achievements_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 def _old_achievements_DISABLED(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     check_achievements(db, user)
@@ -43332,12 +43280,6 @@ RULES:
 #  SWIPE FILE
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/swipe-file")
-def swipe_file(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 @app.post("/api/swipe-file/generate")
 async def generate_swipes(request: Request, user: User = Depends(get_current_user),
                            db: Session = Depends(get_db)):
@@ -43689,13 +43631,6 @@ def incident_cleanup(confirm: str = "", user: User = Depends(get_current_user), 
 #  COURSES — Catalogue, Purchase, Pass-Up Commissions
 # ═══════════════════════════════════════════════════════════════════
 
-@app.get("/courses")
-def courses_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 async def _old_courses_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     courses = db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all()
@@ -43749,25 +43684,10 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
         return JSONResponse({"error": result["error"]}, status_code=400)
 
     return RedirectResponse(f"/courses/learn/{course_id}?purchased=1", status_code=303)
-@app.get("/courses/learn/{course_id}")
-def course_learn_page(course_id: int, request: Request):
-    """Phase 4: serve React SPA — React calls /api/courses/learn/:id."""
-    del course_id
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/courses", status_code=302)
-
 async def _old_course_learn_DISABLED(course_id: int, request: Request,
                                       lesson: int = 0, purchased: int = 0,
                                       db: Session = Depends(get_db)):
     pass
-@app.get("/courses/how-it-works")
-def course_how_it_works(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 async def _old_course_how_it_works_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     return templates.TemplateResponse("course-how-it-works.html", {
@@ -47065,12 +46985,6 @@ def react_admin_stories(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/courses/learn/{courseId}")
-def react_course_learn(request: Request, courseId: str):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 @app.get("/income-chains")
 def react_income_chains(request: Request):
     if _react_index.exists():
@@ -47085,18 +46999,6 @@ def react_pro_funnel_edit(request: Request, pageId: str):
 
 @app.get("/register/{ref}")
 def react_register_with_ref(request: Request, ref: str):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-@app.get("/share-story")
-def react_share_story(request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-@app.get("/upgrade-from-balance")
-def react_upgrade_from_balance(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -57513,16 +57415,6 @@ async def studio_page(request: Request):
     if _get_react_index_html() is not None:
         return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
-@app.get("/superscene")
-async def superscene_page(request: Request):
-    """Serve the SuperScene page — handled by React router client-side."""
-    if _get_react_index_html() is not None:
-        return _spa_shell()
-    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
-@app.get("/supercut")
-async def supercut_redirect():
-    """Redirect old SuperCut URL to SuperScene."""
-    return RedirectResponse(url="/superscene", status_code=301)
 @app.post("/api/superscene/admin/grant-credits")
 async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)):
     """Admin-only: grant SuperScene credits to a user for testing."""
@@ -64726,13 +64618,6 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
         db.close()
 # ── Content Creator — AI Marketing Content Generator ─────────
 
-@app.get("/content-creator")
-async def content_creator_page(request: Request):
-    """Serve the React Content Creator page."""
-    import pathlib
-    if _get_react_index_html() is not None:
-        return _spa_shell()
-    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.post("/api/content-creator/generate")
 async def content_creator_generate(request: Request, db: Session = Depends(get_db)):
     """Generate marketing content using Claude Haiku.
@@ -65459,18 +65344,6 @@ from .database import Presentation
 
 @app.get("/superdeck")
 def superdeck_page(request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-@app.get("/superdeck/{path:path}")
-def superdeck_catchall(path: str, request: Request):
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-@app.get("/video-creator")
-def video_creator_page(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")

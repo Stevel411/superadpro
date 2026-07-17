@@ -13,12 +13,10 @@ import { Component, Suspense } from 'react';
 import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
 import AIToolsHub from './pages/AIToolsHub';
-import ToolKitPage from './pages/ToolKitPage';
 import CampaignsPage from './pages/CampaignsPage';
 import TeamPage from './pages/TeamPage';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
-import AccountPurchases from './pages/AccountPurchases';
 
 // ── Lazy imports — every non-hot page splits into its own chunk.
 // Result: visitors only download code for pages they actually visit.
@@ -29,7 +27,6 @@ const MyTeam = React.lazy(() => import('./pages/MyTeam'));
 const OnboardingWizard = React.lazy(() => import('./pages/OnboardingWizard'));
 const AnalyticsPage = React.lazy(() => import('./pages/Analytics'));
 const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
-const Courses = React.lazy(() => import('./pages/Courses'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const SharePage = React.lazy(() => import('./pages/SharePage'));
 const AdminAL = React.lazy(() => import('./pages/AdminAL'));
@@ -37,8 +34,8 @@ const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
 const EmailSwipes = React.lazy(() => import('./pages/EmailSwipes'));
 const LeadMagnets = React.lazy(() => import('./pages/LeadMagnets'));
+const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const LeadMagnetDetail = React.lazy(() => import('./pages/LeadMagnetDetail'));
-const BusinessHub = React.lazy(() => import('./pages/BusinessHub'));
 const CampaignVideos = React.lazy(() => import('./pages/CampaignVideos'));
 const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
 const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
@@ -57,7 +54,6 @@ const HelpSendingDomain = React.lazy(() => import('./pages/HelpSendingDomain'));
 const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/SuperPagesEditor'));
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
 const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
-const Upgrade = React.lazy(() => import('./pages/Upgrade'));
 const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
@@ -69,7 +65,6 @@ const IncomeMembershipPage = React.lazy(() => import('./pages/IncomeMembershipPa
 const LearnPage = React.lazy(() => import('./pages/LearnPage'));
 const EducationPage = React.lazy(() => import('./pages/EducationPage'));
 const AssetsPage = React.lazy(() => import('./pages/AssetsPage'));
-const HowCommissionsWork = React.lazy(() => import('./pages/HowCommissionsWork'));
 const MyLeads = React.lazy(() => import('./pages/MyLeads'));
 const LinkTools = React.lazy(() => import('./pages/LinkTools'));
 const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
@@ -103,24 +98,15 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
-const VideoCreator = React.lazy(() => import('./pages/VideoCreator'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const GridVisualiser = React.lazy(() => import('./pages/GridVisualiser'));
 const LabsGridVisualiser = React.lazy(() => import('./pages/LabsGridVisualiser'));
 const GridCalculator = React.lazy(() => import('./pages/GridCalculator'));
-const GridStreamPage = React.lazy(() => import('./pages/public/GridStreamPage'));
-const MembershipStreamPage = React.lazy(() => import('./pages/public/MembershipStreamPage'));
-const CompensationHubPage = React.lazy(() => import('./pages/public/CompensationHubPage'));
 const CompensationPublic = React.lazy(() => import('./pages/public/CompensationPublic'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
-const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
-const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
-const BannerCreator = React.lazy(() => import('./pages/free/BannerCreator'));
-const MemeGeneratorInternal = React.lazy(() => import('./pages/tools/MemeGenerator'));
-const BannerCreatorInternal = React.lazy(() => import('./pages/tools/BannerCreator'));
 
 // ── Background-preload all lazy chunks after first paint ──────────────────
 // Without this, every route navigation triggers a fresh network fetch for
@@ -133,7 +119,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/BucketList'),
   () => import('./pages/Analytics'),
   () => import('./pages/CreateCampaign'),
-  () => import('./pages/Courses'),
   () => import('./pages/Leaderboard'),
   () => import('./pages/Affiliate'),
   () => import('./pages/LeadFinder'),
@@ -141,7 +126,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/Watch'),
   () => import('./pages/Support'),
   () => import('./pages/VideoLibrary'),
-  () => import('./pages/Upgrade'),
   () => import('./pages/UpgradeCheckout'),
   () => import('./pages/CompensationPlan'),
   () => import('./pages/IncomeDisclaimer'),
@@ -154,7 +138,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/EducationPage'),
   () => import('./pages/AssetsPage'),
   () => import('./pages/CommunityPage'),
-  () => import('./pages/HowCommissionsWork'),
   () => import('./pages/MyLeads'),
   () => import('./pages/LinkTools'),
   () => import('./pages/ProSeller'),
@@ -169,8 +152,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/CreditMatrix'),
   () => import('./pages/GridVisualiser'),
   () => import('./pages/GridCalculator'),
-  () => import('./pages/tools/MemeGenerator'),
-  () => import('./pages/tools/BannerCreator'),
 ];
 
 let preloadStarted = false;
@@ -221,15 +202,10 @@ import ResetPassword from './pages/auth/ResetPassword';
 
 // Public pages
 import HomePage from './pages/public/HomePage';
-import ExplorePage from './pages/public/ExplorePage';
 import ExploreHub from './pages/public/ExploreHub';
-import FreeTools from './pages/public/FreeTools';
-import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal } from './pages/public/PublicPages';
 import InternalFAQ from './pages/FAQ';
 import PublicIncomeDisclosure from './pages/public/PublicIncomeDisclosure';
-import ForAdvertisers from './pages/public/ForAdvertisers';
-import CoursePlayer from './pages/CoursePlayer';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -344,6 +320,7 @@ function AppRoutes() {
       <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
+      <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
       <Route path="/campaign-videos" element={<ProtectedRoute><CampaignVideos /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />

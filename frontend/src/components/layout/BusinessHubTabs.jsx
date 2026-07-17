@@ -19,14 +19,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  Briefcase, Gauge, Users, Target, Layers, Zap, LayoutGrid, LineChart,
+  Gauge, Users, Target, Layers, Zap, LayoutGrid, LineChart,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 function buildTabs(t) {
   return [
-    { id: 'hub', label: t('businessHub.tabs.hub', { defaultValue: 'Hub' }),
-      icon: Briefcase, tone: 'cobalt', path: '/business-hub', match: ['/business-hub'] },
     { id: 'performance', label: t('businessHub.tabs.performance', { defaultValue: 'Performance' }),
       icon: Gauge, tone: 'cyan', path: '/command-centre', match: ['/command-centre'] },
     { id: 'team', label: t('businessHub.tabs.team', { defaultValue: 'Team' }),
@@ -155,7 +153,6 @@ export default function BusinessHubTabs() {
 // Helper for AppLayout. Mirrors isMyMarketingFamilyRoute / isIncomeFamilyRoute.
 export function isBusinessHubFamilyRoute(pathname) {
   const PATHS = [
-    '/business-hub',
     '/command-centre',
     '/my-team',
     '/campaign-tiers',

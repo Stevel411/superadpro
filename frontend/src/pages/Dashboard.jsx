@@ -78,26 +78,6 @@ export default function Dashboard() {
   // /api/member/story/prompt-dismiss so it syncs across devices. The
   // localStorage flag is kept as a fast-path so the banner doesn't flash
   // before the network round-trip completes on subsequent loads.
-  const [storyPrompt, setStoryPrompt] = useState(null);
-  const [storyPromptDismissed, setStoryPromptDismissed] = useState(function() {
-    try { return localStorage.getItem('story-prompt-dismissed') === '1'; } catch(e) { return false; }
-  });
-  useEffect(function() {
-    if (storyPromptDismissed) return;
-    apiGet('/api/member/story/prompt-check')
-      .then(function(r) { if (r && r.show) setStoryPrompt(r); })
-      .catch(function() {});
-  }, [storyPromptDismissed]);
-  function dismissStoryPrompt() {
-    // Optimistic: hide immediately, mark localStorage for fast-path,
-    // then persist server-side. If the network call fails the local
-    // dismissal still survives the current session; next login the
-    // banner will reappear and the user can dismiss again — annoying
-    // but not destructive.
-    setStoryPromptDismissed(true);
-    try { localStorage.setItem('story-prompt-dismissed', '1'); } catch(e) {}
-    apiPost('/api/member/story/prompt-dismiss', {}).catch(function() {});
-  }
 
   // ── Platform maintenance status ──
   // Polled on mount and every 60s so members see the banner appear
@@ -618,23 +598,12 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 3 · Four doors */}
+          {/* 3 · Three doors */}
           <div className="dc-section-label">
             <span className="t">{t('dashboard.whereToStart', { defaultValue: 'Where to start' })}</span>
-            <span className="sub">{t('dashboard.whereToStartSub', { defaultValue: 'Four ways into the platform — pick wherever you want to begin.' })}</span>
+            <span className="sub">{t('dashboard.whereToStartSub', { defaultValue: 'Three ways into the platform — pick wherever you want to begin.' })}</span>
           </div>
           <div className="dc-doors">
-            <Link to={previewFree ? "/business-hub?launchpad=preview" : "/business-hub"} className="dc-door">
-              <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#1e3a8a,#0ea5e9)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg></div>
-              <h4>{(!d.is_active || previewFree)
-                ? t('dashboard.doorBusinessLaunch', { defaultValue: 'Business Launch' })
-                : t('dashboard.doorBusiness', { defaultValue: 'My Business' })}</h4>
-              <p>{(!d.is_active || previewFree)
-                ? t('dashboard.doorBusinessLaunchDesc', { defaultValue: 'Start earning — your first step is inside.' })
-                : t('dashboard.doorBusinessDesc', { defaultValue: 'Your income, team, commissions and stats.' })}</p>
-              <span className="dc-door-go">{t('dashboard.doorOpen', { defaultValue: 'Open' })} →</span>
-            </Link>
-
             <Link to="/tools" className="dc-door">
               <div className="dc-door-ico" style={{ background: 'linear-gradient(135deg,#0ea5e9,#22d3ee)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 6l4 4-9 9-4 1 1-4z"/><path d="M16 4l4 4"/></svg></div>
               <h4>{t('dashboard.doorTools', { defaultValue: 'My Tools' })}</h4>
@@ -1087,45 +1056,6 @@ export default function Dashboard() {
           12 Jun 2026 (Steve) — kept the dashboard clean. Campaign Tiers
           remain reachable from My Business → Profit Grid and the sidebar. */}
 
-      {/* Story prompt nudge — only shown to members with ≥1 paid commission who
-          haven't submitted a story yet. Server-gated via /api/member/story/prompt-check.
-          Dismissible (localStorage). */}
-      {storyPrompt && !storyPromptDismissed && (
-        <div style={{
-          position: 'relative',
-          background: 'linear-gradient(135deg,#fef3c7,#fde68a)',
-          border: '1px solid #fcd34d',
-          borderRadius: 12, padding: '18px 22px', marginBottom: 20,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
-        }}>
-          {/* Dismiss (×) — absolute top-right */}
-          <button onClick={dismissStoryPrompt}
-            aria-label={t('dashboard.storyPromptDismiss', { defaultValue: 'Dismiss' })}
-            style={{
-              position: 'absolute', top: 8, right: 10,
-              background: 'transparent', border: 'none',
-              fontSize: 20, lineHeight: 1, color: '#92400e',
-              cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
-            }}>×</button>
-          <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
-            <div style={{...TYPE.cardTitleBold, color: '#78350f', marginBottom: 6}}>
-              🎉 {t('dashboard.storyPromptTitle', { amount: formatMoney(storyPrompt.first_amount), defaultValue: 'You earned your first ' + formatMoney(storyPrompt.first_amount) + '!' })}
-            </div>
-            <p style={{...TYPE.bodyLarge, color: '#78350f', margin: 0}}>
-              {t('dashboard.storyPromptBody', { defaultValue: 'Share the story of how you did it — your experience could inspire the next member. Takes 2 minutes. Our team reviews before it goes live on /explore.' })}
-            </p>
-          </div>
-          <Link to="/share-story" style={{
-            fontSize: 14, fontWeight: 700, color: '#fff',
-            background: 'linear-gradient(135deg,#d97706,#f59e0b)',
-            padding: '11px 22px', borderRadius: 9, textDecoration: 'none',
-            boxShadow: '0 4px 14px rgba(217,119,6,0.35)', flexShrink: 0,
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-          }}>
-            {t('dashboard.storyPromptCta', { defaultValue: 'Share my story' })} →
-          </Link>
-        </div>
-      )}
 
 
       {/* ── Smart Goals removed (26 Apr 2026, founder direction) ──

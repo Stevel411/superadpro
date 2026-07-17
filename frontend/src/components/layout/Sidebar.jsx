@@ -96,12 +96,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
       { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
 
-      // ── CREATE ──
-      { subheader: t('nav.toolsCreate', { defaultValue: 'Create' }) },
-      { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator', basic: true },
-      { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/tools/banner-creator' },
-      { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/tools/meme-generator' },
-
       // ── PAGES & LINKS ──
       { subheader: t('nav.toolsLinks', { defaultValue: 'Pages & Links' }) },
       { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools', basic: true },
