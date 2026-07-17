@@ -3947,27 +3947,8 @@ def income_disclaimer(request: Request):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
-@app.get("/grid")
-def grid_stream_page(request: Request):
-    """Retired 23 Jun 2026 — orphaned stream page (carried stale v1 economics).
-    Redirect to the live dynamic compensation plan."""
-    return RedirectResponse(url="/compensation", status_code=302)
 
 
-@app.get("/grid/activate")
-def grid_activate_page(request: Request):
-    """Serve React SPA for the Grid Tier 1 activation explainer page.
-
-    Member-facing — paywall enforcement happens on the React side
-    (RequireTier="basic" in App.jsx). Unauthenticated visitors get
-    bounced to /login by the same ProtectedRoute wrapper.
-
-    Added 17 May 2026 alongside the Fast Start dashboard hero.
-    Hits the existing grid_1 WalletConnect + NOWPayments flow.
-    """
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/", status_code=302)
 
 
 @app.get("/membership")
@@ -4076,19 +4057,7 @@ def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: Us
         "balance": float(user.balance or 0)
     })
 
-@app.get("/grid-visualiser")
-def grid_visualiser(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/grid-calculator")
-def grid_calculator(request: Request):
-    """Serve React SPA — Grid Calculator page."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
@@ -6553,15 +6522,6 @@ def passup_visualiser(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/new-grid")
-def new_grid(request: Request):
-    """Retired 23 Jun 2026. The Proposed Profit Grid page (ProposedGrid.jsx)
-    showed the old welcome-bonus proposal that was superseded by the live
-    50/25/25 v2 plan (welcome scrapped 22 Jun). It displayed economics the
-    platform no longer pays, so it's redirected to the live grid surface.
-    /passup-visualiser (which used to point here) now also goes straight to
-    /campaign-tiers."""
-    return RedirectResponse(url="/campaign-tiers", status_code=302)
 
 @app.get("/packages")
 def packages(request: Request):
@@ -8614,16 +8574,17 @@ def api_command_centre_nexus_team(
 # corresponding @app.get() in main.py serving _get_react_index_html() or ""
 # so direct URL access and refresh work.
 
+
 @app.get("/command-centre/directs/active")
 @app.get("/command-centre/directs/lapsed")
 @app.get("/command-centre/directs/never-paid")
-@app.get("/command-centre/grid-team")
 @app.get("/command-centre/nexus-team")
 def command_centre_drilldown_pages(request: Request):
     """Serve React SPA for any Command Centre Layer 2 drill-down page."""
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+
 
 
 @app.get("/analytics")
@@ -9250,12 +9211,6 @@ def qr_generator_page(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/income-grid-3d")
-def income_grid_3d(request: Request):
-    """Serve React SPA for 3D income grid visualisation."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
@@ -9273,19 +9228,6 @@ def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current
         logger.error(f"Income grid error for user {user.id}: {exc}", exc_info=True)
         return JSONResponse({"error": f"Income grid error: {exc}"}, status_code=500)
 
-@app.get("/income-grid/{grid_id}")
-def grid_detail(grid_id: int, request: Request,
-                user: User = Depends(get_current_user),
-                db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    grid = db.query(Grid).filter(Grid.id == grid_id, Grid.owner_id == user.id).first()
-    if not grid: raise HTTPException(status_code=404, detail="Grid not found")
-    positions = get_grid_positions(db, grid_id)
-    ctx = get_dashboard_context(request, user, db)
-    ctx.update({"grid": grid, "positions": positions, "GRID_PACKAGES": GRID_PACKAGES})
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.get("/wallet")
 def wallet(request: Request):
@@ -19110,24 +19052,6 @@ def api_membership_activate_from_balance(
         "remaining_balance": float(user.balance),
     }
 
-@app.get("/activate-grid")
-def activate_grid_form(
-    request: Request,
-    tier: int = 1,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    price = GRID_PACKAGES.get(tier, 10)
-    ctx = get_dashboard_context(request, user, db)
-    ctx.update({
-        "tier": tier,
-        "price": price,
-        "company_wallet": COMPANY_WALLET,
-        "GRID_PACKAGES": GRID_PACKAGES,
-    })
-    return JSONResponse({"error": "Payment failed."}, status_code=400)
 # Coinbase Commerce routes removed 20 May 2026.
 # /api/coinbase/create-charge and /api/webhook/coinbase deleted along
 # with app/coinbase_commerce.py. Platform now uses NOWPayments + direct

@@ -79,7 +79,6 @@ const AdminOrphans = React.lazy(() => import('./pages/AdminOrphans'));
 const Funnels = React.lazy(() => import('./pages/Funnels'));
 const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
 const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
-const GridActivatePage = React.lazy(() => import('./pages/GridActivatePage'));
 const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
 const TeamGiftAccept = React.lazy(() => import('./pages/TeamGiftAccept'));
 const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
@@ -101,14 +100,12 @@ const CompensationPublic = React.lazy(() => import('./pages/public/CompensationP
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
-const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 
 // ── Background-preload all lazy chunks after first paint ──────────────────
 // Without this, every route navigation triggers a fresh network fetch for
 // that page's chunk, showing a spinner each time. With this, the chunks load
 // silently in the background once the user is on the dashboard, so subsequent
 // navigations resolve Suspense instantly. Staggered to avoid network thrash;
-// excludes the giant 3D grid (loaded only on demand).
 const PRELOAD_IMPORTS = [
   () => import('./pages/CommandCentre'),
   () => import('./pages/BucketList'),
@@ -287,9 +284,7 @@ function AppRoutes() {
       <Route path="/payout-methods" element={<HardRedirect to="/payout-methods" />} />
       <Route path="/plan" element={<HardRedirect to="/plan" />} />
       <Route path="/compensation-plan" element={<HardRedirect to="/plan" />} />
-      <Route path="/grid-visualiser" element={<HardRedirect to="/packs" />} />
       <Route path="/campaign-tiers" element={<HardRedirect to="/packs" />} />
-      <Route path="/grid-calculator" element={<HardRedirect to="/plan" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
@@ -298,7 +293,6 @@ function AppRoutes() {
       <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
       <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />
       <Route path="/command-centre/directs/never-paid" element={<ProtectedRoute><BucketList bucketKey="directs-never-paid" /></ProtectedRoute>} />
-      <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
       <Route path="/w/:token" element={<SharePage />} />
@@ -316,7 +310,6 @@ function AppRoutes() {
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><RequireTier tier="basic"><ActivateTier /></RequireTier></ProtectedRoute>} />
-      <Route path="/grid/activate" element={<ProtectedRoute><RequireTier tier="basic"><GridActivatePage /></RequireTier></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<HardRedirect to="/home-preview" />} />
       {/* Brand Poster Generator — gallery is open to all members (preview), generation gated by Nexus pack ownership in the backend */}
       <Route path="/brand-posters" element={<ProtectedRoute><RequireTier tier="basic"><BrandPostersGallery /></RequireTier></ProtectedRoute>} />
@@ -350,7 +343,6 @@ function AppRoutes() {
 
       {/* Info Pages */}
       <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
-      <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>{'Loading 3D Grid...'}</div>}><IncomeGrid3DPage /></React.Suspense>} />
       {/* /upgrade serves the new Partner Payment window (Sprint 2d, 15 May 2026).
           Legacy Upgrade.jsx kept in codebase as dead code; will be removed in a
           future cleanup once we're confident the new page handles every case.
@@ -408,7 +400,6 @@ function AppRoutes() {
       <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
-      <Route path="/new-grid" element={<Navigate to="/campaign-tiers" replace />} />
       <Route path="/passup-visualiser" element={<Navigate to="/campaign-tiers" replace />} />
       <Route path="/network" element={<Navigate to="/income" replace />} />
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
@@ -443,7 +434,6 @@ function AppRoutes() {
       <Route path="/earn" element={<Navigate to="/explore" replace />} />
 
       <Route path="/for-advertisers" element={<Navigate to="/compensation" replace />} />
-      <Route path="/grid" element={<Navigate to="/compensation" replace />} />
       <Route path="/membership" element={<Navigate to="/explore" replace />} />
       <Route path="/explore/compensation" element={<Navigate to="/compensation" replace />} />
       <Route path="/compensation" element={<Lazy><CompensationPublic /></Lazy>} />

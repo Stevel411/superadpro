@@ -55,7 +55,7 @@ import { apiGet } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import { formatMoney } from '../utils/money';
 import {
-  Users, Target, Layers, GraduationCap,
+  Users, Layers, GraduationCap,
   DollarSign, TrendingUp, Calendar
 } from 'lucide-react';
 import { SubPageHero } from './tools-shared';
@@ -112,7 +112,6 @@ export default function IncomePage() {
   // Per-stream activity flags — drives the adaptive status display.
   // A stream is "active" if it has either earnings or structure.
   const membershipActive = (data?.directs_active || 0) > 0 || (data?.membership_earned || 0) > 0;
-  const gridActive = (data?.grid_team_count || 0) > 0 || (data?.grid_earned || 0) > 0;
   const nexusActive = (data?.nexus_team_count || 0) > 0;
   const coursesActive = (data?.course_earned || 0) > 0;
 
@@ -245,25 +244,6 @@ export default function IncomePage() {
               }
               return standardActions;
             })()}
-          />
-
-          <StreamCard
-            tone="cyan"
-            icon={Target}
-            title={t('income.stream.grid', { defaultValue: 'Campaign Tier Grid' })}
-            subtitle={t('income.stream.gridSub', { defaultValue: '4×4 Profit Grid · advertise + earn' })}
-            tag={gridActive ? { label: t('income.tag.tier', { defaultValue: 'Active' }), tone: 'tier' } : { label: t('income.tag.available', { defaultValue: 'Available' }), tone: 'dormant' }}
-            stats={gridActive ? [
-              { label: t('income.stat.team', { defaultValue: 'In your grid' }), value: data?.grid_team_count || 0 },
-              { label: t('income.stat.earnedAllTime', { defaultValue: 'Earned all time' }), value: formatMoney(data?.grid_earned || 0) },
-            ] : null}
-            statusLine={!gridActive ? t('income.stream.gridDormant', { defaultValue: 'Buy a Grid tier to advertise AND earn from the 4×4 Profit Grid spillover.' }) : null}
-            actions={[
-              { label: t('income.action.myGrid', { defaultValue: 'My Grid' }), to: '/grid-visualiser' },
-              { label: t('income.action.watchAds', { defaultValue: 'Watch ads' }), to: '/watch' },
-              { label: t('income.action.calculator', { defaultValue: 'Calculator' }), to: '/grid-calculator' },
-              { label: t('income.action.upgradeTier', { defaultValue: 'Upgrade tier' }), to: '/campaign-tiers' },
-            ]}
           />
 
           <StreamCard

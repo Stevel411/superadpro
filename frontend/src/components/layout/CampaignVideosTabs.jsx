@@ -31,7 +31,7 @@ function buildTabs(t) {
     { id: 'analytics', label: t('campaignVideos.tabs.analytics', { defaultValue: 'Video Analytics' }),
       icon: BarChart3, tone: 'cobalt', path: '/campaign-analytics', match: ['/campaign-analytics'] },
     { id: 'tiers', label: t('campaignVideos.tabs.tiers', { defaultValue: 'Campaign Tiers' }),
-      icon: Target, tone: 'cyan', path: '/campaign-tiers', match: ['/campaign-tiers'] },
+      icon: Target, tone: 'cyan', path: '/packs', match: ['/packs', '/campaign-tiers'] },
   ];
 }
 

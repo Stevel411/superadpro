@@ -114,13 +114,6 @@ export default function CommandCentre() {
       pillBg: '#f1f5f9', pillBgHover: '#e2e8f0', pillColor: '#475569',
       pillLabel: t('commandCentre.viewList', { defaultValue: 'View list' }),
     },
-    {
-      label: t('commandCentre.gridTeamLabel'), sublabel: t('commandCentre.gridTeamSublabel'),
-      value: d.grid_team_count || 0, icon: LayoutGrid, color: 'var(--sap-accent)',
-      link: '/command-centre/grid-team',
-      pillBg: '#e0f2fe', pillBgHover: '#bae6fd', pillColor: '#0369a1',
-      pillLabel: t('commandCentre.viewTeam', { defaultValue: 'View team' }),
-    },
   ];
 
   // ── Creator Credits tile — moved into the Manage row to fill the void

@@ -8,7 +8,6 @@ import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, DollarSign, Gauge, Gift, Compass, Share2 } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
-import FastStartHero from '../components/FastStartHero';
 import PendingCommissionsCard from '../components/PendingCommissionsCard';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
@@ -407,17 +406,6 @@ export default function Dashboard() {
           countdown timers tick every second; data refreshes every 60s.
           Added 26 May 2026. */}
       <PendingCommissionsCard />
-
-      {/* Free-user Launchpad card removed 12 Jun 2026 — Launchpad now
-          lives on the My Business page (/business-hub). */}
-
-      {/* ── Fast Start hero (added 17 May 2026) ──
-          Drives Grid Tier 1 activation. Component handles its own
-          state (loads /api/fast-start/state, conditionally renders
-          hero / continue-card / nothing based on the server state
-          machine). Mounting unconditionally is the right pattern —
-          the component is null-render-safe. */}
-      <FastStartHero />
 
       {/* ════════════════════════════════════════════════════════════
           REDESIGNED DASHBOARD CORE (30 May 2026, Steve direction)

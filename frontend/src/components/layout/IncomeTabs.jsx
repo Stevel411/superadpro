@@ -9,9 +9,9 @@
  * Active-tab logic:
  *   Each tab declares a `match` array of pathnames. The current
  *   location.pathname is checked against all tabs' match lists.
- *   First matching tab wins. Deep pages within a stream (e.g. /watch,
- *   /grid-calculator) light up the parent tab (Campaign Grid) so
- *   members always know which stream they're inside.
+ *   First matching tab wins. Deep pages within a stream (e.g. /watch)
+ *   light up the parent tab (Campaigns) so members always know which
+ *   stream they're inside.
  *
  * Visual: pill-style cards with coloured icon boxes, scrollable
  * horizontally with chevron arrows on each end. Active tab gets
@@ -61,22 +61,21 @@ function buildTabs(t) {
       match: ['/income/membership'],
     },
     {
-      id: 'grid',
-      label: t('income.tabs.grid', { defaultValue: 'Campaign Grid' }),
+      id: 'campaigns',
+      label: t('income.tabs.campaigns', { defaultValue: 'Campaigns' }),
       icon: Target, tone: 'cyan',
-      path: '/campaign-tiers',
-      // Grid is the busiest stream — its sub-features (Watch, Create
-      // Campaign, My Videos, Analytics, Calculator, My Grid, Income
-      // Chains) all light up this tab so members never feel lost.
+      path: '/packs',
+      // The busiest stream — its sub-features (Watch, Create Campaign,
+      // My Videos, Analytics) all light up this tab so members never
+      // feel lost. /campaign-tiers kept in match only so the tab still
+      // highlights while that legacy URL redirects to /packs.
       match: [
+        '/packs',
         '/campaign-tiers',
         '/watch',
         '/create-campaign',
         '/video-library',
         '/campaign-analytics',
-        '/grid-calculator',
-        '/grid-visualiser',
-        '/income-grid-3d',
       ],
     },
     {
@@ -277,18 +276,16 @@ export function isIncomeFamilyRoute(pathname) {
     '/income',
     '/wallet',
     '/compensation-plan',
+    '/packs',
     '/campaign-tiers',
     '/my-credits',
-    '/income-grid-3d',
     '/watch',
     '/create-campaign',
     '/video-library',
     '/campaign-analytics',
   ];
-  // Note: /pro/funnels, /grid-calculator and /grid-visualiser deliberately
-  // excluded — those pages are focused tools/dashboards and the income-family
-  // strip would add noise without value. (/grid-visualiser is the Profit Grid
-  // page, which now carries its own enlarged tier selector as the primary nav.)
+  // Note: /pro/funnels deliberately excluded — a focused tool page where the
+  // income-family strip would add noise without value.
   for (var i = 0; i < INCOME_PATHS.length; i++) {
     var p = INCOME_PATHS[i];
     if (pathname === p || pathname.indexOf(p + '/') === 0) return true;
