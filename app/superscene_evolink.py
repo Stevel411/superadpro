@@ -7,7 +7,7 @@ Auth: Bearer token (EVOLINK_API_KEY env var)
 Smart Routing: Users select quality tiers (Quick/Standard/Premium/Ultra)
 and the system auto-selects the best model for the job.
 
-Models integrated: Kling O3, Kling 3.0, Seedance 1.5 Pro, Sora 2 Pro,
+Models integrated: Kling O3, Kling 3.0, Seedance 1.5 Pro,
 VEO 3.1, Hailuo 2.3, WAN 2.6, Grok Imagine, + image & music models.
 """
 import os
@@ -31,8 +31,6 @@ MODEL_MAP = {
     "kling3":             "kling-v3-text-to-video",
     # Seedance 1.5 Pro (supports audio)
     "seedance":           "seedance-1.5-pro",
-    # Sora 2 Pro Preview (per-second billing)
-    "sora2":              "sora-2-pro-preview",
     # VEO 3.1 Fast (supports 4K + reference)
     "veo31":              "veo-3-1-fast-lite",
     # VEO 3.1 Pro (highest quality, 4K)
@@ -47,8 +45,6 @@ MODEL_MAP = {
     "wan26":              "wan2.6-text-to-video",
     # Grok Imagine Video
     "grok-video":         "grok-imagine-video",
-    # Sora 2 Beta Max (no watermark)
-    "sora2-max":          "sora-2-beta-max",
     # Kling Motion Control
     "kling-motion":       "kling-v3-motion-control",
     # Kling O3 Video Edit
@@ -62,7 +58,6 @@ MODEL_MAP_I2V = {
     "kling-o3":           "kling-o3-image-to-video",
     "kling3":             "kling-v3-image-to-video",
     "seedance":           "seedance-1.5-pro",
-    "sora2":              "sora-2-pro-preview",
     "veo31":              "veo-3-1-fast-lite",
     "veo31-pro":          "veo-3.1-generate-preview",
     "hailuo23":           "MiniMax-Hailuo-2.3",
@@ -87,7 +82,7 @@ TIER_ROUTES_I2V = {
     "quick":    "wan26",           # Fast budget I2V
     "standard": "seedance",       # Good I2V with audio option
     "premium":  "kling-o3",       # Best I2V quality
-    "ultra":    "sora2",          # Premium I2V
+    "ultra":    "veo31-pro",      # Premium I2V (was sora2 — API dead 24 Sep 2026)
 }
 
 # Credits per 5 seconds by model (ensures profitability)
@@ -100,9 +95,7 @@ CREDITS_PER_5S = {
     "seedance":        2,    # $0.14 cost → 2 credits ($0.20) = profit
     # Premium tier
     "kling-o3":        9,    # $0.84 cost → 9 credits ($0.90) = profit
-    "sora2":          15,    # $1.50 cost → 15 credits ($1.50) = breakeven
     "grok-video":      6,    # $0.60 cost → 6 credits ($0.60) = breakeven
-    "sora2-max":      20,    # estimated $2.00 → 20 credits
     # Ultra tier
     "veo31":           4,    # $0.40 cost → 4 credits ($0.40) = breakeven
     "veo31-pro":       8,    # $0.80 cost → 8 credits ($0.80) = breakeven
@@ -119,12 +112,11 @@ CREDITS_PER_5S = {
 AUDIO_EXTRA_PER_5S = 1
 
 I2V_SUPPORTED = {
-    "kling-o3", "kling3", "seedance", "sora2", "veo31", "veo31-pro",
+    "kling-o3", "kling3", "seedance", "veo31", "veo31-pro",
     "hailuo23", "hailuo23-fast", "hailuo02", "wan26", "grok-video",
 }
 AUDIO_SUPPORTED = {"seedance", "veo31-pro", "kling3", "kling-o3"}
 # Note: veo31 (fast-lite) does NOT support audio — only veo31-pro (preview) does
-# Note: sora2 does NOT support audio generation
 # Note: wan26 generates audio by DEFAULT — no parameter needed
 STYLE_REF_SUPPORTED = {"seedance", "veo31", "veo31-pro"}
 STYLE_REF_MAX = {"seedance": 9, "veo31": 3, "veo31-pro": 3}
