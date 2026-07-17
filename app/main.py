@@ -68368,22 +68368,108 @@ _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0}
-:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
-body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
-.wrap{max-width:560px;margin:0 auto;padding:30px 20px}
-.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
-.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
-.card{background:#fff;color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
-h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-bottom:6px}h1 .r{color:var(--red)}
-.sub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--ink);min-height:100vh;padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
+.backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);text-decoration:none;font-size:13px;font-weight:700}
+.backlink:hover{color:var(--navy)}
+.mk{font-weight:900;font-size:19px;letter-spacing:-.4px;color:var(--navy)}
+.mk i{font-style:normal;color:var(--red)}
 .scr{display:none}.scr.on{display:block}
-.packs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
-.pk{border:2px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer}
-.pk b{display:block;font-weight:900;font-size:17px}
-.pk span{font-size:10.5px;font-weight:700;color:var(--dim)}
-.pk.sel{border-color:var(--red);background:#fdf2f4}
-.pk.owned{border-color:#8fd6a8;background:#f0faf4}
-.ownedtag{display:block;font-size:8.5px;font-weight:900;color:var(--grn);letter-spacing:.08em;margin-top:2px}
+h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{color:var(--red)}
+.sub{font-size:15px;color:var(--dim);font-weight:600;line-height:1.55;margin-top:10px;max-width:44ch}
+.hero{display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:center;margin-bottom:26px}
+.rule{background:#f6f8fd;border:1.5px solid var(--line);border-left:4px solid var(--red);border-radius:14px;padding:16px 18px}
+.rule .eq{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--navy);letter-spacing:-1px;margin-bottom:6px}
+.rule .eq em{font-style:normal;color:var(--red)}
+.rule p{font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5}.rule p b{color:var(--ink)}
+.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.pk{position:relative;border-radius:16px;padding:24px 18px 20px;text-align:center;cursor:pointer;background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border:2px solid transparent;box-shadow:0 12px 30px -14px rgba(10,31,82,.55);transition:transform .14s,box-shadow .14s,border-color .14s}
+.pk:hover{transform:translateY(-3px);box-shadow:0 20px 44px -16px rgba(10,31,82,.7)}
+.pk .pay{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;letter-spacing:-2px;line-height:1;color:#fff}
+.pk .reach{font-size:12px;font-weight:700;color:#a9bbf0;margin:7px 0 14px}
+.pk .rbar{height:4px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden;margin-bottom:16px}
+.pk .rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5b86ff,var(--red-lt))}
+.pk .earn{border-top:1px solid rgba(255,255,255,.16);padding-top:13px}
+.pk .earn b{display:block;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;color:var(--red-lt);letter-spacing:-1px;line-height:1}
+.pk .earn span{display:block;font-size:9px;font-weight:800;color:#a9bbf0;letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+.pk.sel{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d;box-shadow:0 20px 46px -14px rgba(200,16,46,.75);transform:translateY(-3px)}
+.pk.sel .reach{color:#ffe0e5}.pk.sel .earn b{color:#fff}.pk.sel .earn span{color:#ffe0e5}
+.pk.sel .rbar{background:rgba(255,255,255,.28)}.pk.sel .rbar i{background:#fff}
+.pk.owned{background:linear-gradient(150deg,#08381f,#0b7a3e)}
+.pk.owned .reach{color:#a9e3c2}.pk.owned .earn b{color:#7dffb0}.pk.owned .earn span{color:#a9e3c2}
+.pk.owned .rbar i{background:linear-gradient(90deg,#2fd07a,#7dffb0)}
+.flag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:3px 10px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
+.flag.own{background:var(--grn);color:#fff}.flag.now{background:var(--red);color:#fff}
+.cta{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:40px}
+.cta .btn{max-width:380px}
+.note{font-size:12.5px;color:var(--dim);font-weight:600;text-align:center;margin-top:0;line-height:1.6}
+.note b{color:var(--ink)}
+.band{border-top:1px solid var(--line);padding-top:38px}
+.sec{margin-bottom:40px}.sec:last-child{margin-bottom:0}
+.k{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-bottom:9px}h2 .r{color:var(--red)}
+.sec>p{font-size:14px;color:var(--dim);font-weight:600;line-height:1.6;max-width:64ch}.sec>p b{color:var(--ink)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.two .b{border:1.5px solid var(--line);border-radius:14px;padding:18px;background:#fbfcfe}
+.two .b b{display:block;font-weight:900;font-size:15px;letter-spacing:-.3px;margin-bottom:6px}
+.two .b p{font-size:13px;color:var(--dim);font-weight:600;line-height:1.55}
+.strip{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-bottom:11px}
+.strip div{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;background:#eef2fa;color:var(--navy);border:1.5px solid #dde4f2}
+.strip div.up{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 8px 18px -8px rgba(200,16,46,.7)}
+.strip div.ten{font-size:11px;letter-spacing:-.5px}
+.key{display:flex;gap:18px;font-size:11.5px;font-weight:700;color:var(--dim)}
+.key .d{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.key .d.a{background:#eef2fa;border:1.5px solid #c3cee8}.key .d.b{background:var(--red)}
+.air{border:1.5px solid var(--line);border-radius:14px;padding:18px;background:#fbfcfe}
+.airrow{display:flex;align-items:center;gap:12px;margin-bottom:11px}.airrow:last-child{margin-bottom:0}
+.airrow em{font-style:normal;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--navy);width:56px;flex-shrink:0}
+.airrow .t{flex:1;height:9px;border-radius:99px;background:#e9eefa;overflow:hidden}
+.airrow .t i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--navy2),var(--red))}
+.airrow span{font-size:11px;font-weight:800;color:var(--dim);width:68px;text-align:right;flex-shrink:0}
+.gates{background:linear-gradient(150deg,var(--navy),var(--navy2));border-radius:16px;padding:24px 26px;color:#fff}
+.gates .k{color:#a9bbf0}
+.gates ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.gates li{display:flex;gap:12px;align-items:flex-start;font-size:14px;font-weight:600;color:#d7e0fa;line-height:1.5}
+.gates li i{font-style:normal;flex-shrink:0;width:21px;height:21px;border-radius:50%;background:var(--red);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.gates li b{color:#fff}
+.close{font-size:15px;font-weight:700;color:var(--ink);line-height:1.6;margin-top:22px;max-width:70ch}
+.disc{font-size:11.5px;color:#8a93ab;font-weight:600;line-height:1.55;margin-top:12px;max-width:70ch}
+.disc a{color:var(--dim)}
+.foot{font-size:11.5px;color:#8a93ab;font-weight:600;text-align:center;margin-top:30px;line-height:1.6}
+/* screens 2-4 sit as a focused card on the white page */
+#sPay,#sPend,#sDone{max-width:620px;margin:0 auto;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:26px 24px;box-shadow:0 18px 44px -26px rgba(10,31,82,.5)}
+#sPay h1,#sPend h1,#sDone h1{font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-bottom:6px}
+#sPay .sub,#sPend .sub,#sDone .sub{font-size:13.5px;margin-top:0;margin-bottom:18px;max-width:none}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:20px}
+  h1{font-size:34px;letter-spacing:-1.2px}
+  .split{grid-template-columns:1fr;gap:22px}
+  h2{font-size:22px}
+}
+@media(max-width:560px){
+  body{padding:18px 15px 70px}
+  .top{margin-bottom:20px}
+  h1{font-size:27px;letter-spacing:-.9px}
+  .sub{font-size:13.5px}
+  .packs{gap:8px}
+  .pk{padding:14px 6px 12px;border-radius:12px}
+  .pk .pay{font-size:18px;letter-spacing:-1.2px}
+  .pk .reach{font-size:9.5px;margin:5px 0 8px}
+  .pk .rbar{height:3px;margin-bottom:9px}
+  .pk .earn{padding-top:8px}
+  .pk .earn b{font-size:13px}
+  .pk .earn span{font-size:7.5px;letter-spacing:.05em;margin-top:3px}
+  .flag{font-size:7.5px;padding:2px 6px;border-width:1.5px}
+  .two{grid-template-columns:1fr}
+  .strip{gap:4px}.strip div{font-size:11px;border-radius:7px}.strip div.ten{font-size:9px}
+  .band{padding-top:26px}.sec{margin-bottom:28px}
+  h2{font-size:20px;letter-spacing:-.5px}
+  .sec>p{font-size:13px}
+  #sPay,#sPend,#sDone{padding:22px 18px}
+}
 .payee{display:flex;align-items:center;gap:12px;background:#f6f8fd;border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
 .payee .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .payee b{font-weight:900;font-size:15px;display:block}
@@ -68443,26 +68529,85 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
 .big{font-size:46px;text-align:center;margin-bottom:8px}
 .ctr{text-align:center}
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
-.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
 .gatewarn{background:#fdf2f4;border:1.5px solid #f3c2cc;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#8f1830;line-height:1.5;margin-bottom:14px}
 .gatewarn a{color:#8f1830}
-.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
-.backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
-  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
-  <div class="mk">Advantage<i>Life</i></div>
-  <div class="tag">Your effort. Your income. 100% yours.</div>
-  <div class="card">
+  <div class="top">
+    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+    <div class="mk">Advantage<i>Life</i></div>
+  </div>
 
     <div class="scr" id="sPick">
-      <h1>Choose your <span class="r">campaign pack</span></h1>
-      <div class="sub">Real members watch your ads. Pack price = the 100% commission that passes member-to-member.</div>
+      <div class="hero">
+        <div>
+          <h1>Choose your <span class="r">campaign pack</span></h1>
+          <div class="sub">Real members watch your ad. Every pack is bought member to member &mdash; the buyer pays you directly.</div>
+        </div>
+        <div class="rule">
+          <div class="eq">$200 <em>=</em> $200</div>
+          <p>The pack price <b>is</b> the commission. Own a level and a sale at that level pays you the same number &mdash; in full.</p>
+        </div>
+      </div>
       <div class="gatewarn" id="gwarn" style="display:none"></div>
       <div class="packs" id="packGrid"></div>
       <div class="err" id="errPick"></div>
-      <button class="btn red" id="btnGo" disabled>Select a pack above</button>
-      <div class="note" id="ownNote"></div>
+      <div class="cta">
+        <button class="btn red" id="btnGo" disabled>Select a pack above</button>
+        <div class="note" id="ownNote"></div>
+      </div>
+
+      <div class="band">
+        <div class="sec">
+          <h2>A pack is <span class="r">two things at once</span></h2>
+          <p>An advertising campaign for whatever you're building &mdash; and a level that pays you in full, every time someone buys it from you.</p>
+          <div class="two">
+            <div class="b"><b>Your video, in front of real people</b><p>Members who chose to watch &mdash; not bots, not impressions.</p></div>
+            <div class="b"><b>The whole sale, straight to you</b><p>No company split, no payout run. The buyer pays you.</p></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="split">
+            <div>
+              <div class="k">The pass-up</div>
+              <h2>Three sales go up. <span class="r">Everyone's three come up to you.</span></h2>
+              <p>Your <b>3rd, 6th and 9th</b> sales pass up to the first qualified member above you. Every sale after your 9th is yours. In return, everyone in your team passes their three up the same way &mdash; and their teams pass theirs, forever.</p>
+            </div>
+            <div>
+              <div class="strip" id="strip"></div>
+              <div class="key"><span><span class="d a"></span>yours, in full</span><span><span class="d b"></span>passes up</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="split">
+            <div>
+              <div class="k">Where your views come from</div>
+              <h2>Every member shares a <span class="r">showcase page</span></h2>
+              <p>Members share their showcase page &mdash; your video rotates on it in front of their audience. <b>Airtime is weighted by pack level</b>, so the bigger your pack, the more often your video plays. A view only counts when a real person watches for <b>30 seconds</b> &mdash; bots, repeats and your own views are excluded.</p>
+            </div>
+            <div class="air">
+              <div class="airrow"><em>$10</em><div class="t"><i style="width:6%"></i></div><span>1k views</span></div>
+              <div class="airrow"><em>$200</em><div class="t"><i style="width:33%"></i></div><span>15k views</span></div>
+              <div class="airrow"><em>$1,000</em><div class="t"><i style="width:100%"></i></div><span>120k views</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="gates">
+            <div class="k">To earn on a sale, both are true</div>
+            <ul>
+              <li><i>1</i><span>You <b>own that level or higher</b>. Own the $200 pack and $200 sales pay you.</span></li>
+              <li><i>2</i><span>You're <b>watch-qualified</b> &mdash; you did your daily watch. 48-hour grace window.</span></li>
+            </ul>
+          </div>
+          <div class="close">Some members are advertising a business. Some are building an income. Most are doing both &mdash; how far it goes is down to the work you put in.</div>
+          <div class="disc">No earnings are promised or guaranteed. What any member makes depends on their own effort and results. <a href="/legal/income-disclosure">Income disclosure</a>.</div>
+        </div>
+      </div>
     </div>
 
     <div class="scr" id="sPay">
@@ -68500,11 +68645,16 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
       <a class="btn ghost" href="/packs">Buy another pack</a>
     </div>
 
-  </div>
-  <div class="note" style="color:#8fa0d4">Member-to-member payments can't be reversed by AdvantageLife — always double-check the chain and address.</div>
+  <div class="foot">Member-to-member payments can't be reversed by AdvantageLife &mdash; always double-check the chain and address.</div>
 </div>
 <script>
 (function(){
+  function packWidth(v){
+    v=Number(v||0); if(v<=0) return 6;
+    var lo=Math.sqrt(1000), hi=Math.sqrt(120000);
+    var w=6+94*(Math.sqrt(v)-lo)/(hi-lo);
+    return Math.max(6,Math.min(100,Math.round(w*10)/10));
+  }
   var packs=[], sel=null, intent=null, tick=null;
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
   function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
@@ -68604,8 +68754,17 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
       var d=document.createElement('div');
       var owned=j.owned_level>=pk.level;
       d.className='pk'+(owned?' owned':'');
-      d.innerHTML='<b>$'+Number(pk.price).toLocaleString()+'</b><span>'+(pk.views_target/1000)+'k views</span>'+(owned?'<span class="ownedtag">OWNED</span>':'');
-      d.onclick=function(){sel=pk;document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel')});d.classList.add('sel');
+      var _p='$'+Number(pk.price).toLocaleString();
+      var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
+      d.innerHTML=(owned?'<span class="flag own">Owned</span>':'')
+        +'<div class="pay">'+_p+'</div><div class="reach">'+_v+'</div>'
+        +'<div class="rbar"><i style="width:'+packWidth(pk.views_target)+'%"></i></div>'
+        +'<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
+      d.onclick=function(){sel=pk;
+        document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel');
+          var f=x.querySelector('.flag.now'); if(f) f.remove();});
+        d.classList.add('sel');
+        if(!d.querySelector('.flag.now')){var nf=document.createElement('span');nf.className='flag now';nf.textContent='Selected';d.insertBefore(nf,d.firstChild);}
         var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
       g.appendChild(d);
     });
@@ -68647,6 +68806,12 @@ h1{font-weight:900;font-size:24px;letter-spacing:-.6px;line-height:1.15;margin-b
     if(!j.open_intent)renderPicker(j);
   });
 })();
+
+  (function(){var st=document.getElementById('strip');if(!st)return;var UP=[3,6,9];
+    for(var i=1;i<=10;i++){var d=document.createElement('div');
+      if(UP.indexOf(i)>-1)d.className='up';
+      if(i===10){d.className+=' ten';d.textContent='10+'}else d.textContent=i;
+      st.appendChild(d);}})();
 </script>
 </body></html>"""
 
