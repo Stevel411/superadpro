@@ -142,18 +142,6 @@ export default function Account() {
   var [disable2faCode, setDisable2faCode] = useState('');
   var [disabling2fa, setDisabling2fa] = useState(false);
 
-  // Billing data — membership holdings + purchase history. Source of truth is
-  // /api/account/purchases (Payment / GridPosition / CreditPackPurchase tables).
-  var [pdata, setPdata] = useState(null);
-  var [pLoading, setPLoading] = useState(true);
-  useEffect(function () {
-    var cancelled = false;
-    apiGet('/api/account/purchases')
-      .then(function (d) { if (!cancelled) { setPdata(d && d.holdings ? d : null); setPLoading(false); } })
-      .catch(function () { if (!cancelled) setPLoading(false); });
-    return function () { cancelled = true; };
-  }, []);
-
   function showToast(msg, type) { setToast({ msg: msg, type: type }); setTimeout(function () { setToast(null); }, 4000); }
 
   async function handleDisable2FA() {
@@ -226,7 +214,7 @@ export default function Account() {
   if (!user) return null;
   var initials = (((user.first_name || '')[0] || '') + ((user.last_name || user.username || '')[0] || '')).toUpperCase();
   var kyc = user.kyc_status || 'none';
-  var tierLabel = (user.access_level === 'lifetime') ? 'Lifetime Member' : 'Free';
+  var joined = (user.access_level === 'lifetime');
   var memberSince = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—';
 
   return (
@@ -246,7 +234,9 @@ export default function Account() {
             <div className="meta">@{user.username} · {user.email}</div>
           </div>
           <div className="pills">
-            <span className="pill cyan"><b>{tierLabel}</b> {t('account.tier', { defaultValue: 'tier' })}</span>
+            {joined
+              ? <span className="pill green"><span className="dot" /> {t('account.statusMember', { defaultValue: 'Member' })}</span>
+              : <span className="pill amber"><span className="dot" /> {t('account.statusNotJoined', { defaultValue: 'Not joined yet' })}</span>}
             {kyc === 'approved'
               ? <span className="pill green"><span className="dot" /> Verified</span>
               : kyc === 'pending'
@@ -299,53 +289,6 @@ export default function Account() {
                 </div>
                 <div className="fld"><label className="lbl">{t('account.interests')} <span>{t('account.interestsHelp')}</span></label><input className="inp" value={interests} onChange={function (e) { setInterests(e.target.value); }} placeholder={t('account.interestsPlaceholder')} /></div>
                 <button className="btn" onClick={saveProfile} disabled={savingProfile}>{savingProfile ? t('account.saving') : t('account.saveProfile')}</button>
-              </>
-            )}
-
-            {activeTab === 'billing' && (
-              <>
-                <h2 className="ph">Membership &amp; billing</h2>
-                <p className="psub">Your monthly membership and your purchase history.</p>
-                {pLoading && <div className="empty">Loading…</div>}
-                {!pLoading && pdata && (function () {
-                  var m = (pdata.holdings && pdata.holdings.membership) || {};
-                  var hist = pdata.history || [];
-                  var payLabel = user.payment_method === 'stripe' ? 'Card' : 'Crypto · BSC';
-                  var renews = m.renews_at ? new Date(m.renews_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
-                  return (
-                    <>
-                      <div className="mcard">
-                        <div className="mtop">
-                          <div className="mname">{(m.label || tierLabel) + ' membership'}</div>
-                          <span className="badge" style={m.active ? {} : { background: '#fff7ed', color: '#9a3412', borderColor: '#fed7aa' }}>{m.active ? 'Active' : 'Inactive'}</span>
-                        </div>
-                        <div className="mdesc">Your monthly membership keeps your platform access and tools switched on. Campaign tiers — your advertising and Profit Grid — are purchased separately and listed below.</div>
-                        <div className="mgrid">
-                          <div><div className="mk">Plan</div><div className="mv">${(m.price != null ? m.price : 0).toFixed(0)} <small>/ month</small></div></div>
-                          <div><div className="mk">Renews</div><div className="mv" style={{ fontSize: 15 }}>{renews}</div></div>
-                          <div><div className="mk">Payment method</div><div className="mv" style={{ fontSize: 15 }}>{payLabel}</div></div>
-                        </div>
-                        {user.payment_method === 'stripe' && (
-                          <button className="btn ghost" onClick={function () { apiPost('/api/stripe/portal', {}).then(function (r) { if (r.url) window.location.href = r.url; }).catch(function () {}); }}>Manage plan via Stripe →</button>
-                        )}
-                      </div>
-
-                      <div className="sec-h">Purchase history</div>
-                      <div className="sec-s">Campaign tiers, credit packs and renewals.</div>
-                      {hist.length === 0 && <div className="empty">No purchases yet.</div>}
-                      {hist.map(function (row, i) {
-                        return (
-                          <div key={i} className="hrow">
-                            <div className="hdate">{row.date ? new Date(row.date).toLocaleDateString() : '—'}</div>
-                            <div><div className="hprod">{row.product}</div><div className="hdeliv">{row.delivered}</div></div>
-                            <div className="hright"><div className="hamt">${(row.amount || 0).toFixed(2)}</div><span className="badge">{row.status}</span></div>
-                          </div>
-                        );
-                      })}
-                    </>
-                  );
-                })()}
-                {!pLoading && !pdata && <div className="empty">We couldn't load your billing right now. Please refresh, or contact support if this continues.</div>}
               </>
             )}
 
