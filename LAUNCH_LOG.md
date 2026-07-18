@@ -1,8 +1,59 @@
-# SuperAdPro Launch Log
+# AdvantageLife Launch Log
 
 > **For future-Claude reading this in a new session:** This file is the curated narrative of where the platform is right now. Read top-to-bottom for full context on recent decisions, currently-watched concerns, and pending work. The daily-briefing email Steve receives includes these sections too. Whoever you are, you're caught up after reading this.
+>
+> **Note on history:** AdvantageLife is the rebrand-and-relaunch of SuperAdPro (fork-and-migrate, fresh DB, branch `advantagelife-passup`). Entries dated before ~2026-07-09 describe SuperAdPro-era work and are kept for context — but the live model is now AdvantageLife: $100 lifetime join + 100% P2P campaign packs with 3/6/9 pass-up. Profit Grid, monthly membership, Nexus/matrix, and the 20% credit affiliate plan are all RETIRED. When a pre-09-Jul entry conflicts with the AL model, the AL model wins.
 
 > **For Steve:** Update the curated sections below at the end of each session. The auto-snapshot block at the top of the daily-briefing email is generated fresh from the database — you don't update that.
+
+---
+
+## Status as of 2026-07-18 — PRE-LAUNCH POLISH: THEME WALK-THROUGH + RETIRED-FEATURE REMOVAL + PAYMENTS UNIFIED
+
+**Long session.** The build (Phases 0–5) was already done and proven; this session was pre-launch consolidation — finishing the AL theme across member pages, ripping out every retired-model surface, and unifying all payments to **card (Stripe) + direct-USDT to the company wallet**, no third-party processor.
+
+### The headline: one payment pattern platform-wide
+Every AL purchase — the $100 join AND credit packs — now offers exactly two rails: **card via Stripe** (one-time), or **direct USDT** sent straight to the treasury wallet (buyer pastes tx hash → we verify on-chain → instant fulfilment). **NOWPayments and WalletConnect are gone from AL's UI.** Steve's rationale: he already has Binance receiving addresses, holds no payout treasury, and wants members to learn one payment flow. NOWPayments backend stays in the repo (SuperAdPro still uses it); AL just no longer calls it.
+
+### Done this session (commits, newest first)
+- `f11260472` — **Credits: card + direct-USDT**, drop NOWPayments & WalletConnect. New endpoints `/api/credit-matrix/direct` (verify on-chain via `verify_join_tx`, award via `purchase_credit_pack`, replay-safe on tx-hash payment_ref) + `/api/credit-matrix/direct-info` (networks + pack price). Reuses the join's `AL_TREASURY_USDT_*` addresses.
+- `cbf821f81` — **`/admin/api/al/config-readiness`** — mobile-tappable launch preflight. Boolean-only (never leaks a secret's value), grouped by subsystem, `launch_ready` verdict. Admin-gated.
+- `c4841414a` — **$100 join: added the "Pay by card" button** to the `/join` page (the Stripe endpoint existed but nothing called it) + fixed the over-gate.
+- `04f1189cd` — **Credits: enabled Stripe card** + fixed the over-gate. Added `is_configured_for_payments()` (one-time products need only the secret key, not the founder/partner SUBSCRIPTION price IDs). `/api/stripe/status` now returns `configured_for_payments`.
+- `39cfb0967` — **Rebuilt the credits page** buy-only in AL theme; removed the retired 20% affiliate plan (backend already paid nothing since 16 Jul — page was advertising money not paid).
+- `5af18e6aa` — Creative Studio poster banner amber → AL red; dropped stale "Free for Nexus pack owners" copy.
+- `8fd8b3ebc` — Packs: fixed "Your current level: $0" for the master/admin (owned_level sentinel 1e9).
+- `43ab42d1d` — **Fixed join-status wiring**: `/api/me` never returned `access_level`, so EVERY user read "Not joined yet". Now returned; pill treats admin as joined (mirrors `is_al_member`).
+- `1d4a925f3`, `a63244182`, `76089de68` — **Account page**: full AL rebuild to /packs depth (navy hero, red action), fixed the "Free Tier" mislabel (AL has no tiers — access_level is free/lifetime), deleted the dead billing tab (retired monthly-membership/Grid copy + a wasted GridPosition fetch on every load).
+- `3e5e3b2fa` — My Marketing: 2-column card rows (was 3-col with an empty column).
+- `6005c7bc4` — **Fixed Creative Studio blank page**: stale model key (`kling3`) after the single-model collapse threw on mount. Lesson banked: mount-test lazy routes headless; a clean build doesn't catch a render throw.
+- `4e9f2ada8`, `6e55ffcad`, `b20921817` — Rebuilt `/packs` and `/my-sales` to the approved AL mockups (navy cards, red action, branded confirm modal, real pass-up counter from `pack_sale_count`).
+- `39a5b1717`, `43adb50da`, `d228936aa`, `32e226498`, `6e8d3452e` — Removed the last Grid purchase path, legacy SuperAdPro income pages, Profit Grid (frontend + routes), and 20 ghost routes.
+
+### Decisions locked this session (do NOT re-litigate)
+- **AL crypto = direct-USDT only.** No NOWPayments in AL's flow. Membership was already direct-only; credits now match. Buyer pastes tx hash → on-chain verify → instant fulfilment.
+- **No Stripe Product needed** for either the $100 join or credit packs — both are one-time payments built on the fly via `price_data`/`amount_cents`. Products/Prices are only for subscriptions, which AL doesn't sell.
+- **Credits are a straight service** — 100% kept, no affiliate/referral commission (backend already enforces this; the UI now matches).
+- **Account "join status", not "tier"** — `access_level` is `free` (hasn't paid the $100) or `lifetime` (joined/grandfathered/admin). AL has no tiers.
+
+### Steve actions taken live
+- Set **`STRIPE_SECRET_KEY`** on the AL Railway service → `configured_for_payments: true` confirmed. Both card buttons (join + credits) now appear.
+- Ran **`grant-lifetime?usernames=AdvantageLife`** → his own row stamped `lifetime` (`total_lifetime_now: 56`). Fixes the master account showing "Not joined yet".
+
+### Next / open (ranked)
+1. **`STRIPE_WEBHOOK_SECRET` + webhook registration** — the critical unknown. A card can CHARGE but the purchase never ACTIVATES if the webhook isn't set + registered in Stripe pointing at the AL domain. Confirm before any real card test.
+2. **Real money end-to-end tests** (only Steve can run): $100 card join, direct-USDT credit purchase, card credit purchase. Watch that fulfilment actually lands (join → lifetime; credits → balance).
+3. **Run `/admin/api/al/config-readiness`** and close any missing-required vars. NOTE: NOWPAYMENTS_* can be dropped from the checklist now — AL no longer uses them.
+4. **Finish the theme walk-through** — done: /packs, /my-sales, /my-marketing, /account, credits, Creative Studio banner. Remaining: Dashboard, Watch-to-Earn, Campaigns, Wallet, Confirm Sale, public landing / `/plan`.
+5. **Account-claim / password-set flow** — passwords weren't migrated post-breach; members need this to log in at cutover.
+
+### Gotchas banked this session
+- **The over-gate pattern**: `is_configured()` requires subscription price IDs; one-time products must use `is_configured_for_payments()` (library + secret key only). Bit both the credit packs and the $100 join.
+- **`/api/me` is the app-wide hydration source** — if a field the UI reads isn't in its payload, it's `undefined` everywhere, not just one page. (access_level bug affected every user.)
+- **Lazy React routes**: a clean `npm run build` does NOT catch a render-time throw — it shows a blank page. Mount-test the built chunk headless (import → check default export + zero pageerrors) before pushing.
+- **Verify a component's REAL prop API from git before using it** — invented a `render` prop on WalletPayLink; caught before build. (Ties to the same lesson.)
+- **`verify_join_tx(network, tx_hash, expected_usd)` is amount-generic**, not join-specific — reused directly for credit purchases at any pack price.
+- **`purchase_credit_pack` is idempotent on `payment_ref`** — pass the tx hash and replay protection is automatic; no new dedup table needed.
 
 ---
 

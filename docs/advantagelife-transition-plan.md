@@ -113,10 +113,28 @@ Lead with the gift, not the change: *"AdvantageLife is here — and as a thank-y
 ---
 
 ## 9. Status of pieces already built
-- **Pass-up engine** — written & proven, branch `advantagelife-passup`. ✅
-- **Mockups** — Freedom landing, `/plan` page (animated), dashboard, all approved. ✅
-- **P2P + pass-up spec** — written. ✅
-- **Grandfather rule** — locked (§3). ✅
-- **Config-layer scope** — scoped (~1,900 name strings, 614 accent hardcodes). ✅
 
-**Next action on approval:** begin Phase 0.
+**Build phases 0-5 are DONE and proven live.** This plan was the original roadmap; the platform has moved well past it. Current reality (18 Jul 2026):
+
+- **Phase 0 - Foundation & fork** - DONE. Fresh Railway deploy, fresh DB, advantagelife.club, config layer + Freedom (navy/red/white) theme.
+- **Phase 1 - Schema** - DONE. PackPurchase / P2PIntent / PayoutMethod / campaign_packs all live.
+- **Phase 2 - Data migration** - DONE. 611 members, genealogy 1:1, 3/6/9 tree derived, counters reset, 56 lifetime (Stripe-50 + allow-list + master).
+- **Phase 3 - Engine wiring** - DONE. passup_engine / al_engine / al_settlement wired to real models + watch-gate, proven against real legs.
+- **Phase 4 - $100 join checkout** - DONE & LIVE. Card (Stripe one-time) + direct-USDT, both webhooks activate al_lifetime. Card enabled once STRIPE_SECRET_KEY was set (18 Jul).
+- **Phase 5 - P2P pack purchase + settlement** - DONE & proven. First live $10 TRON sale completed 11 Jul; pay page, proof, confirm/activate, notifications, multi-gateway all shipped.
+
+**Payment model - UPDATED 18 Jul (supersedes any "NOWPayments" reference above in this doc):**
+Every AL purchase (the $100 join and credit packs) is now **card (Stripe) OR direct-USDT to the company wallet** - buyer pastes tx hash, we verify on-chain, instant fulfilment. **NOWPayments and WalletConnect are retired from AL's flow.** No Stripe Product needed (one-time price_data). No payout treasury (P2P is member-to-member; company-received funds go to Binance receiving addresses).
+
+**Remaining before cutover (Phases 6-9):**
+- **Phase 6 - Watch-to-Earn improvements** - still open, Steve to spec.
+- **Phase 7 - Re-skin finish** - theme walk-through in progress. Done: /packs, /my-sales, /my-marketing, /account, credits, Creative Studio banner. Remaining: Dashboard, Watch-to-Earn, Campaigns, Wallet, Confirm Sale, public landing / /plan.
+- **Phase 8 - Pre-launch verification** - real-money end-to-end tests (join/credits card + direct-USDT) NOT yet run; STRIPE_WEBHOOK_SECRET + webhook registration is the critical open item; run /admin/api/al/config-readiness.
+- **Phase 9 - Cutover** - DNS + account-claim/password-set flow (passwords not migrated post-breach) + member announcement + sunset old.
+
+### Original "already built" checklist (pre-Phase-0, kept for context)
+- **Pass-up engine** - written & proven, branch advantagelife-passup. [done]
+- **Mockups** - Freedom landing, /plan page (animated), dashboard, all approved. [done]
+- **P2P + pass-up spec** - written. [done]
+- **Grandfather rule** - locked (section 3). [done]
+- **Config-layer scope** - scoped (~1,900 name strings, 614 accent hardcodes). [done]
