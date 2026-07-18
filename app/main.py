@@ -68792,7 +68792,10 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
       g.appendChild(d);
     });
-    document.getElementById('ownNote').innerHTML=j.owned_level>0?('Your current level: <b>$'+Number((packs.find(function(p){return p.level===j.owned_level})||{}).price||0).toLocaleString()+'</b> — own a level to earn at that level.'):'Own a level to earn at that level.';
+    (function(){var on=document.getElementById('ownNote');
+      if(j.owned_level>=1000000){on.innerHTML='You own <b>every level</b> \u2014 a sale at any level pays you.';return;}
+      var op=(packs.find(function(p){return p.level===j.owned_level})||{}).price;
+      on.innerHTML=j.owned_level>0?('Your current level: <b>$'+Number(op||0).toLocaleString()+'</b> \u2014 own a level to earn at that level.'):'Own a level to earn at that level.';})();
     if(!j.has_payout_method){var w=document.getElementById('gwarn');w.style.display='block';
       w.innerHTML='You have no payout wallet on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
     show('sPick');
