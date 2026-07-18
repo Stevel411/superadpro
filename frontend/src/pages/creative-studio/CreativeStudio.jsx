@@ -122,10 +122,10 @@ export default function CreativeStudio() {
   // ── Video Clips state ──
   var [mode, setMode] = useState('text');
   var [prompt, setPrompt] = useState('');
-  var [model, setModel] = useState('kling3');
+  var [model, setModel] = useState('grok-video');
   var [duration, setDuration] = useState(10);
   var [ratio, setRatio] = useState('16:9');
-  var [resolution, setResolution] = useState('1080p');
+  var [resolution, setResolution] = useState('720p');
   var [negPrompt, setNegPrompt] = useState('');
   var [genAudio, setGenAudio] = useState(false);
   var [motionPresets, setMotionPresets] = useState([]);
@@ -418,7 +418,7 @@ export default function CreativeStudio() {
       }).catch(function() { alert('Network error'); setVoLipSyncing(false); clearInterval(voLipProgRef.current); });
   }
 
-  var selectedModel = MODELS.find(function(m) { return m.key === model; }) || MODELS[2];
+  var selectedModel = MODELS.find(function(m) { return m.key === model; }) || MODELS[0];
   var cost = calcCost(model, duration, genAudio, MODELS);
 
   // ── Load credits + videos on mount ──
