@@ -65935,6 +65935,87 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
         }
     else:
         return JSONResponse({"error": "Invalid payment method"}, status_code=400)
+
+
+@app.post("/api/credit-matrix/direct")
+async def credit_matrix_direct(request: Request,
+                               user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Direct-USDT credit purchase — the same rail as /api/al/join/direct.
+
+    Buyer sends USDT for the pack price straight to the company treasury on
+    their chosen network (BSC / TRON / ETH), submits the tx hash, we verify it
+    on-chain and award the credits instantly. No processor, no NOWPayments.
+
+    Replay protection: the tx hash is passed as payment_ref to
+    purchase_credit_pack, which is idempotent on payment_ref — the same tx can
+    never award credits twice."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    pack_key = body.get("pack_key")
+    pack = CREDIT_PACKS.get(pack_key)
+    if not pack:
+        return JSONResponse({"error": f"Invalid pack: {pack_key}"}, status_code=400)
+
+    # Same member gate as the wallet/crypto purchase path.
+    ok, err = require_fresh_consent(db, user.id, purpose=f"credit_matrix:{pack_key}")
+    if not ok:
+        return JSONResponse({"error": err}, status_code=403)
+
+    price = float(pack["price"])
+    tx_hash = (body.get("tx_ref") or "").strip()
+    network = (body.get("network") or "bsc").strip()
+    norm = tx_hash.lower() if tx_hash.startswith("0x") else ("0x" + tx_hash.lower() if len(tx_hash) == 64 else tx_hash.lower())
+
+    # Verify the on-chain payment to the treasury for the pack price. verify_join_tx
+    # is amount-generic (not join-specific) — it checks "expected_usd of USDT
+    # reached our treasury in this tx".
+    try:
+        vok, verr, retryable = _alchain.verify_join_tx(network, tx_hash, price)
+    except Exception:
+        logger.exception(f"credit direct verify crashed: {network} {tx_hash}")
+        return JSONResponse({"error": "Verification error — try again shortly", "retryable": True}, status_code=202)
+    if not vok:
+        return JSONResponse({"error": verr, "retryable": retryable}, status_code=202 if retryable else 400)
+
+    # Award credits — idempotent on payment_ref (the tx hash), so a double-submit
+    # of the same tx returns the prior result without re-awarding.
+    try:
+        result = purchase_credit_pack(
+            db, user, pack_key,
+            payment_ref=f"direct_{norm}",
+            payment_method="crypto_direct",
+        )
+    except Exception:
+        logger.exception(f"credit direct award crashed for user {user.id} pack {pack_key} tx {norm}")
+        return JSONResponse({"error": "Payment verified but crediting failed — contact support with your tx hash", "tx": norm}, status_code=500)
+
+    if not result.get("success"):
+        return JSONResponse({"error": result.get("error", "Crediting failed")}, status_code=400)
+
+    return {"ok": True, "credited": True,
+            "credits_awarded": result.get("credits_awarded"),
+            "pack": pack_key}
+
+
+@app.get("/api/credit-matrix/direct-info")
+def credit_matrix_direct_info(pack_key: str, user: User = Depends(get_current_user)):
+    """Networks + addresses for the direct-USDT credit flow, plus the pack price.
+
+    Reuses the same treasury addresses as the join (available_networks reads the
+    AL_TREASURY_USDT_* env vars). The only per-pack value is the amount."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    pack = CREDIT_PACKS.get(pack_key)
+    if not pack:
+        return JSONResponse({"error": f"Invalid pack: {pack_key}"}, status_code=400)
+    nets = _alchain.available_networks()
+    if not nets:
+        return JSONResponse({"error": "not_configured"}, status_code=503)
+    return {"networks": nets, "amount": float(pack["price"]), "pack": pack_key}
+
+
 @app.get("/api/credit-matrix/my-matrix")
 async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db: Session = Depends(get_db), pack_key: str = None):
     """Get the current user's active matrix tree for a specific pack."""
