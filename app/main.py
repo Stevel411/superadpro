@@ -67985,6 +67985,14 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
         buyer = db.query(User).filter(User.id == i.buyer_id).first()
         j["buyer"] = {"username": buyer.username if buyer else "?"}
         j["action_needed"] = i.status == "proof_submitted"
+        # Surface the payout method so the confirm modal can show the right
+        # label and, for reversible rails (Cash App / PayPal), the seller_note
+        # warning. These already live in AL_PAYOUT_METHODS; my-sales just never
+        # forwarded them.
+        m = AL_PAYOUT_METHODS.get(i.chosen_method or "")
+        j["method_label"] = m["label"] if m else None
+        j["reversible"] = bool(m and m.get("reversible"))
+        j["seller_note"] = m.get("seller_note") if m else None
         out.append(j)
     return {"sales": out}
 
@@ -68818,118 +68826,230 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
 
 _AL_SALES_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My sales — AdvantageLife</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incoming sales — AdvantageLife</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
-:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
-body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:60px}
-.wrap{max-width:620px;margin:0 auto;padding:34px 22px 90px}
-.mk{text-align:center;font-weight:900;font-size:19px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
-.tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:24px}
-.card{background:#fff;color:var(--ink);border-radius:22px;padding:34px 30px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
-h1{font-family:'Sora','Inter',sans-serif;font-weight:900;font-size:27px;letter-spacing:-.6px;margin-bottom:6px}h1 .r{color:var(--red)}
-.sub{font-size:14.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:22px}
-.sale{border:2px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:12px}
-.sale.done{border-color:#bfe6cd;background:#f5fdf8}
-.seclabel{font-size:11.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:22px 0 12px}
-.seclabel.act{color:var(--red)}
-.seclabel:first-of-type{margin-top:6px}
-.dashfoot{display:flex;justify-content:center;margin-top:8px}
-.dashfoot a{display:inline-flex;align-items:center;gap:7px;color:#fff;font-weight:800;font-size:14px;text-decoration:none;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.16);padding:12px 22px;border-radius:12px}
-.dashfoot a:hover{background:rgba(255,255,255,.18)}
-.sale.action{border-color:#f3c2cc;background:#fffafb}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.who{font-weight:900;font-size:16px}
-.amt{font-family:'Sora','Inter',sans-serif;font-weight:900;font-size:22px;color:var(--grn)}
-.meta{font-size:13px;color:var(--dim);font-weight:700;margin-bottom:4px}
-.tx{font-family:'JetBrains Mono';font-size:10px;background:#f6f8fd;border-radius:7px;padding:7px 9px;word-break:break-all;color:#33406b;margin:8px 0 10px}
-.two{display:flex;gap:8px}
-.btn{flex:1;border:none;border-radius:11px;padding:13px;font-family:'Inter';font-weight:900;font-size:12.5px;cursor:pointer;text-align:center}
-.btn.red{background:var(--red);color:#fff}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e;--mono:'JetBrains Mono',monospace}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--ink);padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);text-decoration:none;font-size:13px;font-weight:700}
+.backlink:hover{color:var(--navy)}
+.mk{font-weight:900;font-size:19px;letter-spacing:-.4px;color:var(--navy)}.mk i{font-style:normal;color:var(--red)}
+h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{color:var(--red)}
+.sub{font-size:14.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-top:9px;max-width:56ch}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0 28px}
+.sum .s{border:1.5px solid var(--line);border-radius:14px;padding:15px 17px;background:#fbfcfe}
+.sum .s .n{font-family:var(--mono);font-weight:700;font-size:24px;letter-spacing:-1px;color:var(--navy);line-height:1}
+.sum .s .l{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.sum .s.hot{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d}
+.sum .s.hot .n{color:#fff}.sum .s.hot .l{color:#ffe0e5}
+.hd{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
+.hd.q{color:var(--dim)}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+.sale{border:1.5px solid var(--line);border-radius:15px;padding:16px 18px;margin-bottom:10px;background:#fff;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+.sale.action{border:2px solid var(--red);box-shadow:0 12px 30px -16px rgba(200,16,46,.6)}
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(140deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sale.done .av{background:linear-gradient(140deg,#08381f,#0b7a3e)}
+.sale.dead .av{background:#c8cede}
+.who{font-weight:900;font-size:16px;letter-spacing:-.2px}.who span{color:var(--dim);font-weight:700}
+.meta{font-size:12px;font-weight:600;color:var(--dim);margin-top:3px}
+.tx{font-family:var(--mono);font-size:10.5px;color:#8a93ab;margin-top:4px;word-break:break-all}
+.amt{font-family:var(--mono);font-weight:700;font-size:22px;letter-spacing:-1px;color:var(--navy);text-align:right;white-space:nowrap}
+.sale.done .amt{color:var(--grn)}.sale.dead .amt{color:#a7aec2}
+.st{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:99px;margin-left:7px;vertical-align:1px}
+.st.wait{background:#fde8ec;color:var(--red)}.st.ok{background:#e4f7ee;color:var(--grn)}.st.dead{background:#eef1f7;color:#7a8299}
+.acts{grid-column:1/-1;display:flex;gap:9px;margin-top:4px}
+.btn{border:0;border-radius:11px;padding:13px 18px;font-family:'Inter',sans-serif;font-weight:800;font-size:13.5px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 12px 26px -12px rgba(200,16,46,.7);flex:1}
+.btn.red:disabled{opacity:.6}
 .btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
-.stbadge{font-size:10px;font-weight:900;border-radius:8px;padding:4px 9px}
-.st-confirmed{background:#e8f7ee;color:var(--grn)}
-.st-pending{background:#fff8e9;color:#7a5a10}
-.st-proof_submitted{background:#fdf2f4;color:var(--red)}
-.st-disputed{background:#fdecec;color:#a3132e}
-.st-expired,.st-cancelled{background:#eef1f7;color:var(--dim)}
-.empty{text-align:center;padding:26px 0;color:var(--dim);font-weight:700;font-size:13px}
-.note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
-.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700;margin-bottom:10px}
-.paidOverlay{position:fixed;inset:0;background:rgba(10,31,82,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:22px}
-.paidOverlay.show{display:flex;animation:pf .25s ease}
-@keyframes pf{from{opacity:0}to{opacity:1}}
-.paidCard{background:#fff;border-radius:24px;padding:40px 34px;max-width:420px;width:100%;text-align:center;box-shadow:0 40px 90px -30px rgba(0,0,0,.5);animation:pp .4s cubic-bezier(.2,1.2,.3,1)}
-@keyframes pp{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
-.paidEmoji{font-size:60px;animation:pb 1s ease 2}
-@keyframes pb{0%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}60%{transform:translateY(-3px)}}
-.paidTitle{font-family:'Sora','Inter',sans-serif;font-weight:900;font-size:28px;color:#0b7a3e;margin:8px 0 6px;letter-spacing:-.5px}
-.paidSub{font-size:14.5px;font-weight:600;color:#33406b;line-height:1.55;margin-bottom:22px}
-.paidCard .btn{margin-bottom:10px}
+.warn{grid-column:1/-1;background:#fff8e9;border:1.5px solid #f2dfae;border-radius:11px;padding:10px 12px;font-size:11.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-top:2px}
+.empty{border:1.5px dashed #c9d3e8;border-radius:15px;padding:34px 20px;text-align:center}
+.empty b{display:block;font-weight:900;font-size:16px;margin-bottom:5px}.empty p{font-size:13px;color:var(--dim);font-weight:600}
+.foot{font-size:11.5px;color:#8a93ab;font-weight:600;text-align:center;margin-top:26px;line-height:1.6}
+/* ---- confirm modal (replaces the native confirm() box) ---- */
+.mask{position:fixed;inset:0;background:rgba(8,16,40,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.mask.show{display:flex}
+.modal{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:26px 24px;box-shadow:0 40px 90px -30px rgba(2,8,30,.7);text-align:center}
+.modal .mav{width:60px;height:60px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(140deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center}
+.modal h3{font-weight:900;font-size:22px;letter-spacing:-.5px;margin-bottom:8px}
+.modal .big{font-family:var(--mono);font-weight:700;font-size:34px;letter-spacing:-1.5px;color:var(--grn);margin:6px 0 4px}
+.modal .from{font-size:13.5px;color:var(--dim);font-weight:600;margin-bottom:16px}.modal .from b{color:var(--ink)}
+.modal .rev{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:12px 14px;font-size:12px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:16px;text-align:left;display:none}
+.modal .rev.show{display:block}
+.modal .warnline{font-size:12px;font-weight:700;color:var(--red);line-height:1.5;margin-bottom:18px}
+.modal .mbtns{display:flex;flex-direction:column;gap:9px}
+.modal .btn.red{flex:none;padding:15px;font-size:14.5px}
+/* decline variant */
+.modal.decline .mav{background:#eef1f7;color:var(--dim)}
+.modal.decline h3{color:var(--ink)}
+.modal.decline .warnline{color:var(--dim)}
+@media(max-width:640px){
+  body{padding:18px 15px 70px}
+  h1{font-size:28px;letter-spacing:-1px}
+  .sum{grid-template-columns:1fr 1fr;gap:8px}.sum .s:first-child{grid-column:1/-1}
+  .sale{grid-template-columns:auto 1fr;padding:14px}
+  .amt{grid-column:2;text-align:left;font-size:19px;margin-top:2px}
+  .acts{flex-direction:column}
+}
 </style></head><body>
 <div class="wrap">
-  <div class="mk">Advantage<i>Life</i></div>
-  <div class="tag">Your effort. Your income. 100% yours.</div>
-  <div class="card">
-    <h1>Incoming <span class="r">sales</span></h1>
-    <div class="sub">Buyers pay you directly. Check your wallet — confirm only when the money has actually arrived.</div>
-    <div class="err" id="err"></div>
-    <div id="list"></div>
-    <div class="empty" id="empty" style="display:none">No sales yet — share your link and keep your daily watch going.</div>
+  <div class="top">
+    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+    <div class="mk">Advantage<i>Life</i></div>
   </div>
-  <div class="note" style="color:#8fa0d4">Confirming activates the buyer's pack and advances your sale counter — it can't be undone.</div>
-  <div class="paidOverlay" id="paidOverlay">
-    <div class="paidCard">
-      <div class="paidEmoji">💰</div>
-      <div class="paidTitle">You got paid!</div>
-      <div class="paidSub" id="paidSub">The pack is now active and your sale counter advanced.</div>
-      <a class="btn red" href="/dashboard">Back to dashboard →</a>
-      <button class="btn ghost" id="paidStay">Stay on this page</button>
+  <h1>Incoming <span class="r">sales</span></h1>
+  <div class="sub">Buyers pay you directly, wallet to wallet. Check your wallet &mdash; confirm only once the money has actually arrived.</div>
+  <div class="sum" id="sum" style="display:none">
+    <div class="s hot"><div class="n" id="sumAction">0</div><div class="l">Needs your confirmation</div></div>
+    <div class="s"><div class="n" id="sumEarned">$0</div><div class="l">Received all time</div></div>
+    <div class="s"><div class="n" id="sumNext">&mdash;</div><div class="l">Confirmed sales</div></div>
+  </div>
+  <div class="err" id="err"></div>
+  <div id="actionWrap" style="display:none"><div class="hd">Waiting on you</div><div id="actionList"></div></div>
+  <div id="histWrap" style="display:none"><div class="hd q" style="margin-top:26px">History</div><div id="histList"></div></div>
+  <div class="empty" id="empty" style="display:none"><b>No sales yet</b><p>Share your link and keep your daily watch going.</p></div>
+  <div class="foot">Confirming activates the buyer's pack and advances your sale counter &mdash; it can't be undone.</div>
+</div>
+
+<!-- confirm / decline modal -->
+<div class="mask" id="mask">
+  <div class="modal" id="modal">
+    <div class="mav" id="mAv">?</div>
+    <h3 id="mTitle">Confirm you got paid?</h3>
+    <div class="big" id="mAmt">+$0</div>
+    <div class="from" id="mFrom"></div>
+    <div class="rev" id="mRev"></div>
+    <div class="warnline" id="mWarn">This activates the buyer's pack and advances your sale counter. It cannot be undone.</div>
+    <div class="mbtns">
+      <button class="btn red" id="mGo">Yes, I received it &mdash; confirm</button>
+      <button class="btn ghost" id="mCancel">Cancel</button>
     </div>
   </div>
 </div>
+
+<div class="paidOverlay" id="paidOverlay"><div class="paidCard"><div class="paidEmoji">💰</div><div class="paidTitle">You got paid!</div><div class="paidSub" id="paidSub">The pack is now active and your sale counter advanced.</div><a class="btn red" href="/dashboard">Back to dashboard &rarr;</a><button class="btn ghost" id="paidStay">Stay on this page</button></div></div>
+<style>
+.paidOverlay{position:fixed;inset:0;background:rgba(8,16,40,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+.paidOverlay.show{display:flex}
+.paidCard{background:#fff;border-radius:20px;max-width:380px;width:100%;padding:30px 26px;text-align:center;box-shadow:0 40px 90px -30px rgba(2,8,30,.7)}
+.paidEmoji{font-size:46px;margin-bottom:8px}.paidTitle{font-weight:900;font-size:24px;letter-spacing:-.5px;margin-bottom:8px}
+.paidSub{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.5;margin-bottom:18px}.paidSub b{color:var(--grn)}
+.paidCard .btn{margin-top:9px}
+</style>
 <script>
 (function(){
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':t;return d.innerHTML}
   function fail(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+  function initial(u){u=(u||'?').replace('@','');return (u[0]||'?').toUpperCase()}
   function chime(){try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;var c=new AC(),n=c.currentTime;[[1046.5,0],[1318.5,.12]].forEach(function(pr){var o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=pr[0];o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.0001,n+pr[1]);g.gain.exponentialRampToValueAtTime(.3,n+pr[1]+.03);g.gain.exponentialRampToValueAtTime(.0001,n+pr[1]+.5);o.start(n+pr[1]);o.stop(n+pr[1]+.55)})}catch(e){}}
   function celebratePaid(amt){var ov=document.getElementById('paidOverlay');var sub=document.getElementById('paidSub');if(amt&&sub){sub.innerHTML='You received <b>'+esc(amt.replace('+',''))+'</b>. The pack is now active and your sale counter advanced.'}if(ov){ov.classList.add('show');chime()}}
   var stayBtn=document.getElementById('paidStay');if(stayBtn){stayBtn.onclick=function(){document.getElementById('paidOverlay').classList.remove('show')}}
   function stLabel(s){return {pending:'AWAITING PAYMENT',proof_submitted:'CONFIRM RECEIPT',confirmed:'CONFIRMED',disputed:'DISPUTED',expired:'EXPIRED',cancelled:'CANCELLED'}[s]||s.toUpperCase()}
+
+  // ---- branded confirm / decline modal (replaces native confirm()) ----
+  var mask=document.getElementById('mask'),modal=document.getElementById('modal'),
+      mGo=document.getElementById('mGo'),mCancel=document.getElementById('mCancel'),
+      onGo=null;
+  function closeModal(){mask.classList.remove('show');onGo=null}
+  mCancel.onclick=closeModal;
+  mask.onclick=function(e){if(e.target===mask)closeModal()};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mask.classList.contains('show'))closeModal()});
+  mGo.onclick=function(){if(onGo){var f=onGo;onGo=null;f()}};
+
+  function askConfirm(s,go){
+    modal.className='modal';
+    document.getElementById('mAv').textContent=initial(s.buyer&&s.buyer.username);
+    document.getElementById('mTitle').textContent='Confirm you got paid?';
+    document.getElementById('mAmt').textContent='+$'+Number(s.amount).toFixed(2);
+    document.getElementById('mAmt').style.color='var(--grn)';
+    document.getElementById('mFrom').innerHTML='from <b>@'+esc(s.buyer&&s.buyer.username)+'</b>'
+      +(s.method_label?(' &middot; '+esc(s.method_label)):'');
+    var rev=document.getElementById('mRev');
+    if(s.reversible&&s.seller_note){rev.textContent='\u26A0 '+s.seller_note;rev.className='rev show'}
+    else{rev.className='rev'}
+    document.getElementById('mWarn').textContent="This activates the buyer's pack and advances your sale counter. It cannot be undone.";
+    mGo.textContent='Yes, I received it \u2014 confirm';
+    onGo=go;mask.classList.add('show')
+  }
+  function askDecline(s,go){
+    modal.className='modal decline';
+    document.getElementById('mAv').textContent='!';
+    document.getElementById('mTitle').textContent="Didn't receive this payment?";
+    document.getElementById('mAmt').textContent='+$'+Number(s.amount).toFixed(2);
+    document.getElementById('mAmt').style.color='var(--dim)';
+    document.getElementById('mFrom').innerHTML='from <b>@'+esc(s.buyer&&s.buyer.username)+'</b>';
+    document.getElementById('mRev').className='rev';
+    document.getElementById('mWarn').textContent='This freezes the purchase for admin review. Only report this if the money has not arrived.';
+    mGo.textContent='Report not received';
+    onGo=go;mask.classList.add('show')
+  }
+
+  function card(s){
+    var d=document.createElement('div');
+    var cls=s.action_needed?'action':(s.status==='confirmed'?'done':((s.status==='expired'||s.status==='cancelled')?'dead':''));
+    d.className='sale'+(cls?' '+cls:'');
+    var pk=s.pack||{};
+    var verb=s.status==='confirmed'?'bought':(s.action_needed?'bought':((s.status==='expired'||s.status==='cancelled')?'started':'bought'));
+    var stcls=s.action_needed?'wait':(s.status==='confirmed'?'ok':'dead');
+    var money=(s.status==='expired'||s.status==='cancelled')?('$'+Number(s.amount).toFixed(0)):('+$'+Number(s.amount).toFixed(0));
+    d.innerHTML='<div class="av">'+esc(initial(s.buyer&&s.buyer.username))+'</div>'
+      +'<div><div class="who">@'+esc(s.buyer&&s.buyer.username)+' <span>'+verb+' your $'+Number(s.amount).toFixed(0)+' pack</span></div>'
+      +'<div class="meta">'+esc(pk.name||('Level '+pk.level))+' pack<span class="st '+stcls+'">'+stLabel(s.status)+'</span></div>'
+      +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')+'</div>'
+      +'<div class="amt">'+money+'</div>';
+    if(s.action_needed){
+      if(s.reversible&&s.seller_note){var w=document.createElement('div');w.className='warn';w.textContent='\u26A0 '+s.seller_note;d.appendChild(w)}
+      var acts=document.createElement('div');acts.className='acts';
+      var cf=document.createElement('button');cf.className='btn red';cf.textContent='Money arrived \u2014 confirm \u2192';
+      cf.onclick=function(){askConfirm(s,function(){doConfirm(s.intent_id,'+$'+Number(s.amount).toFixed(2))})};
+      var dc=document.createElement('button');dc.className='btn ghost';dc.textContent="Didn't receive";
+      dc.onclick=function(){askDecline(s,function(){doDecline(s.intent_id)})};
+      acts.appendChild(cf);acts.appendChild(dc);d.appendChild(acts);
+    }
+    return d;
+  }
+
+  function doConfirm(id,amtTxt){
+    closeModal();
+    fetch('/api/al/intents/'+id+'/confirm',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+      if(j.ok){celebratePaid(amtTxt);load()}else{fail(j.error||'Could not confirm')}
+    }).catch(function(){fail('Network error')});
+  }
+  function doDecline(id){
+    closeModal();
+    fetch('/api/al/intents/'+id+'/decline',{method:'POST'}).then(function(){load()}).catch(function(){fail('Network error')});
+  }
+
   function load(){
-    fetch('/api/al/my-sales').then(function(r){if(r.status===401){location.href='/login?next=/my-sales';return null}return r.json()}).then(function(j){
+    fetch('/api/al/my-sales').then(function(r){return r.json()}).then(function(j){
       if(!j)return;
-      var L=document.getElementById('list');L.innerHTML='';
       var sales=j.sales||[];
+      var actions=sales.filter(function(s){return s.action_needed});
+      var hist=sales.filter(function(s){return !s.action_needed});
+      var earned=sales.filter(function(s){return s.status==='confirmed'})
+        .reduce(function(a,s){return a+Number(s.amount||0)},0);
+      var confirmed=sales.filter(function(s){return s.status==='confirmed'}).length;
       document.getElementById('empty').style.display=sales.length?'none':'block';
-      sales.forEach(function(s){
-        var d=document.createElement('div');
-        d.className='sale'+(s.action_needed?' action':'');
-        var pk=s.pack||{};
-        d.innerHTML='<div class="top"><span class="who">@'+esc(s.buyer&&s.buyer.username)+'</span><span class="amt">+$'+Number(s.amount).toFixed(2)+'</span></div>'
-          +'<div class="meta">'+esc(pk.name||('Level '+pk.level))+' pack · <span class="stbadge st-'+esc(s.status)+'">'+stLabel(s.status)+'</span></div>'
-          +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')
-          +(s.action_needed?('<div class="two"><button class="btn red" data-c="'+s.intent_id+'">Money arrived — confirm ✓</button><button class="btn ghost" data-d="'+s.intent_id+'">Didn\u2019t receive</button></div>'):'');
-        L.appendChild(d);
-      });
-      L.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){
-        if(!confirm('Confirm you have RECEIVED this payment in your wallet? This activates the buyer\u2019s pack and cannot be undone.'))return;
-        b.disabled=true;b.textContent='Confirming…';
-        var saleAmt=b.closest('.sale').querySelector('.amt');var amtTxt=saleAmt?saleAmt.textContent:'';
-        fetch('/api/al/intents/'+b.dataset.c+'/confirm',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
-          if(j.ok){celebratePaid(amtTxt);load()}else{fail(j.error||'Could not confirm');b.disabled=false;b.textContent='Money arrived — confirm ✓'}
-        }).catch(function(){fail('Network error');b.disabled=false});
-      }});
-      L.querySelectorAll('[data-d]').forEach(function(b){b.onclick=function(){
-        if(!confirm('Report that you did NOT receive this payment? The purchase freezes for admin review.'))return;
-        fetch('/api/al/intents/'+b.dataset.d+'/decline',{method:'POST'}).then(function(){load()});
-      }});
-    });
+      document.getElementById('sum').style.display=sales.length?'grid':'none';
+      document.getElementById('sumAction').textContent=actions.length;
+      document.getElementById('sumEarned').textContent='$'+earned.toFixed(0);
+      document.getElementById('sumNext').textContent=confirmed;
+      document.querySelector('.sum .s.hot').style.opacity=actions.length?'1':'.5';
+      var aw=document.getElementById('actionWrap'),al=document.getElementById('actionList');
+      al.innerHTML='';aw.style.display=actions.length?'block':'none';
+      actions.forEach(function(s){al.appendChild(card(s))});
+      var hw=document.getElementById('histWrap'),hl=document.getElementById('histList');
+      hl.innerHTML='';hw.style.display=hist.length?'block':'none';
+      hist.forEach(function(s){hl.appendChild(card(s))});
+    }).catch(function(){fail('Could not load your sales. Retrying...')});
   }
   load();
-  setInterval(load, 60000);
+  setInterval(load,60000);
 })();
 </script>
 </body></html>"""
