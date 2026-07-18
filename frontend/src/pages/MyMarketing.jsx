@@ -114,7 +114,7 @@ export default function MyMarketing() {
                          tabIndex={0}
                          onKeyDown={function (e) { if ((e.key === 'Enter' || e.key === ' ') && c.onClick) { e.preventDefault(); c.onClick(); } }}>
                       {c.soon ? <span className="mm-tag soon">Coming soon</span> : null}
-                      <div className="mm-ico" style={{ background: c.grad }}><Icon size={20} color="#fff" /></div>
+                      <div className="mm-ico" style={{ background: c.grad }}><Icon size={26} color="#fff" /></div>
                       <h3>{c.title}</h3>
                       <p>{c.desc}</p>
                     </div>
@@ -146,15 +146,15 @@ var css = `
   .mm-feature-txt p{font-size:13px;color:#475569;margin:0;font-weight:500;line-height:1.45;max-width:640px}
   .mm-feature-cta{flex-shrink:0;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;color:#fff;background:linear-gradient(135deg,#12388f,#c8102e);padding:12px 20px;border-radius:11px;white-space:nowrap;box-shadow:0 4px 12px rgba(14,116,180,0.3)}
   .mm-sect{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin:20px 2px 12px}
-  .mm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:6px}
-  .mm-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 17px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
+  .mm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:8px}
+  .mm-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
   .mm-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(10,20,56,0.12)}
   .mm-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,32,63,0.35)}
   .mm-card.soon{cursor:default;opacity:0.72}
   .mm-card.soon:hover{transform:none;box-shadow:none}
-  .mm-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:11px;flex-shrink:0}
-  .mm-card h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#0a1f52;margin:0 0 4px}
-  .mm-card p{font-size:12.5px;color:#64748b;margin:0;font-weight:500;line-height:1.45}
+  .mm-ico{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex-shrink:0}
+  .mm-card h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#0a1f52;margin:0 0 6px}
+  .mm-card p{font-size:14px;color:#64748b;margin:0;font-weight:500;line-height:1.5}
   .mm-tag{position:absolute;top:13px;right:14px;font-size:9.5px;font-weight:800;letter-spacing:0.5px;padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif}
   .mm-tag.soon{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
   @media (max-width:900px){ .mm-row{grid-template-columns:1fr} .mm-feature{flex-direction:column;align-items:flex-start;gap:13px} .mm-feature-cta{width:100%;text-align:center} }
