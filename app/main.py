@@ -22209,9 +22209,12 @@ async def stripe_status(user: User = Depends(get_current_user)):
     if not user:
         # Unauthenticated probe — just report whether the integration is
         # configured server-side. Useful for monitoring / health checks.
-        return {"configured": _stripe.is_configured(), "authenticated": False}
+        return {"configured": _stripe.is_configured(),
+                "configured_for_payments": _stripe.is_configured_for_payments(),
+                "authenticated": False}
     return {
         "configured": _stripe.is_configured(),
+        "configured_for_payments": _stripe.is_configured_for_payments(),
         "authenticated": True,
         "has_subscription": bool(user.stripe_subscription_id),
         "stripe_customer_id": user.stripe_customer_id,
@@ -22461,7 +22464,7 @@ async def stripe_checkout_nexus_pack(
     Returns:
       { checkout_url, session_id }
     """
-    if not _stripe.is_configured():
+    if not _stripe.is_configured_for_payments():
         return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
     if not user:
         return JSONResponse({"error": "auth_required"}, status_code=401)

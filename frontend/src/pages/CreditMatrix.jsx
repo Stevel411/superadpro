@@ -54,23 +54,23 @@ export function CreditMatrixContent() {
 
   useEffect(function() { loadAll(); }, []);
 
-  // Stripe Checkout returns here after a card purchase.
+  // Stripe Checkout returns here after a card purchase. The backend redirects
+  // to /my-credits?activated={pack_key} on success, /my-credits on cancel.
   useEffect(function() {
     var params = new URLSearchParams(window.location.search);
-    if (params.get('credits') === 'success') {
+    if (params.get('activated')) {
       setMessage({ type: 'success', text: t('creditMatrix.cardSuccess', { defaultValue: 'Payment received — your credits have been added to your balance.' }) });
-      window.history.replaceState({}, '', window.location.pathname + '?tab=credits');
+      window.history.replaceState({}, '', window.location.pathname);
       loadAll();
-    } else if (params.get('credits') === 'cancelled') {
-      setMessage({ type: 'error', text: t('creditMatrix.cardCancelled', { defaultValue: 'Payment cancelled — no charge was made.' }) });
-      window.history.replaceState({}, '', window.location.pathname + '?tab=credits');
     }
   }, []);
 
-  // Is Stripe (card) available? Drives whether the Card button shows.
+  // Is Stripe available for one-time card payments? Credit packs are one-time
+  // (ad-hoc amount), so we check configured_for_payments, not the subscription
+  // gate. Drives whether the 'Pay by card' button shows.
   useEffect(function() {
     apiGet('/api/stripe/status')
-      .then(function(d) { if (d && d.configured === true) setStripeReady(true); })
+      .then(function(d) { if (d && (d.configured_for_payments === true || d.configured === true)) setStripeReady(true); })
       .catch(function() { /* leave card hidden */ });
   }, []);
 

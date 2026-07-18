@@ -78,10 +78,23 @@ def _public_url() -> str:
     return os.environ.get("PUBLIC_BASE_URL", "https://www.superadpro.com").rstrip("/")
 
 def is_configured() -> bool:
-    """True iff all required env vars are set AND the stripe library is installed."""
+    """True iff all required env vars are set AND the stripe library is installed.
+
+    This is the SUBSCRIPTION gate — it requires the founder/partner recurring
+    price IDs, because membership checkout needs them."""
     if not HAS_STRIPE_LIB:
         return False
     return bool(_api_key() and _founder_price_id() and _partner_price_id())
+
+def is_configured_for_payments() -> bool:
+    """True iff Stripe can take a ONE-TIME card payment (ad-hoc amount_cents).
+
+    One-time products — credit packs, custom domain, email boost — pass
+    amount_cents and never touch the subscription price IDs, so they only need
+    the secret key + the library. is_configured() over-gates them on price IDs
+    they don't use, which is why 'Pay by card' stayed hidden on the credits page
+    even where a secret key was set."""
+    return bool(HAS_STRIPE_LIB and _api_key())
 
 def _ensure_sdk():
     """Set the global stripe.api_key from env. Idempotent."""
