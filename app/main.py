@@ -3774,6 +3774,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "last_name": user.last_name,
         "is_admin": user.is_admin,
         "is_active": user.is_active,
+        "access_level": getattr(user, "access_level", "free") or "free",
         "membership_expires_at": (user.membership_expires_at.isoformat()
                                   if getattr(user, "membership_expires_at", None) else None),
         "membership_overdue": _membership_overdue,

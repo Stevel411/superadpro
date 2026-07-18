@@ -217,7 +217,10 @@ export default function Account() {
   if (!user) return null;
   var initials = (((user.first_name || '')[0] || '') + ((user.last_name || user.username || '')[0] || '')).toUpperCase();
   var kyc = user.kyc_status || 'none';
-  var joined = (user.access_level === 'lifetime');
+  // Joined = paid the $100 lifetime join OR grandfathered (access_level
+  // 'lifetime'), OR an admin — admins bypass the join gate (is_al_member in
+  // main.py). is_active covers members activated on any live rail.
+  var joined = (user.access_level === 'lifetime') || !!user.is_admin;
   var memberSince = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—';
 
   return (
