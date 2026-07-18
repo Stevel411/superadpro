@@ -300,6 +300,24 @@ CAMPAIGN_VIEW_TARGETS = {
 # Grace period (days) after campaign expires before losing tier qualification
 CAMPAIGN_GRACE_DAYS = 7   # Steve, 8 Jun 2026 (was 14)
 
+# ── Daily-watch requirement per pack tier (Steve, 18 Jul 2026) ─────────
+# Watches/day the pack OWNER must complete while their campaign is active, to
+# stay earning-qualified. This is ALSO the platform's view-delivery supply
+# (every watch delivers a view to someone's campaign). Gentle ramp: bigger
+# pack -> more daily watches, capped humanely at 5/day. Tunable — this is the
+# single source; it seeds campaign_packs.daily_watch_required.
+DAILY_WATCH_BY_TIER = {
+    0: 1,   # $10 Launchpad
+    1: 1,   # $20 Starter
+    2: 2,   # $50 Builder
+    3: 2,   # $100 Pro
+    4: 3,   # $200 Advanced
+    5: 3,   # $400 Premium
+    6: 4,   # $600 Elite
+    7: 4,   # $800 Master
+    8: 5,   # $1,000 Champion
+}
+
 # ── Campaign Tier Features ────────────────────────────────────
 # Controls what each grid tier unlocks for video campaigns
 CAMPAIGN_TIER_FEATURES = {
@@ -723,10 +741,20 @@ class PackPurchase(Base):
     pack_level     = Column(Integer, index=True)                  # denormalised for fast gating
     amount         = Column(Money)
     payment_method = Column(String, default="crypto")            # crypto / bank / paypal / wise
-    status         = Column(String, default="pending", index=True)   # pending / active
+    status         = Column(String, default="pending", index=True)   # pending / active / expired
     tx_ref         = Column(String, nullable=True)
     activated_at   = Column(DateTime, nullable=True)
     created_at     = Column(DateTime, default=datetime.utcnow)
+    # --- consumable-campaign lifecycle (18 Jul 2026) ---------------------
+    # A pack is a consumable campaign: on activation it spawns a VideoCampaign
+    # with the pack's view target; the existing watch engine delivers views and
+    # completes it; at the target the pack expires (after a grace window).
+    source         = Column(String, default="purchase")   # purchase / gift  (gift = company-granted, no commission)
+    campaign_id    = Column(Integer, ForeignKey("video_campaigns.id"), nullable=True)  # the ad this pack runs
+    daily_watch_required = Column(Integer, nullable=True)  # watches/day the owner must do while active
+    completed_at   = Column(DateTime, nullable=True)       # when views_delivered >= views_target
+    grace_expires_at = Column(DateTime, nullable=True)     # qualification survives until here after completion
+    expired_at     = Column(DateTime, nullable=True)       # when the pack was finally expired (post-grace)
 
 class PackCommission(Base):
     """Audit trail for every pack commission (direct / pass_up / company)."""
@@ -4083,22 +4111,41 @@ try:
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE campaign_packs ADD COLUMN IF NOT EXISTS views_target INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE campaign_packs ADD COLUMN IF NOT EXISTS daily_watch_required INTEGER"))
+        # pack_purchases consumable-lifecycle columns (18 Jul 2026)
+        for _col, _type in [
+            ("source", "VARCHAR DEFAULT 'purchase'"),
+            ("campaign_id", "INTEGER"),
+            ("daily_watch_required", "INTEGER"),
+            ("completed_at", "TIMESTAMP"),
+            ("grace_expires_at", "TIMESTAMP"),
+            ("expired_at", "TIMESTAMP"),
+        ]:
+            conn.execute(text(f"ALTER TABLE pack_purchases ADD COLUMN IF NOT EXISTS {_col} {_type}"))
         existing = conn.execute(text("SELECT COUNT(*) FROM campaign_packs")).scalar()
         if not existing:
             for tier in sorted(GRID_PACKAGES):
                 price = GRID_PACKAGES[tier]
                 name  = GRID_TIER_NAMES.get(tier, f"Tier {tier}")
                 views = CAMPAIGN_VIEW_TARGETS.get(tier, 0)
+                watch = DAILY_WATCH_BY_TIER.get(tier, 1)
                 slug  = name.lower().replace(" ", "-")
                 conn.execute(text(
-                    "INSERT INTO campaign_packs (name, slug, price, level, views_target, is_active, sort_order, created_at) "
-                    "VALUES (:n, :s, :p, :l, :v, TRUE, :o, NOW())"),
-                    {"n": name, "s": slug, "p": price, "l": int(price), "v": views, "o": tier})
+                    "INSERT INTO campaign_packs (name, slug, price, level, views_target, daily_watch_required, is_active, sort_order, created_at) "
+                    "VALUES (:n, :s, :p, :l, :v, :w, TRUE, :o, NOW())"),
+                    {"n": name, "s": slug, "p": price, "l": int(price), "v": views, "w": watch, "o": tier})
             conn.commit()
             print(f"✅ campaign_packs seeded ({len(GRID_PACKAGES)} AdvantageLife tiers from config)")
         else:
+            # Backfill daily_watch_required for any pack missing it (idempotent).
+            for tier in sorted(GRID_PACKAGES):
+                price = GRID_PACKAGES[tier]
+                watch = DAILY_WATCH_BY_TIER.get(tier, 1)
+                conn.execute(text(
+                    "UPDATE campaign_packs SET daily_watch_required = :w "
+                    "WHERE level = :l AND (daily_watch_required IS NULL)"),
+                    {"w": watch, "l": int(price)})
             conn.commit()
-            print(f"✅ campaign_packs already seeded ({existing} rows)")
+            print(f"✅ campaign_packs already seeded ({existing} rows); daily_watch_required backfilled")
 except Exception as e:
     print(f"⚠️ campaign_packs seed failed: {e}")
 
