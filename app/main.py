@@ -67994,7 +67994,22 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
         j["reversible"] = bool(m and m.get("reversible"))
         j["seller_note"] = m.get("seller_note") if m else None
         out.append(j)
-    return {"sales": out}
+
+    # Pass-up standing, computed from the authoritative counter (not the 50-row
+    # window above — a member past 50 sales would miscount client-side).
+    # 3/6/9 rule: the NEXT sale is slot = count + 1. Slots 3,6,9 pass up; after
+    # the 9th, every sale is direct.
+    count = user.pack_sale_count or 0
+    next_slot = count + 1
+    if next_slot > 9:
+        passup = {"count": count, "next_slot": next_slot, "next_passes_up": False,
+                  "sales_until_passup": None, "all_direct": True}
+    else:
+        nxt = next(p for p in (3, 6, 9) if next_slot <= p)
+        passup = {"count": count, "next_slot": next_slot,
+                  "next_passes_up": next_slot in (3, 6, 9),
+                  "sales_until_passup": nxt - count, "all_direct": False}
+    return {"sales": out, "passup": passup}
 
 
 # ── Payout method registry: the five stablecoin rails members can receive
@@ -68847,6 +68862,10 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 .sum .s .l{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:6px}
 .sum .s.hot{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d}
 .sum .s.hot .n{color:#fff}.sum .s.hot .l{color:#ffe0e5}
+.sum .s.up{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d}
+.sum .s.up .n{color:#fff}.sum .s.up .l{color:#ffe0e5}
+.sum .s.keep{background:linear-gradient(150deg,#08381f,#0a6836);border-color:#08381f}
+.sum .s.keep .n{color:#fff}.sum .s.keep .l{color:#a9e3c2}
 .hd{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
 .hd.q{color:var(--dim)}
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:14px}
@@ -68907,7 +68926,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
   <div class="sum" id="sum" style="display:none">
     <div class="s hot"><div class="n" id="sumAction">0</div><div class="l">Needs your confirmation</div></div>
     <div class="s"><div class="n" id="sumEarned">$0</div><div class="l">Received all time</div></div>
-    <div class="s"><div class="n" id="sumNext">&mdash;</div><div class="l">Confirmed sales</div></div>
+    <div class="s" id="sumPassup"><div class="n" id="sumNext">&mdash;</div><div class="l" id="sumNextLbl">Next sale</div></div>
   </div>
   <div class="err" id="err"></div>
   <div id="actionWrap" style="display:none"><div class="hd">Waiting on you</div><div id="actionList"></div></div>
@@ -69033,12 +69052,16 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
       var hist=sales.filter(function(s){return !s.action_needed});
       var earned=sales.filter(function(s){return s.status==='confirmed'})
         .reduce(function(a,s){return a+Number(s.amount||0)},0);
-      var confirmed=sales.filter(function(s){return s.status==='confirmed'}).length;
       document.getElementById('empty').style.display=sales.length?'none':'block';
       document.getElementById('sum').style.display=sales.length?'grid':'none';
       document.getElementById('sumAction').textContent=actions.length;
       document.getElementById('sumEarned').textContent='$'+earned.toFixed(0);
-      document.getElementById('sumNext').textContent=confirmed;
+      var pu=j.passup||{};var tile=document.getElementById('sumPassup');
+      var nEl=document.getElementById('sumNext'),lEl=document.getElementById('sumNextLbl');
+      tile.classList.remove('up','keep');
+      if(pu.all_direct){nEl.textContent='All yours';lEl.textContent='Past the 9th \u2014 every sale is direct';tile.classList.add('keep')}
+      else if(pu.next_passes_up){nEl.textContent='Passes up';lEl.textContent='Your next sale is a pass-up (#'+pu.next_slot+')';tile.classList.add('up')}
+      else{var n=pu.sales_until_passup;nEl.textContent=n+(n===1?' sale':' sales');lEl.textContent='Until your next pass-up (#'+((pu.count||0)+n)+')';tile.classList.add('keep')}
       document.querySelector('.sum .s.hot').style.opacity=actions.length?'1':'.5';
       var aw=document.getElementById('actionWrap'),al=document.getElementById('actionList');
       al.innerHTML='';aw.style.display=actions.length?'block':'none';
