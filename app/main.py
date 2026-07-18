@@ -68202,6 +68202,15 @@ AL_PAYOUT_METHODS = {
                      "hint": "Your PayPal email address", "auto_verify": False,
                      "reversible": True,
                      "seller_note": "PayPal payments can be disputed for up to 180 days. Confirm only once the money is in your PayPal balance, and keep proof of the sale."},
+    "wise":         {"label": "Wise", "family": "wise",
+                     "hint": "Your Wise email or @Wisetag", "auto_verify": False,
+                     "recv_note": "Send to your Wise account (email or Wisetag) — not a Wise card. Account-to-account Wise transfers are final and can't be reversed."},
+    "zelle":        {"label": "Zelle", "family": "zelle",
+                     "hint": "Your Zelle email or US phone number", "auto_verify": False,
+                     "recv_note": "US bank accounts only. Zelle transfers are instant and final — there's no chargeback."},
+    "revolut":      {"label": "Revolut", "family": "revtag",
+                     "hint": "Your @Revtag, email or phone", "auto_verify": False,
+                     "recv_note": "Send to your Revolut account (Revtag, email or phone) — not a Revolut card. Account-to-account transfers are final."},
 }
 
 _AL_ADDR_RE = {
@@ -68209,6 +68218,12 @@ _AL_ADDR_RE = {
     "tron":    re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
     "cashtag": re.compile(r"^\$[a-zA-Z][a-zA-Z0-9_]{1,19}$"),
     "email":   re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$"),
+    # Wise: email OR @Wisetag
+    "wise":    re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|@[a-zA-Z][a-zA-Z0-9]{2,29})$"),
+    # Zelle: US email OR US phone
+    "zelle":   re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|\+?1?[\s\-.]?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4})$"),
+    # Revolut: @Revtag OR email OR phone
+    "revtag":  re.compile(r"^(?:@[a-zA-Z0-9]{4,20}|[^@\s]+@[^@\s]+\.[^@\s]+|\+?\d[\d\s\-.]{6,14}\d)$"),
 }
 
 
@@ -68441,7 +68456,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 <script>
 (function(){
   var REG=[],CUR=null;
-  var ICONS={usdt_bsc:{s:'\u20AE',bg:'#0a7d5a'},usdt_tron:{s:'\u20AE',bg:'#c8102e'},usdt_eth:{s:'\u20AE',bg:'#6c5ce7'},usdt_polygon:{s:'\u20AE',bg:'#8247e5'},usdc_bsc:{s:'\u20B5',bg:'#2775ca'},usdc_polygon:{s:'\u20B5',bg:'#8247e5'},cashapp:{s:'$',bg:'#00c244'},paypal:{s:'P',bg:'#003087'}};
+  var ICONS={usdt_bsc:{s:'\u20AE',bg:'#0a7d5a'},usdt_tron:{s:'\u20AE',bg:'#c8102e'},usdt_eth:{s:'\u20AE',bg:'#6c5ce7'},usdt_polygon:{s:'\u20AE',bg:'#8247e5'},usdc_bsc:{s:'\u20B5',bg:'#2775ca'},usdc_polygon:{s:'\u20B5',bg:'#8247e5'},cashapp:{s:'$',bg:'#00c244'},paypal:{s:'P',bg:'#003087'},wise:{s:'W',bg:'#163300'},zelle:{s:'Z',bg:'#6d1ed4'},revolut:{s:'R',bg:'#0a1f52'}};
   function ic(k){return ICONS[k]||{s:'\u25CF',bg:'#5a6584'}}
   function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML}
   function shortLabel(l){return l.replace(' \u00b7 ',' \u00b7 ')}
