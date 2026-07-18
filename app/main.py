@@ -67173,6 +67173,55 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/api/grant-pack")
+def admin_api_grant_pack(
+    usernames: str = "",
+    level: int = 0,
+    count: int = 1,
+    secret: str = "",
+    db: Session = Depends(get_db),
+):
+    """Gift free campaign pack(s) to members (Steve's loyal-member transition
+    gift). Creates active PackPurchase rows flagged source='gift' — NO
+    commission / pass-up fires (a gift is not a P2P sale). Each gift still
+    requires the member to create their video ad + do their daily watch to run
+    and earn, exactly like a bought pack. Mobile-tappable.
+
+    Params: usernames (comma-separated), level (pack price: 10/20/50/100/200/
+    400/600/800/1000), count (how many packs each member gets, default 1)."""
+    _check_migration_secret(secret)
+
+    pack = db.query(CampaignPack).filter(CampaignPack.level == level,
+                                         CampaignPack.is_active == True).first()  # noqa: E712
+    if not pack:
+        valid = [p.level for p in db.query(CampaignPack).filter(CampaignPack.is_active == True).all()]  # noqa: E712
+        return JSONResponse({"error": f"No active pack at level {level}. Valid: {sorted(valid)}"}, status_code=400)
+
+    count = max(1, min(int(count), 20))  # sane bound
+    wanted = [x.strip().lstrip("@") for x in usernames.split(",") if x.strip()]
+    granted, notfound = [], []
+    _dwr = pack.daily_watch_required if pack.daily_watch_required is not None else 1
+
+    for uname in wanted:
+        u = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
+        if not u:
+            notfound.append(uname)
+            continue
+        for _ in range(count):
+            db.add(PackPurchase(
+                user_id=u.id, pack_id=pack.id, pack_level=pack.level,
+                amount=0.0, payment_method="gift", status="active",
+                source="gift", daily_watch_required=_dwr,
+                activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
+            ))
+        granted.append({"username": u.username, "packs": count})
+
+    db.commit()
+    return {"ok": True, "level": level, "count_each": count,
+            "granted": granted, "not_found": notfound,
+            "note": "Gift packs are active but need each member to submit a video ad before they deliver views. No commission fired."}
+
+
 # ═══════════════════════════════════════════════════════════════════════
 # ADVANTAGELIFE — P2P PACK SETTLEMENT API (7 Jul 2026, build-spec §4)
 # The HTTP layer over al_settlement/al_engine. Rules enforced here, money
@@ -67923,6 +67972,93 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
         "pack_sale_count": user.pack_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
     }
+
+
+@app.get("/api/al/packs/awaiting-ad")
+def al_packs_awaiting_ad(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Active packs the member owns that still need a video ad before they
+    start delivering views (campaign_id IS NULL). Drives the "create your ad"
+    prompt — a pack earns nothing toward its view target until its ad is live."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = (db.query(PackPurchase)
+              .filter(PackPurchase.user_id == user.id,
+                      PackPurchase.status == "active",
+                      PackPurchase.campaign_id.is_(None))
+              .order_by(PackPurchase.pack_level.desc()).all())
+    out = []
+    for r in rows:
+        pack = db.query(CampaignPack).filter(CampaignPack.id == r.pack_id).first()
+        out.append({
+            "purchase_id": r.id,
+            "pack_level": r.pack_level,
+            "label": (pack.name if pack else f"${r.pack_level}"),
+            "views_target": (pack.views_target if pack else 0),
+            "daily_watch_required": r.daily_watch_required or 1,
+            "source": r.source or "purchase",
+        })
+    return {"ok": True, "awaiting": out}
+
+
+@app.post("/api/al/packs/{purchase_id}/submit-ad")
+async def al_pack_submit_ad(purchase_id: int, request: Request,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """The buyer creates the video advertisement for an active pack. This is the
+    obligation that unlocks their earning: no ad = no campaign = no views
+    delivered. Spawns a VideoCampaign with the pack's view target and links it
+    back to the pack (campaign_id). The existing watch engine then delivers
+    views and auto-completes it at the target."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    purchase = (db.query(PackPurchase)
+                  .filter(PackPurchase.id == purchase_id,
+                          PackPurchase.user_id == user.id).first())
+    if not purchase:
+        return JSONResponse({"error": "Pack not found"}, status_code=404)
+    if purchase.status != "active":
+        return JSONResponse({"error": "This pack isn't active."}, status_code=400)
+    if purchase.campaign_id:
+        return JSONResponse({"error": "This pack already has a live ad."}, status_code=400)
+
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    video_url = (body.get("video_url") or "").strip()
+    if not title or not video_url:
+        return JSONResponse({"error": "A title and a video URL are both required."}, status_code=400)
+
+    parsed = parse_video_url(video_url)
+    if not parsed:
+        return JSONResponse({"error": "That video URL isn't a supported platform (YouTube, Rumble, Vimeo)."}, status_code=400)
+
+    pack = db.query(CampaignPack).filter(CampaignPack.id == purchase.pack_id).first()
+    target = (pack.views_target if pack and pack.views_target else 0)
+
+    campaign = VideoCampaign(
+        user_id=user.id,
+        title=title,
+        description=(body.get("description") or "").strip() or None,
+        platform=parsed["platform"],
+        video_url=video_url,
+        embed_url=parsed["embed_url"],
+        video_id=parsed.get("video_id"),
+        status="active",
+        views_target=target,
+        views_delivered=0,
+        campaign_tier=purchase.pack_level,
+        is_completed=False,
+        created_at=datetime.utcnow(),
+    )
+    db.add(campaign)
+    db.flush()  # need campaign.id
+
+    purchase.campaign_id = campaign.id
+    db.commit()
+
+    return {"ok": True, "campaign_id": campaign.id,
+            "views_target": target,
+            "message": "Your ad is live — it'll start receiving views from members watching."}
 
 
 @app.post("/api/al/packs/{pack_level}/intent")

@@ -35,7 +35,8 @@ from . import al_engine
 # buyer waiting forever).
 AL_HOUSE_USER_ID = 1
 from .database import (User, CampaignPack, PackPurchase, PackCommission,
-                       P2PIntent, PayoutMethod)
+                       P2PIntent, PayoutMethod, VideoCampaign,
+                       CAMPAIGN_GRACE_DAYS)
 
 
 def _default_payout(db: Session, user_id):
@@ -122,10 +123,16 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
         raise ValueError("intent not confirmable")
 
     # activate the buyer's pack
+    pack_row = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
+    _dwr = (pack_row.daily_watch_required if pack_row and pack_row.daily_watch_required is not None else 1)
     purchase = PackPurchase(
         user_id=intent.buyer_id, pack_id=intent.pack_id, pack_level=intent.pack_level,
         amount=intent.amount, payment_method="p2p", status="active",
         tx_ref=intent.tx_ref, activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
+        source="purchase", daily_watch_required=_dwr,
+        # campaign_id stays NULL until the member submits their video ad — the pack
+        # is a consumable campaign that only starts delivering views once the buyer
+        # has created the creative (their obligation to receive funds).
     )
     db.add(purchase)
     db.flush()  # need purchase.id
