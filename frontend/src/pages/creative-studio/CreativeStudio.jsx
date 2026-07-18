@@ -634,9 +634,8 @@ export default function CreativeStudio() {
       <div className="cs-page">
 
         {/* ── BPG Promo Banner — surfaces Brand Poster Generator to every
-            Creative Studio visitor. BPG is the highest-leverage Nexus
-            attractor and Creative Studio is where AI-curious members
-            naturally land. Added 12 May 2026. */}
+            Creative Studio visitor, where AI-curious members naturally land.
+            Added 12 May 2026; recoloured to AL red + copy de-Nexused. */}
         <a
           href="/brand-posters"
           style={{
@@ -646,15 +645,15 @@ export default function CreativeStudio() {
             padding: '14px 20px',
             marginBottom: 14,
             borderRadius: 12,
-            background: 'linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #f97316 100%)',
-            border: '1px solid rgba(251, 191, 36, 0.4)',
+            background: 'linear-gradient(135deg, #7c0b1d 0%, #c8102e 55%, #e8203f 100%)',
+            border: '1px solid rgba(255, 90, 112, 0.4)',
             textDecoration: 'none',
             color: '#fff',
             transition: 'transform 0.15s, box-shadow 0.15s',
           }}
           onMouseEnter={function(e) {
             e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(251, 191, 36, 0.25)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(200, 16, 46, 0.35)';
           }}
           onMouseLeave={function(e) {
             e.currentTarget.style.transform = '';
@@ -666,46 +665,46 @@ export default function CreativeStudio() {
             width: 44,
             height: 44,
             borderRadius: 11,
-            background: 'linear-gradient(135deg, #fbbf24, #fde047)',
+            background: 'linear-gradient(135deg, #12388f, #0a1f52)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 22,
-            boxShadow: '0 4px 12px rgba(251, 191, 36, 0.5)',
+            boxShadow: '0 4px 12px rgba(10, 31, 82, 0.5)',
           }}>✨</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: 1.2,
-              color: '#fde047',
+              color: '#ffe0e5',
               textTransform: 'uppercase',
               marginBottom: 2,
             }}>New — Brand Poster Generator</div>
             <div style={{
-              fontFamily: 'Sora, sans-serif',
+              fontFamily: 'Inter, sans-serif',
               fontSize: 15,
-              fontWeight: 700,
+              fontWeight: 800,
               color: '#fff',
               marginBottom: 2,
             }}>Make branded marketing posters in 60 seconds →</div>
             <div style={{
               fontSize: 12,
-              color: 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.8)',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-            }}>Six AI templates. Your referral link baked in. Free for Nexus pack owners.</div>
+            }}>AI poster templates with your referral link baked in.</div>
           </div>
           <div style={{
             flexShrink: 0,
-            background: 'rgba(251, 191, 36, 0.2)',
-            color: '#fde047',
+            background: 'rgba(255, 255, 255, 0.16)',
+            color: '#fff',
             padding: '6px 12px',
             borderRadius: 8,
             fontSize: 12,
-            fontWeight: 700,
-            border: '1px solid rgba(251, 191, 36, 0.4)',
+            fontWeight: 800,
+            border: '1px solid rgba(255, 255, 255, 0.3)',
           }}>Try it</div>
         </a>
 
