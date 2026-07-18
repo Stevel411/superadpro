@@ -69211,6 +69211,8 @@ h1 .r{color:var(--red)}
         <input id="jTx" style="width:100%;border:2px solid var(--line);border-radius:11px;padding:13px;font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:10px" placeholder="Paste your transaction hash (0x…)">
         <button class="btn red" id="btnVerify">I've paid — verify &amp; activate →</button>
       </div>
+      <button class="btn card" id="btnCard" style="display:none;width:100%;margin-bottom:10px;background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;border:0;border-radius:11px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif">Pay $__PRICE__ by card →</button>
+      <div id="cardOrCrypto" style="display:none;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 10px">or pay with crypto</div>
       <button class="btn red" id="btnStart">Pay $__PRICE__ with USDT →</button>
       <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time digital purchase, activated immediately, with no refunds once access is granted.</label>
       <div class="note">Your $100 joins the platform — your sponsor earns nothing on this payment. Their earnings come from the pack system, explained inside.</div>
@@ -69250,6 +69252,27 @@ h1 .r{color:var(--red)}
   function recordConsent(){return fetch('/api/purchase-consent').then(function(r){return r.json()}).then(function(p){
     return fetch('/api/purchase-consent/record',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({version:p.version,text_hash:p.text_hash})})})}
+  // Card (Stripe) — one-time $100 join. Shown only when Stripe can take
+  // one-time card payments (configured_for_payments). Crypto is always shown.
+  (function(){
+    var cardBtn=document.getElementById('btnCard');
+    var sep=document.getElementById('cardOrCrypto');
+    fetch('/api/stripe/status').then(function(r){return r.json()}).then(function(s){
+      if(s && (s.configured_for_payments===true || s.configured===true)){
+        cardBtn.style.display='block'; sep.style.display='block';
+      }
+    }).catch(function(){});
+    cardBtn.onclick=function(){
+      if(needConsent())return;
+      var b=this;b.disabled=true;b.textContent='Opening secure checkout…';
+      recordConsent().finally(function(){
+        fetch('/api/al/join/checkout',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+          if(j.checkout_url){window.location.href=j.checkout_url;}
+          else{fail(j.error||'Card checkout unavailable — use crypto below');b.disabled=false;b.textContent='Pay $__PRICE__ by card →';}
+        }).catch(function(){fail('Card checkout failed — use crypto below');b.disabled=false;b.textContent='Pay $__PRICE__ by card →';});
+      });
+    };
+  })();
   var NETS=[], curNet=null;
   function pickNet(n){
     curNet=n;
@@ -69404,7 +69427,7 @@ async def al_join_checkout(user: User = Depends(_al_user), db: Session = Depends
     if user.access_level == "lifetime":
         return JSONResponse({"error": "You already have lifetime access"}, status_code=400)
     from . import stripe_service as _stripe
-    if not _stripe.is_configured():
+    if not _stripe.is_configured_for_payments():
         return JSONResponse({"error": "Card payments aren't configured yet — use crypto below"}, status_code=503)
     amount_cents = int(round(float(os.environ.get("AL_JOIN_PRICE_USD", "100")) * 100))
     try:
