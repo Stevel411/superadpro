@@ -22,7 +22,7 @@ var CSS = `
 .aset .pills{display:flex;gap:9px;flex-wrap:wrap;margin-left:auto;}
 .aset .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid #e4eaf3;background:#fff;color:#0a1438;}
 .aset .pill b{font-weight:800;}
-.aset .pill.cyan{background:#ecfeff;border-color:#a5f3fc;color:#0e7490;}
+.aset .pill.cyan{background:#eef2fb;border-color:#c3cee8;color:#12388f;}
 .aset .pill.green{background:#ecfdf5;border-color:#a7f3d0;color:#047857;}
 .aset .pill.amber{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
 .aset .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
@@ -44,11 +44,11 @@ var CSS = `
 .aset .inp.ro{background:#f6f8fc;color:#64748b;}
 .aset .inp.mono{font-family:'JetBrains Mono',monospace;font-size:14px;}
 .aset .inp:disabled{opacity:.55;}
-.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Sora',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#12388f,#0a1f52);box-shadow:0 10px 24px rgba(200,16,46,.32);transition:box-shadow .12s;}
-.aset .btn:hover{box-shadow:0 14px 30px rgba(14,165,233,.36);}
+.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Sora',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#c8102e,#e8203f);box-shadow:0 10px 24px rgba(200,16,46,.32);transition:box-shadow .12s;}
+.aset .btn:hover{box-shadow:0 14px 30px rgba(200,16,46,.4);}
 .aset .btn:disabled{opacity:.6;cursor:wait;box-shadow:none;}
-.aset .btn.ghost{background:#fff;color:#1e3a8a;border:1px solid #e4eaf3;box-shadow:0 8px 20px rgba(10,20,56,.07);}
-.aset .btn.amber{background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 10px 24px rgba(239,68,68,.22);}
+.aset .btn.ghost{background:#fff;color:#12388f;border:1px solid #e4eaf3;box-shadow:0 8px 20px rgba(10,20,56,.07);}
+.aset .btn.amber{background:linear-gradient(135deg,#12388f,#0a1f52);box-shadow:0 10px 24px rgba(10,31,82,.28);}
 .aset .btnrow{display:flex;gap:10px;flex-wrap:wrap;}
 .aset .note{padding:12px 14px;background:#f6f8fc;border:1px solid #e4eaf3;border-radius:11px;font-size:13px;color:#475569;line-height:1.6;margin-bottom:16px;}
 .aset .toast{border-radius:11px;padding:11px 16px;margin:0 16px 14px;font-size:14px;font-weight:700;}
