@@ -10,30 +10,33 @@ var COUNTRIES = ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia
 var TABS = ['profile', 'security', 'payouts', 'verification'];  // billing removed — no subscriptions on AdvantageLife
 
 var CSS = `
-.aset{font-family:'DM Sans',system-ui,sans-serif;color:#0f172a;max-width:1080px;margin:0 auto;}
+.aset{font-family:'Inter',system-ui,sans-serif;color:#0d1230;max-width:1080px;margin:0 auto;}
 .aset *{box-sizing:border-box;}
-.aset .band{height:120px;border-radius:18px;background:linear-gradient(120deg,#0a1438,#15275f 55%,#1e3a8a);}
-.aset .idcard{position:relative;margin:-58px 16px 22px;background:#fff;border-radius:18px;box-shadow:0 2px 6px rgba(10,20,56,.06),0 24px 50px rgba(10,20,56,.12);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-.aset .av{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:30px;flex:0 0 auto;box-shadow:0 12px 26px rgba(10,31,82,.35);overflow:hidden;border:5px solid #fff;margin-top:-46px;}
+.aset .hero{position:relative;background:linear-gradient(150deg,#0a1f52,#12388f);border-radius:20px;padding:26px 30px;color:#fff;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.7);margin-bottom:20px;}
+.aset .hero:after{content:"";position:absolute;top:-40px;right:-20px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(200,16,46,.28),transparent 68%);}
+.aset .hero-in{position:relative;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.aset .av{width:82px;height:82px;border-radius:20px;background:linear-gradient(140deg,#1a3a86,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:30px;flex:0 0 auto;border:3px solid rgba(255,255,255,.9);box-shadow:0 12px 26px rgba(0,0,0,.35);overflow:hidden;cursor:pointer;}
 .aset .av img{width:100%;height:100%;object-fit:cover;}
 .aset .idtext{min-width:180px;}
-.aset .nm{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;color:#0a1438;letter-spacing:-.4px;line-height:1.1;}
-.aset .meta{font-size:13px;color:#64748b;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.aset .nm{font-weight:900;font-size:26px;color:#fff;letter-spacing:-.6px;line-height:1.05;}
+.aset .meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:#a9bbf0;margin-top:5px;}
 .aset .pills{display:flex;gap:9px;flex-wrap:wrap;margin-left:auto;}
-.aset .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid #e4eaf3;background:#fff;color:#0a1438;}
-.aset .pill b{font-weight:800;}
-.aset .pill.cyan{background:#eef2fb;border-color:#c3cee8;color:#12388f;}
-.aset .pill.green{background:#ecfdf5;border-color:#a7f3d0;color:#047857;}
-.aset .pill.amber{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
+.aset .pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;}
+.aset .pill b{font-weight:900;}
+.aset .pill.cyan{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;}
+.aset .pill.green{background:#0b7a3e;border-color:#0b7a3e;color:#fff;}
+.aset .pill.amber{background:rgba(255,193,80,.16);border-color:rgba(255,193,80,.4);color:#ffd98a;}
+.aset .pill.red{background:#c8102e;border-color:#c8102e;color:#fff;}
 .aset .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
-.aset .layout{display:grid;grid-template-columns:228px 1fr;gap:18px;align-items:start;padding:0 16px 10px;}
-.aset .rail{background:#fff;border-radius:16px;box-shadow:0 2px 6px rgba(10,20,56,.05),0 16px 36px rgba(10,20,56,.08);padding:10px;display:flex;flex-direction:column;gap:3px;position:sticky;top:14px;}
-.aset .tab{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:11px;border:none;background:transparent;color:#334155;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s;}
-.aset .tab:hover{background:#f4f8fd;}
-.aset .tab.on{background:linear-gradient(135deg,#1e3a8a,#15275f);color:#fff;box-shadow:0 8px 20px rgba(10,20,56,.2);}
+.aset .layout{display:grid;grid-template-columns:236px 1fr;gap:20px;align-items:start;}
+.aset .rail{background:#fff;border:1.5px solid #e3e8f4;border-radius:16px;box-shadow:0 10px 30px -20px rgba(10,31,82,.4);padding:10px;display:flex;flex-direction:column;gap:4px;position:sticky;top:16px;}
+.aset .tab{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;border:none;background:transparent;color:#3a465f;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%;transition:background .15s,color .15s;}
+.aset .tab:hover{background:#f4f7fd;}
+.aset .tab.on{background:linear-gradient(140deg,#0a1f52,#12388f);color:#fff;box-shadow:0 10px 22px -10px rgba(10,31,82,.7);}
 .aset .tab svg{flex:0 0 auto;}
-.aset .panel{background:#fff;border-radius:16px;box-shadow:0 2px 6px rgba(10,20,56,.05),0 16px 36px rgba(10,20,56,.08);padding:26px 28px;min-height:320px;}
-.aset .ph{font-family:'Sora',sans-serif;font-weight:800;font-size:21px;color:#0a1438;letter-spacing:-.3px;margin:0 0 3px;}
+.aset .panel{background:#fff;border:1.5px solid #e3e8f4;border-radius:16px;box-shadow:0 10px 30px -20px rgba(10,31,82,.4);padding:28px 30px;min-height:340px;}
+.aset .ph{font-weight:900;font-size:23px;color:#0d1230;letter-spacing:-.5px;margin:0 0 4px;}
+.aset .ph .r{color:#c8102e;}
 .aset .psub{font-size:13.5px;color:#64748b;margin:0 0 22px;line-height:1.5;}
 .aset .fld{margin-bottom:16px;}
 .aset .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -44,7 +47,7 @@ var CSS = `
 .aset .inp.ro{background:#f6f8fc;color:#64748b;}
 .aset .inp.mono{font-family:'JetBrains Mono',monospace;font-size:14px;}
 .aset .inp:disabled{opacity:.55;}
-.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Sora',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#c8102e,#e8203f);box-shadow:0 10px 24px rgba(200,16,46,.32);transition:box-shadow .12s;}
+.aset .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:11px;border:none;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,#c8102e,#e8203f);box-shadow:0 10px 24px rgba(200,16,46,.32);transition:box-shadow .12s;}
 .aset .btn:hover{box-shadow:0 14px 30px rgba(200,16,46,.4);}
 .aset .btn:disabled{opacity:.6;cursor:wait;box-shadow:none;}
 .aset .btn.ghost{background:#fff;color:#12388f;border:1px solid #e4eaf3;box-shadow:0 8px 20px rgba(10,20,56,.07);}
@@ -55,34 +58,34 @@ var CSS = `
 .aset .toast.ok{background:#ecfdf5;color:#047857;}
 .aset .toast.err{background:#fef2f2;color:#b91c1c;}
 .aset .photorow{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
-.aset .pav{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;overflow:hidden;flex:0 0 auto;}
+.aset .pav{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:22px;overflow:hidden;flex:0 0 auto;}
 .aset .pav img{width:100%;height:100%;object-fit:cover;}
 .aset .centre{text-align:center;padding:26px 0;}
 .aset .centre .ico{font-size:34px;margin-bottom:8px;}
-.aset .centre .h{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0a1438;}
+.aset .centre .h{font-family:'Inter',sans-serif;font-size:16px;font-weight:800;color:#0a1438;}
 .aset .centre .s{font-size:13px;color:#64748b;margin-top:3px;}
 .aset .mcard{border:1px solid #e4eaf3;border-radius:14px;padding:20px;margin-bottom:20px;}
 .aset .mtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px;}
-.aset .mname{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#0a1438;}
+.aset .mname{font-family:'Inter',sans-serif;font-weight:800;font-size:17px;color:#0a1438;}
 .aset .mdesc{font-size:13px;color:#64748b;line-height:1.55;margin-bottom:18px;}
 .aset .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
 .aset .mk{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:5px;}
-.aset .mv{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1438;}
+.aset .mv{font-family:'Inter',sans-serif;font-weight:800;font-size:18px;color:#0a1438;}
 .aset .mv small{font-size:12px;color:#64748b;font-weight:600;}
-.aset .sec-h{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#0a1438;margin:0 0 3px;}
+.aset .sec-h{font-family:'Inter',sans-serif;font-weight:800;font-size:16px;color:#0a1438;margin:0 0 3px;}
 .aset .sec-s{font-size:13px;color:#64748b;margin:0 0 14px;}
 .aset .hrow{display:grid;grid-template-columns:86px 1fr auto;gap:16px;align-items:center;padding:15px 0;border-bottom:1px solid #eef2f8;}
 .aset .hrow:last-child{border-bottom:none;}
 .aset .hdate{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#94a3b8;}
-.aset .hprod{font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;color:#0a1438;}
+.aset .hprod{font-family:'Inter',sans-serif;font-weight:700;font-size:14.5px;color:#0a1438;}
 .aset .hdeliv{font-size:12.5px;color:#64748b;margin-top:2px;}
 .aset .hright{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
-.aset .hamt{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#0a1438;}
+.aset .hamt{font-family:'Inter',sans-serif;font-weight:800;font-size:16px;color:#0a1438;}
 .aset .badge{display:inline-block;font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:999px;background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;}
 .aset .empty{padding:26px;text-align:center;color:#94a3b8;font-size:14px;}
 .aset .netbtn{padding:11px 13px;border-radius:11px;border:2px solid #e4eaf3;background:#fff;cursor:pointer;text-align:left;width:100%;transition:border-color .15s,background .15s;}
 .aset .netbtn.on{border-color:#c8102e;background:#fdf2f4;}
-.aset .netbtn .t{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0a1438;}
+.aset .netbtn .t{font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#0a1438;}
 .aset .netbtn .d{font-size:12px;color:#64748b;margin-top:2px;}
 .aset .file{display:block;width:100%;padding:12px;border-radius:11px;font-size:14px;text-align:center;cursor:pointer;background:#fafbfc;}
 @media(max-width:760px){
@@ -223,26 +226,27 @@ export default function Account() {
       <div className="aset">
         {toast && <div className={'toast ' + (toast.type === 'ok' ? 'ok' : 'err')}>{toast.msg}</div>}
 
-        <div className="band" />
-        <div className="idcard">
-          <label className="av" style={{ cursor: 'pointer' }} title="Change photo">
-            {avatarUrl ? <img src={avatarUrl} alt="" onError={function (e) { e.target.style.display = 'none'; }} /> : initials}
-            <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-          </label>
-          <div className="idtext">
-            <div className="nm">{(user.first_name || '') + ' ' + (user.last_name || '')}</div>
-            <div className="meta">@{user.username} · {user.email}</div>
-          </div>
-          <div className="pills">
-            {joined
-              ? <span className="pill green"><span className="dot" /> {t('account.statusMember', { defaultValue: 'Member' })}</span>
-              : <span className="pill amber"><span className="dot" /> {t('account.statusNotJoined', { defaultValue: 'Not joined yet' })}</span>}
-            {kyc === 'approved'
-              ? <span className="pill green"><span className="dot" /> Verified</span>
-              : kyc === 'pending'
-                ? <span className="pill amber"><span className="dot" /> Under review</span>
-                : <span className="pill"><span className="dot" style={{ background: '#cbd5e1' }} /> Unverified</span>}
-            <span className="pill">Member since {memberSince}</span>
+        <div className="hero">
+          <div className="hero-in">
+            <label className="av" title="Change photo">
+              {avatarUrl ? <img src={avatarUrl} alt="" onError={function (e) { e.target.style.display = 'none'; }} /> : initials}
+              <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+            </label>
+            <div className="idtext">
+              <div className="nm">{(user.first_name || '') + ' ' + (user.last_name || '')}</div>
+              <div className="meta">@{user.username} · {user.email}</div>
+            </div>
+            <div className="pills">
+              {joined
+                ? <span className="pill green"><span className="dot" /> {t('account.statusMember', { defaultValue: 'Member' })}</span>
+                : <span className="pill red"><span className="dot" /> {t('account.statusNotJoined', { defaultValue: 'Not joined yet' })}</span>}
+              {kyc === 'approved'
+                ? <span className="pill green"><span className="dot" /> Verified</span>
+                : kyc === 'pending'
+                  ? <span className="pill amber"><span className="dot" /> Under review</span>
+                  : <span className="pill"><span className="dot" style={{ background: '#cbd5e1' }} /> Unverified</span>}
+              <span className="pill">Member since {memberSince}</span>
+            </div>
           </div>
         </div>
 
@@ -262,7 +266,7 @@ export default function Account() {
 
             {activeTab === 'profile' && (
               <>
-                <h2 className="ph">Profile</h2>
+                <h2 className="ph">Your <span className="r">profile</span></h2>
                 <p className="psub">Your details and the avatar shown across the platform.</p>
                 <div className="photorow">
                   <div className="pav">{avatarUrl ? <img src={avatarUrl} alt="" onError={function (e) { e.target.style.display = 'none'; }} /> : initials}</div>
@@ -294,7 +298,7 @@ export default function Account() {
 
             {activeTab === 'security' && (
               <>
-                <h2 className="ph">Security</h2>
+                <h2 className="ph">Account <span className="r">security</span></h2>
                 <p className="psub">Your password and two-factor authentication.</p>
                 <div className="sec-h">{t('account.changePassword')}</div>
                 <div className="sec-s" />
@@ -326,7 +330,7 @@ export default function Account() {
 
             {activeTab === 'payouts' && (
               <>
-                <h2 className="ph">Payout Wallets</h2>
+                <h2 className="ph">Payout <span className="r">wallets</span></h2>
                 <p className="psub">Buyers pay your default wallet directly, member to member — there are no platform withdrawals on AdvantageLife.</p>
                 <a href="/payout-methods" className="btn" style={{ textDecoration: 'none', marginBottom: 22 }}>Manage payout wallets →</a>
                 <div style={{ display: 'none' }}>
@@ -349,7 +353,7 @@ export default function Account() {
 
             {activeTab === 'verification' && (
               <>
-                <h2 className="ph">Verification</h2>
+                <h2 className="ph">Identity <span className="r">verification</span></h2>
                 <p className="psub">Identity verification is required before withdrawals.</p>
                 {kyc === 'approved' ? (
                   <div className="centre"><div className="ico">✅</div><div className="h">{t('account.identityVerified')}</div><div className="s">{t('account.approvedWithdrawals')}</div></div>
