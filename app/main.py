@@ -67481,6 +67481,84 @@ def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db
     }
 
 
+@app.get("/admin/api/al/config-readiness")
+def al_config_readiness(user: User = Depends(_al_user)):
+    """Launch preflight: reports which critical env vars are SET on this deploy.
+
+    Boolean-only — never returns a secret's value, only whether it's present.
+    Grouped by subsystem so it's readable on mobile. Admin-only. This exists
+    because a card checkout can succeed while the purchase never activates if
+    the webhook secret is missing — 'money in, product not delivered'. This
+    probe surfaces exactly those silent gaps before launch."""
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    def has(name):
+        v = os.environ.get(name)
+        return bool(v and v.strip())
+
+    def group(items):
+        rows = [{"var": n, "set": has(n), "required": req} for (n, req) in items]
+        missing_required = [r["var"] for r in rows if r["required"] and not r["set"]]
+        return {"vars": rows, "missing_required": missing_required, "ok": not missing_required}
+
+    groups = {
+        "card_payments_stripe": group([
+            ("STRIPE_SECRET_KEY", True),
+            ("STRIPE_WEBHOOK_SECRET", True),
+            ("STRIPE_PUBLISHABLE_KEY", False),
+        ]),
+        "crypto_join_and_p2p": group([
+            ("AL_TREASURY_USDT_TRON", False),
+            ("AL_TREASURY_USDT_ETH", False),
+            ("AL_COMPANY_USDT_ADDRESS", True),
+            ("TREASURY_ADDRESS_BSC", True),
+            ("BSC_RPC_URL", False),
+        ]),
+        "credit_packs_crypto_nowpayments": group([
+            ("NOWPAYMENTS_API_KEY", True),
+            ("NOWPAYMENTS_IPN_SECRET", True),
+        ]),
+        "ai_tools_creative_studio": group([
+            ("XAI_API_KEY", True),
+            ("FAL_KEY", True),
+            ("GEMINI_API_KEY", False),
+            ("ANTHROPIC_API_KEY", False),
+        ]),
+        "email_delivery": group([
+            ("EMAIL_PROVIDER", False),
+            ("BREVO_API_KEY", False),
+            ("AWS_ACCESS_KEY_ID", False),
+            ("SES_SMTP_USER", False),
+        ]),
+        "brand_identity": group([
+            ("BRAND_NAME", True),
+            ("BASE_URL", True),
+            ("SITE_URL", False),
+        ]),
+        "core_secrets": group([
+            ("DATABASE_URL", True),
+            ("SESSION_SECRET", True),
+            ("MIGRATION_SECRET", True),
+        ]),
+    }
+
+    all_missing = []
+    for gname, g in groups.items():
+        for v in g["missing_required"]:
+            all_missing.append(gname + " / " + v)
+
+    return {
+        "deploy": os.environ.get("RAILWAY_ENVIRONMENT", "unknown"),
+        "launch_ready": not all_missing,
+        "missing_required_total": all_missing,
+        "groups": groups,
+        "note": ("Boolean-only: shows whether each var is set, never its value. "
+                 "Email marks each provider optional individually because you need "
+                 "ONE provider (Brevo OR SES), not all — confirm at least one."),
+    }
+
+
 @app.get("/admin/api/al/settlements-view")
 def al_admin_settlements_view(status: str = "", user: User = Depends(_al_user),
                               db: Session = Depends(get_db)):
