@@ -68447,6 +68447,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       <input class="inp" id="addr" placeholder="Select a payment type first">
       <div class="hint" id="hint"></div>
       <div class="sellwarn" id="sellwarn"></div>
+      <div class="recvnote" id="recvnote" style="display:none;font-size:11px;font-weight:700;color:#0a6836;background:#e4f7ee;border:1px solid #a7f3d0;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:8px"></div>
       <div class="err" id="err"></div>
       <button class="btn" id="save">Save receiving method</button>
     </div>
@@ -68464,7 +68465,9 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var menu=document.getElementById('ddMenu');menu.innerHTML='';
     var usdt=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdt')===0});
     var usdc=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdc')===0});
-    var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email'});
+    var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email';});
+    // Bank & money-transfer apps — irreversible account-to-account (Wise/Zelle/Revolut).
+    var bank=REG.filter(function(r){return r.family==='wise'||r.family==='zelle'||r.family==='revtag';});
     function grp(title){var g=document.createElement('div');g.className='dd-group';g.textContent=title;menu.appendChild(g)}
     function opt(r){
       var i=ic(r.key);var o=document.createElement('div');o.className='dd-opt';o.dataset.key=r.key;
@@ -68475,8 +68478,9 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       menu.appendChild(o);
     }
     if(usdt.length){grp('USDT \u2014 instant & irreversible');usdt.forEach(opt)}
-    if(cash.length){grp('Cash apps \u2014 confirmed by the seller');cash.forEach(opt)}
     if(usdc.length){grp('USDC \u2014 instant & irreversible');usdc.forEach(opt)}
+    if(bank.length){grp('Bank & transfer apps \u2014 final, no chargeback');bank.forEach(opt)}
+    if(cash.length){grp('Cash apps \u2014 confirmed by the seller');cash.forEach(opt)}
   }
   function choose(k){
     CUR=REG.find(function(x){return x.key===k});if(!CUR)return;
@@ -68484,9 +68488,11 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var si=document.getElementById('ddSelIcon');si.style.background=i.bg;si.textContent=i.s;
     document.getElementById('ddSelText').innerHTML='<b>'+esc(CUR.label)+'</b><span>'+(CUR.auto_verify?'Auto-verified on-chain':'Confirmed by the seller')+'</span>';
     document.getElementById('hint').textContent=CUR.hint||'';
-    document.getElementById('addrLabel').textContent=(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':'Wallet address';
-    document.getElementById('addr').placeholder=(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':'0x\u2026';
-    document.getElementById('addr').style.fontFamily=(CUR.family==='email'||CUR.family==='cashtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
+    document.getElementById('addrLabel').textContent=(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':(CUR.family==='wise')?'Wise email or @Wisetag':(CUR.family==='zelle')?'Zelle email or US phone':(CUR.family==='revtag')?'@Revtag, email or phone':'Wallet address';
+    document.getElementById('addr').placeholder=(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':(CUR.family==='wise')?'name@email.com or @Wisetag':(CUR.family==='zelle')?'name@email.com or +1…':(CUR.family==='revtag')?'@Revtag':'0x\u2026';
+    document.getElementById('addr').style.fontFamily=(CUR.family==='email'||CUR.family==='cashtag'||CUR.family==='wise'||CUR.family==='zelle'||CUR.family==='revtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
+    var rn=document.getElementById('recvnote');
+    if(rn){if(CUR.recv_note){rn.textContent=CUR.recv_note;rn.style.display='block'}else{rn.style.display='none'}}
     var sw=document.getElementById('sellwarn');
     if(CUR.seller_note){sw.textContent='\u26A0 '+CUR.seller_note;sw.style.display='block'}else{sw.style.display='none'}
     Array.prototype.forEach.call(document.querySelectorAll('.dd-opt'),function(o){o.classList.toggle('sel',o.dataset.key===k);var c=o.querySelector('.dd-check');if(o.dataset.key===k){if(!c){var s=document.createElement('span');s.className='dd-check';s.textContent='\u2713';o.appendChild(s)}}else if(c){c.remove()}});
