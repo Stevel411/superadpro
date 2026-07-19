@@ -42,7 +42,7 @@ from .database import Blog, BlogPost, BlogPage, BlogTag, BlogPostTag, BlogMenu, 
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
-from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod, DirectJoinPayment  # AdvantageLife P2P settlement (7 Jul 2026)
+from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod, DirectJoinPayment, CAMPAIGN_GRACE_DAYS  # AdvantageLife P2P settlement (7 Jul 2026)
 from .database import CoPilotBriefing
 from .database import MemberLead, LeadList
 from .database import ShareCode
@@ -53751,9 +53751,20 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         if campaign.views_target and campaign.views_delivered >= campaign.views_target and not campaign.is_completed:
             campaign.is_completed = True
             campaign.completed_at = datetime.utcnow()
-            campaign.grace_expires_at = datetime.utcnow() + timedelta(days=14)
+            campaign.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
             campaign.status = "completed"
             logger.info(f"Campaign {campaign.id} completed: {campaign.views_delivered}/{campaign.views_target} views")
+            # AL consumable pack: if this campaign is the ad for an AL pack, the
+            # pack's run is done. Stamp completion + grace. It stays 'active'
+            # (earning-qualified) through the grace window; a separate sweep /
+            # gate flips it to 'expired' once grace_expires_at passes.
+            linked_pack = (db.query(PackPurchase)
+                             .filter(PackPurchase.campaign_id == campaign.id,
+                                     PackPurchase.status == "active").first())
+            if linked_pack is not None:
+                linked_pack.completed_at = datetime.utcnow()
+                linked_pack.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
+                logger.info(f"AL pack {linked_pack.id} (level ${linked_pack.pack_level}) campaign complete; grace until {linked_pack.grace_expires_at}")
 
         db.commit()
 

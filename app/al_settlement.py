@@ -72,6 +72,22 @@ def create_intent(db: Session, buyer_user_id: int, pack_level: int, do_commit: b
     if buyer is None or pack is None:
         raise ValueError("buyer or pack not found")
 
+    # Consumable-pack buy-block: a pack is a running campaign. You can't buy the
+    # same level again while yours is still active — it must run its course (hit
+    # its view target) and pass its grace window first. Admins are exempt (they
+    # own everything via the sentinel and never hold blocking rows). Run the lazy
+    # expiry first so a completed-and-past-grace pack doesn't wrongly block.
+    if not buyer.is_admin:
+        al_engine._expire_overdue_packs(db, buyer_user_id)
+        active_same = (db.query(PackPurchase)
+                         .filter(PackPurchase.user_id == buyer_user_id,
+                                 PackPurchase.pack_level == pack_level,
+                                 PackPurchase.status == "active").first())
+        if active_same is not None:
+            raise ValueError(
+                f"You already have an active ${pack_level} campaign. It must finish "
+                f"delivering its views before you can buy this level again.")
+
     seller = None
     if buyer.sponsor_id is not None:
         seller = db.query(User).filter(User.id == buyer.sponsor_id).first()

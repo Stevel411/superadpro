@@ -35,11 +35,41 @@ def owned_level(db: Session, user_id: int) -> int:
         return 0
     if u.is_admin:
         return _ADMIN_LEVEL
+    # Lazily expire any of this user's packs whose grace window has passed, so
+    # the earn gate always reflects current reality without a scheduler.
+    _expire_overdue_packs(db, user_id)
     top = db.query(func.max(PackPurchase.pack_level)).filter(
         PackPurchase.user_id == user_id,
         PackPurchase.status == "active",
     ).scalar()
     return int(top or 0)
+
+
+def _expire_overdue_packs(db: Session, user_id: int = None) -> int:
+    """Flip active packs to 'expired' once their post-completion grace window has
+    passed. Called lazily from the earn gate (owned_level) and the buy gate
+    (create_intent) so expiry is evaluated exactly when it's consulted — no
+    background scheduler needed. Admin packs are never auto-expired (admins own
+    everything via the sentinel anyway, but be safe). Returns count expired."""
+    now = datetime.utcnow()
+    q = (db.query(PackPurchase)
+           .filter(PackPurchase.status == "active",
+                   PackPurchase.grace_expires_at.isnot(None),
+                   PackPurchase.grace_expires_at < now))
+    if user_id is not None:
+        q = q.filter(PackPurchase.user_id == user_id)
+    rows = q.all()
+    n = 0
+    for r in rows:
+        u = db.query(User).filter(User.id == r.user_id).first()
+        if u is not None and u.is_admin:
+            continue
+        r.status = "expired"
+        r.expired_at = now
+        n += 1
+    if n:
+        db.commit()
+    return n
 
 
 WATCH_GRACE_HOURS = 48  # a member stays watch-qualified for 48h after meeting quota
