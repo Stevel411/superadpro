@@ -67173,6 +67173,87 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/api/lifetime-members")
+def admin_api_lifetime_members(secret: str = "", db: Session = Depends(get_db)):
+    """READ-ONLY: reports the lifetime members (the ~50 grandfathered active
+    members). No mutation — safe to tap any time to confirm the grant landed."""
+    _check_migration_secret(secret)
+    rows = (db.query(User)
+              .filter(User.access_level == "lifetime")
+              .order_by(User.id.asc()).all())
+    return {"ok": True,
+            "total_lifetime": len(rows),
+            "members": [{"id": u.id, "username": u.username} for u in rows]}
+
+
+@app.get("/admin/api/gift-packs-to-lifetime")
+def admin_api_gift_packs_to_lifetime(
+    up_to_level: int = 100,
+    secret: str = "",
+    dry_run: int = 1,
+    db: Session = Depends(get_db),
+):
+    """ONE-PUSH transition gift: give every LIFETIME member one of each pack up
+    to and including up_to_level (default $100 → the first 4 packs: $10/$20/$50/
+    $100), so they can earn straight away.
+
+    source='gift', NO commission fired. Each gift still needs the member to
+    submit a video ad + do the daily watch to run, like a bought pack.
+
+    SAFETY: dry_run=1 by default — reports what WOULD happen without writing.
+    Add &dry_run=0 to actually grant. Idempotent guard: skips a (member, level)
+    pair that already has a gift pack, so re-running won't double-gift."""
+    _check_migration_secret(secret)
+
+    packs = (db.query(CampaignPack)
+               .filter(CampaignPack.is_active == True,  # noqa: E712
+                       CampaignPack.level <= up_to_level)
+               .order_by(CampaignPack.level.asc()).all())
+    if not packs:
+        return JSONResponse({"error": f"No active packs at or below level {up_to_level}."}, status_code=400)
+
+    members = db.query(User).filter(User.access_level == "lifetime").order_by(User.id.asc()).all()
+
+    plan = {"up_to_level": up_to_level,
+            "pack_levels": [p.level for p in packs],
+            "lifetime_members": len(members),
+            "packs_per_member": len(packs),
+            "total_packs": len(members) * len(packs),
+            "dry_run": bool(dry_run)}
+
+    if dry_run:
+        plan["note"] = "DRY RUN — nothing written. Re-run with &dry_run=0 to grant."
+        return {"ok": True, "plan": plan}
+
+    granted = 0
+    skipped = 0
+    for u in members:
+        for pack in packs:
+            # idempotent: skip if this member already has a gift pack at this level
+            exists = (db.query(PackPurchase)
+                        .filter(PackPurchase.user_id == u.id,
+                                PackPurchase.pack_level == pack.level,
+                                PackPurchase.source == "gift").first())
+            if exists:
+                skipped += 1
+                continue
+            _dwr = pack.daily_watch_required if pack.daily_watch_required is not None else 1
+            db.add(PackPurchase(
+                user_id=u.id, pack_id=pack.id, pack_level=pack.level,
+                amount=0.0, payment_method="gift", status="active",
+                source="gift", daily_watch_required=_dwr,
+                activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
+            ))
+            granted += 1
+    db.commit()
+
+    plan["granted"] = granted
+    plan["skipped_already_gifted"] = skipped
+    plan["note"] = ("Done. Gift packs are active but each member must submit a "
+                    "video ad before that pack delivers views. No commission fired.")
+    return {"ok": True, "plan": plan}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
