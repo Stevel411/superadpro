@@ -68993,6 +68993,144 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 </body></html>"""
 
 
+_AL_GUIDE_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How campaign packs work</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e;--grn2:#0a6836;--gold:#e08e00;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',sans-serif;background:#eef1f8;color:var(--ink);padding:24px 18px 70px}
+.wrap{max-width:680px;margin:0 auto}
+.back{font-size:13px;font-weight:700;color:var(--dim);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:18px}
+.hero{background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:28px 26px;margin-bottom:14px}
+.hero h1{font-weight:900;font-size:26px;letter-spacing:-.7px;line-height:1.15}.hero h1 .r{color:var(--red-lt)}
+.hero p{font-size:14px;color:#c3d0f0;font-weight:600;line-height:1.55;margin-top:8px}
+/* the two-things framing */
+.twothings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.tt{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:16px}
+.tt .ic{font-size:22px;margin-bottom:8px}
+.tt h3{font-size:14px;font-weight:900;margin-bottom:3px}
+.tt p{font-size:12px;color:var(--dim);font-weight:600;line-height:1.5}
+.h{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin:8px 0 14px}
+/* steps */
+.steps{position:relative;margin-bottom:26px}
+.step{display:flex;gap:16px;padding-bottom:20px;position:relative}
+.step:not(:last-child):before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.step .num{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;z-index:1}
+.step.pay .num{background:linear-gradient(135deg,var(--red),#e8203f)}
+.step.go .num{background:linear-gradient(135deg,var(--grn2),#0d8a4a)}
+.step .c{flex:1;padding-top:3px}
+.step .t{font-weight:900;font-size:16.5px;margin-bottom:4px}
+.step .d{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.6}
+.step .d b{color:var(--ink)}
+.chip{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:#eef2fb;color:var(--navy);margin-top:8px}
+.chip.red{background:#fde7ea;color:var(--red)}.chip.gold{background:#fff3cd;color:#7a5a10}.chip.grn{background:#e4f7ee;color:#166534}
+/* keep-active callout */
+.keepbox{background:#fff5f6;border:1.5px solid #f5c2c2;border-radius:14px;padding:18px 20px;margin-bottom:22px}
+.keepbox h3{font-size:16px;font-weight:900;color:var(--red);margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.keepbox p{font-size:13px;color:#7a2530;font-weight:600;line-height:1.55}
+.keepbox p b{font-weight:900}
+/* faq */
+.faq{background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:24px}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details:last-child{border-bottom:0}
+.faq summary{padding:15px 18px;font-weight:800;font-size:14px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:after{content:"+";font-size:20px;color:var(--dim);font-weight:400}
+.faq details[open] summary:after{content:"–"}
+.faq .a{padding:0 18px 16px;font-size:13px;color:var(--dim);font-weight:600;line-height:1.6}
+.cta{display:flex;flex-direction:column;gap:10px;align-items:center}
+.btn{width:100%;max-width:420px;border:0;border-radius:12px;padding:15px;font-family:'Inter',sans-serif;font-weight:800;font-size:15px;cursor:pointer;color:#fff;text-align:center;text-decoration:none;display:block}
+.btn.red{background:linear-gradient(135deg,var(--red),#e8203f);box-shadow:0 10px 24px -12px rgba(200,16,46,.7)}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+@media(max-width:560px){.twothings{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+  <a href="/packs" class="back">← Back to packs</a>
+
+  <div class="hero">
+    <h1>How campaign packs <span class="r">work</span></h1>
+    <p>A pack is your own advertising campaign. You set up an ad, real members watch it, and every sale you make pays you in full. Here's the whole journey.</p>
+  </div>
+
+  <div class="twothings">
+    <div class="tt"><div class="ic">📣</div><h3>An ad campaign</h3><p>Your video, shown to real members who chose to watch — until it hits its view target.</p></div>
+    <div class="tt"><div class="ic">💰</div><h3>An income level</h3><p>Own a level and every sale at that level pays you the full amount, directly.</p></div>
+  </div>
+
+  <div class="h">The journey, step by step</div>
+  <div class="steps">
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="c">
+        <div class="t">Choose your pack</div>
+        <div class="d">Pick a level from <b>$10 to $1,000</b>. The price is the commission — a $200 pack means every $200 sale pays you $200, in full. Bigger packs deliver more views and pay more per sale.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="c">
+        <div class="t">Create your video ad</div>
+        <div class="d">Before you pay, you set up the ad members will watch — paste a <b>YouTube, Rumble or Vimeo</b> link and give it a title. This is what makes your pack a real campaign.</div>
+        <span class="chip gold">Ad comes before payment</span>
+      </div>
+    </div>
+
+    <div class="step pay">
+      <div class="num">3</div>
+      <div class="c">
+        <div class="t">Pay your sponsor directly</div>
+        <div class="d">You pay the person who referred you (or the next member up), <b>wallet to wallet</b> — AdvantageLife never holds your money. Choose their method, send it, paste your transaction proof.</div>
+        <span class="chip red">Direct P2P — not reversible, double-check the address</span>
+      </div>
+    </div>
+
+    <div class="step go">
+      <div class="num">4</div>
+      <div class="c">
+        <div class="t">Your ad goes live &amp; earns</div>
+        <div class="d">Once your sponsor confirms, your ad enters the watch feed and starts collecting views. You're now qualified to earn at that level — your own sales pay you in full.</div>
+        <span class="chip grn">You're live</span>
+      </div>
+    </div>
+
+    <div class="step go">
+      <div class="num">5</div>
+      <div class="c">
+        <div class="t">Keep taking part</div>
+        <div class="d">Do your <b>daily watch</b> and your <b>weekly showcase share</b> to keep your packs active and stay eligible to earn. When your ad hits its view target it finishes (with a 7-day grace), and you can buy it fresh again.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="keepbox">
+    <h3>⏸️ Keep your packs active</h3>
+    <p>Share your showcase page <b>at least once every 7 days</b>. If you don't, your packs pause — they stop delivering views and <b>you can't receive new payments</b> (sales pass to the next qualified member). Nothing's lost: share again and everything resumes instantly, right where it left off.</p>
+  </div>
+
+  <div class="h">Common questions</div>
+  <div class="faq">
+    <details><summary>Do I need to pay AdvantageLife?</summary><div class="a">No. Pack payments go directly to another member — your sponsor or the next qualified member up your line. AdvantageLife never holds the money. The only payment to the platform is your one-time $100 lifetime join.</div></details>
+    <details><summary>What if I don't create an ad?</summary><div class="a">You can't complete a purchase without one — creating your ad comes before payment. If a pack was gifted to you, it stays waiting until you add your ad, and it delivers no views until then.</div></details>
+    <details><summary>What happens when my ad finishes its views?</summary><div class="a">The pack completes and enters a 7-day grace where you still earn. After that it expires and you can buy that level again for a fresh campaign.</div></details>
+    <details><summary>Why do I have to watch and share?</summary><div class="a">Because real people watching real ads is what makes this a genuine advertising product. Your daily watch delivers views to other members; your weekly share brings new eyes to the showcase. Both keep the whole system — and your earning — alive.</div></details>
+    <details><summary>Can I run more than one pack?</summary><div class="a">Yes — you can run different levels at once (a $50 and a $200, say). You just can't buy the same level again while that one's still running.</div></details>
+  </div>
+
+  <div class="cta">
+    <a href="/packs" class="btn red">I'm ready — buy a pack →</a>
+    <a href="/watch" class="btn ghost">Go to my daily watch</a>
+  </div>
+</div>
+</body></html>
+"""
+
+
 _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69012,6 +69150,8 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--ink);min-height:
 .scr{display:none}.scr.on{display:block}
 h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{color:var(--red)}
 .sub{font-size:15px;color:var(--dim);font-weight:600;line-height:1.55;margin-top:10px;max-width:44ch}
+.howlink{display:inline-block;margin-top:12px;font-size:13px;font-weight:800;color:var(--navy2);text-decoration:none;border-bottom:2px solid var(--red);padding-bottom:1px}
+.howlink:hover{color:var(--red)}
 .hero{display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:center;margin-bottom:26px}
 .rule{background:#f6f8fd;border:1.5px solid var(--line);border-left:4px solid var(--red);border-radius:14px;padding:16px 18px}
 .rule .eq{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--navy);letter-spacing:-1px;margin-bottom:6px}
@@ -69215,6 +69355,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         <div>
           <h1>Choose your <span class="r">campaign pack</span></h1>
           <div class="sub">Real members watch your ad. Every pack is bought member to member &mdash; the buyer pays you directly.</div>
+          <a href="/packs/guide" class="howlink">New to this? See how it works &rarr;</a>
         </div>
         <div class="rule">
           <div class="eq">$200 <em>=</em> $200</div>
@@ -69891,6 +70032,16 @@ def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(
     if not user:
         return RedirectResponse(url="/login?next=/packs", status_code=302)
     return HTMLResponse(_AL_PACKS_PAGE)
+
+
+@app.get("/packs/guide")
+def al_packs_guide_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member-facing 'how campaign packs work' walkthrough, linked from /packs.
+    Explains the full journey: choose -> create ad -> pay sponsor -> go live ->
+    keep active (daily watch + weekly share)."""
+    if not user:
+        return RedirectResponse(url="/login?next=/packs/guide", status_code=302)
+    return HTMLResponse(_AL_GUIDE_PAGE)
 
 
 @app.get("/my-sales")
