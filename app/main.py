@@ -67173,6 +67173,42 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/api/al/user-packs")
+def admin_api_al_user_packs(user_id: int = 0, username: str = "", secret: str = "", db: Session = Depends(get_db)):
+    """READ-ONLY: the actual AL PackPurchase rows a user holds — real ownership,
+    NOT the admin 'owns everything' sentinel. Answers 'do I actually hold pack
+    rows, or does it just LOOK owned because I'm admin?'."""
+    _check_migration_secret(secret)
+    u = None
+    if user_id:
+        u = db.query(User).filter(User.id == user_id).first()
+    elif username:
+        u = db.query(User).filter(func.lower(User.username) == username.strip().lstrip("@").lower()).first()
+    if not u:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    rows = (db.query(PackPurchase)
+              .filter(PackPurchase.user_id == u.id)
+              .order_by(PackPurchase.pack_level.asc(), PackPurchase.id.asc()).all())
+    packs = [{
+        "purchase_id": r.id, "pack_level": r.pack_level, "status": r.status,
+        "source": getattr(r, "source", None), "campaign_id": getattr(r, "campaign_id", None),
+        "has_ad": bool(getattr(r, "campaign_id", None)),
+        "daily_watch_required": getattr(r, "daily_watch_required", None),
+        "activated_at": (r.activated_at.isoformat() if r.activated_at else None),
+    } for r in rows]
+    active = [p for p in packs if p["status"] == "active"]
+    return {"ok": True,
+            "user": {"id": u.id, "username": u.username,
+                     "is_admin": bool(u.is_admin), "access_level": u.access_level},
+            "note": ("is_admin=true means owned_level returns the ADMIN sentinel — "
+                     "every level shows OWNED regardless of these rows. The rows below "
+                     "are the ACTUAL PackPurchase records."),
+            "total_pack_rows": len(packs),
+            "active_pack_rows": len(active),
+            "packs": packs}
+
+
 @app.get("/admin/api/lifetime-members")
 def admin_api_lifetime_members(secret: str = "", db: Session = Depends(get_db)):
     """READ-ONLY: reports the lifetime members (the ~50 grandfathered active
