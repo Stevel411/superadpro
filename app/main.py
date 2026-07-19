@@ -67227,6 +67227,8 @@ def admin_api_gift_packs_to_lifetime(
     up_to_level: int = 100,
     secret: str = "",
     dry_run: int = 1,
+    exclude: str = "",
+    include_admins: int = 0,
     db: Session = Depends(get_db),
 ):
     """ONE-PUSH transition gift: give every LIFETIME member one of each pack up
@@ -67235,6 +67237,12 @@ def admin_api_gift_packs_to_lifetime(
 
     source='gift', NO commission fired. Each gift still needs the member to
     submit a video ad + do the daily watch to run, like a bought pack.
+
+    Targeting:
+      - excludes admins by default (they own everything via the sentinel);
+        pass &include_admins=1 to override.
+      - exclude=comma,separated,usernames to skip specific accounts (e.g. test
+        accounts). Case-insensitive, @ tolerated.
 
     SAFETY: dry_run=1 by default — reports what WOULD happen without writing.
     Add &dry_run=0 to actually grant. Idempotent guard: skips a (member, level)
@@ -67248,11 +67256,24 @@ def admin_api_gift_packs_to_lifetime(
     if not packs:
         return JSONResponse({"error": f"No active packs at or below level {up_to_level}."}, status_code=400)
 
-    members = db.query(User).filter(User.access_level == "lifetime").order_by(User.id.asc()).all()
+    excluded_names = {x.strip().lstrip("@").lower() for x in exclude.split(",") if x.strip()}
+
+    all_lifetime = db.query(User).filter(User.access_level == "lifetime").order_by(User.id.asc()).all()
+    members, skipped_targets = [], []
+    for u in all_lifetime:
+        if u.is_admin and not include_admins:
+            skipped_targets.append({"username": u.username, "why": "admin"})
+            continue
+        if u.username.lower() in excluded_names:
+            skipped_targets.append({"username": u.username, "why": "excluded"})
+            continue
+        members.append(u)
 
     plan = {"up_to_level": up_to_level,
             "pack_levels": [p.level for p in packs],
-            "lifetime_members": len(members),
+            "lifetime_total": len(all_lifetime),
+            "targeted_members": len(members),
+            "skipped_targets": skipped_targets,
             "packs_per_member": len(packs),
             "total_packs": len(members) * len(packs),
             "dry_run": bool(dry_run)}
@@ -67265,7 +67286,6 @@ def admin_api_gift_packs_to_lifetime(
     skipped = 0
     for u in members:
         for pack in packs:
-            # idempotent: skip if this member already has a gift pack at this level
             exists = (db.query(PackPurchase)
                         .filter(PackPurchase.user_id == u.id,
                                 PackPurchase.pack_level == pack.level,
