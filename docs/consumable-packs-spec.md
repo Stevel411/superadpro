@@ -157,3 +157,47 @@ The one-push gift is built, tested, and dry-run verified:
 **DECISION: hold the actual push (dry_run=0) until the member-facing "create your ad" UI exists.** Steve's call — gifting 212 active "needs-an-ad" packs before members can act on them would leave them with packs and no call to action. Push at/after the ad-submission UI lands (Increment 3/4), ideally alongside the launch announcement.
 
 Also confirmed this session: Steve's own account (id 1) holds **0 real PackPurchase rows** — it shows all levels OWNED via the `is_admin` sentinel in `owned_level`, not via real packs. This is correct/by-design; no action needed.
+
+---
+
+## 9. Weekly showcase share → package pause/resume (Steve, 18 Jul 2026)
+
+The third participation leg. Steve rejected a withdrawal-gate (would impede P2P
+and put people off) in favour of a POSITIVE mechanism tied to package activity.
+
+**Mechanism (confirmed):**
+- A weekly "Share showcase" button. Sharing records the share (uses existing
+  `share_links.last_shared_at`).
+- Share status is PER-MEMBER: share-qualified = shared within the last 7 days
+  (ROLLING, not calendar week).
+- share-qualified → the member's running packs stay ACTIVE.
+- NOT share-qualified → the member's running packs PAUSE.
+- **PAUSE = reversible, no loss.** A paused pack stops delivering views and the
+  member stops being earn-qualified at that level, but views-delivered is
+  preserved and it RESUMES exactly where it left off the moment they share.
+  Never destroys/consumes the pack.
+- While paused: no view delivery, so the completion clock naturally doesn't
+  advance (fair — nothing lost).
+- Completed/in-grace packs are NOT affected — only running ones pause.
+- **NO grace for new packs:** a freshly bought/gifted pack follows the member's
+  current share status immediately. Implication: for a brand-new member, sharing
+  is part of INITIAL setup (create ad + share to get running) — it's not "a free
+  first week". This ties into the setup wizard's "share your showcase" step,
+  which becomes a real activation step, not just informational.
+
+**Coherence:** this REPLACES the withdrawal-gate idea. Daily watch still does its
+two jobs (earn qualification + view-delivery supply); the weekly share governs
+package activity. Leaves the P2P payment flow completely untouched.
+
+**Build note:** mostly wiring existing signals — `share_links.last_shared_at`,
+the share button, and a `share_qualified(user, within=7d)` check folded into
+whether a pack counts as running/earning. Pause is a status the pack toggles
+between running and paused based on that check (evaluated lazily, like the
+expiry sweep).
+
+## 10. STILL OPEN — the buy-flow reorder (create ad before payment)
+
+Raised but NOT yet confirmed (Steve pivoted to the weekly-share topic). The idea:
+buyer must create their video ad BEFORE they're shown who/how to pay, so ad
+creation gates the payment step. Campaign created 'pending', goes live only on
+payment confirm. Return to this before building the buy-flow UI.
