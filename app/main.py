@@ -67407,6 +67407,13 @@ def _al_expire_stale(db):
                        P2PIntent.created_at < cutoff).all())
     for it in stale:
         it.status = "expired"
+        # Discard the pre-payment ad (created before payment, never confirmed) so
+        # it never leaks into the watch feed and doesn't clutter the member's
+        # campaign list.
+        if it.campaign_id:
+            camp = db.query(VideoCampaign).filter(VideoCampaign.id == it.campaign_id).first()
+            if camp is not None and camp.status == "pending":
+                camp.status = "discarded"
     if stale:
         db.commit()
     return len(stale)
@@ -68153,6 +68160,61 @@ def _al_pack_state(db, user, pack):
             "progress": {"delivered": delivered, "target": target,
                          "pct": (round(100 * delivered / target) if target else 0),
                          "grace_until": (active.grace_expires_at.isoformat() if active.grace_expires_at else None)}}
+
+
+@app.get("/api/al/share-status")
+def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Weekly-share state for the member: are they share-qualified (shared within
+    the rolling 7 days), when's the next share due, and which packs are currently
+    paused for lack of a share. Drives the weekly-share button UI."""
+    _ale._apply_share_pause(db, user.id)  # make status current
+    link = _get_or_create_share_link(db, user)
+    qualified = _ale.share_qualified(db, user.id)
+    next_due = None
+    if link.last_shared_at:
+        due = link.last_shared_at + timedelta(days=_ale.SHARE_WINDOW_DAYS)
+        next_due = due.isoformat()
+    paused = (db.query(PackPurchase)
+                .filter(PackPurchase.user_id == user.id,
+                        PackPurchase.status == "paused").all())
+    paused_out = []
+    for r in paused:
+        camp = db.query(VideoCampaign).filter(VideoCampaign.id == r.campaign_id).first() if r.campaign_id else None
+        pack = db.query(CampaignPack).filter(CampaignPack.id == r.pack_id).first()
+        paused_out.append({
+            "pack_level": r.pack_level,
+            "label": (pack.name if pack else f"${r.pack_level}"),
+            "delivered": (camp.views_delivered or 0) if camp else 0,
+            "target": (camp.views_target or 0) if camp else 0,
+        })
+    return {"ok": True,
+            "share_qualified": qualified,
+            "share_url": f"/w/{link.token}",
+            "last_shared_at": link.last_shared_at.isoformat() if link.last_shared_at else None,
+            "next_due": next_due,
+            "window_days": _ale.SHARE_WINDOW_DAYS,
+            "paused_packs": paused_out,
+            "paused_count": len(paused_out)}
+
+
+@app.post("/api/al/share")
+def al_weekly_share(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Member shares their showcase for the week. Stamps last_shared_at, then
+    re-runs the pause sweep so any paused packs RESUME immediately. Returns how
+    many reactivated so the UI can celebrate."""
+    link = _get_or_create_share_link(db, user)
+    link.last_shared_at = datetime.utcnow()
+    link.share_count = (link.share_count or 0) + 1
+    db.commit()
+    # resume paused packs now that they're share-qualified again
+    before = db.query(PackPurchase).filter(PackPurchase.user_id == user.id,
+                                           PackPurchase.status == "paused").count()
+    _ale._apply_share_pause(db, user.id)
+    after = db.query(PackPurchase).filter(PackPurchase.user_id == user.id,
+                                          PackPurchase.status == "paused").count()
+    return {"ok": True, "share_url": f"/w/{link.token}",
+            "reactivated": max(0, before - after),
+            "next_due": (datetime.utcnow() + timedelta(days=_ale.SHARE_WINDOW_DAYS)).isoformat()}
 
 
 @app.get("/api/al/packs/awaiting-ad")
