@@ -21,6 +21,7 @@ from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
     Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL, NEW_GRID_SEATS, completion_bonus_for,
+    DAILY_WATCH_BY_TIER,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -24949,13 +24950,30 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     from datetime import date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
 
-    # Determine tier from user's highest active grid
-    active_grid = db.query(Grid).filter(
-        Grid.owner_id == user.id,
-        Grid.is_complete == False
-    ).order_by(Grid.package_tier.desc()).first()
-    tier     = active_grid.package_tier if active_grid else 1
-    required = DAILY_VIDEO_QUOTA.get(tier, 1)
+    # Determine the daily-watch requirement. AdvantageLife: derive from the
+    # member's highest ACTIVE pack via the DAILY_WATCH_BY_TIER ramp (1-5/day).
+    # This is the seam that connects Watch-to-Earn to the pack system. Fall back
+    # to the legacy Grid tier only if the member holds no AL pack (keeps
+    # SuperAdPro users unaffected).
+    al_level = _ale.owned_level(db, user.id)   # 0 if none; sentinel if admin
+    al_tier = None
+    if al_level and al_level != _ale._ADMIN_LEVEL:
+        # map pack price ($ level) -> tier index (0-8), then to the watch ramp
+        for _ti, _price in GRID_PACKAGES.items():
+            if int(_price) == int(al_level):
+                al_tier = _ti
+                break
+    if al_tier is not None:
+        tier     = al_tier
+        required = DAILY_WATCH_BY_TIER.get(al_tier, 1)
+    else:
+        # legacy Grid path (SuperAdPro)
+        active_grid = db.query(Grid).filter(
+            Grid.owner_id == user.id,
+            Grid.is_complete == False
+        ).order_by(Grid.package_tier.desc()).first()
+        tier     = active_grid.package_tier if active_grid else 1
+        required = DAILY_VIDEO_QUOTA.get(tier, 1)
 
     # ── Admin/owner exemption ─────────────────────────────────────────
     # is_admin → 0 required. The package_tier still reflects their actual
@@ -24977,6 +24995,14 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
         )
         db.add(quota)
         db.flush()
+    else:
+        # Keep the quota in sync with the member's CURRENT pack tier — they may
+        # have bought a bigger pack, or had packs expire/pause since the row was
+        # created. Without this the daily requirement would freeze at whatever it
+        # was on first watch.
+        if quota.daily_required != required or quota.package_tier != tier:
+            quota.daily_required = required
+            quota.package_tier = tier
 
     # Reset daily count if it's a new day
     today_str = str(date.today())
