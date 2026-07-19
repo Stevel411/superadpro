@@ -69035,6 +69035,40 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .pk.owned .rbar i{background:linear-gradient(90deg,#2fd07a,#7dffb0)}
 .flag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:3px 10px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
 .flag.own{background:var(--grn);color:#fff}.flag.now{background:var(--red);color:#fff}
+.flag.needs{background:#e08e00;color:#fff}.flag.run{background:#0d8a4a;color:#fff}
+.flag.grace{background:var(--red);color:#fff}.flag.paused{background:#94651a;color:#fff}
+.pk.running{background:linear-gradient(150deg,#0a6836,#0d8a4a);color:#fff}
+.pk.needs{background:linear-gradient(150deg,#0a6836,#0d8a4a)}
+.pk.paused{background:linear-gradient(150deg,#5a4a1a,#7a6320);opacity:.92}
+.pk.selectable{cursor:pointer}
+.pk:not(.selectable){cursor:default}
+.rbar.real{background:rgba(255,255,255,.25)}.rbar.real i{background:#fff}
+.prog-lbl{font-size:11px;font-weight:800;color:#fff;opacity:.9;margin-top:5px;font-family:'JetBrains Mono',monospace}
+.pkbtn{width:100%;border:0;border-radius:9px;padding:10px;font-family:'Inter',sans-serif;font-weight:800;font-size:12.5px;cursor:pointer;margin-top:11px}
+.pkbtn.gold{background:#fff;color:#b56a00}
+.pkbtn.ghost{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);cursor:not-allowed}
+.pknote{font-size:10.5px;font-weight:700;color:#fff;opacity:.85;text-align:center;margin-top:7px;line-height:1.4}
+.sb{border-radius:14px;padding:18px;margin-bottom:22px;box-shadow:0 10px 26px -20px rgba(10,31,82,.4)}
+.sb.ok{background:#fff;border:1.5px solid #b7e4c7}
+.sb.warn{background:#fff5f6;border:1.5px solid #f5c2c2}
+.sbrow{display:flex;gap:13px;align-items:flex-start}
+.sbic{width:42px;height:42px;border-radius:12px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:20px;background:#e4f7ee}
+.sbic.warn{background:#fde7ea}
+.sbpill{display:inline-block;font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;border-radius:999px;margin-bottom:7px}
+.sbpill.ok{background:#e4f7ee;color:#166534}.sbpill.warn{background:#fde7ea;color:var(--red)}
+.sbh{font-weight:900;font-size:16px;letter-spacing:-.2px;color:var(--grn)}
+.sbh.warn{color:var(--red)}
+.sbp{font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;margin-top:3px}
+.sbp.warn{color:#7a2530}
+.sbalert{background:#fff;border:1.5px solid var(--red);border-radius:9px;padding:10px 12px;margin-top:11px;font-size:12px;font-weight:600;color:#7a2530;line-height:1.5}
+.sbalert b{color:var(--red)}
+.sbplist{background:#fff;border:1px solid #f5c2c2;border-radius:9px;padding:10px 12px;margin-top:11px}
+.sbpt{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--red);margin-bottom:7px}
+.sbpk{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;padding:3px 0;color:var(--ink)}
+.sbpk .m{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.sbbtn{width:100%;border:0;border-radius:11px;padding:13px;font-family:'Inter',sans-serif;font-weight:800;font-size:14px;cursor:pointer;color:#fff;margin-top:15px}
+.sbbtn.ok{background:linear-gradient(135deg,#0a6836,#0d8a4a)}
+.sbbtn.warn{background:linear-gradient(135deg,var(--red),#e8203f)}
 .cta{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:40px}
 .cta .btn{max-width:380px}
 .note{font-size:12.5px;color:var(--dim);font-weight:600;text-align:center;margin-top:0;line-height:1.6}
@@ -69162,6 +69196,11 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
 .big{font-size:46px;text-align:center;margin-bottom:8px}
 .ctr{text-align:center}
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
+.whybox{background:#f6f8fc;border:1.5px solid var(--line);border-radius:11px;padding:13px 15px;font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:18px}
+.fl{display:block;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.fin{width:100%;border:2px solid var(--line);border-radius:10px;padding:12px;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:14px;outline:none;box-sizing:border-box}
+.fin:focus{border-color:var(--red)}
+.plats{font-size:11.5px;color:var(--dim);font-weight:600;margin:-6px 0 16px}
 .gatewarn{background:#fdf2f4;border:1.5px solid #f3c2cc;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#8f1830;line-height:1.5;margin-bottom:14px}
 .gatewarn a{color:#8f1830}
 </style></head><body>
@@ -69183,6 +69222,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         </div>
       </div>
       <div class="gatewarn" id="gwarn" style="display:none"></div>
+      <div id="shareBanner"></div>
       <div class="packs" id="packGrid"></div>
       <div class="err" id="errPick"></div>
       <div class="cta">
@@ -69241,6 +69281,31 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
           <div class="disc">No earnings are promised or guaranteed. What any member makes depends on their own effort and results. <a href="/legal/income-disclosure">Income disclosure</a>.</div>
         </div>
       </div>
+    </div>
+
+    <div class="scr" id="sAd">
+      <h1>Create your <span class="r">video ad</span></h1>
+      <div class="sub" style="margin-bottom:6px">Step 2 of 3 — set up your advertising, then pay. <b id="adPackName"></b> <span id="adViews" style="color:#5a6584"></span></div>
+      <div class="whybox">On AdvantageLife you create your ad first, then pay. This makes every pack a real ad campaign — and means you're ready to earn the moment your payment clears. Your ad goes live automatically once the sale is confirmed.</div>
+      <label class="fl">Ad title</label>
+      <input id="adTitle" class="fin" placeholder="e.g. Why I joined AdvantageLife">
+      <label class="fl">Video link</label>
+      <input id="adUrl" class="fin" placeholder="https://youtube.com/watch?v=…">
+      <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
+      <div class="err" id="errAd" style="display:none"></div>
+      <button class="btn" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
+    </div>
+
+    <div class="scr" id="sAd2">
+      <h1>Add your <span class="r">video ad</span></h1>
+      <div class="sub" style="margin-bottom:6px">Your <b id="adPackName2"></b> is active — add your ad to start delivering views and earning.</div>
+      <label class="fl">Ad title</label>
+      <input id="adTitle2" class="fin" placeholder="e.g. Why I joined AdvantageLife">
+      <label class="fl">Video link</label>
+      <input id="adUrl2" class="fin" placeholder="https://youtube.com/watch?v=…">
+      <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
+      <div class="err" id="errAd2" style="display:none"></div>
+      <button class="btn" id="btnAd2" onclick="submitAd2()">Put my ad live →</button>
     </div>
 
     <div class="scr" id="sPay">
@@ -69385,20 +69450,53 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     var g=document.getElementById('packGrid');g.innerHTML='';
     packs.forEach(function(pk){
       var d=document.createElement('div');
-      var owned=j.owned_level>=pk.level;
-      d.className='pk'+(owned?' owned':'');
+      var st=pk.state||'buyable';
       var _p='$'+Number(pk.price).toLocaleString();
       var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
-      d.innerHTML=(owned?'<span class="flag own">Owned</span>':'')
+      var running=(st==='running'||st==='in_grace'||st==='paused'||st==='needs_ad');
+      d.className='pk'+(running?' running':'')+(st==='needs_ad'?' needs':'')+(st==='paused'?' paused':'')+(st==='in_grace'?' grace':'');
+      d.dataset.state=st;
+      // badge per state
+      var badge='';
+      if(st==='needs_ad') badge='<span class="flag needs">Needs your ad</span>';
+      else if(st==='running') badge='<span class="flag run">Running</span>';
+      else if(st==='in_grace') badge='<span class="flag grace">Finishing</span>';
+      else if(st==='paused') badge='<span class="flag paused">Paused</span>';
+      else if(st==='owned_admin') badge='<span class="flag own">Owned</span>';
+      // progress bar (real, if running) else the decorative reach bar
+      var barHtml;
+      if(pk.progress && pk.progress.target){
+        barHtml='<div class="rbar real"><i style="width:'+pk.progress.pct+'%"></i></div>'
+          +'<div class="prog-lbl">'+Number(pk.progress.delivered).toLocaleString()+' / '+Number(pk.progress.target).toLocaleString()+' views</div>';
+      } else {
+        barHtml='<div class="rbar"><i style="width:'+packWidth(pk.views_target)+'%"></i></div>';
+      }
+      // footer per state
+      var foot;
+      if(st==='needs_ad') foot='<button class="pkbtn gold" data-act="ad" data-pid="'+pk.purchase_id+'">Add your video ad →</button><div class="pknote">Delivers no views until your ad is live.</div>';
+      else if(st==='running') foot='<button class="pkbtn ghost" disabled>Running — can\'t re-buy yet</button>';
+      else if(st==='in_grace') foot='<button class="pkbtn ghost" disabled>Finishing — re-buy soon</button>';
+      else if(st==='paused') foot='<button class="pkbtn ghost" disabled>Paused — share to resume</button>';
+      else foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
+      d.innerHTML=badge
         +'<div class="pay">'+_p+'</div><div class="reach">'+_v+'</div>'
-        +'<div class="rbar"><i style="width:'+packWidth(pk.views_target)+'%"></i></div>'
-        +'<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
-      d.onclick=function(){sel=pk;
-        document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel');
-          var f=x.querySelector('.flag.now'); if(f) f.remove();});
-        d.classList.add('sel');
-        if(!d.querySelector('.flag.now')){var nf=document.createElement('span');nf.className='flag now';nf.textContent='Selected';d.insertBefore(nf,d.firstChild);}
-        var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
+        +barHtml+foot;
+      // only buyable (and admin) cards are selectable for a NEW purchase
+      var selectable=(st==='buyable'||st==='owned_admin');
+      if(selectable){
+        d.classList.add('selectable');
+        d.onclick=function(ev){
+          if(ev.target.closest('[data-act]'))return;
+          sel=pk;
+          document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel');
+            var f=x.querySelector('.flag.now'); if(f) f.remove();});
+          d.classList.add('sel');
+          if(!d.querySelector('.flag.now')){var nf=document.createElement('span');nf.className='flag now';nf.textContent='Selected';d.insertBefore(nf,d.firstChild);}
+          var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
+      }
+      // "Add your ad" button for needs_ad packs -> opens the ad step for that purchase
+      var adbtn=d.querySelector('[data-act="ad"]');
+      if(adbtn){adbtn.onclick=function(ev){ev.stopPropagation();openAdForPurchase(pk.purchase_id,pk);};}
       g.appendChild(d);
     });
     (function(){var on=document.getElementById('ownNote');
@@ -69412,12 +69510,53 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   document.getElementById('btnGo').onclick=function(){
     if(!sel)return;var b=this;b.disabled=true;b.textContent='Preparing your purchase…';
     fetch('/api/al/packs/'+sel.level+'/intent',{method:'POST'}).then(function(r){return r.json().then(function(j){return{ok:r.ok,s:r.status,j:j}})}).then(function(x){
-      if(x.ok&&x.j.intent_id){renderIntent(x.j)}
+      if(x.ok&&x.j.intent_id){intent=x.j; if(x.j.campaign_id){renderIntent(x.j)}else{renderAdStep(x.j)} }
       else if(x.s===409&&x.j.intent){handleExisting(x.j.intent)}
       else{fail('errPick',x.j.error||'Could not start this purchase');b.disabled=false;b.textContent='Try again'}
     }).catch(function(){fail('errPick','Network error — try again');b.disabled=false;b.textContent='Try again'});
   };
-  function handleExisting(it){intent=it;if(it.status==='pending'){renderIntent(it)}else{renderPending(it)}}
+  // Reorder (18 Jul): create the ad BEFORE payment. renderAdStep shows the ad
+  // form; on save the campaign is created 'pending' and we move to payment.
+  function renderAdStep(it){
+    intent=it;
+    var pk=sel||{name:'pack',price:it.amount,views_target:0};
+    var wrap=document.getElementById('adStep');
+    document.getElementById('adPackName').textContent='$'+Number(it.amount).toLocaleString()+' '+(pk.name||'pack');
+    document.getElementById('adViews').textContent=(pk.views_target>=1000?(pk.views_target/1000)+'k':(pk.views_target||''))+(pk.views_target?' views':'');
+    show('sAd');
+  }
+  function submitAd(){
+    var t=document.getElementById('adTitle').value.trim();
+    var u=document.getElementById('adUrl').value.trim();
+    var eb=document.getElementById('errAd'); eb.style.display='none';
+    if(!t||!u){eb.textContent='Add a title and a video link.';eb.style.display='block';return;}
+    var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
+    fetch('/api/al/intents/'+intent.intent_id+'/create-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+        if(x.ok){intent.campaign_id=x.j.campaign_id; renderIntent(intent);}
+        else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
+      }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
+  }
+  // Add-ad for an already-active pack that still needs its creative (needs_ad).
+  function openAdForPurchase(pid,pk){
+    var eb=document.getElementById('errAd2'); if(eb)eb.style.display='none';
+    document.getElementById('adPackName2').textContent='$'+Number(pk.price).toLocaleString()+' '+(pk.name||'pack');
+    window._adPurchaseId=pid; window._adPurchasePk=pk;
+    show('sAd2');
+  }
+  function submitAd2(){
+    var t=document.getElementById('adTitle2').value.trim();
+    var u=document.getElementById('adUrl2').value.trim();
+    var eb=document.getElementById('errAd2'); eb.style.display='none';
+    if(!t||!u){eb.textContent='Add a title and a video link.';eb.style.display='block';return;}
+    var btn=document.getElementById('btnAd2');btn.disabled=true;btn.textContent='Putting your ad live…';
+    fetch('/api/al/packs/'+window._adPurchaseId+'/submit-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+        if(x.ok){location.reload();}
+        else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Put my ad live →';}
+      }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Put my ad live →';});
+  }
+  function handleExisting(it){intent=it;if(it.status==='pending'){ if(it.campaign_id){renderIntent(it)}else{renderAdStep(it)} }else{renderPending(it)}}
   document.getElementById('copyBtn').onclick=function(){
     var t=document.getElementById('addr').textContent;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){document.getElementById('copyBtn').textContent='COPIED ✓';setTimeout(function(){document.getElementById('copyBtn').textContent='COPY'},2000)}).catch(function(){});
@@ -69440,8 +69579,48 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     if(!j)return;
     if(j.open_intent){handleExisting(j.open_intent)}else{renderPicker(j)}
     if(!j.open_intent)renderPicker(j);
+    loadShareBanner();
   });
 })();
+
+  function loadShareBanner(){
+    var _e=function(x){var d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML;};
+    fetch('/api/al/share-status').then(function(r){return r.ok?r.json():null}).then(function(s){
+      if(!s||!s.ok)return;
+      var el=document.getElementById('shareBanner');if(!el)return;
+      if(s.share_qualified){
+        var due=s.next_due?Math.max(0,Math.ceil((new Date(s.next_due)-new Date())/86400000)):7;
+        el.innerHTML='<div class="sb ok"><div class="sbrow"><span class="sbic">📣</span>'
+          +'<div><span class="sbpill ok">✓ Shared this week</span>'
+          +'<div class="sbh">Your packs are active</div>'
+          +'<div class="sbp">You\'re eligible to receive payments from your team\'s sales. Share again within '+due+' day'+(due===1?'':'s')+' to keep your packs running.</div></div></div>'
+          +'<button class="sbbtn ok" onclick="doShare(this)">Share my showcase →</button></div>';
+      } else {
+        var list='';
+        (s.paused_packs||[]).forEach(function(p){list+='<div class="sbpk"><span>'+_e(p.label)+' campaign</span><span class="m">'+Number(p.delivered).toLocaleString()+' / '+Number(p.target).toLocaleString()+' views</span></div>';});
+        el.innerHTML='<div class="sb warn"><div class="sbrow"><span class="sbic warn">⏸️</span>'
+          +'<div><span class="sbpill warn">⚠ '+(s.paused_count||0)+' pack'+(s.paused_count===1?'':'s')+' paused</span>'
+          +'<div class="sbh warn">Share to reactivate your packs</div>'
+          +'<div class="sbp warn">You haven\'t shared in over 7 days, so your packs are <b>paused</b> — no views, no earning. Nothing\'s lost: share now and they resume instantly.</div>'
+          +'<div class="sbalert">💸 <b>You can\'t receive new payments while paused.</b> Any sale from your team passes to the next qualified member instead of you.</div>'
+          +(list?'<div class="sbplist"><div class="sbpt">Paused — resume on share</div>'+list+'</div>':'')
+          +'</div></div>'
+          +'<button class="sbbtn warn" onclick="doShare(this)">Share my showcase &amp; reactivate →</button></div>';
+      }
+    }).catch(function(){});
+  }
+  function doShare(btn){
+    btn.disabled=true;var orig=btn.textContent;btn.textContent='Sharing…';
+    fetch('/api/al/share',{method:'POST'}).then(function(r){return r.json()}).then(function(s){
+      // open the native share sheet / copy the link
+      var url=location.origin+(s.share_url||'');
+      if(navigator.share){navigator.share({title:'Watch on AdvantageLife',url:url}).catch(function(){});}
+      else if(navigator.clipboard){navigator.clipboard.writeText(url);}
+      loadShareBanner();
+      if(s.reactivated>0){setTimeout(function(){location.reload();},600);}
+      else{btn.disabled=false;btn.textContent=orig;}
+    }).catch(function(){btn.disabled=false;btn.textContent=orig;});
+  }
 
   (function(){var st=document.getElementById('strip');if(!st)return;var UP=[3,6,9];
     for(var i=1;i<=10;i++){var d=document.createElement('div');
