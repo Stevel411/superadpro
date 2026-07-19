@@ -68113,13 +68113,46 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
     return {
         "packs": [{"level": p.level, "name": p.name, "price": float(p.price),
                    "views_target": p.views_target,
-                   "daily_watch_required": p.daily_watch_required} for p in packs],
+                   "daily_watch_required": p.daily_watch_required,
+                   **_al_pack_state(db, user, p)} for p in packs],
         "owned_level": _ale.owned_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
         "pack_sale_count": user.pack_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
     }
+
+
+def _al_pack_state(db, user, pack):
+    """Per-pack lifecycle state for the caller, so the /packs UI can show the
+    right thing on each card: buyable / needs-ad / running (with progress) /
+    in-grace. Admin owns everything via the sentinel (no blocking rows)."""
+    if user.is_admin:
+        return {"state": "owned_admin", "active": True, "needs_ad": False,
+                "blocked": False, "progress": None}
+    # newest active pack at this level (if any)
+    active = (db.query(PackPurchase)
+                .filter(PackPurchase.user_id == user.id,
+                        PackPurchase.pack_level == pack.level,
+                        PackPurchase.status == "active")
+                .order_by(PackPurchase.id.desc()).first())
+    if not active:
+        return {"state": "buyable", "active": False, "needs_ad": False,
+                "blocked": False, "progress": None}
+    # active — does it have its ad yet?
+    if not active.campaign_id:
+        return {"state": "needs_ad", "active": True, "needs_ad": True,
+                "blocked": True, "purchase_id": active.id, "progress": None}
+    camp = db.query(VideoCampaign).filter(VideoCampaign.id == active.campaign_id).first()
+    delivered = (camp.views_delivered or 0) if camp else 0
+    target = (camp.views_target or pack.views_target or 0) if camp else (pack.views_target or 0)
+    in_grace = bool(active.grace_expires_at and active.completed_at)
+    return {"state": ("in_grace" if in_grace else "running"),
+            "active": True, "needs_ad": False, "blocked": True,
+            "purchase_id": active.id,
+            "progress": {"delivered": delivered, "target": target,
+                         "pct": (round(100 * delivered / target) if target else 0),
+                         "grace_until": (active.grace_expires_at.isoformat() if active.grace_expires_at else None)}}
 
 
 @app.get("/api/al/packs/awaiting-ad")
@@ -68242,6 +68275,53 @@ async def al_create_intent(pack_level: int,
     out["message"] = (f"Your payment goes directly to {out['payee']['display']} — "
                       "AdvantageLife never holds it. Pay the exact amount, then submit proof below.")
     return out
+
+
+@app.post("/api/al/intents/{intent_id}/create-ad")
+async def al_intent_create_ad(intent_id: int, request: Request,
+                              user: User = Depends(_al_user),
+                              db: Session = Depends(get_db)):
+    """Reorder (18 Jul): the buyer creates their video ad BEFORE paying. The
+    campaign is created status='pending' (NOT in the watch feed) and parked on
+    the intent. It only goes live when the sale is confirmed. This gates the
+    payment step — the buyer can't be shown who to pay until the ad exists."""
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent or intent.buyer_id != user.id:
+        return JSONResponse({"error": "Intent not found"}, status_code=404)
+    if intent.status not in ("pending", "proof_submitted"):
+        return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
+    if intent.campaign_id:
+        return JSONResponse({"error": "You've already created the ad for this purchase.",
+                             "campaign_id": intent.campaign_id}, status_code=400)
+
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    video_url = (body.get("video_url") or "").strip()
+    if not title or not video_url:
+        return JSONResponse({"error": "A title and a video URL are both required."}, status_code=400)
+    parsed = parse_video_url(video_url)
+    if not parsed:
+        return JSONResponse({"error": "That video URL isn't a supported platform (YouTube, Rumble, Vimeo)."}, status_code=400)
+
+    pack = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
+    target = (pack.views_target if pack and pack.views_target else 0)
+
+    campaign = VideoCampaign(
+        user_id=user.id, title=title,
+        description=(body.get("description") or "").strip() or None,
+        platform=parsed["platform"], video_url=video_url,
+        embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
+        status="pending",   # NOT live until the sale confirms
+        views_target=target, views_delivered=0,
+        campaign_tier=intent.pack_level, is_completed=False,
+        created_at=datetime.utcnow(),
+    )
+    db.add(campaign)
+    db.flush()
+    intent.campaign_id = campaign.id
+    db.commit()
+    return {"ok": True, "campaign_id": campaign.id,
+            "message": "Ad saved. It goes live automatically once your payment is confirmed. Now complete your payment below."}
 
 
 @app.post("/api/al/intents/{intent_id}/choose")

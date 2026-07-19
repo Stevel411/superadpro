@@ -195,9 +195,18 @@ whether a pack counts as running/earning. Pause is a status the pack toggles
 between running and paused based on that check (evaluated lazily, like the
 expiry sweep).
 
-## 10. STILL OPEN — the buy-flow reorder (create ad before payment)
+## 10. Buy-flow reorder — CONFIRMED (Steve, 18 Jul 2026)
 
-Raised but NOT yet confirmed (Steve pivoted to the weekly-share topic). The idea:
-buyer must create their video ad BEFORE they're shown who/how to pay, so ad
-creation gates the payment step. Campaign created 'pending', goes live only on
-payment confirm. Return to this before building the buy-flow UI.
+Ad creation moves BEFORE payment. New buy order:
+  1. Buyer picks a pack -> intent opens
+  2. Buyer CREATES their video ad (required) -> campaign created status='pending'
+     (NOT in the watch feed yet), linked to the intent
+  3. ONLY THEN is the buyer shown who/how to pay
+  4. Buyer pays the sponsor directly + submits proof
+  5. Sponsor confirms -> pending campaign flips LIVE (enters feed) + PackPurchase
+     activates with campaign_id already attached
+Guarantees every paid pack has a real ad; buyer proves intent before money moves;
+"must advertise" becomes structural. Platform never custodies funds (P2P direct),
+so this gates the PAYMENT STEP behind ad creation rather than literal escrow.
+Orphan handling: if the buyer never pays / intent cancels-expires, the pending
+campaign is discarded with the intent (never goes live).

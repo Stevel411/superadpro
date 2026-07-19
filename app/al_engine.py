@@ -22,12 +22,68 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from . import passup_engine as pe
-from .database import User, PackPurchase, PackCommission, WatchQuota, PayoutMethod, P2PIntent
+from .database import User, PackPurchase, PackCommission, WatchQuota, PayoutMethod, P2PIntent, ShareLink
 
 _ADMIN_LEVEL = 10 ** 9  # admin/master owns every level
 
 
 # ── Gate inputs (DB-backed) ────────────────────────────────────────────
+SHARE_WINDOW_DAYS = 7  # a member must share their showcase within this rolling
+                       # window to keep their packs ACTIVE (Steve, 18 Jul 2026)
+
+
+def share_qualified(db: Session, user_id: int) -> bool:
+    """True if the member has shared their showcase within the rolling 7-day
+    window (or is admin). Drives package pause/resume — NOT a withdrawal gate."""
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None:
+        return False
+    if u.is_admin:
+        return True
+    link = db.query(ShareLink).filter(ShareLink.user_id == user_id).first()
+    if link is None or link.last_shared_at is None:
+        return False
+    return link.last_shared_at >= (datetime.utcnow() - timedelta(days=SHARE_WINDOW_DAYS))
+
+
+def _apply_share_pause(db: Session, user_id: int) -> None:
+    """Pause/resume the member's RUNNING packs based on share status. Pause is
+    reversible: a paused pack stops delivering + earning, but views_delivered is
+    preserved and it resumes the instant they share. Only affects packs that
+    are running (active, have an ad, not completed/in-grace). Evaluated lazily
+    from owned_level so it's always current without a scheduler."""
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None or u.is_admin:
+        return
+    qualified = share_qualified(db, user_id)
+    rows = (db.query(PackPurchase)
+              .filter(PackPurchase.user_id == user_id,
+                      PackPurchase.status.in_(("active", "paused")),
+                      PackPurchase.campaign_id.isnot(None),        # has an ad (running)
+                      PackPurchase.completed_at.is_(None))         # not completed/in-grace
+              .all())
+    changed = False
+    for r in rows:
+        camp = None
+        if r.campaign_id:
+            from .database import VideoCampaign
+            camp = db.query(VideoCampaign).filter(VideoCampaign.id == r.campaign_id).first()
+        if not qualified and r.status == "active":
+            r.status = "paused"
+            # Pause the ad too so it leaves the watch feed and stops accruing
+            # views. views_delivered is preserved — it resumes where it left off.
+            if camp is not None and camp.status == "active":
+                camp.status = "paused"
+            changed = True
+        elif qualified and r.status == "paused":
+            r.status = "active"
+            if camp is not None and camp.status == "paused":
+                camp.status = "active"
+            changed = True
+    if changed:
+        db.commit()
+
+
 def owned_level(db: Session, user_id: int) -> int:
     """Highest ACTIVE pack level the user owns ($). Admin owns everything."""
     u = db.query(User).filter(User.id == user_id).first()
@@ -35,9 +91,10 @@ def owned_level(db: Session, user_id: int) -> int:
         return 0
     if u.is_admin:
         return _ADMIN_LEVEL
-    # Lazily expire any of this user's packs whose grace window has passed, so
+    # Lazily expire past-grace packs and apply the weekly-share pause/resume, so
     # the earn gate always reflects current reality without a scheduler.
     _expire_overdue_packs(db, user_id)
+    _apply_share_pause(db, user_id)
     top = db.query(func.max(PackPurchase.pack_level)).filter(
         PackPurchase.user_id == user_id,
         PackPurchase.status == "active",

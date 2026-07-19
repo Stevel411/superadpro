@@ -141,17 +141,27 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
     # activate the buyer's pack
     pack_row = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
     _dwr = (pack_row.daily_watch_required if pack_row and pack_row.daily_watch_required is not None else 1)
+    # The buyer created their ad BEFORE payment (reorder): the campaign is parked
+    # on the intent in status='pending'. On confirm it goes LIVE and moves onto
+    # the new pack. If (legacy path) no pending campaign exists, campaign_id stays
+    # NULL and the pack shows "needs ad".
+    pending_campaign = None
+    if intent.campaign_id:
+        pending_campaign = db.query(VideoCampaign).filter(VideoCampaign.id == intent.campaign_id).first()
     purchase = PackPurchase(
         user_id=intent.buyer_id, pack_id=intent.pack_id, pack_level=intent.pack_level,
         amount=intent.amount, payment_method="p2p", status="active",
         tx_ref=intent.tx_ref, activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
         source="purchase", daily_watch_required=_dwr,
-        # campaign_id stays NULL until the member submits their video ad — the pack
-        # is a consumable campaign that only starts delivering views once the buyer
-        # has created the creative (their obligation to receive funds).
+        campaign_id=(pending_campaign.id if pending_campaign else None),
     )
     db.add(purchase)
     db.flush()  # need purchase.id
+
+    # Flip the pre-created ad live so it enters the watch feed now that the sale
+    # is confirmed.
+    if pending_campaign is not None and pending_campaign.status == "pending":
+        pending_campaign.status = "active"
 
     # honour the payee LOCKED at intent (the buyer already paid them)
     locked = {

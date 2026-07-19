@@ -869,6 +869,10 @@ class P2PIntent(Base):
     submitted_at    = Column(DateTime, nullable=True)           # when the buyer submitted proof
     confirmed_at    = Column(DateTime, nullable=True)
     confirmed_by    = Column(Integer, ForeignKey("users.id"), nullable=True)  # earner or admin who activated
+    # The buyer creates their video ad BEFORE payment (18 Jul 2026 reorder). The
+    # campaign is created status='pending' and parked here; on confirm it flips
+    # live and moves onto the new PackPurchase. Discarded if the intent expires.
+    campaign_id     = Column(Integer, ForeignKey("video_campaigns.id"), nullable=True)
 
 class Payment(Base):
     """Incoming payments from members."""
@@ -4121,6 +4125,8 @@ try:
             ("expired_at", "TIMESTAMP"),
         ]:
             conn.execute(text(f"ALTER TABLE pack_purchases ADD COLUMN IF NOT EXISTS {_col} {_type}"))
+        # p2p_intents.campaign_id — the pending ad created before payment (reorder)
+        conn.execute(text("ALTER TABLE p2p_intents ADD COLUMN IF NOT EXISTS campaign_id INTEGER"))
         existing = conn.execute(text("SELECT COUNT(*) FROM campaign_packs")).scalar()
         if not existing:
             for tier in sorted(GRID_PACKAGES):
