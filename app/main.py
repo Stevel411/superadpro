@@ -7312,6 +7312,12 @@ async def api_login(
         return response
 
     record_failed_attempt(username)
+    # A migrated member (exists but no password carried over) needs to claim
+    # their account, not be told their password is wrong. Nudge them to /claim.
+    if user and not user.password:
+        return JSONResponse({
+            "error": "Returning from SuperAdPro? Claim your account to set a password.",
+            "claim": True, "claim_url": "/claim"}, status_code=401)
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
 @app.get("/logout")
 def logout():
@@ -69019,6 +69025,127 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 </body></html>"""
 
 
+_AL_CLAIM_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim your account — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e;--grn2:#0a6836}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',sans-serif;background:#eef1f8;color:var(--ink);padding:32px 18px 60px}
+.wrap{max-width:460px;margin:0 auto}
+.brand{text-align:center;font-weight:900;font-size:23px;letter-spacing:-.5px;margin-bottom:22px}
+.brand .a{color:var(--navy)}.brand .l{color:var(--red)}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:28px 26px;box-shadow:0 16px 40px -26px rgba(10,31,82,.5)}
+.welcome{background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:22px}
+.welcome h1{font-weight:900;font-size:21px;letter-spacing:-.4px;line-height:1.2}
+.welcome h1 .r{color:var(--red-lt)}
+.welcome p{font-size:13px;color:#c3d0f0;font-weight:600;line-height:1.5;margin-top:7px}
+.hi{font-size:13.5px;color:var(--dim);font-weight:600;line-height:1.6;margin-bottom:20px}
+.hi b{color:var(--ink)}
+label{font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:6px}
+input{width:100%;border:2px solid var(--line);border-radius:10px;padding:13px;font-size:15px;font-family:'Inter',sans-serif;margin-bottom:16px;outline:none}
+input:focus{border-color:var(--navy2)}
+.btn{width:100%;border:0;border-radius:11px;padding:15px;font-family:'Inter',sans-serif;font-weight:800;font-size:15px;cursor:pointer;color:#fff}
+.btn.red{background:linear-gradient(135deg,var(--red),#e8203f);box-shadow:0 10px 24px -12px rgba(200,16,46,.7)}
+.btn:disabled{opacity:.6;cursor:default}
+.hint{font-size:11.5px;color:var(--dim);font-weight:600;line-height:1.5;margin:-8px 0 16px}
+.split{text-align:center;font-size:11px;font-weight:800;color:#b3bcd0;text-transform:uppercase;letter-spacing:.08em;margin:20px 0}
+.foot{text-align:center;font-size:12.5px;color:var(--dim);font-weight:600}
+.foot a{color:var(--navy2);font-weight:800;text-decoration:none}
+.done{background:#e4f7ee;border:1.5px solid #b7e4c7;border-radius:12px;padding:16px 18px;font-size:13px;color:#166534;font-weight:600;line-height:1.55}
+.done b{color:var(--grn2)}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+.scr{display:none}.scr.on{display:block}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="a">Advantage</span><span class="l">Life</span></div>
+
+  <!-- STATE A: has token -> set password -->
+  <div class="scr" id="sSet">
+    <div class="card">
+      <div class="welcome">
+        <h1>Welcome to <span class="r">AdvantageLife</span></h1>
+        <p>SuperAdPro has become AdvantageLife. Your account and your network came with you &mdash; set a new password to claim it.</p>
+      </div>
+      <div class="hi">For your security we didn't carry passwords across to the new platform. Choose a fresh one below and you're in.</div>
+      <div class="err" id="errSet"></div>
+      <label>New password</label>
+      <input type="password" id="pw1" placeholder="At least 8 characters">
+      <label>Confirm password</label>
+      <input type="password" id="pw2" placeholder="Re-enter your password">
+      <div class="hint">Use something you don't use elsewhere.</div>
+      <button class="btn red" id="btnSet" onclick="doSet()">Claim my account &rarr;</button>
+    </div>
+  </div>
+
+  <!-- STATE B: no token -> request link -->
+  <div class="scr" id="sReq">
+    <div class="card">
+      <div class="welcome">
+        <h1>Claim your <span class="r">account</span></h1>
+        <p>Returning from SuperAdPro? Enter your email and we'll send you a secure link to set your password.</p>
+      </div>
+      <div class="err" id="errReq"></div>
+      <label>Your email</label>
+      <input type="email" id="email" placeholder="you@email.com">
+      <div class="hint">Use the same email you had on SuperAdPro. We'll send a claim link if we find your account.</div>
+      <button class="btn red" id="btnReq" onclick="doReq()">Send my claim link &rarr;</button>
+      <div class="split">&mdash; or &mdash;</div>
+      <div class="foot">Already set your password? <a href="/login">Log in</a></div>
+    </div>
+  </div>
+
+  <!-- STATE C: link sent -->
+  <div class="scr" id="sSent">
+    <div class="card">
+      <div class="done"><b>Check your email &#128233;</b><br>If an account exists for that address, we've sent a claim link. It's valid for 1 hour &mdash; open it to set your password. Don't forget to check spam.</div>
+    </div>
+  </div>
+
+  <!-- STATE D: done -->
+  <div class="scr" id="sDone">
+    <div class="card">
+      <div class="done"><b>You're all set! &#127881;</b><br>Your password is saved. Taking you to your dashboard&hellip;</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function show(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
+  function fail(id,m){var e=document.getElementById(id);e.textContent=m;e.style.display='block'}
+  var TOKEN=(new URLSearchParams(location.search)).get('token')||'';
+  show(TOKEN?'sSet':'sReq');
+
+  function doSet(){
+    var p1=document.getElementById('pw1').value, p2=document.getElementById('pw2').value;
+    var e=document.getElementById('errSet');e.style.display='none';
+    if(p1.length<8){fail('errSet','Password must be at least 8 characters.');return;}
+    if(p1!==p2){fail('errSet','Those passwords don\'t match.');return;}
+    var b=document.getElementById('btnSet');b.disabled=true;b.textContent='Claiming your account…';
+    fetch('/api/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:TOKEN,new_password:p1,confirm_password:p2})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+        if(x.ok){show('sDone');setTimeout(function(){location.href='/dashboard'},1500);}
+        else{fail('errSet',x.j.error||'Could not set your password. Your link may have expired.');b.disabled=false;b.textContent='Claim my account →';}
+      }).catch(function(){fail('errSet','Network error — please try again.');b.disabled=false;b.textContent='Claim my account →';});
+  }
+  function doReq(){
+    var em=document.getElementById('email').value.trim();
+    var e=document.getElementById('errReq');e.style.display='none';
+    if(!em||em.indexOf('@')<0){fail('errReq','Please enter a valid email address.');return;}
+    var b=document.getElementById('btnReq');b.disabled=true;b.textContent='Sending…';
+    fetch('/api/forgot-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em})})
+      .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
+        if(x.ok){show('sSent');}
+        else{fail('errReq',x.j.error||'Please enter a valid email address.');b.disabled=false;b.textContent='Send my claim link →';}
+      }).catch(function(){fail('errReq','Network error — please try again.');b.disabled=false;b.textContent='Send my claim link →';});
+  }
+</script>
+</body></html>"""
+
+
 _AL_GUIDE_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -70058,6 +70185,15 @@ def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(
     if not user:
         return RedirectResponse(url="/login?next=/packs", status_code=302)
     return HTMLResponse(_AL_PACKS_PAGE)
+
+
+@app.get("/claim")
+def al_claim_page():
+    """Claim Your Account — the branded first-touch for migrated members at
+    cutover. Passwords weren't carried over, so this reuses the reset-token flow:
+    with ?token= (from the welcome email) it sets a password directly; without,
+    it requests a claim link by email. Public (no auth — they can't log in yet)."""
+    return HTMLResponse(_AL_CLAIM_PAGE)
 
 
 @app.get("/packs/guide")
