@@ -25282,8 +25282,13 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     scored.sort(key=lambda x: (x[0], random.random()), reverse=True)
     return scored[0][1]
 @app.get("/watch")
-def watch_page(request: Request):
-    """Serve React SPA. All quota/campaign data fetched client-side via /api/watch."""
+def watch_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA. All quota/campaign data fetched client-side via /api/watch.
+    On AdvantageLife, Watch-to-Earn is members-only — free members are sent to
+    /join (the API is gated too, this just avoids showing a locked shell)."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -46879,7 +46884,10 @@ def react_register_with_ref(request: Request, ref: str):
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/video-library")
-def react_video_library(request: Request):
+def react_video_library(request: Request, user: User = Depends(get_current_user)):
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -53201,14 +53209,16 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
     """JSON watch-to-earn data — uses smart rotation from get_next_content()."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    # ── Watch-to-Earn is OPEN TO ALL members (1 Jul 2026, Steve) ──
-    # Watching a video counts toward the daily quota (which keeps the affiliate
-    # wallet's daily gate satisfied where applicable) and delivers a real ad
-    # view to the advertiser. It credits NO money to the watcher, so there is
-    # no reason to require a tier to watch. Buying a Campaign Tier is what
-    # unlocks the CAMPAIGN WALLET (grid earnings) and the ability to CREATE a
-    # campaign — NOT the ability to watch. (Removed the Apr-2026 tier gate that
-    # locked watching behind tier ownership and stranded tier-less members.)
+    # ── AdvantageLife (20 Jul 2026, Steve): views are delivered ONLY by active
+    # package holders doing their required watches, and by the public Showcase
+    # share page (/w/{token}). Free members get no access to Watch-to-Earn — the
+    # site exists for them only to become a paid lifetime member, which unlocks
+    # the tools and the option to participate. This SUPERSEDES the 1 Jul
+    # "open to all" decision (a SuperAdPro-era call, no longer in force).
+    if brand_config.IS_ADVANTAGELIFE and not _al_is_lifetime(user):
+        return JSONResponse({
+            "error": "Watch-to-Earn is for members. Become a lifetime member to unlock it.",
+            "locked": True, "join_url": "/join"}, status_code=403)
     try:
         quota = get_or_create_quota(db, user)
         db.commit()
@@ -53695,7 +53705,12 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     """Mark a video as watched, update quota, and return the next video via smart rotation."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    # Watch-to-Earn open to all (1 Jul 2026, Steve) — no tier gate; see /api/watch.
+    # AdvantageLife: only paid members deliver views via Watch-to-Earn (20 Jul
+    # 2026, Steve). Free members are locked out — supersedes the 1 Jul open-to-all.
+    if brand_config.IS_ADVANTAGELIFE and not _al_is_lifetime(user):
+        return JSONResponse({
+            "error": "Watch-to-Earn is for members. Become a lifetime member to unlock it.",
+            "locked": True, "join_url": "/join"}, status_code=403)
     try:
         from datetime import date
         body = await request.json()
@@ -57290,8 +57305,12 @@ def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
         db.refresh(row)
     return row
 @app.get("/creative-studio")
-async def creative_studio_page(request: Request):
-    """Serve the Creative Studio page — handled by React router client-side."""
+async def creative_studio_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve the Creative Studio page — handled by React router client-side.
+    AdvantageLife: members-only tool; free members sent to /join."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
     if _get_react_index_html() is not None:
         return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
