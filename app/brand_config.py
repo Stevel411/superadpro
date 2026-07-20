@@ -29,6 +29,10 @@ BRAND_NAME = _env("BRAND_NAME", "SuperAdPro")
 BASE_URL   = _env("BASE_URL", "https://www.superadpro.com").rstrip("/")
 SITE_URL   = _env("SITE_URL", BASE_URL).rstrip("/")
 
+# True on the AdvantageLife deploy (drives AL-only gating of shared routes).
+# Detected from the brand name or domain so it needs no extra env var.
+IS_ADVANTAGELIFE = ("advantagelife" in BRAND_NAME.lower()) or ("advantagelife" in BASE_URL.lower())
+
 # ── Email ─────────────────────────────────────────────────────────────
 FROM_EMAIL    = _env("FROM_EMAIL", "noreply@superadpro.com")
 SENDER_NAME   = _env("BRAND_SENDER_NAME", _env("BREVO_SENDER_NAME", BRAND_NAME))

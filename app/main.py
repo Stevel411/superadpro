@@ -31,6 +31,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 # for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
 # payment_method on User tracks which rail; renewals route by that value.
 from . import stripe_service
+from . import brand_config
 from .database import StripeCharge
 from .database import ShareLink, ShareView
 from .database import GridPlanFeedback
@@ -70175,6 +70176,28 @@ def _al_is_lifetime(user) -> bool:
     return getattr(user, "access_level", "free") == "lifetime"
 
 
+def _al_gate_page(user, shared_route: bool = False):
+    """Page-level access gate for AdvantageLife member surfaces (tools, watch,
+    wallet, sales, packs, etc). Returns a RedirectResponse the caller should
+    return if the member is NOT allowed in, else None.
+
+    Rules (Steve, 20 Jul 2026): not logged in -> /login; logged in but FREE ->
+    /join (must become an active member first); lifetime/admin -> allowed.
+    So the migrated 611 who haven't upgraded cannot reach any platform system
+    until they join — only lifetime/comped members get the tools.
+
+    shared_route=True marks routes shared with SuperAdPro (watch, creative
+    studio, video library). On those, the FREE->/join gate applies ONLY on the
+    AdvantageLife deploy, so SuperAdPro is never affected."""
+    if user is None:
+        return RedirectResponse(url="/login", status_code=302)
+    if shared_route and not brand_config.IS_ADVANTAGELIFE:
+        return None  # SuperAdPro deploy — leave shared routes untouched
+    if not _al_is_lifetime(user):
+        return RedirectResponse(url="/join", status_code=302)
+    return None
+
+
 @app.get("/packs")
 def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not _al_is_lifetime(user):
@@ -70210,8 +70233,9 @@ def al_packs_guide_page(user: User = Depends(get_current_user), db: Session = De
 def al_my_sales_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Payee queue (approved mockup screens 5-6): incoming sales with
     confirm / didn't-receive, plus history. Auto-refreshes each minute."""
-    if not user:
-        return RedirectResponse(url="/login?next=/my-sales", status_code=302)
+    _gate = _al_gate_page(user)
+    if _gate:
+        return _gate
     return HTMLResponse(_AL_SALES_PAGE)
 
 
@@ -70219,8 +70243,9 @@ def al_my_sales_page(user: User = Depends(get_current_user), db: Session = Depen
 def al_payout_methods_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Member payout-wallet settings (approved mockup screen 7). The
     qualification rule made visible: no wallet = sales pass over you."""
-    if not user:
-        return RedirectResponse(url="/login?next=/payout-methods", status_code=302)
+    _gate = _al_gate_page(user)
+    if _gate:
+        return _gate
     return HTMLResponse(_AL_WALLETS_PAGE)
 
 
