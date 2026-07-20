@@ -67853,8 +67853,8 @@ def al_config_readiness(user: User = Depends(_al_user)):
             ("BSC_RPC_URL", False),
         ]),
         "credit_packs_crypto_nowpayments": group([
-            ("NOWPAYMENTS_API_KEY", True),
-            ("NOWPAYMENTS_IPN_SECRET", True),
+            ("NOWPAYMENTS_API_KEY", False),
+            ("NOWPAYMENTS_IPN_SECRET", False),
         ]),
         "ai_tools_creative_studio": group([
             ("XAI_API_KEY", True),
