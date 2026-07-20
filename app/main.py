@@ -67839,6 +67839,24 @@ def al_config_readiness(user: User = Depends(_al_user)):
         missing_required = [r["var"] for r in rows if r["required"] and not r["set"]]
         return {"vars": rows, "missing_required": missing_required, "ok": not missing_required}
 
+    def email_group():
+        # Email is special: you need ONE provider (Brevo OR SES), not all. So each
+        # var is individually optional, but the GROUP is only ok if at least one
+        # working provider is present. Without this, the group falsely showed
+        # ok:true with zero providers set — meaning NO email could send at all
+        # (claim links, launch announcement, purchase notifications all silently
+        # dead). Brevo = BREVO_API_KEY. SES = EMAIL_PROVIDER=ses + AWS creds.
+        brevo_ok = has("BREVO_API_KEY")
+        ses_ok = (os.environ.get("EMAIL_PROVIDER", "").lower() == "ses"
+                  and (has("AWS_ACCESS_KEY_ID") or has("SES_SMTP_USER")))
+        rows = [{"var": n, "set": has(n), "required": False} for n in
+                ("EMAIL_PROVIDER", "BREVO_API_KEY", "AWS_ACCESS_KEY_ID", "SES_SMTP_USER")]
+        ok = brevo_ok or ses_ok
+        return {"vars": rows,
+                "missing_required": [] if ok else ["a_sending_provider (set BREVO_API_KEY, or EMAIL_PROVIDER=ses + AWS creds)"],
+                "ok": ok,
+                "active_provider": ("ses" if ses_ok else ("brevo" if brevo_ok else None))}
+
     groups = {
         "card_payments_stripe": group([
             ("STRIPE_SECRET_KEY", True),
@@ -67862,12 +67880,7 @@ def al_config_readiness(user: User = Depends(_al_user)):
             ("GEMINI_API_KEY", False),
             ("ANTHROPIC_API_KEY", False),
         ]),
-        "email_delivery": group([
-            ("EMAIL_PROVIDER", False),
-            ("BREVO_API_KEY", False),
-            ("AWS_ACCESS_KEY_ID", False),
-            ("SES_SMTP_USER", False),
-        ]),
+        "email_delivery": email_group(),
         "brand_identity": group([
             ("BRAND_NAME", True),
             ("BASE_URL", True),
