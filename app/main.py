@@ -63075,7 +63075,7 @@ def admin_api_health_summary(request: Request, db: Session = Depends(get_db)):
                 "duration_ms": 0,
                 "issue_count": 0,
                 "headline": "Not applicable — Profit Grid retired on AdvantageLife",
-                "ran_at": datetime.now(timezone.utc).isoformat(),
+                "ran_at": health_scanners.datetime.now(health_scanners.timezone.utc).isoformat(),
             })
             continue
         result = health_scanners.run_scanner(s["fn"], s["name"], db)
