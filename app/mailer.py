@@ -38,6 +38,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr, make_msgid
 
+try:
+    from app.brand_config import BRAND_NAME as _BRAND_NAME
+except Exception:
+    _BRAND_NAME = os.getenv("BRAND_NAME", "AdvantageLife")
+
 logger = logging.getLogger(__name__)
 
 # ── Global SES send governor ──────────────────────────────────────────────────
@@ -188,7 +193,7 @@ def ses_send(to_email: str, subject: str, html: str, text: str = None,
     smtp_user = os.getenv("SES_SMTP_USER", "")
     smtp_pass = os.getenv("SES_SMTP_PASS", "")
     from_email = from_email or os.getenv("FROM_EMAIL", "noreply@superadpro.com")
-    from_name = from_name or os.getenv("BREVO_SENDER_NAME", "SuperAdPro")
+    from_name = from_name or os.getenv("BREVO_SENDER_NAME") or _BRAND_NAME
 
     if not (host and smtp_user and smtp_pass):
         logger.error("[mailer/ses] SES_SMTP_HOST/USER/PASS not configured")
