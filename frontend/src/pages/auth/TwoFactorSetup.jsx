@@ -88,7 +88,7 @@ export default function TwoFactorSetup() {
 
       <div style={styles.card}>
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
+          <span style={styles.logoText}>Advantage<span style={{ color: '#c8102e' }}>Life</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.setup2FA')}</h1>
@@ -98,7 +98,7 @@ export default function TwoFactorSetup() {
         <div style={styles.steps}>
           {[t('auth.scanQR'), t('auth.verify')].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ ...styles.stepDot, background: step >= i + 2 ? 'var(--sap-accent)' : 'rgba(255,255,255,.1)', color: step >= i + 2 ? '#fff' : 'rgba(255,255,255,.3)' }}>{i + 1}</div>
+              <div style={{ ...styles.stepDot, background: step >= i + 2 ? '#c8102e' : 'rgba(255,255,255,.1)', color: step >= i + 2 ? '#fff' : 'rgba(255,255,255,.3)' }}>{i + 1}</div>
               <span style={{ fontSize: 12, fontWeight: 700, color: step >= i + 2 ? '#7dd3fc' : 'rgba(255,255,255,.3)' }}>{s}</span>
               {i === 0 && <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,.15)' }} />}
             </div>
@@ -148,7 +148,7 @@ export default function TwoFactorSetup() {
                     value={d} onChange={e => handleChange(i, e.target.value)}
                     onKeyDown={e => handleKeyDown(i, e)}
                     maxLength={1} inputMode="numeric"
-                    style={{ ...styles.codeInput, borderColor: error ? 'rgba(239,68,68,.5)' : d ? 'rgba(56,189,248,.5)' : 'rgba(255,255,255,.15)' }}
+                    style={{ ...styles.codeInput, borderColor: error ? 'rgba(239,68,68,.5)' : d ? 'rgba(200,16,46,.5)' : 'rgba(255,255,255,.15)' }}
                   />
                 ))}
               </div>
@@ -183,14 +183,14 @@ const styles = {
   instructions: { background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '14px 16px', marginBottom: 20, textAlign: 'left' },
   instrText: { fontSize: 13, color: 'rgba(255,255,255,.5)', lineHeight: 1.6, margin: '0 0 6px' },
   qrWrap: { display: 'flex', justifyContent: 'center', marginBottom: 20 },
-  qrImg: { width: 180, height: 180, borderRadius: 12, border: '3px solid rgba(56,189,248,.3)', background: '#fff', padding: 8 },
-  secretBox: { background: 'rgba(56,189,248,.06)', border: '1px solid rgba(56,189,248,.15)', borderRadius: 12, padding: '14px 16px', marginBottom: 24, textAlign: 'left' },
+  qrImg: { width: 180, height: 180, borderRadius: 12, border: '3px solid rgba(200,16,46,.3)', background: '#fff', padding: 8 },
+  secretBox: { background: 'rgba(200,16,46,.06)', border: '1px solid rgba(200,16,46,.15)', borderRadius: 12, padding: '14px 16px', marginBottom: 24, textAlign: 'left' },
   secretLabel: { fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.4)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 },
   secretRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 },
   secretCode: { flex: 1, fontSize: 13, fontFamily: 'monospace', color: '#7dd3fc', wordBreak: 'break-all', letterSpacing: '.05em' },
-  copyBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(56,189,248,.3)', background: 'rgba(56,189,248,.1)', color: 'var(--sap-accent-light)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", whiteSpace: 'nowrap' },
+  copyBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(200,16,46,.3)', background: 'rgba(200,16,46,.1)', color: '#c8102e', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", whiteSpace: 'nowrap' },
   secretEmail: { fontSize: 13, color: 'rgba(255,255,255,.3)' },
-  btn: { display: 'block', width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'none', textAlign: 'center', boxSizing: 'border-box' },
+  btn: { display: 'block', width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0a1f52, #c8102e)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'none', textAlign: 'center', boxSizing: 'border-box' },
   errorBox: { background: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#fca5a5', marginBottom: 20 },
   codeRow: { display: 'flex', gap: 10, justifyContent: 'center' },
   codeInput: { width: 44, height: 52, textAlign: 'center', fontSize: 22, fontWeight: 800, color: '#fff', background: 'rgba(255,255,255,.06)', border: '2px solid rgba(255,255,255,.15)', borderRadius: 12, fontFamily: "'DM Sans', sans-serif", outline: 'none', transition: 'border-color .15s' },
