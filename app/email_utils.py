@@ -117,12 +117,12 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
 # ═══════════════════════════════════════════════════════════════
 
 def _logo():
-    return '<table cellpadding="0" cellspacing="0" align="center"><tr><td style="padding-right:10px;vertical-align:middle"><table cellpadding="0" cellspacing="0"><tr><td style="width:40px;height:40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);border-radius:50%;text-align:center;vertical-align:middle"><span style="font-size:20px;color:#fff;font-weight:900;line-height:40px;display:block;padding-left:3px">&#9654;</span></td></tr></table></td><td style="vertical-align:middle"><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.3px">Super</span><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#0ea5e9;letter-spacing:-0.3px">Ad</span><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#a78bfa;letter-spacing:-0.3px">Pro</span></td></tr></table>'
+    return '<table cellpadding="0" cellspacing="0" align="center"><tr><td style="padding-right:10px;vertical-align:middle"><table cellpadding="0" cellspacing="0"><tr><td style="width:40px;height:40px;background:linear-gradient(135deg,#0a1f52,#c8102e);border-radius:50%;text-align:center;vertical-align:middle"><span style="font-size:20px;color:#fff;font-weight:900;line-height:40px;display:block;padding-left:3px">&#9654;</span></td></tr></table></td><td style="vertical-align:middle"><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.3px">Advantage</span><span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#ff6178;letter-spacing:-0.3px">Life</span></td></tr></table>'
 
 def _footer_logo():
-    return '<table cellpadding="0" cellspacing="0" align="center" style="margin-bottom:10px"><tr><td style="padding-right:6px;vertical-align:middle"><span style="display:inline-block;width:22px;height:22px;background:#0ea5e9;border-radius:50%;text-align:center;line-height:22px;font-size:11px;color:#fff;font-weight:900;padding-left:2px">&#9654;</span></td><td style="vertical-align:middle"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:900;color:#64748b">Super</span><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:900;color:#0ea5e9">Ad</span><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:900;color:#a78bfa">Pro</span></td></tr></table>'
+    return '<table cellpadding="0" cellspacing="0" align="center" style="margin-bottom:10px"><tr><td style="padding-right:6px;vertical-align:middle"><span style="display:inline-block;width:22px;height:22px;background:#0a1f52;border-radius:50%;text-align:center;line-height:22px;font-size:11px;color:#fff;font-weight:900;padding-left:2px">&#9654;</span></td><td style="vertical-align:middle"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:900;color:#0a1f52">Advantage</span><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:900;color:#c8102e">Life</span></td></tr></table>'
 
-def _btn(url, label, color="#0ea5e9"):
+def _btn(url, label, color="#c8102e"):
     return f'<table cellpadding="0" cellspacing="0" align="center" style="margin:8px auto 4px"><tr><td style="background:{color};border-radius:10px;text-align:center"><a href="{url}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:15px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:0.3px">{label}</a></td></tr></table>'
 
 def _card(content, bg="#f8fafc", border="#e2e8f0"):
@@ -149,7 +149,7 @@ def _shell(tag, hero_bg, hero, body, unsubscribe_url=None):
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:linear-gradient(135deg,#0f1d3a,#172554);padding:22px 32px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td>{_logo()}</td><td align="right" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);vertical-align:middle">{tag}</td></tr></table></td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:{hero_bg};padding:36px 36px 32px">{hero}</td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:32px 36px">{body}</td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform<br><a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a>{unsub}</div></td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform<br><a href="{SITE_URL}" style="color:#c8102e;text-decoration:none">advantagelife.club</a>{unsub}</div></td></tr></table>
 </td></tr></table></td></tr></table></body></html>'''
 
 
@@ -163,7 +163,7 @@ def _nurture_shell(tag, hero_bg, hero, body, unsubscribe_url=None):
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:linear-gradient(135deg,#0f1d3a,#172554);padding:22px 32px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td>{_logo()}</td><td align="right" style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);vertical-align:middle">{tag}</td></tr></table></td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:{hero_bg};padding:36px 36px 32px">{hero}</td></tr></table>
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:32px 36px">{body}</td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform &middot; <a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">superadpro.com</a><br>You're receiving this because you have a SuperAdPro account.<br><a href="{unsub_url}" style="color:#cbd5e1;text-decoration:none">Unsubscribe from these emails</a></div></td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 36px;text-align:center">{_footer_logo()}<div style="font-size:12px;color:#94a3b8;line-height:1.8">AI Marketing &amp; Advertising Platform &middot; <a href="{SITE_URL}" style="color:#c8102e;text-decoration:none">advantagelife.club</a><br>You're receiving this because you have a {BRAND_NAME} account.<br><a href="{unsub_url}" style="color:#cbd5e1;text-decoration:none">Unsubscribe from these emails</a></div></td></tr></table>
 </td></tr></table></td></tr></table></body></html>'''
 
 
@@ -171,10 +171,10 @@ def _nurture_shell(tag, hero_bg, hero, body, unsubscribe_url=None):
 # EMAIL 1: WELCOME
 # ═══════════════════════════════════════════════════════════════
 def send_welcome_email(to_email, first_name, username):
-    hero = f'<div style="font-size:48px;margin-bottom:14px">&#127881;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Welcome to SuperAdPro, <span style="color:#0ea5e9">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your account is live and ready. You\'re now part of a growing community of digital marketers using AI to build their business.</p>'
-    creds = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:14px;padding:22px 26px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Username</td><td align="right" style="font-size:14px;color:#fff;font-weight:700">{username}</td></tr></table></td></tr><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Status</td><td align="right" style="font-size:14px;color:#4ade80;font-weight:700">&#10003; Active</td></tr></table></td></tr><tr><td style="padding:9px 0"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Dashboard</td><td align="right" style="font-size:13px;color:#fff;font-weight:600">superadpro.com/dashboard</td></tr></table></td></tr></table></td></tr></table>'
+    hero = f'<div style="font-size:48px;margin-bottom:14px">&#127881;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Welcome to {BRAND_NAME}, <span style="color:#c8102e">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your account is live and ready. You\'re now part of a growing community using AI to build their business.</p>'
+    creds = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:14px;padding:22px 26px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Username</td><td align="right" style="font-size:14px;color:#fff;font-weight:700">{username}</td></tr></table></td></tr><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Status</td><td align="right" style="font-size:14px;color:#4ade80;font-weight:700">&#10003; Active</td></tr></table></td></tr><tr><td style="padding:9px 0"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Dashboard</td><td align="right" style="font-size:13px;color:#fff;font-weight:600">advantagelife.club/dashboard</td></tr></table></td></tr></table></td></tr></table>'
     body = creds + _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' + _check('Share your referral link and earn $10/month for every Partner you refer', 'Create AI videos, images, and music in the Creative Studio', 'Build your personal LinkHub page and share it everywhere', 'Watch daily videos to qualify for campaign commissions'), bg='#f0f9ff', border='#bae6fd') + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;")
-    return send_email(to_email, f"Welcome to SuperAdPro, {first_name}!", _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body), f"Welcome to SuperAdPro, {first_name}! Username: {username}. Login: {SITE_URL}/dashboard")
+    return send_email(to_email, f"Welcome to {BRAND_NAME}, {first_name}!", _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body), f"Welcome to {BRAND_NAME}, {first_name}! Username: {username}. Login: {SITE_URL}/dashboard")
 
 
 def send_welcome_free_email(to_email, first_name, username):
@@ -190,7 +190,7 @@ def send_welcome_free_email(to_email, first_name, username):
     hero = (
         '<div style="font-size:48px;margin-bottom:14px">&#128075;</div>'
         f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
-        f'Welcome to SuperAdPro, <span style="color:#0ea5e9">{first_name}!</span></p>'
+        f'Welcome to {BRAND_NAME}, <span style="color:#c8102e">{first_name}!</span></p>'
         '<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
         'Your free account is created. Here&rsquo;s what it is, and how to switch on the full toolkit.</p>'
     )
@@ -223,9 +223,9 @@ def send_welcome_free_email(to_email, first_name, username):
     )
     return send_email(
         to_email,
-        f"Welcome to SuperAdPro, {first_name} — here's how to get started",
+        f"Welcome to {BRAND_NAME}, {first_name} — here's how to get started",
         _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
-        f"Welcome to SuperAdPro, {first_name}! Your free account ({username}) is created. "
+        f"Welcome to {BRAND_NAME}, {first_name}! Your free account ({username}) is created. "
         f"Activate Partner for $20/month to unlock every tool: {SITE_URL}/pay-membership",
     )
 
@@ -235,18 +235,18 @@ def send_welcome_free_email(to_email, first_name, username):
 # ═══════════════════════════════════════════════════════════════
 def send_commission_email(to_email, first_name, commission_type="Affiliate", from_username=""):
     fr = f" &middot; from <strong>{from_username}</strong>" if from_username else ""
-    hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">Cha-Ching, <span style="color:#0ea5e9">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#166534;line-height:1.7">Money just landed in your SuperAdPro wallet.</p>'
+    hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">Cha-Ching, <span style="color:#c8102e">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#166534;line-height:1.7">Money just landed in your {BRAND_NAME} wallet.</p>'
     body = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:14px;padding:28px;text-align:center"><p style="margin:0 0 6px;font-size:20px;font-weight:900;color:#15803d">Commission Received!</p><p style="margin:0;font-size:14px;color:#16a34a;font-weight:600">{commission_type}{fr}</p></td></tr></table>' + _card('<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">Your earnings are building up in your wallet. Once you hit the <strong>$10 minimum</strong>, you can withdraw to your USDT wallet anytime.</p>', bg='#f0fdf4', border='#bbf7d0') + _btn(f"{SITE_URL}/wallet", "View my wallet &rarr;", "#22c55e")
-    return send_email(to_email, "Cha-Ching! You just earned a commission on SuperAdPro!", _shell("Earnings", "linear-gradient(135deg,#f0fdf4,#dcfce7)", hero, body))
+    return send_email(to_email, f"Cha-Ching! You just earned a commission on {BRAND_NAME}!", _shell("Earnings", "linear-gradient(135deg,#f0fdf4,#dcfce7)", hero, body))
 
 
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 3: PASSWORD RESET
 # ═══════════════════════════════════════════════════════════════
 def send_password_reset_email(to_email, first_name, reset_url):
-    hero = f'<div style="font-size:48px;margin-bottom:14px">&#128272;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Reset your password, <span style="color:#0ea5e9">{first_name}</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">We received a request to reset your SuperAdPro password. Click the button below — it\'s only valid for <strong>1 hour</strong>.</p>'
-    body = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="border:2px dashed #e2e8f0;border-radius:14px;padding:28px;text-align:center"><p style="margin:0 0 18px;font-size:15px;color:#64748b">Click the button below to set your new password:</p>{_btn(reset_url, "Reset my password &rarr;")}<p style="margin:16px 0 0;font-size:13px;color:#94a3b8">This link expires in 1 hour</p></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:14px 18px"><p style="margin:0;font-size:14px;color:#713f12;line-height:1.6"><strong>Didn\'t request this?</strong> You can safely ignore this email. Your password won\'t change unless you click the link above.</p></td></tr></table><p style="margin:0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.8">If the button doesn\'t work, copy and paste this link:<br><span style="color:#0ea5e9;font-size:11px;word-break:break-all">{reset_url}</span></p>'
-    return send_email(to_email, "Reset your SuperAdPro password", _shell("Security", "#ffffff", hero, body), f"Hi {first_name}, reset your SuperAdPro password: {reset_url} (expires in 1 hour)")
+    hero = f'<div style="font-size:48px;margin-bottom:14px">&#128272;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Reset your password, <span style="color:#c8102e">{first_name}</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">We received a request to reset your {BRAND_NAME} password. Click the button below — it\'s only valid for <strong>1 hour</strong>.</p>'
+    body = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="border:2px dashed #e2e8f0;border-radius:14px;padding:28px;text-align:center"><p style="margin:0 0 18px;font-size:15px;color:#64748b">Click the button below to set your new password:</p>{_btn(reset_url, "Reset my password &rarr;")}<p style="margin:16px 0 0;font-size:13px;color:#94a3b8">This link expires in 1 hour</p></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:14px 18px"><p style="margin:0;font-size:14px;color:#713f12;line-height:1.6"><strong>Didn\'t request this?</strong> You can safely ignore this email. Your password won\'t change unless you click the link above.</p></td></tr></table><p style="margin:0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.8">If the button doesn\'t work, copy and paste this link:<br><span style="color:#c8102e;font-size:11px;word-break:break-all">{reset_url}</span></p>'
+    return send_email(to_email, f"Reset your {BRAND_NAME} password", _shell("Security", "#ffffff", hero, body), f"Hi {first_name}, reset your {BRAND_NAME} password: {reset_url} (expires in 1 hour)")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -283,7 +283,7 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
             f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
             f"Welcome, Founding Partner <span style=\"color:#d97706\">{first_name}!</span></p>"
             f'<p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">'
-            f"Your SuperAdPro membership is active{spot_line}. "
+            f"Your {BRAND_NAME} membership is active{spot_line}. "
             f"You're locked in at $15/month for life — that price never changes for you, "
             f"no matter what we charge new members down the line.</p>"
         )
@@ -292,7 +292,7 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
             _check(
                 '$15/month price locked for life — never increases for you',
                 'Founding Partner badge displayed across the platform',
-                'Full SuperAdPro platform — Creative Studio, Brand Posters, MyLeads, all AI tools',
+                f'Full {BRAND_NAME} platform — Creative Studio, Brand Posters, MyLeads, all AI tools',
                 'Earn $10/month for every Partner you refer — recurring while they stay active',
                 'Build all four income streams: Membership, Profit Grid, Profit Nexus, Course Academy',
             ),
@@ -308,7 +308,7 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
             to_email,
             f"You're a Founding Partner, {first_name}! \u2b50",
             _shell("Founding Partner", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body),
-            f"Hi {first_name}, your SuperAdPro Founding Partner membership is active. "
+            f"Hi {first_name}, your {BRAND_NAME} Founding Partner membership is active. "
             f"You're locked in at $15/month for life. Go to {SITE_URL}/dashboard",
         )
 
@@ -316,9 +316,9 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
     hero = (
         f'<div style="font-size:48px;margin-bottom:14px">&#128640;</div>'
         f'<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">'
-        f"You're officially a Partner, <span style=\"color:#0ea5e9\">{first_name}!</span></p>"
+        f"You're officially a Partner, <span style=\"color:#c8102e\">{first_name}!</span></p>"
         f'<p style="margin:0;font-size:15px;color:#1e40af;line-height:1.7">'
-        f"Your SuperAdPro membership is now active. Here's everything you've unlocked:</p>"
+        f"Your {BRAND_NAME} membership is now active. Here's everything you've unlocked:</p>"
     )
     body = _card(
         _check(
@@ -344,12 +344,12 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
             f'<a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">account page</a>.</p>',
             bg='#eff6ff', border='#bfdbfe',
         )
-    body += _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#0ea5e9")
+    body += _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#c8102e")
     return send_email(
         to_email,
-        f"Your SuperAdPro Partner membership is active!",
+        f"Your {BRAND_NAME} Partner membership is active!",
         _shell("You're in!", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
-        f"Hi {first_name}, your SuperAdPro Partner membership is now active. Go to {SITE_URL}/dashboard",
+        f"Hi {first_name}, your {BRAND_NAME} Partner membership is now active. Go to {SITE_URL}/dashboard",
     )
 
 
@@ -362,7 +362,7 @@ def send_renewal_reminder_email(to_email, first_name, days_left):
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#9200;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">Your membership renews in <span style="color:{uc}">{dw}</span></p><p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">Just a friendly heads up, {first_name} — make sure your wallet has enough to cover your renewal.</p>'
     det = f'<table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr><td style="font-size:15px;color:#475569">Renewal date</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">in {dw}</td></tr></table></td></tr><tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr><td style="font-size:15px;color:#475569">Amount needed</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">$20 USDT</td></tr></table></td></tr><tr><td style="padding:10px 0"><table width="100%"><tr><td style="font-size:15px;color:#475569">Paid from</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">your wallet balance</td></tr></table></td></tr></table>'
     body = _card(det, bg='#fffbeb', border='#fde68a') + _card('<p style="margin:0;font-size:14px;color:#9a3412;line-height:1.6;text-align:center">If your wallet doesn\'t have enough funds, your commissions will pause until renewal is complete.</p>', bg='#fff7ed', border='#fed7aa') + _btn(f"{SITE_URL}/wallet", "Check my wallet balance", uc)
-    return send_email(to_email, f"Your SuperAdPro membership renews in {dw}", _shell("Renewal", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body), f"Hi {first_name}, your membership renews in {dw}. Check balance: {SITE_URL}/wallet")
+    return send_email(to_email, f"Your {BRAND_NAME} membership renews in {dw}", _shell("Renewal", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body), f"Hi {first_name}, your membership renews in {dw}. Check balance: {SITE_URL}/wallet")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -394,7 +394,7 @@ def send_nurture_email(to_email, first_name, email_num, unsubscribe_url=None):
 
     elif email_num == 2:
         hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#4c1d95;line-height:1.2">Let\'s talk about what $15/month actually buys you</p><p style="margin:0;font-size:15px;color:#6d28d9;line-height:1.7">Most subscriptions cost $15/month and give you software. SuperAdPro gives you software <strong>and</strong> an income &mdash; and Founding Partners lock that price in for life.</p>'
-        stats = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="32%" style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#d97706;margin:0 0 4px">$15</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Founding Partner<br>per month, locked</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">$10</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">earned per referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#0ea5e9;margin:0 0 4px">8</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Profit Grid<br>levels deep</p></td></tr></table>'
+        stats = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="32%" style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#d97706;margin:0 0 4px">$15</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Founding Partner<br>per month, locked</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#c8102e;margin:0 0 4px">$10</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">earned per referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#c8102e;margin:0 0 4px">8</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Profit Grid<br>levels deep</p></td></tr></table>'
         comp = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="49%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#94a3b8;margin:0 0 12px">&#10060; Free account</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No commission earnings</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No grid access</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">Limited tools</p></td><td width="2%"></td><td width="49%" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#16a34a;margin:0 0 12px">&#10003; Active Partner</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">$10/month per referral, recurring</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Full 8-level Profit Grid</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Creative Studio + all AI tools</p></td></tr></table>'
         body = stats + comp + _card('<p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7"><strong>Here\'s the thing:</strong> Your referral link is already live. Every person who visits it and joins is in your network &mdash; but you won\'t earn a single dollar unless your membership is active. And if you activate before the first 100 founding spots are gone, you lock in $15/month for life.</p>', bg='#faf5ff', border='#ddd6fe') + _btn(a, "Claim my Founding Partner spot &rarr;", "#d97706")
         subj = f"Here's what $15/month locked for life actually gets you"
@@ -475,7 +475,7 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82, unsub
         f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f172a;line-height:1.3">'
         f"Hi {safe_name},</p>"
         f'<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">'
-        f"Steve here &mdash; founder of SuperAdPro. I'm writing because I made a change to the platform "
+        f"Steve here &mdash; founder of {BRAND_NAME}. I'm writing because I made a change to the platform "
         f"this week that affects you directly, and I'd rather tell you about it personally than let you "
         f"find out by accident.</p>"
     )
@@ -541,7 +541,7 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82, unsub
         '<p style="margin:14px 0 0;font-size:14px;color:#475569;line-height:1.7">'
         'Either way &mdash; thanks for being here.</p>'
         '<p style="margin:18px 0 4px;font-size:15px;font-weight:700;color:#0f172a">Steve</p>'
-        '<p style="margin:0;font-size:13px;color:#64748b">Founder, SuperAdPro</p>'
+        f'<p style="margin:0;font-size:13px;color:#64748b">Founder, {BRAND_NAME}</p>'
     )
 
     body = (
@@ -566,7 +566,7 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82, unsub
     # Plain-text fallback for mail clients that don't render HTML
     text = (
         f"Hi {safe_name},\n\n"
-        "Steve here — founder of SuperAdPro. I'm writing because I made a change to the platform "
+        f"Steve here — founder of {BRAND_NAME}. I'm writing because I made a change to the platform "
         "this week that affects you directly.\n\n"
         "The short version: I scrapped the Basic and Pro tier structure. From now on there's just "
         "one paid membership, called Partner, at $20/month. Everyone gets the full platform.\n\n"
@@ -585,7 +585,7 @@ def render_founder_offer_email(first_name: str, spots_remaining: int = 82, unsub
         "It comes straight to me.\n\n"
         "Either way — thanks for being here.\n\n"
         "Steve\n"
-        "Founder, SuperAdPro\n"
+        f"Founder, {BRAND_NAME}\n"
     )
 
     return {"subject": subject, "html": html, "text": text}
@@ -634,13 +634,13 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubs
     safe_name = (first_name or "there").strip() or "there"
     cta = f"{SITE_URL}/upgrade"
 
-    subject = "Quick note from Steve — your SuperAdPro account is ready when you are"
+    subject = f"Quick note from Steve — your {BRAND_NAME} account is ready when you are"
 
     hero = (
         f'<p style="margin:0 0 10px;font-size:26px;font-weight:900;color:#0f172a;line-height:1.3">'
         f"Hi {safe_name},</p>"
         f'<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">'
-        f"Steve here, founder of SuperAdPro. You created an account with us in the last few days "
+        f"Steve here, founder of {BRAND_NAME}. You created an account with us in the last few days "
         f"and I wanted to drop you a personal note rather than letting the welcome email do all the work."
         f"</p>"
     )
@@ -684,7 +684,7 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubs
         "</p>"
     )
 
-    section_cta = _btn(cta, "Visit your account &rarr;", "#0ea5e9")
+    section_cta = _btn(cta, "Visit your account &rarr;", "#c8102e")
 
     section_reply = (
         '<p style="margin:24px 0 0;font-size:14px;color:#475569;line-height:1.7">'
@@ -695,7 +695,7 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubs
         "It comes straight to me."
         "</p>"
         '<p style="margin:18px 0 4px;font-size:15px;font-weight:700;color:#0f172a">Steve</p>'
-        '<p style="margin:0;font-size:13px;color:#64748b">Founder, SuperAdPro</p>'
+        f'<p style="margin:0;font-size:13px;color:#64748b">Founder, {BRAND_NAME}</p>'
     )
 
     body = (
@@ -718,7 +718,7 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubs
 
     text = (
         f"Hi {safe_name},\n\n"
-        "Steve here, founder of SuperAdPro. You created an account with us in the last few days "
+        f"Steve here, founder of {BRAND_NAME}. You created an account with us in the last few days "
         "and I wanted to drop you a personal note rather than letting the welcome email do all the work.\n\n"
         "If life got in the way, that's completely fine. Your free account is still active right "
         "now, exactly as you left it.\n\n"
@@ -735,7 +735,7 @@ def render_reengagement_email(first_name: str, spots_remaining: int = 82, unsubs
         "If you've got any questions or want to push back on anything, just reply to this email. "
         "It comes straight to me.\n\n"
         "Steve\n"
-        "Founder, SuperAdPro\n"
+        f"Founder, {BRAND_NAME}\n"
     )
 
     return {"subject": subject, "html": html, "text": text}
