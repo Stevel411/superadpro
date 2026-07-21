@@ -7368,7 +7368,7 @@ async def api_2fa_setup(request: Request, user: User = Depends(get_current_user)
     else:
         secret = user.totp_secret
     totp = pyotp.TOTP(secret)
-    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name="SuperAdPro")
+    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name=brand_config.BRAND_NAME)
     img = qrcode.make(uri)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
