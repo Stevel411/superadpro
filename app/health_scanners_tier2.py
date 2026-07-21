@@ -49,6 +49,7 @@ DRIFT_CENTS_THRESHOLD = Decimal("0.01")
         "comment, 'both flags must agree (free ↔ inactive, basic/pro ↔ "
         "active).' Negative balances flagged as critical."
     ),
+    requires_grid=True,
 )
 def scan_member_state_anomalies(db: Session) -> dict:
     issues = []
@@ -442,6 +443,7 @@ def scan_referral_graph_health(db: Session) -> dict:
         "downline spillover positions are working as designed and "
         "are not flagged regardless of owner purchase status."
     ),
+    requires_grid=True,
 )
 def scan_pack_ownership_consistency(db: Session) -> dict:
     issues = []

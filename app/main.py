@@ -63055,7 +63055,29 @@ def admin_api_health_summary(request: Request, db: Session = Depends(get_db)):
 
     rows = []
     overall = health_scanners.SEV_OK
+    # AdvantageLife retired the Profit Grid (pure 3/6/9 pass-up), so the grid /
+    # matrix tables don't exist here. Skip grid-dependent scanners rather than
+    # let them crash with ProgrammingError (a missing-table error would also
+    # abort the shared txn and cascade InternalError into every scanner after).
+    try:
+        from app import brand_config as _bc
+        _is_al = bool(getattr(_bc, "IS_ADVANTAGELIFE", False))
+    except Exception:
+        _is_al = False
     for s in health_scanners.SCANNER_REGISTRY:
+        if _is_al and s.get("requires_grid"):
+            rows.append({
+                "name": s["name"],
+                "label": s["label"],
+                "tier": s["tier"],
+                "category": s["category"],
+                "status": "not_applicable",
+                "duration_ms": 0,
+                "issue_count": 0,
+                "headline": "Not applicable — Profit Grid retired on AdvantageLife",
+                "ran_at": datetime.now(timezone.utc).isoformat(),
+            })
+            continue
         result = health_scanners.run_scanner(s["fn"], s["name"], db)
         rows.append({
             "name": s["name"],

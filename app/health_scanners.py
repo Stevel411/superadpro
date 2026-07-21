@@ -111,6 +111,15 @@ def run_scanner(scanner_fn: Callable, scan_name: str, db: Session) -> dict:
         return result
     except Exception as exc:
         logger.exception(f"Scanner {scan_name} crashed: {exc}")
+        # A failed query (e.g. a missing table) leaves the Postgres transaction
+        # in an ABORTED state. Without a rollback here, EVERY subsequent scanner
+        # sharing this session fails with "current transaction is aborted"
+        # (InternalError) — turning one real crash into a cascade of fake ones.
+        # Roll back so the session is usable again for the next scanner.
+        try:
+            db.rollback()
+        except Exception:
+            logger.exception("Failed to roll back session after scanner crash")
         return make_result(
             scan_name=scan_name,
             status=SEV_CRITICAL,
@@ -144,8 +153,14 @@ SCANNER_REGISTRY: list[dict] = []
 
 
 def register_scanner(name: str, label: str, tier: int, category: str,
-                     description: str = ""):
-    """Decorator to register a scanner function."""
+                     description: str = "", requires_grid: bool = False):
+    """Decorator to register a scanner function.
+
+    requires_grid=True marks a scanner that audits the legacy Profit Grid /
+    matrix system. AdvantageLife retired the grid (pure 3/6/9 pass-up), so on
+    the AL deploy those tables don't exist and the scanner would crash. The
+    runner skips grid scanners on AL and reports them as 'not applicable'.
+    """
     def decorator(fn: Callable):
         SCANNER_REGISTRY.append({
             "name": name,
@@ -153,6 +168,7 @@ def register_scanner(name: str, label: str, tier: int, category: str,
             "tier": tier,
             "category": category,
             "description": description,
+            "requires_grid": requires_grid,
             "fn": fn,
         })
         return fn

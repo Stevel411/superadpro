@@ -53,6 +53,7 @@ MATRIX_MAX_DOWNLINE = 3 + 9 + 27
         "missing or duplicated, and cached positions_filled counters that "
         "disagree with the live position count."
     ),
+    requires_grid=True,
 )
 def scan_matrix_integrity(db: Session) -> dict:
     issues = []
@@ -282,6 +283,7 @@ def scan_matrix_integrity(db: Session) -> dict:
         "(10%), (d) the amount equals pack_price × rate, (e) the matrix "
         "is owned by the earner."
     ),
+    requires_grid=True,
 )
 def scan_commission_routing(db: Session) -> dict:
     issues = []
@@ -542,6 +544,7 @@ def scan_commission_routing(db: Session) -> dict:
         "is correctly transitioning, and no matrix has been double-paid "
         "completion bonus across advance cycles."
     ),
+    requires_grid=True,
 )
 def scan_completion_bonus(db: Session) -> dict:
     issues = []
