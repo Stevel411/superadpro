@@ -80,6 +80,14 @@ def scan_membership_tier_consistency(db: Session) -> dict:
         if user.is_admin:
             continue
 
+        # AdvantageLife: comped / hand-granted lifetime members intentionally
+        # have paid access WITHOUT a Stripe activation record (granted via
+        # grant-lifetime during migration, not bought through checkout). On AL
+        # that's by design, not an anomaly — so exempt lifetime access_level.
+        # This clears the ~53 false positives (one per grandfathered member).
+        if (getattr(user, "access_level", "") or "").lower() == "lifetime":
+            continue
+
         subject = f"user {user.username} (id {user.id})"
         tier = (user.membership_tier or "free").lower().strip()
         is_paid_tier = tier in ("partner", "founding")
