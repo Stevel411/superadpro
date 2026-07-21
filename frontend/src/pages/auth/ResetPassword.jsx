@@ -47,8 +47,8 @@ export default function ResetPassword() {
 
       <div style={styles.card}>
         <div style={styles.logoRow}>
-          <div style={styles.logoMark}><span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span></div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
+          <div style={styles.logoMark}><span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>A</span></div>
+          <span style={styles.logoText}>Advantage<span style={{ color: '#c8102e' }}>Life</span></span>
         </div>
 
         {invalidToken ? (
@@ -129,7 +129,7 @@ const styles = {
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(14,165,233,.12) 0%, transparent 70%)', pointerEvents: 'none' },
   card: { position: 'relative', zIndex: 1, width: '100%', maxWidth: 420, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 20, padding: '40px 36px', backdropFilter: 'blur(20px)', textAlign: 'center' },
   logoRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, justifyContent: 'center' },
-  logoMark: { width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  logoMark: { width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #0a1f52, #c8102e)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   logoText: { fontSize: 20, fontWeight: 900, color: '#fff', fontFamily: "'Sora', sans-serif" },
   sentIcon: { fontSize: 48, marginBottom: 16 },
   heading: { fontSize: 24, fontWeight: 800, color: '#fff', margin: '0 0 8px' },
@@ -140,7 +140,7 @@ const styles = {
   label: { fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.05em' },
   input: { padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#fff', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none' },
   eyeBtn: { position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 },
-  btn: { display: 'block', padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'none', textAlign: 'center' },
+  btn: { display: 'block', padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0a1f52, #c8102e)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'none', textAlign: 'center' },
   btnDisabled: { padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.4)', color: 'rgba(255,255,255,.5)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
   backLink: { fontSize: 13, color: 'rgba(255,255,255,.4)', textDecoration: 'none', fontWeight: 600 },
 };

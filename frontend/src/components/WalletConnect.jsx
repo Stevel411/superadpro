@@ -76,7 +76,7 @@ function getBootstrap() {
       networks: [bsc],
       projectId: projectId,
       metadata: {
-        name: 'SuperAdPro',
+        name: 'AdvantageLife',
         description: 'Pay with your own wallet — USDT on BNB Chain',
         url: (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club'),
         icons: ['https://www.advantagelife.club/static/sap-icon.png'],
@@ -355,7 +355,7 @@ var btnSecondary = {
 var btnPrimary = {
   flex: 1,
   padding: 11,
-  background: '#0ea5e9',
+  background: '#c8102e',
   border: 'none',
   borderRadius: 8,
   fontSize: 14,

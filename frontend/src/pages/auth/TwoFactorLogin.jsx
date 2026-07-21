@@ -76,7 +76,7 @@ export default function TwoFactorLogin() {
         </div>
 
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
+          <span style={styles.logoText}>Advantage<span style={{ color: '#c8102e' }}>Life</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.twoFA')}</h1>
@@ -106,7 +106,7 @@ export default function TwoFactorLogin() {
         </form>
 
         <div style={styles.help}>
-          <p style={styles.helpText}>{t('auth.enter2faFull')} SuperAdPro.</p>
+          <p style={styles.helpText}>{t('auth.enter2faFull')} AdvantageLife.</p>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
@@ -130,7 +130,7 @@ const styles = {
   form: { display: 'flex', flexDirection: 'column', gap: 24 },
   codeRow: { display: 'flex', gap: 10, justifyContent: 'center' },
   codeInput: { width: 44, height: 52, textAlign: 'center', fontSize: 22, fontWeight: 800, color: '#fff', background: 'rgba(255,255,255,.06)', border: '2px solid rgba(255,255,255,.15)', borderRadius: 12, fontFamily: "'DM Sans', sans-serif", outline: 'none', transition: 'border-color .15s' },
-  btn: { padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
+  btn: { padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0a1f52, #c8102e)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
   btnDisabled: { padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.3)', color: 'rgba(255,255,255,.4)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
   help: { background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: '14px 16px', marginTop: 8 },
   helpText: { fontSize: 13, color: 'rgba(255,255,255,.4)', lineHeight: 1.6, margin: 0 },
