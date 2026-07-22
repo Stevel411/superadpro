@@ -70966,14 +70966,28 @@ def al_stripe_check(user: User = Depends(_al_user)):
                              "error": f"Stripe SDK unavailable: {str(e)[:200]}"}, status_code=500)
 
     # Which Stripe account is this key actually talking to?
+    # NOTE: Stripe SDK objects in this environment do NOT support .get() —
+    # calling it raises with the message "get". Use attribute access, or
+    # to_dict() first. Same trap as PaymentIntent.list() throwing KeyError:0.
+    def _attr(obj, name, default=None):
+        try:
+            v = getattr(obj, name)
+            return default if v is None else v
+        except Exception:
+            return default
+
     try:
         acct = stripe.Account.retrieve()
-        out["stripe_account_id"] = acct.get("id")
-        out["stripe_account_name"] = (acct.get("settings", {}) or {}).get("dashboard", {}).get("display_name")
-        out["charges_enabled"] = acct.get("charges_enabled")
-        out["payouts_enabled"] = acct.get("payouts_enabled")
+        out["stripe_account_id"] = _attr(acct, "id")
+        out["charges_enabled"] = _attr(acct, "charges_enabled")
+        out["payouts_enabled"] = _attr(acct, "payouts_enabled")
+        try:
+            out["stripe_account_name"] = _attr(_attr(acct, "settings"), "dashboard") and \
+                _attr(_attr(_attr(acct, "settings"), "dashboard"), "display_name")
+        except Exception:
+            out["stripe_account_name"] = None
     except Exception as e:
-        out["account_error"] = str(e)[:200]
+        out["account_error"] = f"{type(e).__name__}: {str(e)[:180]}"
 
     # Registered webhook endpoints — the thing config-readiness is blind to.
     NEEDED = "checkout.session.completed"
@@ -70981,12 +70995,12 @@ def al_stripe_check(user: User = Depends(_al_user)):
         eps = stripe.WebhookEndpoint.list(limit=100)
         rows, match = [], None
         for ep in eps.data:
-            url = ep.get("url") or ""
-            events = list(ep.get("enabled_events") or [])
+            url = _attr(ep, "url", "") or ""
+            events = list(_attr(ep, "enabled_events", []) or [])
             row = {
                 "url": url,
-                "status": ep.get("status"),
-                "livemode": ep.get("livemode"),
+                "status": _attr(ep, "status"),
+                "livemode": _attr(ep, "livemode"),
                 "handles_checkout_completed": (NEEDED in events) or ("*" in events),
                 "event_count": len(events),
             }
