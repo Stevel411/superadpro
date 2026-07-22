@@ -1967,7 +1967,7 @@ footer a{color:#b9c8ef}
 
 <div class="top">
 <div class="nav">
-  <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
+  <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></a>
   <a class="lnk" href="/plan">The plan</a>
   <a class="lnk" href="#tools">Tools</a>
   <a class="lnk" href="/plan">Income</a>
@@ -2096,7 +2096,7 @@ footer a{color:var(--dim)}
 </style></head><body>
 
 <div class="bar">
-  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage&nbsp;<span class="life">Life</span></a>
+  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></a>
   <span class="sp"></span>
   <a class="back" href="/">&larr; Back to site</a>
   <a class="nb" href="/join">Join — $100</a>
