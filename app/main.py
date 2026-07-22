@@ -70620,7 +70620,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image
 .mk{text-align:center;font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
 .mk i{font-style:normal;color:#ff5a70}
 .tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:30px}
-.card{background:#fff;color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
+.card{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__)}
 h1{font-weight:900;font-size:29px;letter-spacing:-.8px;line-height:1.12;margin-bottom:8px}
 h1 .r{color:var(--red)}
 .sub{font-size:14.5px;color:var(--dim);font-weight:500;line-height:1.6;margin-bottom:20px}
@@ -70809,7 +70809,11 @@ h1 .r{color:var(--red)}
 # The photo is a bright sunset and this is the checkout screen, so the white
 # card and the red CTA have to stay high-contrast. Tunable live with ?ov=NN
 # so the level can be chosen by eye instead of by redeploy.
-AL_JOIN_OVERLAY_DEFAULT = 38
+AL_JOIN_OVERLAY_DEFAULT = 15
+# Card fill opacity %. 100 = solid white. Lower frosts the card so the photo
+# reads through it. Paired with a backdrop blur — plain transparency over a
+# busy photo destroys body-copy legibility, blur keeps it readable.
+AL_JOIN_CARD_DEFAULT = 100
 
 
 def _al_join_overlay(pct) -> dict:
@@ -70842,15 +70846,41 @@ def _al_join_overlay(pct) -> dict:
     }
 
 
+def _al_join_card(pct) -> dict:
+    """Card fill + blur from one opacity percentage.
+
+    Below 100 the card frosts. Blur scales up as opacity comes down, because
+    the lower the fill the more the photo underneath competes with the body
+    copy — blur is what keeps a translucent card readable rather than merely
+    see-through. Clamped at 55 minimum: below that, dark navy body text on a
+    bright sunset fails contrast no matter how much blur is applied, and this
+    is the screen where someone commits $100.
+    """
+    try:
+        pct = int(pct)
+    except (TypeError, ValueError):
+        pct = AL_JOIN_CARD_DEFAULT
+    pct = max(55, min(100, pct))
+    alpha = pct / 100.0
+    blur = 0 if pct >= 100 else round((100 - pct) * 0.55 + 8)
+    edge = 0.0 if pct >= 100 else round(min(0.65, (100 - pct) / 100.0 + 0.25), 2)
+
+    def a(v):
+        return f"{v:.2f}".rstrip("0").rstrip(".") or "0"
+
+    return {"__CARD_A__": a(alpha), "__CARD_BLUR__": str(blur), "__CARD_EDGE__": a(edge)}
+
+
 @app.get("/join")
-def al_join_page(request: Request, ov: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def al_join_page(request: Request, ov: str = "", card: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """AdvantageLife $100 lifetime join page (approved mockup design intent:
     navy/red/Inter, white card). States: anonymous -> register/login;
     free member -> offer + Stripe/crypto; returning ?paid=1 -> poll until
     the webhook/IPN flips access_level; lifetime -> celebration.
 
-    ?ov=NN (0-90) previews the background overlay strength without a deploy.
-    Lower = more photo, higher = more darkening."""
+    ?ov=NN   (0-90)   background overlay strength. Lower = more photo.
+    ?card=NN (55-100) card fill opacity. 100 = solid, lower frosts the card.
+    Both preview live without a deploy."""
     # Format for display without the destructive rstrip that turned "100" into "1":
     _raw_price = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
     price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
@@ -70858,7 +70888,10 @@ def al_join_page(request: Request, ov: str = "", user: User = Depends(get_curren
             .replace("__PRICE__", price)
             .replace("__LOGGED__", "true" if user else "false")
             .replace("__LIFETIME__", "true" if (user and user.access_level == "lifetime") else "false"))
-    for token, value in _al_join_overlay(ov or AL_JOIN_OVERLAY_DEFAULT).items():
+    tokens = {}
+    tokens.update(_al_join_overlay(ov or AL_JOIN_OVERLAY_DEFAULT))
+    tokens.update(_al_join_card(card or AL_JOIN_CARD_DEFAULT))
+    for token, value in tokens.items():
         html = html.replace(token, value)
     return HTMLResponse(html)
 
