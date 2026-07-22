@@ -1967,7 +1967,7 @@ footer a{color:#b9c8ef}
 
 <div class="top">
 <div class="nav">
-  <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></a>
+  <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wm">Advantage<span class="life">Life</span></span></a>
   <a class="lnk" href="/plan">The plan</a>
   <a class="lnk" href="#tools">Tools</a>
   <a class="lnk" href="/plan">Income</a>
@@ -1981,7 +1981,7 @@ footer a{color:#b9c8ef}
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
   <a class="cta" href="/join">Get lifetime access — $100 →</a><a class="cta2" href="/plan">See the plan</a>
-  <div class="trust"><span class="ok">✓</span> One-time $100 · pay with USDT · your sponsor earns nothing on your join</div>
+  <div class="trust"><span class="ok">✓</span> One-time $100 · pay by card or USDT · your sponsor earns nothing on your join</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
@@ -2096,7 +2096,7 @@ footer a{color:var(--dim)}
 </style></head><body>
 
 <div class="bar">
-  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></a>
+  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wm">Advantage<span class="life">Life</span></span></a>
   <span class="sp"></span>
   <a class="back" href="/">&larr; Back to site</a>
   <a class="nb" href="/join">Join — $100</a>
