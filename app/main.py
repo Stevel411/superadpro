@@ -37837,45 +37837,53 @@ def google_verification():
 
 @app.get("/sitemap.xml")
 def sitemap_xml(request: Request, db: Session = Depends(get_db)):
-    """Dynamic XML sitemap for SEO — public pages and free tools"""
+    """Dynamic XML sitemap for SEO — public pages and free tools.
+
+    base_url was hardcoded to superadpro.com, so advantagelife.club was serving
+    Google a sitemap of a different domain's URLs — telling the crawler the
+    real content lives on a site being decommissioned. Now brand-derived, with
+    the page list picked per brand (AL has no /earn or /for-advertisers).
+    """
     from fastapi.responses import Response
-    base_url = "https://www.superadpro.com"
+    from . import brand_config
+    base_url = brand_config.BASE_URL
+
+    if brand_config.IS_ADVANTAGELIFE:
+        static_paths = ["/", "/join", "/compensation", "/explore", "/terms", "/refund-policy"]
+        tool_paths = []
+    else:
+        static_paths = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]
+        tool_paths = ["/free/meme-generator", "/free/qr-code-generator", "/free/banner-creator"]
+
     urls = []
-    # Static pages
-    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]:
+    for path in static_paths:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
     # Free tools — high priority for SEO traffic
-    for path in ["/free/meme-generator", "/free/qr-code-generator", "/free/banner-creator"]:
+    for path in tool_paths:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>')
 
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
     return Response(content=xml, media_type="application/xml")
 @app.get("/robots.txt")
 def robots_txt():
-    """Robots.txt for search engine crawlers"""
+    """Robots.txt for search engine crawlers. Sitemap directive was hardcoded
+    to superadpro.com — on AL that pointed crawlers at the wrong domain."""
     from fastapi.responses import Response
-    content = """User-agent: *
-Allow: /
-Allow: /how-it-works
-Allow: /earn
-Allow: /for-advertisers
-Allow: /faq
-Allow: /legal
-Allow: /wallet-guide
-Allow: /free/
-Allow: /free/meme-generator
-Allow: /free/qr-code-generator
-Allow: /free/banner-creator
-Disallow: /dashboard
-Disallow: /admin
-Disallow: /api/
-Disallow: /wallet
-Disallow: /settings
-Disallow: /app/
+    from . import brand_config
 
-Sitemap: https://www.superadpro.com/sitemap.xml
-"""
-    return Response(content=content, media_type="text/plain")
+    if brand_config.IS_ADVANTAGELIFE:
+        allow = ["/", "/join", "/compensation", "/explore", "/terms", "/refund-policy"]
+    else:
+        allow = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq",
+                 "/legal", "/wallet-guide", "/free/", "/free/meme-generator",
+                 "/free/qr-code-generator", "/free/banner-creator"]
+
+    lines = ["User-agent: *"]
+    lines += [f"Allow: {p}" for p in allow]
+    lines += [f"Disallow: {p}" for p in
+              ["/dashboard", "/admin", "/api/", "/wallet", "/settings", "/app/"]]
+    lines += ["", f"Sitemap: {brand_config.BASE_URL}/sitemap.xml", ""]
+    return Response(content="\n".join(lines), media_type="text/plain")
 
 @app.get("/vip")
 def vip_page(request: Request):

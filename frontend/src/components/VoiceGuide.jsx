@@ -157,7 +157,7 @@ export default function VoiceGuide() {
       <div style={{ padding: '16px 20px', minHeight: 100, maxHeight: 280, overflowY: 'auto' }}>
         {!transcript && !answer && !thinking && !listening && !error && (
           <div style={{ textAlign: 'center', color: 'var(--sap-text-muted)', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
-            Ask me anything about SuperAdPro — features, compensation plan, how to get started.
+            Ask me anything about AdvantageLife — features, compensation plan, how to get started.
           </div>
         )}
 

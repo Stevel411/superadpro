@@ -226,7 +226,7 @@ export default function StudioShell() {
             {I.chev}{I.grid}Dashboard
           </button>
           <div className="vdiv" />
-          <div className="brand" onClick={goDashboard} title="SuperAdPro Studio">
+          <div className="brand" onClick={goDashboard} title="AdvantageLife Studio">
             <div className="mark">{I.play}</div>
             <div className="wm">SuperAd<b>Pro</b><span>Studio</span></div>
           </div>

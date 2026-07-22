@@ -636,7 +636,7 @@ export default function Dashboard() {
             </div>
             <div className="dc-fb-txt">
               <div className="t">{t('dashboard.fbGroupTitle', { defaultValue: 'Join our Facebook group' })}</div>
-              <div className="s">{t('dashboard.fbGroupSub', { defaultValue: 'Connect with the SuperAdPro community — tips, wins and support.' })}</div>
+              <div className="s">{t('dashboard.fbGroupSub', { defaultValue: 'Connect with the AdvantageLife community — tips, wins and support.' })}</div>
             </div>
             <span className="dc-fb-go">{t('dashboard.fbGroupGo', { defaultValue: 'Open' })} →</span>
           </a>
@@ -952,7 +952,7 @@ export default function Dashboard() {
                 lineHeight: 1.15,
                 letterSpacing: '-0.01em',
               }}>
-                Welcome to SuperAdPro{user && user.first_name ? ', ' + user.first_name : ''} 🎁
+                Welcome to AdvantageLife{user && user.first_name ? ', ' + user.first_name : ''} 🎁
               </div>
 
               {/* Line 2: confirmation of gift + breathing room */}

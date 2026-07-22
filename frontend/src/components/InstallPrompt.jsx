@@ -133,7 +133,7 @@ export default function InstallPrompt() {
   return (
     <>
       <style>{'@keyframes sapInstallSlideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}'}</style>
-      <div style={bannerStyle} role="dialog" aria-label={t('pwa.installPromptAria', { defaultValue: 'Install SuperAdPro' })}>
+      <div style={bannerStyle} role="dialog" aria-label={t('pwa.installPromptAria', { defaultValue: 'Install AdvantageLife' })}>
         <div style={iconBoxStyle}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
@@ -142,7 +142,7 @@ export default function InstallPrompt() {
         </div>
         <div style={textStyle}>
           <div style={titleStyle}>
-            {t('pwa.installTitle', { defaultValue: 'Add SuperAdPro to your home screen' })}
+            {t('pwa.installTitle', { defaultValue: 'Add AdvantageLife to your home screen' })}
           </div>
           <div style={subStyle}>
             {isIOS

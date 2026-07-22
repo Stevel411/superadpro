@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 
 var STEPS = [
-  { id: 'welcome', title: 'Welcome to SuperAdPro', icon: '👋' },
+  { id: 'welcome', title: 'Welcome to AdvantageLife', icon: '👋' },
   { id: 'profile', title: 'Set Up Your Profile', icon: '📸' },
   { id: 'referral', title: 'Your Referral Link', icon: '🔗' },
   { id: 'tour', title: 'Platform Tour', icon: '🗺️' },

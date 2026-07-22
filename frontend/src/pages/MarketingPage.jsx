@@ -36,12 +36,12 @@ export default function MarketingPage() {
   return (
     <CategoryShell>
       <style>{CSS}</style>
-      <div className="phead"><div className="eb">Marketing</div><h1>Promote SuperAdPro</h1><p>Share your link and grow your team with ready-made materials.</p></div>
+      <div className="phead"><div className="eb">Marketing</div><h1>Promote AdvantageLife</h1><p>Share your link and grow your team with ready-made materials.</p></div>
 
       <div className="hero">
         <div className="hl">
           <div className="feat">Featured &middot; Your affiliate link</div>
-          <h2>Share SuperAdPro, grow your team</h2>
+          <h2>Share AdvantageLife, grow your team</h2>
           <p>Everyone who joins through your link becomes part of your network. Share it anywhere — it's always live.</p>
           <div className="linkbox">
             <span className="lk">{refLink}</span>

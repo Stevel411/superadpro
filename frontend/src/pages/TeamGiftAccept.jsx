@@ -99,7 +99,7 @@ export default function TeamGiftAccept() {
         {!loading && !error && accepted && (
           <div style={{ background: 'linear-gradient(135deg, var(--sap-cobalt-deep), #1e3a8a)', color: '#fff', borderRadius: 14, padding: 32, textAlign: 'center' }}>
             <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Welcome to SuperAdPro</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 24, fontWeight: 800, marginBottom: 8 }}>Welcome to AdvantageLife</div>
             <div style={{ fontSize: 14, opacity: 0.85 }}>Your membership is active. Redirecting you to your dashboard…</div>
           </div>
         )}

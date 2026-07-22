@@ -20,7 +20,7 @@ const PROVIDERS = [
       'Sign in at godaddy.com and go to "My Products".',
       'Find your domain and click the three dots → "Manage DNS".',
       'Scroll to "DNS Records" and click "Add New Record".',
-      'Choose the Type (CNAME or TXT) shown on your SuperAdPro setup page.',
+      'Choose the Type (CNAME or TXT) shown on your AdvantageLife setup page.',
       'Paste the "Name" value into the Name/Host box, and the "Value" into the Value box.',
       'Leave TTL as default (1 hour). Click Save. Repeat for each record.',
     ],
@@ -40,7 +40,7 @@ const PROVIDERS = [
     steps: [
       'Sign in at cloudflare.com and select your domain.',
       'Click the "DNS" tab in the left menu, then "Add record".',
-      'Choose the Type, paste Name and Value from your SuperAdPro setup page.',
+      'Choose the Type, paste Name and Value from your AdvantageLife setup page.',
       'IMPORTANT: set Proxy status to "DNS only" (grey cloud, not orange) for these records.',
       'Click Save. Repeat for each record.',
     ],
@@ -69,7 +69,7 @@ const PROVIDERS = [
       'Log in to wherever you bought your domain (your "domain registrar").',
       'Look for "DNS", "DNS settings", "Manage DNS", or "Advanced DNS".',
       'Find the option to "Add record".',
-      'For each record on your SuperAdPro setup page: pick the Type (CNAME or TXT), paste the Name, paste the Value, and save.',
+      'For each record on your AdvantageLife setup page: pick the Type (CNAME or TXT), paste the Name, paste the Value, and save.',
       'If you genuinely can\u2019t find DNS settings, search "[your provider] add CNAME record" \u2014 every provider has a help article.',
     ],
   },
@@ -142,11 +142,11 @@ export default function HelpSendingDomain() {
             For each record we show you, you&rsquo;ll do the same three things at your domain company:
             <ol style={{ margin: '10px 0 0', paddingLeft: 20 }}>
               <li>Pick the <strong>Type</strong> (it says CNAME or TXT on each one).</li>
-              <li>Copy the <strong>Name</strong> from SuperAdPro, paste it into the Name/Host box.</li>
+              <li>Copy the <strong>Name</strong> from AdvantageLife, paste it into the Name/Host box.</li>
               <li>Copy the <strong>Value</strong>, paste it into the Value box, and save.</li>
             </ol>
             <div style={{ marginTop: 12, padding: '10px 13px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 9, fontSize: 13, color: '#0c4a6e' }}>
-              That&rsquo;s it. Repeat for each record, then go back to SuperAdPro and tap
+              That&rsquo;s it. Repeat for each record, then go back to AdvantageLife and tap
               <strong> &ldquo;I&rsquo;ve added them &mdash; check now&rdquo;</strong>. DNS can take up to an hour,
               so don&rsquo;t worry if it&rsquo;s not instant &mdash; we keep checking for you.
             </div>
@@ -191,7 +191,7 @@ export default function HelpSendingDomain() {
               Then you&rsquo;ll recognise it &mdash; it&rsquo;s the same DKIM/SPF/DMARC setup, just pointing at our mail
               service instead of theirs.</div>
             <div style={{ marginTop: 14, padding: '12px 14px', background: '#f8fafc', borderRadius: 8, fontSize: 12.5, color: '#64748b' }}>
-              Still stuck? Take a screenshot of your DNS records and the SuperAdPro setup page, and contact support.
+              Still stuck? Take a screenshot of your DNS records and the AdvantageLife setup page, and contact support.
             </div>
           </div>
         </details>

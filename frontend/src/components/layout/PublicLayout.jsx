@@ -113,7 +113,7 @@ export default function PublicLayout({ children }) {
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', margin: 0 }}>
-              © 2026 SuperAdPro. All rights reserved.
+              © 2026 AdvantageLife. All rights reserved.
             </p>
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', margin: 0, maxWidth: 500, textAlign: 'right' }}>
               Income examples are illustrative. Results depend on individual effort and market conditions.

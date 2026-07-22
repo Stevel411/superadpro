@@ -31,12 +31,12 @@ export default function MobileTabBar() {
   }, []);
 
   var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user?.username || '');
-  var shareText = 'Join me on SuperAdPro and start earning! Watch ads, refer others, and build passive income.\n\n' + refLink;
+  var shareText = 'Join me on AdvantageLife and start earning! Watch ads, refer others, and build passive income.\n\n' + refLink;
 
   function handleShare() {
     if (navigator.share) {
       navigator.share({
-        title: 'Join SuperAdPro',
+        title: 'Join AdvantageLife',
         text: 'Watch ads, refer others, and build passive income.',
         url: refLink,
       }).catch(function() {});

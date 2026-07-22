@@ -151,7 +151,7 @@ export default function CustomDomain() {
               Use your own domain
             </h1>
             <p style={{ margin: '6px 0 0', fontSize: 14, color: '#475569', lineHeight: 1.55 }}>
-              Point a domain you own (like <code style={codeInline}>pages.yourbrand.com</code>) at SuperAdPro
+              Point a domain you own (like <code style={codeInline}>pages.yourbrand.com</code>) at AdvantageLife
               and serve all your published pages from there. One DNS setup, unlimited pages.
             </p>
           </div>
@@ -358,7 +358,7 @@ export default function CustomDomain() {
             <div style={helpBlock}>
               <div style={helpQ}>"CNAME points to X but should point to Y"</div>
               <div>The CNAME record is set but pointing to the wrong target. In your DNS provider, edit your CNAME and make sure the target is exactly:</div>
-              <code style={{ ...codeInline, display: 'inline-block', marginTop: 6, padding: '4px 10px' }}>{cnameTarget || 'superadpro-production.up.railway.app'}</code>
+              <code style={{ ...codeInline, display: 'inline-block', marginTop: 6, padding: '4px 10px' }}>{cnameTarget || 'web-production-a9b41.up.railway.app'}</code>
               <div style={{ marginTop: 6 }}>No <code style={codeInline}>https://</code>, no trailing slash, no extra spaces. Save, wait a minute, click <strong>Check now</strong>.</div>
             </div>
 

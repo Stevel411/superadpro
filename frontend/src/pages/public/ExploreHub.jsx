@@ -164,7 +164,7 @@ export default function ExploreHub() {
           </div>
 
           <div className="es-aff reveal">
-            <p><b>Already love SuperAdPro?</b> Refer others and earn through our optional affiliate programme.</p>
+            <p><b>Already love AdvantageLife?</b> Refer others and earn through our optional affiliate programme.</p>
             <Link to="/register">Learn about referring →</Link>
           </div>
         </section>
