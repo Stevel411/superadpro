@@ -70617,9 +70617,9 @@ _AL_JOIN_PAGE = r"""<!DOCTYPE html>
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4}
 body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image:linear-gradient(180deg,rgba(8,18,54,__OV_T__) 0%,rgba(8,18,54,__OV_M__) 42%,rgba(9,25,72,__OV_B__) 100%),url('/static/images/al-join-bg.webp');background-size:cover;background-position:center;background-attachment:fixed;background-color:var(--navy)}@media(max-width:820px){body{background-image:linear-gradient(180deg,rgba(8,18,54,__OVM_T__) 0%,rgba(8,18,54,__OVM_M__) 42%,rgba(9,25,72,__OVM_B__) 100%),url('/static/images/al-join-bg-sm.webp');background-attachment:scroll}}
 .wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
-.mk{text-align:center;font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
-.mk i{font-style:normal;color:#ff5a70}
-.tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:30px}
+.mk{text-align:center;font-weight:900;font-size:clamp(32px,7vw,44px);letter-spacing:-1.4px;line-height:1;margin-bottom:10px;text-shadow:0 2px 18px rgba(4,12,40,.55)}
+.mk i{font-style:normal;color:#ff5f74;text-shadow:0 2px 20px rgba(120,10,30,.45)}
+.tag{text-align:center;font-size:clamp(12.5px,2.6vw,15px);font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.92);text-transform:uppercase;margin-bottom:34px;text-shadow:0 1px 12px rgba(4,12,40,.6)}
 .card{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__)}
 h1{font-weight:900;font-size:clamp(34px,7.2vw,46px);letter-spacing:-1.6px;line-height:1.04;margin-bottom:12px;text-wrap:balance}
 h1 .r{color:var(--red)}
