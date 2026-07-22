@@ -70621,9 +70621,9 @@ body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image
 .mk i{font-style:normal;color:#ff5a70}
 .tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:30px}
 .card{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__)}
-h1{font-weight:900;font-size:29px;letter-spacing:-.8px;line-height:1.12;margin-bottom:8px}
+h1{font-weight:900;font-size:clamp(34px,7.2vw,46px);letter-spacing:-1.6px;line-height:1.04;margin-bottom:12px;text-wrap:balance}
 h1 .r{color:var(--red)}
-.sub{font-size:14.5px;color:var(--dim);font-weight:500;line-height:1.6;margin-bottom:20px}
+.sub{font-size:15.5px;color:var(--dim);font-weight:500;line-height:1.62;margin-bottom:22px}
 .price{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
 .price b{font-weight:900;font-size:44px;letter-spacing:-1.5px}
 .price span{font-size:13px;font-weight:700;color:var(--dim)}
@@ -70813,7 +70813,7 @@ AL_JOIN_OVERLAY_DEFAULT = 15
 # Card fill opacity %. 100 = solid white. Lower frosts the card so the photo
 # reads through it. Paired with a backdrop blur — plain transparency over a
 # busy photo destroys body-copy legibility, blur keeps it readable.
-AL_JOIN_CARD_DEFAULT = 100
+AL_JOIN_CARD_DEFAULT = 65
 
 
 def _al_join_overlay(pct) -> dict:
