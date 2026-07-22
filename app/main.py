@@ -70615,7 +70615,7 @@ _AL_JOIN_PAGE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4}
-body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image:linear-gradient(180deg,rgba(8,18,54,.78) 0%,rgba(8,18,54,.62) 42%,rgba(9,25,72,.80) 100%),url('/static/images/al-join-bg.webp');background-size:cover;background-position:center;background-attachment:fixed;background-color:var(--navy)}@media(max-width:820px){body{background-image:linear-gradient(180deg,rgba(8,18,54,.80) 0%,rgba(8,18,54,.66) 42%,rgba(9,25,72,.84) 100%),url('/static/images/al-join-bg-sm.webp');background-attachment:scroll}}
+body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image:linear-gradient(180deg,rgba(8,18,54,__OV_T__) 0%,rgba(8,18,54,__OV_M__) 42%,rgba(9,25,72,__OV_B__) 100%),url('/static/images/al-join-bg.webp');background-size:cover;background-position:center;background-attachment:fixed;background-color:var(--navy)}@media(max-width:820px){body{background-image:linear-gradient(180deg,rgba(8,18,54,__OVM_T__) 0%,rgba(8,18,54,__OVM_M__) 42%,rgba(9,25,72,__OVM_B__) 100%),url('/static/images/al-join-bg-sm.webp');background-attachment:scroll}}
 .wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
 .mk{text-align:center;font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
 .mk i{font-style:normal;color:#ff5a70}
@@ -70805,12 +70805,52 @@ h1 .r{color:var(--red)}
 </body></html>"""
 
 
+# Default darkening over the join-page photo, as mid-band percentages.
+# The photo is a bright sunset and this is the checkout screen, so the white
+# card and the red CTA have to stay high-contrast. Tunable live with ?ov=NN
+# so the level can be chosen by eye instead of by redeploy.
+AL_JOIN_OVERLAY_DEFAULT = 38
+
+
+def _al_join_overlay(pct) -> dict:
+    """Build the six gradient alpha stops from one mid-band percentage.
+
+    Top and bottom sit heavier than the middle: the middle is where the white
+    card sits (which is opaque anyway), while the top carries white wordmark
+    text and the bottom carries the footer links — those are the parts that
+    actually need contrast against the photo.
+    """
+    try:
+        pct = int(pct)
+    except (TypeError, ValueError):
+        pct = AL_JOIN_OVERLAY_DEFAULT
+    pct = max(0, min(90, pct))
+    mid = pct / 100.0
+    top = min(0.95, mid + 0.16)
+    bot = min(0.95, mid + 0.20)
+
+    def a(v):
+        return f"{v:.2f}".rstrip("0").rstrip(".") or "0"
+
+    return {
+        "__OV_T__": a(top),  "__OV_M__": a(mid),  "__OV_B__": a(bot),
+        # Mobile runs ~6 points heavier: smaller viewport, more of the bright
+        # water sits directly behind text, and phones get used in daylight.
+        "__OVM_T__": a(min(0.95, top + 0.06)),
+        "__OVM_M__": a(min(0.95, mid + 0.06)),
+        "__OVM_B__": a(min(0.95, bot + 0.06)),
+    }
+
+
 @app.get("/join")
-def al_join_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def al_join_page(request: Request, ov: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """AdvantageLife $100 lifetime join page (approved mockup design intent:
     navy/red/Inter, white card). States: anonymous -> register/login;
     free member -> offer + Stripe/crypto; returning ?paid=1 -> poll until
-    the webhook/IPN flips access_level; lifetime -> celebration."""
+    the webhook/IPN flips access_level; lifetime -> celebration.
+
+    ?ov=NN (0-90) previews the background overlay strength without a deploy.
+    Lower = more photo, higher = more darkening."""
     # Format for display without the destructive rstrip that turned "100" into "1":
     _raw_price = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
     price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
@@ -70818,6 +70858,8 @@ def al_join_page(user: User = Depends(get_current_user), db: Session = Depends(g
             .replace("__PRICE__", price)
             .replace("__LOGGED__", "true" if user else "false")
             .replace("__LIFETIME__", "true" if (user and user.access_level == "lifetime") else "false"))
+    for token, value in _al_join_overlay(ov or AL_JOIN_OVERLAY_DEFAULT).items():
+        html = html.replace(token, value)
     return HTMLResponse(html)
 
 
