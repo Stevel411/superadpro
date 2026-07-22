@@ -34,9 +34,14 @@ SITE_URL   = _env("SITE_URL", BASE_URL).rstrip("/")
 IS_ADVANTAGELIFE = ("advantagelife" in BRAND_NAME.lower()) or ("advantagelife" in BASE_URL.lower())
 
 # ── Email ─────────────────────────────────────────────────────────────
-FROM_EMAIL    = _env("FROM_EMAIL", "noreply@superadpro.com")
+# Defaults are brand-aware: an unset env var on the AdvantageLife deploy must
+# not fall back to a SuperAdPro address. This bit us on /terms and
+# /privacy-policy, which rendered support@superadpro.com as the contact address
+# on AL's own legal documents because SUPPORT_EMAIL was never set in Railway.
+_MAIL_DOMAIN  = "advantagelife.club" if IS_ADVANTAGELIFE else "superadpro.com"
+FROM_EMAIL    = _env("FROM_EMAIL", f"noreply@{_MAIL_DOMAIN}")
 SENDER_NAME   = _env("BRAND_SENDER_NAME", _env("BREVO_SENDER_NAME", BRAND_NAME))
-SUPPORT_EMAIL = _env("SUPPORT_EMAIL", "support@superadpro.com")
+SUPPORT_EMAIL = _env("SUPPORT_EMAIL", f"support@{_MAIL_DOMAIN}")
 
 # ── Affiliate / public CTAs ───────────────────────────────────────────
 MASTER_REF = _env("MASTER_REF", "SuperAdPro")
