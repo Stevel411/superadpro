@@ -70656,7 +70656,7 @@ h1 .r{color:var(--red)}
 
     <div class="state" id="stAnon">
       <h1>One payment.<br><span class="r">Every tool. Forever.</span></h1>
-      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, paid in USDT.</div>
+      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, by card or USDT.</div>
       <a class="btn red" href="/register">Create your account →</a>
       <a class="btn ghost" href="/login?next=/join">I already have an account</a>
     </div>
