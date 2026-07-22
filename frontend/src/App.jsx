@@ -92,7 +92,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
-const CompensationPublic = React.lazy(() => import('./pages/public/CompensationPublic'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
@@ -412,7 +411,7 @@ function AppRoutes() {
       <Route path="/explore/stories" element={<Navigate to="/explore" replace />} />
       <Route path="/explore/showcase" element={<Navigate to="/explore" replace />} />
       <Route path="/explore/free-tools" element={<Navigate to="/explore" replace />} />
-      <Route path="/explore/watch-to-earn" element={<Navigate to="/compensation" replace />} />
+      <Route path="/explore/watch-to-earn" element={<HardRedirect to="/plan" />} />
 
       {/* Old public pages — replaced by /explore hub. Redirect preserves any
           search-engine rank + honours any existing bookmarks/shared links. */}
@@ -420,10 +419,10 @@ function AppRoutes() {
       <Route path="/what-you-get" element={<Navigate to="/explore" replace />} />
       <Route path="/earn" element={<Navigate to="/explore" replace />} />
 
-      <Route path="/for-advertisers" element={<Navigate to="/compensation" replace />} />
+      <Route path="/for-advertisers" element={<HardRedirect to="/plan" />} />
       <Route path="/membership" element={<Navigate to="/explore" replace />} />
-      <Route path="/explore/compensation" element={<Navigate to="/compensation" replace />} />
-      <Route path="/compensation" element={<Lazy><CompensationPublic /></Lazy>} />
+      <Route path="/explore/compensation" element={<HardRedirect to="/plan" />} />
+      <Route path="/compensation" element={<HardRedirect to="/plan" />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />

@@ -3903,7 +3903,17 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
 
 @app.get("/compensation")
 def compensation_public(request: Request):
-    """Serve React SPA for the public dynamic compensation plan page."""
+    """Public compensation plan.
+
+    On AdvantageLife this permanently redirects to /plan, the live
+    server-rendered AL plan page (3/6/9 pass-up, 100% member-to-member).
+    /compensation is a SuperAdPro route that renders CompensationPublic —
+    the Campaign Grid revenue-share page. The grid was retired on AL but this
+    route was never unwired, so the old plan stayed reachable alongside the
+    real one. 301 so search engines drop it and consolidate onto /plan."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/plan", status_code=301)
     if _react_index.exists():
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
@@ -37866,7 +37876,7 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     base_url = brand_config.BASE_URL
 
     if brand_config.IS_ADVANTAGELIFE:
-        static_paths = ["/", "/join", "/compensation", "/explore", "/terms", "/refund-policy"]
+        static_paths = ["/", "/join", "/plan", "/explore", "/terms", "/refund-policy", "/privacy-policy"]
         tool_paths = []
     else:
         static_paths = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]
@@ -37889,7 +37899,7 @@ def robots_txt():
     from . import brand_config
 
     if brand_config.IS_ADVANTAGELIFE:
-        allow = ["/", "/join", "/compensation", "/explore", "/terms", "/refund-policy"]
+        allow = ["/", "/join", "/plan", "/explore", "/terms", "/refund-policy", "/privacy-policy"]
     else:
         allow = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq",
                  "/legal", "/wallet-guide", "/free/", "/free/meme-generator",
