@@ -3970,10 +3970,18 @@ def membership_stream_page(request: Request):
     (the live membership/tools pitch)."""
     return RedirectResponse(url="/explore", status_code=302)
 
+def _plan_url() -> str:
+    """Canonical compensation-plan URL for this deploy. AL's live plan is the
+    server-rendered /plan; SuperAdPro's is /compensation."""
+    from . import brand_config
+    return "/plan" if brand_config.IS_ADVANTAGELIFE else "/compensation"
+
+
 @app.get("/explore/compensation")
 def compensation_hub_page(request: Request):
-    """Retired 23 Jun 2026 — replaced by the new dynamic /compensation page."""
-    return RedirectResponse(url="/compensation", status_code=302)
+    """Retired 23 Jun 2026. Redirects to this deploy's canonical plan page —
+    straight there, not via /compensation, to avoid a two-hop chain."""
+    return RedirectResponse(url=_plan_url(), status_code=301)
 
 @app.get("/nexus")
 def nexus_stream_page(request: Request):
@@ -6847,12 +6855,12 @@ def explore_subpages(request: Request):
 
 @app.get("/explore/watch-to-earn")
 def explore_watch_to_earn(request: Request):
-    """Retired 23 Jun 2026 — advertising story now lives on /compensation."""
-    return RedirectResponse(url="/compensation", status_code=302)
+    """Retired 23 Jun 2026. Redirects to this deploy's canonical plan page."""
+    return RedirectResponse(url=_plan_url(), status_code=301)
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
-    """Retired 23 Jun 2026 — advertising story now lives on /compensation."""
-    return RedirectResponse(url="/compensation", status_code=302)
+    """Retired 23 Jun 2026. Redirects to this deploy's canonical plan page."""
+    return RedirectResponse(url=_plan_url(), status_code=301)
 
 # ── Referral video sales page ─────────────────────────────────
 # Shipped 26 May 2026. Personalised /ref/{username}/video page that
