@@ -56425,8 +56425,14 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
             "time": r.created_at.isoformat()
         })
 
-    # Grid progress
-    grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_active == True).all()
+    # Grid progress. NOTE: Grid has no is_active column — it has is_complete
+    # and retired_at. Querying Grid.is_active raised AttributeError on every
+    # call and 500'd this route for every member.
+    grids = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False,
+        Grid.retired_at == None,
+    ).all()
     for g in grids:
         filled = g.positions_filled or 0
         total = 64
@@ -56453,11 +56459,36 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/cron/weekly-digest")
-def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
+def cron_weekly_digest(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """Send weekly earnings digest email to all active members. Run Mondays via cron."""
-    cron_secret = os.getenv("CRON_SECRET", "")
-    if not cron_secret or secret != cron_secret:
+    if not _cron_secret_ok(request):
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
+
+    from . import brand_config
+    active_users = db.query(User).filter(User.is_active == True).all()
+
+    # Same gate as nurture: this digest is SuperAdPro content. It renders a
+    # Profit Grid progress bar (retired on AL), links to superadpro.com, and
+    # its action tips promise "$10 every month" per Partner referral — which is
+    # SuperAdPro's subscription commission, not how AdvantageLife pays. AL pays
+    # 100% P2P on campaign packs with 3/6/9 pass-up. Sending this to AL members
+    # would describe a compensation plan they are not on.
+    # Set WEEKLY_DIGEST_ENABLED=true in Railway once AL copy is approved.
+    if brand_config.IS_ADVANTAGELIFE and os.getenv(
+        "WEEKLY_DIGEST_ENABLED", ""
+    ).lower() not in ("true", "1", "yes"):
+        return JSONResponse({
+            "status": "ok",
+            "skipped": True,
+            "sent": 0,
+            "errors": 0,
+            "total_active": len(active_users),
+            "reason": "Weekly digest disabled on this deploy — the email is "
+                      "SuperAdPro content (Profit Grid progress bar, "
+                      "superadpro.com links, '$10/month per referral' tips) "
+                      "and does not describe the AdvantageLife plan. Set "
+                      "WEEKLY_DIGEST_ENABLED=true once AL copy is approved.",
+        })
 
     from .email_utils import send_email
     from datetime import timedelta
@@ -56465,8 +56496,9 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
     week_ago = now - timedelta(days=7)
     sent_count = 0
     errors = 0
-
-    active_users = db.query(User).filter(User.is_active == True).all()
+    error_detail = []
+    _brand = brand_config.BRAND_NAME
+    _site = brand_config.BASE_URL
 
     for u in active_users:
         try:
@@ -56491,7 +56523,11 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             new_refs = db.query(User).filter(User.sponsor_id == u.id, User.created_at >= week_ago).count()
             total_refs = u.personal_referrals or 0
 
-            grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
+            grids = db.query(Grid).filter(
+                Grid.owner_id == u.id,
+                Grid.is_complete == False,
+                Grid.retired_at == None,
+            ).all()
             grid_filled = sum(g.positions_filled or 0 for g in grids)
             grid_total = sum(g.total_seats for g in grids) if grids else 0
 
@@ -56504,28 +56540,28 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             if total_refs == 0:
                 tip_icon = "&#128161;"
                 tip_text = f"You haven't referred anyone yet. Share your referral link on social media today — just one Partner referral earns you $10 every month."
-                tip_cta = f'<a href="https://www.superadpro.com/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Share your referral link &rarr;</a>'
+                tip_cta = f'<a href="{_site}/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Share your referral link &rarr;</a>'
             elif total_refs < 5:
                 remaining = 5 - total_refs
                 tip_icon = "&#128200;"
                 tip_text = f"You have {total_refs} referral{'s' if total_refs != 1 else ''}. {remaining} more and you'll be earning ${total_refs * 10 + remaining * 10}/month in commissions alone."
-                tip_cta = f'<a href="https://www.superadpro.com/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Generate a social post &rarr;</a>'
+                tip_cta = f'<a href="{_site}/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Generate a social post &rarr;</a>'
             elif weekly_earned > 0:
                 tip_icon = "&#128293;"
                 tip_text = f"Great week! You earned ${weekly_earned:.2f}. Keep the momentum going — your network is growing and every new member compounds your earnings."
-                tip_cta = f'<a href="https://www.superadpro.com/creative-studio" style="color:#0ea5e9;font-weight:700;text-decoration:none">Create content in Creative Studio &rarr;</a>'
+                tip_cta = f'<a href="{_site}/creative-studio" style="color:#0ea5e9;font-weight:700;text-decoration:none">Create content in Creative Studio &rarr;</a>'
             else:
                 tip_icon = "&#9997;&#65039;"
                 tip_text = f"No earnings this week, but you have {total_refs} referral{'s' if total_refs != 1 else ''} in your network. Reach out to them and help them get active — when they earn, you earn."
-                tip_cta = f'<a href="https://www.superadpro.com/network" style="color:#0ea5e9;font-weight:700;text-decoration:none">View your network &rarr;</a>'
+                tip_cta = f'<a href="{_site}/network" style="color:#0ea5e9;font-weight:700;text-decoration:none">View your network &rarr;</a>'
 
             # ── Subject line ──
             if weekly_earned > 0:
-                subject = f"Your SuperAdPro Week: ${weekly_earned:.2f} earned"
+                subject = f"Your {_brand} Week: ${weekly_earned:.2f} earned"
             elif new_refs > 0:
                 subject = f"{new_refs} new referral{'s' if new_refs != 1 else ''} joined your team this week"
             else:
-                subject = f"Your SuperAdPro Weekly Update, {name}"
+                subject = f"Your {_brand} Weekly Update, {name}"
 
             # ── Grid progress section ──
             grid_section = ""
@@ -56545,7 +56581,7 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 <div style="max-width:560px;margin:0 auto;padding:24px">
   <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:28px;text-align:center;margin-bottom:20px">
     <div style="margin-bottom:6px">
-      <span style="font-size:22px;font-weight:900;color:#fff">Super</span><span style="font-size:22px;font-weight:900;color:#0ea5e9">Ad</span><span style="font-size:22px;font-weight:900;color:#a78bfa">Pro</span>
+      <span style="font-size:22px;font-weight:900;color:#fff">{_brand}</span>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1.5px;text-transform:uppercase">Weekly Digest</div>
   </div>
@@ -56583,15 +56619,15 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
       <div style="font-size:13px">{tip_cta}</div>
     </div>
 
-    <a href="https://www.superadpro.com/dashboard" style="display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-weight:800;font-size:14px">
+    <a href="{_site}/dashboard" style="display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-weight:800;font-size:14px">
       View your dashboard &rarr;
     </a>
   </div>
 
   <div style="text-align:center;font-size:11px;color:#94a3b8;padding:12px 0;line-height:1.8">
-    SuperAdPro &mdash; AI Marketing &amp; Advertising Platform<br>
-    <a href="https://www.superadpro.com" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a><br>
-    <a href="https://www.superadpro.com/unsubscribe" style="color:#cbd5e1;text-decoration:none">Unsubscribe from weekly emails</a>
+    {_brand}<br>
+    <a href="{_site}" style="color:#0ea5e9;text-decoration:none">{_site.split('//')[-1]}</a><br>
+    <a href="{_site}/unsubscribe" style="color:#cbd5e1;text-decoration:none">Unsubscribe from weekly emails</a>
   </div>
 </div>
 </body></html>"""
@@ -56601,8 +56637,17 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
         except Exception as e:
             logger.error(f"Weekly digest failed for user {u.id}: {e}")
             errors += 1
+            # Surface the error in the response. Previously this went to the
+            # logs only, so a 100%-failure run returned a clean-looking
+            # {"sent":0,"errors":56} with no way to see why from the caller.
+            if len(error_detail) < 10:
+                error_detail.append({
+                    "user_id": u.id,
+                    "error": f"{type(e).__name__}: {str(e)[:250]}",
+                })
 
-    return {"status": "ok", "sent": sent_count, "errors": errors, "total_active": len(active_users)}
+    return {"status": "ok", "sent": sent_count, "errors": errors,
+            "total_active": len(active_users), "error_detail": error_detail}
 # ═══════════════════════════════════════════════════════════════
 #  TEAM MESSENGER
 # ═══════════════════════════════════════════════════════════════
