@@ -42802,88 +42802,168 @@ def niche_finder(request: Request):
 #  Called by Railway cron job daily at 00:15 UTC
 # ═══════════════════════════════════════════════════════════════
 
-@app.post("/cron/process-nurture")
-def cron_process_nurture(request: Request, db: Session = Depends(get_db)):
-    """Send due nurture emails to free members who haven't paid."""
-    from fastapi.responses import JSONResponse
+def _cron_secret_ok(request: Request) -> bool:
+    """Accept the cron secret three ways: ?secret= query param (what the other
+    nine scheduled jobs use, and what cron-job.org sends), an
+    `Authorization: Bearer <secret>` header, or `X-Cron-Secret`.
+
+    This route previously accepted the Bearer header ONLY, which is why
+    ?secret=CRON_SECRET came back 401 while every other job worked.
+    """
+    expected = os.environ.get("CRON_SECRET", "")
+    if not expected:
+        return False
+    candidates = [
+        (request.query_params.get("secret") or "").strip(),
+        (request.headers.get("Authorization", "") or "").replace("Bearer ", "").strip(),
+        (request.headers.get("X-Cron-Secret", "") or "").strip(),
+    ]
+    return any(c and c == expected for c in candidates)
+
+
+def _nurture_enabled() -> bool:
+    """Nurture is OFF by default on AdvantageLife.
+
+    The five nurture emails in email_utils.send_nurture_email are SuperAdPro
+    copy: they name SuperAdPro, reference the Profit Grid (retired on AL) and
+    quote $15/month and $10/month subscription pricing. AdvantageLife has no
+    subscription — it is a $100 one-time lifetime join. Firing this job on AL
+    would email every unactivated member a pitch for a product that does not
+    exist here.
+
+    Set NURTURE_ENABLED=true in Railway once AL-specific copy is written; no
+    code deploy needed to flip it.
+    """
+    from . import brand_config
+    if os.getenv("NURTURE_ENABLED", "").lower() in ("true", "1", "yes"):
+        return True
+    return not brand_config.IS_ADVANTAGELIFE
+
+
+def _run_nurture_processor(db: Session) -> dict:
+    """Send due nurture emails to free members who haven't paid.
+    Shared body so GET and POST behave identically."""
     from .database import NurtureSequence
     from .email_utils import send_nurture_email
+    from . import brand_config
 
     # DELAYS between emails (days after previous)
     DELAYS = {1: 0, 2: 2, 3: 4, 4: 3, 5: 4}  # day 1=24hrs after reg, then +2,+4,+3,+4
-
-    cron_secret = os.environ.get("CRON_SECRET", "")
-    auth_header = request.headers.get("Authorization", "")
-    provided    = auth_header.replace("Bearer ", "").strip()
-
-    if not cron_secret or provided != cron_secret:
-        return JSONResponse({"error": "Unauthorised"}, status_code=401)
 
     now = datetime.utcnow()
     sent = []
     errors = []
 
-    try:
-        due = db.query(NurtureSequence).filter(
-            NurtureSequence.completed == False,
-            NurtureSequence.cancelled_at == None,
-            NurtureSequence.next_send_at <= now,
-        ).all()
+    due = db.query(NurtureSequence).filter(
+        NurtureSequence.completed == False,
+        NurtureSequence.cancelled_at == None,
+        NurtureSequence.next_send_at <= now,
+    ).all()
 
-        for seq in due:
-            try:
-                user = db.query(User).filter(User.id == seq.user_id).first()
-                if not user:
+    for seq in due:
+        try:
+            user = db.query(User).filter(User.id == seq.user_id).first()
+            if not user:
+                seq.completed = True
+                db.commit()
+                continue
+
+            # Safety check — if they've since paid, cancel
+            if user.is_active:
+                seq.cancelled_at = now
+                seq.completed = True
+                db.commit()
+                continue
+
+            first_name = user.first_name or user.username
+            _unsub_token = _ensure_unsubscribe_token(db, user)
+            _unsub_url = f"{brand_config.BASE_URL}/unsubscribe?token={_unsub_token}"
+            ok = send_nurture_email(user.email, first_name, seq.next_email, unsubscribe_url=_unsub_url)
+
+            if ok:
+                sent.append({"user_id": user.id, "email_num": seq.next_email})
+                seq.last_sent_at = now
+                next_num = seq.next_email + 1
+                if next_num > 5:
                     seq.completed = True
-                    db.commit()
-                    continue
-
-                # Safety check — if they've since paid, cancel
-                if user.is_active:
-                    seq.cancelled_at = now
-                    seq.completed = True
-                    db.commit()
-                    continue
-
-                first_name = user.first_name or user.username
-                _unsub_token = _ensure_unsubscribe_token(db, user)
-                _unsub_url = f"https://www.superadpro.com/unsubscribe?token={_unsub_token}"
-                ok = send_nurture_email(user.email, first_name, seq.next_email, unsubscribe_url=_unsub_url)
-
-                if ok:
-                    sent.append({"user_id": user.id, "email_num": seq.next_email})
-                    seq.last_sent_at = now
-                    next_num = seq.next_email + 1
-                    if next_num > 5:
-                        seq.completed = True
-                    else:
-                        seq.next_email  = next_num
-                        delay_days = DELAYS.get(next_num, 3)
-                        seq.next_send_at = now + timedelta(days=delay_days)
-                    db.commit()
                 else:
-                    errors.append({"user_id": user.id, "email_num": seq.next_email, "error": "send failed"})
+                    seq.next_email  = next_num
+                    delay_days = DELAYS.get(next_num, 3)
+                    seq.next_send_at = now + timedelta(days=delay_days)
+                db.commit()
+            else:
+                errors.append({"user_id": user.id, "email_num": seq.next_email, "error": "send failed"})
 
-            except Exception as e:
-                errors.append({"user_id": seq.user_id, "error": str(e)})
-                logger.error(f"Nurture email error for user {seq.user_id}: {e}")
+        except Exception as e:
+            db.rollback()
+            errors.append({"user_id": seq.user_id, "error": str(e)[:300]})
+            logger.error(f"Nurture email error for user {seq.user_id}: {e}")
 
+    return {
+        "success": True,
+        "run_at":  now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "due":     len(due),
+        "sent":    len(sent),
+        "errors":  len(errors),
+        "error_detail": errors[:20],
+        "detail":  sent,
+    }
+
+
+def _cron_nurture_entry(request: Request, db: Session):
+    """Single entry point for both GET and POST."""
+    from fastapi.responses import JSONResponse
+
+    if not _cron_secret_ok(request):
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+
+    if not _nurture_enabled():
+        # 200, not an error — the scheduler should not alarm on a
+        # deliberately-disabled job.
         return JSONResponse({
             "success": True,
-            "run_at":  now.strftime("%Y-%m-%d %H:%M:%S UTC"),
-            "due":     len(due),
-            "sent":    len(sent),
-            "errors":  len(errors),
-            "detail":  sent,
+            "skipped": True,
+            "reason": "Nurture disabled on this deploy — the email copy is "
+                      "SuperAdPro's (names SuperAdPro, references the Profit "
+                      "Grid, quotes $15/$10 per month subscription pricing) "
+                      "and AdvantageLife has no subscription. Set "
+                      "NURTURE_ENABLED=true in Railway once AL copy is written.",
+            "due_would_have_been": _nurture_due_count(db),
         })
 
+    try:
+        return JSONResponse(_run_nurture_processor(db))
     except Exception as e:
         logger.error(f"[CRON] process-nurture FAILED: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+def _nurture_due_count(db: Session) -> int:
+    """How many sequences would fire right now — visible while disabled so we
+    know the blast radius before switching it on."""
+    try:
+        from .database import NurtureSequence
+        return db.query(NurtureSequence).filter(
+            NurtureSequence.completed == False,
+            NurtureSequence.cancelled_at == None,
+            NurtureSequence.next_send_at <= datetime.utcnow(),
+        ).count()
+    except Exception:
+        return -1
+
+
+@app.post("/cron/process-nurture")
+def cron_process_nurture(request: Request, db: Session = Depends(get_db)):
+    """Send due nurture emails to free members who haven't paid."""
+    return _cron_nurture_entry(request, db)
+
+
 @app.get("/cron/process-nurture")
-def cron_nurture_ping():
-    from fastapi.responses import JSONResponse
-    return JSONResponse({"status": "ready", "endpoint": "POST /cron/process-nurture", "schedule": "Daily at 00:15 UTC"})
+def cron_process_nurture_get(request: Request, db: Session = Depends(get_db)):
+    """GET runs the same job. This used to be a stub returning
+    {"status":"ready"} — a scheduled GET looked healthy while doing nothing at
+    all. Silent no-ops are worse than failures."""
+    return _cron_nurture_entry(request, db)
 @app.post("/api/niche-finder/generate")
 async def generate_niches(request: Request, user: User = Depends(get_current_user)):
     if not user:
