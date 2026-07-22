@@ -23772,16 +23772,33 @@ async def stripe_refund_request(
         return JSONResponse({"ok": False, "error": "refund_failed", "detail": str(e)}, status_code=500)
 
 
+def _legal_ctx(request: Request) -> dict:
+    """Shared context for the legal templates. `trader` carries the operating
+    party's identity from brand_config (env-driven). When it is incomplete the
+    templates omit the identity paragraph rather than assert something untrue —
+    SuperAdPro Ltd was dissolved and the business now trades as a sole trader,
+    so the old 'trading name of SuperAdPro Ltd' line must not come back."""
+    from . import brand_config
+    return {"request": request, "trader": brand_config.trader_identity()}
+
+
 @app.get("/refund-policy", response_class=HTMLResponse)
 async def refund_policy_page(request: Request):
     """Public refund policy page — linked from Stripe Checkout."""
-    return templates.TemplateResponse("refund-policy.html", {"request": request})
+    return templates.TemplateResponse("refund-policy.html", _legal_ctx(request))
 
 
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_page(request: Request):
     """Public Terms of Service page."""
-    return templates.TemplateResponse("terms-of-service.html", {"request": request})
+    return templates.TemplateResponse("terms-of-service.html", _legal_ctx(request))
+
+
+@app.get("/privacy-policy", response_class=HTMLResponse)
+async def privacy_policy_page(request: Request):
+    """Public Privacy Policy page. Previously 404 despite being linked from the
+    site footer and cited by the Terms."""
+    return templates.TemplateResponse("privacy-policy.html", _legal_ctx(request))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

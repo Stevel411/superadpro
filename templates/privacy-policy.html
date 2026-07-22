@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — AdvantageLife</title>
+    <meta name="description" content="AdvantageLife privacy policy — what data we collect, why, how long we keep it and your rights.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:linear-gradient(180deg,#0a1f52 0%,#0e2a6e 60%,#12388f 100%); color:#eaf0ff; font-family:'Inter',sans-serif; min-height:100vh; line-height:1.75; }
+        nav { padding:18px 32px; background:rgba(8,18,54,.85); border-bottom:1px solid rgba(255,255,255,.10); display:flex; align-items:center; justify-content:space-between; backdrop-filter:blur(8px); position:sticky; top:0; z-index:50; }
+        .nav-brand { font-weight:900; font-size:20px; color:#fff; letter-spacing:-.02em; text-decoration:none; }
+        .nav-brand span { color:#c8102e; }
+        .nav-back { font-size:14px; color:rgba(234,240,255,.75); text-decoration:none; }
+        .nav-back:hover { color:#fff; }
+        .page { max-width:760px; margin:0 auto; padding:48px 28px 80px; }
+        .eyebrow { display:inline-block; font-size:11px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:#fff; padding:5px 12px; border-radius:4px; background:#c8102e; margin-bottom:14px; }
+        h1 { font-weight:900; font-size:38px; color:#fff; line-height:1.15; letter-spacing:-.02em; margin-bottom:8px; }
+        .last-updated { font-size:13px; color:rgba(234,240,255,.55); margin-bottom:32px; }
+        .lede { font-size:17px; color:rgba(234,240,255,.9); margin-bottom:36px; padding:18px 22px; background:rgba(255,255,255,.05); border-left:3px solid #c8102e; border-radius:6px; }
+        h2 { font-weight:800; font-size:21px; color:#fff; margin-top:38px; margin-bottom:12px; letter-spacing:-.01em; }
+        p { color:rgba(234,240,255,.8); margin-bottom:14px; font-size:15px; }
+        strong { color:#fff; font-weight:700; }
+        ul { margin:14px 0; padding-left:22px; }
+        li { color:rgba(234,240,255,.8); margin-bottom:8px; font-size:15px; }
+        table { width:100%; border-collapse:collapse; margin:20px 0; background:rgba(8,18,54,.5); border-radius:8px; overflow:hidden; }
+        th { padding:11px 13px; text-align:left; font-size:11px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:#fff; background:#c8102e; }
+        td { padding:11px 13px; font-size:14px; color:rgba(234,240,255,.85); border-bottom:1px solid rgba(255,255,255,.07); vertical-align:top; }
+        tr:last-child td { border-bottom:none; }
+        .footer-links { margin-top:48px; padding-top:22px; border-top:1px solid rgba(255,255,255,.12); display:flex; gap:18px; flex-wrap:wrap; font-size:13px; }
+        .footer-links a { color:rgba(234,240,255,.6); text-decoration:none; }
+        .footer-links a:hover { color:#fff; }
+        a { color:#fff; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-brand">Advantage<span>Life</span></a>
+        <a href="/" class="nav-back">&larr; Back to home</a>
+    </nav>
+
+    <div class="page">
+        <span class="eyebrow">Privacy Policy</span>
+        <h1>How AdvantageLife handles your data</h1>
+        <div class="last-updated">Last updated: 22 July 2026</div>
+
+        <div class="lede">
+            We collect the minimum needed to run the platform, pay people correctly and keep accounts
+            secure. <strong>We do not sell your data.</strong> Leads you capture through your own forms
+            belong to you, not us. This page sets out what we hold, why, how long, and what you can ask
+            us to do about it.
+        </div>
+
+        <h2>1. Who controls your data</h2>
+        {% if trader.complete %}
+        <p>
+            AdvantageLife is a trading name of <strong>{{ trader.name }}</strong>, {{ trader.status }},
+            who is the data controller for personal data processed on this platform. Address for
+            service: {{ trader.address }}.
+        </p>
+        {% else %}
+        <p>
+            AdvantageLife is operated from the United Kingdom and is the data controller for personal
+            data processed on this platform.
+        </p>
+        {% endif %}
+        <p>
+            For anything in this policy, contact
+            <a href="mailto:{{ trader.support_email }}">{{ trader.support_email }}</a>.
+        </p>
+
+        <h2>2. What we collect and why</h2>
+        <table>
+            <tr><th>Data</th><th>Why we hold it</th><th>Lawful basis</th></tr>
+            <tr>
+                <td>Email, username, first name, password hash</td>
+                <td>To create and secure your account and contact you about it</td>
+                <td>Contract</td>
+            </tr>
+            <tr>
+                <td>Sponsor and pass-up relationships, sale counts, pack ownership</td>
+                <td>To work out who is due to be paid on a sale, which is the core of the service</td>
+                <td>Contract</td>
+            </tr>
+            <tr>
+                <td>Daily watch activity</td>
+                <td>To determine earning qualification and to prove views were delivered to advertisers</td>
+                <td>Contract</td>
+            </tr>
+            <tr>
+                <td>Receiving details you enter (crypto addresses, payment handles)</td>
+                <td>To show a buyer who and where to pay. We never take custody of these funds</td>
+                <td>Contract</td>
+            </tr>
+            <tr>
+                <td>Payment records for the $100 join</td>
+                <td>To confirm access, handle refunds and disputes, and meet accounting duties</td>
+                <td>Contract / legal obligation</td>
+            </tr>
+            <tr>
+                <td>IP address, device and usage logs</td>
+                <td>Security, fraud and multi-account detection, debugging</td>
+                <td>Legitimate interests</td>
+            </tr>
+            <tr>
+                <td>Support correspondence</td>
+                <td>To answer you and keep a record of the issue</td>
+                <td>Legitimate interests</td>
+            </tr>
+        </table>
+        <p>
+            We do not collect special category data, and we do not ask for identity documents unless a
+            payment provider requires it directly from you.
+        </p>
+
+        <h2>3. Card and crypto payments</h2>
+        <p>
+            <strong>We never see or store your card details.</strong> Card payments for the $100 join
+            are handled by Stripe, who process them as their own controller under their privacy policy.
+            We receive only a payment reference and status.
+        </p>
+        <p>
+            Campaign pack payments happen <strong>directly between members</strong> and never pass
+            through us. We store the receiving detail the seller chose to publish and the proof of
+            payment submitted, so a disputed sale can be resolved. We hold no pack funds.
+        </p>
+
+        <h2>4. Who your data is shared with</h2>
+        <p>We use a small number of processors to run the service:</p>
+        <ul>
+            <li><strong>Railway</strong> &mdash; application and database hosting</li>
+            <li><strong>Cloudflare</strong> &mdash; CDN, DNS and file storage</li>
+            <li><strong>Amazon Web Services (SES)</strong> &mdash; transactional and notification email</li>
+            <li><strong>Stripe</strong> &mdash; card payment processing for the join fee</li>
+            <li><strong>NOWPayments</strong> &mdash; cryptocurrency payment processing for the join fee</li>
+        </ul>
+        <p>
+            Some of these operate outside the UK. Where data is transferred internationally we rely on
+            the providers' standard contractual clauses or an adequacy decision.
+        </p>
+        <p>
+            <strong>We do not sell personal data and we do not share it for advertising.</strong> We
+            will disclose data where we are legally required to, or to investigate fraud or a breach of
+            our terms.
+        </p>
+
+        <h2>5. What other members can see</h2>
+        <p>
+            Some information is visible to other members by design, because the platform is a network:
+            your username, your sponsor relationship, and &mdash; when you are the payee on a sale
+            &mdash; the receiving detail the buyer needs in order to pay you. Leaderboards show
+            usernames and activity, not personal contact details or earnings figures tied to real
+            names.
+        </p>
+        <p>Your email address is never shown to other members.</p>
+
+        <h2>6. Leads you capture</h2>
+        <p>
+            If you use the platform's lead capture, page builder or autoresponder, the contacts you
+            collect are <strong>yours</strong>. We host them so the tools work. We do not market to
+            them, sell them, or use them for our own purposes. You are the controller of that data and
+            responsible for having a lawful basis to contact those people and for honouring their
+            unsubscribe requests.
+        </p>
+
+        <h2>7. Email you receive from us</h2>
+        <p>
+            Account and transaction emails &mdash; sale notifications, payment confirmations, security
+            alerts &mdash; are part of the service and are not marketing. Any promotional email carries
+            an unsubscribe link and you can opt out at any time without losing platform access.
+        </p>
+
+        <h2>8. Cookies</h2>
+        <p>
+            We use a session cookie to keep you logged in and, where enabled, a preference cookie for
+            language and display settings. These are necessary for the platform to function. We do not
+            run third-party advertising or cross-site tracking cookies.
+        </p>
+
+        <h2>9. How long we keep things</h2>
+        <ul>
+            <li><strong>Account data</strong> &mdash; while your account is open, then up to 12 months after closure to handle disputes and re-opening requests.</li>
+            <li><strong>Sale, commission and pass-up records</strong> &mdash; 6 years, because they are financial records and may be needed for tax or a dispute.</li>
+            <li><strong>Payment records for the join fee</strong> &mdash; 6 years, for the same reason.</li>
+            <li><strong>Watch activity</strong> &mdash; 24 months, as proof of view delivery to advertisers.</li>
+            <li><strong>Security and access logs</strong> &mdash; 12 months.</li>
+        </ul>
+        <p>
+            Deleting your account does not erase records we are legally required to keep, but they are
+            retained only for that purpose and are not used to contact you.
+        </p>
+
+        <h2>10. Your rights</h2>
+        <p>Under UK data protection law you can ask us to:</p>
+        <ul>
+            <li>Give you a copy of the personal data we hold about you</li>
+            <li>Correct anything inaccurate</li>
+            <li>Delete your data, where we are not required to keep it</li>
+            <li>Restrict or object to how we process it</li>
+            <li>Port your data to another service in a machine-readable form</li>
+            <li>Withdraw consent, where consent is what we relied on</li>
+        </ul>
+        <p>
+            Email <a href="mailto:{{ trader.support_email }}">{{ trader.support_email }}</a> and we will
+            respond within one month. There is no charge unless a request is manifestly excessive.
+        </p>
+        <p>
+            If you are not satisfied with our response, you can complain to the Information
+            Commissioner's Office at <a href="https://ico.org.uk" rel="noopener">ico.org.uk</a> or on
+            0303 123 1113.
+        </p>
+
+        <h2>11. Security</h2>
+        <p>
+            Passwords are stored hashed, never in plain text. Access to the production database is
+            restricted to the operator. Traffic is encrypted in transit. Two-factor authentication is
+            available on your account and we recommend enabling it.
+        </p>
+        <p>
+            No system is perfectly secure. If a breach occurs that is likely to put your rights at
+            risk, we will tell you and report it to the ICO within 72 hours of becoming aware of it.
+        </p>
+
+        <h2>12. Children</h2>
+        <p>
+            The platform is not for anyone under 18. We do not knowingly collect data from children. If
+            we learn that we have, we will delete it.
+        </p>
+
+        <h2>13. Changes to this policy</h2>
+        <p>
+            If we change how we use your data in a material way we will tell you by email or in-app
+            notification before the change takes effect.
+        </p>
+
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/refund-policy">Refund Policy</a>
+            <a href="/income-disclaimer">Income Disclaimer</a>
+        </div>
+    </div>
+</body>
+</html>

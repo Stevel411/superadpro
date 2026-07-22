@@ -41,7 +41,7 @@
 <body>
     <nav>
         <a href="/" class="nav-logo">
-            <span class="nav-brand">Super<span>Pro</span></span>
+            <span class="nav-brand">Advantage<span>Life</span></span>
         </a>
         <a href="/" class="nav-back">← Back to home</a>
     </nav>
@@ -52,7 +52,7 @@
         <div class="last-updated">Last updated: 16 July 2026</div>
 
         <div class="lede">
-            There are only two things you can pay for on AdvantageLife, and they work completely differently. Your <strong>lifetime membership</strong> is paid to us, so we can refund it in full for 7 days &mdash; no conditions. <strong>VideoView packs</strong> are paid member-to-member and never pass through us, so we hold nothing to refund. This page explains both, plainly.
+            There are only two things you can pay for on AdvantageLife, and they work completely differently. Your <strong>lifetime membership</strong> is paid to us, so we can refund it in full for 7 days &mdash; no conditions. <strong>Campaign packs</strong> are paid member-to-member and never pass through us, so we hold nothing to refund. This page explains both, plainly.
         </div>
 
         <h2>The basic principle</h2>
@@ -63,7 +63,7 @@
             The <strong>$100 lifetime membership</strong> is paid to us. Nobody earns a commission on it &mdash; not your sponsor, not anyone. Because we hold all of it, we can refund all of it. If you change your mind within 7 days, you get 100% back. No questions, no partial figure, no deductions.
         </p>
         <p>
-            <strong>VideoView packs are different, and you should understand this before you buy one.</strong> A pack is bought directly from another member: your payment goes from your wallet to theirs. It never touches AdvantageLife. We take no percentage and hold no part of it. That means we have nothing to refund from &mdash; <strong>all pack purchases are final</strong>.
+            <strong>Campaign packs are different, and you should understand this before you buy one.</strong> A pack is bought directly from another member: your payment goes from your wallet to theirs. It never touches AdvantageLife. We take no percentage and hold no part of it. That means we have nothing to refund from &mdash; <strong>all pack purchases are final</strong>.
         </p>
 
         <h2>What can and can't be refunded</h2>
@@ -82,7 +82,7 @@
                     <td><strong>100% within 7 days.</strong> Nobody earns commission on your join, so we hold the full amount and return the full amount.</td>
                 </tr>
                 <tr>
-                    <td><strong>VideoView pack</strong></td>
+                    <td><strong>Campaign pack</strong></td>
                     <td>$10&ndash;$1,000 &mdash; paid to another member</td>
                     <td><strong>Not refundable.</strong> The money goes wallet-to-wallet to the selling member and never passes through AdvantageLife. We cannot refund what we never receive. This is shown to you at the point of sale, before you pay.</td>
                 </tr>
@@ -123,7 +123,7 @@
         <div class="warning-box">
             <h3>⚠ Chargebacks</h3>
             <p>
-                If you dispute a charge with your card issuer (a "chargeback") instead of requesting a refund through us first, your account will be <strong>immediately suspended</strong> and your lifetime access revoked. Note that a chargeback cannot recover a VideoView pack payment: that money went directly to another member and was never held by us.
+                If you dispute a charge with your card issuer (a "chargeback") instead of requesting a refund through us first, your account will be <strong>immediately suspended</strong> and your lifetime access revoked. Note that a chargeback cannot recover a Campaign pack payment: that money went directly to another member and was never held by us.
             </p>
             <p>
                 We accept chargebacks as a last resort if our refund process has failed you, but please contact us first via <a href="mailto:support@advantagelife.club" style="color:#e8203f">support@advantagelife.club</a> before filing a card dispute.
@@ -137,7 +137,7 @@
 
         <h2>Who you're contracting with</h2>
         <p>
-            AdvantageLife is a trading name of <strong>SuperAdPro Ltd</strong>. Your $100 membership is a contract with SuperAdPro Ltd. A VideoView pack is not &mdash; that is a transaction between you and another member, which is why we cannot refund it.
+            {% if trader.complete %}AdvantageLife is a trading name of <strong>{{ trader.name }}</strong>, {{ trader.status }}. Your $100 lifetime join is a contract with {{ trader.name }}. {% endif %}A campaign pack is not &mdash; that is a transaction between you and another member, which is why we cannot refund it.
         </p>
 
         <h2>Questions?</h2>

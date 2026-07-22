@@ -41,5 +41,38 @@ SUPPORT_EMAIL = _env("SUPPORT_EMAIL", "support@superadpro.com")
 # ── Affiliate / public CTAs ───────────────────────────────────────────
 MASTER_REF = _env("MASTER_REF", "SuperAdPro")
 
+# ── Legal / trader identity ───────────────────────────────────────────
+# UK e-commerce and consumer regulations require the trading party and a
+# geographic address for service to be identifiable on the site. These are
+# rendered into the Terms, Privacy Policy and Refund Policy.
+#
+# Deliberately blank by default: the templates omit the identity block
+# entirely rather than assert something untrue. SuperAdPro Ltd was dissolved
+# (Jul 2026) and the business now trades as a sole trader, so the previous
+# "trading name of SuperAdPro Ltd" line is false and must not be reinstated.
+#
+# Set in Railway (no deploy needed):
+#   TRADER_NAME     e.g. "Steve <Surname>"
+#   TRADER_ADDRESS  e.g. "12 Example St, Taunton, TA1 1AA, United Kingdom"
+#   TRADER_STATUS   defaults to "a sole trader based in the United Kingdom"
+TRADER_NAME    = _env("TRADER_NAME", "")
+TRADER_ADDRESS = _env("TRADER_ADDRESS", "")
+TRADER_STATUS  = _env("TRADER_STATUS", "a sole trader based in the United Kingdom")
+
+
+def trader_identity() -> dict:
+    """Identity block for legal templates. `complete` is False until the
+    operator's name and address are configured — templates use it to decide
+    whether to render the identity paragraph at all."""
+    return {
+        "name": TRADER_NAME,
+        "address": TRADER_ADDRESS,
+        "status": TRADER_STATUS,
+        "support_email": SUPPORT_EMAIL,
+        "brand": BRAND_NAME,
+        "complete": bool(TRADER_NAME and TRADER_ADDRESS),
+    }
+
+
 # ── Theme (for server-rendered templates; the React app has its own) ──
 BRAND_ACCENT = _env("BRAND_ACCENT", "#06b6d4")
