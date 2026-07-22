@@ -6271,14 +6271,45 @@ def cron_stripe_recover_user(request: Request, payload: dict = Body(...), db: Se
 # routes — only catches what would otherwise 404 on our normal host
 # AND happens to arrive with a non-platform Host header.
 # ════════════════════════════════════════════════════════════════════
+def _hosts_from_url(url: str) -> set:
+    """Extract the hostname (and its www/apex twin) from a configured URL."""
+    try:
+        from urllib.parse import urlparse
+        h = (urlparse(url or "").hostname or "").lower().strip()
+    except Exception:
+        h = ""
+    if not h:
+        return set()
+    return {h, h[4:] if h.startswith("www.") else "www." + h}
+
+
+# Both brands' own hosts. This set MUST contain every host the platform itself
+# is served on — anything not in here falls through to the custom-domain DB
+# lookup below, which costs 2-4 queries per request. AdvantageLife's hosts were
+# missing here, so every live request on advantagelife.club was doing a
+# custom-domain lookup (and dumping a traceback when a table was absent).
 PLATFORM_HOSTS = {
     "superadpro.com",
     "www.superadpro.com",
     "app.superadpro.com",
     "api.superadpro.com",
+    "advantagelife.club",
+    "www.advantagelife.club",
+    "app.advantagelife.club",
+    "api.advantagelife.club",
     "localhost",
     "127.0.0.1",
 }
+# Anything this deploy is actually configured to serve on (brand-driven, so a
+# future rebrand/domain change can't reintroduce this bug).
+PLATFORM_HOSTS |= _hosts_from_url(brand_config.BASE_URL)
+PLATFORM_HOSTS |= _hosts_from_url(brand_config.SITE_URL)
+PLATFORM_HOSTS |= _hosts_from_url(os.getenv("PUBLIC_BASE_URL", ""))
+# Escape hatch: comma-separated extra hosts via Railway var, no redeploy of code.
+for _extra_host in (os.getenv("PLATFORM_HOSTS", "") or "").split(","):
+    _extra_host = _extra_host.strip().lower()
+    if _extra_host:
+        PLATFORM_HOSTS.add(_extra_host)
 
 
 def _is_platform_host(host: str) -> bool:
@@ -6294,14 +6325,34 @@ def _is_platform_host(host: str) -> bool:
     return False
 
 
+# Circuit breaker + log throttle for the router. If the lookup blows up
+# (missing table, DB unreachable), stop re-running it on every request for a
+# short window and log ONE line instead of a full traceback per request. A
+# traceback per request pushes a busy service past Railway's 500 logs/sec cap
+# and takes the whole log stream — and every other diagnostic — with it.
+_CDR_SUPPRESS_UNTIL = 0.0        # epoch seconds; skip the DB lookup until then
+_CDR_LAST_LOG_AT = 0.0           # epoch seconds of the last error line emitted
+_CDR_ERRORS_SINCE_LOG = 0
+_CDR_BACKOFF_SECONDS = 300       # 5 min circuit-open window
+_CDR_LOG_EVERY_SECONDS = 60      # at most one error line per minute
+
+
 @app.middleware("http")
 async def custom_domain_router(request: Request, call_next):
     """If the request arrives with a custom-domain Host header, rewrite
     the URL path to /p/<username>/<page-slug> so the existing
     render_funnel_page handler serves the right page. Falls through
     to normal routing for platform hosts and for unverified domains."""
+    global _CDR_SUPPRESS_UNTIL, _CDR_LAST_LOG_AT, _CDR_ERRORS_SINCE_LOG
+
     host = request.headers.get("host", "")
     if _is_platform_host(host):
+        return await call_next(request)
+
+    # Circuit open — a recent lookup failed hard. Serve the request normally
+    # without touching the DB until the window expires.
+    import time as _cdr_time
+    if _cdr_time.time() < _CDR_SUPPRESS_UNTIL:
         return await call_next(request)
 
     host_clean = host.split(":", 1)[0].lower().strip()
@@ -6370,13 +6421,25 @@ async def custom_domain_router(request: Request, call_next):
             db.close()
         except Exception:
             pass
-        # Don't break the request on an unexpected error in the router —
-        # fall through to normal routing and log
-        import traceback
-        try:
-            print(f"⚠️ custom_domain_router error for host={host_clean}: {e}\n{traceback.format_exc()}")
-        except Exception:
-            pass
+        # Don't break the request on an unexpected error in the router — fall
+        # through to normal routing. Log ONE throttled line, never a traceback:
+        # this runs on every non-platform request, so an unthrottled traceback
+        # here is a log-flood outage waiting to happen.
+        now = _cdr_time.time()
+        _CDR_SUPPRESS_UNTIL = now + _CDR_BACKOFF_SECONDS
+        _CDR_ERRORS_SINCE_LOG += 1
+        if now - _CDR_LAST_LOG_AT >= _CDR_LOG_EVERY_SECONDS:
+            try:
+                print(
+                    f"⚠️ custom_domain_router error host={host_clean} "
+                    f"{type(e).__name__}: {str(e)[:200]} "
+                    f"(x{_CDR_ERRORS_SINCE_LOG} since last log; "
+                    f"lookup suppressed {_CDR_BACKOFF_SECONDS}s)"
+                )
+            except Exception:
+                pass
+            _CDR_LAST_LOG_AT = now
+            _CDR_ERRORS_SINCE_LOG = 0
         return await call_next(request)
 
 
@@ -58233,6 +58296,74 @@ def admin_setup_sending_domains(
              "Railway before domain verification can run."
     )
     return JSONResponse({"ok": True, "results": out})
+
+
+@app.get("/admin/api/schema-check")
+def admin_schema_check(
+    request: Request,
+    confirm: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Report every table the models define that does NOT exist in the live
+    database, and (with ?confirm=yes) create the missing ones.
+
+    Why this exists: AdvantageLife runs a fresh database with
+    SKIP_MIGRATIONS=true, so create_all() never runs on deploy. Any model added
+    after the migration import lands in code but not in Postgres — and the
+    first live request that touches it throws UndefinedTable. This is the
+    one-tap way to see the gap and close it.
+
+    Safe: uses checkfirst=True, so it only CREATES absent tables. It never
+    alters or drops an existing table, and never touches data. Column-level
+    drift on existing tables is NOT covered here — those still need their own
+    ALTER migration endpoint.
+
+    Admin-only, GET (phone-friendly).
+      /admin/api/schema-check            -> report only
+      /admin/api/schema-check?confirm=yes -> create the missing tables
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import inspect as _sa_inspect
+    from .database import engine, Base
+
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    try:
+        existing = set(_sa_inspect(engine).get_table_names())
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": f"inspect failed: {e}"}, status_code=500)
+
+    defined = {t.name: t for t in Base.metadata.sorted_tables}
+    missing = sorted(n for n in defined if n not in existing)
+
+    out = {
+        "tables_defined_in_models": len(defined),
+        "tables_in_database": len(existing),
+        "missing_tables": missing,
+        "missing_count": len(missing),
+    }
+
+    if confirm.lower() != "yes":
+        out["action"] = (
+            "report only — re-tap with ?confirm=yes to create the missing tables"
+            if missing else "nothing to do, schema is complete"
+        )
+        return JSONResponse({"ok": True, "results": out})
+
+    created, failed = [], {}
+    for name in missing:
+        try:
+            defined[name].create(bind=engine, checkfirst=True)
+            created.append(name)
+        except Exception as e:
+            failed[name] = str(e)[:300]
+
+    out["created"] = created
+    out["failed"] = failed
+    return JSONResponse({"ok": not failed, "results": out},
+                        status_code=200 if not failed else 500)
 
 
 @app.get("/admin/api/setup-monthly-email-allowance")
