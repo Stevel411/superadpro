@@ -70991,6 +70991,13 @@ def al_stripe_check(user: User = Depends(_al_user)):
 
     # Registered webhook endpoints — the thing config-readiness is blind to.
     NEEDED = "checkout.session.completed"
+    # Events AL's handler implements and depends on. checkout.session.completed
+    # activates the join; charge.dispute.created triggers immediate suspension
+    # on a chargeback (without it, a member can charge back the $100 and keep
+    # lifetime access forever); charge.refunded keeps the refund audit trail.
+    # invoice.* and customer.subscription.deleted are SuperAdPro-only — AL has
+    # no subscriptions — so they are deliberately not required here.
+    RECOMMENDED = ["checkout.session.completed", "charge.dispute.created", "charge.refunded"]
     try:
         eps = stripe.WebhookEndpoint.list(limit=100)
         rows, match = [], None
@@ -71003,6 +71010,8 @@ def al_stripe_check(user: User = Depends(_al_user)):
                 "livemode": _attr(ep, "livemode"),
                 "handles_checkout_completed": (NEEDED in events) or ("*" in events),
                 "event_count": len(events),
+                "missing_recommended": ([] if "*" in events
+                                        else [e for e in RECOMMENDED if e not in events]),
             }
             rows.append(row)
             if url.rstrip("/") == expected_url.rstrip("/"):
@@ -71025,6 +71034,16 @@ def al_stripe_check(user: User = Depends(_al_user)):
             out["verdict"] = (f"Endpoint exists and is enabled but is NOT subscribed to "
                               f"{NEEDED} — the activation event would never be delivered.")
             ok = False
+        elif match["missing_recommended"]:
+            ok = False
+            out["verdict"] = (
+                "Join activation WILL work — checkout.session.completed is subscribed. "
+                "But this endpoint is missing: " + ", ".join(match["missing_recommended"]) +
+                ". charge.dispute.created is the chargeback suspension trigger: without it "
+                "a member can charge back the $100 and keep lifetime access permanently. "
+                "charge.refunded keeps the refund audit trail. Add them in Stripe "
+                "Dashboard -> Developers -> Webhooks -> this endpoint -> Select events."
+            )
         else:
             ok = True
             out["verdict"] = (
