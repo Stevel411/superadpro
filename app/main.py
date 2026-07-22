@@ -70615,7 +70615,7 @@ _AL_JOIN_PAGE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4}
-body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy) 0%,var(--navy2) 100%);min-height:100vh;color:#fff}
+body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image:linear-gradient(180deg,rgba(8,18,54,.78) 0%,rgba(8,18,54,.62) 42%,rgba(9,25,72,.80) 100%),url('/static/images/al-join-bg.webp');background-size:cover;background-position:center;background-attachment:fixed;background-color:var(--navy)}@media(max-width:820px){body{background-image:linear-gradient(180deg,rgba(8,18,54,.80) 0%,rgba(8,18,54,.66) 42%,rgba(9,25,72,.84) 100%),url('/static/images/al-join-bg-sm.webp');background-attachment:scroll}}
 .wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
 .mk{text-align:center;font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:6px}
 .mk i{font-style:normal;color:#ff5a70}
