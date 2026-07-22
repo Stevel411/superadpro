@@ -114,6 +114,22 @@ def _ensure_sdk():
 
 REFUND_SHARES = {
     # product_kind → fraction of payment that the company keeps & can refund
+    "al_lifetime":         1.00,   # AdvantageLife $100 join. NOBODY earns a
+                                   # commission, bonus or override on a join —
+                                   # the company holds the full $100, so the
+                                   # full $100 is refundable. This matches the
+                                   # published /refund-policy promise of "100%
+                                   # back, no questions, no partial figure, no
+                                   # deductions" within 7 days.
+                                   #
+                                   # Added 22 Jul 2026. Before this, al_lifetime
+                                   # was absent and .get(..., 0.0) made
+                                   # refundable_cents = 0. The member refund
+                                   # endpoint filters on refundable_cents > 0,
+                                   # so EVERY AdvantageLife refund request
+                                   # failed outright with no_refundable_charge
+                                   # while the public policy promised a full
+                                   # unconditional refund.
     "membership_signup":   0.50,   # Partner $20: $10 to sponsor, $10 to company
     "membership_renewal":  0.50,   # same split on each renewal
     "founder_signup":      0.33,   # Founder $15: $10 to sponsor, $5 to company

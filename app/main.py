@@ -70924,6 +70924,123 @@ async def al_join_checkout(user: User = Depends(_al_user), db: Session = Depends
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)[:200]}, status_code=500)
 
 
+@app.get("/admin/api/al/stripe-check")
+def al_stripe_check(user: User = Depends(_al_user)):
+    """Ask Stripe directly whether the join money-path is wired up.
+
+    config-readiness only reports whether env vars are SET. It cannot see
+    whether a webhook endpoint is actually registered in the Stripe account,
+    whether it points at THIS deploy, or whether it is subscribed to the event
+    we depend on. That gap is exactly the 'card charged, membership never
+    activates' failure. This queries the live Stripe API and answers it.
+
+    Boolean/identifier output only — never returns a secret value.
+    """
+    from fastapi.responses import JSONResponse
+    from . import stripe_service as _stripe, brand_config
+
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    out = {}
+    key = os.environ.get("STRIPE_SECRET_KEY", "") or ""
+    out["key_present"] = bool(key)
+    out["key_mode"] = ("live" if key.startswith("sk_live") else
+                       "test" if key.startswith("sk_test") else
+                       "restricted/unknown" if key else "missing")
+    out["webhook_secret_present"] = bool(os.environ.get("STRIPE_WEBHOOK_SECRET", ""))
+
+    expected_url = f"{brand_config.BASE_URL}/api/stripe/webhook"
+    out["expected_webhook_url"] = expected_url
+    out["join_price_usd"] = os.environ.get("AL_JOIN_PRICE_USD", "100")
+
+    if not key:
+        out["verdict"] = "STRIPE_SECRET_KEY not set — card join cannot work."
+        return JSONResponse({"ok": False, "results": out})
+
+    try:
+        _stripe._ensure_sdk()          # sets api_key, returns None
+        stripe = _stripe.stripe        # the SDK module itself
+    except Exception as e:
+        return JSONResponse({"ok": False, "results": out,
+                             "error": f"Stripe SDK unavailable: {str(e)[:200]}"}, status_code=500)
+
+    # Which Stripe account is this key actually talking to?
+    try:
+        acct = stripe.Account.retrieve()
+        out["stripe_account_id"] = acct.get("id")
+        out["stripe_account_name"] = (acct.get("settings", {}) or {}).get("dashboard", {}).get("display_name")
+        out["charges_enabled"] = acct.get("charges_enabled")
+        out["payouts_enabled"] = acct.get("payouts_enabled")
+    except Exception as e:
+        out["account_error"] = str(e)[:200]
+
+    # Registered webhook endpoints — the thing config-readiness is blind to.
+    NEEDED = "checkout.session.completed"
+    try:
+        eps = stripe.WebhookEndpoint.list(limit=100)
+        rows, match = [], None
+        for ep in eps.data:
+            url = ep.get("url") or ""
+            events = list(ep.get("enabled_events") or [])
+            row = {
+                "url": url,
+                "status": ep.get("status"),
+                "livemode": ep.get("livemode"),
+                "handles_checkout_completed": (NEEDED in events) or ("*" in events),
+                "event_count": len(events),
+            }
+            rows.append(row)
+            if url.rstrip("/") == expected_url.rstrip("/"):
+                match = row
+        out["registered_endpoints"] = rows
+        out["matching_endpoint"] = match
+
+        if match is None:
+            others = [r["url"] for r in rows]
+            out["verdict"] = (
+                f"NO webhook endpoint registered for {expected_url}. Card payments "
+                f"will be taken and the membership will NEVER activate. "
+                f"Endpoints currently registered: {others or 'none'}"
+            )
+            ok = False
+        elif match["status"] != "enabled":
+            out["verdict"] = f"Endpoint exists but status is '{match['status']}', not 'enabled'."
+            ok = False
+        elif not match["handles_checkout_completed"]:
+            out["verdict"] = (f"Endpoint exists and is enabled but is NOT subscribed to "
+                              f"{NEEDED} — the activation event would never be delivered.")
+            ok = False
+        else:
+            ok = True
+            out["verdict"] = (
+                "Endpoint registered, enabled and subscribed to checkout.session.completed. "
+                "Remaining unverifiable item: Stripe never returns a signing secret after "
+                "creation, so this cannot confirm STRIPE_WEBHOOK_SECRET matches THIS "
+                "endpoint. Use 'Send test webhook' in the Stripe dashboard to close that — "
+                "a signature mismatch shows as a 400 invalid_signature in the delivery log."
+            )
+    except Exception as e:
+        out["webhook_list_error"] = str(e)[:250]
+        out["verdict"] = ("Could not list webhook endpoints. If this is a restricted key, "
+                          "it needs read permission on Webhook Endpoints.")
+        ok = False
+
+    # Mode consistency: a live key with a test-mode endpoint (or vice versa)
+    # silently never delivers.
+    m = out.get("matching_endpoint")
+    if m is not None and out["key_mode"] in ("live", "test"):
+        want_live = out["key_mode"] == "live"
+        if bool(m.get("livemode")) != want_live:
+            out["mode_mismatch"] = (
+                f"Key is {out['key_mode']} mode but the matching endpoint has "
+                f"livemode={m.get('livemode')}. Events will not be delivered."
+            )
+            ok = False
+
+    return JSONResponse({"ok": bool(ok), "results": out})
+
+
 @app.get("/api/al/join/status")
 def al_join_status(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     fresh = db.query(User).filter(User.id == user.id).first()
