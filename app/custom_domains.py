@@ -52,14 +52,67 @@ from . import railway_api
 log = logging.getLogger(__name__)
 
 
+def _default_cname_target() -> str:
+    """Resolve the CNAME target this deploy should hand out to members.
+
+    Order:
+      1. CUSTOM_DOMAIN_CNAME_TARGET  — explicit override, always wins.
+      2. RAILWAY_PUBLIC_DOMAIN       — but ONLY if it's still a *.railway.app
+         host. Once a custom domain is attached to the service Railway may
+         report that instead, and handing members our own brand domain as a
+         CNAME target would create a resolution loop.
+      3. Brand fallback — AdvantageLife's Railway host on the AL deploy,
+         SuperAdPro's on the original.
+
+    Hardcoding SuperAdPro's host here was a rebrand leftover: it is the value
+    members are told to point their DNS at, so on AL it was actively wrong
+    and pointed at a service being decommissioned.
+    """
+    explicit = (os.getenv("CUSTOM_DOMAIN_CNAME_TARGET") or "").strip()
+    if explicit:
+        return explicit
+
+    railway_host = (os.getenv("RAILWAY_PUBLIC_DOMAIN") or "").strip().lower()
+    if railway_host.endswith(".railway.app"):
+        return railway_host
+
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return "web-production-a9b41.up.railway.app"
+    return "superadpro-production.up.railway.app"
+
+
 # The hostname members should CNAME to (v1 fallback only). v2 uses
 # the dynamic value Railway returns in the dnsRecords array — different
 # for each domain. Kept for the v1-fallback path when Railway env vars
 # aren't configured.
-CNAME_TARGET = os.getenv(
-    "CUSTOM_DOMAIN_CNAME_TARGET",
-    "superadpro-production.up.railway.app",
-).lower().rstrip(".")
+CNAME_TARGET = _default_cname_target().lower().rstrip(".")
+
+
+def _accepted_cname_aliases() -> set:
+    """Other values we'll accept as a correct CNAME besides CNAME_TARGET.
+
+    Members sometimes CNAME to the brand's apex/www rather than the Railway
+    host, and that resolves fine. Previously this was hardcoded to SuperAdPro's
+    pair, so on AdvantageLife a member who did the sensible thing was told
+    their DNS was wrong.
+    """
+    from . import brand_config
+    from urllib.parse import urlparse
+    out = set()
+    for _url in (brand_config.BASE_URL, brand_config.SITE_URL,
+                 os.getenv("PUBLIC_BASE_URL", "")):
+        try:
+            _h = (urlparse(_url or "").hostname or "").lower().strip()
+        except Exception:
+            _h = ""
+        if _h:
+            out.add(_h)
+            out.add(_h[4:] if _h.startswith("www.") else "www." + _h)
+    return out
+
+
+_ACCEPTED_CNAME_ALIASES = _accepted_cname_aliases()
 
 
 # Max hours before a still-not-verified domain gets marked 'failed'.
@@ -96,15 +149,39 @@ def is_valid_domain_format(domain: str) -> bool:
 
 def is_blocked_domain(domain: str) -> bool:
     """Reject obvious hijack attempts — our own platform domains and
-    common shared-hosting suffixes that members couldn't actually own."""
+    common shared-hosting suffixes that members couldn't actually own.
+
+    Must cover BOTH brands plus whatever this deploy is actually configured
+    to serve on: a member claiming the platform's own host would register it
+    against our Railway service and fight the real domain for routing.
+    """
+    from . import brand_config
+    from urllib.parse import urlparse
+
     blocked_exact = {
         "superadpro.com",
         "www.superadpro.com",
         "app.superadpro.com",
         "api.superadpro.com",
+        "advantagelife.club",
+        "www.advantagelife.club",
+        "app.advantagelife.club",
+        "api.advantagelife.club",
     }
+    # Whatever this deploy is configured to serve on, apex + www.
+    for _url in (brand_config.BASE_URL, brand_config.SITE_URL,
+                 os.getenv("PUBLIC_BASE_URL", "")):
+        try:
+            _h = (urlparse(_url or "").hostname or "").lower().strip()
+        except Exception:
+            _h = ""
+        if _h:
+            blocked_exact.add(_h)
+            blocked_exact.add(_h[4:] if _h.startswith("www.") else "www." + _h)
+
     blocked_suffixes = (
         ".superadpro.com",
+        ".advantagelife.club",
         ".railway.app",
         ".up.railway.app",
         ".vercel.app",
@@ -274,7 +351,7 @@ def verify_cname(domain: str) -> Tuple[bool, Optional[str]]:
             answers = dns.resolver.resolve(domain, "CNAME", lifetime=5.0)
             for rdata in answers:
                 cname = str(rdata.target).rstrip(".").lower()
-                if cname == target or cname in ("superadpro.com", "www.superadpro.com"):
+                if cname == target or cname in _ACCEPTED_CNAME_ALIASES:
                     return True, None
                 return False, (
                     f"CNAME points to {cname} but should point to your Railway "
