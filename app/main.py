@@ -58336,7 +58336,11 @@ def admin_schema_check(
         return JSONResponse({"ok": False, "error": f"inspect failed: {e}"}, status_code=500)
 
     defined = {t.name: t for t in Base.metadata.sorted_tables}
-    missing = sorted(n for n in defined if n not in existing)
+    # Base.metadata.sorted_tables is already topologically sorted by foreign-key
+    # dependency. Preserve that order when creating — creating alphabetically
+    # fails on any child table whose parent hasn't been created yet.
+    missing_ordered = [t.name for t in Base.metadata.sorted_tables if t.name not in existing]
+    missing = sorted(missing_ordered)
 
     out = {
         "tables_defined_in_models": len(defined),
@@ -58353,7 +58357,7 @@ def admin_schema_check(
         return JSONResponse({"ok": True, "results": out})
 
     created, failed = [], {}
-    for name in missing:
+    for name in missing_ordered:
         try:
             defined[name].create(bind=engine, checkfirst=True)
             created.append(name)
