@@ -7,7 +7,7 @@ import DisclaimerLink from '../../components/DisclaimerLink';
 /**
  * ExploreHub — public /explore page, converted into the main tools-first
  * sales page ("explain all"). Home (/) is the cinematic video hook; this page
- * does the selling: tools grid, Creative Studio spotlight, pricing.
+ * does the selling: tools grid, pricing.
  * Copy is inline English for now; i18n pass to follow (locale backlog).
  * The income/activity sub-pages (/explore/live|stories|showcase|watch-to-earn|
  * compensation) still exist but are intentionally NOT linked from here.
@@ -46,7 +46,6 @@ export default function ExploreHub() {
           </Link>
           <nav className="es-links">
             <a href="#tools">Tools</a>
-            <a href="#studio">Creative Studio</a>
             <a href="#pricing">Pricing</a>
           </nav>
           <div className="es-nav-cta">
@@ -75,7 +74,7 @@ export default function ExploreHub() {
         <section className="es-hero">
           <span className="es-pill reveal"><span className="es-dot" />AI marketing tools · one simple membership</span>
           <h1 className="reveal">Everything you need to<br /><span className="es-grad">market your business.</span></h1>
-          <p className="es-sub reveal">One membership unlocks the full platform — page &amp; funnel builders, lead finder, autoresponder, video campaigns, and an AI Creative Studio. Use it to grow your own business, your way.</p>
+          <p className="es-sub reveal">One $100 payment unlocks the full platform — page &amp; funnel builders, lead finder, autoresponder and video campaigns. Use it to grow your own business, your way.</p>
           <div className="es-video-wrap reveal">
             <video controls preload="metadata" playsInline poster="/static/images/explore-tour-poster.jpg">
               <source src="/static/videos/explore-tour.mp4" type="video/mp4" />
@@ -103,33 +102,9 @@ export default function ExploreHub() {
             <div className="es-card reveal"><div className="es-card-img"><img src="/static/images/tools/leadfinder.jpg" alt="Lead Finder" loading="lazy" /></div><h3>Lead Finder</h3><p>Surface and organise prospects, then turn them into a working pipeline you can act on.</p><div className="es-tag">PROSPECTING</div></div>
             <div className="es-card reveal"><div className="es-card-img"><img src="/static/images/tools/autoresponder.jpg" alt="Autoresponder & CRM" loading="lazy" /></div><h3>Autoresponder &amp; CRM</h3><p>Capture contacts, segment your audience, and send automated email campaigns that follow up for you.</p><div className="es-tag">EMAIL &amp; CONTACTS</div></div>
             <div className="es-card reveal"><div className="es-card-img"><img src="/static/images/tools/campaign.jpg" alt="Campaign Videos" loading="lazy" /></div><h3>Campaign Videos</h3><p>Launch video advertising campaigns and put your message in front of a real, engaged audience.</p><div className="es-tag">VIDEO ADVERTISING</div></div>
-            <div className="es-card reveal"><div className="es-card-img"><img src="/static/images/tools/creative-studio.jpg" alt="Creative Studio" loading="lazy" /></div><h3>Creative Studio</h3><p>Generate scroll-stopping video and images with AI — the creator studio, built right in.</p><div className="es-tag">AI VIDEO &amp; IMAGE →</div></div>
           </div>
         </section>
 
-        {/* CREATIVE STUDIO SPOTLIGHT */}
-        <section className="es-sec" id="studio">
-          <div className="es-studio reveal">
-            <div>
-              <p className="es-eyebrow" style={{ textAlign: 'left' }}>Creative Studio</p>
-              <h2 style={{ textAlign: 'left', margin: '14px 0 0', maxWidth: 'none' }}>Your digital creator studio</h2>
-              <p className="es-lead" style={{ textAlign: 'left', margin: '18px 0 0' }}>Describe what you want and generate professional video and images in minutes. Multiple AI models, studio-grade output, simple pay-as-you-go credits — only pay for what you create.</p>
-              <div className="es-chips">
-                <span className="es-chip">Text → video</span>
-                <span className="es-chip">Image generation</span>
-                <span className="es-chip">Multiple AI models</span>
-                <span className="es-chip">Pay-per-use credits</span>
-              </div>
-              <div style={{ marginTop: '28px' }}><Link to="/register" className="es-btn es-primary es-lg">Try Creative Studio</Link></div>
-            </div>
-            <div className="es-reel">
-              <video className="es-reel-video" controls preload="metadata" playsInline poster="/static/images/creative-studio-poster.jpg">
-                <source src="/static/videos/creative-studio.mp4" type="video/mp4" />
-              </video>
-              <div className="es-promptbar"><span className="es-ph">A cinematic product reveal, soft studio light…</span><span className="es-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span></div>
-            </div>
-          </div>
-        </section>
 
         {/* AUDIENCE */}
         <section className="es-sec">
@@ -152,12 +127,6 @@ export default function ExploreHub() {
               <div className="es-amount">$20<span>/mo</span></div>
               <p className="es-fine">billed monthly · cancel anytime</p>
               <ul>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>SuperPages — pages &amp; funnels</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>LinkHub link-in-bio</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>Lead Finder &amp; CRM</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>Autoresponder &amp; email campaigns</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>Video advertising campaigns</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M20 6 9 17l-5-5" /></svg>Creative Studio access <span style={{ color: 'var(--es-muted)' }}>(credits pay-as-you-go)</span></li>
               </ul>
               <Link to="/register" className="es-btn es-primary es-lg" style={{ width: '100%', justifyContent: 'center' }}>Start for $20/mo</Link>
             </div>

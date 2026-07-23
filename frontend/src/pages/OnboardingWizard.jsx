@@ -243,7 +243,6 @@ export default function OnboardingWizard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             {[
-              { icon: '🎬', title: t('onboarding.create.videoTitle'), desc: t('onboarding.create.videoDesc'), link: '/creative-studio', color: 'var(--sap-purple)' },
               { icon: '🔗', title: t('onboarding.create.linkhubTitle'), desc: t('onboarding.create.linkhubDesc'), link: '/linkhub', color: 'var(--sap-accent)' },
               { icon: '📢', title: t('onboarding.create.shareTitle'), desc: t('onboarding.create.shareDesc'), link: '/affiliate', color: 'var(--sap-green-bright)' },
             ].map(function(item) {

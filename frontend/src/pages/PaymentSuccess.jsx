@@ -51,7 +51,7 @@ function getTypeConfig(t) {
     icon: '🎬',
     title: t('paymentSuccess.creditsAdded'),
     desc: t('paymentSuccess.creditsReady'),
-    action: '/creative-studio',
+    action: '/tools',
     actionLabel: t('paymentSuccess.goToCreativeStudio'),
     color: 'var(--sap-cyan, #06b6d4)',
   },

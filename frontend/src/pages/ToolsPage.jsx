@@ -15,7 +15,7 @@
  * Locked legacy structure (Free / Basic / Pro) was retired 20 May 2026
  * along with the dual-tier membership purge. Under flat-pricing every
  * active member gets all 13 tools — the categorisation here is about
- * user intent (creating creative vs building/distributing), not pricing.
+ * user intent (creating assets vs building/distributing), not pricing.
  *
  * Locked card state still shows for free members (is_active=false),
  * with a CTA to activate Partner membership.
@@ -79,7 +79,7 @@ export default function ToolsPage() {
               ? t('tools.door.ai.eyebrowOpen', { defaultValue: 'Included with your membership' })
               : t('tools.door.ai.eyebrowLocked', { defaultValue: 'Activate to unlock' })}
             title={t('tools.door.ai.title', { defaultValue: 'AI Content Tools' })}
-            desc={t('tools.door.ai.desc', { defaultValue: 'Creative Studio, Content Creator, Banner Creator, Meme Generator. Generate assets, copy, and ideas with AI.' })}
+            desc={t('tools.door.ai.desc', { defaultValue: 'Content Creator, Banner Creator, Meme Generator. Generate assets, copy, and ideas with AI.' })}
             count={isActive
               ? t('tools.door.ai.count', { defaultValue: '7 tools' })
               : t('tools.door.ai.countLocked', { defaultValue: '7 tools · locked' })}

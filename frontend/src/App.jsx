@@ -93,7 +93,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
-const CreativeStudio = React.lazy(() => import('./pages/creative-studio/CreativeStudio'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
 
 // ── Background-preload all lazy chunks after first paint ──────────────────
@@ -386,7 +385,7 @@ function AppRoutes() {
       <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
-      <Route path="/creative-studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#c8102e',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></RequireTier></ProtectedRoute>} />
+      <Route path="/creative-studio" element={<HardRedirect to="/tools" />} />
       <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />

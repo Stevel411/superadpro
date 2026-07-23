@@ -256,7 +256,6 @@ export default function StartPage() {
                 <h3>AI tools that work</h3>
                 <p>A complete content and marketing suite. Real software with margin and substance &mdash; the kind you would pay separate subscriptions for.</p>
                 <ul>
-                  <li>Creative Studio &mdash; ten AI content tools</li>
                   <li>Brand Poster Generator &mdash; six templates</li>
                   <li>Lead Finder &mdash; live web-sourced prospects</li>
                   <li>SuperPages &mdash; drag-and-drop landing pages</li>
@@ -292,7 +291,6 @@ export default function StartPage() {
 
             <div className="tools-grid">
               {[
-                { title: 'Creative Studio', desc: 'Ten AI content tools under one roof. Video, images, music, voiceover, lip sync, storyboards, captions, editor, gallery, credit packs.', icon: 'M12 2L2 7v10l10 5 10-5V7l-10-5z' },
                 { title: 'Brand Poster Generator', desc: 'Six AI templates. Branded marketing posters in sixty seconds. Your referral link baked in automatically.', icon: 'M4 4h16v16H4zM4 9h16M9 4v16' },
                 { title: 'Lead Finder', desc: 'Search-driven prospect lists with live contact details. Filter by sector, geography, and intent signals.', icon: 'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35' },
                 { title: 'SuperPages & Funnels', desc: 'Drag-and-drop landing page builder. Eight templates, AI copy, free-form canvas, conversion tracking.', icon: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10' },

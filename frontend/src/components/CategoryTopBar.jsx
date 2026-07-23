@@ -78,7 +78,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
         {toolBrand ? (
           /* Tool-branded lockup (2 Jul 2026, Steve): tool pages present their
              own identity in the corner. Same home link. First adopter:
-             SuperLeads; SuperPages/Creative Studio/Ad Studio can pass their
+             SuperLeads; SuperPages/Ad Studio can pass their
              own toolBrand when Steve schedules the uniform pass. */
           <Link className="brand" to="/home-preview" style={{ textDecoration: 'none' }}>
             <span style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,' + (toolBrand.gradient ? toolBrand.gradient[0] : '#12388f') + ',' + (toolBrand.gradient ? toolBrand.gradient[1] : '#0a1f52') + ')', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 9px rgba(14,165,233,.35)', flexShrink: 0 }}>

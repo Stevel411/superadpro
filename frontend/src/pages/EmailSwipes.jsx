@@ -26,7 +26,7 @@ body:`Hi {{name}},
 
 You asked what I'm using to run my marketing these days — here it is.
 
-It's called AdvantageLife. One payment of $100 and I have lifetime access: a page builder, email marketing, an AI creative studio for videos and images, a blog, link tools — plus all the marketing materials.
+It's called AdvantageLife. One payment of $100 and I have lifetime access: a page builder, email marketing, a blog, link tools — plus all the marketing materials.
 
 Not $100 a month. $100 once. I was paying more than that every month across three separate subscriptions.
 

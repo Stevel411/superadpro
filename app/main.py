@@ -1997,12 +1997,10 @@ footer a{color:#b9c8ef}
   <div class="grid">
     <a class="tool" href="/labs/pagebuilder" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
     <a class="tool" href="/linkhub" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
-    <a class="tool" href="/creative-studio"><div class="img"></div><div class="bd"><div class="ic">✨</div><b>Creative Studio</b><p>AI ads, images and video in minutes — ready to post anywhere.</p></div></a>
     <a class="tool" href="/pro/leads" style="--img:url('/static/images/tools/email.webp')"><div class="img"></div><div class="bd"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div></a>
     <a class="tool" href="/campaigns" style="--img:url('/static/images/tools/video-campaigns.webp')"><div class="img"></div><div class="bd"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div></a>
     <a class="tool" href="/watch" style="--img:url('/static/images/tools/watch-to-earn.webp')"><div class="img"></div><div class="bd"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div></a>
   </div>
-  <div class="ai"><span class="lbl">Creative Studio runs frontier AI</span><span class="m">Sora 2</span><span class="m">Veo</span><span class="m">Kling 3</span><span class="m">FLUX.1</span></div>
 </section>
 
 <section id="plan" style="padding-top:20px">
@@ -57543,8 +57541,21 @@ def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
     return row
 @app.get("/creative-studio")
 async def creative_studio_page(request: Request, user: User = Depends(get_current_user)):
-    """Serve the Creative Studio page — handled by React router client-side.
-    AdvantageLife: members-only tool; free members sent to /join."""
+    """Creative Studio.
+
+    RETIRED ON ADVANTAGELIFE (23 Jul 2026, Steve's call): credit-pack take-up
+    on SuperAdPro never materialised and the output did not beat cheaper
+    standalone tools, so it was not earning its place in a toolkit sold as
+    "software you'd pay for on its own". Removed from every AL member-facing
+    surface rather than left to be discovered.
+
+    Redirects rather than 404s — a retired page left routable is exactly how
+    the old grid compensation page survived a commit that claimed to delete it.
+    SuperAdPro on main is untouched; this is brand-gated.
+    """
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/tools", status_code=301)
     _gate = _al_gate_page(user, shared_route=True)
     if _gate:
         return _gate
@@ -70675,7 +70686,7 @@ h1 .r{color:var(--red)}
       <div class="inc">
         <div class="row"><span class="ck">✓</span><span><b>Page &amp; funnel builder</b> — pages, funnels, custom domains</span></div>
         <div class="row"><span class="ck">✓</span><span><b>Autoresponder</b> — lists, sequences, broadcasts, your sending domain</span></div>
-        <div class="row"><span class="ck">✓</span><span><b>AI Creative Studio</b> — video, images and voice from a prompt</span></div>
+        
         <div class="row"><span class="ck">✓</span><span><b>Video advertising</b> — campaigns watched by real members</span></div>
         <div class="row"><span class="ck">✓</span><span><b>Watch-to-Earn + the pass-up plan</b> — the earning side, when you want it</span></div>
       </div>

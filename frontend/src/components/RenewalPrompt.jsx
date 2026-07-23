@@ -125,7 +125,7 @@ export default function RenewalPrompt() {
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginBottom: 8 }}>
                 <span style={{ color: '#0891b2', fontSize: 17, lineHeight: 1.3 }}>&#9632;</span>
-                <span style={{ fontSize: 13, color: '#3a465c', lineHeight: 1.45 }}>Your tools stay on &mdash; SuperPages, SuperLeads, Creative Studio, Ad Studio</span>
+                <span style={{ fontSize: 13, color: '#3a465c', lineHeight: 1.45 }}>Your tools stay on &mdash; SuperPages, SuperLeads, Ad Studio</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
                 <span style={{ color: '#0891b2', fontSize: 17, lineHeight: 1.3 }}>&#9632;</span>

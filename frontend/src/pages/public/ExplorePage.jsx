@@ -528,11 +528,6 @@ export default function ExplorePage(props) {
                     <div className="tool-card-name">{t('explore.toolContentCreatorName', { defaultValue: 'Content Creator' })}</div>
                     <div className="tool-card-body">{t('explore.toolContentCreatorBody', { defaultValue: 'AI-powered copy generation for posts, captions, ads and email. Writer\'s block, solved.' })}</div>
                   </div>
-                  <div className="tool-card" data-c="purple">
-                    <div className="tool-card-icon">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                    </div>
-                    <div className="tool-card-name">{t('explore.toolCreativeStudioName', { defaultValue: 'Creative Studio' })}</div>
                     <div className="tool-card-body">{t('explore.toolCreativeStudioBody', { defaultValue: 'AI video, images, music, voiceover, lip sync. Pay-as-you-go with credit packs.' })}</div>
                   </div>
                   <div className="tool-card" data-c="sky">

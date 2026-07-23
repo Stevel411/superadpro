@@ -7,7 +7,7 @@
  *
  * Tool categorisation (locked 20 May 2026):
  *   AI Content Tools (7) — tools whose primary interaction is "AI
- *     generates an asset for you": Creative Studio, Content Creator,
+ *     generates an asset for you": Content Creator,
  *     SuperDeck, Banner Creator, Meme Generator, QR Generator,
  *     Niche Finder.
  *   Builder Tools (6) — tools whose primary interaction is "you build
@@ -41,7 +41,6 @@ import {
 
 export function getAIContentTools(t) {
   return [
-    { id: 'studio',  icon: Sparkles, name: t('tools.ai.studio.name', { defaultValue: 'Creative Studio' }), desc: t('tools.ai.studio.desc', { defaultValue: 'AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse.' }), to: '/creative-studio' },
   ];
 }
 
@@ -70,7 +69,7 @@ export function getFreeTools(t) {
 }
 
 export function getBasicTools(t) {
-  // Old "Basic" bucket: Creative Studio, Content Creator, LinkHub,
+  // Old "Basic" bucket: Content Creator, LinkHub,
   // Link Tools, SuperDeck. Map to current inventory.
   var ai = getAIContentTools(t);
   var builder = getBuilderTools(t);

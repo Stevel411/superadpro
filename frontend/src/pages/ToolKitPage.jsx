@@ -6,7 +6,6 @@ import CategoryShell from '../components/CategoryShell';
 const MORE = [
   { to:'/my-site', cls:'t1', name:'My Blog', desc:'Your own blog and website — posts, pages, themes and a custom domain.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h13a1 1 0 011 1v13a1 1 0 01-1 1H6a2 2 0 01-2-2V5z"/><path d="M18 9h1a1 1 0 011 1v8a2 2 0 01-2 2"/><path d="M8 9h6M8 13h6M8 17h3"/></svg> },
   { to:'/pro/leads', cls:'t2', name:'Autoresponder', desc:'Capture leads and follow up automatically with email sequences.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> },
-  { to:'/creative-studio', cls:'t3', name:'Content creator', desc:'Generate videos, posters and posts for your campaigns in seconds.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10z"/></svg> },
   { to:'/campaign-studio', cls:'t4', name:'Ad creator', desc:'Build the campaign ads that get watched across the network.', icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-5v12L3 13z"/></svg> },
 ];
 

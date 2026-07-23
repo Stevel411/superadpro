@@ -91,7 +91,6 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
       // ── START HERE: the create → publish → share → find-audience loop ──
       { subheader: t('nav.toolsStartHere', { defaultValue: 'Start Here' }), accent: true },
-      { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio', basic: true },
       { label: t('nav.superPages', { defaultValue: 'Page Builder' }), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub', basic: true },
       { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },

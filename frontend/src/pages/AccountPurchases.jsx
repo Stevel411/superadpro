@@ -82,10 +82,6 @@ export default function AccountPurchases() {
                     value="—"
                     meta={t('account.noGrid',{defaultValue:'No active campaign tier yet'})}
                     status={t('account.notActive',{defaultValue:'None'})}/>}
-              <HCard icon="✦" title={t('account.creativeStudio',{defaultValue:'Creative Studio'})}
-                value={(h.credit_balance||0)+' '+t('account.credits',{defaultValue:'credits'})}
-                meta={t('account.creditsMeta',{defaultValue:'Ready to use'})}
-                status={t('account.available',{defaultValue:'Available'})}/>
             </div>
 
             <div style={labelS}>{t('account.historyLabel',{defaultValue:'Purchase history'})}</div>

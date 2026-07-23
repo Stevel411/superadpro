@@ -8,7 +8,7 @@ import { formatMoney } from '../utils/money';
 // light mockup: white page, floating navy sidebar, earnings hero with REAL
 // member-to-member figures ("not a projection"), featured campaign video
 // (random rotation — every member's campaign gets dashboard exposure),
-// Creative Studio door, real team card. Served at /home-preview (main bundle).
+// Real team card. Served at /home-preview (main bundle).
 
 const CSS = `
 .al{min-height:100vh;background:#f3f5fb;font-family:'Inter',system-ui,sans-serif;color:#0d1230;padding:18px clamp(12px,2.5vw,28px) 90px}

@@ -14,7 +14,7 @@
  *   Examples:
  *     /tools             → Overview tab
  *     /tools/free, /free/banner-creator, etc. → Free Tools tab
- *     /tools/basic, /creative-studio, /linkhub, etc. → Basic Membership tab
+ *     /tools/basic, /linkhub, etc. → Basic Membership tab
  *     /tools/pro, /lead-finder, /pro/funnels, etc. → Pro Membership tab
  *
  * Tier-awareness:
@@ -62,11 +62,10 @@ function buildTabs(t) {
       icon: Sparkles, tone: 'cyan',
       path: '/tools/ai-content',
       // Match the sub-page + the seven AI-content tool pages so that
-      // when a member is deep inside Creative Studio etc. the right
+      // when a member is deep inside a tool, the right
       // tab lights up.
       match: [
         '/tools/ai-content',
-        '/creative-studio',
         // Legacy paths kept here so deep-pages still highlight correctly
         // until the legacy redirects clear out of cache.
         '/tools/free',
@@ -308,7 +307,6 @@ export function isToolsFamilyRoute(pathname) {
     // and /tools/builder via the matching loop below.
     '/tools',
     // AI Content tools (deep pages)
-    '/creative-studio',
     // Builder tools (deep pages)
     '/linkhub',
     '/link-tools',
