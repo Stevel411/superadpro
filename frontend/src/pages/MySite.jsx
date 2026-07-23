@@ -27,7 +27,7 @@ const C = {
   ink: '#0a1438', ink2: '#1e2c54', dim: '#5b6b8c', line: '#e6edf8', line2: '#eef3fa',
   cy1: '#0a1f52', cy2: '#c8102e', bg: '#f4f7fc', card: '#fff', grn: '#16a34a', amb: '#b45309',
 };
-const sora = "'Sora',sans-serif";
+const sora = "'Inter',sans-serif";
 const mono = "'JetBrains Mono',monospace";
 
 const THEMES = [
@@ -133,6 +133,7 @@ export default function MySite() {
 
   const load = async () => {
     setLoading(true);
+    setErr(null);
     try {
       const d = await apiGet('/api/blog/me'); setData(d);
       if (d.theme_accents) setThemeAccents(d.theme_accents);
@@ -363,6 +364,31 @@ export default function MySite() {
 
   const isPro = data?.is_pro;
   const blog = data?.blog;
+
+  // ── load failed ───────────────────────────────────────────────────────────
+  // This has to come BEFORE the entitlement gate. /api/blog/me failing leaves
+  // `data` null, so `data?.is_pro` is undefined, so `!isPro` is true — and a
+  // paid-up member was shown a paywall for something they already own, with a
+  // Get lifetime access button that sends them to /join, which tells them they
+  // are already in and bounces them to the dashboard. An API error must never
+  // be indistinguishable from "you have not paid".
+  if (err || !data) {
+    return (
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+        <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: sora, fontSize: 22, fontWeight: 800, color: C.ink }}>Couldn't load your site</h2>
+          <p style={{ color: C.dim, fontSize: 15, lineHeight: 1.6, margin: '12px 0 20px' }}>
+            Something went wrong fetching your website. This isn't a problem with your
+            membership — your access is unaffected.
+          </p>
+          {err ? (
+            <p style={{ color: C.dim, fontSize: 12.5, fontFamily: 'monospace', background: '#f4f7fc', border: '1px solid ' + C.line, borderRadius: 10, padding: '10px 14px', margin: '0 0 20px', wordBreak: 'break-word' }}>{String(err)}</p>
+          ) : null}
+          <button onClick={load} style={btn('primary')}>Try again</button>
+        </div>
+      </AlShell>
+    );
+  }
 
   // ── gated (hasn't joined the club) ────────────────────────────────────────
   // AL model: the $100 one-time join unlocks every tool for life. There is no
