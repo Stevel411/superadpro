@@ -301,7 +301,7 @@ export default function Watch() {
     <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{textAlign:'center',padding:'64px 24px',maxWidth:420,margin:'0 auto'}}>
         <div style={{fontSize:48,marginBottom:12,lineHeight:1}}>📺</div>
-        <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>
+        <div style={{fontFamily:'Inter,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>
           {t('watch.unableToLoad')}
         </div>
         <p style={{fontSize:14,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:22}}>
@@ -310,7 +310,7 @@ export default function Watch() {
         <button onClick={() => window.location.reload()} style={{
           display:'inline-flex',alignItems:'center',gap:8,padding:'12px 26px',borderRadius:11,border:'none',
           background:'linear-gradient(135deg,#c8102e,#a30d26)',color:'#fff',fontWeight:800,fontSize:14,
-          fontFamily:'Sora,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(200,16,46,0.35)',
+          fontFamily:'Inter,sans-serif',cursor:'pointer',boxShadow:'0 4px 14px rgba(200,16,46,0.35)',
         }}>
           ↻ Try again
         </button>
@@ -383,7 +383,7 @@ export default function Watch() {
             strokeLinecap="round" strokeDasharray={c} strokeDashoffset={isCurrentWatched ? 0 : off}
             style={{transition:'stroke-dashoffset 1s linear'}}/>
         </svg>
-        <span style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:size===56?18:14,fontWeight:900,color:'var(--sap-text-primary)'}}>
+        <span style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Inter,sans-serif',fontSize:size===56?18:14,fontWeight:900,color:'var(--sap-text-primary)'}}>
           {isCurrentWatched ? '✓' : secondsLeft}
         </span>
       </div>
@@ -409,7 +409,7 @@ export default function Watch() {
         {v:d.commissions_paused?t('watch.paused'):t('watch.active'), l:t('watch.commissions'), c:d.commissions_paused?'var(--sap-red-bright)':'var(--sap-green)'},
       ].map((s,i) => (
         <div key={i} style={{background:dark?'rgba(255,255,255,.04)':'var(--sap-bg-page)',border:`1px solid ${dark?'rgba(255,255,255,.08)':'var(--sap-border)'}`,borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
+          <div style={{fontFamily:'Inter,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
           <div style={{fontSize:13,fontWeight:700,letterSpacing:.5,textTransform:'uppercase',color:dark?'rgba(200,220,255,.3)':'var(--sap-text-muted)',marginTop:4}}>{s.l}</div>
         </div>
       ))}
@@ -424,7 +424,7 @@ export default function Watch() {
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>⏳</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>{t('watch.noMoreVideos')}</div>
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>{t('watch.noMoreVideos')}</div>
             <div style={{fontSize:16,color:'var(--sap-text-muted)',lineHeight:1.7,marginBottom:12}}>{t('watch.watchedAllAvailable', {watched, limit})}</div>
             <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:24}}>
               {Array.from({length:limit}).map((_,i)=>(
@@ -495,7 +495,7 @@ export default function Watch() {
               <div style={{display:'inline-block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#12388f,#0a1f52)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(18,56,143,.3)',animation:'badgeSlide .6s ease-out'}}>{t('watch.fullyQualified')}</div>
 
               {/* Title */}
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0a1f52',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
+              <div style={{fontFamily:'Inter,sans-serif',fontSize:30,fontWeight:900,color:'#0a1f52',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
               <div style={{fontSize:16,color:'#5a6584',lineHeight:1.7,maxWidth:420,margin:'0 auto 28px',opacity:.7,animation:'fadeUp 1s ease-out'}}>
                 {t('watch.watchedAllRequired', {count: done})}
               </div>
@@ -509,7 +509,7 @@ export default function Watch() {
                   {v:t('watch.tier', {n:d.tier||1}),l:t('watch.level'),c:'#12388f'},
                 ].map((s,i)=>(
                   <div key={i} style={{background:'#fff',border:'1px solid rgba(10,31,82,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
+                    <div style={{fontFamily:'Inter,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
                     <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#5a6584',marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
@@ -551,7 +551,7 @@ export default function Watch() {
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>📭</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>{t('watch.noActiveCampaigns')}</div>
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>{t('watch.noActiveCampaigns')}</div>
             <div style={{fontSize:16,color:'var(--sap-text-muted)',lineHeight:1.7,marginBottom:24}}>{t('watch.checkBackSoon')}</div>
             <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
               {userHasTier ? (
@@ -599,7 +599,7 @@ export default function Watch() {
               </svg>
               <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:40}}>✓</div>
             </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-green)',marginBottom:8}}>{t('watch.todaysWatchComplete')}</div>
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-green)',marginBottom:8}}>{t('watch.todaysWatchComplete')}</div>
             <div style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.7,marginBottom:8}}>
               {t('watch.watchedOfToday', {watched, limit})}
             </div>
@@ -613,7 +613,7 @@ export default function Watch() {
                 {v:t('watch.active'), l:t('watch.commissions'), c:'var(--sap-green)'},
               ].map((s,i) => (
                 <div key={i} style={{background:'var(--sap-bg-elevated)',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center'}}>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
+                  <div style={{fontFamily:'Inter,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
                   <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'var(--sap-text-muted)',marginTop:4}}>{s.l}</div>
                 </div>
               ))}
@@ -640,7 +640,7 @@ export default function Watch() {
           </div>
         </div>
         <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:9,flexWrap:'wrap'}}>
-          <div style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:9,padding:'7px 13px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800,color:'#fff'}}>{t('watch.tier', {n:d.tier})}</div>
+          <div style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:9,padding:'7px 13px',fontFamily:'Inter,sans-serif',fontSize:12.5,fontWeight:800,color:'#fff'}}>{t('watch.tier', {n:d.tier})}</div>
           <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:800,padding:'7px 13px',borderRadius:9,
             ...(quotaComplete?{background:'rgba(22,163,74,.16)',border:'1px solid rgba(22,163,74,.35)',color:'#4ade80'}:{background:'rgba(232,32,63,.16)',border:'1px solid rgba(232,32,63,.35)',color:'#ff8090'})}}>
             <span style={{width:7,height:7,borderRadius:'50%',background:quotaComplete?'#4ade80':'#ff8090',animation:'pulse 1.5s infinite'}}/>
@@ -695,7 +695,7 @@ export default function Watch() {
               {paused && !isCurrentWatched && (
                 <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.88)',zIndex:30,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:10,backdropFilter:'blur(8px)'}}>
                   <div style={{fontSize:40}}>⏸</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff'}}>{t('watch.pausedOverlay')}</div>
+                  <div style={{fontFamily:'Inter,sans-serif',fontSize:18,fontWeight:800,color:'#fff'}}>{t('watch.pausedOverlay')}</div>
                   <div style={{fontSize:14,color:'rgba(255,255,255,.7)'}}>{t('watch.returnToTab')}</div>
                   <div style={{fontSize:13,color:'rgba(255,255,255,.5)',marginTop:6}}>{t('watch.progressSaved', { defaultValue: 'Your progress is saved' })}</div>
                 </div>
@@ -738,7 +738,7 @@ export default function Watch() {
                   <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(200,16,46,.1)',border:'1px solid rgba(200,16,46,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
                   <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.previewHint', { defaultValue: 'You\u2019re viewing your own ad — no timer, no view counted.' })}</div>
                 </div>
-                <Link to="/video-library"
+                <Link to="/campaigns"
                   style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:14,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
                   ← {t('watch.backToCampaigns', { defaultValue: 'Back to My Campaigns' })}
                 </Link>
@@ -770,7 +770,7 @@ export default function Watch() {
                     if (ni >= 0) { setCurrentIdx(-1); setData(nd); setTimeout(()=>setCurrentIdx(ni),50); }
                     else { setData(nd); }
                   }
-                }} style={{background:'#fff',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('watch.continueBtn',{defaultValue:'Continue'})} →</button>
+                }} style={{background:'#fff',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'10px 18px',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('watch.continueBtn',{defaultValue:'Continue'})} →</button>
               </div>
             )}
 
@@ -780,18 +780,18 @@ export default function Watch() {
             {!isPreviewMode && current?.advertiser && (
               <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap',borderTop:'1px solid #f1f3f7'}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
-                  <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#12388f,#0a1f52)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:13,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{current.advertiser.charAt(0).toUpperCase()}</div>
+                  <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#12388f,#0a1f52)',color:'#fff',fontFamily:'Inter,sans-serif',fontWeight:800,fontSize:13,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{current.advertiser.charAt(0).toUpperCase()}</div>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:13.5,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>@{current.advertiser}</div>
                     <div style={{fontSize:11.5,color:'var(--sap-text-muted)',fontWeight:600}}>{t('watch.runsCampaign',{defaultValue:'runs this campaign'})}</div>
                   </div>
                 </div>
                 {advSubscribed ? (
-                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#f3f5fb',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background:'#f3f5fb',border:'1.5px solid #a7f3d0',color:'#047857',borderRadius:10,padding:'9px 16px',fontFamily:'Inter,sans-serif',fontSize:12.5,fontWeight:800}}>✓ {t('watch.subscribedTo',{defaultValue:'Subscribed'})}</span>
                 ) : advCanSub ? (
-                  <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(200,16,46,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
+                  <button onClick={()=>setSubOpen(true)} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:10,padding:'10px 18px',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',boxShadow:'0 4px 12px rgba(200,16,46,.3)'}}>{t('watch.subscribeCta',{defaultValue:'Like what you saw? Subscribe'})}</button>
                 ) : (
-                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background: timerDone ? '#fffbeb' : '#eef2f8',color: timerDone ? '#b45309' : '#94a3b8',border: timerDone ? '1.5px solid #fcd34d' : 'none',borderRadius:10,padding:'9px 16px',fontFamily:'Sora,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {timerDone ? t('watch.subscribeLockedReady',{defaultValue:'Tap “Mark as Watched” to unlock'}) : t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
+                  <span style={{display:'inline-flex',alignItems:'center',gap:6,background: timerDone ? '#fffbeb' : '#eef2f8',color: timerDone ? '#b45309' : '#94a3b8',border: timerDone ? '1.5px solid #fcd34d' : 'none',borderRadius:10,padding:'9px 16px',fontFamily:'Inter,sans-serif',fontSize:12.5,fontWeight:800}}>🔒 {timerDone ? t('watch.subscribeLockedReady',{defaultValue:'Tap “Mark as Watched” to unlock'}) : t('watch.subscribeLocked',{defaultValue:'Watch to unlock subscribe'})}</span>
                 )}
               </div>
             )}
@@ -801,7 +801,7 @@ export default function Watch() {
           {isPreviewMode ? (
             <div className="watch-mobile-timer" style={{display:'none',alignItems:'center',gap:10,padding:'14px 20px',background:'linear-gradient(90deg, rgba(200,16,46,.08), rgba(18,56,143,.08))',borderTop:'1px solid rgba(200,16,46,.18)',borderBottom:'1px solid rgba(200,16,46,.18)',flexWrap:'wrap'}}>
               <span style={{fontSize:9,fontWeight:800,letterSpacing:1.2,textTransform:'uppercase',color:'var(--sap-accent)',background:'rgba(200,16,46,.1)',border:'1px solid rgba(200,16,46,.25)',padding:'4px 10px',borderRadius:6}}>👁 {t('watch.previewMode', { defaultValue: 'Preview Mode' })}</span>
-              <Link to="/video-library"
+              <Link to="/campaigns"
                 style={{marginLeft:'auto',display:'inline-flex',alignItems:'center',gap:6,padding:'10px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
                 ← {t('watch.backToCampaigns', { defaultValue: 'Back to My Campaigns' })}
               </Link>
@@ -826,7 +826,7 @@ export default function Watch() {
             <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                 <div style={{fontSize:13,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-text-muted)'}}>{t('watch.todaysProgress')}</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
+                <div style={{fontFamily:'Inter,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
                   {watched} <span style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:500}}>/ {limit}</span>
                 </div>
               </div>
@@ -839,7 +839,7 @@ export default function Watch() {
             <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                 <div style={{fontSize:13,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-text-muted)'}}>{t('watch.todaysProgress')}</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
+                <div style={{fontFamily:'Inter,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
                   {watched} <span style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:500}}>/ {limit}</span>
                 </div>
               </div>
@@ -863,7 +863,7 @@ export default function Watch() {
               {v:d.commissions_paused?t('watch.paused'):t('watch.active'), l:t('watch.commissions'), c:d.commissions_paused?'var(--sap-red-bright)':'var(--sap-green)'},
             ].map((s,i) => (
               <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
+                <div style={{fontFamily:'Inter,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
                 <div style={{fontSize:13,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'var(--sap-text-muted)',marginTop:4}}>{s.l}</div>
               </div>
             ))}
@@ -905,10 +905,10 @@ export default function Watch() {
                     className={watched === 0 ? 'ring-pulse' : ''}
                     style={{transition:'stroke-dasharray .6s'}}/>
                 </svg>
-                <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)'}}>{watched}</div>
+                <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Inter,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)'}}>{watched}</div>
               </div>
               <div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
+                <div style={{fontFamily:'Inter,sans-serif',fontSize:34,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
                   {watched}<span style={{fontSize:16,color:'var(--sap-text-muted)',fontWeight:500}}> / {limit}</span>
                 </div>
                 <div style={{fontSize:13,color:'#7b91a8',marginTop:3}}>{t('watch.videosWatchedLabel')}</div>
@@ -966,14 +966,14 @@ export default function Watch() {
       {subOpen && current && (
         <div onClick={()=>setSubOpen(false)} style={{position:'fixed',inset:0,background:'rgba(10,20,56,.55)',zIndex:120,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,maxWidth:400,width:'100%',padding:24,boxShadow:'0 24px 64px rgba(10,20,56,.35)'}}>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:17,fontWeight:800,marginBottom:10,color:'#0f172a'}}>{t('watch.subModalTitle',{defaultValue:'Join this mailing list?'})}</div>
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:17,fontWeight:800,marginBottom:10,color:'#0f172a'}}>{t('watch.subModalTitle',{defaultValue:'Join this mailing list?'})}</div>
             <div style={{fontSize:13.5,color:'#475569',fontWeight:600,lineHeight:1.6,marginBottom:8}}>
               {t('watch.subModalBody',{defaultValue:'Your member email will be shared with'})} <b style={{color:'#0f172a'}}>@{current.advertiser}</b> {t('watch.subModalBody2',{defaultValue:'so they can send you their emails.'})}
             </div>
             <div style={{fontSize:11.5,color:'#94a3b8',fontWeight:600,marginBottom:16}}>{t('watch.subModalFine',{defaultValue:'You can unsubscribe anytime from any email they send. AdvantageLife never shares your email without a confirmation like this one.'})}</div>
             <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
-              <button onClick={()=>setSubOpen(false)} style={{background:'#fff',border:'1.5px solid #cbd5e1',color:'#475569',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('common.cancel',{defaultValue:'Cancel'})}</button>
-              <button onClick={doSubscribe} disabled={subBusy} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:9,padding:'10px 18px',fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',opacity:subBusy?0.6:1}}>{subBusy ? '…' : t('watch.subModalYes',{defaultValue:'Yes — join the list'})}</button>
+              <button onClick={()=>setSubOpen(false)} style={{background:'#fff',border:'1.5px solid #cbd5e1',color:'#475569',borderRadius:9,padding:'10px 18px',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer'}}>{t('common.cancel',{defaultValue:'Cancel'})}</button>
+              <button onClick={doSubscribe} disabled={subBusy} style={{background:'linear-gradient(135deg,#c8102e,#e8203f)',color:'#fff',border:'none',borderRadius:9,padding:'10px 18px',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:800,cursor:'pointer',opacity:subBusy?0.6:1}}>{subBusy ? '…' : t('watch.subModalYes',{defaultValue:'Yes — join the list'})}</button>
             </div>
           </div>
         </div>
