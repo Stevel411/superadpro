@@ -1932,7 +1932,7 @@ h1 .u::after{content:"";position:absolute;left:2%;right:2%;bottom:-6px;height:7p
 .ai{display:flex;justify-content:center;align-items:center;gap:9px;flex-wrap:wrap;margin-top:34px}
 .ai .lbl{font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b9c8ef;margin-right:4px}
 .ai .m{font-size:12px;font-weight:800;color:#fff;background:rgba(10,20,50,.5);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);border-radius:18px;padding:8px 15px}
-section{max-width:1180px;margin:0 auto;padding:70px 24px}#plan{position:relative}#plan::before{content:'';position:absolute;inset:0;left:50%;transform:translateX(-50%);width:100vw;background-image:linear-gradient(180deg,rgba(8,18,54,.62) 0%,rgba(8,18,54,.42) 45%,rgba(10,31,82,.78) 100%),url('/static/images/al-plan-lifestyle.webp');background-size:cover;background-position:center;z-index:0}#plan>*{position:relative;z-index:1}@media(max-width:920px){#plan::before{background-image:linear-gradient(180deg,rgba(8,18,54,.66) 0%,rgba(8,18,54,.48) 45%,rgba(10,31,82,.82) 100%),url('/static/images/al-plan-lifestyle-sm.webp')}}
+section{max-width:1180px;margin:0 auto;padding:70px 24px}
 .k{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#ff5a70;text-align:center;margin-bottom:12px}
 h2{font-weight:900;font-size:clamp(28px,4.6vw,42px);letter-spacing:-1.4px;text-align:center;margin-bottom:14px;text-shadow:0 3px 20px rgba(0,0,0,.35)}
 .lead{font-size:15.5px;font-weight:600;color:#dbe6ff;line-height:1.65;max-width:600px;margin:0 auto 40px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.35)}
@@ -1941,12 +1941,12 @@ h2{font-weight:900;font-size:clamp(28px,4.6vw,42px);letter-spacing:-1.4px;text-a
 .tool .ic{width:52px;height:52px;border-radius:15px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;margin:-26px 0 14px;position:relative;z-index:2;border:3px solid #fff;box-shadow:0 8px 20px -6px rgba(2,8,30,.55)}
 a.tool{text-decoration:none}a.tool:hover{transform:translateY(-3px)}.tool{transition:transform .18s ease}.tool b{font-weight:900;font-size:18px;display:block;margin-bottom:7px;letter-spacing:-.4px}
 .tool p{font-size:13.5px;font-weight:600;color:var(--dim);line-height:1.6}
-.income{background:rgba(255,255,255,.82);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);border:1px solid rgba(255,255,255,.45);color:var(--ink);border-radius:24px;padding:clamp(28px,5vw,52px);box-shadow:0 30px 70px -25px rgba(2,8,30,.55)}
+.income{background-image:linear-gradient(180deg,rgba(255,255,255,__SCRIM_T__) 0%,rgba(255,255,255,__SCRIM_M__) 50%,rgba(255,255,255,__SCRIM_B__) 100%),url('/static/images/al-plan-lifestyle.webp');background-size:cover;background-position:center;background-color:#eef2fb;border:1px solid rgba(255,255,255,.55);color:var(--ink);border-radius:24px;padding:clamp(28px,5vw,52px);box-shadow:0 30px 70px -25px rgba(2,8,30,.55)}
 .income h2,.income .lead{color:var(--ink);text-shadow:none}
 .income .lead{color:var(--dim)}
 .income .k{color:var(--red)}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.step{border:2px solid var(--line);border-radius:16px;padding:22px}
+.step{border:1px solid rgba(255,255,255,.6);border-radius:16px;padding:22px;background:rgba(255,255,255,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}@media(max-width:920px){.income{background-image:linear-gradient(180deg,rgba(255,255,255,__SCRIM_MT__) 0%,rgba(255,255,255,__SCRIM_MM__) 50%,rgba(255,255,255,__SCRIM_MB__) 100%),url('/static/images/al-plan-lifestyle-sm.webp')}}
 .step .n{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .step b{font-weight:900;font-size:15.5px;display:block;margin-bottom:6px;color:var(--ink)}
 .step p{font-size:13px;font-weight:600;color:var(--dim);line-height:1.6}
@@ -2168,15 +2168,51 @@ def al_plan_page():
     return HTMLResponse(_AL_PLAN)
 
 
+# White scrim over the lifestyle photo inside the Plan card, as a percentage.
+# Higher = more white veil = more legible body copy, less photo. The card
+# carries the longest text on the page, so this trades directly against
+# readability rather than being a pure taste call.
+AL_PLAN_SCRIM_DEFAULT = 78
+
+
+def _plan_scrim(pct) -> dict:
+    """Six gradient stops from one percentage. The middle sits lighter than top
+    and bottom: the heading and the dense income paragraph live there, and the
+    photo's brightest area (the sun on water) sits mid-frame too."""
+    try:
+        pct = int(pct)
+    except (TypeError, ValueError):
+        pct = AL_PLAN_SCRIM_DEFAULT
+    pct = max(20, min(96, pct))
+    mid = pct / 100.0
+    top = max(0.0, mid - 0.10)
+    bot = min(0.98, mid + 0.06)
+
+    def a(v):
+        return f"{v:.2f}".rstrip("0").rstrip(".") or "0"
+
+    return {
+        "__SCRIM_T__": a(top), "__SCRIM_M__": a(mid), "__SCRIM_B__": a(bot),
+        # Mobile runs heavier: the card is narrower, the text reflows longer,
+        # and phones get used in daylight.
+        "__SCRIM_MT__": a(min(0.98, top + 0.06)),
+        "__SCRIM_MM__": a(min(0.98, mid + 0.06)),
+        "__SCRIM_MB__": a(min(0.98, bot + 0.06)),
+    }
+
+
 @app.api_route("/", methods=["GET", "HEAD"])
-def home(request: Request, cards: str = ""):
+def home(request: Request, cards: str = "", plan: str = ""):
     """AdvantageLife public homepage (this branch deploys only the AL site).
 
-    ?cards=bg renders the toolkit cards as full-bleed photo backgrounds with
-    white text, instead of the default image-band-over-white-body treatment.
-    Preview only — see the note in the toolkit CSS for why band is the default.
+    ?cards=bg  toolkit cards as full-bleed photo backgrounds with white text,
+               instead of the default image-band-over-white-body treatment.
+    ?plan=NN   (20-96) white scrim over the lifestyle photo inside the Plan
+               card. Lower = more photo, higher = more legible copy.
     """
     html = _AL_HOME.replace("__CARDS_MODE__", "tools-bg" if cards == "bg" else "")
+    for token, value in _plan_scrim(plan or AL_PLAN_SCRIM_DEFAULT).items():
+        html = html.replace(token, value)
     return HTMLResponse(html)
 
 @app.get("/health")
