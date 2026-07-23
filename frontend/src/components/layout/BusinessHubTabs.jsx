@@ -31,8 +31,6 @@ function buildTabs(t) {
       icon: Users, tone: 'cobalt', path: '/my-team', match: ['/my-team'] },
     { id: 'analytics-full', label: t('businessHub.tabs.fullAnalytics', { defaultValue: 'Full Analytics' }),
       icon: LineChart, tone: 'cyan', path: '/analytics', match: ['/analytics'] },
-    { id: 'credits', label: t('businessHub.tabs.credits', { defaultValue: 'Creator Credits' }),
-      icon: Layers, tone: 'cobalt', path: '/my-credits', match: ['/my-credits'] },
   ];
 }
 
@@ -149,7 +147,6 @@ export function isBusinessHubFamilyRoute(pathname) {
   const PATHS = [
     '/command-centre',
     '/my-team',
-    '/my-credits',
     '/analytics',
   ];
   for (var i = 0; i < PATHS.length; i++) {

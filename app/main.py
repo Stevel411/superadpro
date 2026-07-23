@@ -57564,7 +57564,10 @@ async def creative_studio_page(request: Request, user: User = Depends(get_curren
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 @app.get("/studio")
 async def studio_page(request: Request):
-    """Serve the new full-page Studio (cobalt) — handled by React router client-side."""
+    """Full-page Studio shell — RETIRED ON ADVANTAGELIFE with Creative Studio."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/tools", status_code=301)
     if _get_react_index_html() is not None:
         return _spa_shell()
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
@@ -65597,8 +65600,16 @@ def superdeck_page(request: Request):
 
 @app.get("/my-credits")
 def my_credits_page(request: Request):
-    """Serve React SPA — Credits & Referrals page (renamed from /credit-nexus
-    30 May 2026 as part of the Nexus -> Creative Credits rebrand)."""
+    """Creative Studio credit purchase — RETIRED ON ADVANTAGELIFE (23 Jul 2026).
+
+    This page existed solely to sell credit packs for Creative Studio. With the
+    tool retired there is nothing to spend credits on, so continuing to serve a
+    purchase page would be taking money for a product that no longer exists.
+    Redirects rather than 404s. SuperAdPro on main is unaffected.
+    """
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/tools", status_code=301)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -65607,12 +65618,16 @@ def my_credits_page(request: Request):
 def credit_nexus_page(request: Request):
     # Legacy URL — 301 to the renamed page so old bookmarks/links never break.
     from starlette.responses import RedirectResponse
-    return RedirectResponse("/my-credits", status_code=301)
+    from . import brand_config
+    return RedirectResponse("/tools" if brand_config.IS_ADVANTAGELIFE else "/my-credits",
+                            status_code=301)
 
 @app.get("/credit-matrix")
 def credit_matrix_redirect(request: Request):
     from starlette.responses import RedirectResponse
-    return RedirectResponse("/my-credits", status_code=301)
+    from . import brand_config
+    return RedirectResponse("/tools" if brand_config.IS_ADVANTAGELIFE else "/my-credits",
+                            status_code=301)
 
 @app.get("/campaign-analytics")
 def campaign_analytics_page(request: Request):

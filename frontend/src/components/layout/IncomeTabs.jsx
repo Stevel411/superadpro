@@ -263,7 +263,6 @@ export function isIncomeFamilyRoute(pathname) {
     '/compensation-plan',
     '/packs',
     '/campaign-tiers',
-    '/my-credits',
     '/watch',
     '/create-campaign',
     '/video-library',

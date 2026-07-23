@@ -91,7 +91,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
-const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
 
@@ -129,7 +128,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/PlatformTour'),
   () => import('./pages/SuperLink'),
   () => import('./pages/CampaignAnalytics'),
-  () => import('./pages/CreditMatrix'),
 ];
 
 let preloadStarted = false;
@@ -382,8 +380,8 @@ function AppRoutes() {
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><LabsSuperPagesEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck" element={<Navigate to="/tools" replace />} />
-      <Route path="/my-credits" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
-      <Route path="/credit-nexus" element={<ProtectedRoute><RequireTier tier="basic"><CreditMatrix /></RequireTier></ProtectedRoute>} />
+      <Route path="/my-credits" element={<HardRedirect to="/tools" />} />
+      <Route path="/credit-nexus" element={<HardRedirect to="/tools" />} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<HardRedirect to="/tools" />} />
       <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />

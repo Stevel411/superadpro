@@ -43,7 +43,7 @@ function getTypeConfig(t) {
     icon: '💎',
     title: t('paymentSuccess.creditNexusActivated'),
     desc: t('paymentSuccess.creditNexusDesc'),
-    action: '/my-credits',
+    action: '/tools',
     actionLabel: t('paymentSuccess.viewCreditNexus'),
     color: 'var(--sap-cyan, #06b6d4)',
   },

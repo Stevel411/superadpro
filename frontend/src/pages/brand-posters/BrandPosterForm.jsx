@@ -83,7 +83,7 @@ export default function BrandPosterForm() {
 
   async function handleGenerate() {
     if (!hasAccess) {
-      navigate('/my-credits');
+      navigate('/tools');
       return;
     }
     setGenerating(true);

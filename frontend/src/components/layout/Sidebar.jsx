@@ -74,7 +74,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', basic: true, tierLocked: true },
       { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library', basic: true },
       { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics', basic: true },
-      { label: t('nav.myCredits', { defaultValue: 'Creator Credits' }), shortLabel: t('navShort.myCredits', { defaultValue: 'Credits' }), icon: Layers, path: '/my-credits', basic: true },
     ]},
 
     { type: 'divider' },

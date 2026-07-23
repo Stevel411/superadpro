@@ -79,26 +79,10 @@ export default function BrandPostersGallery() {
                 <div style={{ fontSize: 14, opacity: 0.9 }}>
                   {data.has_access
                     ? ('You have ' + (data.credit_balance || 0) + ' credits — pick a template below to start.')
-                    : ('You have ' + (data.credit_balance || 0) + ' credits. Top up your Creator Credits to start — browse the gallery to see what you\'ll get.')}
+                    : ('Browse the gallery to see what you can create.')}
                 </div>
               </div>
             </div>
-            {!data.has_access && (
-              <Link to="/my-credits" style={{
-                background: 'var(--sap-accent)',
-                color: 'white',
-                padding: '12px 20px',
-                borderRadius: 10,
-                fontWeight: 700,
-                textDecoration: 'none',
-                fontSize: 15,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}>
-                Top up Creator Credits <ArrowRight size={16} />
-              </Link>
-            )}
             {data.has_access && (
               <Link to="/brand-posters/history" style={{
                 background: 'rgba(255,255,255,0.2)',
@@ -280,7 +264,7 @@ export default function BrandPostersGallery() {
           }}>
             <strong style={{ color: 'var(--sap-text-primary)' }}>Want to make these yourself?</strong><br/>
             The Brand Poster Generator unlocks the moment you activate any Credit Nexus pack —
-            from $20 starter up to $1,000 ultimate. <Link to="/my-credits" style={{ color: 'var(--sap-accent)' }}>See packs →</Link>
+            from $20 starter up to $1,000 ultimate. 
           </div>
         )}
       </div>

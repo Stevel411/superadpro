@@ -93,7 +93,7 @@ export default function StudioShell() {
   useEffect(() => () => { [pollRef, fakeProgRef].forEach(r => r.current && clearInterval(r.current)); }, []);
 
   const goDashboard = useCallback(() => navigate('/dashboard'), [navigate]);
-  const goBuy = useCallback(() => navigate('/my-credits'), [navigate]);
+  const goBuy = useCallback(() => navigate('/tools'), [navigate]);
 
   const fmt = (n) => (n == null ? '—' : n.toLocaleString());
   const cost = segCount(length) * COST_PER_SEG;

@@ -98,7 +98,7 @@ export default function BusinessHub() {
         { key: 'credits', icon: Layers, grad: 'linear-gradient(135deg,#0e7490,#06b6d4)',
           title: t('businessHub.creatorCredits', { defaultValue: 'Creator Credits' }),
           desc: t('businessHub.creatorCreditsDesc', { defaultValue: 'Your credit balance, packs and usage across the creator tools.' }),
-          onClick: go('/my-credits') },
+          onClick: go('/tools') },
         { key: 'calc', icon: Zap, grad: 'linear-gradient(135deg,#164e63,#22d3ee)',
           title: t('businessHub.gridCalculator', { defaultValue: 'Grid Calculator' }),
           desc: t('businessHub.gridCalculatorDesc', { defaultValue: 'Model your earnings across tiers and team-growth scenarios.' }),
