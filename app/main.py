@@ -9622,7 +9622,14 @@ def marketing_lead_magnet_detail(key: str):
 
 @app.get("/campaign-videos")
 def campaign_videos(request: Request):
-    """Serve React SPA — My Campaign Videos hub."""
+    """Retired hub — the member's campaigns live at /campaigns.
+
+    301 here rather than letting the SPA shell load and redirect client-side:
+    that costs the member two full page loads and a flash of empty layout.
+    """
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/campaigns", status_code=301)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -47132,6 +47139,10 @@ def react_register_with_ref(request: Request, ref: str):
 
 @app.get("/video-library")
 def react_video_library(request: Request, user: User = Depends(get_current_user)):
+    """Renamed to /campaigns — the URL now matches the label every nav uses."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/campaigns", status_code=301)
     _gate = _al_gate_page(user, shared_route=True)
     if _gate:
         return _gate
