@@ -7647,7 +7647,14 @@ def app_home(request: Request):
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
 @app.get("/dashboard")
 def dashboard(request: Request):
-    """Serve React SPA."""
+    """Dashboard. On AL the real dashboard is /home-preview, and this route
+    only existed to load the SPA and immediately Navigate there client-side —
+    two loads and a flash of empty layout. Every server-rendered money page
+    (packs, my-sales, payout-methods) uses this as its back-link, so it was on
+    the hot path. Redirect at the server instead."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/home-preview", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -69352,7 +69359,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
 .backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
-  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/my-sales" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">My sales</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
@@ -70476,7 +70483,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 </style></head><body>
 <div class="wrap">
   <div class="top">
-    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/payout-methods" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Payout wallets</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
     <div class="mk">Advantage<i>Life</i></div>
   </div>
   <h1>Incoming <span class="r">sales</span></h1>
@@ -70671,13 +70678,22 @@ def _al_gate_page(user, shared_route: bool = False):
 
 @app.get("/packs")
 def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not _al_is_lifetime(user):
-        return RedirectResponse(url="/join", status_code=302)
     """Buyer flow (approved mockup screens 1-4): pack picker -> pay-the-payee
     intent page (chain badge, address, QR, countdown, proof) -> pending ->
-    activated. One page, state-driven off /api/al/packs + my-purchases."""
-    if not user:
-        return RedirectResponse(url="/login?next=/packs", status_code=302)
+    activated. One page, state-driven off /api/al/packs + my-purchases.
+
+    Gating goes through _al_gate_page like every other member surface. It used
+    to roll its own check — `if not _al_is_lifetime(user): -> /join` — which
+    returns False for user=None, so a LOGGED-OUT visitor was sent to /join and
+    asked to pay $100 rather than to /login. An existing lifetime member who
+    had simply been logged out was told to buy the platform again. The
+    `if not user -> /login` line that would have caught it sat underneath and
+    was unreachable. Steve's rule, 20 Jul: not logged in -> /login, free ->
+    /join, lifetime/admin -> in.
+    """
+    _gate = _al_gate_page(user)
+    if _gate:
+        return _gate
     return HTMLResponse(_AL_PACKS_PAGE)
 
 
