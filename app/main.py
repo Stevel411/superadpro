@@ -58561,6 +58561,7 @@ def admin_setup_sending_domains(
 def admin_schema_check(
     request: Request,
     confirm: str = "",
+    columns: str = "",
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -58583,7 +58584,7 @@ def admin_schema_check(
       /admin/api/schema-check?confirm=yes -> create the missing tables
     """
     from fastapi.responses import JSONResponse
-    from sqlalchemy import inspect as _sa_inspect
+    from sqlalchemy import inspect as _sa_inspect, text as _sa_text
     from .database import engine, Base
 
     if not user or not user.is_admin:
@@ -58608,11 +58609,40 @@ def admin_schema_check(
         "missing_count": len(missing),
     }
 
+    # ── Column drift ──────────────────────────────────────────────────────
+    # Missing TABLES are only half the problem. AdvantageLife runs with
+    # SKIP_MIGRATIONS=true, so once a table exists nothing ever adds a column
+    # to it again. Any field added to a model after its table was created is
+    # absent in Postgres, and the first query touching it raises
+    # UndefinedColumn — which surfaces as a 500 on whatever endpoint reads it.
+    # That is invisible to a table-level check and is exactly how /api/blog/me
+    # started 500ing while `blogs` existed.
+    drift = {}
+    try:
+        insp = _sa_inspect(engine)
+        for name, table in defined.items():
+            if name not in existing:
+                continue
+            db_cols = {c["name"] for c in insp.get_columns(name)}
+            gap = sorted(c.name for c in table.columns if c.name not in db_cols)
+            if gap:
+                drift[name] = gap
+    except Exception as e:
+        out["column_check_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+    out["column_drift"] = drift
+    out["column_drift_count"] = sum(len(v) for v in drift.values())
+
     if confirm.lower() != "yes":
-        out["action"] = (
-            "report only — re-tap with ?confirm=yes to create the missing tables"
-            if missing else "nothing to do, schema is complete"
-        )
+        bits = []
+        if missing:
+            bits.append("re-tap with ?confirm=yes to create the missing tables")
+        if drift:
+            bits.append(
+                f"{out['column_drift_count']} column(s) missing across "
+                f"{len(drift)} table(s) — these need ALTER TABLE, which this "
+                f"endpoint does not do; use ?confirm=yes&columns=yes"
+            )
+        out["action"] = "; ".join(bits) if bits else "nothing to do, schema is complete"
         return JSONResponse({"ok": True, "results": out})
 
     created, failed = [], {}
@@ -58625,6 +58655,33 @@ def admin_schema_check(
 
     out["created"] = created
     out["failed"] = failed
+
+    # Additive ALTERs only, and only when asked for explicitly. Every column is
+    # added nullable with no default so an existing row can never fail the add —
+    # no data is read, rewritten or dropped.
+    if columns.lower() == "yes" and drift:
+        added, add_failed = [], {}
+        for tname, cols in drift.items():
+            table = defined[tname]
+            for cname in cols:
+                col = table.columns[cname]
+                try:
+                    ddl = col.type.compile(engine.dialect)
+                except Exception:
+                    add_failed[f"{tname}.{cname}"] = "could not compile column type"
+                    continue
+                try:
+                    with engine.begin() as conn:
+                        conn.execute(_sa_text(
+                            f'ALTER TABLE "{tname}" ADD COLUMN IF NOT EXISTS "{cname}" {ddl}'))
+                    added.append(f"{tname}.{cname}")
+                except Exception as e:
+                    add_failed[f"{tname}.{cname}"] = f"{type(e).__name__}: {str(e)[:200]}"
+        out["columns_added"] = added
+        out["columns_failed"] = add_failed
+        if add_failed:
+            failed = dict(failed or {}, **{"_columns": add_failed})
+
     return JSONResponse({"ok": not failed, "results": out},
                         status_code=200 if not failed else 500)
 
