@@ -1937,9 +1937,9 @@ section{max-width:1180px;margin:0 auto;padding:70px 24px}
 h2{font-weight:900;font-size:clamp(28px,4.6vw,42px);letter-spacing:-1.4px;text-align:center;margin-bottom:14px;text-shadow:0 3px 20px rgba(0,0,0,.35)}
 .lead{font-size:15.5px;font-weight:600;color:#dbe6ff;line-height:1.65;max-width:600px;margin:0 auto 40px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.35)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.tool{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 20px 50px -20px rgba(2,8,30,.5)}
-.tool .ic{width:46px;height:46px;border-radius:13px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
-.tool b{font-weight:900;font-size:18px;display:block;margin-bottom:7px;letter-spacing:-.4px}
+.tool{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);color:var(--ink);border-radius:18px;padding:0;overflow:hidden;box-shadow:0 20px 50px -20px rgba(2,8,30,.5);display:flex;flex-direction:column}.tool .img{aspect-ratio:16/9;background-color:#0e2a6e;background-image:var(--img,linear-gradient(160deg,#12388f,#0a1f52));background-size:cover;background-position:center;flex:none}.tool .bd{padding:0 24px 26px;flex:1;display:flex;flex-direction:column}.tools-bg .tool .img{display:none}.tools-bg .tool{background-color:#0a1f52;background-image:linear-gradient(180deg,rgba(6,14,44,.72),rgba(6,14,44,.86)),var(--img);background-size:cover;background-position:center;padding:26px 24px}.tools-bg .tool .bd{padding:0}.tools-bg .tool b{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}.tools-bg .tool p{color:rgba(255,255,255,.88);text-shadow:0 1px 10px rgba(0,0,0,.5)}.tools-bg .tool .ic{margin:0 0 16px;border:0;box-shadow:none}
+.tool .ic{width:52px;height:52px;border-radius:15px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;margin:-26px 0 14px;position:relative;z-index:2;border:3px solid #fff;box-shadow:0 8px 20px -6px rgba(2,8,30,.55)}
+a.tool{text-decoration:none}a.tool:hover{transform:translateY(-3px)}.tool{transition:transform .18s ease}.tool b{font-weight:900;font-size:18px;display:block;margin-bottom:7px;letter-spacing:-.4px}
 .tool p{font-size:13.5px;font-weight:600;color:var(--dim);line-height:1.6}
 .income{background:rgba(255,255,255,.94);backdrop-filter:blur(10px);color:var(--ink);border-radius:24px;padding:clamp(28px,5vw,52px);box-shadow:0 30px 70px -25px rgba(2,8,30,.55)}
 .income h2,.income .lead{color:var(--ink);text-shadow:none}
@@ -1990,17 +1990,17 @@ footer a{color:#b9c8ef}
 </div>
 </div>
 
-<section id="tools">
+<section id="tools" class="__CARDS_MODE__">
   <div class="k">The Toolkit</div>
   <h2>The tools that do the work</h2>
   <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by one $100 payment, for life.</div>
   <div class="grid">
-    <div class="tool"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div>
-    <div class="tool"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div>
-    <div class="tool"><div class="ic">✨</div><b>Creative Studio</b><p>AI ads, images and video in minutes — ready to post anywhere.</p></div>
-    <div class="tool"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div>
-    <div class="tool"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div>
-    <div class="tool"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div>
+    <a class="tool" href="/labs/pagebuilder" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
+    <a class="tool" href="/linkhub" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
+    <a class="tool" href="/creative-studio"><div class="img"></div><div class="bd"><div class="ic">✨</div><b>Creative Studio</b><p>AI ads, images and video in minutes — ready to post anywhere.</p></div></a>
+    <a class="tool" href="/pro/leads" style="--img:url('/static/images/tools/email.webp')"><div class="img"></div><div class="bd"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div></a>
+    <a class="tool" href="/campaigns" style="--img:url('/static/images/tools/video-campaigns.webp')"><div class="img"></div><div class="bd"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div></a>
+    <a class="tool" href="/watch" style="--img:url('/static/images/tools/watch-to-earn.webp')"><div class="img"></div><div class="bd"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div></a>
   </div>
   <div class="ai"><span class="lbl">Creative Studio runs frontier AI</span><span class="m">Sora 2</span><span class="m">Veo</span><span class="m">Kling 3</span><span class="m">FLUX.1</span></div>
 </section>
@@ -2171,9 +2171,15 @@ def al_plan_page():
 
 
 @app.api_route("/", methods=["GET", "HEAD"])
-def home(request: Request):
-    # AdvantageLife public homepage (this branch deploys only the AL site).
-    return HTMLResponse(_AL_HOME)
+def home(request: Request, cards: str = ""):
+    """AdvantageLife public homepage (this branch deploys only the AL site).
+
+    ?cards=bg renders the toolkit cards as full-bleed photo backgrounds with
+    white text, instead of the default image-band-over-white-body treatment.
+    Preview only — see the note in the toolkit CSS for why band is the default.
+    """
+    html = _AL_HOME.replace("__CARDS_MODE__", "tools-bg" if cards == "bg" else "")
+    return HTMLResponse(html)
 
 @app.get("/health")
 async def health_check():
