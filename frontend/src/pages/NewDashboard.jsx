@@ -8,7 +8,7 @@ import { formatMoney } from '../utils/money';
 // light mockup: white page, floating navy sidebar, earnings hero with REAL
 // member-to-member figures ("not a projection"), featured campaign video
 // (random rotation — every member's campaign gets dashboard exposure),
-// Real team card. Served at /home-preview (main bundle).
+// Real team card. Served at /dashboard (main bundle).
 
 const CSS = `
 .al{min-height:100vh;background:#f3f5fb;font-family:'Inter',system-ui,sans-serif;color:#0d1230;padding:18px clamp(12px,2.5vw,28px) 90px}
@@ -429,7 +429,7 @@ export default function NewDashboard() {
 
         <div className="cols">
           <aside className="side">
-            <a className="on" href="/home-preview">Dashboard</a>
+            <a className="on" href="/dashboard">Dashboard</a>
             <Link to="/ai-tools">AI Tools</Link>
             <Link to="/video-library">Campaigns</Link>
             <Link to="/watch">Watch-to-Earn</Link>

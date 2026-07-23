@@ -224,7 +224,7 @@ export default function Account() {
   var memberSince = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <AppLayout categoryBack={{ to: '/home-preview', label: 'Dashboard' }} hideTopbar>
+    <AppLayout categoryBack={{ to: '/dashboard', label: 'Dashboard' }} hideTopbar>
       <style>{CSS}</style>
       <div className="aset">
         {toast && <div className={'toast ' + (toast.type === 'ok' ? 'ok' : 'err')}>{toast.msg}</div>}

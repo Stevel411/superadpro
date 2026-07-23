@@ -55,7 +55,7 @@ const SHELL_CSS = `
 @media (max-width:820px){.cat .hero{flex-direction:column;align-items:flex-start;}.cat .hero .hr{width:100%;max-width:340px;}.cat .grid{grid-template-columns:1fr;}}
 `;
 
-export default function CategoryShell({ children, backTo = '/home-preview', backLabel = 'Dashboard' }) {
+export default function CategoryShell({ children, backTo = '/dashboard', backLabel = 'Dashboard' }) {
   return (
     <div className="cat">
       <style>{SHELL_CSS}</style>

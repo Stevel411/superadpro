@@ -250,7 +250,7 @@ function SmartHome() {
   const { user, loading } = useAuth();
   if (loading) return null;
   const preview = new URLSearchParams(window.location.search).has('preview');
-  if (user && !preview) return <Navigate to="/home-preview" replace />;
+  if (user && !preview) return <Navigate to="/dashboard" replace />;
   return <HomePage />;
 }
 
@@ -260,7 +260,7 @@ function AppRoutes() {
     <Routes>
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<Navigate to="/home-preview" replace />} />
+      <Route path="/dashboard" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
       {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them
           instead of hitting the catch-all and bouncing to the homepage. */}
@@ -271,7 +271,7 @@ function AppRoutes() {
       <Route path="/plan" element={<HardRedirect to="/plan" />} />
       <Route path="/compensation-plan" element={<HardRedirect to="/plan" />} />
       <Route path="/campaign-tiers" element={<HardRedirect to="/packs" />} />
-      <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
+      <Route path="/home-preview" element={<Navigate to="/dashboard" replace />} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
@@ -295,7 +295,7 @@ function AppRoutes() {
       <Route path="/campaign-videos" element={<HardRedirect to="/campaigns" />} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
-      <Route path="/pay-it-forward" element={<HardRedirect to="/home-preview" />} />
+      <Route path="/pay-it-forward" element={<HardRedirect to="/dashboard" />} />
       {/* Brand Poster Generator — gallery is open to all members (preview), generation gated by Nexus pack ownership in the backend */}
       <Route path="/brand-posters" element={<ProtectedRoute><RequireTier tier="basic"><BrandPostersGallery /></RequireTier></ProtectedRoute>} />
       <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />
@@ -365,7 +365,7 @@ function AppRoutes() {
       <Route path="/labs/pagebuilder/edit/:pageId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
-      <Route path="/team-messenger" element={<HardRedirect to="/home-preview" />} />
+      <Route path="/team-messenger" element={<HardRedirect to="/dashboard" />} />
       <Route path="/qr-generator" element={<Navigate to="/tools" replace />} />
       <Route path="/admin/al" element={<ProtectedRoute><AdminAL /></ProtectedRoute>} />
       <Route path="/admin/network-tree" element={<ProtectedRoute><AdminNetworkTree /></ProtectedRoute>} />

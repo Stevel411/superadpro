@@ -28,7 +28,7 @@ export default function VideoLibrary() {
     setDeleting(null);
   }
 
-  if (loading) return <AlShell active="campaigns" back={{ to: '/home-preview', label: 'Dashboard' }}><Spin/></AlShell>;
+  if (loading) return <AlShell active="campaigns" back={{ to: '/dashboard', label: 'Dashboard' }}><Spin/></AlShell>;
 
   var d = data || {};
   var campaigns = d.campaigns || [];
@@ -61,7 +61,7 @@ export default function VideoLibrary() {
   }
 
   return (
-    <AlShell active="campaigns" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="campaigns" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{maxWidth:960,margin:'0 auto'}}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>

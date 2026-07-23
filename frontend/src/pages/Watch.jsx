@@ -280,7 +280,7 @@ export default function Watch() {
   };
 
   if (loading) return (
-    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -298,7 +298,7 @@ export default function Watch() {
   // (Removed the client-side tier lock that dead-ended tier-less members here.)
 
   if (!data) return (
-    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{textAlign:'center',padding:'64px 24px',maxWidth:420,margin:'0 auto'}}>
         <div style={{fontSize:48,marginBottom:12,lineHeight:1}}>📺</div>
         <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>
@@ -419,7 +419,7 @@ export default function Watch() {
   // ── ALL AVAILABLE VIDEOS WATCHED BUT QUOTA NOT MET ──
   if (allWatched && !quotaComplete) {
     return (
-      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+      <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -447,7 +447,7 @@ export default function Watch() {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
-      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+      <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <style>{`
 @keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(800px) rotate(720deg);opacity:0}}
@@ -546,7 +546,7 @@ export default function Watch() {
   if (videos.length === 0 && !quotaComplete) {
     const userHasTier = d?.has_campaign_tier;
     return (
-      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+      <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
@@ -576,7 +576,7 @@ export default function Watch() {
     const doneRingR = 38;
     const doneRingC = 2 * Math.PI * doneRingR;
     return (
-      <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+      <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
         <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'20px 24px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15,flexWrap:'wrap'}}>
           <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
@@ -628,7 +628,7 @@ export default function Watch() {
 
   // ── MAIN WATCH SESSION ──
   return (
-    <AlShell active="watch" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="watch" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'20px 24px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15,flexWrap:'wrap'}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>

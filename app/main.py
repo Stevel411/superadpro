@@ -3981,10 +3981,9 @@ def compensation_public(request: Request):
 
 @app.get("/home-preview")
 def home_preview(request: Request):
-    """Serve React SPA for the three-door dashboard preview (platform simplification)."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/dashboard", status_code=302)
+    """Legacy URL for the dashboard — renamed to /dashboard 23 Jul 2026.
+    Kept as a 301 so anything bookmarked or linked externally still lands."""
+    return RedirectResponse(url="/dashboard", status_code=301)
 
 @app.get("/toolkit")
 def toolkit_page(request: Request):
@@ -7380,7 +7379,7 @@ def register_process(
         except Exception:
             pass
 
-    response = RedirectResponse(url="/home-preview", status_code=303)
+    response = RedirectResponse(url="/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
     response.delete_cookie("ref")
     return response
@@ -7414,7 +7413,7 @@ def login_process(
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
         # No 2FA — log in directly
-        response = RedirectResponse(url="/home-preview", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     record_failed_attempt(username)
@@ -7625,7 +7624,7 @@ def login_2fa_verify(
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code.strip(), valid_window=1):
         # Code valid — grant full session
-        response = RedirectResponse(url="/home-preview", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         response.delete_cookie("pre_auth")
         return response
@@ -7647,14 +7646,11 @@ def app_home(request: Request):
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
 @app.get("/dashboard")
 def dashboard(request: Request):
-    """Dashboard. On AL the real dashboard is /home-preview, and this route
-    only existed to load the SPA and immediately Navigate there client-side —
-    two loads and a flash of empty layout. Every server-rendered money page
-    (packs, my-sales, payout-methods) uses this as its back-link, so it was on
-    the hot path. Redirect at the server instead."""
-    from . import brand_config
-    if brand_config.IS_ADVANTAGELIFE:
-        return RedirectResponse(url="/home-preview", status_code=302)
+    """The member dashboard. Served here, at the URL members expect.
+
+    It lived at /home-preview until 23 Jul 2026 — a working name from the
+    platform-simplification build that leaked into the address bar of every
+    logged-in member. /home-preview is now a permanent redirect into this."""
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -63635,7 +63631,7 @@ def admin_health_ui(request: Request, db: Session = Depends(get_db)):
 <body>
 <div class="wrap">
   <div class="topbar">
-    <a class="brand" href="/home-preview">
+    <a class="brand" href="/dashboard">
       <span class="lm"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg></span>
       <span class="wm">SuperAd<span class="pro">Pro</span></span>
     </a>

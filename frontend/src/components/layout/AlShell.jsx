@@ -43,7 +43,7 @@ const CHROME = `
 `;
 
 const NAV = [
-  { key: 'dashboard', label: 'Dashboard', to: '/home-preview', link: true },
+  { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { key: 'ai-tools', label: 'AI Tools', to: '/ai-tools', link: true },
   { key: 'campaigns', label: 'Campaigns', to: '/campaigns', link: true },
   { key: 'watch', label: 'Watch-to-Earn', to: '/watch', link: true },

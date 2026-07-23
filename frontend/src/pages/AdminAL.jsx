@@ -471,7 +471,7 @@ export default function AdminAL() {
   useEffect(() => { loadOv(); }, [loadOv]);
 
   return (
-    <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <div style={{ background: NAVY, borderRadius: 20, color: '#fff', padding: '22px 26px', boxShadow: '0 24px 50px -28px rgba(10,31,82,.55)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 15, flexWrap: 'wrap' }}>
           <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(120deg,#c8102e,#e8203f)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Gauge size={26} color="#fff" /></div>

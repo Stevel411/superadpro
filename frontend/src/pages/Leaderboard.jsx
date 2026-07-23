@@ -34,7 +34,7 @@ export default function Leaderboard() {
   const reset = useCountdown(data && data.next_reset);
   const S = SORTS.find(s => s.key === sort);
 
-  if (!data) return <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}><div style={{ padding: 60, textAlign: 'center', color: MUTED, fontFamily: 'Sora,sans-serif' }}>Loading leaderboard…</div></AlShell>;
+  if (!data) return <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}><div style={{ padding: 60, textAlign: 'center', color: MUTED, fontFamily: 'Sora,sans-serif' }}>Loading leaderboard…</div></AlShell>;
 
   const members = [...(data.members || [])].sort((a, b) => S.col(b) - S.col(a));
   members.forEach((m, i) => m._rank = i + 1);
@@ -46,7 +46,7 @@ export default function Leaderboard() {
   const cell = (v, kind) => <span style={{ fontWeight: 800, fontVariantNumeric: 'tabular-nums', textAlign: 'right', color: kind === 'sold' ? RED : kind === 'owned' ? '#12388f' : '#0b7a3e' }}>{kind === 'sold' ? v : kind === 'owned' ? 'L' + v : '$' + Number(v).toLocaleString()}</span>;
 
   return (
-    <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{ maxWidth: 1000, margin: '0 auto' }}>
         {/* Hero */}
         <div style={{ background: NAVY, borderRadius: 20, color: '#fff', padding: '22px 26px', boxShadow: '0 24px 50px -28px rgba(10,31,82,.55)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 15, flexWrap: 'wrap' }}>

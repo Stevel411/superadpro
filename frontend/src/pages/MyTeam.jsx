@@ -12,7 +12,7 @@ export default function MyTeam() {
   const [copied, setCopied] = useState(false);
   useEffect(() => { apiGet('/api/my-team').then(setData).catch(() => setData({ members: [], summary: {}, referral_link: '' })); }, []);
 
-  if (!data) return <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}><div style={{ padding: 60, textAlign: 'center', color: MUTED, fontFamily: 'Sora,sans-serif' }}>Loading your team…</div></AlShell>;
+  if (!data) return <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}><div style={{ padding: 60, textAlign: 'center', color: MUTED, fontFamily: 'Sora,sans-serif' }}>Loading your team…</div></AlShell>;
 
   const s = data.summary || {};
   const fullLink = (typeof window !== 'undefined' ? window.location.origin : 'https://advantagelife.club') + (data.referral_link || '');
@@ -26,7 +26,7 @@ export default function MyTeam() {
   );
 
   return (
-    <AlShell active="dashboard" back={{ to: '/home-preview', label: 'Dashboard' }}>
+    <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}>
       <div style={{ maxWidth: 1000, margin: '0 auto' }}>
         {/* Hero */}
         <div style={{ background: NAVY, borderRadius: 20, color: '#fff', padding: '22px 26px', boxShadow: '0 24px 50px -28px rgba(10,31,82,.55)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 15 }}>

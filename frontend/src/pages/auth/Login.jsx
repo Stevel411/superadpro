@@ -48,7 +48,7 @@ export default function Login() {
               const fromParam = claimResult.gifter_name
                 ? '&from=' + encodeURIComponent(claimResult.gifter_name)
                 : '';
-              window.location.href = '/home-preview?just_claimed=1' + fromParam;
+              window.location.href = '/dashboard?just_claimed=1' + fromParam;
               return;
             }
             window.location.href = '/gift/' + giftCode;

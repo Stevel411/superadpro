@@ -239,7 +239,7 @@ export default function PaymentSuccess() {
                 {t('paymentSuccess.tryAgain')}
               </button>
               <button
-                onClick={function() { navigate('/home-preview'); }}
+                onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
               >
                 <Home size={14} /> {t('paymentSuccess.backToDashboard')}
@@ -261,7 +261,7 @@ export default function PaymentSuccess() {
                 {t('paymentSuccess.safeToLeave')}
               </div>
               <button
-                onClick={function() { navigate('/home-preview'); }}
+                onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 12, border: 'none', background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`, color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora,sans-serif', boxShadow: `0 4px 16px ${config.color}40`, marginBottom: 12, width: '100%', justifyContent: 'center' }}
               >
                 <Home size={16} /> {t('paymentSuccess.backToDashboard')}
@@ -341,7 +341,7 @@ export default function PaymentSuccess() {
               {/* Secondary: explicit Dashboard escape hatch, always
                   available regardless of which product config is loaded. */}
               <button
-                onClick={function() { navigate('/home-preview'); }}
+                onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
               >
                 <Home size={14} /> Back to Dashboard

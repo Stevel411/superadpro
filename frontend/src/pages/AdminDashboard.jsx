@@ -53,7 +53,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AppLayout categoryChrome categoryBack={{to:'/home-preview',label:'Dashboard'}}>
+    <AppLayout categoryChrome categoryBack={{to:'/dashboard',label:'Dashboard'}}>
       <div className="admin-tabs" style={{display:'flex',gap:4,marginBottom:18,background:'#fff',border:'1px solid var(--sap-border-light)',borderRadius:9999,padding:5,boxShadow:'0 2px 8px rgba(10,20,56,.05)',overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
         {TABS.map(function(t) {
           var Icon = t.icon;

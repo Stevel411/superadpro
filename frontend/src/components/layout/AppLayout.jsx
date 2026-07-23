@@ -44,7 +44,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   // their legacy Sidebar+Topbar. Added 28 Jun 2026 for the Admin Dashboard
   // redesign so admin stops being the one route left on the retired sidebar.
   var catMode = (categoryChrome || !isAdminRoute) && !hideSidebar;
-  var backTarget = categoryBack || { to: '/home-preview', label: 'Dashboard' };
+  var backTarget = categoryBack || { to: '/dashboard', label: 'Dashboard' };
 
   // Desktop collapse state — persisted in localStorage so the user's preference
   // survives reloads. Default is 'open' so new members see the full labels.

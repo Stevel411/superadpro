@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 // Shared no-sidebar top bar used by both the category pages (CategoryShell) and
 // the category DESTINATION pages (AppLayout category mode). Two exits:
-//   - logo  -> dashboard (/home-preview), always
+//   - logo  -> dashboard (/dashboard), always
 //   - back  -> the parent category page (configurable per page)
 // Self-contained: own state, own outside-click close, own scoped CSS with
 // hard-coded brand colours so it renders correctly in any layout context.
@@ -55,7 +55,7 @@ const CSS = `
 }
 `;
 
-export default function CategoryTopBar({ backTo = '/home-preview', backLabel = 'Dashboard', toolBrand = null }) {
+export default function CategoryTopBar({ backTo = '/dashboard', backLabel = 'Dashboard', toolBrand = null }) {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const acctRef = useRef(null);
@@ -80,7 +80,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
              own identity in the corner. Same home link. First adopter:
              SuperLeads; SuperPages/Ad Studio can pass their
              own toolBrand when Steve schedules the uniform pass. */
-          <Link className="brand" to="/home-preview" style={{ textDecoration: 'none' }}>
+          <Link className="brand" to="/dashboard" style={{ textDecoration: 'none' }}>
             <span style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg,' + (toolBrand.gradient ? toolBrand.gradient[0] : '#12388f') + ',' + (toolBrand.gradient ? toolBrand.gradient[1] : '#0a1f52') + ')', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 9px rgba(14,165,233,.35)', flexShrink: 0 }}>
               {toolBrand.icon}
             </span>
@@ -89,7 +89,7 @@ export default function CategoryTopBar({ backTo = '/home-preview', backLabel = '
             </span>
           </Link>
         ) : (
-        <Link className="brand" to="/home-preview">
+        <Link className="brand" to="/dashboard">
           <span className="lm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 5h6v6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
           <span className="wm">Advantage<span className="pro">Life</span></span>
         </Link>
