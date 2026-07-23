@@ -77,13 +77,23 @@ Stripe + crypto one-time $100. On success: `access_level = lifetime`, unlock too
 **Phase 5 — P2P pack purchase + settlement**
 Pay page `/pay/[intent]` → payee resolution (from engine) → proof upload (R2/S3) → earner back office → confirm/activate. **Crypto on-chain auto-verify** (removes the stranger-activation bottleneck). Watch-gate enforced. Admin oversight + dispute tools + full audit log. Prove each money path.
 
-**Phase 6 — Watch-to-Earn improvements**
-*(Open — Steve to specify what to improve. Build to spec once defined.)*
+**Phase 6 — Watch-to-Earn improvements** — ✅ DONE (18 Jul)
+`DAILY_WATCH_BY_TIER` set for all nine packs: 1/1/2/2/3/3/4/4/5 from Launchpad to Champion. 48h grace window live in `al_engine.watch_qualified`. This phase was recorded as open long after it was finished.
 
-**Phase 7 — Re-skin finish & surfaces**
-Freedom landing, `/plan` page (with animated explainer), dashboard, nav — all live in theme. Retire grid/subscription UI.
+**Phase 7 — Re-skin finish & surfaces** — 🟡 PARTIAL (23 Jul)
+Public surfaces done: homepage, `/join`, `/plan`, all legal pages, toolkit cards. Campaigns flow rebuilt and `CategoryShell` rethemed (covers Campaigns/Team/Marketing/Toolkit). `/home-preview` renamed `/dashboard`.
 
-**Phase 8 — Pre-launch verification**
+**Still SuperAdPro-themed:** ~63 files carry the Sora typeface and ~73 carry cyan tokens. Cosmetic, not misleading — does not block launch.
+
+**Distinct and more urgent:** ~25 files still reference the retired Profit Grid. That is a correctness problem, not a theme one — members reading those pages are told about a plan that does not exist. Sweep these before launch; the re-skin can follow after.
+
+**Phase 8 — Pre-launch verification** — 🟡 IN PROGRESS (23 Jul)
+Stripe wiring verified end to end (`/admin/api/al/stripe-check`): live key, endpoint registered and enabled, all three events subscribed, signing secret confirmed by Steve. Refund path fixed and verified. Duplicate-proof rejection enforced at three layers. Schema column drift closed. Custom domains confirmed on v2 auto-TLS.
+
+**Outstanding:** the real $100 card test — money has never actually moved through the live path. Bootstrap-endpoint lockdown + `MIGRATION_SECRET` still to do.
+
+Original scope below.
+
 End-to-end money-path tests: join → pack buy (P2P) → pass-up routing → activation → watch-gate → payout-method display. Bundle-hash checks post-deploy. Compliance copy + disclaimers in place. **Pass-up structure: solicitor glance** before members transact (flagged once; Steve's call, doesn't block build).
 
 **Phase 9 — Cutover / go-live**
@@ -104,6 +114,25 @@ Lead with the gift, not the change: *"AdvantageLife is here — and as a thank-y
 ---
 
 ## 8. Open items still needed from Steve
+
+*Updated 23 Jul 2026.*
+
+1. **Real $100 card test.** Everything else on the money path is verified; money has never moved through it. Only Steve can run this.
+2. **`TRADER_NAME` / `TRADER_ADDRESS`** in Railway. SuperAdPro Ltd is dissolved and Steve trades as a sole trader. Until set, the identity paragraph is omitted from Terms, Privacy and Refund Policy — honest, but not compliant. Steve is launching before this is resolved (his decision, 23 Jul). A service address rather than his home address, for family-security reasons. Two vars, no deploy.
+3. **Stripe business details** still describe SuperAdPro Ltd. Payouts go to a personal account, which dissolution does not affect, but the entity on file is stale.
+4. **Nurture + weekly digest copy.** Both jobs disabled; their content sells SuperAdPro's subscription. No lifecycle email exists behind an announcement to 611 members.
+5. **Creative Studio credit refunds.** Steve handling directly. The SuperScene tables stay until they are settled — they hold the record of who is owed.
+6. **Custom domains:** one real end-to-end test on a domain Steve controls, before offering it to members.
+
+### Closed since the original list
+
+- ~~Hand-picked allow-list~~ — 53 lifetime granted (47 Stripe + 6 hand-picked).
+- ~~Watch-to-Earn improvements~~ — specified and shipped 18 Jul.
+- ~~Repo/domain~~ — `advantagelife-passup`, DNS live.
+
+---
+
+## 8b. Original open items (historical)
 
 1. **Hand-picked allow-list** — usernames/emails for the discretionary lifetime gifts (can come right up to cutover).
 2. **Watch-to-Earn improvements** — *what* to improve (Phase 6 is a placeholder until specified).

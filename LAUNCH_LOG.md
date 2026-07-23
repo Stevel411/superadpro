@@ -8,6 +8,88 @@
 
 ---
 
+## Status as of 2026-07-23 — MONEY PATH VERIFIED + LEGAL REWRITTEN + CREATIVE STUDIO RETIRED + FLOW AUDITS
+
+35 commits. The theme running through the day: **several things recorded as done were not.** The Profit Grid was logged as removed on 21 Jun, frontend and routes, across five commits — `/compensation` survived and kept serving the old grid page until today. Treat "done" in this file as a claim to verify, not a fact.
+
+### Money path — verified end to end, one real bug fixed
+
+- **AL refunds were structurally impossible.** `REFUND_SHARES` in `stripe_service.py` had no `al_lifetime` key, so `calculate_refundable()` fell to its `.get(kind, 0.0)` default and wrote `refundable_cents = 0` on every join charge. `/api/stripe/refund-request` filters `refundable_cents > 0`, so no row was ever found and **every AL refund request would have hard-failed** — while `/refund-policy`, linked from inside Stripe Checkout, promised "100% back, no questions" within 7 days. Now `al_lifetime: 1.00`, on the policy's own logic: nobody earns on a join, so the company holds the full $100 and can return it. (`8e2cdd5e9`)
+- **Stripe wiring confirmed live.** New `/admin/api/al/stripe-check` queries Stripe directly: which account the key belongs to, whether an endpoint is registered for this deploy, whether it is enabled, subscribed to `checkout.session.completed`, and in the same live/test mode as the key. `config-readiness` only reports whether vars are *set* and is blind to all of that. Steve added the two missing events (`charge.dispute.created`, `charge.refunded`) and confirmed the signing secret matches. Account is `acct_18cst4BxEFGz0qoH`, display name still "SuperAdPro". (`8e2cdd5e9`, `a36083881`, `ce327e84a`)
+- **`/packs` sent logged-out visitors to `/join`.** It rolled its own gate — `if not _al_is_lifetime(user): -> /join` — and `_al_is_lifetime(None)` is False, so an existing lifetime member who was simply logged out was asked to pay $100 again. The `if not user -> /login` line beneath it was unreachable. Now on `_al_gate_page`. (`f9efe29dc`)
+- **Duplicate proof references** now rejected at three layers: the `/proof` endpoint (pre-existing), `submit_proof` (new), and a Postgres partial unique index on `TRIM(tx_ref)`. Only the index closes the concurrent case where two submissions both pass their SELECT before either commits. Verification case (9) previously asserted only that a SELECT could *find* the duplicate — it would have gone green with every guard deleted. Now asserts rejection. (`089394cc5`, `042fc0dbc`)
+
+### Legal documents — rewritten to the actual model
+
+`/terms` was SuperAdPro's: monthly recurring subscriptions, auto-renewal, $15/month Founder, and a refund clause that directly contradicted `/refund-policy`. `/privacy-policy` **did not exist** while being linked from the footer and cited by the Terms. `/legal` stated "all purchases are final and non-refundable" against the refund policy's 7-day promise, and published `$10/month per referral`, the 30/50/20 grid split and course commissions. `/income-disclaimer` claimed four income streams including a Campaign Grid and Creator Credits.
+
+All rewritten from code — `GRID_PACKAGES`, `CAMPAIGN_VIEW_TARGETS`, `DAILY_WATCH_BY_TIER`, `CAMPAIGN_GRACE_DAYS`, `passup_engine` — not from memory. (`6d0bada46`, `8268f2633`)
+
+**Trader identity is env-driven and deliberately incomplete.** SuperAdPro Ltd is dissolved; Steve now trades as a sole trader. `TRADER_NAME` / `TRADER_ADDRESS` are unset, so the identity paragraph is **omitted** from all three documents rather than asserting something untrue. Steve is launching before this is resolved — his explicit decision, recorded here so nobody "fixes" it by guessing. Setting the two vars completes all three documents with no deploy.
+
+`brand_config` email defaults are now brand-aware: `SUPPORT_EMAIL` was unset and defaulting to `support@superadpro.com`, which rendered as AL's contact address on its own legal pages. (`c3fc355d4`)
+
+### Creative Studio — retired
+
+Steve's call: credit-pack take-up never materialised and the output did not beat cheaper standalone tools. Removed from every reachable surface — toolkit card, the frontier-AI strip, join page feature row, sidebar, tool hubs, ExploreHub spotlight, **PaymentSuccess CTA** (which sent members there straight after paying $100), **EmailSwipes** (the swipe members send verbatim), **SuperLink** (the shared sales page). `/creative-studio`, `/my-credits`, `/credit-nexus`, `/credit-matrix`, `/studio` all 301 to `/tools`. `CreativeStudio` and `CreditMatrix` components deleted; chunks no longer ship. 160 orphaned locale keys removed. (`de7f98e73`, `cc6f59a8f`)
+
+**Backend deliberately left standing.** SuperScene tables, models and 36 now-unreachable API routes remain, because they hold the credit balances that identify who to refund. Steve is handling those refunds directly. Excision is a separate reviewed commit once they are settled. AdminDashboard revenue rows stay — historical ledger for money already taken.
+
+### Flow audits — campaigns, money, dashboard
+
+**Four navigation surfaces disagreed** about where "Campaigns" lives: `AlShell`, `Sidebar`, `CategoryShell` and `CampaignVideosTabs`. Exiting `/create-campaign` dropped members on `/campaigns` — a page in no menu, still selling the Profit Grid.
+
+- `/campaigns` now serves the actual list (`VideoLibrary`). The URL matches the label every nav uses.
+- `/video-library` and `/campaign-videos` 301 into it, server-side.
+- `CampaignsPage.jsx` and `CampaignVideos.jsx` **deleted** — both were hubs whose only job was linking to pages already in the menu, and both had gone stale.
+- Sidebar: five campaign entries down to three. Create and Stats are actions inside Campaigns, not destinations.
+- Empty state now names the pack dependency instead of enforcing it silently.
+(`f47e5ac17`, `d2a99c5cc`, `5ea494253`)
+
+**`/home-preview` renamed to `/dashboard`** — a working name that leaked into every logged-in member's address bar. 46 references across 21 files, plus the three post-auth 303 landings. `/home-preview` 301s in. (`e08f1a29e`)
+
+**Money-page dead ends broken.** `/my-sales` and `/payout-methods` linked only to the dashboard. A seller with no payout wallet is invisible to the router — "no wallet = sales pass over you" — and reaching the wallet page meant going via the dashboard. Both now link laterally. (`f9efe29dc`)
+
+### Schema — column drift found and closed
+
+`/api/blog/me` returned 500 for an admin with lifetime access, and `MySite.jsx` **rendered that as a paywall**: it read `data?.is_pro` before checking whether the load succeeded, so any API error was indistinguishable from "you have not paid". Steve was asked to buy a tool he owns; `/join` correctly told him he was already in and bounced him to the dashboard. A loop. (`6cfaed298`)
+
+Root cause: `blogs.admin_suspended` existed in the model but not in Postgres. **`SKIP_MIGRATIONS=true` means once a table exists, nothing ever adds a column to it again.** Any field added to a model after its table was created is absent, and the first query touching it raises `UndefinedColumn`. A table-level check cannot see this — `schema-check` reported a clean schema while an endpoint was 500ing.
+
+`schema-check` now diffs model columns against `inspector.get_columns()` per table and reports `column_drift`; `?confirm=yes&columns=yes` issues additive nullable `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`. Two columns were missing platform-wide (`blogs.admin_suspended`, `credit_matrices.pack_key`), both now added. (`5f9950932`)
+
+### Custom domains — v2 auto-TLS now live
+
+`custom_domains.py` was handing members `superadpro-production.up.railway.app` as their CNAME target — hardcoded, pointing at a service being decommissioned. Also: `verify_cname` accepted only SuperAdPro's apex/www as alternates, so an AL member who CNAME'd to `advantagelife.club` was told their DNS was broken; and `is_blocked_domain` did not block AL's own domains, so a member could have claimed `www.advantagelife.club`. All brand-derived now. (`cedcab8c5`)
+
+`RAILWAY_API_TOKEN` was missing, silently dropping the feature into v1 DNS-fallback — a mode that **looks healthy from our side** (cron reports success, CNAME verifies, row flips to verified) while no certificate is ever issued, so the member's own branded site serves a browser security warning. Token now set; `/admin/api/al/domain-check` confirms `mode: v2-railway-auto-tls`, `api_reachable: true`, and `railway_domains: ["www.advantagelife.club"]` — proving the three `RAILWAY_*_ID` vars belong to AL and not SuperAdPro. (`1542037e1`, `3ef88ee65`)
+
+### Cron jobs
+
+Four bugs fixed. The log flood was **not** the missing `sending_domains` table: `advantagelife.club` was never in `PLATFORM_HOSTS`, so every live request fell through the custom-domain lookup and dumped a full traceback per request. `PLATFORM_HOSTS` is now brand-derived, and the router has a throttled one-line log plus a 5-minute circuit breaker. (`f20efb3b0`)
+
+`/cron/process-nurture` accepted only a Bearer header, which is why `?secret=` returned 401 while the other nine jobs worked; and its GET was a `{"status":"ready"}` stub that reported healthy while sending nothing. `/cron/weekly-digest` failed 56/56 because `Grid` has no `is_active` column — the same line sits in `GET /api/activity-feed`, unguarded. (`bf1a7a2fc`, `ff9ae8e43`)
+
+**Both jobs remain deliberately disabled.** Their copy is SuperAdPro's — nurture quotes $15/$10 monthly subscription pricing across 28 dollar figures and references the Profit Grid six times; the digest renders a grid progress bar and promises "$10 every month" per referral. Enrolment fires on every registration, so AL already has due rows. Firing either would email every unactivated member a pitch for a product that does not exist. Flip `NURTURE_ENABLED` / `WEEKLY_DIGEST_ENABLED` in Railway once AL copy exists.
+
+### Currently watching
+
+- **Real $100 card test never run.** Everything else on the money path is verified; money has not actually moved through it.
+- **Stripe account is SuperAdPro Ltd's**, a dissolved company, with payouts to Steve's personal account. Personal account is safe from dissolution, but the Stripe *business details* are stale — update to sole trader before Stripe re-verifies.
+- **Custom domains never tested on a real member domain.** Failure mode is a browser security warning on someone's branded site.
+- **No lifecycle email** behind an announcement to 611 members.
+- **6 tables in Postgres that no model defines** (123 vs 117). Harmless, dead schema.
+- **`main` is 4 commits ahead of AL** — all migration tooling that has already served its purpose. No unique working code left on the rollback branch.
+
+### Notes for next session
+
+- **Verify before trusting this file.** Today found a retired feature still routable, a test that could not fail, and a schema check that reported clean while an endpoint 500ed.
+- **`SKIP_MIGRATIONS=true` is a standing trap.** Run `/admin/api/schema-check` after any deploy touching `database.py`. Read-only by default.
+- **`.get()` on Stripe SDK objects raises with the message `get`.** Use attribute access. Same family as `PaymentIntent.list()` throwing `KeyError: 0`.
+- **Check the enclosing shell before "fixing" a component.** A hardcoded green "Qualified" badge in `Watch.jsx` looked like a serious bug; it sits inside a `quotaComplete` early return and was correct.
+- **`.mk i` and similar class names exist across multiple server-rendered templates in `main.py`.** Assert match counts before replacing; a global replace reaches into pages you are not looking at.
+- Preview controls added today, all harmless and still live: `/join?ov=&card=`, `/?plan=&panel=&cards=bg`.
+
 ## Status as of 2026-07-18 — PRE-LAUNCH POLISH: THEME WALK-THROUGH + RETIRED-FEATURE REMOVAL + PAYMENTS UNIFIED
 
 **Long session.** The build (Phases 0–5) was already done and proven; this session was pre-launch consolidation — finishing the AL theme across member pages, ripping out every retired-model surface, and unifying all payments to **card (Stripe) + direct-USDT to the company wallet**, no third-party processor.
