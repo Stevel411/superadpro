@@ -122,6 +122,30 @@ def submit_proof(db: Session, intent_id: int, tx_ref: str = None,
     intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
     if intent is None or intent.status not in ("pending", "proof_submitted"):
         raise ValueError("intent not open for proof")
+
+    # Build-spec §2.2: a proof reference must be unique across the table.
+    # Without this a buyer can paste the SAME on-chain tx hash as proof for
+    # several intents — one real payment, several packs — and a seller who
+    # confirms without re-checking the chain hands over goods for free. The
+    # seller's confirm step is the only other line of defence and the whole
+    # model rests on it, so this is enforced here rather than assumed.
+    # Application-level rather than a DB constraint: the table is live with
+    # existing rows and a unique index would fail the deploy if any dupes
+    # already exist. See §8 case (9).
+    if tx_ref:
+        ref = tx_ref.strip()
+        if ref:
+            clash = (db.query(P2PIntent.id)
+                       .filter(P2PIntent.tx_ref == ref,
+                               P2PIntent.id != intent_id)
+                       .first())
+            if clash:
+                raise ValueError(
+                    "That transaction reference has already been submitted for "
+                    "another purchase. Each payment can only be used once."
+                )
+            tx_ref = ref
+
     intent.tx_ref = tx_ref
     intent.proof_url = proof_url
     intent.status = "proof_submitted"
