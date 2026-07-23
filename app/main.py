@@ -2176,7 +2176,7 @@ def al_plan_page():
 # Low by design: the navy panels now carry legibility, so the photo can run
 # near full strength. This only stops the white heading burning out where the
 # sun hits the water.
-AL_PLAN_SCRIM_DEFAULT = 22
+AL_PLAN_SCRIM_DEFAULT = 70
 # Navy panel opacity. Below ~70 the sunset starts bleeding through enough to
 # hurt the body copy, which is the longest on the page.
 AL_PLAN_PANEL_DEFAULT = 82
