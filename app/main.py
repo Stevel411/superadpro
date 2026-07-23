@@ -1941,23 +1941,23 @@ h2{font-weight:900;font-size:clamp(28px,4.6vw,42px);letter-spacing:-1.4px;text-a
 .tool .ic{width:52px;height:52px;border-radius:15px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;margin:-26px 0 14px;position:relative;z-index:2;border:3px solid #fff;box-shadow:0 8px 20px -6px rgba(2,8,30,.55)}
 a.tool{text-decoration:none}a.tool:hover{transform:translateY(-3px)}.tool{transition:transform .18s ease}.tool b{font-weight:900;font-size:18px;display:block;margin-bottom:7px;letter-spacing:-.4px}
 .tool p{font-size:13.5px;font-weight:600;color:var(--dim);line-height:1.6}
-.income{background-image:linear-gradient(180deg,rgba(255,255,255,__SCRIM_T__) 0%,rgba(255,255,255,__SCRIM_M__) 50%,rgba(255,255,255,__SCRIM_B__) 100%),url('/static/images/al-plan-lifestyle.webp');background-size:cover;background-position:center;background-color:#eef2fb;border:1px solid rgba(255,255,255,.55);color:var(--ink);border-radius:24px;padding:clamp(28px,5vw,52px);box-shadow:0 30px 70px -25px rgba(2,8,30,.55)}
+.income{background-image:linear-gradient(180deg,rgba(6,16,48,__SCRIM_T__) 0%,rgba(6,16,48,__SCRIM_M__) 50%,rgba(6,16,48,__SCRIM_B__) 100%),url('/static/images/al-plan-lifestyle.webp');background-size:cover;background-position:center;background-color:#0a1f52;border:1px solid rgba(255,255,255,.55);color:var(--ink);border-radius:24px;padding:clamp(28px,5vw,52px);box-shadow:0 30px 70px -25px rgba(2,8,30,.55)}
 .income h2,.income .lead{color:var(--ink);text-shadow:none}
 .income .lead{color:var(--dim)}
-.income .k{color:var(--red)}
+.income .k{color:#ff5f74;text-shadow:0 2px 12px rgba(0,0,0,.5)}.income h2{color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.55)}.income .lead{color:rgba(255,255,255,.9);text-shadow:0 2px 14px rgba(0,0,0,.5)}.income .pass b{color:#fff}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.step{border:1px solid rgba(255,255,255,.6);border-radius:16px;padding:22px;background:rgba(255,255,255,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}@media(max-width:920px){.income{background-image:linear-gradient(180deg,rgba(255,255,255,__SCRIM_MT__) 0%,rgba(255,255,255,__SCRIM_MM__) 50%,rgba(255,255,255,__SCRIM_MB__) 100%),url('/static/images/al-plan-lifestyle-sm.webp')}}
+.step{border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px;background:rgba(10,31,82,__PANEL__);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}@media(max-width:920px){.income{background-image:linear-gradient(180deg,rgba(6,16,48,__SCRIM_MT__) 0%,rgba(6,16,48,__SCRIM_MM__) 50%,rgba(6,16,48,__SCRIM_MB__) 100%),url('/static/images/al-plan-lifestyle-sm.webp')}}
 .step .n{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.step b{font-weight:900;font-size:15.5px;display:block;margin-bottom:6px;color:var(--ink)}
-.step p{font-size:13px;font-weight:600;color:var(--dim);line-height:1.6}
-.pass{margin-top:22px;background:#f6f8fd;border:2px solid var(--line);border-radius:16px;padding:22px;font-size:13.5px;font-weight:600;color:#2a3352;line-height:1.7}
+.step b{font-weight:900;font-size:15.5px;display:block;margin-bottom:6px;color:#fff}
+.step p{font-size:13px;font-weight:600;color:rgba(255,255,255,.86);line-height:1.6}
+.pass{margin-top:22px;background:rgba(10,31,82,__PANEL__);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.92);line-height:1.7;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .pass b{color:var(--ink)}
-.pass .hl{color:var(--red);font-weight:800}
+.pass .hl{color:#ff5f74;font-weight:800}
 .w2erow{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px}
 @media(max-width:760px){.w2erow{grid-template-columns:1fr}}
-.wbox{border:2px solid var(--line);border-radius:16px;padding:22px}
-.wbox b{font-weight:900;font-size:15.5px;display:block;margin-bottom:8px;color:var(--ink)}
-.wbox p{font-size:13px;font-weight:600;color:var(--dim);line-height:1.65}
+.wbox{border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px;background:rgba(10,31,82,__PANEL__);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.wbox b{font-weight:900;font-size:15.5px;display:block;margin-bottom:8px;color:#fff}
+.wbox p{font-size:13px;font-weight:600;color:rgba(255,255,255,.86);line-height:1.65}
 .final{text-align:center;padding-bottom:90px}
 .final .price{font-weight:900;font-size:clamp(20px,3vw,26px);color:#eaf0ff;margin-bottom:22px;text-shadow:0 2px 14px rgba(0,0,0,.4)}
 .disc{font-size:11px;font-weight:600;color:#b9c8ef;max-width:660px;margin:28px auto 0;line-height:1.7;text-shadow:0 1px 8px rgba(0,0,0,.4)}
@@ -2172,7 +2172,14 @@ def al_plan_page():
 # Higher = more white veil = more legible body copy, less photo. The card
 # carries the longest text on the page, so this trades directly against
 # readability rather than being a pure taste call.
-AL_PLAN_SCRIM_DEFAULT = 78
+# Dark floor over the lifestyle photo inside the Plan card, as a percentage.
+# Low by design: the navy panels now carry legibility, so the photo can run
+# near full strength. This only stops the white heading burning out where the
+# sun hits the water.
+AL_PLAN_SCRIM_DEFAULT = 22
+# Navy panel opacity. Below ~70 the sunset starts bleeding through enough to
+# hurt the body copy, which is the longest on the page.
+AL_PLAN_PANEL_DEFAULT = 82
 
 
 def _plan_scrim(pct) -> dict:
@@ -2201,17 +2208,31 @@ def _plan_scrim(pct) -> dict:
     }
 
 
+def _plan_panel(pct) -> dict:
+    """Opacity of the navy panels sitting on the photo."""
+    try:
+        pct = int(pct)
+    except (TypeError, ValueError):
+        pct = AL_PLAN_PANEL_DEFAULT
+    pct = max(40, min(100, pct))
+    return {"__PANEL__": f"{pct/100.0:.2f}".rstrip("0").rstrip(".") or "0"}
+
+
 @app.api_route("/", methods=["GET", "HEAD"])
-def home(request: Request, cards: str = "", plan: str = ""):
+def home(request: Request, cards: str = "", plan: str = "", panel: str = ""):
     """AdvantageLife public homepage (this branch deploys only the AL site).
 
     ?cards=bg  toolkit cards as full-bleed photo backgrounds with white text,
                instead of the default image-band-over-white-body treatment.
-    ?plan=NN   (20-96) white scrim over the lifestyle photo inside the Plan
-               card. Lower = more photo, higher = more legible copy.
+    ?plan=NN   (20-96) dark floor over the lifestyle photo inside the Plan
+               card. Lower = more photo.
+    ?panel=NN  (40-100) opacity of the navy panels sitting on that photo.
     """
     html = _AL_HOME.replace("__CARDS_MODE__", "tools-bg" if cards == "bg" else "")
-    for token, value in _plan_scrim(plan or AL_PLAN_SCRIM_DEFAULT).items():
+    tokens = {}
+    tokens.update(_plan_scrim(plan or AL_PLAN_SCRIM_DEFAULT))
+    tokens.update(_plan_panel(panel or AL_PLAN_PANEL_DEFAULT))
+    for token, value in tokens.items():
         html = html.replace(token, value)
     return HTMLResponse(html)
 
