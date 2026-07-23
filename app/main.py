@@ -59656,7 +59656,7 @@ async def api_blog_domain_set(payload: dict = Body(...), request: Request = None
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not is_pro(user):
-        return JSONResponse({"error": "Custom domains require a Partner or Founder membership."}, status_code=403)
+        return JSONResponse({"error": "Custom domains are included with lifetime access. Join to unlock them."}, status_code=403)
     blog = _member_blog(user, db)
     if not blog:
         return JSONResponse({"error": "Launch your site first."}, status_code=400)
@@ -71180,6 +71180,87 @@ async def al_join_checkout(user: User = Depends(_al_user), db: Session = Depends
     except Exception as e:
         logger.exception(f"al_join_checkout failed for user {user.id}")
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)[:200]}, status_code=500)
+
+
+@app.get("/admin/api/al/domain-check")
+def al_domain_check(user: User = Depends(_al_user)):
+    """Is the member custom-domain path actually able to issue certificates?
+
+    Two modes exist and they fail very differently:
+
+      v2 (Railway API) — we register the member's domain with Railway, which
+        auto-issues a Let's Encrypt certificate. Member points DNS, site works.
+      v1 (DNS fallback) — we verify the CNAME and stop. Nothing registers the
+        domain, so NO certificate is ever issued and the member's own branded
+        site serves an HTTPS security warning to their visitors.
+
+    v1 is what runs when the four RAILWAY_* vars are absent, and it looks fine
+    from the inside: /cron/verify-custom-domains reports success, the DNS check
+    passes, the row goes 'verified'. The failure only appears in the member's
+    browser. This endpoint makes the difference visible before that happens.
+
+    Boolean/identifier output only — never returns a token value.
+    """
+    from fastapi.responses import JSONResponse
+    from . import custom_domains as _cd, railway_api as _rw, brand_config
+
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    present = {
+        "RAILWAY_API_TOKEN": bool(os.getenv("RAILWAY_API_TOKEN")),
+        "RAILWAY_PROJECT_ID": bool(os.getenv("RAILWAY_PROJECT_ID")),
+        "RAILWAY_SERVICE_ID": bool(os.getenv("RAILWAY_SERVICE_ID")),
+        "RAILWAY_ENVIRONMENT_ID": bool(os.getenv("RAILWAY_ENVIRONMENT_ID")),
+    }
+    missing = [k for k, v in present.items() if not v]
+    configured = _rw.is_configured()
+
+    out = {
+        "vars_present": present,
+        "vars_missing": missing,
+        "mode": "v2-railway-auto-tls" if configured else "v1-dns-fallback",
+        "cname_target_given_to_members": _cd.CNAME_TARGET,
+        "accepted_cname_aliases": sorted(_cd._ACCEPTED_CNAME_ALIASES),
+        "brand_base_url": brand_config.BASE_URL,
+    }
+
+    if not configured:
+        out["verdict"] = (
+            "v1 fallback. A member can add a domain and it will verify, but no "
+            "TLS certificate is issued and their site will show a browser "
+            "security warning. Set the missing vars in Railway (no deploy "
+            "needed): " + ", ".join(missing)
+        )
+        return JSONResponse({"ok": False, "results": out})
+
+    # Configured — prove the credentials actually work rather than trusting
+    # that four non-empty strings are the right four strings.
+    try:
+        ok, result = _rw.list_all_custom_domains()
+        out["api_reachable"] = bool(ok)
+        if ok:
+            try:
+                out["domains_registered_with_railway"] = len(result or [])
+            except Exception:
+                out["domains_registered_with_railway"] = "unknown"
+            out["verdict"] = (
+                "v2 active and the Railway API answered. Member domains will be "
+                "registered and Let's Encrypt certificates auto-issued. Still "
+                "worth one real end-to-end test on a domain you control before "
+                "offering this to members — this path has never run in production."
+            )
+        else:
+            out["api_error"] = str(result)[:250]
+            out["verdict"] = (
+                "All four vars are set but the Railway API rejected the call. "
+                "Most likely the token lacks project-write permission, or one of "
+                "the three IDs belongs to a different project/service/environment."
+            )
+        return JSONResponse({"ok": bool(ok), "results": out})
+    except Exception as e:
+        out["verdict"] = f"Railway API call raised: {type(e).__name__}: {str(e)[:200]}"
+        return JSONResponse({"ok": False, "results": out}, status_code=500)
 
 
 @app.get("/admin/api/al/stripe-check")
