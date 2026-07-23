@@ -71,9 +71,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.mySales', { defaultValue: 'My Sales' }), shortLabel: t('navShort.mySales', { defaultValue: 'Sales' }), icon: DollarSign, path: '/my-sales', basic: true, external: true },
       { label: t('nav.payoutWallets', { defaultValue: 'Payout Wallets' }), shortLabel: t('navShort.payoutWallets', { defaultValue: 'Wallets' }), icon: Layers, path: '/payout-methods', basic: true, external: true },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', basic: true, tierLocked: true },
-      { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign', basic: true, tierLocked: true },
-      { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library', basic: true },
-      { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics', basic: true },
+      { label: t('nav.myCampaigns', { defaultValue: 'Campaigns' }), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Campaigns' }), icon: Film, path: '/campaigns', basic: true },
     ]},
 
     { type: 'divider' },

@@ -20,18 +20,16 @@ import {
 
 function buildTabs(t) {
   return [
-    { id: 'hub', label: t('campaignVideos.tabs.hub', { defaultValue: 'Hub' }),
-      icon: Video, tone: 'cobalt', path: '/campaign-videos', match: ['/campaign-videos'] },
-    { id: 'watch', label: t('campaignVideos.tabs.watch', { defaultValue: 'Watch & Earn' }),
-      icon: PlayCircle, tone: 'cyan', path: '/watch', match: ['/watch'] },
-    { id: 'create', label: t('campaignVideos.tabs.create', { defaultValue: 'Create Campaign' }),
-      icon: PlusCircle, tone: 'cobalt', path: '/create-campaign', match: ['/create-campaign', '/upload'] },
     { id: 'mine', label: t('campaignVideos.tabs.mine', { defaultValue: 'My Campaigns' }),
-      icon: Film, tone: 'cyan', path: '/video-library', match: ['/video-library'] },
-    { id: 'analytics', label: t('campaignVideos.tabs.analytics', { defaultValue: 'Video Analytics' }),
-      icon: BarChart3, tone: 'cobalt', path: '/campaign-analytics', match: ['/campaign-analytics'] },
-    { id: 'tiers', label: t('campaignVideos.tabs.tiers', { defaultValue: 'Campaign Tiers' }),
+      icon: Film, tone: 'cobalt', path: '/campaigns', match: ['/campaigns', '/video-library', '/campaign-videos'] },
+    { id: 'create', label: t('campaignVideos.tabs.create', { defaultValue: 'New Campaign' }),
+      icon: PlusCircle, tone: 'cobalt', path: '/create-campaign', match: ['/create-campaign', '/upload'] },
+    { id: 'analytics', label: t('campaignVideos.tabs.analytics', { defaultValue: 'Performance' }),
+      icon: BarChart3, tone: 'cyan', path: '/campaign-analytics', match: ['/campaign-analytics'] },
+    { id: 'packs', label: t('campaignVideos.tabs.packs', { defaultValue: 'Buy Packs' }),
       icon: Target, tone: 'cyan', path: '/packs', match: ['/packs', '/campaign-tiers'] },
+    { id: 'watch', label: t('campaignVideos.tabs.watch', { defaultValue: 'Watch-to-Earn' }),
+      icon: PlayCircle, tone: 'cyan', path: '/watch', match: ['/watch'] },
   ];
 }
 
@@ -147,11 +145,10 @@ export default function CampaignVideosTabs() {
 // stays in the Business Hub family so that page renders one strip.
 export function isCampaignVideosFamilyRoute(pathname) {
   const PATHS = [
-    '/campaign-videos',
+    '/campaigns',
     '/watch',
     '/create-campaign',
     '/upload',
-    '/video-library',
     '/campaign-analytics',
   ];
   for (var i = 0; i < PATHS.length; i++) {

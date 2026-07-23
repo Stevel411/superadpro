@@ -45,7 +45,7 @@ const CHROME = `
 const NAV = [
   { key: 'dashboard', label: 'Dashboard', to: '/home-preview', link: true },
   { key: 'ai-tools', label: 'AI Tools', to: '/ai-tools', link: true },
-  { key: 'campaigns', label: 'Campaigns', to: '/video-library', link: true },
+  { key: 'campaigns', label: 'Campaigns', to: '/campaigns', link: true },
   { key: 'watch', label: 'Watch-to-Earn', to: '/watch', link: true },
   { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'packs', label: 'Buy Packs', to: '/packs', link: false },

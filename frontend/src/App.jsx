@@ -13,7 +13,6 @@ import { Component, Suspense } from 'react';
 import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
 import AIToolsHub from './pages/AIToolsHub';
-import CampaignsPage from './pages/CampaignsPage';
 import TeamPage from './pages/TeamPage';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
@@ -36,7 +35,6 @@ const EmailSwipes = React.lazy(() => import('./pages/EmailSwipes'));
 const LeadMagnets = React.lazy(() => import('./pages/LeadMagnets'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
 const LeadMagnetDetail = React.lazy(() => import('./pages/LeadMagnetDetail'));
-const CampaignVideos = React.lazy(() => import('./pages/CampaignVideos'));
 const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
 const Watch = React.lazy(() => import('./pages/Watch'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
@@ -275,7 +273,7 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<HardRedirect to="/packs" />} />
       <Route path="/home-preview" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
-      <Route path="/campaigns" element={<ProtectedRoute><CampaignsPage /></ProtectedRoute>} />
+      <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
       <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
@@ -294,7 +292,7 @@ function AppRoutes() {
       <Route path="/my-marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
-      <Route path="/campaign-videos" element={<ProtectedRoute><CampaignVideos /></ProtectedRoute>} />
+      <Route path="/campaign-videos" element={<HardRedirect to="/campaigns" />} />
       <Route path="/lead-finder" element={<ProtectedRoute><RequireTier tier="pro"><LeadFinder /></RequireTier></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/pay-it-forward" element={<HardRedirect to="/home-preview" />} />
@@ -308,7 +306,7 @@ function AppRoutes() {
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><RequireTier tier="basic"><AnalyticsPage /></RequireTier></ProtectedRoute>} />
-      <Route path="/video-library" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
+      <Route path="/video-library" element={<HardRedirect to="/campaigns" />} />
       <Route path="/upload" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
       <Route path="/create-campaign" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
 

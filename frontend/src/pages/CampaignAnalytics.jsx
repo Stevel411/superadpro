@@ -35,7 +35,7 @@ export default function CampaignAnalytics() {
 
   if (loading) {
     return (
-      <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
+      <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaigns' }} title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
           <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>{t('campaignAnalytics.loading')}</div>
@@ -55,7 +55,7 @@ export default function CampaignAnalytics() {
   }
 
   return (
-    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaign Tiers' }} title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
+    <AppLayout categoryBack={{ to: '/campaigns', label: 'Campaigns' }} title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
 
       {/* Cobalt blue header */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px', marginBottom: 20 }}>
