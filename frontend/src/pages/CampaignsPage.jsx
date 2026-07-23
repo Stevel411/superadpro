@@ -6,10 +6,10 @@ import CategoryShell from '../components/CategoryShell';
 
 const CSS = `
 .cat .tiers-mini{display:flex;flex-direction:column;gap:10px;}
-.cat .tiers-mini .tr{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.08);border:1px solid rgba(103,232,249,.25);border-radius:12px;padding:13px 16px;}
-.cat .tiers-mini .tr .nm{font-family:'Sora';font-weight:700;font-size:14px;color:#fff;}
-.cat .tiers-mini .tr .pr{font-family:'Sora';font-weight:800;font-size:18px;color:var(--cyanb);}
-.cat .tiers-mini .tr.feat{background:rgba(34,211,238,.16);border-color:var(--cyanb);}
+.cat .tiers-mini .tr{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:13px 16px;}
+.cat .tiers-mini .tr .nm{font-family:'Inter';font-weight:700;font-size:14px;color:#fff;}
+.cat .tiers-mini .tr .pr{font-family:'Inter';font-weight:800;font-size:18px;color:var(--cyans);}
+.cat .tiers-mini .tr.feat{background:rgba(200,16,46,.18);border-color:var(--cyanb);}
 `;
 
 const SUB = [
@@ -22,14 +22,14 @@ export default function CampaignsPage() {
   return (
     <CategoryShell>
       <style>{CSS}</style>
-      <div className="phead"><div className="eb">Campaign Tiers</div><h1>Your advertising</h1><p>Buy a tier, create the campaign that gets watched, and climb the Profit Grid.</p></div>
+      <div className="phead"><div className="eb">Campaign Packs</div><h1>Your advertising</h1><p>Buy a pack, create the campaign that gets watched, and deliver real views to your offer.</p></div>
 
       <div className="hero">
         <div className="hl">
-          <div className="feat">Featured &middot; Buy a tier</div>
-          <h2>Advertise and climb the Grid</h2>
-          <p>Pick a tier, then create your campaign — real members watch it daily, driving real views to your offer and a seat on the Grid.</p>
-          <Link className="cta" to="/campaign-tiers">Buy a tier &nbsp;&rarr;</Link>
+          <div className="feat">Featured &middot; Buy a pack</div>
+          <h2>Get your video watched</h2>
+          <p>Pick a pack, then create your campaign — real members watch it daily to stay earning-qualified, so your views come from people with a reason to pay attention.</p>
+          <Link className="cta" to="/campaign-tiers">Buy a pack &nbsp;&rarr;</Link>
         </div>
         <div className="hr">
           <div className="tiers-mini">
