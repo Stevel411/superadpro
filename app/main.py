@@ -71240,10 +71240,29 @@ def al_domain_check(user: User = Depends(_al_user)):
         ok, result = _rw.list_all_custom_domains()
         out["api_reachable"] = bool(ok)
         if ok:
+            # Name the domains, don't just count them. The three RAILWAY_*_ID
+            # vars were already set before the token was, so they could have
+            # been carried over from SuperAdPro — and a wrong service ID fails
+            # silently in the worst way: member domains register successfully
+            # against the WRONG Railway service, so DNS points at AdvantageLife
+            # while Railway serves something else. Seeing our own domain in
+            # this list is the proof the IDs belong to this deploy.
             try:
-                out["domains_registered_with_railway"] = len(result or [])
-            except Exception:
-                out["domains_registered_with_railway"] = "unknown"
+                rows = result or []
+                out["domains_registered_with_railway"] = len(rows)
+                names = []
+                for d in rows:
+                    try:
+                        names.append(d.get("domain") if isinstance(d, dict) else str(d))
+                    except Exception:
+                        pass
+                out["railway_domains"] = sorted(n for n in names if n)
+                own = {h for h in (brand_config.BASE_URL or "").replace("https://", "")
+                                  .replace("http://", "").split("/")[0:1] if h}
+                own |= {h[4:] if h.startswith("www.") else "www." + h for h in list(own)}
+                out["ids_point_at_this_brand"] = any(n in own for n in out["railway_domains"])
+            except Exception as e:
+                out["domains_registered_with_railway"] = f"unreadable: {str(e)[:120]}"
             out["verdict"] = (
                 "v2 active and the Railway API answered. Member domains will be "
                 "registered and Let's Encrypt certificates auto-issued. Still "
