@@ -68849,7 +68849,21 @@ async def al_submit_proof(intent_id: int, request: Request,
                   .filter(P2PIntent.tx_ref == tx_ref, P2PIntent.id != intent.id).first())
         if dupe:
             return JSONResponse({"error": "That transaction reference is already used"}, status_code=400)
-    _als.submit_proof(db, intent.id, tx_ref=tx_ref or None, proof_url=proof_url)
+    try:
+        _als.submit_proof(db, intent.id, tx_ref=tx_ref or None, proof_url=proof_url)
+    except ValueError as e:
+        # submit_proof enforces the duplicate rule too (defence in depth — the
+        # spec's rule of rules is that handlers call the engine, not
+        # re-implement it). Surface it as a 400, not a 500.
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=400)
+    except IntegrityError:
+        # The DB unique index fired: two concurrent submissions carrying the
+        # same reference both passed their SELECT, and this one lost the race.
+        # That is the exact window the application checks cannot close.
+        db.rollback()
+        return JSONResponse(
+            {"error": "That transaction reference is already used"}, status_code=400)
     if intent.earner_id:
         seller = db.query(User).filter(User.id == intent.earner_id).first()
         amt = float(intent.amount or 0)
@@ -71353,7 +71367,7 @@ def _al_run_battery(db):
             return f"second confirm rejected; counter stayed {after_one}"
         case(8, "Confirm is idempotent (double-tap safe)", c8)
 
-        # ── 9. duplicate tx_ref rejected (the endpoint dedupe query) ──
+        # ── 9. duplicate tx_ref rejected (enforcement, not just the query) ──
         def c9():
             A = mk("c9a", level=L1)
             X = mk("c9x", sponsor=A)
@@ -71361,10 +71375,33 @@ def _al_run_battery(db):
             i1 = _S.create_intent(db, X.id, L1, do_commit=False); db.flush()
             _S.submit_proof(db, i1.id, tx_ref=f"0xdup{ts}", do_commit=False); db.flush()
             i2 = _S.create_intent(db, Y.id, L1, do_commit=False); db.flush()
-            dupe = (db.query(P2PIntent)
-                      .filter(P2PIntent.tx_ref == f"0xdup{ts}", P2PIntent.id != i2.id).first())
-            assert dupe is not None and dupe.id == i1.id, "dedupe query missed the duplicate"
-            return "duplicate tx_ref caught by the guard query"
+
+            # This previously asserted only that a SELECT could find the
+            # duplicate row — it passed whether or not anything rejected it,
+            # so it would have gone green with the guard deleted. Assert the
+            # engine actually refuses, which is what §8 case (9) means.
+            rejected = False
+            try:
+                _S.submit_proof(db, i2.id, tx_ref=f"0xdup{ts}", do_commit=False)
+            except ValueError:
+                rejected = True
+            db.flush()
+            assert rejected, "submit_proof accepted a duplicate tx_ref"
+
+            # And the second intent must be untouched by the rejected attempt.
+            db.refresh(i2)
+            assert i2.tx_ref != f"0xdup{ts}", "duplicate tx_ref was written despite rejection"
+            assert i2.status == "pending", f"status moved on a rejected proof: {i2.status}"
+
+            # Whitespace variants must not slip past — the guard trims.
+            rejected_ws = False
+            try:
+                _S.submit_proof(db, i2.id, tx_ref=f"  0xdup{ts}  ", do_commit=False)
+            except ValueError:
+                rejected_ws = True
+            db.flush()
+            assert rejected_ws, "padded duplicate tx_ref accepted"
+            return "duplicate rejected by submit_proof, incl. whitespace variant; intent untouched"
         case(9, "Duplicate tx reference rejected", c9)
 
         # ── 10. dispute freeze + both admin outcomes ──
@@ -71753,6 +71790,97 @@ def al_verify_battery(secret: str = "", user: User = Depends(get_current_user),
     if (not _ms or secret != _ms) and not (user and is_admin(user)):
         raise HTTPException(status_code=403, detail="forbidden")
     return _al_run_battery(db)
+
+
+@app.get("/admin/api/al/proof-integrity")
+def al_proof_integrity(apply: int = 0, user: User = Depends(_al_user),
+                       db: Session = Depends(get_db)):
+    """Duplicate proof references: report, and optionally enforce at the DB level.
+
+    Why a DB constraint is needed when two application checks already exist
+    (the /proof endpoint and, since 089394cc5, submit_proof itself): both read
+    then write. Two concurrent submissions carrying the same tx_ref can BOTH
+    pass their SELECT before either COMMITs, and both land. An application
+    check cannot close that window — only a unique index can, because the
+    database serialises it.
+
+    Build-spec §2.2 ("unique across the table where not null") and §8 case (9).
+
+    GET                -> report duplicates, say whether the index can be added
+    GET ?apply=1       -> create the partial unique index, if and only if the
+                          table is already clean. Never deletes or merges rows;
+                          duplicates are a money question and need Steve's eye.
+
+    Partial index (WHERE tx_ref IS NOT NULL AND tx_ref <> '') so that the many
+    proof_url-only intents, which legitimately have no tx_ref, are unaffected.
+    """
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as _t
+
+    if not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    IDX = "uq_p2p_intents_tx_ref"
+    out = {}
+
+    try:
+        dupes = db.execute(_t("""
+            SELECT TRIM(tx_ref) AS ref, COUNT(*) AS n,
+                   STRING_AGG(id::text, ',' ORDER BY id) AS intent_ids
+            FROM p2p_intents
+            WHERE tx_ref IS NOT NULL AND TRIM(tx_ref) <> ''
+            GROUP BY TRIM(tx_ref)
+            HAVING COUNT(*) > 1
+            ORDER BY COUNT(*) DESC
+            LIMIT 50
+        """)).mappings().all()
+        out["duplicate_groups"] = [dict(r) for r in dupes]
+        out["duplicate_count"] = len(dupes)
+
+        out["index_exists"] = db.execute(_t(
+            "SELECT 1 FROM pg_indexes WHERE indexname = :n"), {"n": IDX}).first() is not None
+
+        out["intents_with_tx_ref"] = db.execute(_t(
+            "SELECT COUNT(*) FROM p2p_intents WHERE tx_ref IS NOT NULL AND TRIM(tx_ref) <> ''"
+        )).scalar() or 0
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"},
+                            status_code=500)
+
+    if out["index_exists"]:
+        out["verdict"] = "Unique index already present — duplicates cannot be written."
+        return JSONResponse({"ok": True, "results": out})
+
+    if out["duplicate_count"]:
+        out["verdict"] = (
+            f"{out['duplicate_count']} duplicate reference group(s) already in the table. "
+            "The index cannot be created until these are resolved. These are real "
+            "money records — review each group before deciding which intent keeps "
+            "the reference. Nothing has been changed."
+        )
+        return JSONResponse({"ok": False, "results": out})
+
+    if not apply:
+        out["verdict"] = ("Table is clean — no duplicate references. Re-tap with "
+                          "&apply=1 to add the unique index and close the "
+                          "concurrent-submission window for good.")
+        return JSONResponse({"ok": True, "results": out})
+
+    try:
+        db.execute(_t(
+            f"CREATE UNIQUE INDEX IF NOT EXISTS {IDX} ON p2p_intents (TRIM(tx_ref)) "
+            "WHERE tx_ref IS NOT NULL AND TRIM(tx_ref) <> ''"))
+        db.commit()
+        out["index_created"] = True
+        out["verdict"] = ("Unique index created. Duplicate proof references are now "
+                          "rejected by the database itself, including under "
+                          "concurrent submission.")
+        return JSONResponse({"ok": True, "results": out})
+    except Exception as e:
+        db.rollback()
+        out["index_created"] = False
+        return JSONResponse({"ok": False, "results": out,
+                             "error": f"{type(e).__name__}: {str(e)[:250]}"}, status_code=500)
 
 
 @app.get("/admin/api/al/settlements")
