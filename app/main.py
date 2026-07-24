@@ -1995,11 +1995,11 @@ footer a{color:#b9c8ef}
   <h2>The tools that do the work</h2>
   <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by one $100 payment, for life.</div>
   <div class="grid">
-    <a class="tool" href="/labs/pagebuilder" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
-    <a class="tool" href="/linkhub" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
-    <a class="tool" href="/pro/leads" style="--img:url('/static/images/tools/email.webp')"><div class="img"></div><div class="bd"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div></a>
-    <a class="tool" href="/campaigns" style="--img:url('/static/images/tools/video-campaigns.webp')"><div class="img"></div><div class="bd"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div></a>
-    <a class="tool" href="/watch" style="--img:url('/static/images/tools/watch-to-earn.webp')"><div class="img"></div><div class="bd"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div></a>
+    <a class="tool" href="/join" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
+    <a class="tool" href="/join" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
+    <a class="tool" href="/join" style="--img:url('/static/images/tools/email.webp')"><div class="img"></div><div class="bd"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div></a>
+    <a class="tool" href="/join" style="--img:url('/static/images/tools/video-campaigns.webp')"><div class="img"></div><div class="bd"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div></a>
+    <a class="tool" href="/join" style="--img:url('/static/images/tools/watch-to-earn.webp')"><div class="img"></div><div class="bd"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div></a>
   </div>
 </section>
 
@@ -70832,7 +70832,7 @@ h1 .r{color:var(--red)}
 .backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
 <div class="wrap">
-  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+  <a class="backlink" href="/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
   <div class="card">
