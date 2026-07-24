@@ -39719,6 +39719,16 @@ def kyc_submit(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    # KYC retired on AdvantageLife (Steve, 24 Jul 2026): the platform never
+    # disburses funds — pack sales are member-to-member and the company holds
+    # no member balance — so there is no payout to verify against and no
+    # lawful purpose for holding date-of-birth and identity documents.
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse(
+            {"error": "gone", "detail": "AdvantageLife does not require identity verification."},
+            status_code=410,
+        )
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     import uuid
     from datetime import datetime
@@ -71443,6 +71453,14 @@ def al_retired_data_audit(user: User = Depends(_al_user)):
         except Exception as e:
             db.rollback()
             out["app_config"] = "error: %s" % str(e)[:120]
+        # KYC is retired on AL; any rows here are personal data held with no
+        # purpose. Non-zero means a deletion job is owed, not just a code change.
+        out["kyc_data"] = {
+            "kyc_status_not_none": db.query(User).filter(
+                User.kyc_status.isnot(None), User.kyc_status != "none").count(),
+            "kyc_dob_on_file": db.query(User).filter(User.kyc_dob.isnot(None)).count(),
+            "kyc_id_documents": db.query(User).filter(User.kyc_id_filename.isnot(None)).count(),
+        }
         out["lifetime_members"] = db.query(User).filter(User.access_level == "lifetime").count()
         out["total_members"] = db.query(User).count()
     finally:

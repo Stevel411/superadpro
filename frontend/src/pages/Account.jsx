@@ -7,7 +7,7 @@ import { apiPost, apiGet } from '../utils/api';
 
 var COUNTRIES = ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'];
 
-var TABS = ['profile', 'security', 'payouts', 'verification'];  // billing removed — no subscriptions on AdvantageLife
+var TABS = ['profile', 'security', 'payouts'];  // no subscriptions and no KYC on AdvantageLife
 
 var CSS = `
 .aset{font-family:'Inter',system-ui,sans-serif;color:#0d1230;max-width:1080px;margin:0 auto;}
@@ -104,7 +104,6 @@ function Icon({ name }) {
     billing: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></>,
     security: <><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></>,
     payouts: <><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></>,
-    verification: <><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></>,
   };
   return <svg className="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{p[name]}</svg>;
 }
@@ -137,10 +136,6 @@ export default function Account() {
   var [walletNetwork, setWalletNetwork] = useState(user?.wallet_network === 'bsc' ? 'bsc' : '');
   var [savingWallet, setSavingWallet] = useState(false);
 
-  var [kycDob, setKycDob] = useState('');
-  var [kycIdType, setKycIdType] = useState('passport');
-  var [kycFile, setKycFile] = useState(null);
-  var [savingKyc, setSavingKyc] = useState(false);
 
   var [disable2faCode, setDisable2faCode] = useState('');
   var [disabling2fa, setDisabling2fa] = useState(false);
@@ -203,20 +198,9 @@ export default function Account() {
     apiPost('/api/account/update', { wallet_address: addr, wallet_network: net }).then(function () { refreshUser(); showToast(t('account.walletSaved') || 'Wallet saved', 'ok'); setSavingWallet(false); }).catch(function (e) { showToast(e.message || t('account.failed'), 'err'); setSavingWallet(false); });
   }
 
-  function submitKyc() {
-    if (!kycDob) { showToast(t('account.dobRequired'), 'err'); return; }
-    if (!kycFile) { showToast(t('account.idRequired'), 'err'); return; }
-    setSavingKyc(true);
-    var fd = new FormData();
-    fd.append('kyc_dob', kycDob); fd.append('kyc_id_type', kycIdType); fd.append('kyc_id_file', kycFile);
-    fetch('/account/kyc-submit', { method: 'POST', body: fd, credentials: 'include' })
-      .then(function (r) { setSavingKyc(false); if (r.ok || r.redirected) { refreshUser(); showToast(t('account.verificationSubmitted'), 'ok'); setKycDob(''); setKycFile(null); } else { showToast(t('account.submissionFailed'), 'err'); } })
-      .catch(function () { setSavingKyc(false); showToast(t('account.submissionFailed'), 'err'); });
-  }
 
   if (!user) return null;
   var initials = (((user.first_name || '')[0] || '') + ((user.last_name || user.username || '')[0] || '')).toUpperCase();
-  var kyc = user.kyc_status || 'none';
   // Joined = paid the $100 lifetime join OR grandfathered (access_level
   // 'lifetime'), OR an admin — admins bypass the join gate (is_al_member in
   // main.py). is_active covers members activated on any live rail.
@@ -243,11 +227,6 @@ export default function Account() {
               {joined
                 ? <span className="pill green"><span className="dot" /> {t('account.statusMember', { defaultValue: 'Member' })}</span>
                 : <span className="pill red"><span className="dot" /> {t('account.statusNotJoined', { defaultValue: 'Not joined yet' })}</span>}
-              {kyc === 'approved'
-                ? <span className="pill green"><span className="dot" /> Verified</span>
-                : kyc === 'pending'
-                  ? <span className="pill amber"><span className="dot" /> Under review</span>
-                  : <span className="pill"><span className="dot" style={{ background: '#cbd5e1' }} /> Unverified</span>}
               <span className="pill">Member since {memberSince}</span>
             </div>
           </div>
@@ -256,7 +235,7 @@ export default function Account() {
         <div className="layout">
           <nav className="rail">
             {TABS.map(function (tab) {
-              var labels = { profile: 'Profile', security: 'Security', payouts: 'Getting paid', verification: 'Verification' };
+              var labels = { profile: 'Profile', security: 'Security', payouts: 'Getting paid' };
               return (
                 <button key={tab} className={'tab' + (activeTab === tab ? ' on' : '')} onClick={function () { go(tab); }}>
                   <Icon name={tab} />{labels[tab]}
@@ -339,31 +318,6 @@ export default function Account() {
                               </>
             )}
 
-            {activeTab === 'verification' && (
-              <>
-                <h2 className="ph">Identity <span className="r">verification</span></h2>
-                <p className="psub">Identity verification is required before withdrawals.</p>
-                {kyc === 'approved' ? (
-                  <div className="centre"><div className="ico">✅</div><div className="h">{t('account.identityVerified')}</div><div className="s">{t('account.approvedWithdrawals')}</div></div>
-                ) : kyc === 'pending' ? (
-                  <div className="centre"><div className="ico">⏳</div><div className="h">{t('account.underReview').replace('⏳ ', '')}</div><div className="s">{t('account.underReviewTime')}</div></div>
-                ) : (
-                  <>
-                    {kyc === 'rejected' && <div className="note" style={{ background: '#fef2f2', borderColor: '#fecaca', color: '#b91c1c' }}>{t('account.rejectedResubmit')}</div>}
-                    <div className="fld"><label className="lbl">{t('account.dateOfBirth')}</label><input className="inp" type="date" value={kycDob} onChange={function (e) { setKycDob(e.target.value); }} required /></div>
-                    <div className="fld"><label className="lbl">{t('account.idType')}</label><select className="sel" value={kycIdType} onChange={function (e) { setKycIdType(e.target.value); }}><option value="passport">{t('account.passport')}</option><option value="drivers_licence">{t('account.driversLicence')}</option><option value="national_id">{t('account.nationalId')}</option></select></div>
-                    <div className="fld">
-                      <label className="lbl">{t('account.uploadId')}</label>
-                      <label className="file" style={{ border: kycFile ? '2px solid #c8102e' : '2px dashed #cbd5e1', color: kycFile ? '#8f1830' : '#64748b' }}>
-                        {kycFile ? '✓ ' + kycFile.name : t('account.chooseFile')}
-                        <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={function (e) { setKycFile(e.target.files[0] || null); }} style={{ display: 'none' }} />
-                      </label>
-                    </div>
-                    <button className="btn" onClick={submitKyc} disabled={savingKyc}>{savingKyc ? t('account.submitting') : (kyc === 'rejected' ? t('account.resubmit') : t('account.submitVerification'))}</button>
-                  </>
-                )}
-              </>
-            )}
 
           </section>
         </div>
