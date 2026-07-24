@@ -44,6 +44,25 @@ const CSS = `
 .al .side a.on{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
 .al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
 .al .side .sdiv{height:1px;background:rgba(255,255,255,.12);margin:14px 6px;margin-top:auto}
+.al .wshBack{position:fixed;inset:0;background:rgba(10,31,82,.55);z-index:120;display:flex;align-items:center;justify-content:center;padding:18px}
+.al .wsh{background:#fff;border-radius:18px;padding:20px;max-width:400px;width:100%;max-height:92vh;overflow:auto}
+.al .wshHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.al .wshHead b{font-size:16px;font-weight:900;color:#0a1f52}
+.al .wshX{border:0;background:none;font-size:26px;line-height:1;color:#94a3b8;cursor:pointer;padding:0 4px}
+.al .wshImg{width:100%;border-radius:12px;display:block;background:#eef2f8;min-height:120px}
+.al .wshRow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #eef2f8;gap:12px}
+.al .wshRow span{font-size:13.5px;font-weight:700;color:#0f172a}
+.al .wshSw{display:flex;gap:6px}
+.al .wshSw i{width:26px;height:26px;border-radius:7px;border:2px solid transparent;cursor:pointer;display:block}
+.al .wshSw i.on{border-color:#0f172a}
+.al .wshSeg{display:flex;gap:5px}
+.al .wshSeg button{border:1.5px solid #e2e8f0;background:#fff;color:#64748b;border-radius:8px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+.al .wshSeg button.on{background:#0a1f52;border-color:#0a1f52;color:#fff}
+.al .wshActs{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.al .wshActs a,.al .wshActs button{flex:1;text-align:center;border:0;border-radius:9px;padding:12px 14px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none}
+.al .wshGo{background:#c8102e;color:#fff}
+.al .wshCopy{background:#fff;color:#0a1f52;border:1.5px solid #e2e8f0 !important}
+.al .wshNote{font-size:12px;color:#64748b;margin-top:11px;text-align:center}
 /* ── daily wisdom ── */
 .al .wis{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px 26px 20px;position:relative;overflow:hidden;margin-bottom:20px}
 .al .wis::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:#c8102e}
@@ -59,6 +78,7 @@ const CSS = `
 .al .wis .wa .wfav{background:#fff;color:#0a1f52;border:1.5px solid #e2e8f0}
 .al .wis .wa .wfav.on{border-color:#c8102e;color:#c8102e}
 .al .wis .wa .wlib{background:#0a1f52;color:#fff}
+.al .wis .wa .wshare{background:#c8102e;color:#fff}
 /* ── hero ── */
 .al .hero{background:#0a1f52;border-radius:24px;color:#fff;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,31,82,.55);margin-bottom:20px;min-height:350px}
 @media(max-width:820px){.al .hero{grid-template-columns:1fr}.al .hero .img{min-height:160px}}
@@ -209,6 +229,70 @@ function ytThumb(embedUrl) {
   return m ? 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg' : null;
 }
 
+// ── Daily Wisdom share sheet ──
+// Server renders the PNG so the file is identical on every device.
+function WisdomShare({ quote, onClose }) {
+  const [style, setStyle] = useState('navy');
+  const [fmt, setFmt] = useState('4x5');
+  const [withName, setWithName] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const src = '/api/al/wisdom/card/' + quote.id + '.png?style=' + style +
+              '&fmt=' + fmt + '&name=' + (withName ? 1 : 0);
+  const SWATCH = [
+    ['navy', 'linear-gradient(155deg,#0a1f52,#12388f)'],
+    ['red', '#c8102e'],
+    ['ink', '#0f172a'],
+    ['light', '#f1f5f9'],
+  ];
+  return (
+    <div className="wshBack" onClick={onClose}>
+      <div className="wsh" onClick={function (e) { e.stopPropagation(); }}>
+        <div className="wshHead">
+          <b>Share this</b>
+          <button className="wshX" onClick={onClose}>&times;</button>
+        </div>
+        <img className="wshImg" src={src} alt="" />
+        <div className="wshRow">
+          <span>Colour</span>
+          <div className="wshSw">
+            {SWATCH.map(function (s) {
+              return <i key={s[0]} className={style === s[0] ? 'on' : ''}
+                        style={{ background: s[1] }}
+                        onClick={function () { setStyle(s[0]); }} />;
+            })}
+          </div>
+        </div>
+        <div className="wshRow">
+          <span>Shape</span>
+          <div className="wshSeg">
+            <button className={fmt === '4x5' ? 'on' : ''} onClick={function () { setFmt('4x5'); }}>Portrait</button>
+            <button className={fmt === '1x1' ? 'on' : ''} onClick={function () { setFmt('1x1'); }}>Square</button>
+          </div>
+        </div>
+        <div className="wshRow">
+          <span>Add my name</span>
+          <div className="wshSeg">
+            <button className={withName ? 'on' : ''} onClick={function () { setWithName(true); }}>On</button>
+            <button className={!withName ? 'on' : ''} onClick={function () { setWithName(false); }}>Off</button>
+          </div>
+        </div>
+        <div className="wshActs">
+          <a className="wshGo" href={src} download>Download image</a>
+          <button className="wshCopy" onClick={function () {
+            fetch('/api/al/wisdom/caption/' + quote.id, { credentials: 'include' })
+              .then(function (r) { return r.json(); })
+              .then(function (j) {
+                try { navigator.clipboard.writeText(j.caption); } catch (e) {}
+                setCopied(true); setTimeout(function () { setCopied(false); }, 1800);
+              }).catch(function () {});
+          }}>{copied ? 'Copied \u2713' : 'Copy caption'}</button>
+        </div>
+        <p className="wshNote">Your referral link is on the image.</p>
+      </div>
+    </div>
+  );
+}
+
 export default function NewDashboard() {
   const { user } = useAuth();
   const [dash, setDash] = useState(null);
@@ -225,6 +309,7 @@ export default function NewDashboard() {
   const [shareOpen, setShareOpen] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
   const [wis, setWis] = useState(null);              // today's quote — same for every member
+  const [wisShare, setWisShare] = useState(false);
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
   // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
@@ -515,10 +600,13 @@ export default function NewDashboard() {
                     }}>
                     {wis.favourited ? '\u2665 Saved' : '\u2661 Save'}
                   </button>
+                  <button className="wshare" onClick={function () { setWisShare(true); }}>Share this</button>
                   <a className="wlib" href="/wisdom">Browse the library &rarr;</a>
                 </div>
               </div>
             )}
+
+            {wisShare && wis && <WisdomShare quote={wis} onClose={function () { setWisShare(false); }} />}
 
             <div className="row">
 

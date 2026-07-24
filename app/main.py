@@ -71480,6 +71480,55 @@ def api_wisdom_favourite(quote_id: int, user: User = Depends(get_current_user),
     return JSONResponse({"favourited": state})
 
 
+@app.get("/api/al/wisdom/card/{quote_id}.png")
+def api_wisdom_card(quote_id: int, style: str = "navy", fmt: str = "4x5",
+                    name: int = 0, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """The shareable image, rendered server-side.
+
+    Server-side rather than html2canvas so the file is identical on every
+    device — this is the thing a member puts their name to, and an old
+    Android phone must not produce a worse one.
+    """
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from fastapi.responses import Response
+    from .database import WisdomQuote
+    from . import wisdom as _w, wisdom_card as _wc
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == quote_id,
+                                     WisdomQuote.approved.is_(True)).first()
+    if not q:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    ref = "www.advantagelife.club/ref/%s" % (user.username or "")
+    try:
+        png = _wc.render(_w.as_dict(q), ref, style=style, fmt=fmt,
+                         member_name=(user.username if name else None))
+    except Exception as e:
+        logger.error(f"wisdom card render failed: {e}")
+        return JSONResponse({"error": "Could not build the image"}, status_code=500)
+    return Response(content=png, media_type="image/png", headers={
+        "Content-Disposition": 'attachment; filename="advantagelife-wisdom-%d.png"' % quote_id,
+        "Cache-Control": "private, max-age=3600",
+    })
+
+
+@app.get("/api/al/wisdom/caption/{quote_id}")
+def api_wisdom_caption(quote_id: int, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Text to paste with the image. No hype, no earnings claim — a quote
+    post that pitches stops being a quote post."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from .database import WisdomQuote
+    from . import wisdom as _w, wisdom_card as _wc
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == quote_id,
+                                     WisdomQuote.approved.is_(True)).first()
+    if not q:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    ref = "https://www.advantagelife.club/ref/%s" % (user.username or "")
+    return JSONResponse({"caption": _wc.caption(_w.as_dict(q), ref)})
+
+
 @app.get("/admin/api/al/wisdom-install")
 def admin_wisdom_install(approve: int = 0, user: User = Depends(_al_user),
                          db: Session = Depends(get_db)):
