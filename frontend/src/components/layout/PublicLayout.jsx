@@ -10,23 +10,23 @@ export default function PublicLayout({ children }) {
   var navigate = useNavigate();
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050d1a', fontFamily: "'DM Sans', sans-serif", color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: '#061334', fontFamily: "'Inter', system-ui, sans-serif", color: '#fff' }}>
 
       {/* ── Navbar ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(5,13,26,0.92)', backdropFilter: 'blur(20px)',
+        background: 'rgba(6,19,52,0.92)', backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
           <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>S</span>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(160deg,#12388f,#0a1f52)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>A</span>
             </div>
-            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>
-              SuperAd<span style={{ color: '#38bdf8' }}>{t('common.pro')}</span>
+            <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 20, fontWeight: 900, letterSpacing: '-0.02em' }}>
+              Advantage<span style={{ color: '#c8102e' }}>Life</span>
             </span>
           </Link>
 
@@ -55,8 +55,8 @@ export default function PublicLayout({ children }) {
               onMouseLeave={function(e){e.currentTarget.style.borderColor='rgba(255,255,255,0.1)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
               Sign In
             </Link>
-            <Link to="/register" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 700, color: '#fff', textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', boxShadow: '0 4px 12px rgba(14,165,233,0.35)' }}>
-              Join Free
+            <Link to="/register" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 800, color: '#fff', textDecoration: 'none', background: '#c8102e', boxShadow: '0 4px 14px rgba(200,16,46,0.42)' }}>
+              Get lifetime access
             </Link>
           </div>
         </div>
@@ -74,18 +74,18 @@ export default function PublicLayout({ children }) {
 
             {/* Brand */}
             <div>
-              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 900, marginBottom: 12 }}>
-                SuperAd<span style={{ color: '#38bdf8' }}>{t('common.pro')}</span>
+              <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 18, fontWeight: 900, marginBottom: 12, letterSpacing: '-0.02em' }}>
+                Advantage<span style={{ color: '#c8102e' }}>Life</span>
               </div>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 200 }}>
-                Earn while you advertise. Build recurring income through our affiliate network.
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 210 }}>
+                Your effort. Your income. 100% yours.
               </p>
             </div>
 
             {/* Platform */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.platformFooter')}</div>
-              {[['How It Works', '/how-it-works'], ['For Advertisers', '/for-advertisers'], ['Compensation Plan', '/compensation-plan'], ['Campaign Tiers', '/campaign-tiers']].map(function([l,h]){
+              {[['How It Works', '/how-it-works'], ['The Plan', '/plan'], ['Campaign Tiers', '/campaign-tiers']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}
@@ -104,7 +104,7 @@ export default function PublicLayout({ children }) {
             {/* Legal */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.legalNav')}</div>
-              {[['Terms of Service', '/legal'], ['Privacy Policy', '/legal'], ['Earnings Disclaimer', '/legal']].map(function([l,h]){
+              {[['Terms of Service', '/terms'], ['Privacy Policy', '/privacy-policy'], ['Income Disclaimer', '/income-disclaimer'], ['Refund Policy', '/refund-policy']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}
