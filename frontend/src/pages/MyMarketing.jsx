@@ -83,7 +83,7 @@ export default function MyMarketing() {
         <div className="mm-hero">
           <div className="mm-hero-ico"><Megaphone size={88} /></div>
           <h1>{t('myMarketing.heroTitle', { defaultValue: 'My Marketing' })}</h1>
-          <p>{t('myMarketing.heroSub', { defaultValue: 'Everything you need to promote your business and share AdvantageLife — your link, gifts, posters, decks, videos and the plan, all in one place.' })}</p>
+          <p>{t('myMarketing.heroSub', { defaultValue: 'Everything you need to promote your business and share AdvantageLife — your link, your sales video, posters, email swipes and the plan, all in one place.' })}</p>
         </div>
 
         <div className="mm-feature"

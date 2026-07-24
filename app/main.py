@@ -9565,6 +9565,13 @@ def social_share(request: Request):
 @app.get("/marketing-materials")
 def marketing_materials(request: Request):
     """Serve React SPA — Marketing Materials page."""
+    # Retired on AdvantageLife (24 Jul 2026): the library is SuperAdPro's —
+    # its headline asset is a "3 Income Streams" deck selling Membership
+    # Referrals, the Campaign Grid and Creator Credits, all retired. Nothing
+    # in the AL member nav links here; only the retired sidebar did.
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/my-marketing", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -71329,6 +71336,58 @@ def al_domain_check(user: User = Depends(_al_user)):
     except Exception as e:
         out["verdict"] = f"Railway API call raised: {type(e).__name__}: {str(e)[:200]}"
         return JSONResponse({"ok": False, "results": out}, status_code=500)
+
+
+@app.get("/admin/api/al/retired-data-audit")
+def al_retired_data_audit(user: User = Depends(_al_user)):
+    """Read-only: how much retired-system data actually sits in the AL DB.
+
+    The page audit answers "what can a member reach". This answers the other
+    half — "what rows exist behind it". AL runs on a fresh database, so the
+    expectation is zero across the board; anything non-zero is either
+    migrated residue or a live path nobody has closed yet.
+    """
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from . import database as dbm
+    from .database import SessionLocal, AppConfig
+    db = SessionLocal()
+    out = {}
+    try:
+        groups = {
+            "gifting": ["GiftVoucher"],
+            "profit_grid": ["Grid", "GridPosition", "StepUpBalance", "Commission",
+                            "PendingCommission", "GridPlanFeedback"],
+            "subscription": ["MembershipRenewal", "CreditPackPurchase"],
+            "credit_matrix": ["CreditMatrix", "CreditMatrixPosition", "CreditMatrixCommission"],
+            "creative_studio": ["SuperSceneCredit", "SuperSceneVideo", "SuperSceneOrder",
+                                "SuperScenePipeline"],
+            "courses": ["Course", "CoursePurchase", "CourseCommission", "CoursePassUpTracker"],
+            "al_live": ["User", "CampaignPack", "PackPurchase", "PackCommission",
+                        "P2PIntent", "PayoutMethod", "WatchQuota"],
+        }
+        for group, names in groups.items():
+            out[group] = {}
+            for n in names:
+                model = getattr(dbm, n, None)
+                if model is None:
+                    out[group][n] = "no such model"
+                    continue
+                try:
+                    out[group][n] = db.query(model).count()
+                except Exception as e:
+                    db.rollback()
+                    out[group][n] = "error: %s" % str(e)[:80]
+        try:
+            out["app_config"] = {r.key: r.value for r in db.query(AppConfig).all()}
+        except Exception as e:
+            db.rollback()
+            out["app_config"] = "error: %s" % str(e)[:120]
+        out["lifetime_members"] = db.query(User).filter(User.access_level == "lifetime").count()
+        out["total_members"] = db.query(User).count()
+    finally:
+        db.close()
+    return JSONResponse(out)
 
 
 @app.get("/admin/api/al/stripe-check")

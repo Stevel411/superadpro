@@ -26,8 +26,6 @@ function buildTabs(t) {
       icon: Megaphone, tone: 'cobalt', path: '/my-marketing', match: ['/my-marketing'] },
     { id: 'link', label: t('myMarketing.tabs.link', { defaultValue: 'Affiliate Link' }),
       icon: Share2, tone: 'cyan', path: '/social-share', match: ['/social-share'] },
-    { id: 'gift', label: t('myMarketing.tabs.gift', { defaultValue: 'Pay It Forward' }),
-      icon: Gift, tone: 'pink', path: '/pay-it-forward', match: ['/pay-it-forward'] },
     { id: 'plan', label: t('myMarketing.tabs.plan', { defaultValue: 'Comp Plan' }),
       icon: FileText, tone: 'cobalt', path: '/compensation-plan', match: ['/compensation-plan'] },
     { id: 'posters', label: t('myMarketing.tabs.posters', { defaultValue: 'Brand Posters' }),
@@ -153,7 +151,6 @@ export function isMyMarketingFamilyRoute(pathname) {
   const PATHS = [
     '/my-marketing',
     '/social-share',
-    '/pay-it-forward',
     '/compensation-plan',
     '/brand-posters',
     '/email-swipes',
