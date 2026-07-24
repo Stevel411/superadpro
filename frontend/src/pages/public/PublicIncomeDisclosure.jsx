@@ -14,7 +14,7 @@ export default function PublicIncomeDisclosure() {
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(129,140,248,0.08))',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid #e9eefa',
           borderRadius: 20, padding: '40px 40px 32px', marginBottom: 28,
           position: 'relative', overflow: 'hidden',
         }}>
@@ -22,7 +22,7 @@ export default function PublicIncomeDisclosure() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(200,220,255,0.5)', marginBottom: 12 }}>
             {t('incomeDisclaimer.legal', { defaultValue: 'LEGAL' })}
           </div>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 34, fontWeight: 900, color: '#fff', margin: '0 0 10px', lineHeight: 1.15 }}>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 34, fontWeight: 900, color: '#0a1f52', margin: '0 0 10px', lineHeight: 1.15 }}>
             {t('incomeDisclaimer.pageTitle', { defaultValue: 'Income Disclosure' })}
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(200,220,255,0.6)', lineHeight: 1.6, margin: 0 }}>
@@ -31,7 +31,7 @@ export default function PublicIncomeDisclosure() {
         </div>
 
         {/* Body */}
-        <div style={{ background: 'rgba(11,18,48,0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '36px 40px' }}>
+        <div style={{ background: 'rgba(11,18,48,0.5)', border: '1px solid #e9eefa', borderRadius: 18, padding: '36px 40px' }}>
 
           <Section title={t('incomeDisclaimer.noGuaranteedIncome', { defaultValue: 'No guaranteed income' })}>
             <p>{t('incomeDisclaimer.noGuaranteeText', { defaultValue: 'AdvantageLife does not guarantee any level of income or earnings. Any income figures shown on our website, in our marketing, or during sign-up are illustrative examples only. They represent what is mathematically possible under specific scenarios — not typical or expected results.' })}</p>
@@ -72,7 +72,7 @@ export default function PublicIncomeDisclosure() {
                 ⚠ How the pass-up works — not an income claim
               </div>
               <p style={{ margin: 0 }}>
-                A member keeps their 1st and 2nd pack sales; their 3rd passes up to their sponsor. The same happens at the 6th and the 9th. From the 10th sale onward, every sale is theirs. A member earns only on a pack level they own themselves, and only while they meet the daily watch requirement. If either condition is unmet, the commission passes to the first qualifying member above them, or to the company. <strong style={{ color: '#fff' }}>No income is promised, projected or implied. Many members earn nothing at all.</strong> What a member earns depends entirely on their own activity.
+                A member keeps their 1st and 2nd pack sales; their 3rd passes up to their sponsor. The same happens at the 6th and the 9th. From the 10th sale onward, every sale is theirs. A member earns only on a pack level they own themselves, and only while they meet the daily watch requirement. If either condition is unmet, the commission passes to the first qualifying member above them, or to the company. <strong style={{ color: '#0a1f52' }}>No income is promised, projected or implied. Many members earn nothing at all.</strong> What a member earns depends entirely on their own activity.
               </p>
             </div>
           </Section>
@@ -97,7 +97,7 @@ export default function PublicIncomeDisclosure() {
             <p>{t('incomeDisclaimer.body_L76', { defaultValue: 'You are responsible for complying with all tax, business-registration, and financial-services laws in your country of residence. AdvantageLife provides the platform; it does not provide legal, tax, or financial advice.' })}</p>
           </Section>
 
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20, marginTop: 12, textAlign: 'center' }}>
+          <div style={{ borderTop: '1px solid #e9eefa', paddingTop: 20, marginTop: 12, textAlign: 'center' }}>
             <p style={{ fontSize: 13, color: 'rgba(200,220,255,0.5)', lineHeight: 1.7, margin: '0 0 14px' }}>
               {t('incomeDisclaimer.body_L80', { defaultValue: 'By creating an account with AdvantageLife, you acknowledge that you have read, understood, and agreed to this Income Disclosure.' })}
             </p>
@@ -115,7 +115,7 @@ export default function PublicIncomeDisclosure() {
 function Section(props) {
   return (
     <div style={{ marginBottom: 32 }}>
-      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 19, fontWeight: 800, color: '#fff', marginBottom: 12 }}>{props.title}</div>
+      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 19, fontWeight: 800, color: '#0a1f52', marginBottom: 12 }}>{props.title}</div>
       <div style={{ fontSize: 15, color: 'rgba(200,220,255,0.75)', lineHeight: 1.8 }}>{props.children}</div>
     </div>
   );
@@ -123,13 +123,13 @@ function Section(props) {
 
 function CostBreakdown(props) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '18px 22px', margin: '14px 0' }}>
+    <div style={{ background: '#f4f7fd', border: '1px solid #e9eefa', borderRadius: 12, padding: '18px 22px', margin: '14px 0' }}>
       {props.items.map(function(item, i) {
         return (
-          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < props.items.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', gap: 16, flexWrap: 'wrap' }}>
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < props.items.length - 1 ? '1px solid #e9eefa' : 'none', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 18, fontWeight: 800, color: '#ff8095', minWidth: 52 }}>{item.pct}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0a1f52' }}>{item.label}</div>
             </div>
             <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.55)', textAlign: 'right', flex: '1 1 240px' }}>{item.desc}</div>
           </div>

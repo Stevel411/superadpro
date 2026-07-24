@@ -10,18 +10,18 @@ export default function PublicLayout({ children }) {
   var navigate = useNavigate();
 
   return (
-    <div style={{ minHeight: '100vh', background: '#061334', fontFamily: "'Inter', system-ui, sans-serif", color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', system-ui, sans-serif", color: '#0a1f52' }}>
 
       {/* ── Navbar ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(6,19,52,0.92)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid #e4eaf3',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, color: '#0a1f52' }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(160deg,#12388f,#0a1f52)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>A</span>
             </div>
@@ -38,21 +38,21 @@ export default function PublicLayout({ children }) {
               ['FAQ', '/faq'],
             ].map(function([label, path]) {
               return (
-                <Link key={path} to={path} style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color .15s' }}
-                  onMouseEnter={function(e){e.target.style.color='#fff';}}
-                  onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.65)';}}>
+                <Link key={path} to={path} style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#5b6b8c', textDecoration: 'none', transition: 'color .15s' }}
+                  onMouseEnter={function(e){e.target.style.color='#0a1f52';}}
+                  onMouseLeave={function(e){e.target.style.color='#5b6b8c';}}>
                   {label}
                 </Link>
               );
             })}
-            <a href="/explore" style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color .15s' }}>{t('nav.explore')}</a>
+            <a href="/explore" style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#5b6b8c', textDecoration: 'none', transition: 'color .15s' }}>{t('nav.explore')}</a>
           </div>
 
           {/* CTA buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Link to="/login" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.1)', transition: 'all .15s' }}
-              onMouseEnter={function(e){e.currentTarget.style.borderColor='rgba(255,255,255,0.25)';e.currentTarget.style.color='#fff';}}
-              onMouseLeave={function(e){e.currentTarget.style.borderColor='rgba(255,255,255,0.1)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
+            <Link to="/login" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 700, color: '#0a1f52', textDecoration: 'none', border: '1.5px solid #dfe5f1', transition: 'all .15s' }}
+              onMouseEnter={function(e){e.currentTarget.style.borderColor='#0a1f52';e.currentTarget.style.color='#0a1f52';}}
+              onMouseLeave={function(e){e.currentTarget.style.borderColor='#dfe5f1';e.currentTarget.style.color='#0a1f52';}}>
               Sign In
             </Link>
             <Link to="/register" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 800, color: '#fff', textDecoration: 'none', background: '#c8102e', boxShadow: '0 4px 14px rgba(200,16,46,0.42)' }}>
@@ -68,7 +68,7 @@ export default function PublicLayout({ children }) {
       <DisclaimerLink />
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '48px 24px 32px', marginTop: 80 }}>
+      <footer style={{ background: '#0a1f52', color: '#fff', borderTop: '1px solid #e4eaf3', padding: '52px 24px 30px', marginTop: 78 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 40, marginBottom: 48 }}>
 
