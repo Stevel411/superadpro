@@ -70877,7 +70877,7 @@ h1 .r{color:var(--red)}
       <button class="btn card" id="btnCard" style="display:none;width:100%;margin-bottom:10px;background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;border:0;border-radius:11px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif">Pay $__PRICE__ by card →</button>
       <div id="cardOrCrypto" style="display:none;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 10px">or pay with crypto</div>
       <button class="btn red" id="btnStart">Pay $__PRICE__ with USDT →</button>
-      <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time digital purchase, activated immediately, with no refunds once access is granted.</label>
+      <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time $100 purchase for lifetime access, activated immediately, and that I can request a full refund within 7 days.</label>
       <div class="note">Your $100 joins the platform — your sponsor earns nothing on this payment. Their earnings come from the pack system, explained inside.</div>
     </div>
 
