@@ -1,7 +1,7 @@
 import os
 from decimal import Decimal
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric, UniqueConstraint, Date
 
 # Precision type for all financial columns — 18 digits, 6 decimal places
 # Prevents floating-point drift across millions of transactions
@@ -2601,6 +2601,10 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS vip_signups (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS ad_listings (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description VARCHAR NOT NULL, category VARCHAR NOT NULL DEFAULT 'general', link_url VARCHAR NOT NULL, image_url VARCHAR, is_active BOOLEAN DEFAULT TRUE, is_featured BOOLEAN DEFAULT FALSE, clicks INTEGER DEFAULT 0, views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        # ── Daily Wisdom (24 Jul 2026) ──
+        "CREATE TABLE IF NOT EXISTS wisdom_quotes (id SERIAL PRIMARY KEY, text TEXT NOT NULL, author VARCHAR(120) NOT NULL, source VARCHAR(240) NOT NULL, year_label VARCHAR(20), theme VARCHAR(40) NOT NULL DEFAULT 'persistence', approved BOOLEAN DEFAULT FALSE, times_shown INTEGER DEFAULT 0, last_shown_on DATE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS wisdom_daily (show_date DATE PRIMARY KEY, quote_id INTEGER NOT NULL REFERENCES wisdom_quotes(id), created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS wisdom_favourites (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), quote_id INTEGER NOT NULL REFERENCES wisdom_quotes(id), created_at TIMESTAMP DEFAULT NOW(), CONSTRAINT uq_wisdom_fav UNIQUE (user_id, quote_id))",
         # ── KYC columns ──
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_status VARCHAR DEFAULT 'none'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_dob VARCHAR",
@@ -6436,3 +6440,63 @@ class GridPlanFeedback(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", foreign_keys=[user_id])
+
+
+# ── Daily Wisdom (AdvantageLife, 24 Jul 2026) ─────────────────────────
+class WisdomQuote(Base):
+    """A verified quotation shown to members.
+
+    `source` is NOT NULL on purpose. The internet's quote supply is heavily
+    polluted with misattribution — Ford's "whether you think you can",
+    Drucker's "predict the future", half the Churchill canon — and publishing
+    those under the AdvantageLife brand to the whole member base is a slow
+    credibility leak. Making provenance a database constraint means an
+    unsourced quote cannot be stored, let alone shown. The UI renders the
+    source on every card, including the shared image, so the constraint is
+    visible rather than buried.
+
+    Pre-1928 authors use public-domain translations, cited. A modern
+    translation is somebody's copyrighted work.
+    """
+    __tablename__ = "wisdom_quotes"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    text          = Column(Text, nullable=False)
+    author        = Column(String(120), nullable=False)
+    source        = Column(String(240), nullable=False)   # work, speech or letter + where
+    year_label    = Column(String(20), nullable=True)     # "1910", "c.65", "2008"
+    theme         = Column(String(40), nullable=False, default="persistence", index=True)
+    approved      = Column(Boolean, default=False, index=True)  # Steve signs off before members see it
+    times_shown   = Column(Integer, default=0)
+    last_shown_on = Column(Date, nullable=True)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+
+class WisdomDaily(Base):
+    """Which quote was THE quote on a given day, platform-wide.
+
+    One row per date, so every member reads the same words on the same
+    morning and the library's dates are real history rather than a rotation
+    recomputed on the fly. Date is the primary key, which makes the
+    first-request-of-the-day insert safe under concurrency.
+    """
+    __tablename__ = "wisdom_daily"
+
+    show_date  = Column(Date, primary_key=True)
+    quote_id   = Column(Integer, ForeignKey("wisdom_quotes.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    quote = relationship("WisdomQuote", foreign_keys=[quote_id])
+
+
+class WisdomFavourite(Base):
+    """A member's saved quotes. Private by design — public favourites turn
+    into a popularity contest and quietly tell members which quotes are the
+    'right' ones to like."""
+    __tablename__ = "wisdom_favourites"
+    __table_args__ = (UniqueConstraint("user_id", "quote_id", name="uq_wisdom_fav"),)
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    quote_id   = Column(Integer, ForeignKey("wisdom_quotes.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

@@ -71408,6 +71408,116 @@ def al_purge_bsc_chunks(apply: int = 0, user: User = Depends(_al_user)):
         db.close()
 
 
+# ── Daily Wisdom ──────────────────────────────────────────────────────
+@app.get("/api/al/wisdom/today")
+def api_wisdom_today(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Today's quote — same one for every member, all day."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from . import wisdom as _w
+    from .database import WisdomFavourite
+    try:
+        q = _w.quote_for_date(db)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"wisdom/today failed: {e}")
+        return JSONResponse({"quote": None}, status_code=200)
+    if q is None:
+        return JSONResponse({"quote": None})
+    fav = db.query(WisdomFavourite).filter(
+        WisdomFavourite.user_id == user.id, WisdomFavourite.quote_id == q.id).first()
+    from datetime import date as _date
+    return JSONResponse({"quote": _w.as_dict(q, fav is not None, _date.today())})
+
+
+@app.get("/api/al/wisdom/library")
+def api_wisdom_library(theme: str = None, favourites: int = 0,
+                       user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Published quotes, newest first. Never shows one that has not run yet."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from . import wisdom as _w
+    try:
+        items = _w.library(db, user.id, theme=theme, favourites_only=bool(favourites))
+    except Exception as e:
+        db.rollback()
+        logger.error(f"wisdom/library failed: {e}")
+        items = []
+    return JSONResponse({
+        "quotes": items,
+        "themes": [{"key": k, "label": _w.THEME_LABELS[k]} for k in _w.THEMES],
+    })
+
+
+@app.post("/api/al/wisdom/favourite/{quote_id}")
+def api_wisdom_favourite(quote_id: int, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """Toggle. Private to the member — favourites are never shown to anyone else."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from . import wisdom as _w
+    try:
+        state = _w.toggle_favourite(db, user.id, quote_id)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"wisdom/favourite failed: {e}")
+        return JSONResponse({"error": "Could not save"}, status_code=500)
+    return JSONResponse({"favourited": state})
+
+
+@app.get("/admin/api/al/wisdom-install")
+def admin_wisdom_install(approve: int = 0, user: User = Depends(_al_user),
+                         db: Session = Depends(get_db)):
+    """One-shot: create the Daily Wisdom tables and load the seed set.
+
+    Exists because SKIP_MIGRATIONS=true would otherwise stop the module-level
+    migration block from ever reaching the live database. Idempotent — safe to
+    tap twice. Nothing is member-facing until ?approve=1 is passed, which is
+    Steve signing off on the wording and the sources.
+    """
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from sqlalchemy import text as _t
+    from . import wisdom as _w
+    from .database import WisdomQuote
+    ddl = [
+        """CREATE TABLE IF NOT EXISTS wisdom_quotes (
+             id SERIAL PRIMARY KEY, text TEXT NOT NULL, author VARCHAR(120) NOT NULL,
+             source VARCHAR(240) NOT NULL, year_label VARCHAR(20),
+             theme VARCHAR(40) NOT NULL DEFAULT 'persistence',
+             approved BOOLEAN DEFAULT FALSE, times_shown INTEGER DEFAULT 0,
+             last_shown_on DATE, created_at TIMESTAMP DEFAULT NOW())""",
+        """CREATE TABLE IF NOT EXISTS wisdom_daily (
+             show_date DATE PRIMARY KEY,
+             quote_id INTEGER NOT NULL REFERENCES wisdom_quotes(id),
+             created_at TIMESTAMP DEFAULT NOW())""",
+        """CREATE TABLE IF NOT EXISTS wisdom_favourites (
+             id SERIAL PRIMARY KEY,
+             user_id INTEGER NOT NULL REFERENCES users(id),
+             quote_id INTEGER NOT NULL REFERENCES wisdom_quotes(id),
+             created_at TIMESTAMP DEFAULT NOW(),
+             CONSTRAINT uq_wisdom_fav UNIQUE (user_id, quote_id))""",
+        "CREATE INDEX IF NOT EXISTS ix_wisdom_quotes_theme ON wisdom_quotes(theme)",
+        "CREATE INDEX IF NOT EXISTS ix_wisdom_quotes_approved ON wisdom_quotes(approved)",
+    ]
+    for stmt in ddl:
+        db.execute(_t(stmt))
+    db.commit()
+
+    result = _w.seed(db, approved=bool(approve))
+    if approve:
+        db.execute(_t("UPDATE wisdom_quotes SET approved = TRUE"))
+        db.commit()
+        result["approved"] = db.query(WisdomQuote).filter(
+            WisdomQuote.approved.is_(True)).count()
+    result["tables"] = "created"
+    result["member_facing"] = bool(result.get("approved"))
+    if not approve:
+        result["approve_url"] = (brand_config.BASE_URL.rstrip("/") +
+                                 "/admin/api/al/wisdom-install?approve=1")
+    return JSONResponse(result)
+
+
 @app.get("/admin/api/al/retired-data-audit")
 def al_retired_data_audit(user: User = Depends(_al_user)):
     """Read-only: how much retired-system data actually sits in the AL DB.
