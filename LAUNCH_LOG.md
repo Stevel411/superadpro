@@ -8,6 +8,43 @@
 
 ---
 
+## Status as of 2026-07-24 — PUBLIC SURFACE REBRANDED + COMP PLAN PAGE + THREE TERMS CONTRADICTIONS CLOSED
+
+**Nine commits `834185d` → `7b2a0d0`. Deploy green throughout.**
+
+**Three live pages were each contradicting AdvantageLife's own published terms.** None looked broken — all carried current AL branding wrapped around a retired model, which reads as true rather than stale.
+
+- `/faq` told prospects the platform was free to join with a **$20/month membership**
+- `/ref/{username}/video` — promoted from the live My Marketing menu — sold the **retired Profit Grid** (16 seats, 6.25% × 8, $3,200 completion bonus)
+- The `/join` checkout consent made buyers agree to **"no refunds once access is granted"** while `/refund-policy` and `stripe_service` both grant 100% back within 7 days
+
+All fixed and verified live.
+
+**The architectural fact that explains the whole class of problem:** AL is not a separate system. It is the SuperAdPro codebase on a branch — `main.py` is 73,666 lines with **17** `IS_ADVANTAGELIFE` gates, and **0** of the 88 React page components were written for AL. Every SuperAdPro page came across by default. A page stops being live on AL only if someone deliberately removes, redirects or brand-gates it. The question is never "is this live" but "has anyone dealt with it yet".
+
+**Shipped**
+- `/compensation-plan` — new internal page, strip-led mockup, pack figures **fetched** from `/api/al/packs` not hardcoded. Replaced the dead `CompensationPlan.jsx` still asserting the grid. Linked from the dashboard menu; links back to `/packs`.
+- `PublicLayout.jsx` rebranded — was serving SuperAdPro's wordmark, Sora, cyan and a "recurring income" tagline on `/faq`, `/legal` and `/legal/income-disclosure`. Also fixed "Join Free" on a $100 platform and three Legal links all pointing at `/legal`.
+- FAQ rewritten from code; stale FAQ removed from all 19 other locales (`fallbackLng: 'en'`) rather than machine-translated.
+- Public pages moved to a light theme, navy footer retained.
+- `/ref/{username}/video` rebuilt, 1058 → 532 lines; custom VideoPlayer carried over verbatim; `VIDEO_URL` is a one-line swap.
+- Public pages no longer link into the members-only app — `/join`'s Dashboard backlink rendered for anonymous visitors, and all five homepage toolkit tiles 302'd prospects to a login wall.
+- Checkout consent aligned with policy. **Refund policy confirmed by Steve: $100 lifetime membership refundable within 7 days only; campaign packs never refundable.**
+
+**Corrections to the record — these were wrong in this file and in the project instructions**
+- **`docs/commission-spec.md` is SuperAdPro's spec** (membership tiers, 30/50/20 grid, Creator Credits, last confirmed 14 Jun). For AdvantageLife it is actively wrong. Use `passup_engine.py`, `al_engine.py`, `database.py`, `/api/al/packs`.
+- **The nine daily-watch numbers are seeded, not outstanding** — `DAILY_WATCH_BY_TIER` = 1,1,2,2,3,3,4,4,5, backfilled into `campaign_packs`, verified live.
+- **The pass-up is infinite in depth.** `PASSUP_POSITIONS = {3,6,9}` describes only what a member *gives*. `assign_pass_up_sponsor` makes a passed-up member inherit the sponsor's `pass_up_sponsor_id`, so each chain pays at any depth. Proven by executing the engine four levels deep.
+- **There is a THIRD earning gate.** `al_engine.py:190` folds `payable()` into the qualification check — a member with no payout method saved has sales routed past them. Undocumented member-facing until today.
+
+**Currently watching**
+- 31 member-facing React routes still carry SuperAdPro markers; `/analytics` and `/wallet` are the heaviest. Full inventory in the session handover.
+- Nurture + weekly digest copy still quotes $15/$10 monthly and the Profit Grid. Both deliberately disabled.
+- 19 locales: FAQ falls back to English; other keys still carry Basic/Pro/$35/$17.50.
+- Real $100 card test still outstanding.
+
+---
+
 ## Status as of 2026-07-23 — MONEY PATH VERIFIED + LEGAL REWRITTEN + CREATIVE STUDIO RETIRED + FLOW AUDITS
 
 35 commits. The theme running through the day: **several things recorded as done were not.** The Profit Grid was logged as removed on 21 Jun, frontend and routes, across five commits — `/compensation` survived and kept serving the old grid page until today. Treat "done" in this file as a claim to verify, not a fact.
@@ -1446,7 +1483,7 @@ Configuration (Railway env vars): `DAILY_BRIEFING_EMAIL`, `DAILY_BRIEFING_NAME`,
 If you (future Claude) are reading this in a fresh session, the most useful thing you can do is:
 1. Trust the engine-level classifier — don't reintroduce `is_upgrade` flag dependence at any callsite. The engine is the source of truth.
 2. Use `compute_user_earnings()` and friends for any read of user balance/totals, not the denormalised User columns. The 1 May data integrity work made the live ledger the truth; never go back to denormalised reads.
-3. Read `docs/commission-spec.md` before writing any commission-related code or copy. It's the canonical truth on percentages and flows.
+3. Read `docs/commission-spec.md` before writing commission code or copy **for SuperAdPro (`main`) only**. It is SuperAdPro's spec — membership tiers, the 30/50/20 grid, Creator Credits — and is **actively wrong for AdvantageLife**. On `advantagelife-passup` the canonical sources are `app/passup_engine.py`, `app/al_engine.py`, `app/database.py` (`GRID_PACKAGES`, `DAILY_WATCH_BY_TIER`) and the live `/api/al/packs`. Never take an AL figure from that doc. (Corrected 24 Jul 2026.)
 4. If a user reports a "stuck" or "double-paid" issue, run `/admin/api/audit-double-pays` first before assuming it's a new bug class.
 5. CSS tokens live in `static/design-tokens.css` (70+ vars). Do not introduce hardcoded hex values into new components.
 6. The `commissions` table is multi-purpose — it holds Profit Grid events, membership commissions, Pay It Forward gift redemptions, and admin adjustments. Never assume "row in commissions table = grid event". When grouping commission_type values for any report, use `mcp/tools/_commission_buckets.py` as the single source of truth (`bucket_for(commission_type)` returns one of `profit_grid` / `membership` / `admin` / `other`). When a new `commission_type` value is introduced anywhere in the codebase, add it to that helper.
@@ -1457,3 +1494,9 @@ If you (future Claude) are reading this in a fresh session, the most useful thin
 11. **Comment-only source edits do not change Rollup chunk hashes** — comments are stripped pre-hash; a hash-bump touch must change effective code.
 
 When you finish a session that introduced something noteworthy, update the "Recently shipped" and "Currently watching" sections of this file before pushing. Keep the format identical so the daily briefing parser doesn't break.
+
+12. **A page is live on AdvantageLife unless someone deliberately made it not-live.** AL is the SuperAdPro codebase on a branch: 17 `IS_ADVANTAGELIFE` gates across 73,666 lines of `main.py`, and 0 of 88 React pages written for AL. Inheritance is the default; removal is the deliberate act.
+13. **Partially-rebranded pages are more dangerous than untouched ones** — current branding around a retired model reads as true. Three shipped that way and each contradicted AL's own published terms.
+14. **A colour inversion is not finished until the leftover-token count reads zero.** Six `rgba(255,255,255,x)` values were about to ship as white-on-white; the diff looked correct.
+15. **`str_replace` refusing an edit as ambiguous is a feature.** `class="backlink" href="/dashboard"` lives in four templates sharing markup. Edit by exact line index with an assertion on the line content first.
+16. **Legacy octal escapes (`\2713`) are rejected inside JS template literals.** Use the real character. The mandatory `npm run build` catches it; skipping that step ships a stale bundle silently.
