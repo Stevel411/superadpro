@@ -20,6 +20,7 @@ import Account from './pages/Account';
 // ── Lazy imports — every non-hot page splits into its own chunk.
 // Result: visitors only download code for pages they actually visit.
 // Saves ~1MB+ from initial bundle. ──
+const Wisdom = React.lazy(() => import('./pages/Wisdom'));
 const CommandCentre = React.lazy(() => import('./pages/CommandCentre'));
 const BucketList = React.lazy(() => import('./pages/BucketList'));
 const MyTeam = React.lazy(() => import('./pages/MyTeam'));
@@ -266,6 +267,7 @@ function AppRoutes() {
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
+      <Route path="/wisdom" element={<ProtectedRoute><Wisdom /></ProtectedRoute>} />
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
       {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them

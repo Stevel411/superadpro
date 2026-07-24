@@ -71409,6 +71409,21 @@ def al_purge_bsc_chunks(apply: int = 0, user: User = Depends(_al_user)):
 
 
 # ── Daily Wisdom ──────────────────────────────────────────────────────
+@app.get("/wisdom")
+def wisdom_page(user: User = Depends(get_current_user)):
+    """Serve the React shell for the Daily Wisdom library.
+
+    Every React route needs a matching server route or a direct URL 404s —
+    the SPA is only reached through one of these shells.
+    """
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/api/al/wisdom/today")
 def api_wisdom_today(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Today's quote — same one for every member, all day."""

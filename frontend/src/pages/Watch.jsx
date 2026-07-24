@@ -94,6 +94,7 @@ export default function Watch() {
   var { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState(null);
+  const [wisdom, setWisdom] = useState(null);   // today's quote, shared with the dashboard
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(-1);
   const [secondsLeft, setSecondsLeft] = useState(30);
@@ -107,6 +108,14 @@ export default function Watch() {
   const [searchParams] = useSearchParams();
   const previewCampaignId = searchParams.get('preview');
   const isPreviewMode = !!previewCampaignId;
+
+  useEffect(() => {
+    let alive = true;
+    apiGet('/api/al/wisdom/today')
+      .then(j => { if (alive && j && j.quote) setWisdom(j.quote); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (isPreviewMode) {
@@ -796,6 +805,22 @@ export default function Watch() {
               </div>
             )}
           </div>
+
+          {/* ── Daily Wisdom ──
+              Members are already here every day for the qualification watch,
+              with a minute or two of nothing to do. Same quote as the
+              dashboard: one per day, platform-wide. */}
+          {wisdom && (
+            <div style={{background:'#0a1f52',borderLeft:'4px solid #c8102e',borderRadius:12,padding:'17px 19px',marginTop:14}}>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'#8fa8d8',marginBottom:9}}>Today&rsquo;s wisdom</div>
+              <div style={{fontSize:16,lineHeight:1.45,fontWeight:600,color:'#fff'}}>{wisdom.text}</div>
+              <div style={{fontSize:12,fontWeight:800,color:'#f0a8b4',marginTop:11,textTransform:'uppercase',letterSpacing:'.04em'}}>
+                {wisdom.author}
+                <span style={{color:'#8fa8d8',fontWeight:500,textTransform:'none',letterSpacing:0}}> &middot; {wisdom.source}</span>
+              </div>
+            </div>
+          )}
+
 
           {/* ── MOBILE: Timer + Mark button ── */}
           {isPreviewMode ? (

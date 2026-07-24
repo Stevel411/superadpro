@@ -44,6 +44,21 @@ const CSS = `
 .al .side a.on{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
 .al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
 .al .side .sdiv{height:1px;background:rgba(255,255,255,.12);margin:14px 6px;margin-top:auto}
+/* ── daily wisdom ── */
+.al .wis{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px 26px 20px;position:relative;overflow:hidden;margin-bottom:20px}
+.al .wis::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:#c8102e}
+.al .wis .wd{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#64748b;margin-bottom:14px}
+.al .wis .wd b{color:#12388f}
+.al .wis .wq{font-size:clamp(19px,2.4vw,27px);line-height:1.38;font-weight:700;letter-spacing:-.015em;color:#0a1f52}
+.al .wis .wp{margin-top:18px;padding-top:14px;border-top:2px solid #c8102e;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.al .wis .wp .who{font-size:14.5px;font-weight:900;text-transform:uppercase;letter-spacing:-.01em;color:#0f172a}
+.al .wis .wp .src{font-size:12px;color:#64748b;margin-top:3px;line-height:1.45;font-weight:500}
+.al .wis .wp .yr{font-size:25px;font-weight:900;color:#e2e8f0;letter-spacing:-.03em;line-height:1}
+.al .wis .wa{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.al .wis .wa button,.al .wis .wa a{border:0;border-radius:9px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block}
+.al .wis .wa .wfav{background:#fff;color:#0a1f52;border:1.5px solid #e2e8f0}
+.al .wis .wa .wfav.on{border-color:#c8102e;color:#c8102e}
+.al .wis .wa .wlib{background:#0a1f52;color:#fff}
 /* ── hero ── */
 .al .hero{background:#0a1f52;border-radius:24px;color:#fff;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,31,82,.55);margin-bottom:20px;min-height:350px}
 @media(max-width:820px){.al .hero{grid-template-columns:1fr}.al .hero .img{min-height:160px}}
@@ -209,6 +224,7 @@ export default function NewDashboard() {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
+  const [wis, setWis] = useState(null);              // today's quote — same for every member
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
   // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
@@ -232,6 +248,14 @@ export default function NewDashboard() {
   }
 
   // Poll my-sales for NEW sales awaiting confirmation -> chime + pop-up
+  useEffect(function () {
+    let alive = true;
+    apiGet('/api/al/wisdom/today')
+      .then(function (j) { if (alive && j && j.quote) setWis(j.quote); })
+      .catch(function () {});
+    return function () { alive = false; };
+  }, []);
+
   useEffect(function () {
     let alive = true;
     function checkSales() {
@@ -466,6 +490,35 @@ export default function NewDashboard() {
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
             <div className="shmob"><ShareCard /></div>
+
+            {wis && (
+              <div className="wis">
+                <div className="wd">Today &middot; <b>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</b></div>
+                <div className="wq">{wis.text}</div>
+                <div className="wp">
+                  <div>
+                    <div className="who">{wis.author}</div>
+                    <div className="src">{wis.source}</div>
+                  </div>
+                  {wis.year && <div className="yr">{wis.year}</div>}
+                </div>
+                <div className="wa">
+                  <button
+                    className={'wfav' + (wis.favourited ? ' on' : '')}
+                    onClick={function () {
+                      var next = !wis.favourited;
+                      setWis(Object.assign({}, wis, { favourited: next }));
+                      fetch('/api/al/wisdom/favourite/' + wis.id, { method: 'POST', credentials: 'include' })
+                        .then(function (r) { return r.ok ? r.json() : null; })
+                        .then(function (j) { if (j) setWis(function (w) { return Object.assign({}, w, { favourited: j.favourited }); }); })
+                        .catch(function () { setWis(function (w) { return Object.assign({}, w, { favourited: !next }); }); });
+                    }}>
+                    {wis.favourited ? '\u2665 Saved' : '\u2661 Save'}
+                  </button>
+                  <a className="wlib" href="/wisdom">Browse the library &rarr;</a>
+                </div>
+              </div>
+            )}
 
             <div className="row">
 
