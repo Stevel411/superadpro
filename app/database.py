@@ -2601,6 +2601,8 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS vip_signups (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS ad_listings (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description VARCHAR NOT NULL, category VARCHAR NOT NULL DEFAULT 'general', link_url VARCHAR NOT NULL, image_url VARCHAR, is_active BOOLEAN DEFAULT TRUE, is_featured BOOLEAN DEFAULT FALSE, clicks INTEGER DEFAULT 0, views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        # ── Collaborations (24 Jul 2026) ──
+        "CREATE TABLE IF NOT EXISTS collaborations (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, category VARCHAR(60) NOT NULL DEFAULT 'Tools', blurb TEXT NOT NULL, steve_take TEXT, ref_url VARCHAR(500) NOT NULL, logo_text VARCHAR(4), logo_from VARCHAR(9) DEFAULT '#0a1f52', logo_to VARCHAR(9) DEFAULT '#12388f', sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, is_published BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         # ── Daily Wisdom (24 Jul 2026) ──
         "CREATE TABLE IF NOT EXISTS wisdom_quotes (id SERIAL PRIMARY KEY, text TEXT NOT NULL, author VARCHAR(120) NOT NULL, source VARCHAR(240) NOT NULL, year_label VARCHAR(20), theme VARCHAR(40) NOT NULL DEFAULT 'persistence', approved BOOLEAN DEFAULT FALSE, times_shown INTEGER DEFAULT 0, last_shown_on DATE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS wisdom_daily (show_date DATE PRIMARY KEY, quote_id INTEGER NOT NULL REFERENCES wisdom_quotes(id), created_at TIMESTAMP DEFAULT NOW())",
@@ -6500,3 +6502,39 @@ class WisdomFavourite(Base):
     user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     quote_id   = Column(Integer, ForeignKey("wisdom_quotes.id"), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ── Collaborations (AdvantageLife, 24 Jul 2026) ───────────────────────
+class Collaboration(Base):
+    """An outside opportunity Steve rates, carrying HIS referral link.
+
+    All members can see the published ones. Steve's name is on every
+    listing the moment it goes live, so two things are load-bearing:
+
+      - `is_published` is the kill switch. If an opportunity exit-scams or
+        goes dark, one toggle pulls it from every member's page with no
+        deploy. This is the single most important control in the feature.
+      - No earnings/income fields exist by design. The moment a listing
+        quotes "$X a month" the platform adopts that third party's promise
+        as its own. Description and a personal take only.
+
+    `ref_url` is Steve's affiliate link, shown openly (his decision, 24 Jul):
+    on a network-marketing platform a hidden funnel is what members are
+    primed to spot, so naming it first turns the weakness into a signal.
+    """
+    __tablename__ = "collaborations"
+
+    id           = Column(Integer, primary_key=True, index=True)
+    name         = Column(String(120), nullable=False)
+    category     = Column(String(60), nullable=False, default="Tools", index=True)
+    blurb        = Column(Text, nullable=False)          # the factual description
+    steve_take   = Column(Text, nullable=True)           # the personal, italic line
+    ref_url      = Column(String(500), nullable=False)   # Steve's affiliate link
+    logo_text    = Column(String(4), nullable=True)      # 2-3 char monogram
+    logo_from    = Column(String(9), nullable=True, default="#0a1f52")  # gradient start
+    logo_to      = Column(String(9), nullable=True, default="#12388f")  # gradient end
+    sort_order   = Column(Integer, default=0, index=True)
+    click_count  = Column(Integer, default=0)
+    is_published = Column(Boolean, default=False, nullable=False, index=True)  # the kill switch
+    created_at   = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

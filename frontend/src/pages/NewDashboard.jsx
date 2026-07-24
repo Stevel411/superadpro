@@ -543,6 +543,7 @@ export default function NewDashboard() {
             <Link to="/video-library">Campaigns</Link>
             <Link to="/watch">Watch-to-Earn</Link>
             <Link to="/wisdom">Daily Wisdom</Link>
+            <Link to="/collaborations">Vetted Extras</Link>
             <Link to="/my-marketing">My Marketing</Link>
             <Link to="/compensation-plan">Compensation Plan</Link>
             <a href="/packs">Buy Packs</a>

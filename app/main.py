@@ -71529,6 +71529,167 @@ def api_wisdom_caption(quote_id: int, user: User = Depends(get_current_user),
     return JSONResponse({"caption": _wc.caption(_w.as_dict(q), ref)})
 
 
+# ── Collaborations ────────────────────────────────────────────────────
+@app.get("/collaborations")
+def collaborations_page(user: User = Depends(get_current_user)):
+    """React shell for the member Vetted Extras page. All members."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/admin/collaborations")
+def admin_collaborations_page(user: User = Depends(get_current_user)):
+    """React shell for the admin screen. Admin-gated in the page and API."""
+    if not user or not getattr(user, "is_admin", False):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/api/al/collaborations")
+def api_collaborations(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Published opportunities, for the member page. All members can see this."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
+    from .database import Collaboration
+    rows = (db.query(Collaboration)
+              .filter(Collaboration.is_published.is_(True))
+              .order_by(Collaboration.sort_order.asc(), Collaboration.id.asc())
+              .all())
+    cats = []
+    for r in rows:
+        if r.category and r.category not in cats:
+            cats.append(r.category)
+    return JSONResponse({
+        "items": [{
+            "id": r.id, "name": r.name, "category": r.category,
+            "blurb": r.blurb, "take": r.steve_take,
+            "logo_text": r.logo_text or (r.name[:2].upper() if r.name else "?"),
+            "logo_from": r.logo_from or "#0a1f52", "logo_to": r.logo_to or "#12388f",
+        } for r in rows],
+        "categories": cats,
+    })
+
+
+@app.get("/api/al/collaborations/go/{collab_id}")
+def api_collaboration_go(collab_id: int, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """Redirect out to the opportunity, counting the click.
+
+    A redirect rather than a raw link in the page so the click is recorded
+    and so the ref_url is not sitting in the DOM to be scraped or stripped.
+    Only follows PUBLISHED rows — a killed listing stops redirecting the
+    instant it is toggled off, even from a link a member already has.
+    """
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    from .database import Collaboration
+    from sqlalchemy import text as _t
+    row = db.query(Collaboration).filter(
+        Collaboration.id == collab_id, Collaboration.is_published.is_(True)).first()
+    if not row:
+        return RedirectResponse(url="/collaborations", status_code=302)
+    db.execute(_t("UPDATE collaborations SET click_count = click_count + 1 WHERE id = :i"),
+               {"i": collab_id})
+    db.commit()
+    return RedirectResponse(url=row.ref_url, status_code=302)
+
+
+@app.get("/admin/api/al/collaborations")
+def admin_collaborations_list(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Every listing, published or not, for the admin screen."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import Collaboration
+    rows = (db.query(Collaboration)
+              .order_by(Collaboration.sort_order.asc(), Collaboration.id.asc()).all())
+    return JSONResponse({"items": [{
+        "id": r.id, "name": r.name, "category": r.category, "blurb": r.blurb,
+        "take": r.steve_take, "ref_url": r.ref_url, "logo_text": r.logo_text,
+        "logo_from": r.logo_from, "logo_to": r.logo_to, "sort_order": r.sort_order,
+        "clicks": r.click_count, "published": r.is_published,
+    } for r in rows]})
+
+
+@app.post("/admin/api/al/collaborations")
+async def admin_collaborations_save(request: Request, user: User = Depends(_al_user),
+                                    db: Session = Depends(get_db)):
+    """Create or update. id=0/absent creates; otherwise updates in place."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import Collaboration
+    body = await request.json()
+    name = (body.get("name") or "").strip()
+    ref_url = (body.get("ref_url") or "").strip()
+    blurb = (body.get("blurb") or "").strip()
+    if not name or not ref_url or not blurb:
+        return JSONResponse({"error": "Name, link and description are required."}, status_code=400)
+    if not (ref_url.startswith("http://") or ref_url.startswith("https://")):
+        return JSONResponse({"error": "The referral link must start with http:// or https://"},
+                            status_code=400)
+    cid = int(body.get("id") or 0)
+    row = db.query(Collaboration).filter(Collaboration.id == cid).first() if cid else None
+    if row is None:
+        row = Collaboration()
+        db.add(row)
+    row.name = name[:120]
+    row.category = (body.get("category") or "Tools").strip()[:60]
+    row.blurb = blurb
+    row.steve_take = (body.get("take") or "").strip() or None
+    row.ref_url = ref_url[:500]
+    row.logo_text = (body.get("logo_text") or name[:2].upper())[:4]
+    row.logo_from = (body.get("logo_from") or "#0a1f52")[:9]
+    row.logo_to = (body.get("logo_to") or "#12388f")[:9]
+    if "sort_order" in body:
+        row.sort_order = int(body.get("sort_order") or 0)
+    if "published" in body:
+        row.is_published = bool(body.get("published"))
+    db.commit()
+    return JSONResponse({"ok": True, "id": row.id, "published": row.is_published})
+
+
+@app.post("/admin/api/al/collaborations/{collab_id}/toggle")
+def admin_collaborations_toggle(collab_id: int, user: User = Depends(_al_user),
+                                db: Session = Depends(get_db)):
+    """The kill switch. Flips published state — off pulls it from every
+    member's page instantly, no deploy."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import Collaboration
+    row = db.query(Collaboration).filter(Collaboration.id == collab_id).first()
+    if not row:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    row.is_published = not row.is_published
+    db.commit()
+    return JSONResponse({"ok": True, "published": row.is_published})
+
+
+@app.get("/admin/api/al/collaborations-install")
+def admin_collaborations_install(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """One-shot table create — needed if SKIP_MIGRATIONS is on. Idempotent."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from sqlalchemy import text as _t
+    db.execute(_t("""CREATE TABLE IF NOT EXISTS collaborations (
+        id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL,
+        category VARCHAR(60) NOT NULL DEFAULT 'Tools',
+        blurb TEXT NOT NULL, steve_take TEXT, ref_url VARCHAR(500) NOT NULL,
+        logo_text VARCHAR(4), logo_from VARCHAR(9) DEFAULT '#0a1f52',
+        logo_to VARCHAR(9) DEFAULT '#12388f', sort_order INTEGER DEFAULT 0,
+        click_count INTEGER DEFAULT 0, is_published BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"""))
+    db.execute(_t("CREATE INDEX IF NOT EXISTS ix_collaborations_pub ON collaborations(is_published)"))
+    db.execute(_t("CREATE INDEX IF NOT EXISTS ix_collaborations_sort ON collaborations(sort_order)"))
+    db.commit()
+    from .database import Collaboration
+    return JSONResponse({"tables": "created", "count": db.query(Collaboration).count()})
+
+
 @app.get("/admin/api/al/wisdom-install")
 def admin_wisdom_install(approve: int = 0, user: User = Depends(_al_user),
                          db: Session = Depends(get_db)):
