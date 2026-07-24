@@ -9394,6 +9394,13 @@ def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current
 @app.get("/wallet")
 def wallet(request: Request):
     """Serve React SPA."""
+    # Retired on AdvantageLife (24 Jul 2026): a balance-and-withdraw screen
+    # implies the company holds your earnings and pays them out. It never
+    # does — pack sales are member-to-member and the platform never touches
+    # the funds. /payout-methods is the AL surface: where buyers send money.
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/payout-methods", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -70395,7 +70402,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       var op=(packs.find(function(p){return p.level===j.owned_level})||{}).price;
       on.innerHTML=j.owned_level>0?('Your current level: <b>$'+Number(op||0).toLocaleString()+'</b> \u2014 own a level to earn at that level.'):'Own a level to earn at that level.';})();
     if(!j.has_payout_method){var w=document.getElementById('gwarn');w.style.display='block';
-      w.innerHTML='You have no payout wallet on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
+      w.innerHTML='You have no receiving method on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
     show('sPick');
   }
   document.getElementById('btnGo').onclick=function(){

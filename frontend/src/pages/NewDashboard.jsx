@@ -437,7 +437,7 @@ export default function NewDashboard() {
             <Link to="/compensation-plan">Compensation Plan</Link>
             <a href="/packs">Buy Packs</a>
             <a href="/my-sales">Confirm Sale</a>
-            <a href="/payout-methods">Wallet</a>
+            <a href="/payout-methods">Get Paid</a>
             <div className="sdv" />
             <ShareCard />
           </aside>

@@ -256,7 +256,7 @@ export default function Account() {
         <div className="layout">
           <nav className="rail">
             {TABS.map(function (tab) {
-              var labels = { profile: 'Profile', security: 'Security', payouts: 'Payout Wallets', verification: 'Verification' };
+              var labels = { profile: 'Profile', security: 'Security', payouts: 'Getting paid', verification: 'Verification' };
               return (
                 <button key={tab} className={'tab' + (activeTab === tab ? ' on' : '')} onClick={function () { go(tab); }}>
                   <Icon name={tab} />{labels[tab]}
@@ -324,7 +324,7 @@ export default function Account() {
                   </>
                 ) : (
                   <>
-                    <div className="centre"><div className="ico">🔓</div><div className="h">{t('account.notEnabled')}</div><div className="s">{t('account.requiredWithdrawals')}</div></div>
+                    <div className="centre"><div className="ico">🔓</div><div className="h">{t('account.notEnabled')}</div><div className="s">{t('account.protectsAccount', { defaultValue: 'Protects your account and your earnings' })}</div></div>
                     <Link className="btn" to="/2fa-setup" style={{ textDecoration: 'none' }}>{t('account.setup2FA')}</Link>
                   </>
                 )}
@@ -333,25 +333,10 @@ export default function Account() {
 
             {activeTab === 'payouts' && (
               <>
-                <h2 className="ph">Payout <span className="r">wallets</span></h2>
-                <p className="psub">Buyers pay your default wallet directly, member to member — there are no platform withdrawals on AdvantageLife.</p>
-                <a href="/payout-methods" className="btn" style={{ textDecoration: 'none', marginBottom: 22 }}>Manage payout wallets →</a>
-                <div style={{ display: 'none' }}>
-                <div className="fld">
-                  <label className="lbl">Withdrawal network</label>
-                  <button type="button" className={'netbtn' + (walletNetwork === 'bsc' ? ' on' : '')} onClick={function () { setWalletNetwork('bsc'); }}>
-                    <div className="t">BEP-20 (BNB Chain)</div>
-                    <div className="d">USDT on BNB Smart Chain · Low fees</div>
-                  </button>
-                </div>
-                <div className="fld">
-                  <label className="lbl">Wallet address {walletNetwork === 'bsc' ? '(USDT on BSC)' : ''}</label>
-                  <input className="inp mono" value={walletAddr} onChange={function (e) { setWalletAddr(e.target.value); }} placeholder={walletNetwork === 'bsc' ? '0x...' : 'Select BEP-20 above'} disabled={!walletNetwork} />
-                </div>
-                <div className="note">MetaMask · Trust Wallet · Binance — any wallet that supports USDT on BNB Chain (BEP-20). Make sure the address starts with <strong>0x</strong> and is 42 characters.</div>
-                <button className="btn" onClick={saveWallet} disabled={savingWallet}>{savingWallet ? t('account.saving') : t('account.saveWallet')}</button>
-                </div>
-              </>
+                <h2 className="ph">Getting <span className="r">paid</span></h2>
+                <p className="psub">Buyers pay your default receiving method directly, member to member — there are no platform withdrawals on AdvantageLife.</p>
+                <a href="/payout-methods" className="btn" style={{ textDecoration: 'none', marginBottom: 22 }}>Manage receiving methods →</a>
+                              </>
             )}
 
             {activeTab === 'verification' && (
