@@ -50001,6 +50001,9 @@ def _generate_voucher_code():
 @app.get("/pay-it-forward")
 def pay_it_forward_page(request: Request):
     """Serve React SPA."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/dashboard", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -50351,6 +50354,25 @@ async def api_pif_create(request: Request, user: User = Depends(get_current_user
         "link": f"https://www.superadpro.com/gift/{code}",
         "chain_depth": chain_depth,
     }
+# ── AdvantageLife: the gifting system is retired ─────────────────────
+# AL has no monthly membership, so there is nothing a gift can grant.
+# A claim sets `user.is_active`, which no AL gate reads — _al_is_lifetime
+# reads access_level — so the recipient would be told they had full
+# access and given none. Lifetime access on AL comes from the $100 join
+# or an admin grant only.
+#
+# Gated, not deleted: SuperAdPro on `main` still runs this system live.
+def _al_gifting_retired():
+    """410 for every gift endpoint on the AdvantageLife deploy."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse(
+            {"error": "gone", "detail": "Gifting is not part of AdvantageLife."},
+            status_code=410,
+        )
+    return None
+
+
 @app.get("/api/gift/{code}")
 async def api_gift_info(code: str, request: Request, db: Session = Depends(get_db)):
     """Public endpoint — get gift voucher info for the landing page.
@@ -50359,6 +50381,9 @@ async def api_gift_info(code: str, request: Request, db: Session = Depends(get_d
     gifter's own visits to their own link are excluded — they often
     preview the link to verify it works, and counting that would
     inflate the click number meaninglessly."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     from .database import GiftVoucher
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
     if not voucher:
@@ -50472,6 +50497,9 @@ def api_giftable_team(user: User = Depends(get_current_user), db: Session = Depe
 
     Sweeps expired vouchers lazily on every call so the response is
     always current without needing a separate cron."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not _team_gifting_enabled(db):
@@ -50567,6 +50595,9 @@ async def api_create_team_gift(request: Request, user: User = Depends(get_curren
     standard PIF flow (wallet / NOWPayments). The voucher starts as
     'reserved' for the specified recipient; recipient is notified and
     has TEAM_GIFT_ACCEPTANCE_DAYS to accept or decline."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not _team_gifting_enabled(db):
@@ -50758,6 +50789,9 @@ def api_team_gift_preview(code: str, user: User = Depends(get_current_user), db:
     """Recipient-facing preview before accepting. Shows who sent it and
     the optional personal message. Recipient must be logged in as the
     intended recipient."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     from .database import GiftVoucher
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
     if not voucher:
@@ -50786,6 +50820,9 @@ async def api_team_gift_accept(code: str, user: User = Depends(get_current_user)
     activation flow with Founder allocation if applicable). Same path
     as the shareable PIF claim — we delegate to the existing claim
     logic by setting claimed_by_user_id and triggering activation."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     from .database import GiftVoucher, Notification
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
     if not voucher:
@@ -50902,6 +50939,9 @@ def api_team_gift_decline(code: str, user: User = Depends(get_current_user), db:
     """Recipient declines the gift. Voucher goes back to gifter for
     re-targeting or conversion to shareable. NO REFUND — $20 stays in
     the gift system."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     from .database import GiftVoucher, Notification
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
     if not voucher:
@@ -51099,6 +51139,9 @@ def admin_team_gifting_flip_get(
 @app.post("/api/gift/{code}/claim")
 async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_db)):
     """Claim a gift voucher — activates membership for the logged-in user."""
+    _gone = _al_gifting_retired()
+    if _gone:
+        return _gone
     from .database import GiftVoucher
 
     voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
@@ -52365,6 +52408,9 @@ def admin_reactivate_stuck_lapsed_members(
 @app.get("/gift/{code}")
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/join", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h2>Loading...</h2>")
@@ -52375,6 +52421,9 @@ async def serve_team_gift_page(code: str):
     """Serve the React SPA for team-gift accept/decline pages.
     Different route from shareable /gift/{code} because the consent
     semantics differ (recipient is pre-selected, can decline)."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/join", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h2>Loading...</h2>")
