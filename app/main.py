@@ -642,6 +642,15 @@ async def startup_event():
     # backup. Disable the in-process scheduler with
     # BSC_INPROC_SCHEDULER_ENABLED=false if you ever need to revert.
     inproc_enabled = os.environ.get("BSC_INPROC_SCHEDULER_ENABLED", "true").lower() == "true"
+    # AdvantageLife does not use the WalletConnect/BSC rail — AL takes card
+    # (Stripe) and direct-USDT with a pasted tx hash. Left on, this thread
+    # scanned BSC every 30s and recorded a failed chunk for EVERY canonical
+    # 10-block range: 286,544 rows / 72 MB in 15 days, a 100% failure rate
+    # against a rail no AL member can pay through. Retention never drains it
+    # (it deletes resolved/abandoned only; 285,843 of those rows are pending).
+    if brand_config.IS_ADVANTAGELIFE and inproc_enabled:
+        inproc_enabled = False
+        print("ℹ️ In-process BSC scanner DISABLED — AdvantageLife does not use the BSC rail")
     inproc_interval = int(os.environ.get("BSC_INPROC_SCHEDULER_INTERVAL_SECONDS", "30"))
     BSC_SCAN_LOCK_ID = 1885347291  # arbitrary 32-bit constant unique to this platform
 
@@ -71336,6 +71345,50 @@ def al_domain_check(user: User = Depends(_al_user)):
     except Exception as e:
         out["verdict"] = f"Railway API call raised: {type(e).__name__}: {str(e)[:200]}"
         return JSONResponse({"ok": False, "results": out}, status_code=500)
+
+
+@app.get("/admin/api/al/purge-bsc-chunks")
+def al_purge_bsc_chunks(apply: int = 0, user: User = Depends(_al_user)):
+    """One-shot: delete the bsc_scan_failed_chunks backlog on AdvantageLife.
+
+    Safe here in a way it never is on SuperAdPro: a failed chunk is a block
+    range that might hide an unseen payment, but AL has never taken a payment
+    on the BSC rail. The endpoint refuses to run unless that is still true.
+
+    Read-only by default; add ?apply=1 to delete.
+    """
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from . import brand_config
+    if not brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "AdvantageLife only"}, status_code=403)
+    from .database import SessionLocal, WalletConnectPaymentOrder, CryptoPaymentOrder
+    from sqlalchemy import text as _text
+    db = SessionLocal()
+    try:
+        wc = db.query(WalletConnectPaymentOrder).count()
+        cp = db.query(CryptoPaymentOrder).count()
+        rows = db.execute(_text("SELECT COUNT(*) FROM bsc_scan_failed_chunks")).scalar()
+        out = {"read_only": not bool(apply), "rows": rows,
+               "walletconnect_orders": wc, "crypto_payment_orders": cp}
+        if wc or cp:
+            out["refused"] = ("BSC-rail orders exist on this deploy — a failed chunk "
+                              "could hide a real payment. Reconcile before purging.")
+            return JSONResponse(out, status_code=409)
+        if apply:
+            n = db.execute(_text("DELETE FROM bsc_scan_failed_chunks")).rowcount
+            db.commit()
+            out["deleted"] = n
+            # No VACUUM FULL: it cannot run inside a transaction block and takes
+            # an exclusive lock. Autovacuum reclaims the space for reuse; the
+            # 72 MB on disk stays allocated until then, which costs nothing.
+            out["note"] = "Purged. The scanner is gated off on AL, so it will not refill."
+        else:
+            out["apply_url"] = (brand_config.BASE_URL.rstrip("/") +
+                                "/admin/api/al/purge-bsc-chunks?apply=1")
+        return JSONResponse(out)
+    finally:
+        db.close()
 
 
 @app.get("/admin/api/al/retired-data-audit")
