@@ -22,7 +22,7 @@ export default function PublicIncomeDisclosure() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(200,220,255,0.5)', marginBottom: 12 }}>
             {t('incomeDisclaimer.legal', { defaultValue: 'LEGAL' })}
           </div>
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 34, fontWeight: 900, color: '#fff', margin: '0 0 10px', lineHeight: 1.15 }}>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: 34, fontWeight: 900, color: '#fff', margin: '0 0 10px', lineHeight: 1.15 }}>
             {t('incomeDisclaimer.pageTitle', { defaultValue: 'Income Disclosure' })}
           </h1>
           <p style={{ fontSize: 15, color: 'rgba(200,220,255,0.6)', lineHeight: 1.6, margin: 0 }}>
@@ -101,7 +101,7 @@ export default function PublicIncomeDisclosure() {
             <p style={{ fontSize: 13, color: 'rgba(200,220,255,0.5)', lineHeight: 1.7, margin: '0 0 14px' }}>
               {t('incomeDisclaimer.body_L80', { defaultValue: 'By creating an account with AdvantageLife, you acknowledge that you have read, understood, and agreed to this Income Disclosure.' })}
             </p>
-            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, color: '#38bdf8', textDecoration: 'none' }}>
+            <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, color: '#ff8095', textDecoration: 'none' }}>
               ← Back to home
             </Link>
           </div>
@@ -115,7 +115,7 @@ export default function PublicIncomeDisclosure() {
 function Section(props) {
   return (
     <div style={{ marginBottom: 32 }}>
-      <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 800, color: '#fff', marginBottom: 12 }}>{props.title}</div>
+      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 19, fontWeight: 800, color: '#fff', marginBottom: 12 }}>{props.title}</div>
       <div style={{ fontSize: 15, color: 'rgba(200,220,255,0.75)', lineHeight: 1.8 }}>{props.children}</div>
     </div>
   );
@@ -128,7 +128,7 @@ function CostBreakdown(props) {
         return (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < props.items.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, fontWeight: 800, color: '#38bdf8', minWidth: 52 }}>{item.pct}</div>
+              <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 18, fontWeight: 800, color: '#ff8095', minWidth: 52 }}>{item.pct}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</div>
             </div>
             <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.55)', textAlign: 'right', flex: '1 1 240px' }}>{item.desc}</div>
