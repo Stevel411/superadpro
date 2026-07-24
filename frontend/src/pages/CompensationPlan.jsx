@@ -1,267 +1,407 @@
-import AlShell from '../components/layout/AlShell';
+import { useState, useEffect } from 'react';
+import CategoryShell from '../components/CategoryShell';
+import { apiGet } from '../utils/api';
 
-// Light-theme "3 Income Streams" compensation plan — web rendering of the
-// marketing deck. Rebuilt 23 Jun 2026 to the LIVE v2 grid economics
-// (50% direct / 25% uni-level [5% x 5 levels] / 25% bonus pool / 0% company),
-// matching app/database.py V2_* constants and the AdvantageLife-3-Income-Streams
-// deck. All numbers reconciled to the live grid engine. Styles scoped under
-// .cproot / cp-prefixed so they cannot collide with the rest of the app.
-var CP_HTML = `
-<style>
-.cproot{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-.cproot .cpsora{font-family:'Sora',sans-serif}
-.cproot .cpcard{background:#fff;border:1px solid #e6ebf3;border-radius:18px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
-.cproot .cppad{padding:26px 30px}
-.cproot .cpeyebrow{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
-.cproot .cph2{font-family:'Sora',sans-serif;font-size:27px;font-weight:800;color:#0f172a;letter-spacing:-.5px;margin-top:4px}
-.cproot .cplead{font-size:14.5px;line-height:1.6;color:#52617a;margin-top:8px}
-.cproot .cpgrid2{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:start;margin-top:16px}
-.cproot .cpstat{display:flex;gap:14px;align-items:center;padding:13px 16px;border-radius:13px;margin-bottom:11px}
-.cproot .cpstatnum{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;min-width:74px;text-align:center}
-.cproot .cpstath{font-size:11px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase}
-.cproot .cpstatd{font-size:12.5px;color:#64748b;margin-top:2px;line-height:1.45}
-.cproot .cppill{border-radius:24px;padding:12px 20px;text-align:center;font-weight:700;font-size:13.5px}
-.cproot .cprhead{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;text-align:center;margin-bottom:16px}
-.cproot .cpstreamcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px}
-.cproot .cpstreamcard{border-radius:16px;padding:22px 20px;text-align:center;border:1.5px solid}
-.cproot .cpscn{font-size:11px;font-weight:700;letter-spacing:2.5px}
-.cproot .cpscname{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#0f172a;margin:7px 0 12px}
-.cproot .cpscval{font-size:12.5px;font-weight:700;border-radius:18px;padding:6px 12px;display:inline-block}
-.cproot .cptwo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-.cproot .cpsplit{display:flex;height:88px;border-radius:14px;overflow:hidden;border:1px solid #e6ebf3;margin:16px 0 10px}
-.cproot .cpseg{display:flex;flex-direction:column;justify-content:center;padding:0 18px;color:#fff}
-.cproot .cpseg .sp{font-family:'Sora',sans-serif;font-weight:800;font-size:25px;line-height:1}
-.cproot .cpseg .st{font-size:11px;font-weight:700;margin-top:4px;opacity:.95}
-.cproot .cpgrid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-width:250px;margin:0 auto}
-.cproot .cpcell{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:800;font-size:15px;position:relative}
-.cproot .cpsteps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
-.cproot table{width:100%;border-collapse:collapse;margin-top:14px}
-.cproot td,.cproot th{padding:9px 14px;font-size:13.5px}
-.cproot .cptablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.cproot .cptablewrap table{min-width:640px}
-.cproot .cpnum{width:34px;height:34px;border-radius:50%;background:#0e2a6e;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
-.cproot .cprecap{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px}
-.cproot .cprc{border:1px solid #e6ebf3;border-radius:14px;padding:18px 18px;background:#fbfdff}
-.cproot .cprc h5{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#0f172a;margin:0 0 8px}
-.cproot .cprc li{font-size:12.5px;color:#52617a;line-height:1.8;list-style:none}
-.cproot .cpdl{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:13px 26px;border-radius:13px;background:linear-gradient(135deg,#a00d24,#12388f);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:14.5px;text-decoration:none;box-shadow:0 8px 22px -8px rgba(160,13,36,.5)}
-.cproot .cpdl svg{width:18px;height:18px}
-.cproot .cpdlsub{font-size:11.5px;color:#94a3b8;margin-top:9px}
-@media(max-width:760px){
-  .cproot .cpgrid2,.cproot .cpstreamcards,.cproot .cptwo,.cproot .cprecap{grid-template-columns:1fr}
-  .cproot .cpsteps{grid-template-columns:1fr 1fr}
-  .cproot .cppad{padding:20px 18px}
-  .cproot .cph2{font-size:23px}
-  .cproot td,.cproot th{padding:8px 10px;font-size:12px}
-}
-</style>
+// AdvantageLife compensation plan — internal (logged-in) page at /compensation-plan.
+// Strip-led mockup approved by Steve, 24 Jul 2026.
+//
+// This file previously held SuperAdPro's Profit Grid plan (40% direct, 6.25% x 8
+// uni-level, $3,200 completion bonus). The grid was retired on AL in June; the
+// file was unrouted and unimported but still asserted the old plan. Replaced
+// outright rather than left lying around.
+//
+// PACK FIGURES ARE FETCHED, NOT HARDCODED. /api/al/packs is the same source the
+// earning gate reads (CampaignPack.level IS the $ price), so prices, view targets
+// and daily-watch numbers cannot drift from what is actually enforced. Hardcoding
+// plan numbers is how the retired grid ended up asserted across ~25 files.
+//
+// Model, verified by running passup_engine.py / al_engine.py on 24 Jul 2026:
+//   - two gates: owned_level >= pack_level AND watch_qualified (48h grace)
+//   - only ACTIVE packs count toward owned_level
+//   - sales 3, 6, 9 pass up; every other sale is kept, for life
+//   - a passed-up member INHERITS the sponsor's pass_up_sponsor_id — that single
+//     rule is what makes each of the three chains infinite in depth
 
-<div class="cpcard cppad" style="text-align:center;background:linear-gradient(160deg,#fff,#f4f8ff)">
-  <div class="cpeyebrow" style="color:#c8102e">Your path to financial freedom</div>
-  <div class="cpsora" style="font-size:38px;font-weight:800;color:#0f172a;margin:8px 0 4px;letter-spacing:-1px">3 Income <span style="color:#a00d24">Streams</span></div>
-  <div class="cplead" style="max-width:640px;margin:0 auto 20px">One $20/month membership unlocks the full toolkit &mdash; and three ways the money comes back to you. Stack them together; every stream compounds your results.</div>
-  <div class="cpstreamcards">
-    <div class="cpstreamcard" style="border-color:#bfdbfe;background:#f5f9ff"><div class="cpscn" style="color:#2563eb">STREAM 1</div><div class="cpscname">Membership</div><div class="cpscval" style="background:#dbeafe;color:#2563eb">$10/mo per referral</div></div>
-    <div class="cpstreamcard" style="border-color:#a5e8f0;background:#f0fcff"><div class="cpscn" style="color:#a00d24">STREAM 2</div><div class="cpscname">Campaign Grid</div><div class="cpscval" style="background:#f6d9de;color:#a00d24">100% to members</div></div>
-    <div class="cpstreamcard" style="border-color:#ddd0fb;background:#faf7ff"><div class="cpscn" style="color:#0e2a6e">STREAM 3</div><div class="cpscname">Creator Credits</div><div class="cpscval" style="background:#eaf0fb;color:#0e2a6e">20% flat to sponsor</div></div>
-  </div>
-  <div class="cppill" style="background:#ecfdf3;border:1.5px solid #86efac;color:#15803d;display:inline-block">&#9889; Start earning for just <b>$10</b> with the Launchpad on-ramp</div>
-  <div><a class="cpdl" href="/static/downloads/income-streams/AdvantageLife-3-Income-Streams-EN.pptx?v=20260623" download><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download the presentation</a></div>
-  <div class="cpdlsub">Grab the slide deck to present or share with prospects (PPTX)</div>
-</div>
+const CSS = `
+.cp{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--line:#dfe5f1;--mute:#5b6b8c;--wash:#f4f7fd}
+.cp *{box-sizing:border-box}
+.cp .sec{padding:46px 0}
+.cp .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+.cp .eyebrow.on-navy{color:#7fa3ff}
+.cp h1{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.03;margin:0}
+.cp h2{font-size:clamp(24px,4.4vw,36px);font-weight:900;letter-spacing:-.03em;line-height:1.08;margin:0 0 10px}
+.cp h3{font-size:17px;font-weight:800;letter-spacing:-.01em;margin:0 0 6px}
+.cp .lede{font-size:clamp(15px,2.3vw,17.5px);color:var(--mute);max-width:60ch;margin:0}
 
-<div class="cpcard cppad">
-  <div class="cpgrid2">
-    <div>
-      <div class="cpeyebrow" style="color:#16a34a">The on-ramp</div>
-      <div class="cph2">The $10 <span style="color:#16a34a">Launchpad</span></div>
-      <div class="cplead">A single $10 buy-in switches on the comp plan &mdash; refer, build a team, earn commissions and withdraw, before full membership. Tools and grid tiers 1&ndash;8 unlock when you upgrade.</div>
-      <div style="margin-top:16px">
-        <div class="cpstat" style="background:#f6faf7"><div class="cpstatnum" style="color:#16a34a">$10</div><div><div class="cpstath" style="color:#b45309">ONE-TIME ENTRY</div><div class="cpstatd">A single $10 buy-in turns on earning &mdash; refer, build, withdraw.</div></div></div>
-        <div class="cpstat" style="background:#f6faf7"><div class="cpstatnum" style="color:#16a34a">$5</div><div><div class="cpstath" style="color:#b45309">PER LAUNCHPAD REFERRAL</div><div class="cpstatd">Earn 50% &mdash; $5 &mdash; on every $10 Launchpad you refer.</div></div></div>
-        <div class="cpstat" style="background:#f6faf7"><div class="cpstatnum" style="color:#16a34a">$40</div><div><div class="cpstath" style="color:#b45309">TIER-0 COMPLETION BONUS</div><div class="cpstatd">Fill your 16-seat tier-0 grid and bank a $40 bonus.</div></div></div>
-      </div>
-      <div class="cppill" style="background:#f6faf7;border:1.5px solid #86efac;color:#15803d;margin-top:6px">Free &rarr; $10 Launchpad &rarr; Full Member</div>
-    </div>
-    <div>
-      <div class="cprhead">The 3-rung ladder</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="border:1px solid #e2e8f0;border-radius:13px;padding:14px 18px;background:#fbfdff"><div class="cpsora" style="font-weight:800;color:#334155">Full Member &middot; $20/mo</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">Tools + grid tiers 1&ndash;8 unlocked</div></div>
-        <div style="text-align:center;color:#16a34a;font-weight:800">&uarr;</div>
-        <div style="border:2px solid #16a34a;border-radius:13px;padding:14px 18px;background:#f0fdf4;box-shadow:0 4px 16px rgba(22,163,74,.16)"><div class="cpsora" style="font-weight:800;color:#b45309">$10 LAUNCHPAD</div><div style="font-size:12px;color:#64748b;margin-top:2px">Start earning now &mdash; refer, earn, withdraw</div></div>
-        <div style="text-align:center;color:#16a34a;font-weight:800">&uarr;</div>
-        <div style="border:1px solid #e2e8f0;border-radius:13px;padding:14px 18px;background:#fbfdff"><div class="cpsora" style="font-weight:800;color:#334155">Free signup</div><div style="font-size:12px;color:#94a3b8;margin-top:2px">Browse only &mdash; can't earn yet</div></div>
-      </div>
-      <div style="text-align:center;font-size:11.5px;color:#94a3b8;font-style:italic;margin-top:12px">Launchpad = Profit Grid tier 0 &middot; upgrade anytime.</div>
-    </div>
-  </div>
-</div>
+.cp .hero{position:relative;isolation:isolate;background:var(--navy);color:#fff;
+  padding:46px clamp(16px,4vw,34px) 0;overflow:hidden;border-radius:20px}
+.cp .hero-bg{position:absolute;inset:0;z-index:0;background-image:url('/static/images/al/comp-plan-hero.jpg');
+  background-size:cover;background-position:center 46%}
+.cp .hero-scrim{position:absolute;inset:0;z-index:1;opacity:.72;
+  background:linear-gradient(180deg,rgba(10,31,82,.10) 0%,rgba(10,31,82,.34) 46%,rgba(10,31,82,.90) 100%),
+             linear-gradient(96deg,rgba(10,31,82,.76) 0%,rgba(10,31,82,.16) 56%,rgba(18,56,143,.34) 100%)}
+.cp .hero-in{position:relative;z-index:2}
+.cp .hero h1{text-shadow:0 2px 12px rgba(4,17,48,.72),0 4px 40px rgba(4,17,48,.5)}
+.cp .hero h1 span{color:#ff8095}
+.cp .hero .lede{color:#c6d3ee;text-shadow:0 1px 8px rgba(4,17,48,.8),0 2px 22px rgba(4,17,48,.55);margin-top:14px}
+@media(max-width:620px){.cp .hero-bg{background-position:68% 46%}.cp .hero-scrim{opacity:.82}}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#2563eb">Stream 1</div>
-  <div class="cph2">Membership <span style="color:#2563eb">Referrals</span></div>
-  <div class="cplead" style="max-width:760px">Earn a flat $10 every month for each active referral &mdash; or collect upfront when they choose annual. Just two referrals and your membership pays for itself.</div>
-  <div class="cpgrid2">
-    <div>
-      <div class="cpstat" style="background:#f4f8ff"><div class="cpstatnum" style="color:#2563eb">$10</div><div><div class="cpstath" style="color:#2563eb">PER ACTIVE REFERRAL</div><div class="cpstatd">Paid every month they stay active &mdash; same $10 on every tier.</div></div></div>
-      <div class="cpstat" style="background:#f4f8ff"><div class="cpstatnum" style="color:#2563eb">UNL</div><div><div class="cpstath" style="color:#2563eb">UNLIMITED REFERRALS</div><div class="cpstatd">No cap on how many you refer. 10 referrals = $100/mo.</div></div></div>
-      <div class="cpstat" style="background:#f4f8ff"><div class="cpstatnum" style="color:#2563eb">2&times;</div><div><div class="cpstath" style="color:#2563eb">PAYS FOR ITSELF</div><div class="cpstatd">Two active referrals cover your $20/mo. The rest is profit.</div></div></div>
-    </div>
-    <div style="background:#f8fafc;border:1px solid #e6ebf3;border-radius:14px;padding:20px">
-      <div class="cprhead" style="margin-bottom:14px">Your monthly income</div>
-      <div style="display:flex;justify-content:space-between;font-size:16px;padding:8px 4px;border-bottom:1px solid #eef2f8"><span style="color:#475569">3 referrals</span><span class="cpsora" style="font-weight:800;color:#16a34a">$30/mo</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:16px;padding:8px 4px"><span style="color:#475569">10 referrals</span><span class="cpsora" style="font-weight:800;color:#16a34a">$100/mo</span></div>
-      <div style="text-align:center;font-size:11.5px;color:#94a3b8;font-style:italic;margin-top:10px">Same $10 per referral, every tier.</div>
-    </div>
-  </div>
-</div>
+.cp .strip-block{margin-top:32px;padding-bottom:44px}
+.cp .strip-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7fa3ff;margin-bottom:13px}
+.cp .strip{display:flex;gap:7px;align-items:flex-end;overflow-x:auto;padding-bottom:6px}
+.cp .slot{flex:0 0 auto;width:56px;border-radius:9px;padding:11px 0 9px;text-align:center;
+  background:rgba(4,17,48,.60);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  border:1.5px solid rgba(255,255,255,.22)}
+.cp .slot .n{font-size:18px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.cp .slot .t{font-size:8.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:6px;opacity:.66}
+.cp .slot.up{background:var(--red);border-color:var(--red);box-shadow:0 6px 18px rgba(200,16,46,.42)}
+.cp .slot.up .t{opacity:.95}
+.cp .slot.tail{width:auto;padding:11px 16px 9px;background:transparent;border-style:dashed;
+  border-color:rgba(255,255,255,.32);backdrop-filter:none}
+.cp .slot.tail .n{font-size:13px;letter-spacing:-.01em;white-space:nowrap}
+.cp .strip-key{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;font-weight:600;color:#b9c8e8}
+.cp .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px}
+.cp .dot.keep{background:rgba(255,255,255,.34)}
+.cp .dot.pass{background:var(--red)}
+.cp .note{margin-top:20px;padding:15px 17px;border-left:3px solid var(--red);border-radius:0 9px 9px 0;
+  font-size:14.5px;font-weight:600;color:#e8eefb;max-width:62ch;
+  background:rgba(4,17,48,.55);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#2563eb">Membership &middot; annual</div>
-  <div class="cph2">Annual unlocks upfront cash</div>
-  <div class="cplead" style="max-width:780px">When your referral chooses annual, you earn $100 upfront the day they sign up &mdash; then $10/mo on renewal. Real money in your wallet, now.</div>
-  <div class="cptwo">
-    <div style="border:1px solid #e6ebf3;border-radius:14px;padding:22px;text-align:center;background:#fbfdff">
-      <div class="cpeyebrow" style="color:#94a3b8">Monthly plan</div><div style="font-size:14px;color:#64748b;margin:8px 0">10 referrals</div>
-      <div class="cpsora" style="font-size:36px;font-weight:800;color:#0f172a">$100/mo</div>
-      <div style="font-size:12.5px;color:#94a3b8;margin-top:8px">Paid monthly, every month they stay active</div>
-    </div>
-    <div style="border:2px solid #16a34a;border-radius:14px;padding:22px;text-align:center;background:#f0fdf4;position:relative">
-      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:12px">BEST FOR CASH NOW</div>
-      <div class="cpeyebrow" style="color:#16a34a">Annual plan</div><div style="font-size:14px;color:#64748b;margin:8px 0">10 annual referrals</div>
-      <div class="cpsora" style="font-size:36px;font-weight:800;color:#16a34a">$1,000 today</div>
-      <div style="font-size:12.5px;color:#64748b;margin-top:8px">Paid the same day they join &mdash; $100 per annual referral</div>
-    </div>
-  </div>
-</div>
+.cp .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:stretch}
+.cp .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column}
+.cp .card .body{flex:1}
+.cp .card p{font-size:14.5px;color:var(--mute);margin:4px 0 0}
+.cp .gate-n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:7px;background:var(--navy);color:#fff;font-size:13px;font-weight:900;margin-bottom:12px}
+.cp .pill{display:inline-block;margin-top:14px;padding:5px 11px;border-radius:99px;background:var(--wash);
+  border:1px solid var(--line);font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--navy2)}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#a00d24">Stream 2</div>
-  <div class="cph2">Campaign <span style="color:#a00d24">Grid</span></div>
-  <div class="cplead" style="max-width:820px">Every grid entry splits four ways &mdash; and 100% of it goes to members. Direct sponsor takes 50%, uni-level pays 5% across 5 levels, and a 25% bonus pool pays the grid owner. Zero company cut.</div>
-  <div class="cpsplit">
-    <div class="cpseg" style="flex:50;background:linear-gradient(135deg,#a00d24,#e8203f)"><div class="sp">50%</div><div class="st">Direct sponsor</div></div>
-    <div class="cpseg" style="flex:25;background:linear-gradient(135deg,#c8102e,#e8203f)"><div class="sp">25%</div><div class="st">Uni-level &middot; 5% &times; 5</div></div>
-    <div class="cpseg" style="flex:25;background:linear-gradient(135deg,#0e2a6e,#9db0e0)"><div class="sp">25%</div><div class="st">Bonus pool</div></div>
-  </div>
-  <div style="text-align:center;color:#15803d;font-weight:700;font-size:13.5px;margin-bottom:6px"><span style="background:#ecfdf3;border:1.5px solid #86efac;border-radius:10px;padding:4px 12px">0% company &mdash; the whole entry is paid out to members</span></div>
-  <div class="cpgrid2">
-    <div>
-      <div class="cpstat" style="background:#f0fbfd"><div class="cpstatnum" style="color:#a00d24">50%</div><div><div class="cpstath" style="color:#a00d24">DIRECT COMMISSION</div><div class="cpstatd">Every referral who activates your tier pays you 50% instantly.</div></div></div>
-      <div class="cpstat" style="background:#f0fbfd"><div class="cpstatnum" style="color:#c8102e">5%</div><div><div class="cpstath" style="color:#a00d24">UNI-LEVEL &times; 5 LEVELS</div><div class="cpstatd">Earn 5% on every position through 5 levels of depth below you.</div></div></div>
-      <div class="cpstat" style="background:#f0fbfd"><div class="cpstatnum" style="color:#0e2a6e">25%</div><div><div class="cpstath" style="color:#a00d24">BONUS POOL</div><div class="cpstatd">A 25% pool pays the grid owner 4&times; the tier price per full grid.</div></div></div>
-      <div class="cppill" style="background:#f0fbfd;border:1.5px solid #f5b8c2;color:#a00d24;margin-top:4px">100% of Campaign Grid commissions go to members</div>
-    </div>
-    <div>
-      <div class="cprhead">Your 4&times;4 income grid</div>
-      <div class="cpgrid4">
-        <div class="cpcell" style="background:linear-gradient(140deg,#f59e0b,#fde047);color:#3a1d00">1</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">2</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">3</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">4&#9733;</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#f59e0b,#fde047);color:#3a1d00">5</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">6</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">7</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">8&#9733;</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#e8203f,#e8203f);color:#02343f">9</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">10</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">11</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">12&#9733;</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">13</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">14</div>
-        <div class="cpcell" style="background:#eef4f8;border:1px solid #d6e2ec;color:#aab8d4">15</div>
-        <div class="cpcell" style="background:linear-gradient(140deg,#0e2a6e,#9db0e0);color:#fff">16&#9733;</div>
-      </div>
-      <div style="text-align:center;font-size:11.5px;color:#64748b;margin-top:12px"><span style="color:#d97706">&#9679;</span> Direct &nbsp; <span style="color:#a00d24">&#9679;</span> Spillover &nbsp; <span style="color:#0e2a6e">&#9733;</span> Bonus seats 4&middot;8&middot;12&middot;16</div>
-      <div style="background:#f8fafc;border:1px solid #e6ebf3;border-radius:12px;padding:12px;margin-top:14px;text-align:center">
-        <div style="font-weight:800;color:#a00d24;font-size:13px">8 TIERS &middot; $20 &rarr; $1,000</div>
-        <div style="font-size:12.5px;color:#64748b;margin-top:4px">$20 &middot; $50 &middot; $100 &middot; $200 &middot; $400 &middot; $600 &middot; $800 &middot; $1,000</div>
-      </div>
-    </div>
-  </div>
-</div>
+.cp .chainbox{background:var(--navy);border-radius:16px;padding:24px;margin-top:22px;color:#fff}
+.cp .you{display:inline-flex;align-items:center;gap:10px;padding:11px 20px;border-radius:11px;
+  background:var(--red);font-weight:900;font-size:16px;box-shadow:0 8px 26px rgba(200,16,46,.42)}
+.cp .rail{margin-top:6px;padding-left:22px;border-left:2px dashed rgba(255,255,255,.34)}
+.cp .lvl{display:flex;align-items:center;gap:12px;padding:11px 0;flex-wrap:wrap}
+.cp .lvl-tag{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7fa3ff;min-width:64px}
+.cp .lvl-txt{font-size:14px;color:#d6e0f6;font-weight:600;flex:1;min-width:180px}
+.cp .lvl-amt{font-size:12.5px;font-weight:900;color:#fff;padding:5px 11px;border-radius:7px;
+  background:rgba(200,16,46,.85);white-space:nowrap}
+.cp .lvl.inf .lvl-txt{color:#fff;font-weight:800}
+.cp .lvl.inf .lvl-tag{color:#ff8095}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#a00d24">Campaign Grid &middot; what each tier pays</div>
-  <div class="cph2">Fill 16 seats, earn the bonus</div>
-  <div class="cplead" style="max-width:820px">Each grid is 16 seats. When seat 16 fills, the 25% bonus pool pays out &mdash; 4&times; your tier price &mdash; and a fresh grid opens. Direct (50%) and uni-level (5% &times; 5) pay on top, per activation.</div>
-  <div class="cptablewrap"><table>
-    <tr style="border-bottom:2px solid #e6ebf3"><th style="text-align:left;color:#a00d24;font-size:11px;letter-spacing:1px">TIER</th><th style="text-align:center;color:#a00d24;font-size:11px;letter-spacing:1px">PRICE</th><th style="text-align:center;color:#a00d24;font-size:11px;letter-spacing:1px">DIRECT (50%)</th><th style="text-align:center;color:#a00d24;font-size:11px;letter-spacing:1px">UNI-LEVEL (5% &times; 5)</th><th style="text-align:right;color:#a00d24;font-size:11px;letter-spacing:1px">BONUS / FULL GRID (25%)</th></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Starter</td><td style="text-align:center;color:#64748b">$20</td><td style="text-align:center;color:#64748b">$10</td><td style="text-align:center;color:#64748b">$1.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$80</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Builder</td><td style="text-align:center;color:#64748b">$50</td><td style="text-align:center;color:#64748b">$25</td><td style="text-align:center;color:#64748b">$2.50 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$200</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Pro</td><td style="text-align:center;color:#64748b">$100</td><td style="text-align:center;color:#64748b">$50</td><td style="text-align:center;color:#64748b">$5.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$400</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Advanced</td><td style="text-align:center;color:#64748b">$200</td><td style="text-align:center;color:#64748b">$100</td><td style="text-align:center;color:#64748b">$10.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$800</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Premium</td><td style="text-align:center;color:#64748b">$400</td><td style="text-align:center;color:#64748b">$200</td><td style="text-align:center;color:#64748b">$20.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$1,600</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Elite</td><td style="text-align:center;color:#64748b">$600</td><td style="text-align:center;color:#64748b">$300</td><td style="text-align:center;color:#64748b">$30.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$2,400</td></tr>
-    <tr style="border-bottom:1px solid #f1f5f9"><td style="font-weight:700;color:#0f172a">Master</td><td style="text-align:center;color:#64748b">$800</td><td style="text-align:center;color:#64748b">$400</td><td style="text-align:center;color:#64748b">$40.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$3,200</td></tr>
-    <tr style="background:#f5f9ff"><td style="font-weight:700;color:#a00d24">Champion</td><td style="text-align:center;color:#64748b">$1,000</td><td style="text-align:center;color:#64748b">$500</td><td style="text-align:center;color:#64748b">$50.00 &times; 5</td><td style="text-align:right;font-weight:800;color:#16a34a">$4,000</td></tr>
-  </table></div>
-  <div style="font-size:12px;color:#a00d24;font-weight:600;margin-top:12px">Uni-level shown per level &mdash; 5% on every position, 5 levels deep.</div>
-  <div style="font-size:11px;color:#94a3b8;font-style:italic;margin-top:8px">Bonus pool is exact (25% &times; 16 seats = 4&times; tier price). Direct and uni-level earnings depend on your own activity &mdash; illustration, not a guarantee of income.</div>
-</div>
+.cp .tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+.cp table{width:100%;border-collapse:collapse;min-width:560px}
+.cp th,.cp td{padding:13px 15px;text-align:left;font-size:14px;border-bottom:1px solid var(--line)}
+.cp th{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
+  background:var(--wash);white-space:nowrap}
+.cp tbody tr:last-child td{border-bottom:0}
+.cp td.name{font-weight:800}
+.cp td.price{font-weight:900;color:var(--red);font-size:16px;letter-spacing:-.02em;white-space:nowrap}
+.cp td.num{font-variant-numeric:tabular-nums}
+.cp .tbl-foot{font-size:13px;color:var(--mute);margin-top:12px}
+.cp .state{padding:22px;text-align:center;color:var(--mute);font-size:14.5px;font-weight:600}
+.cp .state.err{color:var(--red)}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#0e2a6e">Stream 3</div>
-  <div class="cph2">Creator <span style="color:#0e2a6e">Credits</span></div>
-  <div class="cplead" style="max-width:760px">When your referrals buy credit packs for the Creative Studio, you earn a flat 20% &mdash; on their first purchase and every repurchase. No matrix, no levels, no tier ownership required.</div>
-  <div class="cpgrid2">
-    <div>
-      <div class="cpstat" style="background:#faf7ff"><div class="cpstatnum" style="color:#0e2a6e">20%</div><div><div class="cpstath" style="color:#0e2a6e">FLAT &mdash; EVERY PACK</div><div class="cpstatd">A flat 20% to you, the direct sponsor, on every pack they buy.</div></div></div>
-      <div class="cpstat" style="background:#faf7ff"><div class="cpstatnum" style="color:#0e2a6e">&infin;</div><div><div class="cpstath" style="color:#0e2a6e">FIRST BUY & EVERY REBUY</div><div class="cpstatd">Credits get consumed &mdash; they buy again, you earn 20% again.</div></div></div>
-      <div class="cpstat" style="background:#faf7ff"><div class="cpstatnum" style="color:#0e2a6e">0</div><div><div class="cpstath" style="color:#0e2a6e">NO TIER REQUIRED</div><div class="cpstatd">Earn on your referrals' packs no matter what you own.</div></div></div>
-      <div class="cppill" style="background:#faf7ff;border:1.5px solid #ddd0fb;color:#0e2a6e;margin-top:4px">Flat 20% to the direct sponsor &middot; every repurchase</div>
-    </div>
-    <div style="background:#faf7ff;border:1px solid #eaf0fb;border-radius:14px;padding:22px;text-align:center">
-      <div class="cprhead" style="margin-bottom:16px">How it flows</div>
-      <div style="background:#fff;border:1px solid #ddd0fb;border-radius:11px;padding:14px;font-weight:700;color:#334155">Your referral buys a credit pack</div>
-      <div style="color:#0e2a6e;font-size:20px;margin:6px 0">&darr;</div>
-      <div style="width:84px;height:84px;border-radius:50%;border:2px solid #0e2a6e;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:'Sora';font-size:24px;font-weight:800;color:#0e2a6e">20%</div>
-      <div style="color:#0e2a6e;font-size:20px;margin:6px 0">&darr;</div>
-      <div style="background:#fff;border:1px solid #ddd0fb;border-radius:11px;padding:14px;font-weight:700;color:#334155">You earn <span style="color:#16a34a">20% to your wallet</span></div>
-    </div>
-  </div>
-</div>
+.cp .route{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:14px}
+.cp .route h3{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cp .route p{font-size:14.5px;color:var(--mute);margin:10px 0 0}
+.cp .tag{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;
+  border-radius:5px;background:var(--wash);color:var(--navy2);border:1px solid var(--line)}
+.cp .tag.red{background:#fdeaee;color:var(--red);border-color:#f6c9d2}
+.cp .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:13.5px;font-weight:700}
+.cp .node{padding:7px 12px;border-radius:8px;background:var(--wash);border:1px solid var(--line)}
+.cp .node.win{background:var(--navy);color:#fff;border-color:var(--navy)}
+.cp .arw{color:var(--mute);font-weight:900}
 
-<div class="cpcard cppad">
-  <div class="cpeyebrow" style="color:#0e2a6e">Creator Credits &middot; repurchase engine</div>
-  <div class="cph2">Credits get used, then bought again</div>
-  <div class="cplead" style="max-width:840px">Credit packs are consumed by the Creative Studio &mdash; AI video, image and voiceover. When members run out, they buy again, and each purchase pays you 20% again.</div>
-  <div class="cpsteps">
-    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">1</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">BUY CREDITS</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Referral buys a pack</div></div>
-    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">2</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">YOU EARN</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">20% to your wallet</div></div>
-    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">3</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">CONSUMED</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">They use the credits</div></div>
-    <div style="border:1px solid #eaf0fb;border-radius:13px;padding:16px;text-align:center;background:#faf7ff"><div class="cpnum">4</div><div class="cpsora" style="font-weight:800;color:#0f172a;font-size:13px">REPEAT</div><div style="font-size:11.5px;color:#64748b;margin-top:3px">Buy again, earn again</div></div>
-  </div>
-  <div style="text-align:center;margin-top:18px"><span style="display:inline-block;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 26px;font-size:15px;font-weight:700;color:#334155">$200 pack = <span style="color:#16a34a">$40 to you</span> &middot; every purchase</span></div>
-</div>
-
-<div class="cpcard cppad" style="background:linear-gradient(160deg,#fff,#f4f8ff)">
-  <div class="cpeyebrow" style="color:#c8102e;text-align:center">Recap &middot; the whole system</div>
-  <div class="cph2" style="text-align:center">It all fits together</div>
-  <div class="cprecap">
-    <div class="cprc"><h5 style="color:#2563eb">1 &middot; Membership</h5><li>$10/mo per active referral</li><li>10 referrals = $100/mo</li><li>2 referrals cover your $20/mo</li></div>
-    <div class="cprc"><h5 style="color:#a00d24">2 &middot; Campaign Grid</h5><li>50 / 25 / 25 &mdash; 100% to members</li><li>8 tiers, $20 to $1,000</li><li>Bonus pool $80 &rarr; $4,000</li></div>
-    <div class="cprc"><h5 style="color:#0e2a6e">3 &middot; Creator Credits</h5><li>20% flat to the sponsor</li><li>First buy + every repurchase</li><li>$200 pack = $40 to you</li></div>
-  </div>
-  <div style="text-align:center;margin-top:18px;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;color:#0f172a">One $20/month membership &mdash; the full toolkit yours to use, and three ways the money comes back.</div>
-  <div style="text-align:center"><a class="cpdl" href="/static/downloads/income-streams/AdvantageLife-3-Income-Streams-EN.pptx?v=20260623" download><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download the presentation</a></div>
-  <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">Earnings depend on individual effort, referrals and tier activity. No income is guaranteed.</div>
-</div>
+.cp .lg{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.cp .lg-row{display:grid;grid-template-columns:26px 1fr auto 70px;gap:10px;align-items:center;
+  padding:12px 14px;border-bottom:1px solid var(--line);font-size:14.5px}
+.cp .lg-row:last-child{border-bottom:0}
+.cp .lg-head{background:var(--wash);font-size:10.5px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute)}
+.cp .lg-n{font-weight:900;color:var(--mute);font-variant-numeric:tabular-nums}
+.cp .lg-s{font-weight:700}
+.cp .lg-t{font-weight:900;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.cp .lg-w{font-size:11.5px;font-weight:800;padding:4px 9px;border-radius:6px;white-space:nowrap}
+.cp .w-you{background:var(--navy);color:#fff}
+.cp .w-chain{background:var(--red);color:#fff}
+.cp .lg-row.dim .lg-s{color:var(--mute)}
+.cp .lg-zero{color:var(--mute);font-weight:700}
+.cp .after{margin-top:14px;padding:15px 17px;border-left:3px solid var(--red);background:#fff;
+  border-radius:0 12px 12px 0;font-size:14.5px;color:var(--mute)}
+.cp .after strong{color:var(--navy)}
 `;
 
+const SLOTS = [
+  { n: 1 }, { n: 2 }, { n: 3, chain: 1 }, { n: 4 }, { n: 5 },
+  { n: 6, chain: 2 }, { n: 7 }, { n: 8 }, { n: 9, chain: 3 },
+];
+
+const CHAIN_LEVELS = [
+  ['Level 1', 'A member you kept passes up their 3rd, 6th and 9th sale'],
+  ['Level 2', 'The member they passed up is wired to you — their 3rd, 6th and 9th come to you too'],
+  ['Level 3', 'And the member they pass up. Same wiring, same three sales'],
+  ['Level 4', 'And the next. The chain does not shorten with depth'],
+];
+
+// Illustrative walkthrough. The pack price is held CONSTANT so the only variable
+// down the table is which slot the sale falls in. Per-sale amounts only — never a
+// running total: a cumulative column on a per-row money table reads as "this sale
+// paid $400", which is false and cost us a review round.
+const SEQUENCE = [
+  { n: 1 }, { n: 2 }, { n: 3, chain: 1 }, { n: 4 }, { n: 5 },
+  { n: 6, chain: 2 }, { n: 7 }, { n: 8 }, { n: 9, chain: 3 }, { n: 10 },
+];
+
+function money(v) {
+  return '$' + Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
 export default function CompensationPlan() {
+  const [packs, setPacks] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    apiGet('/api/al/packs')
+      .then((d) => { if (alive) setPacks(Array.isArray(d?.packs) ? d.packs : []); })
+      // Surfaced, not swallowed — a silent failure would render a plan page with
+      // no packs on it and nothing to say anything had gone wrong.
+      .catch((e) => { if (alive) setError(e?.message || 'Could not load the pack list.'); });
+    return () => { alive = false; };
+  }, []);
+
   return (
-    <AlShell active="marketing" back={{ to: '/my-marketing', label: 'My Marketing' }}>
-      <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
-        <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-        </div>
-        <div>
-          <div style={{fontWeight:900,fontSize:23,letterSpacing:-.6}}>Compensation Plan</div>
-          <div style={{fontSize:13.5,color:'#c9d6f7',fontWeight:600,marginTop:2}}>The 3 ways to earn with AdvantageLife.</div>
-        </div>
+    <CategoryShell>
+      <style>{CSS}</style>
+      <div className="cp">
+
+        <header className="hero">
+          <div className="hero-bg" />
+          <div className="hero-scrim" />
+          <div className="hero-in">
+            <div className="eyebrow on-navy">How you get paid</div>
+            <h1>You pass up three sales.<br /><span>Three chains pay you back, forever.</span></h1>
+            <p className="lede">
+              Every campaign pack you sell pays you 100% of its price, member to member.
+              The platform never touches the money.
+            </p>
+
+            <div className="strip-block">
+              <div className="strip-label">The three you pass up</div>
+              <div className="strip">
+                {SLOTS.map((s) => (
+                  <div key={s.n} className={'slot' + (s.chain ? ' up' : '')}>
+                    <div className="n">{s.n}</div>
+                    <div className="t">{s.chain ? 'Chain ' + s.chain : 'Yours'}</div>
+                  </div>
+                ))}
+                <div className="slot tail">
+                  <div className="n">10 onward — all yours</div>
+                  <div className="t">For life</div>
+                </div>
+              </div>
+              <div className="strip-key">
+                <span><span className="dot keep" />You earn it</span>
+                <span><span className="dot pass" />Opens a chain above you</span>
+              </div>
+              <p className="note">
+                Those three are the only sales you ever pass up. Each one opens a chain
+                that pays you back — from any depth, with no end.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <section className="sec">
+          <div className="eyebrow">Before you can earn</div>
+          <h2>Two gates. You need both.</h2>
+          <p className="lede" style={{ marginBottom: 24 }}>
+            Miss either on the day a sale lands and it routes past you. Neither gate is retroactive.
+          </p>
+          <div className="grid2">
+            <div className="card">
+              <div className="body">
+                <div className="gate-n">1</div>
+                <h3>Own that level or higher</h3>
+                <p>
+                  To earn on a $200 Advanced sale you must own a $200 pack or bigger.
+                  Own the $100 Pro and that one passes you by.
+                </p>
+              </div>
+              <span className="pill">Level-or-higher</span>
+            </div>
+            <div className="card">
+              <div className="body">
+                <div className="gate-n">2</div>
+                <h3>Stay watch-qualified</h3>
+                <p>
+                  Complete your daily watch quota, set by the biggest pack you own —
+                  1 a day at Launchpad, up to 5 at Champion. Also the gate on withdrawals.
+                </p>
+              </div>
+              <span className="pill">48-hour grace window</span>
+            </div>
+          </div>
+          <div className="card" style={{ marginTop: 16 }}>
+            <h3>Why the 48 hours exist</h3>
+            <p>
+              Once you hit quota you stay qualified for 48 hours, so a buyer in another
+              time zone can&rsquo;t skip you because today&rsquo;s watch hasn&rsquo;t landed yet.
+            </p>
+          </div>
+        </section>
+
+        <section className="sec" style={{ paddingTop: 0 }}>
+          <div className="eyebrow">The part that compounds</div>
+          <h2>Three chains. No bottom.</h2>
+          <p className="lede">
+            When one of your members passes up a sale, that buyer is wired to <em>you</em> —
+            permanently. Their own 3rd, 6th and 9th sales come to you. So do the sales of
+            whoever they pass up. The chain never runs out of depth.
+          </p>
+          <div className="chainbox">
+            <div className="you">YOU</div>
+            <div className="rail">
+              {CHAIN_LEVELS.map(([tag, txt]) => (
+                <div className="lvl" key={tag}>
+                  <span className="lvl-tag">{tag}</span>
+                  <span className="lvl-txt">{txt}</span>
+                  <span className="lvl-amt">3 sales</span>
+                </div>
+              ))}
+              <div className="lvl inf">
+                <span className="lvl-tag">No limit</span>
+                <span className="lvl-txt">There is no level at which this stops</span>
+                <span className="lvl-amt">Keeps going</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="sec" style={{ paddingTop: 0 }}>
+          <div className="eyebrow">What you sell</div>
+          <h2>The price is the commission.</h2>
+          <p className="lede" style={{ marginBottom: 24 }}>
+            No split, no company share on a pack sale. The buyer pays the seller directly, in full.
+          </p>
+
+          <div className="tbl-scroll">
+            {error ? (
+              <div className="state err">{error}</div>
+            ) : packs === null ? (
+              <div className="state">Loading packs&hellip;</div>
+            ) : packs.length === 0 ? (
+              <div className="state">No active packs to show.</div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pack</th><th>You earn</th><th>Views delivered</th><th>Daily watches</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packs.map((p) => (
+                    <tr key={p.level}>
+                      <td className="name">{p.name}</td>
+                      <td className="price">{money(p.price)}</td>
+                      <td className="num">{Number(p.views_target || 0).toLocaleString('en-US')}</td>
+                      <td className="num">{p.daily_watch_required ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <p className="tbl-foot">
+            Your watch quota follows the largest pack you own. A campaign runs until its
+            views are delivered, then has a grace window before it expires.
+          </p>
+        </section>
+
+        <section className="sec" style={{ paddingTop: 0 }}>
+          <div className="eyebrow">Where the money actually goes</div>
+          <h2>Every sale resolves to one person.</h2>
+          <p className="lede" style={{ marginBottom: 24 }}>
+            Worked out before the buyer pays, so the pay page names the right member.
+            The counter only moves on confirmation — nobody can shuffle their slots.
+          </p>
+
+          <div className="route">
+            <h3>A sale you keep <span className="tag">Slots 1, 2, 4, 5, 7, 8, 10+</span></h3>
+            <div className="flow">
+              <span className="node">Buyer</span><span className="arw">&rarr;</span>
+              <span className="node win">You</span>
+            </div>
+            <p>
+              Fail either gate and it goes to the company. It does <strong>not</strong> climb —
+              a kept sale is yours or nobody&rsquo;s.
+            </p>
+          </div>
+
+          <div className="route">
+            <h3>A sale you pass up <span className="tag red">Slots 3, 6, 9</span></h3>
+            <div className="flow">
+              <span className="node">Buyer</span><span className="arw">&rarr;</span>
+              <span className="node">Your upline</span><span className="arw">&rarr;</span>
+              <span className="node">Next upline</span><span className="arw">&rarr;</span>
+              <span className="node win">First one qualified</span>
+            </div>
+            <p>
+              It climbs until it finds someone who owns that level and is watch-qualified.
+              Only if the whole chain fails does it reach the company.
+            </p>
+          </div>
+
+          <div className="route">
+            <h3>How a chain is created <span className="tag">Set once, at join</span></h3>
+            <p>
+              Land on someone&rsquo;s 3rd, 6th or 9th slot and your pass-ups skip them and flow
+              to <em>their</em> upline instead — permanently. That single rule is what turns
+              three slots into three chains that keep paying from any depth.
+            </p>
+          </div>
+        </section>
+
+        <section className="sec" style={{ paddingTop: 0 }}>
+          <div className="eyebrow">A real sequence</div>
+          <h2>Your first ten sales</h2>
+          <p className="lede" style={{ marginBottom: 22 }}>
+            You own the $200 Advanced pack and you watch daily. Every buyer here takes the
+            $200 pack, so every sale is worth the same $200 — the only thing that changes
+            is who it goes to.
+          </p>
+
+          <div className="lg">
+            <div className="lg-row lg-head">
+              <span>#</span><span>They buy</span><span>Goes to</span><span>You get</span>
+            </div>
+            {SEQUENCE.map((r) => (
+              <div className={'lg-row' + (r.chain ? ' dim' : '')} key={r.n}>
+                <span className="lg-n">{r.n}</span>
+                <span className="lg-s">$200 Advanced</span>
+                {r.chain
+                  ? <span className="lg-w w-chain">Opens chain {r.chain}</span>
+                  : <span className="lg-w w-you">You</span>}
+                {r.chain
+                  ? <span className="lg-t lg-zero">&mdash;</span>
+                  : <span className="lg-t">$200</span>}
+              </div>
+            ))}
+          </div>
+
+          <p className="after">
+            <strong>Seven sales paid you $200 each — $1,400.</strong> Three went up a chain
+            instead, at the same $200. From sale 11 on, nothing is ever passed up again.
+          </p>
+          <p className="after">
+            <strong>Buyers pick their own pack.</strong> Someone taking the $1,000 Champion
+            pays you $1,000 — but only if you own the $1,000 pack yourself. Own the $200 and
+            that sale goes to the company without climbing. Your own pack level is the
+            ceiling on what you can be paid.
+          </p>
+        </section>
+
       </div>
-      <div className="cproot" dangerouslySetInnerHTML={{ __html: CP_HTML }} />
-    </AlShell>
+    </CategoryShell>
   );
 }

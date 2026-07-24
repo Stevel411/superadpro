@@ -81,6 +81,11 @@ const PlatformTour = React.lazy(() => import('./pages/PlatformTour'));
 const SuperLinkPage = React.lazy(() => import('./pages/SuperLink'));
 const ReferralVideo = React.lazy(() => import('./pages/ReferralVideo'));
 
+// AdvantageLife compensation plan — internal, logged-in only. The backend route
+// @app.get("/compensation-plan") already serves the SPA shell behind
+// get_current_user, so this needs no new server route. (24 Jul 2026)
+const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
+
 // Brand Poster Generator (May 2026)
 const BrandPostersGallery = React.lazy(() => import('./pages/brand-posters/BrandPostersGallery'));
 const BrandPosterForm = React.lazy(() => import('./pages/brand-posters/BrandPosterForm'));
@@ -261,6 +266,7 @@ function AppRoutes() {
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
+      <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
       {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them
           instead of hitting the catch-all and bouncing to the homepage. */}
