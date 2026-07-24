@@ -434,6 +434,7 @@ export default function NewDashboard() {
             <Link to="/video-library">Campaigns</Link>
             <Link to="/watch">Watch-to-Earn</Link>
             <Link to="/my-marketing">My Marketing</Link>
+            <Link to="/compensation-plan">Compensation Plan</Link>
             <a href="/packs">Buy Packs</a>
             <a href="/my-sales">Confirm Sale</a>
             <a href="/payout-methods">Wallet</a>

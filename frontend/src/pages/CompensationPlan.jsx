@@ -129,6 +129,16 @@ const CSS = `
 .cp .after{margin-top:14px;padding:15px 17px;border-left:3px solid var(--red);background:#fff;
   border-radius:0 12px 12px 0;font-size:14.5px;color:var(--mute)}
 .cp .after strong{color:var(--navy)}
+
+/* Buy Packs CTA. /packs is SERVER-RENDERED (main.py:70732) and App.jsx routes
+   it through HardRedirect — a react-router <Link> renders nothing for it, so
+   this must stay a plain anchor. */
+.cp .cta-wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:20px}
+.cp .cta{display:inline-flex;align-items:center;gap:9px;background:var(--red);color:#fff;
+  font-weight:900;font-size:15.5px;letter-spacing:-.01em;padding:14px 22px;border-radius:11px;
+  text-decoration:none;box-shadow:0 10px 26px -8px rgba(200,16,46,.55);transition:transform .12s ease}
+.cp .cta:hover{transform:translateY(-1px)}
+.cp .cta-note{font-size:13.5px;color:var(--mute);font-weight:600}
 `;
 
 const SLOTS = [
@@ -316,6 +326,10 @@ export default function CompensationPlan() {
             Your watch quota follows the largest pack you own. A campaign runs until its
             views are delivered, then has a grace window before it expires.
           </p>
+          <div className="cta-wrap">
+            <a className="cta" href="/packs">Buy a pack &rarr;</a>
+            <span className="cta-note">Your level is the ceiling on what you can be paid.</span>
+          </div>
         </section>
 
         <section className="sec" style={{ paddingTop: 0 }}>
