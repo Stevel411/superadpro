@@ -69265,6 +69265,48 @@ def al_account_activity(member_id: int, user: User = Depends(_al_user),
     })
 
 
+@app.get("/admin/api/al/recent-signups")
+def al_recent_signups(days: int = 30, user: User = Depends(_al_user),
+                      db: Session = Depends(get_db)):
+    """Every account created in the last N days, newest first — who sponsored
+    them, join method, access level. For spotting signups on a platform that
+    has not been advertised: an organic-looking join that nobody drove is
+    worth explaining."""
+    _require_admin(user)
+    from datetime import timedelta as _td
+    cut = datetime.utcnow() - _td(days=days)
+    rows = (db.query(User).filter(User.created_at >= cut)
+              .order_by(User.created_at.desc()).all())
+
+    def uname(uid):
+        if not uid:
+            return None
+        r = db.query(User.username).filter(User.id == uid).first()
+        return r[0] if r else "?#%s" % uid
+
+    out = []
+    for u in rows:
+        out.append({
+            "id": u.id, "username": u.username, "email": u.email,
+            "access_level": getattr(u, "access_level", "free"),
+            "is_admin": bool(u.is_admin),
+            "sponsor_id": u.sponsor_id, "sponsor": uname(u.sponsor_id),
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+        })
+    # cluster hints: same sponsor, or same email domain, appearing repeatedly
+    from collections import Counter
+    dom = Counter((u.email.split("@")[-1].lower() if u.email and "@" in u.email else "?")
+                  for u in rows)
+    spon = Counter(u.sponsor_id for u in rows if u.sponsor_id)
+    return JSONResponse({
+        "window_days": days,
+        "count": len(out),
+        "signups": out,
+        "email_domains": dict(dom),
+        "by_sponsor_id": {str(k): v for k, v in spon.items()},
+    })
+
+
 @app.get("/admin/api/al/pack-trace")
 def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Follow every pack purchase through all its tables at once, so a sale
