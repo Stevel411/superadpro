@@ -72989,6 +72989,7 @@ def al_stripe_check(user: User = Depends(_al_user)):
     expected_url = f"{brand_config.BASE_URL}/api/stripe/webhook"
     out["expected_webhook_url"] = expected_url
     out["join_price_usd"] = os.environ.get("AL_JOIN_PRICE_USD", "100")
+    out["annual_price_usd"] = os.environ.get("AL_ANNUAL_PRICE_USD", "50")
 
     if not key:
         out["verdict"] = "STRIPE_SECRET_KEY not set — card join cannot work."
