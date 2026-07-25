@@ -72277,26 +72277,41 @@ async def al_join_direct(request: Request,
 
 
 @app.post("/api/al/join/checkout")
-async def al_join_checkout(user: User = Depends(_al_user), db: Session = Depends(get_db)):
-    """$100 lifetime membership — Stripe Checkout (one-time). Crypto goes
-    through the existing NOWPayments rail with product_key 'al_lifetime'."""
+async def al_join_checkout(tier: str = "lifetime", user: User = Depends(_al_user),
+                           db: Session = Depends(get_db)):
+    """Membership card checkout (one-time Stripe Checkout). tier='lifetime'
+    ($100, never expires) or tier='annual' ($50, one year). Crypto goes
+    through the NOWPayments rail with the matching product_key. The amount is
+    passed dynamically — no Stripe Price/Product objects needed, only the
+    secret key."""
     if user.access_level == "lifetime":
         return JSONResponse({"error": "You already have lifetime access"}, status_code=400)
+    tier = (tier or "lifetime").lower().strip()
+    if tier not in ("lifetime", "annual"):
+        return JSONResponse({"error": "Unknown membership tier"}, status_code=400)
     from . import stripe_service as _stripe
     if not _stripe.is_configured_for_payments():
         return JSONResponse({"error": "Card payments aren't configured yet — use crypto below"}, status_code=503)
-    amount_cents = int(round(float(os.environ.get("AL_JOIN_PRICE_USD", "100")) * 100))
+
+    if tier == "annual":
+        price_usd = float(os.environ.get("AL_ANNUAL_PRICE_USD", "50"))
+        product_kind = "al_annual"
+    else:
+        price_usd = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
+        product_kind = "al_lifetime"
+    amount_cents = int(round(price_usd * 100))
+
     try:
         result = _stripe.create_checkout_session(
             user=user, db_session=db,
-            product_kind="al_lifetime",
+            product_kind=product_kind,
             amount_cents=amount_cents,
             success_path="/join?paid=1",
             cancel_path="/join",
         )
         return result
     except Exception as e:
-        logger.exception(f"al_join_checkout failed for user {user.id}")
+        logger.exception(f"al_join_checkout failed for user {user.id} tier={tier}")
         return JSONResponse({"error": "checkout_create_failed", "detail": str(e)[:200]}, status_code=500)
 
 
