@@ -69145,6 +69145,71 @@ def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user
     return {"members": out}
 
 
+@app.get("/admin/api/al/settlement-repair")
+def al_settlement_repair(apply: int = 0, user: User = Depends(_al_user),
+                         db: Session = Depends(get_db)):
+    """Repair two things the pack-trace surfaced:
+
+      1. Commissions on a CONFIRMED sale still marked 'pending' — the confirm
+         step's requery missed the just-written row (fixed going forward; this
+         backfills the ones already stuck). A commission whose intent is
+         confirmed and whose purchase is active should be 'paid'.
+      2. Stale intents: 'cancelled' clutter and long-abandoned 'pending' /
+         'proof_submitted' attempts. These are only reported here, never
+         auto-resolved — an abandoned 'proof_submitted' may be a real member
+         who paid, and that is a decision, not a cleanup.
+
+    Read-only by default; ?apply=1 performs (1) only.
+    """
+    _require_admin(user)
+    from .database import PackPurchase, PackCommission, P2PIntent
+    from datetime import timedelta as _td
+
+    # (1) confirmed-sale commissions stuck pending
+    stuck = (db.query(PackCommission)
+               .join(PackPurchase, PackPurchase.id == PackCommission.purchase_id)
+               .filter(PackCommission.status == "pending",
+                       PackPurchase.status == "active")
+               .all())
+    stuck_ids = [c.id for c in stuck]
+
+    # (2) stale intents — report only
+    now = datetime.utcnow()
+    stale_cut = now - _td(hours=48)
+    cancelled = db.query(func.count(P2PIntent.id)).filter(
+        P2PIntent.status == "cancelled").scalar() or 0
+    abandoned = db.query(P2PIntent.id, P2PIntent.status, P2PIntent.buyer_id,
+                         P2PIntent.pack_level, P2PIntent.created_at).filter(
+        P2PIntent.status.in_(("pending", "proof_submitted")),
+        P2PIntent.created_at < stale_cut).all()
+
+    out = {
+        "read_only": not bool(apply),
+        "commissions_stuck_pending": stuck_ids,
+        "stale_intents": {
+            "cancelled_count": cancelled,
+            "abandoned_over_48h": [
+                {"id": i[0], "status": i[1], "buyer_id": i[2],
+                 "level": i[3], "created_at": i[4].isoformat() if i[4] else None}
+                for i in abandoned
+            ],
+        },
+    }
+
+    if apply and stuck_ids:
+        for c in stuck:
+            c.status = "paid"
+        db.commit()
+        out["repaired"] = stuck_ids
+        out["note"] = ("Marked %d confirmed-sale commission(s) paid. Stale intents "
+                       "left alone — resolve any real 'proof_submitted' in Settlements."
+                       % len(stuck_ids))
+    elif not apply:
+        out["apply_url"] = (brand_config.BASE_URL.rstrip("/") +
+                            "/admin/api/al/settlement-repair?apply=1")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/pack-trace")
 def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Follow every pack purchase through all its tables at once, so a sale

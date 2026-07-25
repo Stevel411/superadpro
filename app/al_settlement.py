@@ -193,13 +193,20 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
         "type": intent.commission_type, "sale_number": None,
         "chain": intent.source_chain, "pass_up_depth": intent.pass_up_depth or 0,
     }
-    al_engine.commit_sale(db, intent.buyer_id, intent.pack_level, amount=intent.amount,
+    _res = al_engine.commit_sale(db, intent.buyer_id, intent.pack_level, amount=intent.amount,
                           purchase_id=purchase.id, resolution=locked, do_commit=False)
 
-    # mark the commission just written for this purchase as paid
-    comm = (db.query(PackCommission)
-              .filter(PackCommission.purchase_id == purchase.id)
-              .order_by(PackCommission.id.desc()).first())
+    # mark the commission just written for this purchase as paid.
+    # Use the object commit_sale handed back rather than a requery: the row was
+    # add()ed but not flushed, and a filtered .first() did not reliably see it —
+    # that left real confirmed sales with a 'pending' commission (e.g. sale #37
+    # / commission #9, confirmed 12 Jul but never marked paid). Fall back to the
+    # requery only if the engine did not return the object.
+    comm = (_res or {}).get("_commission")
+    if comm is None:
+        comm = (db.query(PackCommission)
+                  .filter(PackCommission.purchase_id == purchase.id)
+                  .order_by(PackCommission.id.desc()).first())
     if comm is not None:
         comm.status = "paid"
 

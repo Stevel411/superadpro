@@ -251,7 +251,7 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
     if seller is None:
         res = resolution or {"earner_id": pe.COMPANY, "type": "direct_company",
                              "sale_number": 0, "chain": None, "pass_up_depth": 0}
-        _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
+        res["_commission"] = _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
         if do_commit:
             db.commit()
         return res
@@ -266,7 +266,7 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
                                     if slot in pe.PASSUP_POSITIONS else seller.id)
 
     seller.pack_sale_count = (seller.pack_sale_count or 0) + 1
-    _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
+    res["_commission"] = _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
     if do_commit:
         db.commit()
     return res
@@ -274,7 +274,7 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
 
 def _write_commission(db, purchase_id, buyer_id, res, pack_level, amount):
     earner = None if res["earner_id"] == pe.COMPANY else res["earner_id"]
-    db.add(PackCommission(
+    comm = PackCommission(
         purchase_id=purchase_id,
         buyer_id=buyer_id,
         earner_id=earner,
@@ -285,4 +285,6 @@ def _write_commission(db, purchase_id, buyer_id, res, pack_level, amount):
         source_chain=res.get("chain"),
         status="pending",
         notes=f"sale#{res.get('sale_number')}",
-    ))
+    )
+    db.add(comm)
+    return comm
