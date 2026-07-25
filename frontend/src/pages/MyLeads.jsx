@@ -305,6 +305,20 @@ function SeqTab({sequences,refresh,flash}) {
 
   var { t } = useTranslation();
   var [ed,setEd]=useState(null);var [title,setTitle]=useState('');var [em,setEm]=useState([]);var [gen,setGen]=useState(false);
+  var [aiRow,setAiRow]=useState(-1);  // index of the email currently being written by AI, or -1
+  function writeEmailAI(i){
+    var about=(title||'').replace(/welcome series$/i,'').trim();
+    if(!about){flash('Name the sequence first (e.g. "Beginner Forex") so the AI knows the topic','err');return;}
+    setAiRow(i);
+    var purpose = i===0 ? 'a warm welcome email that introduces the offer' : 'a helpful follow-up nurture email that builds on the welcome';
+    apiPost('/api/leads/ai-email',{niche:about,intent:purpose,tone:'friendly'}).then(function(r){
+      if(r&&(r.subject||r.body_html)){
+        setEm(function(prev){return prev.map(function(x,j){return j===i?Object.assign({},x,{subject:r.subject||x.subject,body_html:r.body_html||x.body_html}):x;});});
+        flash('AI drafted this email — edit it to make it yours');
+      } else { flash('AI returned nothing — try again','err'); }
+      setAiRow(-1);
+    }).catch(function(e){flash(e.message||'AI writer unavailable','err');setAiRow(-1);});
+  }
   function startNew(){setEd('new');setTitle('');setEm([{subject:'Welcome!',body_html:'',send_delay_days:0},{subject:'Follow up — quick tip',body_html:'',send_delay_days:2},{subject:'Last chance to take action',body_html:'',send_delay_days:5}]);}
   function editEx(s){setEd(s.id);setTitle(s.title);setEm(s.emails||[]);}
   function save(){if(!title.trim()){flash('Title required','err');return;}var c=em.filter(function(e){return e.subject&&e.subject.trim();});if(!c.length){flash('At least one email required','err');return;}(ed==='new'?apiPost('/api/leads/sequences',{title:title,emails:c}):apiPut('/api/leads/sequences/'+ed,{title:title,emails:c})).then(function(){flash('Sequence saved');setEd(null);refresh();}).catch(function(e){flash(e.message,'err');});}
@@ -318,7 +332,7 @@ function SeqTab({sequences,refresh,flash}) {
     <div style={{padding:'20px 24px'}}>
       <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sequenceName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("myLeads.sequenceNamePlaceholder")} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       {em.map(function(e,i){var color=TC[i%TC.length];return <div key={i} style={{background:'var(--sap-bg-input)',borderRadius:12,padding:16,marginBottom:10,border:'1px solid #e8ecf2',borderLeft:'3px solid '+color}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('myLeads.after')}</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:13,textAlign:'center'}}/><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('myLeads.days')}</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><button onClick={function(){writeEmailAI(i);}} disabled={aiRow===i} title="Draft this email with AI" style={{display:'flex',alignItems:'center',gap:4,background:aiRow===i?'#eef2ff':'linear-gradient(135deg,#6366f1,#8b5cf6)',color:aiRow===i?'#6366f1':'#fff',border:'none',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:800,cursor:aiRow===i?'default':'pointer',fontFamily:'inherit'}}><Sparkles size={11}/>{aiRow===i?'Writing…':'Write with AI'}</button><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('myLeads.after')}</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:13,textAlign:'center'}}/><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('myLeads.days')}</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
         <input value={e.subject} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{subject:ev.target.value}):x;}));}} placeholder={t("myLeads.subjectPlaceholder")} style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8,background:'#fff'}}/>
         <RichTextEditor content={e.body_html} onChange={function(h){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{body_html:h}):x;}));}} placeholder={t("myLeads.bodyPlaceholder")}/>
       </div>;})}
