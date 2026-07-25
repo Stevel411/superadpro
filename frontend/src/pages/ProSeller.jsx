@@ -7,7 +7,7 @@ import { Send, Bot, User, Sparkles, Target, TrendingUp, MessageSquare, Copy, Che
 var PROMPT_CATEGORIES = [
   {title:'Get Started',icon:Sparkles,color:'var(--sap-purple-light)',gradient:'linear-gradient(135deg,#0e2a6e,#12388f)',prompts:['How do I get my first referral?','What should I do in my first week?','Explain the compensation plan simply']},
   {title:'Content & Marketing',icon:MessageSquare,color:'var(--sap-accent-light)',gradient:'linear-gradient(135deg,#a00d24,#c8102e)',prompts:['Write a Facebook post promoting AdvantageLife','Create an Instagram story script about passive income','Write 5 YouTube video headlines for affiliate marketing']},
-  {title:'Sales & Objections',icon:Target,color:'#f87171',gradient:'linear-gradient(135deg,#dc2626,#ef4444)',prompts:['"Is this a pyramid scheme?" — how do I respond?','My prospect says "$20/month is too expensive"','Write a DM script for reaching out to prospects']},
+  {title:'Sales & Objections',icon:Target,color:'#f87171',gradient:'linear-gradient(135deg,#dc2626,#ef4444)',prompts:['"Is this a pyramid scheme?" — how do I respond?','My prospect says "$100 is too much to join"','Write a DM script for reaching out to prospects']},
   {title:'Growth Strategies',icon:TrendingUp,color:'#34d399',gradient:'linear-gradient(135deg,#059669,#10b981)',prompts:['Best free traffic strategies for affiliate marketing','Build a team of 10 active members in 30 days','Create a 7-day launch plan for new members']},
 ];
 
@@ -68,7 +68,7 @@ export default function ProSeller() {
                 <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#12388f,#9db0e0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(18,56,143,.4)',position:'relative',zIndex:1}}>
                   <Bot size={36} color="#fff"/>
                 </div>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>{t('proSeller.proSellerAI')}</h2>
+                <h2 style={{fontFamily:'Inter,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>{t('proSeller.proSellerAI')}</h2>
                 <p style={{fontSize:15,color:'rgba(255,255,255,.45)',margin:'0 auto',maxWidth:460,lineHeight:1.8,position:'relative',zIndex:1}}>{t("proSeller.proSellerDesc")}</p>
 
                 {/* Quick stat pills */}
