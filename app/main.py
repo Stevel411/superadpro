@@ -69055,6 +69055,17 @@ def al_admin_finances(user: User = Depends(_al_user), db: Session = Depends(get_
 
     lifetime_members = db.query(func.count(User.id)).filter(User.access_level == "lifetime").scalar() or 0
 
+    # Join income = ACTUAL confirmed $100 join payments, NOT lifetime_members * 100.
+    # Most current lifetime members were grandfathered (migrated Stripe subs +
+    # hand-picked) and never paid the join, so multiplying members by 100 would
+    # overstate platform income by thousands. DirectJoinPayment is the real
+    # money trail; count it.
+    from .database import DirectJoinPayment as _DJP
+    join_income = float(db.query(func.coalesce(func.sum(_DJP.amount_usd), 0))
+                        .filter(_DJP.status == "confirmed").scalar() or 0)
+    paid_joins = db.query(func.count(_DJP.id)).filter(_DJP.status == "confirmed").scalar() or 0
+    grandfathered = int(lifetime_members) - int(paid_joins)
+
     # Member-to-member GMV (pack sales) — never platform revenue.
     gmv_all = float(db.query(func.coalesce(func.sum(PackPurchase.amount), 0))
                     .filter(PackPurchase.status == "active").scalar() or 0)
@@ -69084,10 +69095,14 @@ def al_admin_finances(user: User = Depends(_al_user), db: Session = Depends(get_
     return {
         "platform_income": {
             "lifetime_joins": {"members": int(lifetime_members),
-                               "value": round(lifetime_members * 100.0, 2)},
+                               "paid_joins": int(paid_joins),
+                               "grandfathered": int(grandfathered),
+                               "value": round(join_income, 2)},
             "company_fallback_commissions": to_company,
-            "total": round(lifetime_members * 100.0 + to_company, 2),
-            "note": ("Company-fallback money is a warning light, not revenue: it only "
+            "total": round(join_income + to_company, 2),
+            "note": ("Join income is ACTUAL confirmed $100 payments, not members x 100 — "
+                     "most lifetime members were grandfathered and never paid the join. "
+                     "Company-fallback money is a warning light, not revenue: it only "
                      "arrives when a member failed the own-level / watch gate."),
         },
         "member_gmv": {"all_time": round(gmv_all, 2), "this_week": round(gmv_week, 2),

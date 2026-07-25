@@ -352,7 +352,7 @@ function Finances() {
         <div style={{ fontWeight: 900, fontSize: 15, marginBottom: 9 }}>Platform income</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
           <Stat n={money(pi.total)} l="Total platform income" color={GREEN} />
-          <Stat n={money(pi.lifetime_joins?.value)} l={`Lifetime joins (${pi.lifetime_joins?.members ?? 0})`} />
+          <Stat n={money(pi.lifetime_joins?.value)} l={`Paid joins (${pi.lifetime_joins?.paid_joins ?? 0} of ${pi.lifetime_joins?.members ?? 0})`} />
           <Stat n={money(pi.company_fallback_commissions)} l="Fell to company" color={RED} />
         </div>
         <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, marginTop: 7 }}>{pi.note}</div>
