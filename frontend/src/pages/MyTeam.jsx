@@ -53,7 +53,7 @@ export default function MyTeam() {
           {stat(s.total ?? 0, 'Direct referrals')}
           {stat(s.active ?? 0, 'Active', '#0b7a3e')}
           {stat(s.team_packs ?? 0, "Packs they've bought", RED)}
-          {stat('$' + Number(s.passup_earnings ?? 0).toLocaleString(), 'Your pass-up earnings', '#0b7a3e')}
+          {stat('$' + Number(s.total_earnings ?? 0).toLocaleString(), 'Your earnings', '#0b7a3e')}
         </div>
 
         {/* Team table */}

@@ -53432,8 +53432,16 @@ def api_my_team(user: User = Depends(get_current_user), db: Session = Depends(ge
         "is_active": bool(d.is_active),
     } for d in directs]
 
-    passup = (db.query(func.coalesce(func.sum(PackCommission.amount), 0))
-              .filter(PackCommission.earner_id == user.id, PackCommission.status == "paid").scalar()) or 0
+    # Earnings this member has received. Split so the label can be honest:
+    # 'passup_earnings' previously summed ALL commissions (direct + pass-up)
+    # while being labelled pass-up only. Report both, accurately.
+    total_earned = (db.query(func.coalesce(func.sum(PackCommission.amount), 0))
+              .filter(PackCommission.earner_id == user.id,
+                      PackCommission.status == "paid").scalar()) or 0
+    passup_earned = (db.query(func.coalesce(func.sum(PackCommission.amount), 0))
+              .filter(PackCommission.earner_id == user.id,
+                      PackCommission.status == "paid",
+                      PackCommission.commission_type.in_(("pass_up",))).scalar()) or 0
 
     return {
         "referral_link": f"/join/{user.username}",
@@ -53441,7 +53449,8 @@ def api_my_team(user: User = Depends(get_current_user), db: Session = Depends(ge
             "total": len(directs),
             "active": sum(1 for d in directs if d.is_active),
             "team_packs": sum(bought.values()),
-            "passup_earnings": round(float(passup), 2),
+            "total_earnings": round(float(total_earned), 2),
+            "passup_earnings": round(float(passup_earned), 2),
         },
         "members": members,
     }
@@ -68431,6 +68440,21 @@ def _al_payee_display(db, intent):
     if intent.earner_id is None:
         return {"username": "AdvantageLife", "display": "AdvantageLife (platform)",
                 "is_company": True}
+    # Prefer the name captured in the payee snapshot at intent time, so what the
+    # buyer sees matches the payment details even if the payee later renamed or
+    # the account changed. Fall back to a live lookup for intents created before
+    # the snapshot carried a name.
+    try:
+        import json as _pj
+        snap = _pj.loads(intent.payee_snapshot) if intent.payee_snapshot else None
+        if isinstance(snap, list) and snap:
+            nm = snap[0].get("payee_name")
+            un = snap[0].get("payee_username")
+            if nm or un:
+                return {"username": un or "?", "display": nm or un or "?",
+                        "is_company": False}
+    except Exception:
+        pass
     u = db.query(User).filter(User.id == intent.earner_id).first()
     return {"username": u.username if u else "?",
             "display": (u.first_name or u.username) if u else "?",

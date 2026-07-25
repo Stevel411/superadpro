@@ -54,14 +54,24 @@ def _default_payout(db: Session, user_id):
 
 def _all_payouts(db: Session, user_id):
     """ALL of the earner's payout methods (Option A: the buyer picks which one
-    to pay). Default first. Returns a list of dicts; empty if none on file."""
+    to pay). Default first. Returns a list of dicts; empty if none on file.
+
+    Each method carries the payee's name captured NOW, so the buyer sees a
+    consistent 'pay <name> at <details>' even if the payee later renames or
+    the account changes — name and details lock together at intent time."""
     if user_id is None:
         return []
+    payee = db.query(User).filter(User.id == user_id).first()
+    payee_name = None
+    if payee is not None:
+        payee_name = payee.first_name or payee.username
     rows = (db.query(PayoutMethod)
               .filter(PayoutMethod.user_id == user_id)
               .order_by(PayoutMethod.is_default.desc(), PayoutMethod.id.asc()).all())
     return [{"method_type": r.method_type, "details": r.details,
-             "is_default": bool(r.is_default)} for r in rows]
+             "is_default": bool(r.is_default),
+             "payee_name": payee_name,
+             "payee_username": (payee.username if payee else None)} for r in rows]
 
 
 def create_intent(db: Session, buyer_user_id: int, pack_level: int, do_commit: bool = True):
