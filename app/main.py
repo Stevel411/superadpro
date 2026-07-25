@@ -69210,6 +69210,61 @@ def al_settlement_repair(apply: int = 0, user: User = Depends(_al_user),
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/account-activity/{member_id}")
+def al_account_activity(member_id: int, user: User = Depends(_al_user),
+                        db: Session = Depends(get_db)):
+    """Everything recorded around one account's pack activity, newest first —
+    for investigating an action a member does not recognise. It reports what
+    exists; it cannot report what was never captured. Sessions here are
+    stateless signed cookies (30-day life) with no server-side store and no
+    login-event log, so this cannot show the IP or device behind a request.
+    That limitation is stated so the absence is not mistaken for 'all clear'.
+    """
+    _require_admin(user)
+    from .database import P2PIntent, PackPurchase, UsernameAudit
+
+    m = db.query(User).filter(User.id == member_id).first()
+    if not m:
+        return JSONResponse({"error": "No such member"}, status_code=404)
+
+    intents = (db.query(P2PIntent).filter(P2PIntent.buyer_id == member_id)
+                 .order_by(P2PIntent.created_at.desc()).all())
+    purchases = (db.query(PackPurchase).filter(PackPurchase.user_id == member_id)
+                   .order_by(PackPurchase.created_at.desc()).all())
+    renames = (db.query(UsernameAudit).filter(UsernameAudit.user_id == member_id)
+                 .order_by(UsernameAudit.at.desc()).all())
+
+    return JSONResponse({
+        "account": {"id": m.id, "username": m.username, "is_admin": bool(m.is_admin),
+                    "access_level": getattr(m, "access_level", "free")},
+        "intents": [{
+            "id": i.id, "level": i.pack_level, "amount": float(i.amount or 0),
+            "status": i.status, "tx_ref": i.tx_ref,
+            "created_at": i.created_at.isoformat() if i.created_at else None,
+            "submitted_at": i.submitted_at.isoformat() if getattr(i, "submitted_at", None) else None,
+            "confirmed_at": i.confirmed_at.isoformat() if getattr(i, "confirmed_at", None) else None,
+        } for i in intents],
+        "purchases": [{
+            "id": p.id, "level": p.pack_level, "amount": float(p.amount or 0),
+            "status": p.status, "tx_ref": p.tx_ref,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        } for p in purchases],
+        "username_changes": [{
+            "at": r.at.isoformat() if r.at else None,
+            "from": r.from_name, "to": r.to_name} for r in renames],
+        "forensic_limits": {
+            "ip_or_device_recorded": False,
+            "login_events_recorded": False,
+            "session_type": "stateless signed cookie, 30-day lifetime",
+            "meaning": ("An intent on this account was created by a request carrying a "
+                        "valid 30-day session cookie for it. A session left open on any "
+                        "device stays able to act for 30 days. To invalidate every "
+                        "existing session at once, rotate SESSION_SECRET in Railway — "
+                        "that forces a fresh login everywhere."),
+        },
+    })
+
+
 @app.get("/admin/api/al/pack-trace")
 def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Follow every pack purchase through all its tables at once, so a sale
