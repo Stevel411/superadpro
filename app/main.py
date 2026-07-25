@@ -68301,6 +68301,50 @@ def al_admin_share_performance(user: User = Depends(_al_user), db: Session = Dep
     }
 
 
+@app.get("/admin/api/al/ai-check")
+async def al_ai_check(user: User = Depends(_al_user)):
+    """Live diagnosis of the text-AI path that /social-share, the email
+    swipes and every AI tool depend on. Reports which provider keys exist
+    and actually runs a tiny generation, so we see the real failure — a
+    dead key, a credit block, or a code fault — instead of guessing.
+    """
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    import os as _os
+    out = {
+        "keys": {
+            "XAI_API_KEY": bool(_os.getenv("XAI_API_KEY")),
+            "ANTHROPIC_API_KEY": bool(_os.getenv("ANTHROPIC_API_KEY")),
+        },
+    }
+    # last credit alert, if any — tells us xAI refused recently
+    try:
+        from .database import SessionLocal, AppConfig
+        _db = SessionLocal()
+        try:
+            row = _db.query(AppConfig).filter(
+                AppConfig.key == "xai_credit_alert_last_sent").first()
+            out["last_xai_credit_alert"] = row.value if row else None
+        finally:
+            _db.close()
+    except Exception as e:
+        out["last_xai_credit_alert"] = "lookup failed: %s" % str(e)[:80]
+
+    # the real test — same path /social-share uses
+    try:
+        from .gemini_service import ai_generate
+        txt = await ai_generate("Reply with exactly the word: OK", max_tokens=20)
+        out["generation"] = {
+            "ok": bool(txt and txt.strip()),
+            "sample": (txt or "")[:120],
+        }
+    except Exception as e:
+        out["generation"] = {"ok": False, "error": str(e)[:300]}
+    out["verdict"] = ("working" if out.get("generation", {}).get("ok")
+                      else "BROKEN — text generation is failing")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/health")
 def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """AL-native health. The legacy /admin/api/health checks negative balances,
