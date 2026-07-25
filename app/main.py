@@ -75006,7 +75006,7 @@ def _lead_magnet_payload(db, user, m):
         "cover": m["cover"], "cover_title": m["cover_title"], "badge": m["badge"],
         "pdf_url": m["pdf_url"], "status": "live",
         "share_url": share_url, "lead_count": lead_count,
-        "manage_path": f"/marketing/lead-magnets/{m['key']}",
+        "manage_path": f"/my-marketing/lead-magnets/{m['key']}",
     }
 
 
