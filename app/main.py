@@ -1278,14 +1278,33 @@ def can_earn(user):
     return getattr(user, "membership_tier", None) == "launchpad"
 
 
-def set_secure_cookie(response, user_id):
-    """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
+def set_secure_cookie(response, user_id, request=None, path=None):
+    """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET.
+
+    When `request` is passed, records a LoginEvent (IP + user-agent) so a
+    later 'was that me?' is a lookup, not an investigation. Best-effort:
+    an audit-write failure never blocks the login."""
     token = session_serializer.dumps(user_id)
     response.set_cookie(
         key="session", value=token,
         httponly=True, secure=True, samesite="lax",
         max_age=60 * 60 * 24 * 30
     )
+    if request is not None:
+        try:
+            from .database import SessionLocal as _SL, LoginEvent as _LE
+            xff = request.headers.get("x-forwarded-for", "")
+            ip = (xff.split(",")[0].strip() if xff
+                  else (request.client.host if request.client else None))
+            ua = (request.headers.get("user-agent", "") or "")[:400]
+            _db = _SL()
+            try:
+                _db.add(_LE(user_id=user_id, ip=(ip or "")[:64], user_agent=ua, path=path))
+                _db.commit()
+            finally:
+                _db.close()
+        except Exception:
+            logger.debug("login audit write skipped", exc_info=True)
 
 # ── Validation helpers ────────────────────────────────────────
 def validate_username(u): return bool(re.match(r'^[a-zA-Z0-9_]{3,30}$', u))
@@ -7409,7 +7428,7 @@ def register_process(
             pass
 
     response = RedirectResponse(url="/dashboard", status_code=303)
-    set_secure_cookie(response, user.id)
+    set_secure_cookie(response, user.id, request=request, path="register")
     response.delete_cookie("ref")
     return response
 
@@ -7443,7 +7462,7 @@ def login_process(
             return response
         # No 2FA — log in directly
         response = RedirectResponse(url="/dashboard", status_code=303)
-        set_secure_cookie(response, user.id)
+        set_secure_cookie(response, user.id, request=request, path="login")
         return response
     record_failed_attempt(username)
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
@@ -7479,7 +7498,7 @@ async def api_login(
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
         response = JSONResponse({"success": True, "redirect": "/dashboard"})
-        set_secure_cookie(response, user.id)
+        set_secure_cookie(response, user.id, request=request, path="login")
         return response
 
     record_failed_attempt(username)
@@ -7519,7 +7538,7 @@ async def api_2fa_verify_login(request: Request, db: Session = Depends(get_db)):
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(code, valid_window=1):
         response = JSONResponse({"success": True, "redirect": "/dashboard"})
-        set_secure_cookie(response, user.id)
+        set_secure_cookie(response, user.id, request=request, path="login")
         response.delete_cookie("pre_auth")
         return response
     record_failed_attempt(user.username)
@@ -7654,7 +7673,7 @@ def login_2fa_verify(
     if totp.verify(totp_code.strip(), valid_window=1):
         # Code valid — grant full session
         response = RedirectResponse(url="/dashboard", status_code=303)
-        set_secure_cookie(response, user.id)
+        set_secure_cookie(response, user.id, request=request, path="login")
         response.delete_cookie("pre_auth")
         return response
     else:
@@ -26373,7 +26392,7 @@ def admin_signin_password(
         resp.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax", secure=True)
         return resp
     resp = RedirectResponse(url="/admin", status_code=303)
-    set_secure_cookie(resp, user.id)
+    set_secure_cookie(resp, user.id, request=request, path="admin-signin")
     return resp
 
 @app.post("/admin/signin/2fa")
@@ -26397,7 +26416,7 @@ def admin_signin_2fa(
     if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
         return _admin_signin_page(step="2fa", error="Invalid code \u2014 try again.")
     resp = RedirectResponse(url="/admin", status_code=303)
-    set_secure_cookie(resp, user.id)
+    set_secure_cookie(resp, user.id, request=request, path="admin-signin")
     resp.delete_cookie("pre_auth")
     return resp
 
@@ -39707,7 +39726,7 @@ async def api_register(
             logger.warning(f"Nurture enrol failed for {email}: {e}")
 
         response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
-        set_secure_cookie(response, user.id)
+        set_secure_cookie(response, user.id, request=request, path="login")
         return response
 
     except Exception as exc:
@@ -69305,6 +69324,117 @@ def al_recent_signups(days: int = 30, user: User = Depends(_al_user),
         "email_domains": dict(dom),
         "by_sponsor_id": {str(k): v for k, v in spon.items()},
     })
+
+
+@app.get("/admin/api/al/tidy-intents")
+def al_tidy_intents(apply: int = 0, cancel_id: int = 0,
+                    user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Clear dead settlement attempts so the Settlements view shows only live
+    and confirmed sales.
+
+    Safety, absolute: this only ever DELETES intents whose status is
+    'cancelled' or 'expired'. It NEVER touches 'confirmed' (a real sale),
+    and never touches any PackPurchase or PackCommission. A 'proof_submitted'
+    intent is left alone — that may be a member who actually paid and is
+    waiting, which is a decision, not clutter.
+
+    Optionally cancel one live 'pending' intent first via ?cancel_id=N — used
+    to retire an abandoned checkout (e.g. the owner's own stray #41) before
+    the sweep.
+
+    Read-only by default; ?apply=1 performs the deletion.
+    """
+    _require_admin(user)
+    from .database import P2PIntent
+
+    note = None
+    # optional: cancel one specified pending intent first
+    if cancel_id and apply:
+        it = db.query(P2PIntent).filter(P2PIntent.id == cancel_id).first()
+        if it and it.status == "pending":
+            it.status = "cancelled"
+            db.commit()
+            note = "Cancelled pending intent #%d before the sweep." % cancel_id
+        elif it:
+            note = "Intent #%d is '%s', not pending — left as-is." % (cancel_id, it.status)
+
+    dead = db.query(P2PIntent).filter(
+        P2PIntent.status.in_(("cancelled", "expired"))).all()
+    dead_ids = [i.id for i in dead]
+
+    # what is deliberately NOT swept, so you can see it is protected
+    confirmed = db.query(func.count(P2PIntent.id)).filter(
+        P2PIntent.status == "confirmed").scalar() or 0
+    awaiting = db.query(func.count(P2PIntent.id)).filter(
+        P2PIntent.status.in_(("pending", "proof_submitted"))).scalar() or 0
+
+    out = {
+        "read_only": not bool(apply),
+        "will_delete": dead_ids,
+        "protected": {
+            "confirmed_sales": confirmed,
+            "still_live_pending_or_proof": awaiting,
+            "rule": "Only cancelled/expired are removed. Confirmed sales and "
+                    "anything still live are never touched.",
+        },
+    }
+    if note:
+        out["cancel_note"] = note
+
+    if apply and dead_ids:
+        n = db.query(P2PIntent).filter(
+            P2PIntent.status.in_(("cancelled", "expired"))).delete(
+            synchronize_session=False)
+        db.commit()
+        out["deleted"] = n
+    elif not apply:
+        base = brand_config.BASE_URL.rstrip("/") + "/admin/api/al/tidy-intents?apply=1"
+        out["apply_url"] = base
+        out["apply_and_cancel_41_url"] = base + "&cancel_id=41"
+    return JSONResponse(out)
+
+
+@app.get("/admin/api/al/login-history")
+def al_login_history(member_id: int = 0, limit: int = 50,
+                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Recent successful logins — all accounts, or one via ?member_id=N.
+    The trail that answers 'was that me?' for a future unrecognised action."""
+    _require_admin(user)
+    from .database import LoginEvent
+    q = db.query(LoginEvent)
+    if member_id:
+        q = q.filter(LoginEvent.user_id == member_id)
+    rows = q.order_by(LoginEvent.at.desc()).limit(min(limit, 200)).all()
+
+    def uname(uid):
+        r = db.query(User.username).filter(User.id == uid).first()
+        return r[0] if r else "?#%s" % uid
+
+    return JSONResponse({
+        "note": ("Logins recorded from now on. Empty before this feature shipped "
+                 "(25 Jul 2026) — earlier sessions predate the audit."),
+        "events": [{
+            "user": uname(e.user_id), "user_id": e.user_id,
+            "at": e.at.isoformat() if e.at else None,
+            "ip": e.ip, "user_agent": e.user_agent, "via": e.path,
+        } for e in rows],
+    })
+
+
+@app.get("/admin/api/al/login-audit-install")
+def al_login_audit_install(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """One-shot table create — needed if SKIP_MIGRATIONS is on. Idempotent."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from sqlalchemy import text as _t
+    db.execute(_t("""CREATE TABLE IF NOT EXISTS login_events (
+        id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+        at TIMESTAMP DEFAULT NOW(), ip VARCHAR(64), user_agent VARCHAR(400),
+        path VARCHAR(120))"""))
+    db.execute(_t("CREATE INDEX IF NOT EXISTS ix_login_events_user ON login_events(user_id)"))
+    db.execute(_t("CREATE INDEX IF NOT EXISTS ix_login_events_at ON login_events(at)"))
+    db.commit()
+    return JSONResponse({"tables": "created"})
 
 
 @app.get("/admin/api/al/pack-trace")

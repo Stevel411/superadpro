@@ -2601,6 +2601,8 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS vip_signups (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS ad_listings (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description VARCHAR NOT NULL, category VARCHAR NOT NULL DEFAULT 'general', link_url VARCHAR NOT NULL, image_url VARCHAR, is_active BOOLEAN DEFAULT TRUE, is_featured BOOLEAN DEFAULT FALSE, clicks INTEGER DEFAULT 0, views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        # ── Login audit (25 Jul 2026) ──
+        "CREATE TABLE IF NOT EXISTS login_events (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), at TIMESTAMP DEFAULT NOW(), ip VARCHAR(64), user_agent VARCHAR(400), path VARCHAR(120))",
         # ── Collaborations (24 Jul 2026) ──
         "CREATE TABLE IF NOT EXISTS collaborations (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, category VARCHAR(60) NOT NULL DEFAULT 'Tools', blurb TEXT NOT NULL, steve_take TEXT, ref_url VARCHAR(500) NOT NULL, logo_text VARCHAR(4), logo_from VARCHAR(9) DEFAULT '#0a1f52', logo_to VARCHAR(9) DEFAULT '#12388f', sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, is_published BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         # ── Daily Wisdom (24 Jul 2026) ──
@@ -6538,3 +6540,24 @@ class Collaboration(Base):
     is_published = Column(Boolean, default=False, nullable=False, index=True)  # the kill switch
     created_at   = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+# ── Login audit (AdvantageLife, 25 Jul 2026) ──────────────────────────
+class LoginEvent(Base):
+    """One row per successful login. Added after an action appeared on the
+    admin account that the owner didn't recognise and there was no way to
+    answer 'was that me?' — sessions are stateless cookies with no server
+    store, so nothing recorded who logged in when or from where.
+
+    Captures IP and user-agent at session issue. Not a full security suite —
+    a lightweight trail so the next unrecognised action is a lookup, not an
+    investigation. Never stores the password or the session token.
+    """
+    __tablename__ = "login_events"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), index=True)
+    at         = Column(DateTime, default=datetime.utcnow, index=True)
+    ip         = Column(String(64), nullable=True)
+    user_agent = Column(String(400), nullable=True)
+    path       = Column(String(120), nullable=True)   # which login route issued it
