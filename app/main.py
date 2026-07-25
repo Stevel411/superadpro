@@ -69145,6 +69145,88 @@ def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user
     return {"members": out}
 
 
+@app.get("/admin/api/al/member/{member_id}")
+def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
+                           db: Session = Depends(get_db)):
+    """One member, in full: account status, the three earning gates, pack
+    ownership history, earnings received by type, and their place in the tree.
+
+    Read-only. Payout methods show type-and-presence only — the raw address
+    or account handle is the member's payment credential and there is no
+    admin reason to render it here."""
+    _require_admin(user)
+    m = db.query(User).filter(User.id == member_id).first()
+    if not m:
+        return JSONResponse({"error": "No such member"}, status_code=404)
+
+    # ── Pack ownership history ──
+    purchases = (db.query(PackPurchase)
+                   .filter(PackPurchase.user_id == member_id)
+                   .order_by(PackPurchase.created_at.desc()).all())
+    packs = [{
+        "level": p.pack_level, "amount": float(p.amount or 0),
+        "status": p.status, "source": p.source,
+        "activated_at": p.activated_at.isoformat() if p.activated_at else None,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+        "completed_at": p.completed_at.isoformat() if p.completed_at else None,
+    } for p in purchases]
+
+    # ── Earnings received (this member as earner) ──
+    earned_rows = (db.query(PackCommission)
+                     .filter(PackCommission.earner_id == member_id).all())
+    by_type, paid_total, pending_total = {}, 0.0, 0.0
+    for c in earned_rows:
+        amt = float(c.amount or 0)
+        by_type[c.commission_type] = by_type.get(c.commission_type, 0.0) + amt
+        if c.status == "paid":
+            paid_total += amt
+        else:
+            pending_total += amt
+    earnings = {
+        "total": round(paid_total + pending_total, 2),
+        "paid": round(paid_total, 2),
+        "pending": round(pending_total, 2),
+        "by_type": {k: round(v, 2) for k, v in by_type.items()},
+        "count": len(earned_rows),
+    }
+
+    # ── Sales made (this member as buyer's seller — i.e. sales that generated
+    #    commissions attributed to buyers under them). Simpler: how many packs
+    #    they have SOLD is pack_sale_count; show it alongside. ──
+    sales_made = m.pack_sale_count or 0
+
+    # ── Payout methods — presence and type only ──
+    methods = db.query(PayoutMethod).filter(PayoutMethod.user_id == member_id).all()
+    payout = [{"type": pm.method_type, "is_default": bool(pm.is_default)} for pm in methods]
+
+    # ── Tree ──
+    sponsor = db.query(User.username).filter(User.id == m.sponsor_id).first() if m.sponsor_id else None
+    passup = db.query(User.username).filter(User.id == m.pass_up_sponsor_id).first() if m.pass_up_sponsor_id else None
+    direct_referrals = db.query(func.count(User.id)).filter(User.sponsor_id == member_id).scalar() or 0
+
+    return JSONResponse({
+        "id": m.id, "username": m.username, "email": m.email,
+        "is_admin": bool(m.is_admin),
+        "access_level": getattr(m, "access_level", "free"),
+        "lifetime": _al_is_lifetime(m),
+        "created_at": m.created_at.isoformat() if m.created_at else None,
+        "gates": {
+            "owned_level": _ale.owned_level(db, m.id),
+            "watch_qualified": _ale.watch_qualified(db, m.id),
+            "payable": _ale.payable(db, m.id),
+        },
+        "sales_made": sales_made,
+        "packs": packs,
+        "earnings": earnings,
+        "payout_methods": payout,
+        "tree": {
+            "sponsor_id": m.sponsor_id, "sponsor": sponsor[0] if sponsor else None,
+            "pass_up_sponsor_id": m.pass_up_sponsor_id, "pass_up_sponsor": passup[0] if passup else None,
+            "direct_referrals": direct_referrals,
+        },
+    })
+
+
 @app.get("/api/al/packs")
 def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Pack tiers + the caller's earning state + any open intent."""

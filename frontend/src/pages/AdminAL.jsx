@@ -192,9 +192,111 @@ function PackSales() {
   );
 }
 
+function MemberDetail({ id, onClose }) {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState('');
+  useEffect(() => {
+    setD(null); setErr('');
+    apiGet('/admin/api/al/member/' + id)
+      .then(setD).catch(() => setErr('Could not load this member.'));
+  }, [id]);
+  const TYPE_LABEL = { direct: 'Direct sales', pass_up: 'Pass-up sales', direct_company: 'Direct (to company)', pass_up_company: 'Pass-up (to company)' };
+  const pill = (ok, label) => <span style={{ fontSize: 11, fontWeight: 900, padding: '3px 10px', borderRadius: 20, background: ok ? '#e7f6ee' : '#fdeaec', color: ok ? GREEN : RED }}>{label} {ok ? '✓' : '✗'}</span>;
+  const box = { background: '#fff', border: '1px solid ' + LINE, borderRadius: 12, padding: 16 };
+  const lab = { fontSize: 10.5, fontWeight: 900, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 8 };
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(10,31,82,.5)', zIndex: 120, display: 'flex', justifyContent: 'flex-end' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: 'min(560px,100%)', background: '#f1f5f9', height: '100%', overflowY: 'auto', boxShadow: '-20px 0 50px -20px rgba(0,0,0,.4)' }}>
+        <div style={{ background: NAVY, color: '#fff', padding: '20px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 1 }}>
+          <div style={{ fontWeight: 900, fontSize: 19 }}>{d ? '@' + d.username : 'Loading…'}</div>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: '#fff', width: 34, height: 34, borderRadius: 9, fontSize: 20, cursor: 'pointer' }}>×</button>
+        </div>
+        {err ? <div style={{ padding: 22, color: RED, fontWeight: 700 }}>{err}</div>
+          : !d ? <div style={{ padding: 22, color: MUTED, fontWeight: 600 }}>Loading…</div>
+          : <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+            <div style={box}>
+              <div style={lab}>Account</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: 12.5, fontWeight: 900, padding: '3px 10px', borderRadius: 20, background: d.lifetime ? '#e7f6ee' : '#eef2f8', color: d.lifetime ? GREEN : MUTED }}>{d.lifetime ? 'Lifetime member' : 'Free — not joined'}</span>
+                {d.is_admin && <span style={{ fontSize: 11, fontWeight: 900, color: '#fff', background: NAVY, borderRadius: 20, padding: '3px 10px' }}>ADMIN</span>}
+              </div>
+              <div style={{ fontSize: 12.5, color: MUTED, marginTop: 10, fontWeight: 600 }}>{d.email}</div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 3 }}>ID {d.id} · joined {d.created_at ? new Date(d.created_at).toLocaleDateString('en-GB') : '—'}</div>
+            </div>
+
+            <div style={box}>
+              <div style={lab}>Can this member earn?</div>
+              <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+                {pill(!!d.gates.owned_level, 'Owns a pack')}
+                {pill(d.gates.watch_qualified, 'Watch-qualified')}
+                {pill(d.gates.payable, 'Has payout method')}
+              </div>
+              <div style={{ fontSize: 12, color: MUTED, marginTop: 10, fontWeight: 600, lineHeight: 1.5 }}>
+                All three are required for a sale to pay them. Any failing gate sends the sale up their chain.
+              </div>
+            </div>
+
+            <div style={box}>
+              <div style={lab}>Earnings received</div>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: d.earnings.count ? 12 : 0 }}>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: GREEN }}>{money(d.earnings.total)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Total</div></div>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: NAVY }}>{money(d.earnings.paid)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Paid</div></div>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: '#b45309' }}>{money(d.earnings.pending)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Pending</div></div>
+              </div>
+              {Object.keys(d.earnings.by_type || {}).length > 0 &&
+                <div style={{ borderTop: '1px solid ' + LINE, paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {Object.entries(d.earnings.by_type).map(([k, v]) => (
+                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5 }}>
+                      <span style={{ color: MUTED, fontWeight: 600 }}>{TYPE_LABEL[k] || k}</span>
+                      <b style={{ color: NAVY }}>{money(v)}</b>
+                    </div>
+                  ))}
+                </div>}
+              {d.earnings.count === 0 && <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>No commissions earned yet.</div>}
+            </div>
+
+            <div style={box}>
+              <div style={lab}>Packs ({d.sales_made} sold)</div>
+              {d.packs.length === 0 ? <div style={{ fontSize: 12.5, color: MUTED, fontWeight: 600 }}>No packs owned.</div>
+                : <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {d.packs.map((p, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12.5, borderBottom: i < d.packs.length - 1 ? '1px solid ' + LINE : 'none', paddingBottom: 6 }}>
+                      <span><b style={{ color: '#12388f' }}>L{p.level}</b> · {money(p.amount)}{p.source === 'gift' ? ' (granted)' : ''}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 900, padding: '2px 8px', borderRadius: 20, background: p.status === 'active' ? '#e7f6ee' : p.status === 'expired' ? '#eef2f8' : '#fff7ed', color: p.status === 'active' ? GREEN : p.status === 'expired' ? MUTED : '#b45309' }}>{p.status}</span>
+                    </div>
+                  ))}
+                </div>}
+            </div>
+
+            <div style={box}>
+              <div style={lab}>Payout methods</div>
+              {d.payout_methods.length === 0 ? <div style={{ fontSize: 12.5, color: RED, fontWeight: 700 }}>None on file — sales skip this member.</div>
+                : <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
+                  {d.payout_methods.map((pm, i) => <span key={i} style={{ fontSize: 12, fontWeight: 800, padding: '4px 11px', borderRadius: 8, background: '#eef2f8', color: NAVY }}>{pm.type}{pm.is_default ? ' · default' : ''}</span>)}
+                </div>}
+              <div style={{ fontSize: 11, color: MUTED, marginTop: 8 }}>Account details are the member's own and are not shown here.</div>
+            </div>
+
+            <div style={box}>
+              <div style={lab}>Tree</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12.5 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Sponsor</span><b style={{ color: NAVY }}>{d.tree.sponsor ? '@' + d.tree.sponsor : '—'}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Pass-up to</span><b style={{ color: NAVY }}>{d.tree.pass_up_sponsor ? '@' + d.tree.pass_up_sponsor : '— (set on first sale)'}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Direct referrals</span><b style={{ color: RED }}>{d.tree.direct_referrals}</b></div>
+              </div>
+            </div>
+
+          </div>}
+      </div>
+    </div>
+  );
+}
+
 function Members() {
   const [q, setQ] = useState('');
   const [rows, setRows] = useState(null);
+  const [openId, setOpenId] = useState(null);
   const load = useCallback(() => {
     setRows(null);
     apiGet('/admin/api/al/members?limit=50&q=' + encodeURIComponent(q)).then(d => setRows(d.members || [])).catch(() => setRows([]));
@@ -213,7 +315,9 @@ function Members() {
             </tr></thead>
             <tbody>
               {rows.map(m => (
-                <tr key={m.id}>
+                <tr key={m.id} onClick={() => setOpenId(m.id)} style={{ cursor: 'pointer' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafd'}
+                    onMouseLeave={e => e.currentTarget.style.background = ''}>
                   <td style={{ ...td, fontWeight: 800, color: NAVY }}>@{m.username}{m.is_admin && <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 900, color: '#fff', background: NAVY, borderRadius: 20, padding: '2px 7px' }}>ADMIN</span>}</td>
                   <td style={{ ...td, fontWeight: 800, color: '#12388f' }}>{m.owned_level ? 'L' + m.owned_level : '—'}</td>
                   <td style={{ ...td, fontWeight: 800, color: RED }}>{m.pack_sale_count}</td>
@@ -224,7 +328,9 @@ function Members() {
               ))}
             </tbody>
           </table>
+          <div style={{ padding: '10px 14px', fontSize: 12, color: MUTED, fontWeight: 600 }}>Tap a member for full details.</div>
         </div>}
+      {openId && <MemberDetail id={openId} onClose={() => setOpenId(null)} />}
     </div>
   );
 }
