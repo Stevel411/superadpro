@@ -72244,12 +72244,16 @@ def al_join_direct_info(user: User = Depends(_al_user)):
 async def al_join_direct(request: Request,
                          user: User = Depends(_al_user),
                          db: Session = Depends(get_db)):
-    """Crypto-only lifetime join: buyer pays the treasury directly on their
-    chosen network (BSC / Ethereum / Polygon / TRON), submits the tx hash,
-    we verify on-chain and activate instantly. No processor."""
+    """Crypto join via direct on-chain USDT (no processor): buyer pays the
+    treasury on their chosen network, submits the tx hash, we verify on-chain
+    and activate instantly. Same self-custody method as pack sales, pointed at
+    the company treasury. tier='lifetime' ($100) or 'annual' ($50)."""
     if user.access_level == "lifetime":
         return {"ok": True, "already": True}
     body = await request.json()
+    tier = (body.get("tier") or "lifetime").lower().strip()
+    if tier not in ("lifetime", "annual"):
+        return JSONResponse({"error": "Unknown membership tier"}, status_code=400)
     tx_hash = (body.get("tx_ref") or "").strip()
     network = (body.get("network") or "bsc").strip()
     norm = tx_hash.lower() if tx_hash.startswith("0x") else ("0x" + tx_hash.lower() if len(tx_hash) == 64 else tx_hash.lower())
@@ -72258,7 +72262,9 @@ async def al_join_direct(request: Request,
         if dupe.user_id == user.id:
             return {"ok": True, "already": True}
         return JSONResponse({"error": "That transaction is already used"}, status_code=400)
-    expected = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
+    expected = float(os.environ.get(
+        "AL_ANNUAL_PRICE_USD" if tier == "annual" else "AL_JOIN_PRICE_USD",
+        "50" if tier == "annual" else "100"))
     try:
         ok, err, retryable = _alchain.verify_join_tx(network, tx_hash, expected)
     except Exception as e:
@@ -72272,7 +72278,10 @@ async def al_join_direct(request: Request,
                              to_address=os.environ.get(net["env"], ""),
                              status="confirmed"))
     db.commit()
-    _al_activate_lifetime(db, user.id, source=f"direct_{network}", ref=norm)
+    if tier == "annual":
+        _al_activate_annual(db, user.id, source=f"direct_{network}", ref=norm)
+    else:
+        _al_activate_lifetime(db, user.id, source=f"direct_{network}", ref=norm)
     return {"ok": True, "activated": True}
 
 
