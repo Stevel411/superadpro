@@ -23,6 +23,7 @@ import Account from './pages/Account';
 const Wisdom = React.lazy(() => import('./pages/Wisdom'));
 const Collaborations = React.lazy(() => import('./pages/Collaborations'));
 const AdminCollaborations = React.lazy(() => import('./pages/AdminCollaborations'));
+const AdminWisdom = React.lazy(() => import('./pages/AdminWisdom'));
 const CommandCentre = React.lazy(() => import('./pages/CommandCentre'));
 const BucketList = React.lazy(() => import('./pages/BucketList'));
 const MyTeam = React.lazy(() => import('./pages/MyTeam'));
@@ -272,6 +273,7 @@ function AppRoutes() {
       <Route path="/wisdom" element={<ProtectedRoute><Wisdom /></ProtectedRoute>} />
       <Route path="/collaborations" element={<ProtectedRoute><Collaborations /></ProtectedRoute>} />
       <Route path="/admin/collaborations" element={<ProtectedRoute><AdminCollaborations /></ProtectedRoute>} />
+      <Route path="/admin/wisdom" element={<ProtectedRoute><AdminWisdom /></ProtectedRoute>} />
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
       {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them

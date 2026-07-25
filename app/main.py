@@ -71541,6 +71541,16 @@ def collaborations_page(user: User = Depends(get_current_user)):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/admin/wisdom")
+def admin_wisdom_page(user: User = Depends(get_current_user)):
+    """React shell for the Daily Wisdom admin manager. Admin only."""
+    if not user or not getattr(user, "is_admin", False):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/admin/collaborations")
 def admin_collaborations_page(user: User = Depends(get_current_user)):
     """React shell for the admin screen. Admin-gated in the page and API."""
@@ -71688,6 +71698,102 @@ def admin_collaborations_install(user: User = Depends(_al_user), db: Session = D
     db.commit()
     from .database import Collaboration
     return JSONResponse({"tables": "created", "count": db.query(Collaboration).count()})
+
+
+# ── Daily Wisdom admin (add / list / approve / delete) ────────────────
+@app.get("/admin/api/al/wisdom-quotes")
+def admin_wisdom_list(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Every quote, approved or not, for the admin manager."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import WisdomQuote
+    from . import wisdom as _w
+    rows = db.query(WisdomQuote).order_by(WisdomQuote.id.desc()).all()
+    return JSONResponse({
+        "themes": [{"key": k, "label": _w.THEME_LABELS[k]} for k in _w.THEMES],
+        "quotes": [{
+            "id": q.id, "text": q.text, "author": q.author, "source": q.source,
+            "year": q.year_label, "theme": q.theme, "approved": q.approved,
+            "times_shown": q.times_shown or 0,
+        } for q in rows],
+        "count": len(rows),
+        "approved": sum(1 for q in rows if q.approved),
+    })
+
+
+@app.post("/admin/api/al/wisdom-quotes")
+async def admin_wisdom_save(request: Request, user: User = Depends(_al_user),
+                            db: Session = Depends(get_db)):
+    """Create or edit one quote. Source is required — same rule the schema
+    enforces — but Steve is trusted to have checked it: the box guards
+    against a forgotten field, not a wrong attribution."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import WisdomQuote
+    from . import wisdom as _w
+    body = await request.json()
+    text_ = (body.get("text") or "").strip()
+    author = (body.get("author") or "").strip()
+    source = (body.get("source") or "").strip()
+    if not text_ or not author or not source:
+        return JSONResponse(
+            {"error": "Quote, author and source are all required. The source is what keeps "
+                      "a misattributed quote off your members' screens."},
+            status_code=400)
+    theme = (body.get("theme") or "persistence").strip()
+    if theme not in _w.THEMES:
+        theme = "persistence"
+    qid = int(body.get("id") or 0)
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == qid).first() if qid else None
+    if q is None:
+        q = WisdomQuote()
+        db.add(q)
+    q.text = text_
+    q.author = author[:120]
+    q.source = source[:240]
+    q.year_label = ((body.get("year") or "").strip() or None)
+    q.theme = theme
+    if "approved" in body:
+        q.approved = bool(body.get("approved"))
+    db.commit()
+    return JSONResponse({"ok": True, "id": q.id, "approved": q.approved})
+
+
+@app.post("/admin/api/al/wisdom-quotes/{quote_id}/toggle")
+def admin_wisdom_toggle(quote_id: int, user: User = Depends(_al_user),
+                        db: Session = Depends(get_db)):
+    """Approve / unapprove. Unapproving keeps history but stops future picks."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import WisdomQuote
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == quote_id).first()
+    if not q:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    q.approved = not q.approved
+    db.commit()
+    return JSONResponse({"ok": True, "approved": q.approved})
+
+
+@app.post("/admin/api/al/wisdom-quotes/{quote_id}/delete")
+def admin_wisdom_delete(quote_id: int, user: User = Depends(_al_user),
+                        db: Session = Depends(get_db)):
+    """Delete a quote. Refuses if it has already been a daily pick — that
+    would orphan a wisdom_daily row and punch a hole in the library's
+    history. Unapprove those instead."""
+    if not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import WisdomQuote, WisdomDaily, WisdomFavourite
+    used = db.query(WisdomDaily).filter(WisdomDaily.quote_id == quote_id).first()
+    if used:
+        return JSONResponse(
+            {"error": "This quote has already appeared on a day, so it is part of the "
+                      "library's history. Unapprove it instead — that stops it being "
+                      "picked again without deleting the record."},
+            status_code=409)
+    db.query(WisdomFavourite).filter(WisdomFavourite.quote_id == quote_id).delete()
+    db.query(WisdomQuote).filter(WisdomQuote.id == quote_id).delete()
+    db.commit()
+    return JSONResponse({"ok": True, "deleted": quote_id})
 
 
 @app.get("/admin/api/al/wisdom-install")

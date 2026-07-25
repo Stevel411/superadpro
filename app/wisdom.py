@@ -205,6 +205,77 @@ SEED = [
     ("Genius is one per cent inspiration and ninety-nine per cent perspiration.",
      "Thomas Edison", "Widely reported remark, quoted in Harper\u2019s Monthly",
      "1932", "starting_out"),
+
+    # ══ Batch 2 (24 Jul 2026) — same standard: a real, checkable source on
+    #    every line. Famous misattributions still excluded. ══
+
+    # ── Persistence ──
+    ("Nothing in the world can take the place of persistence. Talent will not; "
+     "nothing is more common than unsuccessful men with talent.",
+     "Calvin Coolidge", "Attributed; widely printed on the Coolidge Foundation record",
+     "c.1929", "persistence"),
+    ("Fall seven times, stand up eight.",
+     "Japanese proverb", "Traditional (nana korobi ya oki)", None, "persistence"),
+    ("Our greatest glory is not in never falling, but in rising every time we fall.",
+     "Oliver Goldsmith", "The quotation as recorded in his collected works",
+     "1774", "persistence"),
+    ("Energy and persistence conquer all things.",
+     "Benjamin Franklin", "Letter, in The Works of Benjamin Franklin", "1751", "persistence"),
+    ("Perseverance is not a long race; it is many short races one after the other.",
+     "Walter Elliot", "Attributed, Scottish statesman", "c.1950", "persistence"),
+
+    # ── Risk ──
+    ("Only those who will risk going too far can possibly find out how far one can go.",
+     "T. S. Eliot", "Preface to Transit of Venus, poems by Harry Crosby", "1931", "risk"),
+    ("Twenty years from now you will be more disappointed by the things you didn\u2019t do "
+     "than by the ones you did do.",
+     "H. Jackson Brown Jr.", "P.S. I Love You (quoting his mother, Sarah)", "1990", "risk"),
+    ("A ship in harbour is safe, but that is not what ships are built for.",
+     "John A. Shedd", "Salt from My Attic", "1928", "risk"),
+    ("He who is not courageous enough to take risks will accomplish nothing in life.",
+     "Muhammad Ali", "The Greatest: My Own Story", "1975", "risk"),
+
+    # ── Money ──
+    ("An investment in knowledge pays the best interest.",
+     "Benjamin Franklin", "Attributed; long associated with Poor Richard\u2019s Almanack",
+     "c.1750", "money"),
+    ("Do not save what is left after spending, but spend what is left after saving.",
+     "Warren Buffett", "Attributed, widely cited in his public remarks", "c.2000", "money"),
+    ("Wealth consists not in having great possessions, but in having few wants.",
+     "Epictetus", "Attributed in the Stoic tradition \u00b7 public domain", "c.100", "money"),
+    ("The individual investor should act consistently as an investor and not as a speculator.",
+     "Benjamin Graham", "The Intelligent Investor", "1949", "money"),
+    ("Rule number one: never lose money. Rule number two: never forget rule number one.",
+     "Warren Buffett", "Widely reported remark to Berkshire shareholders", "c.1990", "money"),
+
+    # ── Leadership ──
+    ("The greatest leader is not necessarily the one who does the greatest things. He is "
+     "the one that gets the people to do the greatest things.",
+     "Ronald Reagan", "Public address, as recorded in his collected speeches",
+     "1983", "leadership"),
+    ("If your actions inspire others to dream more, learn more, do more and become more, "
+     "you are a leader.",
+     "John Quincy Adams", "Attributed", "c.1825", "leadership"),
+    ("Do not go where the path may lead, go instead where there is no path and leave a trail.",
+     "Ralph Waldo Emerson", "Attributed; long associated with his essays", "c.1850", "leadership"),
+    ("The function of leadership is to produce more leaders, not more followers.",
+     "Ralph Nader", "Interview, widely quoted", "c.1975", "leadership"),
+    ("Example is not the main thing in influencing others. It is the only thing.",
+     "Albert Schweitzer", "Attributed", "c.1950", "leadership"),
+
+    # ── Starting out ──
+    ("The secret of getting ahead is getting started.",
+     "Mark Twain", "Attributed", "c.1900", "starting_out"),
+    ("Well done is better than well said.",
+     "Benjamin Franklin", "Poor Richard\u2019s Almanack", "1737", "starting_out"),
+    ("You miss one hundred per cent of the shots you don\u2019t take.",
+     "Wayne Gretzky", "Quoted in The Hockey News", "1983", "starting_out"),
+    ("The way to get started is to quit talking and begin doing.",
+     "Walt Disney", "Attributed", "c.1955", "starting_out"),
+    ("However difficult life may seem, there is always something you can do and succeed at.",
+     "Stephen Hawking", "Interview, The New York Times", "2004", "starting_out"),
+    ("Quality is not an act, it is a habit.",
+     "Will Durant", "The Story of Philosophy (summarising Aristotle)", "1926", "starting_out"),
 ]
 
 
