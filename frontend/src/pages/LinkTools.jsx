@@ -247,7 +247,7 @@ export default function LinkTools() {
   const totalClicks = links.reduce((a, l) => a + (l.click_count || 0), 0) + rotators.reduce((a, r) => a + (r.click_count || 0), 0);
 
   if (loading) return (
-    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -256,7 +256,7 @@ export default function LinkTools() {
   );
 
   return (
-    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>

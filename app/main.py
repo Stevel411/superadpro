@@ -38312,6 +38312,12 @@ else{{document.getElementById('err').style.display='block'}}}}</script></body></
 async def funnel_chat(page_id: int, request: Request, db: Session = Depends(get_db)):
     """AI sales assistant that lives on published funnel pages."""
     from fastapi.responses import JSONResponse
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        # This prospect-facing chat describes SuperAdPro's model. No AL page
+        # calls it; gate rather than let it answer a prospect with the wrong
+        # business. Rewrite for AL if SuperPages ships as a live AL feature.
+        return JSONResponse({"error": "unavailable"}, status_code=410)
     try:
         body = await request.json()
     except Exception:
@@ -47965,7 +47971,7 @@ async def api_pro_funnel_chat(funnel_id: int, request: Request, db: Session = De
 
     import json as _jchat
 
-    system_prompt = """You are the SuperAdPro AI Funnel Builder assistant. You modify landing page sections based on user commands.
+    system_prompt = """You are the AI Funnel Builder assistant. You modify landing page sections based on user commands.
 
 CURRENT PAGE STATE:
 - Sections: """ + _jchat.dumps(current_sections)[:3000] + """
@@ -50157,6 +50163,10 @@ async def api_superseller_chat(campaign_id: int, request: Request,
     Supports both SuperAdPro campaigns AND custom offer agents.
     This endpoint is PUBLIC (no auth) — prospects use it from any page."""
     from .database import SuperSellerCampaign
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "unavailable"}, status_code=410)
 
     body = await request.json()
     message = (body.get("message") or "").strip()[:2000]

@@ -277,10 +277,10 @@ export default function Funnels() {
   // they fed the three small stat cards above 'Your Pages' which we deleted
   // (they duplicated the ROI strip data at the top of the page).
 
-  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
+  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
 
   return (
-    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
     <div style={{maxWidth:1200,margin:'0 auto'}}>
       {/* Error banner — visible when /api/funnels fails so the user
           isn't left looking at an empty page wondering what's wrong.

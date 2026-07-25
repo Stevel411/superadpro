@@ -110,7 +110,7 @@ export default function LeadFinder() {
   }
 
   if (!isPro) {
-    return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <div style={{ maxWidth: 600, margin: '60px auto', textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{t('leadFinder.proOnlyTitle')}</h2>
@@ -120,7 +120,7 @@ export default function LeadFinder() {
     </AlShell>;
   }
 
-  return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+  return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <div style={{background:'#0a1f52',borderRadius:20,color:'#fff',padding:'22px 26px',boxShadow:'0 24px 50px -28px rgba(10,31,82,.55)',marginBottom:18,display:'flex',alignItems:'center',gap:15}}>
         <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(120deg,#c8102e,#e8203f)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>

@@ -79,13 +79,13 @@ export default function MyLeads() {
 
   var helpBtn = <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:9,border:'1.5px solid #cbd5e1',background:'#fff',color:'#1e293b',fontSize:13.5,fontWeight:800,boxShadow:'0 2px 8px rgba(23,37,84,.08)',cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={15}/> {t('myLeads.helpBtn')}</button>;
 
-  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
+  if (loading) return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#c8102e',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AlShell>;
 
   var verifiedDomain = null;
   for (var di = 0; di < sendDomains.length; di++) { if (sendDomains[di].status === 'verified') { verifiedDomain = sendDomains[di]; break; } }
 
   return (
-    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}

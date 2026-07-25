@@ -359,7 +359,7 @@ export default function MySite() {
   };
 
   if (loading) {
-    return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AlShell>;
+    return <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}><div style={{ padding: 60, textAlign: 'center', color: C.dim, fontFamily: sora }}>Loading your site…</div></AlShell>;
   }
 
   const isPro = data?.is_pro;
@@ -374,7 +374,7 @@ export default function MySite() {
   // be indistinguishable from "you have not paid".
   if (err || !data) {
     return (
-      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
         <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
           <h2 style={{ fontFamily: sora, fontSize: 22, fontWeight: 800, color: C.ink }}>Couldn't load your site</h2>
           <p style={{ color: C.dim, fontSize: 15, lineHeight: 1.6, margin: '12px 0 20px' }}>
@@ -395,7 +395,7 @@ export default function MySite() {
   // "Partner membership" and no monthly tier — those are SuperAdPro concepts.
   if (!isPro) {
     return (
-      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
         <div style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
           <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(120deg,#c8102e,#e8203f)', display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
             <Lock size={26} color="#fff" />
@@ -421,7 +421,7 @@ export default function MySite() {
       [Globe, 'Your own domain', 'Connect a custom domain, or use a free address.'],
     ];
     return (
-      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+      <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <div style={{ ...cardStyle(), overflow: 'hidden' }}>
             <div style={{ background: 'linear-gradient(135deg,#c8102e,#12388f)', color: '#fff', padding: '52px 50px', textAlign: 'center', position: 'relative' }}>
@@ -469,7 +469,7 @@ export default function MySite() {
   const tabs = ['posts', 'pages', 'comments', 'appearance', 'settings'];
 
   return (
-    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'AI Tools' }}>
+    <AlShell active="ai-tools" back={{ to: '/ai-tools', label: 'Marketing Tools' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         {notice && <div style={{ ...noticeBox }}>{notice}</div>}
 

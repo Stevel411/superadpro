@@ -539,7 +539,7 @@ export default function NewDashboard() {
         <div className="cols">
           <aside className="side">
             <a className="on" href="/dashboard">Dashboard</a>
-            <Link to="/ai-tools">AI Tools</Link>
+            <Link to="/ai-tools">Marketing Tools</Link>
             <Link to="/video-library">Campaigns</Link>
             <Link to="/watch">Watch-to-Earn</Link>
             <Link to="/wisdom">Daily Wisdom</Link>

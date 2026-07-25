@@ -55,7 +55,7 @@ export default function AIToolsHub() {
       <div className="hero">
         <div className="hl">
           <div className="k">Your toolkit</div>
-          <div className="htitle">AI Tools</div>
+          <div className="htitle">Marketing Tools</div>
           <div className="cap">Everything you need to build pages, capture leads, create content and grow your business — all included with your membership.</div>
         </div>
         <div className="img"><span className="tag">EVERY TOOL &middot; ADVANTAGELIFE</span></div>
