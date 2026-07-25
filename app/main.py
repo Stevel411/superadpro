@@ -4480,6 +4480,10 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
 # ────────────────────────────────────────────────────────────────────
 @app.get("/admin/grid-earnings-verification")
 def admin_grid_earnings_verification(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_admin:
@@ -5172,6 +5176,10 @@ def admin_stripe_recover_user(
     StripeCharge audit row, returns JSON with the activation state.
     Idempotent (already-active user returns ok=true, noop=true).
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not getattr(user, "is_admin", False):
         return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
 
@@ -5276,6 +5284,10 @@ def admin_founder_audit(user: User = Depends(get_current_user), db: Session = De
     decide who to promote in chronological order, preserving the
     "first 100 paying members" policy.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not getattr(user, "is_admin", False):
         return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
 
@@ -6029,6 +6041,10 @@ def admin_rotator_audit(user: User = Depends(get_current_user), db: Session = De
       - non_founders_in_queue: queue members who aren't Founders (rare;
         usually only legacy data)
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not getattr(user, "is_admin", False):
         return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
 
@@ -6133,6 +6149,10 @@ def admin_promote_partner_to_founder(
       - User is already a Founder
       - All 100 Founder spots are claimed
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not getattr(user, "is_admin", False):
         return JSONResponse({"error": "forbidden", "detail": "admin login required"}, status_code=403)
 
@@ -9267,6 +9287,10 @@ def video_detail_page(request: Request, slug: str):
 @app.get("/admin/videos")
 def admin_videos_page(request: Request):
     """Admin UI for video library (React shell)."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -23925,6 +23949,10 @@ async def admin_walletconnect_health(user: User = Depends(get_current_user)):
     Used to sanity-check the rail before/after deploys. Renders the
     same data structure the standalone connection test produces.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from .walletconnect_payments import health_check
     try:
@@ -23940,6 +23968,10 @@ async def admin_walletconnect_health(user: User = Depends(get_current_user)):
 @app.get("/admin/reset-test-data")
 def admin_reset_test_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete all users except SuperAdPro admin, reset admin balances, clear ALL data for fresh test cycle."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     try:
         from sqlalchemy import text as _text
@@ -26244,6 +26276,10 @@ def admin_rotator_panel(request: Request, user: User = Depends(get_current_user)
     """Rotator diagnostics page — serves the React shell. The actual
     auth gate is on the data endpoints (/admin/api/rotator-state and
     /admin/api/rotator-reenrol-founders) which require admin."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not is_admin(user):
         raise HTTPException(status_code=403, detail="Access denied")
     if _react_index.exists():
@@ -29835,6 +29871,10 @@ def admin_diagnostic_recompute_wallet(
     """Recompute a user's wallet fields from the ground truth: non-reversed
     Commission rows. Authoritative + idempotent. Use after any commission
     reversal to guarantee wallet matches ledger."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from .database import Commission as _C
     from decimal import Decimal as _D
@@ -29939,6 +29979,10 @@ def admin_diagnostic_manual_grid_activation(
         into commit history and conversations, (b) admin-session auth is
         more robust and lets us audit who triggered each activation.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     # New auth gate: admin session required.
     user = get_current_user(request, db)
     if not user:
@@ -31037,6 +31081,10 @@ async def admin_api_recover_nowpayments_order(
 @app.get("/admin/orphans")
 def admin_orphans_page(request: Request):
     """Serve the AdminOrphans React SPA."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -32426,6 +32474,10 @@ def admin_orphan_investigation_page(request: Request, db: Session = Depends(get_
     Plain HTML — no React build required. Same pattern as /admin/health.
     Reachable from System Health card on /admin/health OR from this URL.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -35298,6 +35350,10 @@ def admin_api_cache_stats(user: User = Depends(get_current_user)):
 
 @app.get("/admin/commission-flows")
 def admin_commission_flows(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if not user or not is_admin(user):
         raise HTTPException(status_code=403, detail="Access denied")
     return templates.TemplateResponse("admin-commission-flows.html", {
@@ -39365,6 +39421,10 @@ def admin_process_renewals(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41568,6 +41628,10 @@ async def admin_daily_briefing_status(
 
     Added 26 May 2026 after the Railway cron-worker crash investigation.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41610,6 +41674,10 @@ async def admin_trigger_daily_briefing(
 
     Added 26 May 2026 for the cron-worker investigation.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41646,6 +41714,10 @@ async def admin_double_pay_scan(
     Added 26 May 2026 to investigate the briefing's audit_double_pays=1
     finding when the existing admin endpoint reported 0 suspects.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41744,6 +41816,10 @@ async def admin_reverse_commission(
     Idempotent: re-running on an already-reversed row returns the existing
     state without re-debiting.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41870,6 +41946,10 @@ async def admin_fix_starthere_wallet(
     Pure one-shot for this specific bug. Will be removed after Steve
     confirms wallet looks right.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -41951,6 +42031,10 @@ async def admin_nowpayments_mark_abandoned(
     resolutions (e.g. jerrygoff sorted via Stripe self-healing on
     25 May has a stuck NOWPayments order from the same day).
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42068,6 +42152,10 @@ async def admin_nowpayments_orphan_matcher(
     Added 26 May 2026 after Robert Brooks case revealed this whole
     class of payments had been silently stuck.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42207,6 +42295,10 @@ async def admin_nowpayments_wrong_asset_sweep(
 
     Read-only. Recovery is a separate endpoint requiring confirmation.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42284,6 +42376,10 @@ async def admin_nowpayments_wrong_asset_recover(
 
     Added 26 May 2026 alongside the new value-based guard.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42476,6 +42572,10 @@ async def admin_stripe_stuck_users_sweep(
     Added 26 May 2026 after Sylvia + Mary both turned out to be victims
     of the same handler crash. There may be others.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42537,6 +42637,10 @@ async def admin_founder_spots_audit(
 
     Added 26 May 2026 after the COUNT+1 vs MAX+1 allocation bug surfaced.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -42605,6 +42709,10 @@ async def admin_stripe_user_debug(
     checkout.session.completed nor invoice.paid arrived/processed, so
     the user is stuck inactive with no Payment row.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -43549,6 +43657,10 @@ Requirements:
 # ── One-time fix: sync upline_earnings from membership commissions ──
 @app.get("/admin/fix-upline-earnings")
 def fix_upline_earnings(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     # Sum membership_sponsor commissions per user and update upline_earnings
     from sqlalchemy import func
@@ -43570,6 +43682,10 @@ def fix_upline_earnings(user: User = Depends(get_current_user), db: Session = De
 # ── Treasury wallet balance check ──
 @app.get("/admin/hot-wallet-balance")
 def hot_wallet_balance(user: User = Depends(get_current_user)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from app.withdrawals import get_treasury_bsc_balances, TREASURY_ADDRESS_BSC
     usdt, bnb = get_treasury_bsc_balances()
@@ -43585,6 +43701,10 @@ def hot_wallet_balance(user: User = Depends(get_current_user)):
 # mode this endpoint had before 2 May 2026).
 @app.get("/admin/process-pending-withdrawals")
 def process_pending_withdrawals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from app.withdrawals import process_pending_withdrawals_batch
     counts = process_pending_withdrawals_batch(db)
@@ -43596,6 +43716,10 @@ def process_pending_withdrawals(user: User = Depends(get_current_user), db: Sess
 # members per sponsor and corrects the counter to match. Safe to re-run.
 @app.get("/admin/recompute-personal-referrals")
 def recompute_personal_referrals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     # Aggregate paid downline by sponsor: anyone active with a paid tier and
@@ -43644,6 +43768,10 @@ def recompute_personal_referrals(user: User = Depends(get_current_user), db: Ses
 # simply wait up to 5 minutes for the natural TTL to expire.
 @app.get("/admin/flush-leaderboard-cache")
 def flush_leaderboard_cache(user: User = Depends(get_current_user)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     try:
         cache_invalidate_leaderboard()
@@ -43669,6 +43797,10 @@ def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 @app.get("/admin/db-check")
 def db_check(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     _require_admin(user)
     try:
@@ -43688,6 +43820,10 @@ def security_audit(user: User = Depends(get_current_user), db: Session = Depends
     all accounts created today, balance anomalies, and — critically —
     every withdrawal in the last 48h (the 'did real money leave' check).
     Pure SELECTs; mutates nothing."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     _require_admin(user)
     try:
@@ -43770,6 +43906,10 @@ def incident_cleanup(confirm: str = "", user: User = Depends(get_current_user), 
     status flags / deactivation, never deletes. Leaves real members,
     paid withdrawals (evidence), grid structure, and user 1 untouched.
     Requires &confirm=YES."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     ATTACKER = [667, 668, 669, 670, 673, 674]
     ids = ",".join(str(i) for i in ATTACKER)
@@ -44355,6 +44495,10 @@ def admin_watchdog_run(user: User = Depends(get_current_user), db: Session = Dep
     Main watchdog endpoint — hit this via Railway cron every 15-30 mins.
     Usage: /admin/watchdog?secret=$ADMIN_SECRET
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     _require_admin(user)
 
@@ -44364,6 +44508,10 @@ def admin_watchdog_run(user: User = Depends(get_current_user), db: Session = Dep
 @app.get("/admin/watchdog/status")
 def admin_watchdog_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Check watchdog status and recent logs."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     _require_admin(user)
 
@@ -44393,6 +44541,10 @@ def admin_watchdog_status(user: User = Depends(get_current_user), db: Session = 
 @app.get("/admin/watchdog/health")
 def admin_watchdog_health_only(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Run health check only (no fixes) — useful for monitoring dashboards."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     _require_admin(user)
 
@@ -44401,6 +44553,10 @@ def admin_watchdog_health_only(user: User = Depends(get_current_user), db: Sessi
 @app.post("/admin/watchdog/toggle")
 def admin_watchdog_toggle(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Toggle watchdog on/off (runtime only — doesn't persist across deploys)."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     import app.watchdog as wd
@@ -44430,6 +44586,10 @@ def admin_adjust_balance():
     Kept registered (returns 410, never mutates) so any old bookmark gets a
     clear message instead of a confusing 404.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     return JSONResponse(
         {
@@ -44454,6 +44614,10 @@ def admin_grid_audit(
     
     Usage: /admin/grid-audit?secret=$ADMIN_SECRET&owner_username=master&tier=1
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     owner = db.query(User).filter(User.username == owner_username).first()
@@ -44534,6 +44698,10 @@ def admin_grid_cleanup_audit(
     clean before touching anything. Phone-friendly HTML; ?format=json available.
     Usage: /admin/grid-cleanup-audit?ids=667,668,669,670,673,674
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -44715,6 +44883,10 @@ def admin_owner_grids(
     their commission ledger grouped by type+status. No writes.
     Usage: /admin/owner-grids?owner=SuperAdPro
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -44885,6 +45057,10 @@ def admin_earnings_reconcile(
     with zero counters but real ledger earnings is not in scope here.
     Usage: /admin/earnings-reconcile   then   ?apply=1&code=NNNNNN
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
     import decimal as _dec
@@ -45017,6 +45193,10 @@ def admin_commission_census(
     exist in the ledger at all, or were deleted / never written — which decides
     whether the counters or the ledger is closer to truth. No writes.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
     from sqlalchemy import func as _f
@@ -45100,6 +45280,10 @@ def admin_grid_commission_rebuild(
     the GROSS comp-plan ideal; actuals (counters) may be lower where an upline
     was unqualified and the slot escrowed/expired. The gap is informative.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
     from .database import GRID_PACKAGES, DIRECT_PCT, PER_LEVEL_PCT, UNILEVEL_DEPTH
@@ -45220,6 +45404,10 @@ def admin_data_census(
     'counters retained, event rows gone' pattern found in commissions and
     grid positions. No writes.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
     from sqlalchemy import func as _f
@@ -45300,6 +45488,10 @@ def admin_rebuild_grid_ledger(
     - GET: read-only dry-run (what would be written).
     - ?apply=1&code=NNNNNN: 2FA-gated write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -45442,6 +45634,10 @@ def admin_earnings_decompose(
     Sorted by |divergence| so the founder-account turnover surfaces first.
     No writes.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -45559,6 +45755,10 @@ def admin_withdrawal_reconcile(
 
     No writes.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -45680,6 +45880,10 @@ def admin_rebuild_bonus_ledger(
 
     - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -45798,6 +46002,10 @@ def admin_fix_withdrawn_counter(
 
     - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -45904,6 +46112,10 @@ def admin_rebuild_membership_ledger(
 
     - GET: dry-run.  ?apply=1&code=NNNNNN: 2FA-gated write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     import html as _h
 
@@ -46163,6 +46375,10 @@ def admin_restore_backup(
     - GET ?file=...&table=...: dry-run (rows in backup, live now, would insert).
     - GET ?file=...&table=...&apply=1&code=NNNNNN: 2FA-gated write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from .db_backup import restore_table, list_backups
 
@@ -46197,6 +46413,10 @@ def admin_restamp_rebuild_rows(
     belong. Earnings totals are unaffected (compute_user_earnings filters by
     status, not date). Dry-run default; 2FA-gated apply.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from datetime import datetime as _dt
 
@@ -46255,6 +46475,10 @@ def admin_secwatch_status(
       - ?test=1 fires a real test alert through _secwatch_send_alert to prove
         the email channel end-to-end.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     baseline = int(_secwatch_get(db, "secwatch_last_withdrawal_id", "0") or "0")
     cur_max = int(db.query(func.max(Withdrawal.id)).scalar() or 0)
@@ -47150,12 +47374,20 @@ def upgrade_to_pro_redirect(request: Request):
 
 @app.get("/admin/showcase")
 def react_admin_showcase(request: Request):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/admin/stories")
 def react_admin_stories(request: Request):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
@@ -48956,6 +49188,10 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
 @app.get("/admin/test-autoresponder")
 def admin_test_autoresponder(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Debug: show autoresponder status — sequences, nurturing leads, send log."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
     from .database import MemberLead, EmailSequence, EmailSendLog
     import json as _jt
@@ -53740,6 +53976,10 @@ async def admin_replay_my_badge_toast(
     New approach: flip ALL achievement notifications for the user (3 are
     capped on the unseen feed anyway), then show what unseen would return.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
@@ -57745,6 +57985,10 @@ async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)
 async def sc_admin_grant_credits_get(amount: int, request: Request, code: str = "", db: Session = Depends(get_db)):
     """Admin-only: grant SuperScene credits by visiting this URL.
     Requires a live 2FA code (?code=NNNNNN) — a forged link can't carry one."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     user = get_current_user(request, db)
     _require_admin_2fa(user, code)
     if amount < 1 or amount > 5000:
@@ -63290,6 +63534,10 @@ async def bpg_admin_seed_previews(request: Request, db: Session = Depends(get_db
 
     Returns a JSON summary with per-template results.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from .database import PosterTemplate
     from .poster_templates import POSTER_TEMPLATES, render_prompt
     from . import grok_imagine_service as grok_imagine
@@ -63464,6 +63712,10 @@ def admin_repair_matrix_indices(
     Read /admin/api/health/scan/matrix_integrity first to see WHY a
     repair is needed before running it.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from . import health_repair
 
     user = get_current_user(request, db)
@@ -63501,6 +63753,10 @@ def admin_repair_backfill_tester_expiry(
 
     Dry-run by default. Pass ?confirm=true to actually write.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from . import health_repair
 
     user = get_current_user(request, db)
@@ -63647,6 +63903,10 @@ def admin_health_ui(request: Request, db: Session = Depends(get_db)):
     Plain HTML/JS so it can be tweaked without rebuilding the frontend
     bundle — same approach as /admin/bpg.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -63968,6 +64228,10 @@ def admin_matrix_debug(request: Request, db: Session = Depends(get_db),
 
     Admin-only. Read-only. Returns JSON.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from .database import (
         User, CreditMatrix, CreditMatrixPosition, CreditMatrixCommission,
         CreditPackPurchase,
@@ -64137,6 +64401,10 @@ def admin_user_debug(request: Request, db: Session = Depends(get_db),
 
     Admin-only. Read-only. Returns JSON.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from .database import (
         User, Commission, Withdrawal, MemberLead, EmailSendLog,
         WalletConnectPaymentOrder, CryptoPaymentOrder, NowPaymentsOrder,
@@ -64438,6 +64706,10 @@ def bpg_admin_preview_status(request: Request, db: Session = Depends(get_db)):
 
     Used to decide whether to run the seed endpoint or skip it.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     from .database import PosterTemplate
     from .poster_templates import POSTER_TEMPLATES
 
@@ -64473,6 +64745,10 @@ def bpg_admin_ui(request: Request, db: Session = Depends(get_db)):
     No React build required — this is plain HTML/JS so it can be tweaked
     without rebuilding the frontend bundle. Admin-gated.
     """
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -65393,6 +65669,10 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
 @app.get("/admin/recalculate-stats")
 def admin_recalculate_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Recalculate personal_referrals and total_team for all users."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     users = db.query(User).all()
@@ -65554,6 +65834,10 @@ def admin_diagnostic_cleanup_test_withdrawals(
     This is NOT a general-purpose 'cancel a withdrawal' tool; that would be
     dangerous (could hide real customer withdrawals). Idempotent — re-running
     leaves already-cancelled rows alone."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     # Hardcoded safety: this endpoint is ONLY for the SuperAdPro account.
@@ -65628,6 +65912,10 @@ def admin_diagnostic_inspect_ledgers(
     user so we can see exactly what the ledgers contain. No mutations. Used
     to diagnose when computed totals look wrong — e.g. 'earned X but withdrew
     more than X'."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     target = db.query(User).filter(User.id == user_id).first()
@@ -65688,6 +65976,10 @@ def admin_diagnostic_recompute_total_withdrawn(user: User = Depends(get_current_
 
     Returns a per-user diff for users whose stored value differed from the
     computed truth, so we can see exactly how much drift had accumulated."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     _require_admin(user)
 
     users = db.query(User).all()
@@ -73566,6 +73858,10 @@ def admin_member_pause(request: Request, user_id: int = 0,
 @app.get("/admin/email-broadcast")
 def admin_email_broadcast_page(request: Request):
     """Serve React SPA for the admin email broadcast tool."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
     if _react_index.exists():
         return _spa_shell()
     return RedirectResponse(url="/admin", status_code=302)
