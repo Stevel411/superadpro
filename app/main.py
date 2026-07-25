@@ -55018,6 +55018,113 @@ def api_leads_sequences(request: Request, user: User = Depends(get_current_user)
         "emails": _safe_json(s.emails_json),
         "created_at": s.created_at.isoformat() if s.created_at else None,
     } for s in seqs]}
+@app.post("/api/leads/ai-sequence")
+async def api_ai_sequence(request: Request, user: User = Depends(get_current_user)):
+    """Genuinely AI-generated email sequence. The member gives a niche/offer,
+    tone and length; Claude/Grok writes real, unique subject lines and bodies —
+    not the old canned boilerplate. Returns the emails for the editor; the
+    member reviews and saves through the normal sequence-save path."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    niche = (body.get("niche") or "").strip()
+    if not niche:
+        return JSONResponse({"error": "Tell me what your emails are about first"}, status_code=400)
+    tone = (body.get("tone") or "friendly").strip()
+    try:
+        count = max(1, min(int(body.get("count") or 5), 7))
+    except Exception:
+        count = 5
+
+    system = (
+        "You are an expert email copywriter for AdvantageLife members — people "
+        "building an audience for their own offer. Write a welcome/nurture email "
+        "sequence that is warm, specific and genuinely useful, never hypey. No "
+        "income claims, no guarantees, no ALL CAPS, no spammy phrasing (avoid "
+        "'act now', 'limited time', excessive exclamation). Each email should "
+        "stand on its own and move the reader gently toward the offer. Return "
+        "ONLY valid JSON, no preamble, no markdown fences."
+    )
+    prompt = (
+        f"Write a {count}-email nurture sequence for this offer/niche: \"{niche}\".\n"
+        f"Tone: {tone}.\n"
+        "Space the emails sensibly over the first couple of weeks.\n"
+        "Return JSON of exactly this shape:\n"
+        '{"emails":[{"subject":"...","body_html":"<p>...</p>","send_delay_days":0}]}\n'
+        "Rules: subject under 60 chars; body_html is simple HTML (<p>, <strong>, "
+        "<ul><li> only) of 80-160 words; first email send_delay_days=0; each "
+        "later one a few days after the previous; genuinely about the niche, not "
+        "generic filler."
+    )
+    try:
+        from .gemini_service import ai_generate
+        raw = await ai_generate(prompt, max_tokens=2200, system=system)
+    except Exception as e:
+        logger.exception("ai-sequence generation failed")
+        return JSONResponse({"error": "The AI writer is unavailable right now — try again shortly"}, status_code=503)
+
+    import json as _j, re as _re
+    txt = (raw or "").strip()
+    # strip accidental code fences
+    txt = _re.sub(r"^```(?:json)?|```$", "", txt, flags=_re.MULTILINE).strip()
+    try:
+        data = _j.loads(txt)
+        emails = data.get("emails") if isinstance(data, dict) else None
+        if not emails:
+            raise ValueError("no emails")
+        # sanitise into the exact shape the editor/save expect
+        clean = []
+        for i, e in enumerate(emails[:7]):
+            clean.append({
+                "subject": str(e.get("subject", "")).strip()[:160] or f"Email {i+1}",
+                "body_html": str(e.get("body_html", "")).strip() or "<p></p>",
+                "send_delay_days": int(e.get("send_delay_days", i * 2) or 0),
+            })
+        return {"ok": True, "emails": clean}
+    except Exception:
+        logger.warning("ai-sequence returned unparseable output")
+        return JSONResponse({"error": "The AI writer returned something unexpected — please try again"}, status_code=502)
+
+
+@app.post("/api/leads/ai-email")
+async def api_ai_email(request: Request, user: User = Depends(get_current_user)):
+    """Rewrite / draft a single email with AI — for the per-email 'write with AI'
+    action in the sequence editor."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    niche = (body.get("niche") or body.get("about") or "").strip()
+    intent = (body.get("intent") or "a helpful nurture email").strip()
+    tone = (body.get("tone") or "friendly").strip()
+    if not niche and not intent:
+        return JSONResponse({"error": "Tell me what this email is about"}, status_code=400)
+    system = (
+        "You are an expert email copywriter. Write ONE email — warm, specific, "
+        "useful, never hypey. No income claims or guarantees, no ALL CAPS, no "
+        "spam-trigger phrasing. Return ONLY valid JSON, no markdown."
+    )
+    prompt = (
+        f"Write one email. Offer/niche: \"{niche}\". Purpose: {intent}. Tone: {tone}.\n"
+        'Return JSON: {"subject":"...","body_html":"<p>...</p>"}\n'
+        "Subject under 60 chars; body_html simple HTML, 80-160 words."
+    )
+    try:
+        from .gemini_service import ai_generate
+        raw = await ai_generate(prompt, max_tokens=900, system=system)
+    except Exception:
+        logger.exception("ai-email generation failed")
+        return JSONResponse({"error": "The AI writer is unavailable right now"}, status_code=503)
+    import json as _j, re as _re
+    txt = _re.sub(r"^```(?:json)?|```$", "", (raw or "").strip(), flags=_re.MULTILINE).strip()
+    try:
+        d = _j.loads(txt)
+        return {"ok": True,
+                "subject": str(d.get("subject", "")).strip()[:160],
+                "body_html": str(d.get("body_html", "")).strip() or "<p></p>"}
+    except Exception:
+        return JSONResponse({"error": "The AI writer returned something unexpected — try again"}, status_code=502)
+
+
 @app.post("/api/leads/sequences")
 async def api_create_sequence(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Create a new email sequence."""
