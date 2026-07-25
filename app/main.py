@@ -68388,13 +68388,20 @@ def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db
             f"{pct}% of this week's commissions fell to the company", company_c,
             "Members are failing the own-level or watch gate — check Members for gate status.")
 
-    # 3. Genealogy integrity — an orphaned member breaks the pass-up chain.
+    # 3. Genealogy integrity. pass_up_sponsor_id is wired at a member's FIRST
+    #    pack purchase and is null before then — so a joined-but-not-yet-selling
+    #    member having no pass-up sponsor is NORMAL, not a fault. Only flag the
+    #    real problem: a member who HAS sold packs (chain should be wired) but
+    #    still has none. That is a genuine break that would misroute a pass-up.
     orphan_passup = db.query(func.count(User.id)).filter(
-        User.sponsor_id.isnot(None), User.pass_up_sponsor_id.is_(None)).scalar() or 0
+        User.sponsor_id.isnot(None),
+        User.pass_up_sponsor_id.is_(None),
+        (User.pack_sale_count > 0)).scalar() or 0
     if orphan_passup:
-        add("warn", "passup_unassigned",
-            f"{orphan_passup} member(s) have a sponsor but no pass-up sponsor", orphan_passup,
-            "Pass-up chain can't resolve for these members.")
+        add("critical", "passup_unassigned",
+            f"{orphan_passup} selling member(s) have no pass-up sponsor", orphan_passup,
+            "These members have sales but no pass-up target — a passed-up sale can't "
+            "resolve up their chain. Check genealogy.")
 
     # 4. Share pipeline
     waiting = db.query(func.count(VideoCampaign.id)).filter(
