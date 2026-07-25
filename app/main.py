@@ -71867,70 +71867,119 @@ def al_payout_methods_page(user: User = Depends(get_current_user), db: Session =
 _AL_JOIN_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Join AdvantageLife — $100 once, yours for life</title>
-<meta name="description" content="One payment. Every tool. Forever. The AdvantageLife Club lifetime membership.">
+<title>Join AdvantageLife — one membership, everything yours</title>
+<meta name="description" content="Unlock the full platform. Annual $50/year or Lifetime $100 once. Your effort. Your income. 100% yours.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4}
 body{font-family:'Inter',sans-serif;min-height:100vh;color:#fff;background-image:linear-gradient(180deg,rgba(8,18,54,__OV_T__) 0%,rgba(8,18,54,__OV_M__) 42%,rgba(9,25,72,__OV_B__) 100%),url('/static/images/al-join-bg.webp');background-size:cover;background-position:center;background-attachment:fixed;background-color:var(--navy)}@media(max-width:820px){body{background-image:linear-gradient(180deg,rgba(8,18,54,__OVM_T__) 0%,rgba(8,18,54,__OVM_M__) 42%,rgba(9,25,72,__OVM_B__) 100%),url('/static/images/al-join-bg-sm.webp');background-attachment:scroll}}
-.wrap{max-width:560px;margin:0 auto;padding:34px 20px 60px}
+.wrap{max-width:920px;margin:0 auto;padding:34px 20px 60px}
+.wrap.narrow{max-width:560px}
 .mk{text-align:center;font-weight:900;font-size:clamp(32px,7vw,44px);letter-spacing:-1.4px;line-height:1;margin-bottom:10px;text-shadow:0 2px 18px rgba(4,12,40,.55)}
 .mk i{font-style:normal;color:#ff5f74;text-shadow:0 2px 20px rgba(120,10,30,.45)}
-.tag{text-align:center;font-size:clamp(12.5px,2.6vw,15px);font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.92);text-transform:uppercase;margin-bottom:34px;text-shadow:0 1px 12px rgba(4,12,40,.6)}
-.card{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__)}
-h1{font-weight:900;font-size:clamp(34px,7.2vw,46px);letter-spacing:-1.6px;line-height:1.04;margin-bottom:12px;text-wrap:balance}
-h1 .r{color:var(--red)}
-.sub{font-size:15.5px;color:var(--dim);font-weight:500;line-height:1.62;margin-bottom:22px}
-.price{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
-.price b{font-weight:900;font-size:44px;letter-spacing:-1.5px}
-.price span{font-size:13px;font-weight:700;color:var(--dim)}
-.once{font-size:12px;font-weight:800;color:#0b7a3e;background:#e8f7ee;border-radius:14px;padding:5px 12px;display:inline-block;margin-bottom:20px}
-.inc{border-top:1.5px solid var(--line);padding-top:16px;margin-bottom:20px}
-.inc .row{display:flex;gap:10px;font-size:13.5px;font-weight:600;color:#2a3352;padding:6px 0;line-height:1.45}
+.tag{text-align:center;font-size:clamp(12.5px,2.6vw,15px);font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.92);text-transform:uppercase;margin-bottom:12px;text-shadow:0 1px 12px rgba(4,12,40,.6)}
+.lead{text-align:center;font-size:clamp(15px,2.4vw,17px);font-weight:500;color:#cdd8f4;max-width:560px;margin:0 auto 32px;line-height:1.55;text-shadow:0 1px 10px rgba(4,12,40,.5)}
+.cards{display:grid;grid-template-columns:1fr 1.12fr;gap:16px;align-items:stretch}
+@media(max-width:760px){.cards{grid-template-columns:1fr}}
+.card{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__);display:flex;flex-direction:column;position:relative}
+.card.hero{border:2.5px solid var(--red)}
+.flag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;padding:6px 15px;border-radius:30px;white-space:nowrap;box-shadow:0 8px 20px -6px rgba(200,16,46,.5)}
+.ctag{align-self:flex-start;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:14px}
+.ctag.a{color:var(--navy2);background:#eaf0fb}
+.ctag.l{color:var(--red);background:#fdeaee}
+.cname{font-weight:900;font-size:20px;letter-spacing:-.02em;color:var(--navy)}
+.price{display:flex;align-items:baseline;gap:8px;margin-top:9px}
+.price b{font-weight:900;font-size:46px;letter-spacing:-1.6px}
+.price span{font-size:14px;font-weight:700;color:var(--dim)}
+.price .once{font-size:12px;font-weight:800;color:#0b7a3e;background:#e8f7ee;border-radius:12px;padding:4px 10px;margin-left:2px}
+.csub{font-size:13.5px;color:var(--dim);font-weight:500;line-height:1.5;margin-top:8px;min-height:38px}
+.inc{margin:18px 0 20px;flex:1}
+.inc .row{display:flex;gap:9px;font-size:13.5px;font-weight:600;color:#2a3352;padding:5px 0;line-height:1.45}
 .inc .row b{color:var(--ink)}
 .inc .ck{color:#0b7a3e;font-weight:900;flex-shrink:0}
-.btn{display:block;width:100%;border:none;border-radius:12px;padding:16px;font-family:'Inter';font-weight:900;font-size:15.5px;cursor:pointer;text-align:center;text-decoration:none}
-.btn.red{background:var(--red);color:#fff;box-shadow:0 14px 30px -12px rgba(200,16,46,.6);margin-bottom:10px}
-.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--line)}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-family:'Inter';font-weight:900;font-size:15px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 14px 30px -12px rgba(200,16,46,.6)}
+.btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn.ghost:hover{background:var(--navy);color:#fff}
+.cfoot{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:10px;line-height:1.5}
+.strip{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin-top:30px}
+.strip div{display:inline-flex;align-items:center;gap:7px;color:#b8c7e8;font-size:13px;font-weight:600;text-shadow:0 1px 8px rgba(4,12,40,.5)}
+.strip .ok{color:#4ade80;font-weight:900}
+.scard{background:rgba(255,255,255,__CARD_A__);color:var(--ink);border-radius:18px;padding:28px 26px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6);-webkit-backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);backdrop-filter:blur(__CARD_BLUR__px) saturate(140%);border:1px solid rgba(255,255,255,__CARD_EDGE__)}
+h1{font-weight:900;font-size:clamp(30px,6vw,42px);letter-spacing:-1.4px;line-height:1.05;margin-bottom:12px;text-wrap:balance}
+h1 .r{color:var(--red)}
+.sub{font-size:15px;color:var(--dim);font-weight:500;line-height:1.6;margin-bottom:20px}
+.chosen{background:#eef3fc;border:1.5px solid #d6e2f7;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;font-weight:700;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+.chosen a{color:var(--navy2);font-size:12px;font-weight:800;text-decoration:none;cursor:pointer}
+.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
 .consent{display:flex;gap:9px;align-items:flex-start;font-size:11.5px;color:var(--dim);font-weight:600;line-height:1.5;margin:14px 0 4px}
 .consent input{margin-top:2px}
 .note{font-size:11px;color:#94a0c2;font-weight:600;text-align:center;margin-top:14px;line-height:1.6}
-.err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:12px}
-.state{display:none}
-.state.on{display:block}
+.state{display:none}.state.on{display:block}
 .big{font-size:52px;text-align:center;margin-bottom:10px}
 .ctr{text-align:center}
 .spin{width:34px;height:34px;border:4px solid #e3e8f4;border-top-color:var(--red);border-radius:50%;margin:0 auto 14px;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
+.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14)}
 .backlink:hover{background:rgba(255,255,255,.16);color:#fff}
 </style></head><body>
-<div class="wrap">
+<div class="wrap" id="pageWrap">
   <a class="backlink" href="/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home</a>
   <div class="mk">Advantage<i>Life</i></div>
   <div class="tag">Your effort. Your income. 100% yours.</div>
-  <div class="card">
 
-    <div class="state" id="stAnon">
-      <h1>One payment.<br><span class="r">Every tool. Forever.</span></h1>
-      <div class="sub">The AdvantageLife Club lifetime membership: $100, once. Create your account, then complete your membership — two minutes, by card or USDT.</div>
-      <a class="btn red" href="/register">Create your account →</a>
+  <div class="state" id="stAnon">
+    <div class="lead">Unlock the full platform — the tools, the campaign packs, and your place in the network. Create your account, then choose how you'd like to start.</div>
+    <div class="scard" style="max-width:520px;margin:0 auto">
+      <a class="btn red" href="/register" style="margin-bottom:10px">Create your account →</a>
       <a class="btn ghost" href="/login?next=/join">I already have an account</a>
     </div>
+  </div>
 
-    <div class="state" id="stOffer">
-      <h1>Unlock the platform.<br><span class="r">For life.</span></h1>
-      <div class="sub">One payment, no subscription, no renewals — every tool on AdvantageLife, yours permanently.</div>
-      <div class="price"><b>$__PRICE__</b><span>one-time</span></div>
-      <div class="once">✓ LIFETIME — never pay for the tools again</div>
-      <div class="inc">
-        <div class="row"><span class="ck">✓</span><span><b>Page &amp; funnel builder</b> — pages, funnels, custom domains</span></div>
-        <div class="row"><span class="ck">✓</span><span><b>Autoresponder</b> — lists, sequences, broadcasts, your sending domain</span></div>
-        
-        <div class="row"><span class="ck">✓</span><span><b>Video advertising</b> — campaigns watched by real members</span></div>
-        <div class="row"><span class="ck">✓</span><span><b>Watch-to-Earn + the pass-up plan</b> — the earning side, when you want it</span></div>
+  <div class="state" id="stOffer">
+    <div class="lead">Both give you the same full platform. Annual is the easy way to start; Lifetime is the better deal if you're staying.</div>
+    <div class="cards">
+      <div class="card">
+        <span class="ctag a">Annual</span>
+        <div class="cname">Annual Membership</div>
+        <div class="price"><b>$__ANNUAL__</b><span>/ year</span></div>
+        <div class="csub">The full platform for a year. Renews at $__ANNUAL__.</div>
+        <div class="inc">
+          <div class="row"><span class="ck">✓</span><span>The <b>complete toolkit</b> — pages, funnels, blog, links, email, leads</span></div>
+          <div class="row"><span class="ck">✓</span><span>Buy &amp; sell <b>Watch-to-Earn packs</b> ($10–$1,000)</span></div>
+          <div class="row"><span class="ck">✓</span><span>Full <b>3/6/9 pass-up</b> earning — 100% peer-to-peer</span></div>
+          <div class="row"><span class="ck">✓</span><span>Your referral tree &amp; downline, kept for good</span></div>
+        </div>
+        <button class="btn ghost" data-tier="annual">Start annual — $__ANNUAL__</button>
+        <div class="cfoot">Renews yearly · your sponsor earns nothing on your join</div>
       </div>
+      <div class="card hero">
+        <span class="flag">Best value — most popular</span>
+        <span class="ctag l">Lifetime</span>
+        <div class="cname">Lifetime Membership</div>
+        <div class="price"><b>$__PRICE__</b><span class="once">once — never again</span></div>
+        <div class="csub">Pay once, and every tool is yours <b>for life</b>. No renewals, ever.</div>
+        <div class="inc">
+          <div class="row"><span class="ck">✓</span><span>Everything in Annual, <b>forever</b> — no yearly renewal</span></div>
+          <div class="row"><span class="ck">✓</span><span>Buy &amp; sell <b>Watch-to-Earn packs</b> ($10–$1,000)</span></div>
+          <div class="row"><span class="ck">✓</span><span>Full <b>3/6/9 pass-up</b> earning — 100% peer-to-peer</span></div>
+          <div class="row"><span class="ck">✓</span><span>Locked in at <b>$__PRICE__</b> — pays for itself in two years</span></div>
+        </div>
+        <button class="btn red" data-tier="lifetime">Join for life — $__PRICE__</button>
+        <div class="cfoot">One-time · card or USDT · your sponsor earns nothing on your join</div>
+      </div>
+    </div>
+    <div class="strip">
+      <div><span class="ok">✓</span> Pay by card or crypto</div>
+      <div><span class="ok">✓</span> No hidden fees</div>
+      <div><span class="ok">✓</span> The company never holds your earnings</div>
+    </div>
+  </div>
+
+  <div class="state" id="stPay">
+    <div class="scard" style="max-width:520px;margin:0 auto">
+      <div class="chosen" id="chosen"><span id="chosenLabel">—</span><a id="changeTier">change</a></div>
       <div class="err" id="err"></div>
       <div id="payBox" style="display:none">
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px" id="netChips"></div>
@@ -71939,7 +71988,7 @@ h1 .r{color:var(--red)}
             <span style="font-size:10px;font-weight:800;letter-spacing:.12em;color:#8fa4d8">SEND EXACTLY</span>
             <span style="background:#ffd08a;color:#5a3a00;font-weight:900;font-size:11px;border-radius:8px;padding:4px 10px" id="jChain">USDT</span>
           </div>
-          <div style="font-weight:900;font-size:30px;letter-spacing:-.8px;margin-bottom:10px">$__PRICE__ <span style="font-size:13px;font-weight:700;color:#aebcf0">USDT</span></div>
+          <div style="font-weight:900;font-size:30px;letter-spacing:-.8px;margin-bottom:10px"><span id="jAmt">$__PRICE__</span> <span style="font-size:13px;font-weight:700;color:#aebcf0">USDT</span></div>
           <div style="display:flex;gap:8px;align-items:center;background:#0d2668;border-radius:9px;padding:10px 12px">
             <code id="jAddr" style="font-family:'JetBrains Mono',monospace;font-size:11px;word-break:break-all;flex:1;color:#dbe5ff">…</code>
             <button type="button" id="jCopy" style="background:var(--red);border:none;color:#fff;border-radius:7px;padding:7px 12px;font-family:'Inter';font-weight:900;font-size:10.5px;cursor:pointer;flex-shrink:0">COPY</button>
@@ -71949,49 +71998,67 @@ h1 .r{color:var(--red)}
         <input id="jTx" style="width:100%;border:2px solid var(--line);border-radius:11px;padding:13px;font-family:'JetBrains Mono',monospace;font-size:12px;margin-bottom:10px" placeholder="Paste your transaction hash (0x…)">
         <button class="btn red" id="btnVerify">I've paid — verify &amp; activate →</button>
       </div>
-      <button class="btn card" id="btnCard" style="display:none;width:100%;margin-bottom:10px;background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;border:0;border-radius:11px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif">Pay $__PRICE__ by card →</button>
+      <button class="btn" id="btnCard" style="display:none;margin-bottom:10px;background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff">Pay <span class="cardAmt">$__PRICE__</span> by card →</button>
       <div id="cardOrCrypto" style="display:none;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 10px">or pay with crypto</div>
-      <button class="btn red" id="btnStart">Pay $__PRICE__ with USDT →</button>
-      <label class="consent"><input type="checkbox" id="ck"> I understand this is a one-time $100 purchase for lifetime access, activated immediately, and that I can request a full refund within 7 days.</label>
-      <div class="note">Your $100 joins the platform — your sponsor earns nothing on this payment. Their earnings come from the pack system, explained inside.</div>
+      <button class="btn red" id="btnStart">Pay <span class="cryptoAmt">$__PRICE__</span> with USDT →</button>
+      <label class="consent"><input type="checkbox" id="ck"> I understand this is a purchase for platform access, activated immediately, and that I can request a full refund within 7 days.</label>
+      <div class="note">Your payment joins the platform — your sponsor earns nothing on it. Their earnings come from the pack system, explained inside.</div>
     </div>
+  </div>
 
-    <div class="state" id="stPoll">
+  <div class="state" id="stPoll">
+    <div class="scard" style="max-width:520px;margin:0 auto">
       <div class="spin"></div>
       <h1 class="ctr">Confirming your payment…</h1>
       <div class="sub ctr">This usually takes a few seconds. Don't close the page.</div>
     </div>
+  </div>
 
-    <div class="state" id="stDone">
+  <div class="state" id="stDone">
+    <div class="scard" style="max-width:520px;margin:0 auto">
       <div class="big">🎉</div>
-      <h1 class="ctr">You're in — <span class="r">for life.</span></h1>
+      <h1 class="ctr">You're in!</h1>
       <div class="sub ctr">Every tool is unlocked. Welcome to AdvantageLife.</div>
       <a class="btn red" href="/dashboard">Open your dashboard →</a>
     </div>
-
   </div>
-  <div class="note" style="color:#8fa0d4">© AdvantageLife · advantagelife.club · terms · privacy · income disclaimer</div>
+
+  <div class="note" style="color:#8fa0d4;margin-top:22px">© AdvantageLife · advantagelife.club · terms · privacy · income disclaimer</div>
 </div>
 <script>
 (function(){
-  var LOGGED=__LOGGED__, LIFETIME=__LIFETIME__, PAID=new URLSearchParams(location.search).get('paid')==='1';
-  function show(id){document.querySelectorAll('.state').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on')}
+  var LOGGED=__LOGGED__, MEMBER=__LIFETIME__, PAID=new URLSearchParams(location.search).get('paid')==='1';
+  var PRICE={lifetime:__PRICE__,annual:__ANNUAL__};
+  var LABELS={lifetime:'Lifetime Membership',annual:'Annual Membership'};
+  var tier='lifetime';
+  function show(id){document.querySelectorAll('.state').forEach(function(s){s.classList.remove('on')});document.getElementById(id).classList.add('on');
+    var w=document.getElementById('pageWrap');if(id==='stOffer'){w.classList.remove('narrow')}else{w.classList.add('narrow')}}
   function fail(m){var e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+  function money(t){return '$'+PRICE[t]}
+  function setTierUI(){
+    document.getElementById('chosenLabel').textContent=LABELS[tier]+' — '+money(tier);
+    document.getElementById('jAmt').textContent=money(tier);
+    document.querySelectorAll('.cardAmt').forEach(function(e){e.textContent=money(tier)});
+    document.querySelectorAll('.cryptoAmt').forEach(function(e){e.textContent=money(tier)});
+  }
   function poll(n){fetch('/api/al/join/status').then(function(r){return r.json()}).then(function(j){
-    if(j.access_level==='lifetime'){show('stDone')}
+    if(j.access_level==='lifetime'||j.access_level==='annual'){show('stDone')}
     else if(n<40){setTimeout(function(){poll(n+1)},3000)}
-    else{show('stOffer');fail('Payment not confirmed yet — it can take a few minutes. Refresh this page shortly; your access unlocks automatically.')}
+    else{show('stOffer');}
   }).catch(function(){setTimeout(function(){poll(n+1)},4000)})}
   if(!LOGGED){show('stAnon');return}
-  if(LIFETIME){show('stDone');return}
+  if(MEMBER){show('stDone');return}
   if(PAID){show('stPoll');poll(0);return}
   show('stOffer');
+  document.querySelectorAll('#stOffer [data-tier]').forEach(function(btn){
+    btn.onclick=function(){tier=this.getAttribute('data-tier');setTierUI();show('stPay');
+      document.getElementById('err').style.display='none';window.scrollTo(0,0);};
+  });
+  document.getElementById('changeTier').onclick=function(){show('stOffer');window.scrollTo(0,0);};
   function needConsent(){if(!document.getElementById('ck').checked){fail('Please tick the purchase terms box first.');return true}return false}
   function recordConsent(){return fetch('/api/purchase-consent').then(function(r){return r.json()}).then(function(p){
     return fetch('/api/purchase-consent/record',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({version:p.version,text_hash:p.text_hash})})})}
-  // Card (Stripe) — one-time $100 join. Shown only when Stripe can take
-  // one-time card payments (configured_for_payments). Crypto is always shown.
   (function(){
     var cardBtn=document.getElementById('btnCard');
     var sep=document.getElementById('cardOrCrypto');
@@ -72004,10 +72071,10 @@ h1 .r{color:var(--red)}
       if(needConsent())return;
       var b=this;b.disabled=true;b.textContent='Opening secure checkout…';
       recordConsent().finally(function(){
-        fetch('/api/al/join/checkout',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+        fetch('/api/al/join/checkout?tier='+tier,{method:'POST'}).then(function(r){return r.json()}).then(function(j){
           if(j.checkout_url){window.location.href=j.checkout_url;}
-          else{fail(j.error||'Card checkout unavailable — use crypto below');b.disabled=false;b.textContent='Pay $__PRICE__ by card →';}
-        }).catch(function(){fail('Card checkout failed — use crypto below');b.disabled=false;b.textContent='Pay $__PRICE__ by card →';});
+          else{fail(j.error||'Card checkout unavailable — use crypto below');b.disabled=false;b.innerHTML='Pay <span class="cardAmt">'+money(tier)+'</span> by card →';}
+        }).catch(function(){fail('Card checkout failed — use crypto below');b.disabled=false;b.innerHTML='Pay <span class="cardAmt">'+money(tier)+'</span> by card →';});
       });
     };
   })();
@@ -72027,7 +72094,7 @@ h1 .r{color:var(--red)}
     var b=this;b.disabled=true;b.textContent='Loading payment details…';
     recordConsent().finally(function(){
       fetch('/api/al/join/direct-info').then(function(r){return r.json()}).then(function(j){
-        if(!j.networks||!j.networks.length){fail(j.error==='not_configured'?'Payments are being set up — check back shortly':'Could not load payment details');b.disabled=false;b.textContent='Pay $__PRICE__ with USDT →';return}
+        if(!j.networks||!j.networks.length){fail(j.error==='not_configured'?'Payments are being set up — check back shortly':'Could not load payment details');b.disabled=false;b.innerHTML='Pay <span class="cryptoAmt">'+money(tier)+'</span> with USDT →';return}
         NETS=j.networks;
         var chips=document.getElementById('netChips');chips.innerHTML='';
         NETS.forEach(function(n){
@@ -72040,7 +72107,7 @@ h1 .r{color:var(--red)}
         pickNet(NETS[0]);
         document.getElementById('payBox').style.display='block';
         b.style.display='none';
-      }).catch(function(){fail('Network error — try again');b.disabled=false;b.textContent='Pay $__PRICE__ with USDT →'})})};
+      }).catch(function(){fail('Network error — try again');b.disabled=false;b.innerHTML='Pay <span class="cryptoAmt">'+money(tier)+'</span> with USDT →'})})};
   document.getElementById('jCopy').onclick=function(){
     var t=document.getElementById('jAddr').textContent;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){document.getElementById('jCopy').textContent='COPIED ✓';setTimeout(function(){document.getElementById('jCopy').textContent='COPY'},2000)}).catch(function(){})};
@@ -72050,7 +72117,7 @@ h1 .r{color:var(--red)}
     if(!tx){fail('Paste the transaction hash from your wallet first');return}
     var b=this;b.disabled=true;b.textContent='Verifying on-chain…';
     document.getElementById('err').style.display='none';
-    fetch('/api/al/join/direct',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_ref:tx,network:curNet?curNet.key:'bsc'})})
+    fetch('/api/al/join/direct',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_ref:tx,network:curNet?curNet.key:'bsc',tier:tier})})
     .then(function(r){return r.json().then(function(j){return{s:r.status,j:j}})}).then(function(x){
       if(x.j.ok){show('stDone');return}
       if(x.j.retryable&&verifyTries<20){verifyTries++;b.textContent='Confirming on-chain… ('+x.j.error+')';
@@ -72142,10 +72209,13 @@ def al_join_page(request: Request, ov: str = "", card: str = "", user: User = De
     # Format for display without the destructive rstrip that turned "100" into "1":
     _raw_price = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
     price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
+    _raw_annual = float(os.environ.get("AL_ANNUAL_PRICE_USD", "50"))
+    annual = str(int(_raw_annual)) if _raw_annual == int(_raw_annual) else str(_raw_annual)
     html = (_AL_JOIN_PAGE
             .replace("__PRICE__", price)
+            .replace("__ANNUAL__", annual)
             .replace("__LOGGED__", "true" if user else "false")
-            .replace("__LIFETIME__", "true" if (user and user.access_level == "lifetime") else "false"))
+            .replace("__LIFETIME__", "true" if _al_membership_active(user) else "false"))
     tokens = {}
     tokens.update(_al_join_overlay(ov or AL_JOIN_OVERLAY_DEFAULT))
     tokens.update(_al_join_card(card or AL_JOIN_CARD_DEFAULT))
