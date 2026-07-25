@@ -71938,6 +71938,9 @@ h1 .r{color:var(--red)}
   </div>
 
   <div class="state" id="stOffer">
+    <div id="renewBanner" style="display:none;max-width:560px;margin:0 auto 18px;background:rgba(255,208,138,.16);border:1.5px solid rgba(255,208,138,.5);border-radius:12px;padding:13px 16px;text-align:center;color:#ffe0a8;font-size:13.5px;font-weight:700;line-height:1.5">
+      Welcome back — your annual membership has lapsed. Renew below and you're straight back in. <b style="color:#fff">Your network and earnings are exactly where you left them.</b>
+    </div>
     <div class="lead">Both give you the same full platform. Annual is the easy way to start; Lifetime is the better deal if you're staying.</div>
     <div class="cards">
       <div class="card">
@@ -72027,7 +72030,7 @@ h1 .r{color:var(--red)}
 </div>
 <script>
 (function(){
-  var LOGGED=__LOGGED__, MEMBER=__LIFETIME__, PAID=new URLSearchParams(location.search).get('paid')==='1';
+  var LOGGED=__LOGGED__, MEMBER=__LIFETIME__, RENEW=__RENEW__, PAID=new URLSearchParams(location.search).get('paid')==='1';
   var PRICE={lifetime:__PRICE__,annual:__ANNUAL__};
   var LABELS={lifetime:'Lifetime Membership',annual:'Annual Membership'};
   var tier='lifetime';
@@ -72050,6 +72053,7 @@ h1 .r{color:var(--red)}
   if(MEMBER){show('stDone');return}
   if(PAID){show('stPoll');poll(0);return}
   show('stOffer');
+  if(RENEW){document.getElementById('renewBanner').style.display='block';}
   document.querySelectorAll('#stOffer [data-tier]').forEach(function(btn){
     btn.onclick=function(){tier=this.getAttribute('data-tier');setTierUI();show('stPay');
       document.getElementById('err').style.display='none';window.scrollTo(0,0);};
@@ -72211,10 +72215,15 @@ def al_join_page(request: Request, ov: str = "", card: str = "", user: User = De
     price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
     _raw_annual = float(os.environ.get("AL_ANNUAL_PRICE_USD", "50"))
     annual = str(int(_raw_annual)) if _raw_annual == int(_raw_annual) else str(_raw_annual)
+    # Renewal context: an annual member whose term has lapsed is a RETURNING
+    # member, not a new join — greet them as one and default them to renewal.
+    _is_expired_annual = bool(user and getattr(user, "access_level", "free") == "annual"
+                              and not _al_membership_active(user))
     html = (_AL_JOIN_PAGE
             .replace("__PRICE__", price)
             .replace("__ANNUAL__", annual)
             .replace("__LOGGED__", "true" if user else "false")
+            .replace("__RENEW__", "true" if _is_expired_annual else "false")
             .replace("__LIFETIME__", "true" if _al_membership_active(user) else "false"))
     tokens = {}
     tokens.update(_al_join_overlay(ov or AL_JOIN_OVERLAY_DEFAULT))
@@ -73188,6 +73197,33 @@ def al_stripe_check(user: User = Depends(_al_user)):
             ok = False
 
     return JSONResponse({"ok": bool(ok), "results": out})
+
+
+@app.get("/api/al/membership-status")
+def al_membership_status(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Everything the dashboard and renewal surfaces need about a member's
+    standing. Drives the expiry warning and the renewal wall. Read-only."""
+    fresh = db.query(User).filter(User.id == user.id).first()
+    lvl = getattr(fresh, "access_level", "free")
+    exp = getattr(fresh, "membership_expires_at", None)
+    now = datetime.utcnow()
+    days_left = None
+    expired = False
+    if lvl == "annual" and exp is not None:
+        delta = (exp - now).total_seconds() / 86400.0
+        days_left = int(delta) if delta >= 0 else int(delta) - 1  # negative if past
+        expired = exp <= now
+    return {
+        "access_level": lvl,
+        "is_lifetime": lvl == "lifetime",
+        "is_annual": lvl == "annual",
+        "active": _al_membership_active(fresh),
+        "expires_at": exp.isoformat() if exp else None,
+        "days_until_expiry": days_left,        # e.g. 12, or -3 if expired 3 days ago
+        "expired": expired,
+        "renew_soon": (lvl == "annual" and days_left is not None and 0 <= days_left <= 14),
+        "annual_price": os.environ.get("AL_ANNUAL_PRICE_USD", "50"),
+    }
 
 
 @app.get("/api/al/join/status")
