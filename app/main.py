@@ -68418,14 +68418,77 @@ def al_admin_health(user: User = Depends(_al_user), db: Session = Depends(get_db
             f"{unpayable} member(s) with sales have no payout method", unpayable,
             "Buyers have nowhere to send money — their commissions skip to the upline.")
 
+    # ── 6. Live dependencies ──────────────────────────────────────────
+    #    The failure class that a page-by-page click-through never catches:
+    #    the page is code-correct but a service behind it is dead. /social-share
+    #    generated nothing for days because Grok ran dry and no Claude fallback
+    #    key was set — nothing surfaced it. These checks make that a red light.
+    import os as _os
+
+    # AI text — the shared path behind every AI tool. Key presence only (no
+    # spend): a live generation on every health load would cost real money.
+    has_xai = bool(_os.getenv("XAI_API_KEY"))
+    has_claude = bool(_os.getenv("ANTHROPIC_API_KEY"))
+    if not has_xai and not has_claude:
+        add("critical", "ai_down",
+            "No AI provider key set — every AI tool will generate nothing", 0,
+            "Set XAI_API_KEY or ANTHROPIC_API_KEY in Railway. Both is safest.")
+    elif not has_claude:
+        add("info", "ai_no_fallback",
+            "AI has no fallback — if the primary runs out, tools go silent", 0,
+            "Set ANTHROPIC_API_KEY so Claude covers a Grok outage automatically.")
+    elif not has_xai:
+        add("info", "ai_no_primary",
+            "Only the Claude fallback is set — running the pricier path on every call", 0,
+            "Set XAI_API_KEY so the cheaper Grok is primary.")
+    # Recent xAI credit refusal — the early warning we missed last time.
+    try:
+        from .database import AppConfig as _AC
+        _alert = db.query(_AC).filter(_AC.key == "xai_credit_alert_last_sent").first()
+        if _alert and _alert.value:
+            from datetime import datetime as _dt
+            try:
+                when = _dt.fromisoformat(_alert.value)
+                if (now - when) < timedelta(days=7):
+                    add("warn", "xai_credit",
+                        "xAI refused a generation on a credit/permission error recently", 0,
+                        "Grok is likely out of credits and running on the Claude fallback. "
+                        "Top up xAI at console.x.ai to restore the cheaper primary.")
+            except ValueError:
+                pass
+    except Exception:
+        pass
+
+    # Payments — the $100 join. Stripe key presence, since AL has no other rail.
+    if not (_os.getenv("STRIPE_SECRET_KEY") or _os.getenv("STRIPE_API_KEY")):
+        add("critical", "stripe_down",
+            "No Stripe key set — the $100 join cannot take payment", 0,
+            "Set STRIPE_SECRET_KEY in Railway or nobody can join.")
+
+    # Daily Wisdom — did today's quote resolve, and is anything approved.
+    try:
+        from .database import WisdomQuote as _WQ
+        _approved = db.query(func.count(_WQ.id)).filter(_WQ.approved.is_(True)).scalar() or 0
+        if _approved == 0:
+            add("warn", "wisdom_empty",
+                "Daily Wisdom has no approved quotes — the card shows nothing", 0,
+                "Approve quotes in the Daily Wisdom admin.")
+        elif _approved < 14:
+            add("info", "wisdom_thin",
+                f"Only {_approved} quotes in rotation — members repeat within {_approved} days",
+                _approved, "Add more in the Daily Wisdom admin to lengthen the cycle.")
+    except Exception:
+        pass
+
     order = {"critical": 0, "warn": 1, "info": 2}
     issues.sort(key=lambda i: order.get(i["severity"], 3))
     return {
         "healthy": not any(i["severity"] in ("critical", "warn") for i in issues),
         "checked_at": now.isoformat(),
         "issues": issues,
-        "note": ("AL-native checks. Balances, withdrawals and grids are SuperAdPro "
-                 "concepts and cannot occur here — AL never holds member money."),
+        "note": ("AL-native checks: settlements, comp-plan fallback, and the live "
+                 "dependencies behind the pages — AI, payments, Daily Wisdom. "
+                 "Balances and grids are SuperAdPro concepts and cannot occur here."),
     }
 
 
