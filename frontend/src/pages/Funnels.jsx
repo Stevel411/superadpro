@@ -201,6 +201,7 @@ export default function Funnels() {
           ...p,
           default_list_id: res.default_list_id,
           default_list_name: res.default_list_name,
+          double_optin: res.double_optin,
           capture_sequence_id: res.capture_sequence_id,
           capture_sequence_title: res.capture_sequence_title,
           capture_sequence_num_emails: res.capture_sequence_num_emails,
@@ -738,6 +739,7 @@ export default function Funnels() {
           editingPageTitle={editingWiring.title || 'Untitled page'}
           initialListId={editingWiring.default_list_id || null}
           initialSequenceId={editingWiring.capture_sequence_id || null}
+          initialDoubleOptin={editingWiring.double_optin || false}
           onConfirm={handleWiringConfirm}
           onCancel={handleWiringCancel}
         />

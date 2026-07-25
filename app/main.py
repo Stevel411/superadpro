@@ -36041,6 +36041,16 @@ def _apply_campaign_binding(db, user, page, body):
         else:
             page.capture_sequence_id = None
 
+    # ── double_optin (per-list) ──
+    # The choice lives on the list, so it applies wherever that list is used.
+    if "double_optin" in body and page.default_list_id:
+        lst = db.query(LeadList).filter(
+            LeadList.id == page.default_list_id,
+            LeadList.user_id == user.id,
+        ).first()
+        if lst:
+            lst.double_optin = bool(body.get("double_optin"))
+
 
 def _sanitize_gjs_html(gjs_html: str) -> str:
     """Strip <script>, inline on* handlers, and javascript: URLs from member
@@ -36745,64 +36755,32 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                 crm_lead.email_sequence_id = default_seq.id
                 crm_lead.status = "nurturing"
 
-            # Send first email in sequence if Brevo is configured
+            # First-email send + single/double opt-in fork. Replaces the old
+            # Brevo send (dead on SES). The finalizer either fires the first
+            # sequence email now (single opt-in) or holds the lead as
+            # pending_confirm and sends a confirmation email (double opt-in).
             if default_seq:
+                crm_lead.email_sequence_id = default_seq.id
+            try:
+                db.flush()
+                _finalize_captured_lead(db, crm_lead, page)
+            except Exception as e:
+                db.rollback()
+                logger.warning(f"[AutoResponder] finalize error: {e}")
                 try:
-                    import json as _j_auto
-                    emails_list = _j_auto.loads(default_seq.emails_json or "[]")
-                    if emails_list:
-                        from .brevo_service import send_email as brevo_send, wrap_email_html
-                        first_email = emails_list[0]
-                        owner = db.query(User).filter(User.id == page.user_id).first()
-                        member_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
-                        wrapped = wrap_email_html(first_email.get("body_html", ""), member_name)
-                        # Capture Brevo's messageId from the send response so the
-                        # /webhook/brevo handler can match incoming open/click
-                        # events back to this EmailSendLog row. Without this,
-                        # autoresponder-driven opens/clicks silently undercount
-                        # because the webhook lookup by brevo_message_id finds
-                        # nothing and no-ops. Fixed 18 May 2026.
-                        send_result = await brevo_send(
-                            email, body.get("name", ""),
-                            first_email.get("subject", "Welcome!"), wrapped,
-                        )
-                        brevo_msg_id = (send_result or {}).get("message_id", "") if isinstance(send_result, dict) else ""
-                        crm_lead.emails_sent = 1
-                        from .database import EmailSendLog
-                        log = EmailSendLog(
-                            lead_id=crm_lead.id,
-                            sequence_id=default_seq.id,
-                            email_index=0,
-                            brevo_message_id=brevo_msg_id or None,
-                            status="sent",
-                        )
-                        db.add(log)
-                except Exception as e:
-                    # Email-send-specific failure (Brevo API, missing
-                    # column on email_send_log etc.). Don't rollback —
-                    # we still want the MemberLead saved.
+                    db.add(MemberLead(
+                        user_id=page.user_id, email=email.lower(),
+                        name=body.get("name", "").strip(),
+                        source_funnel_id=page.id,
+                        source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
+                        status="nurturing" if default_seq else "new",
+                        email_sequence_id=default_seq.id if default_seq else None,
+                        list_id=page.default_list_id,
+                    ))
+                    db.commit()
+                except Exception as e2:
                     db.rollback()
-                    logger.warning(f"[AutoResponder] First email send error: {e}")
-                    # Re-add the CRM lead without the email_sent counter
-                    # since rollback wiped it. The lead matters more
-                    # than the immediate send — cron will retry.
-                    # Phase 1: preserve list_id binding on the recovered
-                    # lead too — otherwise a Brevo glitch silently breaks
-                    # the page's campaign wiring for that lead.
-                    try:
-                        db.add(MemberLead(
-                            user_id=page.user_id, email=email.lower(),
-                            name=body.get("name", "").strip(),
-                            source_funnel_id=page.id,
-                            source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
-                            status="nurturing" if default_seq else "new",
-                            email_sequence_id=default_seq.id if default_seq else None,
-                            list_id=page.default_list_id,
-                        ))
-                        db.commit()
-                    except Exception as e2:
-                        db.rollback()
-                        logger.warning(f"[CRM] Lead re-save after email error failed: {e2}")
+                    logger.warning(f"[CRM] Lead re-save after finalize error failed: {e2}")
         # Commit CRM side-effects (only reached if no email error)
         try:
             db.commit()
@@ -36820,7 +36798,8 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
                 ).first()
                 if lst:
                     new_count = db.query(_func_lc.count(MemberLead.id)).filter(
-                        MemberLead.list_id == page.default_list_id
+                        MemberLead.list_id == page.default_list_id,
+                        MemberLead.status != "pending_confirm"
                     ).scalar() or 0
                     lst.lead_count = int(new_count)
                     db.commit()
@@ -48426,10 +48405,14 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
     db.commit()
     db.refresh(lead)
 
-    # Send the first email in the sequence immediately
-    if lead.email_sequence_id:
-        _send_sequence_email(db, lead, 0)
+    # Single vs double opt-in fork. Single: fire the first email now. Double:
+    # hold as pending_confirm and send a confirmation email; the sequence
+    # starts when they click confirm.
+    outcome = _finalize_captured_lead(db, lead, page)
+    db.commit()
 
+    if outcome == "pending":
+        return JSONResponse({"success": True, "message": "Almost there — check your inbox to confirm your subscription."})
     return JSONResponse({"success": True, "message": "Welcome! Check your inbox."})
 @app.get("/pro/leads")
 def pro_leads_page(request: Request):
@@ -56680,12 +56663,14 @@ async def api_funnels_update_wiring(page_id: int, request: Request,
     # Resolve names for the response so the UI updates immediately
     from .database import LeadList, EmailSequence
     list_name = None
+    list_double_optin = False
     seq_title = None
     seq_num_emails = None
     if page.default_list_id:
         lst = db.query(LeadList).filter(LeadList.id == page.default_list_id).first()
         if lst:
             list_name = lst.name
+            list_double_optin = bool(getattr(lst, "double_optin", False))
     if page.capture_sequence_id:
         seq = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
         if seq:
@@ -56697,6 +56682,7 @@ async def api_funnels_update_wiring(page_id: int, request: Request,
         "page_id": page.id,
         "default_list_id": page.default_list_id,
         "default_list_name": list_name,
+        "double_optin": list_double_optin,
         "capture_sequence_id": page.capture_sequence_id,
         "capture_sequence_title": seq_title,
         "capture_sequence_num_emails": seq_num_emails,
@@ -75555,6 +75541,129 @@ def api_lead_magnets(user: User = Depends(get_current_user), db: Session = Depen
 
 # ── Lead unsubscribe (app-owned — the Brevo unsubscribe webhook is dead on SES) ──
 lead_unsub_serializer = URLSafeTimedSerializer(EMAIL_LINK_SECRET, salt="superadpro-lead-unsub")
+
+# ── Double opt-in (per-list confirmed opt-in) ──────────────────────────────
+lead_confirm_serializer = URLSafeTimedSerializer(EMAIL_LINK_SECRET, salt="advantagelife-lead-confirm")
+
+
+def _list_requires_double_optin(db, list_id) -> bool:
+    """True if the lead's target list is set to require email confirmation."""
+    if not list_id:
+        return False
+    from .database import LeadList
+    lst = db.query(LeadList).filter(LeadList.id == list_id).first()
+    return bool(lst and getattr(lst, "double_optin", False))
+
+
+def _send_confirm_email(db, lead):
+    """Send the 'please confirm your subscription' email for a pending lead.
+    Uses the member's sender identity, same SES path as sequence emails."""
+    try:
+        token = lead_confirm_serializer.dumps({"l": lead.id})
+        lead.confirm_token = token
+        site_url = (os.getenv("BASE_URL", "") or "https://www.advantagelife.club").rstrip("/")
+        confirm_url = f"{site_url}/lead-confirm?t={token}"
+        owner = db.query(User).filter(User.id == lead.user_id).first()
+        who = (owner.first_name or owner.username) if owner else "us"
+        subject = "Please confirm your subscription"
+        body_html = (
+            "<div style='font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#1e293b'>"
+            "<h2 style='color:#0a1f52'>One quick step</h2>"
+            f"<p>Thanks for signing up. Please confirm your email so {who} can start "
+            "sending you what you asked for.</p>"
+            f"<p style='margin:26px 0'><a href='{confirm_url}' style='background:#c8102e;color:#fff;"
+            "text-decoration:none;font-weight:700;padding:13px 26px;border-radius:9px;display:inline-block'>"
+            "Confirm my subscription</a></p>"
+            "<p style='font-size:13px;color:#64748b'>If you didn't request this, just ignore this email — "
+            "you won't be added to anything.</p></div>"
+        )
+        from .email_utils import send_email
+        _m_email, _m_name = _member_sender_identity(db, lead.user_id)
+        res = send_email(lead.email, subject, body_html, return_message_id=True,
+                         member_bulk=True, category="transactional",
+                         from_email=_m_email or (os.getenv("MEMBER_FROM_EMAIL", "").strip() or None),
+                         from_name=_m_name)
+        ok = res[0] if isinstance(res, tuple) else bool(res)
+        if not ok:
+            logger.warning(f"confirm email failed to send for lead {lead.id}")
+        return ok
+    except Exception:
+        logger.exception(f"_send_confirm_email crashed for lead {getattr(lead,'id',None)}")
+        return False
+
+
+def _finalize_captured_lead(db, lead, page=None):
+    """Single vs double opt-in fork, applied to a freshly-created lead that has
+    already had list_id and email_sequence_id set.
+
+    - Single opt-in (default): the lead is live now — fire the first sequence
+      email immediately (existing behaviour).
+    - Double opt-in (list.double_optin): hold the lead as 'pending_confirm',
+      do NOT count it or fire the autoresponder; send a confirmation email.
+      The sequence starts only when they click confirm (_confirm_lead).
+
+    Returns 'confirmed' or 'pending' so the caller can respond appropriately."""
+    if _list_requires_double_optin(db, lead.list_id):
+        lead.status = "pending_confirm"
+        lead.confirmed_at = None
+        db.flush()  # ensure lead.id exists for the token
+        _send_confirm_email(db, lead)
+        return "pending"
+    # single opt-in — live now
+    lead.confirmed_at = datetime.utcnow()
+    if lead.email_sequence_id:
+        try:
+            _send_sequence_email(db, lead, 0)
+        except Exception:
+            logger.exception(f"first sequence email failed for lead {lead.id}")
+    return "confirmed"
+
+
+def _confirm_lead(db, token):
+    """Flip a pending lead to confirmed, then add it to the list flow and start
+    its autoresponder. Idempotent — a second click is a no-op."""
+    from .database import LeadList
+    try:
+        data = lead_confirm_serializer.loads(token, max_age=60 * 60 * 24 * 30)
+    except Exception:
+        return None, "This confirmation link is invalid or has expired."
+    lead = db.query(MemberLead).filter(MemberLead.id == data.get("l")).first()
+    if not lead:
+        return None, "We couldn't find that subscription."
+    if lead.confirmed_at:
+        return lead, None  # already confirmed — fine
+    lead.confirmed_at = datetime.utcnow()
+    lead.status = "nurturing"
+    # bump the list count now that they're a real subscriber
+    if lead.list_id:
+        lst = db.query(LeadList).filter(LeadList.id == lead.list_id).first()
+        if lst:
+            lst.lead_count = (lst.lead_count or 0) + 1
+    db.commit()
+    # start the autoresponder now
+    if lead.email_sequence_id:
+        try:
+            _send_sequence_email(db, lead, 0)
+        except Exception:
+            logger.exception(f"post-confirm first email failed for lead {lead.id}")
+    return lead, None
+
+
+@app.get("/lead-confirm", response_class=HTMLResponse)
+def lead_confirm_page(t: str = "", db: Session = Depends(get_db)):
+    """Public confirmation landing — clicked from the double opt-in email."""
+    lead, err = _confirm_lead(db, t) if t else (None, "Missing confirmation token.")
+    ok = lead is not None and not err
+    heading = "You're confirmed! 🎉" if ok else "Hmm"
+    msg = ("Thanks — your subscription is confirmed and you're all set. You can close this page."
+           if ok else (err or "Something went wrong."))
+    return HTMLResponse(
+        "<html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<style>body{font-family:-apple-system,Segoe UI,sans-serif;background:#f3f5fb;color:#0a1f52;"
+        "display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}"
+        ".c{max-width:440px;background:#fff;border-radius:16px;padding:36px 30px;box-shadow:0 20px 50px -20px rgba(10,31,82,.3)}"
+        "h2{font-weight:800;margin:0 0 10px}p{color:#475569;line-height:1.55;margin:0}</style></head>"
+        "<body><div class='c'><h2>" + heading + "</h2><p>" + msg + "</p></div></body></html>")
 
 def _sign_lead_unsub(lead_id):
     return lead_unsub_serializer.dumps({"l": lead_id})

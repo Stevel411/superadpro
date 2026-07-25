@@ -41,6 +41,7 @@ export default function CampaignSetupModal({
   // flow default).
   initialListId = null,
   initialSequenceId = null,
+  initialDoubleOptin = false,
   // When set, the modal renders in edit-mode: title changes from
   // "Set up your campaign" to "Edit campaign wiring", the confirm
   // button reads "Save changes" instead of "Create my page".
@@ -59,6 +60,8 @@ export default function CampaignSetupModal({
   const [newListName, setNewListName] = useState(suggestedListName);
   // For seqMode='existing'
   const [selectedSeqId, setSelectedSeqId] = useState(initialSequenceId);
+  // Double opt-in — per-list confirmation requirement
+  const [doubleOptin, setDoubleOptin] = useState(!!initialDoubleOptin);
   // Lists + sequences from the API
   const [options, setOptions] = useState(null);
   const [loadError, setLoadError] = useState(null);
@@ -94,6 +97,10 @@ export default function CampaignSetupModal({
     // Sequence path
     if (seqMode === 'existing' && selectedSeqId) {
       payload.capture_sequence_id = selectedSeqId;
+    }
+    // Double opt-in — only meaningful when a list is bound
+    if ((listMode === 'existing' && selectedListId) || (listMode === 'create' && newListName.trim())) {
+      payload.double_optin = doubleOptin;
     }
     onConfirm(payload);
   };
@@ -269,6 +276,40 @@ export default function CampaignSetupModal({
               )}
             </RadioRow>
           </div>
+
+          {/* Double opt-in toggle — only relevant once a list is chosen */}
+          {((listMode === 'existing' && selectedListId) || (listMode === 'create' && newListName.trim())) && (
+            <div
+              onClick={() => setDoubleOptin(v => !v)}
+              style={{
+                marginTop:18, padding:'13px 15px', borderRadius:10,
+                border:'1.5px solid ' + (doubleOptin ? '#c9dcff' : '#e8ecf2'),
+                background: doubleOptin ? '#f2f7ff' : '#fbfcfe',
+                cursor:'pointer', display:'flex', gap:11, alignItems:'flex-start',
+              }}>
+              <div style={{
+                width:38, height:22, borderRadius:11, flexShrink:0, marginTop:1,
+                background: doubleOptin ? '#12388f' : '#cbd5e1',
+                position:'relative', transition:'background .15s',
+              }}>
+                <div style={{
+                  position:'absolute', top:2, left: doubleOptin ? 18 : 2,
+                  width:18, height:18, borderRadius:'50%', background:'#fff',
+                  transition:'left .15s', boxShadow:'0 1px 3px rgba(0,0,0,.2)',
+                }}/>
+              </div>
+              <div>
+                <div style={{fontSize:13, fontWeight:800, color:'#0a1f52'}}>
+                  Require email confirmation (double opt-in)
+                </div>
+                <div style={{fontSize:12, color:'#64748b', marginTop:3, lineHeight:1.45}}>
+                  New subscribers get a confirmation email and must click to confirm before they're
+                  added and the autoresponder starts. Recommended for cold traffic — improves
+                  deliverability. Off = added instantly (single opt-in).
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

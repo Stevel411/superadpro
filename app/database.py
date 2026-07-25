@@ -1673,6 +1673,7 @@ class LeadList(Base):
     color       = Column(String(10), default="#0ea5e9")    # hex colour for visual tag
     lead_count  = Column(Integer, default=0)
     sequence_id = Column(Integer, ForeignKey("email_sequences.id"), nullable=True)  # default sequence for this list
+    double_optin = Column(Boolean, default=False)   # require email confirmation before adding + nurturing
     created_at  = Column(DateTime, default=datetime.utcnow)
 
 
@@ -1720,7 +1721,9 @@ class MemberLead(Base):
     source_url      = Column(String, nullable=True)
     list_id         = Column(Integer, ForeignKey("lead_lists.id"), nullable=True, index=True)
     brevo_contact_id = Column(String, nullable=True)       # Brevo's contact ID
-    status          = Column(String, default="new")        # new/nurturing/hot/converted/unsubscribed
+    status          = Column(String, default="new")        # new/nurturing/hot/converted/unsubscribed/pending_confirm
+    confirm_token   = Column(String, nullable=True, index=True)  # double opt-in: unique token in the confirm link
+    confirmed_at    = Column(DateTime, nullable=True)            # when they clicked confirm (null = unconfirmed)
     email_sequence_id = Column(Integer, ForeignKey("email_sequences.id"), nullable=True)
     emails_sent     = Column(Integer, default=0)
     emails_opened   = Column(Integer, default=0)
@@ -3753,6 +3756,17 @@ try:
         # default_sequence binding — no new column needed there.
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS default_list_id INTEGER REFERENCES lead_lists(id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_funnel_pages_default_list ON funnel_pages(default_list_id)"))
+
+        # ── Double opt-in (25 Jul 2026): per-list confirmed-opt-in choice ──
+        # A list can require email confirmation. When on, a captured lead is
+        # held as 'pending_confirm' (not counted, autoresponder held) until
+        # they click the confirm link; only then are they added + nurtured.
+        # Default OFF — single opt-in stays the default, matching Mailchimp/
+        # AWeber/GetResponse practice.
+        conn.execute(text("ALTER TABLE lead_lists ADD COLUMN IF NOT EXISTS double_optin BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS confirm_token VARCHAR"))
+        conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_confirm_token ON member_leads(confirm_token)"))
 
         # ── Share Code system (19 May 2026): portable page-share codes ──
         # SAP-XXXX-XXXX codes that let members hand a page snapshot to
