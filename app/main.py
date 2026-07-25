@@ -48403,22 +48403,16 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
     if existing:
         return JSONResponse({"success": True, "message": "Already subscribed"})
 
-    # Create Brevo contact with member tag
-    brevo_contact_id = _create_brevo_contact(lead_email, lead_name, owner.id)
-
-    # Save the lead
-    # Phase 1: honour page-level list binding (default_list_id).
-    # The legacy /f/{slug} path mirrors the modern /api/leads/capture
-    # behaviour — both must populate list_id from the page's binding
-    # so leads land in the right bucket regardless of which capture
-    # endpoint the form happens to submit to.
+    # Save the lead. Leads land in the page's bound list and start its
+    # autoresponder sequence — the wiring the member set on the page.
+    # (Brevo contact creation removed 25 Jul 2026: the platform is on AWS SES,
+    #  so the call always no-op'd and stored an empty brevo_contact_id.)
     lead = MemberLead(
         user_id=owner.id,
         email=lead_email,
         name=lead_name,
         source_funnel_id=page.id if page else None,
         source_url=f"/f/{full_slug}",
-        brevo_contact_id=brevo_contact_id,
         status="nurturing",
         email_sequence_id=page.capture_sequence_id if page else None,
         list_id=page.default_list_id if page else None,
