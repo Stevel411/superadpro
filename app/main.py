@@ -53320,29 +53320,39 @@ def public_share_page(token: str, db: Session = Depends(get_db)):
 
 @app.get("/api/leaderboard/weekly")
 def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """AdvantageLife weekly pack leaderboard (whole platform). Ranks members by
-    packs SOLD this week (active pack purchases made by their direct referrals),
-    and also surfaces packs OWNED (their highest active level) and weekly REVENUE
-    (sum of those purchase amounts). Resets Monday 00:00 UTC. The caller's own
-    row is flagged and returned separately so the UI can pin 'your rank'."""
-    from sqlalchemy.orm import aliased
+    """AdvantageLife leaderboard — ranks members by CONFIRMED member-to-member
+    earnings this calendar month.
+
+    Rewritten 25 Jul 2026. The previous version ranked by PackPurchase rows
+    made by a seller's DIRECT referrals, over a Mon-Sun week. Both were wrong
+    for AL: on the 3/6/9 pass-up a sale you earn on may come from someone who
+    is NOT your direct referral, so counting referrals' purchases misses
+    pass-up earnings entirely; and a weekly window silently hid every sale
+    older than Monday. It reads the same settled source as the dashboard
+    board — P2PIntent confirmed, keyed on earner_id (who was actually paid).
+
+    Response shape is unchanged so the page renders as before: `sold` is
+    confirmed sales, `revenue` is earnings, `owned` is highest active pack.
+    """
     from sqlalchemy import func
     from datetime import datetime, timedelta
 
     now = datetime.utcnow()
-    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
-    next_reset = week_start + timedelta(days=7)
+    period_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # next reset = first of next month
+    if period_start.month == 12:
+        next_reset = period_start.replace(year=period_start.year + 1, month=1)
+    else:
+        next_reset = period_start.replace(month=period_start.month + 1)
 
-    Buyer = aliased(User)
     rows = (db.query(
-                Buyer.sponsor_id.label("seller_id"),
-                func.count(PackPurchase.id).label("sold"),
-                func.coalesce(func.sum(PackPurchase.amount), 0).label("revenue"))
-            .join(Buyer, Buyer.id == PackPurchase.user_id)
-            .filter(PackPurchase.status == "active",
-                    PackPurchase.created_at >= week_start,
-                    Buyer.sponsor_id.isnot(None))
-            .group_by(Buyer.sponsor_id)
+                P2PIntent.earner_id.label("seller_id"),
+                func.count(P2PIntent.id).label("sold"),
+                func.coalesce(func.sum(P2PIntent.amount), 0).label("revenue"))
+            .filter(P2PIntent.status == "confirmed",
+                    P2PIntent.earner_id.isnot(None),
+                    func.coalesce(P2PIntent.confirmed_at, P2PIntent.created_at) >= period_start)
+            .group_by(P2PIntent.earner_id)
             .all())
 
     stats = {r.seller_id: {"sold": int(r.sold or 0), "revenue": float(r.revenue or 0)} for r in rows}
@@ -53365,7 +53375,7 @@ def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session =
         "owned": owned.get(sid, 0),
         "revenue": round(stats[sid]["revenue"], 2),
     } for sid in seller_ids]
-    board.sort(key=lambda m: (-m["sold"], -m["revenue"]))
+    board.sort(key=lambda m: (-m["revenue"], -m["sold"]))
     for i, m in enumerate(board):
         m["rank"] = i + 1
 
@@ -53379,7 +53389,7 @@ def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session =
                    "owned": int(my_owned), "revenue": 0.0, "rank": None}
 
     return {
-        "week_start": week_start.isoformat(),
+        "week_start": period_start.isoformat(),
         "next_reset": next_reset.isoformat(),
         "members": [{"rank": m["rank"], "username": m["username"], "sold": m["sold"],
                      "owned": m["owned"], "revenue": m["revenue"],

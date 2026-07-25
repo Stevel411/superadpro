@@ -52,8 +52,8 @@ export default function Leaderboard() {
         <div style={{ background: NAVY, borderRadius: 20, color: '#fff', padding: '22px 26px', boxShadow: '0 24px 50px -28px rgba(10,31,82,.55)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 15, flexWrap: 'wrap' }}>
           <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(120deg,#c8102e,#e8203f)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Trophy size={26} color="#fff" /></div>
           <div style={{ minWidth: 180 }}>
-            <div style={{ fontWeight: 900, fontSize: 23, letterSpacing: -.6 }}>Weekly Leaderboard</div>
-            <div style={{ fontSize: 13.5, color: '#c9d6f7', fontWeight: 600, marginTop: 2 }}>Top pack sellers across AdvantageLife — resets every Monday.</div>
+            <div style={{ fontWeight: 900, fontSize: 23, letterSpacing: -.6 }}>Monthly Leaderboard</div>
+            <div style={{ fontSize: 13.5, color: '#c9d6f7', fontWeight: 600, marginTop: 2 }}>Top earners across AdvantageLife this month — resets on the 1st.</div>
           </div>
           <div style={{ marginLeft: 'auto', textAlign: 'right', background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', borderRadius: 12, padding: '10px 16px' }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#ff8090' }}>Resets in</div>
@@ -89,7 +89,7 @@ export default function Leaderboard() {
           <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr 90px 90px 110px', padding: '12px 18px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: MUTED, borderBottom: '1.5px solid ' + LINE }}>
             <span>#</span><span>Member</span><span style={{ textAlign: 'right' }}>Sold</span><span style={{ textAlign: 'right' }}>Owned</span><span style={{ textAlign: 'right' }}>Revenue</span>
           </div>
-          {rest.length === 0 && podium.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontWeight: 600 }}>No pack sales yet this week — be the first on the board!</div>}
+          {rest.length === 0 && podium.length === 0 && <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontWeight: 600 }}>No confirmed sales yet this month — be the first on the board!</div>}
           {rest.map((m) => (
             <div key={m.username} style={{ display: 'grid', gridTemplateColumns: '52px 1fr 90px 90px 110px', padding: '14px 18px', alignItems: 'center', borderBottom: '1px solid #f1f4fa', fontSize: 14, background: m.is_you ? 'linear-gradient(90deg,rgba(200,16,46,.07),transparent)' : 'transparent', borderLeft: m.is_you ? '3px solid ' + RED : '3px solid transparent' }}>
               <span style={{ fontWeight: 900, color: NAVY }}>{m._rank}</span>
