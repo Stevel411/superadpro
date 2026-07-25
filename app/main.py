@@ -69145,6 +69145,67 @@ def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user
     return {"members": out}
 
 
+@app.get("/admin/api/al/pack-trace")
+def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """Follow every pack purchase through all its tables at once, so a sale
+    that shows in one admin view but not another can be diagnosed in a single
+    read. Shows the mismatch between P2PIntent rows (the settlement attempts)
+    and PackPurchase rows (the confirmed sales) directly."""
+    _require_admin(user)
+    from .database import PackPurchase, PackCommission, P2PIntent
+
+    def uname(uid):
+        if not uid:
+            return None
+        r = db.query(User.username).filter(User.id == uid).first()
+        return r[0] if r else "?#%s" % uid
+
+    purchases = db.query(PackPurchase).order_by(PackPurchase.id).all()
+    intents = db.query(P2PIntent).order_by(P2PIntent.id).all()
+    commissions = db.query(PackCommission).order_by(PackCommission.id).all()
+
+    return JSONResponse({
+        "summary": {
+            "pack_purchases": len(purchases),
+            "p2p_intents": len(intents),
+            "pack_commissions": len(commissions),
+            "intents_by_status": _count_by(intents, "status"),
+            "purchases_by_status": _count_by(purchases, "status"),
+        },
+        "purchases": [{
+            "id": p.id, "buyer": uname(p.user_id), "buyer_id": p.user_id,
+            "level": p.pack_level, "amount": float(p.amount or 0),
+            "status": p.status, "source": p.source,
+            "payment_method": p.payment_method, "tx_ref": p.tx_ref,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+            "activated_at": p.activated_at.isoformat() if p.activated_at else None,
+        } for p in purchases],
+        "intents": [{
+            "id": i.id, "buyer": uname(getattr(i, "buyer_id", None)),
+            "payee": uname(getattr(i, "earner_id", None)),
+            "level": getattr(i, "pack_level", None),
+            "amount": float(getattr(i, "amount", 0) or 0),
+            "status": i.status,
+            "created_at": i.created_at.isoformat() if getattr(i, "created_at", None) else None,
+        } for i in intents],
+        "commissions": [{
+            "id": c.id, "purchase_id": c.purchase_id,
+            "buyer": uname(c.buyer_id), "earner": uname(c.earner_id),
+            "earner_is_company": c.earner_id is None,
+            "amount": float(c.amount or 0), "type": c.commission_type,
+            "status": c.status, "level": c.pack_level,
+        } for c in commissions],
+    })
+
+
+def _count_by(rows, attr):
+    out = {}
+    for r in rows:
+        k = getattr(r, attr, None) or "unknown"
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
 @app.get("/admin/api/al/member/{member_id}")
 def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
                            db: Session = Depends(get_db)):
