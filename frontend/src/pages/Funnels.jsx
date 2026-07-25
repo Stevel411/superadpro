@@ -113,7 +113,28 @@ export default function Funnels() {
         ? { title: 'Untitled Page', status: 'draft' }
         : { title: tpl.title, status: 'draft', gjs_css: JSON.stringify(tpl.__content) };
       const res = await apiPost('/api/funnels/save', payload);
-      if (res && res.id) { window.location.href = `/pro/funnel/${res.id}/edit`; return; }
+      if (res && res.id) {
+        // For lead-capture style templates, make connecting a list +
+        // autoresponder step one: open the connect panel right after the
+        // page is created, pre-filling a suggested list name from the
+        // page title, THEN go to the editor. Other templates go straight in.
+        const isLeadCapture = tpl && (tpl.key === 'lead-capture' || tpl.key === 'lead-magnet');
+        if (isLeadCapture) {
+          setPendingEditUrl(`/pro/funnel/${res.id}/edit`);
+          setEditingWiring({
+            id: res.id,
+            title: tpl.title,
+            default_list_id: null,
+            capture_sequence_id: null,
+            suggested_list_name: `${tpl.title} leads`,
+          });
+          setCreating(false);
+          setCreatingKey(null);
+          return;
+        }
+        window.location.href = `/pro/funnel/${res.id}/edit`;
+        return;
+      }
       alert("Couldn't create the page — please try again.");
     } catch (e) {
       alert(`Couldn't create page: ${e.message || e}`);
@@ -141,6 +162,9 @@ export default function Funnels() {
   // the FunnelPage object (with default_list_id, capture_sequence_id,
   // and current names from /api/funnels). Modal opens in edit mode.
   const [editingWiring, setEditingWiring] = useState(null);
+  // When the connect panel is opened right after creating a lead-capture
+  // page, this holds the editor URL to go to once they connect (or skip).
+  const [pendingEditUrl, setPendingEditUrl] = useState(null);
 
   // Share Code system (19 May 2026) — when a user clicks the Share
   // button on a page card we POST to /api/share-codes/generate and
@@ -185,10 +209,24 @@ export default function Funnels() {
     } catch (e) {
       alert(`Couldn't update wiring: ${e.message || e}`);
     }
+    // If this connect panel was opened right after creating the page,
+    // continue into the editor now that leads are wired.
+    if (pendingEditUrl) {
+      const url = pendingEditUrl;
+      setPendingEditUrl(null);
+      window.location.href = url;
+    }
   };
 
   const handleWiringCancel = () => {
     setEditingWiring(null);
+    // Skipping connection after create still takes them into the editor —
+    // the page just shows the amber 'not connected' prompt when they return.
+    if (pendingEditUrl) {
+      const url = pendingEditUrl;
+      setPendingEditUrl(null);
+      window.location.href = url;
+    }
   };
 
   // Open the share modal for a page and immediately fire the generate
@@ -623,32 +661,40 @@ export default function Funnels() {
                     not a primary action. */}
                 <div
                   onClick={() => setEditingWiring(p)}
-                  title="Edit campaign wiring"
+                  title={p.default_list_name ? "Change where leads go" : "Connect this page to a list and autoresponder"}
                   style={{
-                    padding:'8px 14px 10px',
-                    borderTop:'1px dashed #e8ecf2',
-                    background:'#f8fafc',
+                    padding:'11px 15px',
+                    borderTop:'1px solid ' + (p.default_list_name ? '#e4f0e8' : '#fce9c9'),
+                    background: p.default_list_name ? '#f0f7f2' : '#fff8ec',
                     cursor:'pointer',
                     display:'flex',
                     alignItems:'center',
-                    gap:6,
-                    fontSize:11,
-                    color:'var(--sap-text-muted)',
+                    gap:9,
+                    fontSize:12.5,
                     fontFamily:'Sora,sans-serif',
-                    fontWeight:600,
+                    fontWeight:700,
                   }}>
-                  <Send size={10} color="#c8102e" strokeWidth={2.2}/>
-                  <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                  <span style={{
+                    width:22,height:22,borderRadius:6,flexShrink:0,
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    fontSize:12,fontWeight:900,color:'#fff',
+                    background: p.default_list_name ? '#0b7a3e' : '#f59e0b',
+                  }}>{p.default_list_name ? '✓' : '!'}</span>
+                  <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',
+                                color: p.default_list_name ? '#0b6c37' : '#8a5a1a',lineHeight:1.4}}>
                     {p.default_list_name ? (
-                      <>→ <span style={{color:'#0a1f52'}}>{p.default_list_name}</span></>
+                      <>Leads go to <span style={{color:'#064e28'}}>{p.default_list_name}</span>
+                        {p.capture_sequence_title && (
+                          <> → <span style={{color:'#064e28'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
+                        )}
+                      </>
                     ) : (
-                      <span style={{color:'#dc2626'}}>⚠ No list bound</span>
-                    )}
-                    {p.capture_sequence_title && (
-                      <> · <span style={{color:'#0a1f52'}}>{p.capture_sequence_title}</span>{p.capture_sequence_num_emails ? ` (${p.capture_sequence_num_emails})` : ''}</>
+                      <>This page isn't capturing leads yet — <span style={{color:'#7a4d12'}}>connect a list &amp; autoresponder</span></>
                     )}
                   </span>
-                  <span style={{color:'var(--sap-accent)',fontWeight:700}}>Edit →</span>
+                  <span style={{color:'#c8102e',fontWeight:800,flexShrink:0,fontSize:11.5}}>
+                    {p.default_list_name ? 'Change' : 'Set up ›'}
+                  </span>
                 </div>
               </div>
               );

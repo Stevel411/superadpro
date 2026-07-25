@@ -245,7 +245,7 @@ export default function CampaignSetupModal({
             />
             <RadioRow
               label={`Use an existing sequence${hasSeqs ? '' : ' (none yet)'}`}
-              hint={hasSeqs ? 'Pick one of your existing sequences.' : 'Create a sequence in SuperLeads → Sequences first.'}
+              hint={hasSeqs ? 'Pick one of your existing sequences.' : 'No sequence yet? Create one — with AI — on the Autoresponder page (My Leads → Sequences), then pick it here.'}
               selected={seqMode === 'existing'}
               onClick={() => hasSeqs && setSeqMode('existing')}
               disabled={!hasSeqs}>
