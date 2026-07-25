@@ -56,7 +56,7 @@ export default function PublicLayout({ children }) {
               Sign In
             </Link>
             <Link to="/register" style={{ padding: '8px 18px', borderRadius: 8, fontSize: 14, fontWeight: 800, color: '#fff', textDecoration: 'none', background: '#c8102e', boxShadow: '0 4px 14px rgba(200,16,46,0.42)' }}>
-              Get lifetime access
+              Join
             </Link>
           </div>
         </div>

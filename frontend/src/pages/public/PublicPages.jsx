@@ -47,7 +47,7 @@ export function FAQ() {
           <p style={{ fontSize: 15, color: '#5b6b8c', marginBottom: 20 }}>{t('publicPages.stillHaveQuestions')}</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/support" style={{ padding: '10px 24px', borderRadius: 10, background: '#fff', border: '1.5px solid #dfe5f1', color: '#0a1f52', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>{t('publicPages.contactSupport')}</Link>
-            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: '#c8102e', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>{'Get lifetime access'}</Link>
+            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: '#c8102e', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>{'Join'}</Link>
           </div>
         </div>
       </div>

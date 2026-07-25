@@ -2001,15 +2001,15 @@ footer a{color:#b9c8ef}
   <a class="lnk" href="/plan">Income</a>
   <span class="sp"></span>
   <a class="nb white" href="/login">Log in</a>
-  <a class="nb red" href="/join">Join — $100</a>
+  <a class="nb red" href="/join">Join</a>
 </div>
 
 <div class="hero">
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
-  <a class="cta" href="/join">Get lifetime access — $100 →</a><a class="cta2" href="/plan">See the plan</a>
-  <div class="trust"><span class="ok">✓</span> One-time $100 · pay by card or USDT · your sponsor earns nothing on your join</div>
+  <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
+  <div class="trust"><span class="ok">✓</span> Annual $50 or Lifetime $100 · pay by card or USDT · your sponsor earns nothing on your join</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
@@ -2021,7 +2021,7 @@ footer a{color:#b9c8ef}
 <section id="tools" class="__CARDS_MODE__">
   <div class="k">The Toolkit</div>
   <h2>The tools that do the work</h2>
-  <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by one $100 payment, for life.</div>
+  <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by your membership.</div>
   <div class="grid">
     <a class="tool" href="/join" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
     <a class="tool" href="/join" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
@@ -2037,7 +2037,7 @@ footer a{color:#b9c8ef}
     <h2>From starting out to living free.</h2>
     <div class="lead">Three steps. No guesswork, no monthly tool bills, and an income side that's 100% member-to-member when you're ready for it.</div>
     <div class="steps">
-      <div class="step"><div class="n">1</div><b>Join — $100, once</b><p>One payment, lifetime access to every tool. No subscription, ever. Your sponsor earns nothing on this — it's a platform payment.</p></div>
+      <div class="step"><div class="n">1</div><b>Join the platform</b><p>Start with Annual ($50/year) or Lifetime ($100 once) — either unlocks every tool. Your sponsor earns nothing on this; it's a platform payment.</p></div>
       <div class="step"><div class="n">2</div><b>Own a pack &amp; do your daily watch</b><p>You earn at any pack level you own. Watching daily keeps you qualified — miss it and sales pass over you.</p></div>
       <div class="step"><div class="n">3</div><b>Sell &amp; get paid directly</b><p>Buyers pay your wallet, member to member — USDT or USDC, the moment they buy. Nothing to withdraw.</p></div>
     </div>
@@ -2125,7 +2125,7 @@ footer a{color:var(--dim)}
   <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wm">Advantage<span class="life">Life</span></span></a>
   <span class="sp"></span>
   <a class="back" href="/">&larr; Back to site</a>
-  <a class="nb" href="/join">Join — $100</a>
+  <a class="nb" href="/join">Join</a>
 </div>
 
 <div class="hero">
@@ -2173,14 +2173,14 @@ footer a{color:var(--dim)}
   </div>
   <div class="honest">
     <h3>The honest fine print — on the page, not buried</h3>
-    <p><b>Your join isn't a commission.</b> The $100 lifetime membership goes to the platform — your sponsor earns nothing on it. Income comes only from campaign pack sales.<br><br>
+    <p><b>Your join isn't a commission.</b> The Your membership ($50 annual or $100 lifetime) goes to the platform — your sponsor earns nothing on it. Income comes only from campaign pack sales.<br><br>
     <b>Unqualified sales route to the platform.</b> If nobody in a chain qualifies for a sale, it goes to AdvantageLife — never silently redistributed.<br><br>
     <b>You need a payout wallet on file.</b> Buyers pay you directly in USDT/USDC — no wallet means sales pass over you until you add one.</p>
   </div>
 </section>
 
 <div class="final">
-  <a class="cta" href="/join">Join AdvantageLife — $100 once →</a>
+  <a class="cta" href="/join">Join AdvantageLife →</a>
   <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. This page describes the compensation structure — it makes no earnings promises. Results depend entirely on your own effort, consistency and sales. Most members should expect results proportional to the work they put in, and you can use every tool without earning at all.</div>
 </div>
 

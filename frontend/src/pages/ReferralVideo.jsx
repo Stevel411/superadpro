@@ -69,7 +69,7 @@ export default function ReferralVideo() {
         <div className="rv-hw">
           <div className="rv-logo"><span className="rv-mk">A</span>Advantage<em>Life</em></div>
           <div className="rv-inv">Invited by <b>{sponsor}</b></div>
-          <a href={ctaUrl} className="rv-cta">Get lifetime access &mdash; $100</a>
+          <a href={ctaUrl} className="rv-cta">Join AdvantageLife</a>
         </div>
       </header>
 
@@ -182,7 +182,7 @@ export default function ReferralVideo() {
           <p className="rv-lede">
             One payment, lifetime access, and a full refund if you change your mind inside a week.
           </p>
-          <a href={ctaUrl} className="rv-cta-lg">Get lifetime access &mdash; $100</a>
+          <a href={ctaUrl} className="rv-cta-lg">Join AdvantageLife</a>
           <p className="rv-fine">
             Invited by <b>{sponsor}</b> &middot; no subscription &middot; nobody earns a commission on your join
           </p>

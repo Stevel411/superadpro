@@ -369,7 +369,7 @@ export default function MySite() {
   // This has to come BEFORE the entitlement gate. /api/blog/me failing leaves
   // `data` null, so `data?.is_pro` is undefined, so `!isPro` is true — and a
   // paid-up member was shown a paywall for something they already own, with a
-  // Get lifetime access button that sends them to /join, which tells them they
+  // Join button that sends them to /join, which tells them they
   // are already in and bounces them to the dashboard. An API error must never
   // be indistinguishable from "you have not paid".
   if (err || !data) {
@@ -405,7 +405,7 @@ export default function MySite() {
             Build a full blog and website — your posts, your pages, your brand, your domain.
             Included with lifetime access, along with every other tool. One payment of $100, never monthly.
           </p>
-          <a href="/join" style={btn('primary')}>Get lifetime access <ArrowRight size={16} /></a>
+          <a href="/join" style={btn('primary')}>Join <ArrowRight size={16} /></a>
         </div>
       </AlShell>
     );

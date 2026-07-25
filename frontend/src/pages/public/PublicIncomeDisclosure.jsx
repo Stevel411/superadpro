@@ -45,7 +45,7 @@ export default function PublicIncomeDisclosure() {
             <p>AdvantageLife pays 100% of every VideoView pack sale to a member. Packs are bought and sold person to person, wallet to wallet — the platform does not take a cut and does not hold the money:</p>
             <CostBreakdown items={[
               { pct: '100%', label: 'To a member', desc: 'The full pack price is paid directly by the buyer to the qualifying member. AdvantageLife takes no percentage.' },
-              { pct: '0%', label: 'To the platform', desc: 'The platform earns nothing from pack sales. Its income is the one-time $100 lifetime join.' },
+              { pct: '0%', label: 'To the platform', desc: 'The platform earns nothing from pack sales. Its income is the membership fee ($50 annual or $100 lifetime).' },
             ]}/>
             <p style={{ fontSize: 14, color: 'rgba(200,220,255,0.55)', marginTop: 14 }}>
               Two conditions determine whether a member receives a commission, and both are disclosed to members before purchase.
@@ -78,10 +78,10 @@ export default function PublicIncomeDisclosure() {
           </Section>
 
           <Section title="The joining fee pays no commission">
-            <p>AdvantageLife charges a one-time $100 fee for lifetime access to the platform and its tools. This fee is paid to the platform. <strong>It generates no commission of any kind</strong> — the member who referred a new member earns nothing from that person joining:</p>
+            <p>AdvantageLife charges a membership fee for access to the platform and its tools — $50 for one year, or $100 for lifetime. This fee is paid to the platform. <strong>It generates no commission of any kind</strong> — the member who referred a new member earns nothing from that person joining:</p>
             <CostBreakdown items={[
-              { pct: '$0', label: 'To the referring member', desc: 'No commission, bonus or override is paid on the $100 join. Nobody earns from a signup.' },
-              { pct: '$100', label: 'To the platform', desc: 'One payment, lifetime access. There is no monthly membership, subscription or recurring fee.' },
+              { pct: '$0', label: 'To the referring member', desc: 'No commission, bonus or override is paid on the membership fee. Nobody earns from a signup.' },
+              { pct: 'Fee', label: 'To the platform', desc: 'The membership fee. Annual renews yearly; lifetime is a single payment. No pack or commission revenue goes to the platform.' },
             ]}/>
           </Section>
 
@@ -90,7 +90,7 @@ export default function PublicIncomeDisclosure() {
           </Section>
 
           <Section title={t('incomeDisclaimer.riskTitle', { defaultValue: 'Financial risk' })}>
-            <p>{t('incomeDisclaimer.body_L72', { defaultValue: 'Participating in AdvantageLife requires a one-time $100 lifetime join, and earning from the compensation plan requires buying VideoView packs at your own expense. These are business expenses that you may not recover. Only spend what you can afford to lose. Do not treat platform activity as a guaranteed investment.' })}</p>
+            <p>{t('incomeDisclaimer.body_L72', { defaultValue: 'Participating in AdvantageLife requires a membership ($50 annual or $100 lifetime), and earning from the compensation plan requires buying VideoView packs at your own expense. These are business expenses that you may not recover. Only spend what you can afford to lose. Do not treat platform activity as a guaranteed investment.' })}</p>
           </Section>
 
           <Section title={t('incomeDisclaimer.complianceTitle', { defaultValue: 'Legal compliance' })}>

@@ -183,10 +183,10 @@ export default function BlogDomain() {
                       Custom domains are included with the club
                     </div>
                     <div style={{ fontSize: 13, color: '#92400e', lineHeight: 1.55, marginBottom: 10 }}>
-                      Lifetime access lets you serve your blog on your own domain, under your own brand. One payment of $100, never monthly.
+                      Membership lets you serve your blog on your own domain, under your own brand.
                     </div>
                     <Link to="/join" style={{ ...primaryBtnStyle, textDecoration: 'none' }}>
-                      Get lifetime access &rarr;
+                      Join &rarr;
                     </Link>
                   </div>
                 </div>
