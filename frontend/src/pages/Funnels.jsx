@@ -5,7 +5,6 @@ import AlShell from '../components/layout/AlShell';
 import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, ArrowRight, Send, Share2, X, Check } from 'lucide-react';
 import CampaignSetupModal from '../components/CampaignSetupModal';
-import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 import exportHTML from './labs-superpages/exportHTML';
 import PagePreview from '../components/PagePreview';
 import { LABS_TEMPLATES } from './labs-superpages/labsTemplates';
@@ -608,14 +607,6 @@ export default function Funnels() {
                           26 May 2026: icon buttons sized up from 32px to 38px
                           to match the larger primary buttons (Steve, F redesign). */}
                       <div style={{display:'flex',gap:6,flexShrink:0,alignItems:'center'}}>
-                        {p.status === 'published' && (
-                          <FeatureOnExploreButton
-                            artifactType="landing-page"
-                            artifactId={parseInt(p.id, 10)}
-                            artifactTitle={p.title || ''}
-                            variant="icon"
-                          />
-                        )}
                         <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={16} color="var(--sap-text-muted)"/></button>
                         <button onClick={() => openShareModal(p)} title="Generate share code" style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #dbe4f5',background:'#f3f5fb',cursor:'pointer'}}><Share2 size={16} color="#a00d24"/></button>
                         <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',padding:0,borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={16} color="var(--sap-red)"/></button>

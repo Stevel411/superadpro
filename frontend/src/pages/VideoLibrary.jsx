@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import AlShell from '../components/layout/AlShell';
 import { apiGet } from '../utils/api';
 import { Film, Eye, Play, CheckCircle, Clock, AlertCircle, Trash2, Plus } from 'lucide-react';
-import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 
 export default function VideoLibrary() {
   var { t } = useTranslation();
@@ -170,14 +169,6 @@ export default function VideoLibrary() {
 
                   {/* Actions */}
                   <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
-                    {(c.views_delivered || 0) >= 1 && (
-                      <FeatureOnExploreButton
-                        artifactType="campaign"
-                        artifactId={c.id}
-                        artifactTitle={c.title || ''}
-                        variant="secondary"
-                      />
-                    )}
                     {c.video_url && (
                       <Link to={'/watch?preview=' + c.id}
                         style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:800,color:'#c8102e',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(200,16,46,.2)',background:'rgba(200,16,46,.04)',textDecoration:'none',cursor:'pointer'}}>

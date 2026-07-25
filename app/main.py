@@ -3422,6 +3422,9 @@ async def api_member_submit_showcase(request: Request, db: Session = Depends(get
 
 @app.get("/api/member/showcase/mine")
 def api_member_my_showcase(request: Request, db: Session = Depends(get_db)):
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "unavailable"}, status_code=410)
     """Returns current user's showcase submissions with status."""
     user = get_current_user(request, db)
     if not user:
@@ -6949,7 +6952,12 @@ def tools_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/explore")
 def explore_page(request: Request):
-    """Live activity + first-dollar stories + member showcase."""
+    """Live activity + first-dollar stories + member showcase (SuperAdPro).
+    Retired on AdvantageLife — the public showcase is not part of the AL
+    model, and nothing in the AL member experience links here."""
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/dashboard", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
-import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
 /*
   EditorTopbar — production page-builder topbar (full cobalt).
@@ -129,15 +128,6 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         </a>
       )}
 
-      {/* Feature on /explore */}
-      {isPublished && pageId && (
-        <FeatureOnExploreButton
-          artifactType="landing-page"
-          artifactId={parseInt(pageId, 10)}
-          artifactTitle={title || ''}
-          variant="secondary"
-        />
-      )}
     </div>
   );
 }
