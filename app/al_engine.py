@@ -161,6 +161,26 @@ def watch_qualified(db: Session, user_id: int) -> bool:
     return False
 
 
+def membership_active(db: Session, user_id: int) -> bool:
+    """True if the member holds ACTIVE paid membership — lifetime (never
+    expires) or annual still within its term. An expired annual member is
+    NOT an eligible earner: a sale that would route to them must climb the
+    pass-up chain (or fall to company) exactly like a failed watch gate,
+    because they've stopped paying to be on the platform. Admin bypasses."""
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None:
+        return False
+    if u.is_admin:
+        return True
+    lvl = getattr(u, "access_level", "free")
+    if lvl == "lifetime":
+        return True
+    if lvl == "annual":
+        exp = getattr(u, "membership_expires_at", None)
+        return exp is not None and exp > datetime.utcnow()
+    return False
+
+
 def payable(db: Session, user_id: int) -> bool:
     """A member can only RECEIVE a sale if the buyer has something to pay —
     i.e. at least one payout method on file. Without this, create_intent
@@ -186,8 +206,12 @@ def _member(db: Session, user_id, cache: dict):
         pack_sale_count=u.pack_sale_count or 0,
         owned_level=owned_level(db, user_id),
         # "watch_qualified" carries the full CAN-RECEIVE gate into the pure
-        # core: watch gate AND payability. Semantically "eligible earner".
-        watch_qualified=watch_qualified(db, user_id) and payable(db, user_id),
+        # core: watch gate AND payability AND active membership. Semantically
+        # "eligible earner". An expired annual member fails here and is skipped
+        # in the pass-up climb, same as any other failed gate.
+        watch_qualified=(watch_qualified(db, user_id)
+                         and payable(db, user_id)
+                         and membership_active(db, user_id)),
     )
     cache[user_id] = m
     return m

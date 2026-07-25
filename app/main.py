@@ -23330,6 +23330,15 @@ def _stripe_handle_checkout_completed(db, session, event):
             except Exception:
                 logger.exception(f"al_lifetime activation crashed for user {user.id}")
 
+        elif product_kind == "al_annual":
+            # AdvantageLife $50 annual membership (join or renewal). Same locked
+            # model — sponsor earns nothing. Activation pushes expiry +1yr.
+            try:
+                _al_activate_annual(db, user.id, source="stripe",
+                                    ref=f"stripe_{session.get('id')}")
+            except Exception:
+                logger.exception(f"al_annual activation crashed for user {user.id}")
+
         elif product_kind == "launchpad":
             # $10 Launchpad = grid tier 0 for a FREE (non-member) user. Grants
             # the tier-0 grid + comp-plan qualification through the SAME engine
@@ -24843,6 +24852,14 @@ def _nowpayments_activate_product(db, user, order, meta):
                                   ref=f"np_{order.id}")
         except Exception:
             logger.exception(f"al_lifetime NOWPayments activation crashed for order {order.id}")
+
+    elif order.product_type == "al_annual":
+        # AdvantageLife $50 annual membership via crypto (join or renewal).
+        try:
+            _al_activate_annual(db, order.user_id, source="nowpayments",
+                                ref=f"np_{order.id}")
+        except Exception:
+            logger.exception(f"al_annual NOWPayments activation crashed for order {order.id}")
 
     elif order.product_type == "email_boost":
         pack_map = {
@@ -71736,15 +71753,33 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 </body></html>"""
 
 
-def _al_is_lifetime(user) -> bool:
-    """A member may buy/sell campaign packs only once they hold lifetime
-    access (paid the $100 join or grandfathered). Admins bypass. Core
-    sequence of the model: join first, then packs."""
+def _al_membership_active(user) -> bool:
+    """True if the member currently holds ACTIVE membership — either lifetime
+    (never expires) or annual whose membership_expires_at is still in the
+    future. Admins bypass. This is the single access chokepoint: an expired
+    annual member returns False here and is therefore treated exactly like a
+    free member everywhere — locked out of tools and unable to sell until they
+    renew, with their tree and past earnings untouched (those are historical
+    rows, not access)."""
     if user is None:
         return False
     if getattr(user, "is_admin", False):
         return True
-    return getattr(user, "access_level", "free") == "lifetime"
+    lvl = getattr(user, "access_level", "free")
+    if lvl == "lifetime":
+        return True
+    if lvl == "annual":
+        exp = getattr(user, "membership_expires_at", None)
+        return exp is not None and exp > datetime.utcnow()
+    return False
+
+
+def _al_is_lifetime(user) -> bool:
+    """Back-compat alias. The model now has two paid tiers (annual $50 /
+    lifetime $100); every access gate cares about whether membership is
+    ACTIVE, not which tier — so this delegates to _al_membership_active.
+    Kept because many call sites and a template flag reference this name."""
+    return _al_membership_active(user)
 
 
 def _al_gate_page(user, shared_route: bool = False):
@@ -72148,6 +72183,49 @@ def _al_activate_lifetime(db, user_id: int, source: str, ref: str = None):
     db.commit()
     logger.info(f"AL lifetime activated: user={u.id} source={source} ref={ref}")
     return {"ok": True, "already": False}
+
+
+def _al_activate_annual(db, user_id: int, source: str, ref: str = None):
+    """Idempotently grant / renew a $50 ANNUAL membership after a verified
+    payment. Sets access_level='annual' and pushes membership_expires_at to
+    one year out. On renewal, extends from the later of now or the current
+    expiry so an early renewal doesn't lose remaining days. A lifetime member
+    is never downgraded to annual — lifetime wins. The sponsor earns NOTHING
+    on the join or renewal (locked model), same as the lifetime join."""
+    from datetime import timedelta as _td
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None:
+        return {"ok": False, "error": "user not found"}
+    if u.access_level == "lifetime":
+        # already the superior tier — don't downgrade, don't double-charge logic
+        return {"ok": True, "already": True, "note": "member is lifetime"}
+
+    now = datetime.utcnow()
+    base = u.membership_expires_at if (u.membership_expires_at and u.membership_expires_at > now) else now
+    u.access_level = "annual"
+    u.membership_expires_at = base + _td(days=365)
+    u.membership_billing = "annual"
+    u.is_active = True
+    if not u.activated_at:
+        u.activated_at = now
+    try:
+        db.add(Payment(from_user_id=u.id, to_user_id=None,
+                       amount_usdt=float(os.environ.get("AL_ANNUAL_PRICE_USD", "50")),
+                       payment_type="al_annual",
+                       tx_hash=(ref or f"al-annual-{source}-{u.id}-{now.strftime('%Y%m%d%H%M%S')}")[:180],
+                       status="paid"))
+    except Exception:
+        logger.exception(f"al_annual Payment row failed for user {u.id} — activation continues")
+    try:
+        db.add(Notification(user_id=u.id, type="al_annual",
+                            title="Annual membership active 🎉",
+                            message=("Your AdvantageLife annual membership is active for 12 months — "
+                                     "every tool is yours. We'll remind you before it renews.")))
+    except Exception:
+        pass
+    db.commit()
+    logger.info(f"AL annual activated: user={u.id} source={source} ref={ref} expires={u.membership_expires_at}")
+    return {"ok": True, "already": False, "expires_at": u.membership_expires_at.isoformat()}
 
 
 from . import al_chain_verify as _alchain
