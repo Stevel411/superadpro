@@ -69469,7 +69469,7 @@ def al_recent_signups(days: int = 30, user: User = Depends(_al_user),
 
 
 @app.get("/admin/api/al/tidy-intents")
-def al_tidy_intents(apply: int = 0, cancel_id: int = 0,
+def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Clear dead settlement attempts so the Settlements view shows only live
     and confirmed sales.
@@ -69477,12 +69477,16 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0,
     Safety, absolute: this only ever DELETES intents whose status is
     'cancelled' or 'expired'. It NEVER touches 'confirmed' (a real sale),
     and never touches any PackPurchase or PackCommission. A 'proof_submitted'
-    intent is left alone — that may be a member who actually paid and is
-    waiting, which is a decision, not clutter.
+    intent is left alone by the sweep — that may be a member who actually
+    paid and is waiting, which is a decision, not clutter.
 
-    Optionally cancel one live 'pending' intent first via ?cancel_id=N — used
-    to retire an abandoned checkout (e.g. the owner's own stray #41) before
-    the sweep.
+    Optionally cancel one live intent first via ?cancel_id=N:
+      - a 'pending' intent cancels directly (abandoned checkout);
+      - a 'proof_submitted' intent requires ?force=1 as well, because
+        cancelling it declines a payment claim — a deliberate act, not a
+        cleanup. Used here to retire known test rows (e.g. #2, created
+        11 Jul, before the settlement code existed — old test data, not a
+        real member).
 
     Read-only by default; ?apply=1 performs the deletion.
     """
@@ -69490,15 +69494,23 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0,
     from .database import P2PIntent
 
     note = None
-    # optional: cancel one specified pending intent first
+    # optional: cancel one specified intent first
     if cancel_id and apply:
         it = db.query(P2PIntent).filter(P2PIntent.id == cancel_id).first()
         if it and it.status == "pending":
             it.status = "cancelled"
             db.commit()
             note = "Cancelled pending intent #%d before the sweep." % cancel_id
+        elif it and it.status == "proof_submitted" and force:
+            it.status = "cancelled"
+            db.commit()
+            note = ("Cancelled proof_submitted intent #%d (force) — declined test "
+                    "claim; no PackPurchase/PackCommission affected." % cancel_id)
+        elif it and it.status == "proof_submitted":
+            note = ("Intent #%d is 'proof_submitted' — add &force=1 to cancel it, "
+                    "since that declines a payment claim." % cancel_id)
         elif it:
-            note = "Intent #%d is '%s', not pending — left as-is." % (cancel_id, it.status)
+            note = "Intent #%d is '%s', not cancellable here — left as-is." % (cancel_id, it.status)
 
     dead = db.query(P2PIntent).filter(
         P2PIntent.status.in_(("cancelled", "expired"))).all()
