@@ -71,26 +71,40 @@ export default function Wisdom() {
 
   function pick(f) { setFilter(f); load(f); }
 
-  function shareQuote(q) {
+  async function shareQuote(q) {
     setToast('Preparing your share card…');
-    // Copy the caption (with your referral link) so it's ready to paste,
-    // then open the server-rendered PNG to save/share. Both carry the
-    // member's own /ref link — every share promotes them.
-    fetch('/api/al/wisdom/caption/' + q.id, { credentials: 'include' })
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
-        if (j && j.caption && navigator.clipboard) {
-          navigator.clipboard.writeText(j.caption).catch(function () {});
+    let caption = '';
+    try {
+      const cr = await fetch('/api/al/wisdom/caption/' + q.id, { credentials: 'include' });
+      const cj = await cr.json();
+      caption = (cj && cj.caption) || '';
+    } catch (e) { /* caption is optional */ }
+
+    // Try the native share sheet with the actual image FILE (mobile). This is
+    // the real "share to Instagram/X/WhatsApp" experience.
+    try {
+      const ir = await fetch('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=0', { credentials: 'include' });
+      if (ir.ok && navigator.canShare) {
+        const blob = await ir.blob();
+        const file = new File([blob], 'advantagelife-wisdom.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: caption });
+          setToast('');
+          return;
         }
-        window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5', '_blank');
-        setToast('Caption copied — image opened. Save it and post with your link.');
-        setTimeout(function () { setToast(''); }, 4000);
-      })
-      .catch(function () {
-        window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5', '_blank');
-        setToast('Image opened — save it and share with your link.');
-        setTimeout(function () { setToast(''); }, 4000);
-      });
+      }
+      // No file-share support (most desktops): copy caption + download image.
+      if (caption && navigator.clipboard) { try { await navigator.clipboard.writeText(caption); } catch (e) {} }
+      window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=1', '_blank');
+      setToast('Caption copied & image saved — post them with your link.');
+      setTimeout(function () { setToast(''); }, 4000);
+    } catch (e) {
+      // User cancelled the share sheet, or an error — stay quiet on cancel.
+      if (e && e.name === 'AbortError') { setToast(''); return; }
+      window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=1', '_blank');
+      setToast('Image saved — share it with your link.');
+      setTimeout(function () { setToast(''); }, 4000);
+    }
   }
 
   function toggleFav(q) {

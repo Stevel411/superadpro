@@ -72728,13 +72728,14 @@ def api_wisdom_favourite(quote_id: int, user: User = Depends(get_current_user),
 
 @app.get("/api/al/wisdom/card/{quote_id}.png")
 def api_wisdom_card(quote_id: int, style: str = "navy", fmt: str = "4x5",
-                    name: int = 0, user: User = Depends(get_current_user),
+                    name: int = 0, dl: int = 1, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
     """The shareable image, rendered server-side.
 
-    Server-side rather than html2canvas so the file is identical on every
-    device — this is the thing a member puts their name to, and an old
-    Android phone must not produce a worse one.
+    dl=1 (default) forces a download (Content-Disposition: attachment) — good
+    for the desktop 'save the image' path. dl=0 serves it inline so the
+    frontend can fetch it as a blob and hand it to the native share sheet
+    (navigator.share with files) on mobile.
     """
     if not user:
         return JSONResponse({"error": "Not signed in"}, status_code=401)
@@ -72752,10 +72753,10 @@ def api_wisdom_card(quote_id: int, style: str = "navy", fmt: str = "4x5",
     except Exception as e:
         logger.error(f"wisdom card render failed: {e}")
         return JSONResponse({"error": "Could not build the image"}, status_code=500)
-    return Response(content=png, media_type="image/png", headers={
-        "Content-Disposition": 'attachment; filename="advantagelife-wisdom-%d.png"' % quote_id,
-        "Cache-Control": "private, max-age=3600",
-    })
+    headers = {"Cache-Control": "private, max-age=3600"}
+    if dl:
+        headers["Content-Disposition"] = 'attachment; filename="advantagelife-wisdom-%d.png"' % quote_id
+    return Response(content=png, media_type="image/png", headers=headers)
 
 
 @app.get("/api/al/wisdom/caption/{quote_id}")
