@@ -22,7 +22,7 @@ const CSS = `
 .wlib .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:15px;align-items:stretch;max-width:100%}
 .wlib .q{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px 22px 18px;position:relative;overflow:hidden;display:flex;flex-direction:column}
 .wlib .q::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:#c8102e}
-.wlib .q .dt{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#64748b;margin-bottom:13px;padding-right:38px}
+.wlib .q .dt{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#64748b;margin-bottom:13px;padding-right:74px}
 .wlib .q .tx{font-size:17.5px;line-height:1.45;font-weight:700;letter-spacing:-.012em;color:#0a1f52;flex:1}
 .wlib .q .pv{margin-top:18px;padding-top:13px;border-top:2px solid #c8102e;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .wlib .q .pv .who{font-size:13.5px;font-weight:900;text-transform:uppercase;color:#0f172a}
@@ -30,6 +30,9 @@ const CSS = `
 .wlib .q .pv .yr{font-size:20px;font-weight:900;color:#e2e8f0;letter-spacing:-.03em;line-height:1}
 .wlib .fav{position:absolute;top:15px;right:15px;width:30px;height:30px;border-radius:50%;border:1.5px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#cbd5e1;font-size:14px;font-family:inherit;padding:0}
 .wlib .fav.on{border-color:#c8102e;color:#c8102e}
+.wlib .shr{position:absolute;top:15px;right:51px;width:30px;height:30px;border-radius:50%;border:1.5px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;font-family:inherit;padding:0}
+.wlib .shr:hover{border-color:#12388f;color:#12388f}
+.wlib .shr svg{width:15px;height:15px}
 .wlib .empty{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:44px 26px;text-align:center}
 .wlib .empty b{display:block;font-size:17px;font-weight:900;color:#0a1f52;margin-bottom:7px}
 .wlib .empty p{font-size:14px;color:#64748b;line-height:1.6;max-width:420px;margin:0 auto}
@@ -48,6 +51,7 @@ export default function Wisdom() {
   const [themes, setThemes] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState('');
 
   function load(f) {
     setLoading(true);
@@ -66,6 +70,28 @@ export default function Wisdom() {
   useEffect(function () { load('all'); }, []);
 
   function pick(f) { setFilter(f); load(f); }
+
+  function shareQuote(q) {
+    setToast('Preparing your share card…');
+    // Copy the caption (with your referral link) so it's ready to paste,
+    // then open the server-rendered PNG to save/share. Both carry the
+    // member's own /ref link — every share promotes them.
+    fetch('/api/al/wisdom/caption/' + q.id, { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.caption && navigator.clipboard) {
+          navigator.clipboard.writeText(j.caption).catch(function () {});
+        }
+        window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5', '_blank');
+        setToast('Caption copied — image opened. Save it and post with your link.');
+        setTimeout(function () { setToast(''); }, 4000);
+      })
+      .catch(function () {
+        window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5', '_blank');
+        setToast('Image opened — save it and share with your link.');
+        setTimeout(function () { setToast(''); }, 4000);
+      });
+  }
 
   function toggleFav(q) {
     var next = !q.favourited;
@@ -89,6 +115,9 @@ export default function Wisdom() {
 
   return (
     <div className="wlib">
+      {toast && (
+        <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: '#0a1f52', color: '#fff', padding: '12px 20px', borderRadius: 11, fontSize: 13.5, fontWeight: 700, boxShadow: '0 14px 34px -12px rgba(10,31,82,.55)', zIndex: 60, maxWidth: '90vw', textAlign: 'center' }}>{toast}</div>
+      )}
       <style>{CSS}</style>
 
       <div className="top">
@@ -135,6 +164,12 @@ export default function Wisdom() {
                       title={q.favourited ? 'Remove from favourites' : 'Save to favourites'}
                       onClick={function () { toggleFav(q); }}>
                       {q.favourited ? '\u2665' : '\u2661'}
+                    </button>
+                    <button
+                      className="shr"
+                      title="Share this quote with your referral link"
+                      onClick={function () { shareQuote(q); }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
                     </button>
                     <div className="dt">{fmt(q.shown_on)}</div>
                     <div className="tx">{q.text}</div>
