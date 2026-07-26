@@ -71616,14 +71616,44 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   function doShare(btn){
     btn.disabled=true;var orig=btn.textContent;btn.textContent='Sharing…';
     fetch('/api/al/share',{method:'POST'}).then(function(r){return r.json()}).then(function(s){
-      // open the native share sheet / copy the link
       var url=location.origin+(s.share_url||'');
-      if(navigator.share){navigator.share({title:'Watch on AdvantageLife',url:url}).catch(function(){});}
-      else if(navigator.clipboard){navigator.clipboard.writeText(url);}
+      var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
+      // MOBILE: native share sheet — where Instagram/X/WhatsApp/Messages
+      // actually appear. DESKTOP: the native sheet only offers AirDrop/Mail/
+      // Notes (useless for social), so copy the link + show a social chooser.
+      if(isMobile && navigator.share){
+        navigator.share({title:'Watch on AdvantageLife',url:url}).catch(function(){});
+      } else {
+        if(navigator.clipboard){navigator.clipboard.writeText(url).catch(function(){});}
+        openShareChooser(url);
+      }
       loadShareBanner();
       if(s.reactivated>0){setTimeout(function(){location.reload();},600);}
       else{btn.disabled=false;btn.textContent=orig;}
     }).catch(function(){btn.disabled=false;btn.textContent=orig;});
+  }
+
+  function openShareChooser(url){
+    var ov=document.getElementById('shareChooser');
+    if(ov){ov.remove();}
+    var enc=encodeURIComponent(url);
+    var txt=encodeURIComponent('Watch on AdvantageLife — real ads, real views. Your effort, your income, 100% yours.');
+    ov=document.createElement('div');ov.id='shareChooser';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(10,20,56,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
+    ov.innerHTML=
+      '<div style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(10,20,56,.3)" onclick="event.stopPropagation()">'
+      +'<div style="font-family:\'Sora\',sans-serif;font-weight:800;font-size:17px;color:#0a1f52;margin-bottom:6px">Share your showcase</div>'
+      +'<div style="font-size:13px;color:#5a6584;line-height:1.5;margin-bottom:16px">Link copied. Pick where to post — everyone who clicks it lands on your showcase.</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+      +'<a href="https://twitter.com/intent/tweet?text='+txt+'&url='+enc+'" target="_blank" rel="noopener" style="text-align:center;padding:12px;border-radius:10px;background:#0a1f52;color:#fff;text-decoration:none;font-weight:700;font-size:13.5px">Post to X</a>'
+      +'<a href="https://www.facebook.com/sharer/sharer.php?u='+enc+'" target="_blank" rel="noopener" style="text-align:center;padding:12px;border-radius:10px;background:#1877f2;color:#fff;text-decoration:none;font-weight:700;font-size:13.5px">Facebook</a>'
+      +'<a href="https://api.whatsapp.com/send?text='+txt+'%20'+enc+'" target="_blank" rel="noopener" style="text-align:center;padding:12px;border-radius:10px;background:#25d366;color:#fff;text-decoration:none;font-weight:700;font-size:13.5px">WhatsApp</a>'
+      +'<button onclick="if(navigator.clipboard){navigator.clipboard.writeText(\''+url+'\')};document.getElementById(\'shareChooser\').remove()" style="padding:12px;border-radius:10px;background:#f1f5f9;color:#0a1f52;border:none;cursor:pointer;font-weight:700;font-size:13.5px;font-family:inherit">Copy link</button>'
+      +'</div>'
+      +'<button onclick="document.getElementById(\'shareChooser\').remove()" style="margin-top:14px;width:100%;padding:10px;border-radius:9px;background:none;border:1px solid #e2e8f0;color:#5a6584;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit">Done</button>'
+      +'</div>';
+    ov.onclick=function(){ov.remove();};
+    document.body.appendChild(ov);
   }
 
   (function(){var st=document.getElementById('strip');if(!st)return;var UP=[3,6,9];

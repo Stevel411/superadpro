@@ -470,7 +470,8 @@ export default function NewDashboard() {
   }
 
   function moreApps() {
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    var isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+    if (isMobile && navigator.share) {
       navigator.share({ title: 'AdvantageLife — Video Showcase', url: shareUrl })
         .then(markShared).catch(function () {});
     } else {
@@ -478,7 +479,8 @@ export default function NewDashboard() {
     }
   }
 
-  const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
+  const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share
+    && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 
   function markShared() {
     apiPost('/api/share/mark-shared', {})
