@@ -73,38 +73,57 @@ export default function Wisdom() {
 
   async function shareQuote(q) {
     setToast('Preparing your share card…');
-    let caption = '';
-    try {
-      const cr = await fetch('/api/al/wisdom/caption/' + q.id, { credentials: 'include' });
-      const cj = await cr.json();
-      caption = (cj && cj.caption) || '';
-    } catch (e) { /* caption is optional */ }
+    const site = 'https://www.advantagelife.club';
 
-    // Try the native share sheet with the actual image FILE (mobile). This is
-    // the real "share to Instagram/X/WhatsApp" experience.
+    // Fetch caption + image in PARALLEL (one await point) so iOS Safari keeps
+    // the tap gesture alive for navigator.share — sequential awaits can drop it.
+    let caption = '';
+    let file = null;
     try {
-      const ir = await fetch('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=0', { credentials: 'include' });
-      if (ir.ok && navigator.canShare) {
-        const blob = await ir.blob();
-        const file = new File([blob], 'advantagelife-wisdom.png', { type: 'image/png' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], text: caption });
-          setToast('');
-          return;
-        }
+      const [cRes, iRes] = await Promise.all([
+        fetch('/api/al/wisdom/caption/' + q.id, { credentials: 'include' }),
+        fetch('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=0', { credentials: 'include' }),
+      ]);
+      try { const cj = await cRes.json(); caption = (cj && cj.caption) || ''; } catch (e) {}
+      if (iRes.ok) {
+        const blob = await iRes.blob();
+        file = new File([blob], 'advantagelife-wisdom.png', { type: 'image/png' });
       }
-      // No file-share support (most desktops): copy caption + download image.
-      if (caption && navigator.clipboard) { try { await navigator.clipboard.writeText(caption); } catch (e) {} }
-      window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=1', '_blank');
-      setToast('Caption copied & image saved — post them with your link.');
-      setTimeout(function () { setToast(''); }, 4000);
+    } catch (e) { /* handled by fallbacks below */ }
+
+    // 1) Native share WITH the image (best — iOS / Android share sheet)
+    try {
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: caption });
+        setToast('');
+        return;
+      }
+      // 2) Native share sheet with just the caption + link (devices without
+      //    file-sharing still get the share sheet, so their link goes out)
+      if (navigator.share) {
+        await navigator.share({ text: caption, url: site });
+        setToast('');
+        return;
+      }
     } catch (e) {
-      // User cancelled the share sheet, or an error — stay quiet on cancel.
-      if (e && e.name === 'AbortError') { setToast(''); return; }
-      window.open('/api/al/wisdom/card/' + q.id + '.png?style=navy&fmt=4x5&dl=1', '_blank');
-      setToast('Image saved — share it with your link.');
-      setTimeout(function () { setToast(''); }, 4000);
+      if (e && e.name === 'AbortError') { setToast(''); return; }  // user cancelled — quiet
+      // otherwise fall through to the non-navigating fallback
     }
+
+    // 3) Desktop / unsupported: copy caption + save the image via a hidden
+    //    anchor. NO window.open — that's what blanked the page on iPhone.
+    if (caption && navigator.clipboard) { try { await navigator.clipboard.writeText(caption); } catch (e) {} }
+    if (file) {
+      try {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'advantagelife-wisdom.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      } catch (e) {}
+    }
+    setToast(caption ? 'Caption copied & image saved — post them with your link.' : 'Image saved — share it with your link.');
+    setTimeout(function () { setToast(''); }, 4000);
   }
 
   function toggleFav(q) {
