@@ -52,6 +52,7 @@ export default function Wisdom() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
+  const [shareFor, setShareFor] = useState(null);  // desktop social chooser: {id, caption}
 
   function load(f) {
     setLoading(true);
@@ -74,9 +75,10 @@ export default function Wisdom() {
   async function shareQuote(q) {
     setToast('Preparing your share card…');
     const site = 'https://www.advantagelife.club';
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 
-    // Fetch caption + image in PARALLEL (one await point) so iOS Safari keeps
-    // the tap gesture alive for navigator.share — sequential awaits can drop it.
+    // Fetch caption + image in parallel (single await) so mobile Safari keeps
+    // the tap gesture alive for the native share sheet.
     let caption = '';
     let file = null;
     try {
@@ -89,29 +91,28 @@ export default function Wisdom() {
         const blob = await iRes.blob();
         file = new File([blob], 'advantagelife-wisdom.png', { type: 'image/png' });
       }
-    } catch (e) { /* handled by fallbacks below */ }
+    } catch (e) { /* fallbacks below */ }
 
-    // 1) Native share WITH the image (best — iOS / Android share sheet)
-    try {
-      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], text: caption });
+    // MOBILE: native share sheet — this is where Instagram / X / WhatsApp /
+    // Messages actually appear as targets. The real one-tap share.
+    if (isMobile && navigator.share) {
+      try {
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: caption });
+        } else {
+          await navigator.share({ text: caption, url: site });
+        }
         setToast('');
         return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') { setToast(''); return; }
+        // fall through to the desktop-style path if native share errored
       }
-      // 2) Native share sheet with just the caption + link (devices without
-      //    file-sharing still get the share sheet, so their link goes out)
-      if (navigator.share) {
-        await navigator.share({ text: caption, url: site });
-        setToast('');
-        return;
-      }
-    } catch (e) {
-      if (e && e.name === 'AbortError') { setToast(''); return; }  // user cancelled — quiet
-      // otherwise fall through to the non-navigating fallback
     }
 
-    // 3) Desktop / unsupported: copy caption + save the image via a hidden
-    //    anchor. NO window.open — that's what blanked the page on iPhone.
+    // DESKTOP: the native sheet only offers AirDrop/Mail/Notes — useless for
+    // social. Instead: copy the caption, download the image, and open a
+    // small chooser so they can post to X / Facebook / LinkedIn in one click.
     if (caption && navigator.clipboard) { try { await navigator.clipboard.writeText(caption); } catch (e) {} }
     if (file) {
       try {
@@ -122,8 +123,8 @@ export default function Wisdom() {
         setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
       } catch (e) {}
     }
-    setToast(caption ? 'Caption copied & image saved — post them with your link.' : 'Image saved — share it with your link.');
-    setTimeout(function () { setToast(''); }, 4000);
+    setShareFor({ id: q.id, caption: caption });  // opens the social chooser
+    setToast('');
   }
 
   function toggleFav(q) {
@@ -148,6 +149,33 @@ export default function Wisdom() {
 
   return (
     <div className="wlib">
+      {shareFor && (
+        <div onClick={function () { setShareFor(null); }}
+             style={{ position: 'fixed', inset: 0, background: 'rgba(10,20,56,.5)', zIndex: 70, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={function (e) { e.stopPropagation(); }}
+               style={{ background: '#fff', borderRadius: 16, maxWidth: 400, width: '100%', padding: '26px 26px 22px', boxShadow: '0 24px 60px rgba(10,20,56,.3)' }}>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 17, color: '#0a1f52', marginBottom: 6 }}>Share this quote</div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 18 }}>
+              The image is saved to your downloads and the caption (with your link) is copied. Pick where to post — attach the image there.
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <a href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareFor.caption || '')} target="_blank" rel="noopener noreferrer"
+                 onClick={function () { setShareFor(null); }}
+                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 10, background: '#0a1f52', color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: 13.5 }}>Post to X</a>
+              <a href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://www.advantagelife.club') + '&quote=' + encodeURIComponent(shareFor.caption || '')} target="_blank" rel="noopener noreferrer"
+                 onClick={function () { setShareFor(null); }}
+                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 10, background: '#1877f2', color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: 13.5 }}>Facebook</a>
+              <a href={'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent('https://www.advantagelife.club')} target="_blank" rel="noopener noreferrer"
+                 onClick={function () { setShareFor(null); }}
+                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 10, background: '#0a66c2', color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: 13.5 }}>LinkedIn</a>
+              <button onClick={function () { if (shareFor.caption && navigator.clipboard) { navigator.clipboard.writeText(shareFor.caption); } setToast('Caption copied again'); setShareFor(null); setTimeout(function () { setToast(''); }, 2500); }}
+                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 10, background: '#f1f5f9', color: '#0a1f52', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13.5, fontFamily: 'inherit' }}>Copy caption</button>
+            </div>
+            <button onClick={function () { setShareFor(null); }}
+               style={{ marginTop: 16, width: '100%', padding: '10px', borderRadius: 9, background: 'none', border: '1px solid #e2e8f0', color: '#64748b', cursor: 'pointer', fontWeight: 600, fontSize: 13, fontFamily: 'inherit' }}>Done</button>
+          </div>
+        </div>
+      )}
       {toast && (
         <div style={{ position: 'fixed', left: '50%', bottom: 26, transform: 'translateX(-50%)', background: '#0a1f52', color: '#fff', padding: '12px 20px', borderRadius: 11, fontSize: 13.5, fontWeight: 700, boxShadow: '0 14px 34px -12px rgba(10,31,82,.55)', zIndex: 60, maxWidth: '90vw', textAlign: 'center' }}>{toast}</div>
       )}
