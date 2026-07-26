@@ -127,10 +127,9 @@ def render(quote: dict, ref_link: str, style: str = "navy", fmt: str = "4x5",
     f_who = _font("Black", 33)
     d.text((M, y), (quote.get("author") or "").upper(), font=f_who, fill=_hex(ink))
     y += 44
-    f_src = _font("Medium", 24)
-    for ln in _wrap(d, quote.get("source") or "", f_src, box)[:2]:
-        d.text((M, y), ln, font=f_src, fill=_hex(muted))
-        y += 32
+    # Source line intentionally NOT drawn on the member-facing card — the
+    # quote + author is cleaner to share. Provenance is kept in the data and
+    # shown in admin so quotes stay verifiable.
 
     # footer — brand, the member's link, the tagline
     fy = H - M - 96

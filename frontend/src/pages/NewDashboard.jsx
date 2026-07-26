@@ -604,7 +604,6 @@ export default function NewDashboard() {
                 <div className="wp">
                   <div>
                     <div className="who">{wis.author}</div>
-                    <div className="src">{wis.source}</div>
                   </div>
                   {wis.year && <div className="yr">{wis.year}</div>}
                 </div>

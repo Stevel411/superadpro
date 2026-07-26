@@ -176,7 +176,6 @@ export default function Wisdom() {
                     <div className="pv">
                       <div>
                         <div className="who">{q.author}</div>
-                        <div className="src">{q.source}</div>
                       </div>
                       {q.year && <div className="yr">{q.year}</div>}
                     </div>
