@@ -72776,6 +72776,82 @@ def api_wisdom_caption(quote_id: int, user: User = Depends(get_current_user),
     return JSONResponse({"caption": _wc.caption(_w.as_dict(q), ref)})
 
 
+# ── Public wisdom share page + OG image (for social sharing) ──────────────
+# A share posted to X / Facebook / LinkedIn is a LINK to one of these pages.
+# The page carries Open Graph tags so the platform auto-previews the quote
+# card image, and the URL routes to join with the member's referral. No
+# auth — social scrapers can't log in, and the page is public by design.
+
+@app.get("/wisdom-card/{quote_id}/{username}.png")
+def public_wisdom_card(quote_id: int, username: str, style: str = "navy",
+                       fmt: str = "1x1", db: Session = Depends(get_db)):
+    """Public OG image for a quote, branded with the given member's ref link.
+    No auth — this is what social platforms fetch for the link preview."""
+    from fastapi.responses import Response
+    from .database import WisdomQuote
+    from . import wisdom as _w, wisdom_card as _wc
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == quote_id,
+                                     WisdomQuote.approved.is_(True)).first()
+    if not q:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    ref = "www.advantagelife.club/ref/%s" % (username or "")
+    try:
+        png = _wc.render(_w.as_dict(q), ref, style=style, fmt=fmt)
+    except Exception as e:
+        logger.error(f"public wisdom card render failed: {e}")
+        return JSONResponse({"error": "render failed"}, status_code=500)
+    return Response(content=png, media_type="image/png", headers={
+        "Cache-Control": "public, max-age=86400",
+    })
+
+
+@app.get("/wisdom/{quote_id}/{username}", response_class=HTMLResponse)
+def public_wisdom_share_page(quote_id: int, username: str, request: Request,
+                             db: Session = Depends(get_db)):
+    """Public share landing for a quote + member. Social platforms preview the
+    OG image; humans get the quote and a route to join under the member's ref."""
+    from .database import WisdomQuote
+    q = db.query(WisdomQuote).filter(WisdomQuote.id == quote_id,
+                                     WisdomQuote.approved.is_(True)).first()
+    if not q:
+        return RedirectResponse(url="/", status_code=302)
+    site = (os.getenv("BASE_URL", "") or "https://www.advantagelife.club").rstrip("/")
+    og_img = f"{site}/wisdom-card/{quote_id}/{username}.png"
+    join_url = f"{site}/ref/{username}"
+    text = (q.text or "").replace('"', "&quot;")
+    author = (q.author or "").replace('"', "&quot;")
+    title = f"{author} — AdvantageLife Daily Wisdom" if author else "AdvantageLife Daily Wisdom"
+    desc = (q.text or "")[:180]
+    html = (
+        "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        f"<title>{title}</title>"
+        f"<meta property='og:type' content='article'>"
+        f"<meta property='og:title' content=\"{title}\">"
+        f"<meta property='og:description' content=\"{desc}\">"
+        f"<meta property='og:image' content='{og_img}'>"
+        f"<meta property='og:url' content='{site}/wisdom/{quote_id}/{username}'>"
+        f"<meta property='og:site_name' content='AdvantageLife'>"
+        f"<meta name='twitter:card' content='summary_large_image'>"
+        f"<meta name='twitter:title' content=\"{title}\">"
+        f"<meta name='twitter:description' content=\"{desc}\">"
+        f"<meta name='twitter:image' content='{og_img}'>"
+        "<style>body{margin:0;font-family:-apple-system,Segoe UI,sans-serif;"
+        "background:#0a1f52;color:#fff;min-height:100vh;display:flex;align-items:center;"
+        "justify-content:center;padding:24px}.c{max-width:600px;text-align:center}"
+        ".q{font-size:clamp(22px,4vw,30px);font-weight:800;line-height:1.3;margin-bottom:18px}"
+        ".a{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;"
+        "color:#ff8090;margin-bottom:36px}.b{display:inline-block;background:#c8102e;color:#fff;"
+        "text-decoration:none;font-weight:800;padding:15px 30px;border-radius:11px;font-size:16px}"
+        ".m{margin-top:20px;font-size:13px;color:#aebcf0}</style></head><body><div class='c'>"
+        f"<div class='q'>&ldquo;{text}&rdquo;</div><div class='a'>{author}</div>"
+        f"<a class='b' href='{join_url}'>Discover AdvantageLife &rarr;</a>"
+        "<div class='m'>Your effort. Your income. 100% yours.</div>"
+        "</div></body></html>"
+    )
+    return HTMLResponse(html)
+
+
 # ── Collaborations ────────────────────────────────────────────────────
 @app.get("/collaborations")
 def collaborations_page(user: User = Depends(get_current_user)):
