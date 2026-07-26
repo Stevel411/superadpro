@@ -2247,9 +2247,16 @@ def _plan_panel(pct) -> dict:
 
 
 @app.api_route("/", methods=["GET", "HEAD"])
-def home(request: Request, cards: str = "", plan: str = "", panel: str = ""):
+def home(request: Request, cards: str = "", plan: str = "", panel: str = "",
+         ref: str = ""):
     """AdvantageLife public homepage (this branch deploys only the AL site).
 
+    ?ref=username  captures the sponsor into the referral cookie, then shows
+                   the full homepage explainer — so a shared link (e.g. from a
+                   Daily Wisdom quote) lands newcomers on the story with the
+                   referral preserved, rather than dumping them straight on the
+                   register form. They choose to join from here; the sponsor is
+                   still credited.
     ?cards=bg  toolkit cards as full-bleed photo backgrounds with white text,
                instead of the default image-band-over-white-body treatment.
     ?plan=NN   (20-96) dark floor over the lifestyle photo inside the Plan
@@ -2262,7 +2269,14 @@ def home(request: Request, cards: str = "", plan: str = "", panel: str = ""):
     tokens.update(_plan_panel(panel or AL_PLAN_PANEL_DEFAULT))
     for token, value in tokens.items():
         html = html.replace(token, value)
-    return HTMLResponse(html)
+    resp = HTMLResponse(html)
+    if ref:
+        # Preserve the sponsor without forcing register — same cookie /ref
+        # sets, so a share link landing on the homepage still credits the
+        # sponsor when the visitor later joins.
+        resp.set_cookie(key="ref", value=ref, max_age=60 * 60 * 24 * 30,
+                        httponly=False, samesite="lax")
+    return resp
 
 @app.get("/health")
 async def health_check():
@@ -72817,7 +72831,7 @@ def public_wisdom_share_page(quote_id: int, username: str, request: Request,
         return RedirectResponse(url="/", status_code=302)
     site = (os.getenv("BASE_URL", "") or "https://www.advantagelife.club").rstrip("/")
     og_img = f"{site}/wisdom-card/{quote_id}/{username}.png"
-    join_url = f"{site}/ref/{username}"
+    join_url = f"{site}/?ref={username}"  # explainer homepage, ref preserved
     text = (q.text or "").replace('"', "&quot;")
     author = (q.author or "").replace('"', "&quot;")
     title = f"{author} — AdvantageLife Daily Wisdom" if author else "AdvantageLife Daily Wisdom"
