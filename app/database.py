@@ -1123,6 +1123,9 @@ class ShareLink(Base):
     is_active      = Column(Boolean, default=True)
     share_count    = Column(Integer, default=0)      # times the member reported sharing it
     last_shared_at = Column(DateTime, nullable=True) # last time they hit Share
+    nudge_enabled  = Column(Boolean, default=True)   # weekly "time to share" nudge (on by default)
+    nudge_weekday  = Column(Integer, default=0)      # 0=Mon .. 6=Sun — the day they want nudging
+    last_nudged_at = Column(DateTime, nullable=True) # guard against double-nudging in a week
     created_at     = Column(DateTime, default=datetime.utcnow)
 
 
@@ -3767,6 +3770,13 @@ try:
         conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS confirm_token VARCHAR"))
         conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_confirm_token ON member_leads(confirm_token)"))
+
+        # ── Weekly share nudge (26 Jul 2026): in-app reminder to share the
+        # showcase, on by default, member picks the weekday. Not auto-posting —
+        # a scheduled nudge with fresh content; the member still posts.
+        conn.execute(text("ALTER TABLE share_links ADD COLUMN IF NOT EXISTS nudge_enabled BOOLEAN DEFAULT TRUE"))
+        conn.execute(text("ALTER TABLE share_links ADD COLUMN IF NOT EXISTS nudge_weekday INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE share_links ADD COLUMN IF NOT EXISTS last_nudged_at TIMESTAMP"))
 
         # ── Share Code system (19 May 2026): portable page-share codes ──
         # SAP-XXXX-XXXX codes that let members hand a page snapshot to

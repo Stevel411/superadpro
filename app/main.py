@@ -40595,6 +40595,125 @@ async def cron_security_watch(request: Request, secret: str = "", test: int = 0,
     return run_security_watch(db, dry=bool(dry))
 
 
+@app.get("/cron/weekly-share-nudge")
+async def cron_weekly_share_nudge(request: Request, secret: str = "",
+                                  dry: int = 0, force_user: int = 0,
+                                  db: Session = Depends(get_db)):
+    """Weekly in-app nudge to share the showcase. Runs daily; nudges members
+    whose chosen weekday is today and who haven't been nudged in the last 6
+    days. On by default; members set the day / turn it off in settings.
+
+    NOT auto-posting \u2014 it drops an in-app notification linking to /packs so
+    the member shares to their own audience, on their own schedule, by their
+    own hand. Safe by design.
+
+      ?dry=1        report who WOULD be nudged, send nothing
+      ?force_user=N nudge just this user now (testing), ignores day/6-day guard
+
+    Auth: CRON_SECRET (Railway cron) or a logged-in admin (tap from phone).
+    """
+    _valid = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
+    _admin = False
+    try:
+        _admin = _maintenance_admin_bypass(request)
+    except Exception:
+        _admin = False
+    if not ((secret and secret in _valid) or _admin):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    now = datetime.utcnow()
+    today_wd = now.weekday()  # 0=Mon
+    six_days_ago = now - timedelta(days=6)
+
+    q = db.query(ShareLink).filter(ShareLink.is_active == True,
+                                   ShareLink.nudge_enabled == True)
+    if force_user:
+        q = db.query(ShareLink).filter(ShareLink.user_id == force_user)
+    else:
+        q = q.filter(ShareLink.nudge_weekday == today_wd)
+        # not nudged in the last 6 days (null = never nudged, include it)
+        q = q.filter(or_(ShareLink.last_nudged_at.is_(None),
+                         ShareLink.last_nudged_at < six_days_ago))
+
+    links = q.all()
+    nudged, skipped = [], 0
+
+    # This week's quote, for a fresh angle in the nudge (optional flavour).
+    quote_line = None
+    try:
+        from . import wisdom as _w
+        tq = _w.quote_for_date(db)
+        if tq:
+            quote_line = f"\u201c{(tq.text or '')[:90]}\u201d \u2014 {tq.author}"
+    except Exception:
+        quote_line = None
+
+    for link in links:
+        u = db.query(User).filter(User.id == link.user_id).first()
+        if not u or not getattr(u, "is_active", True):
+            skipped += 1
+            continue
+        # Only nudge members who can actually earn from sharing (own a pack).
+        # A member with no packs sharing does nothing for them \u2014 don't nag.
+        owns_pack = db.query(PackPurchase.id).filter(
+            PackPurchase.user_id == u.id, PackPurchase.status == "active").first()
+        if not owns_pack:
+            skipped += 1
+            continue
+
+        msg = "Time to share your showcase and keep your packs active for the week. One tap \u2014 post it to your audience."
+        if quote_line:
+            msg += f" This week\u2019s wisdom to share: {quote_line}"
+
+        if not dry:
+            db.add(Notification(
+                user_id=u.id, type="system", icon="\U0001F4E3",
+                title="Your weekly share is ready",
+                message=msg, link="/packs"))
+            link.last_nudged_at = now
+        nudged.append(u.username or u.id)
+
+    if not dry:
+        db.commit()
+
+    return {"ok": True, "dry": bool(dry), "weekday_today": today_wd,
+            "nudged_count": len(nudged), "skipped": skipped,
+            "nudged": nudged[:50]}
+
+
+@app.post("/api/al/share-nudge-prefs")
+async def api_share_nudge_prefs(request: Request, user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Member sets their weekly nudge: on/off + which weekday. On by default."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    link = _get_or_create_share_link(db, user)
+    if "enabled" in body:
+        link.nudge_enabled = bool(body.get("enabled"))
+    if "weekday" in body:
+        try:
+            wd = int(body.get("weekday"))
+            if 0 <= wd <= 6:
+                link.nudge_weekday = wd
+        except (TypeError, ValueError):
+            pass
+    db.commit()
+    return {"ok": True, "enabled": bool(link.nudge_enabled),
+            "weekday": int(link.nudge_weekday or 0)}
+
+
+@app.get("/api/al/share-nudge-prefs")
+def api_get_share_nudge_prefs(user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Current weekly-nudge settings for the member."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    link = _get_or_create_share_link(db, user)
+    return {"enabled": bool(getattr(link, "nudge_enabled", True)),
+            "weekday": int(getattr(link, "nudge_weekday", 0) or 0)}
+
+
 @app.get("/admin/api/balance-reconciliation")
 def admin_balance_reconciliation(
     request: Request,
