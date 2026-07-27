@@ -335,7 +335,7 @@ export default function NewDashboard() {
   function loadNotifs(isPoll) {
     apiGet('/api/notifications').then(function (data) {
       if (!data) return;
-      var list = data.notifications || [];
+      var list = Array.isArray(data.notifications) ? data.notifications : [];
       var u = data.unread_count || 0;
       setNotifs(list);
       setUnread(u);
@@ -633,19 +633,25 @@ export default function NewDashboard() {
                       <div style={{ fontSize: 13, color: '#94a0c2' }}>No notifications yet</div>
                     </div>
                   ) : notifs.map(function (n) {
+                    var icon = n.icon || '🔔';
+                    var title = (n.title == null ? '' : String(n.title));
+                    var message = (n.message == null ? '' : String(n.message));
+                    var link = (typeof n.link === 'string') ? n.link : '';
+                    var isInternal = link.charAt(0) === '/';   // only internal paths are safe for <Link>
                     var inner = (
                       <>
-                        <div style={{ width: 34, height: 34, borderRadius: 9, background: '#eef2fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{n.icon || '🔔'}</div>
+                        <div style={{ width: 34, height: 34, borderRadius: 9, background: '#eef2fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{icon}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0a1f52', marginBottom: 2 }}>{n.title}</div>
-                          <div style={{ fontSize: 12, color: '#5a6584', lineHeight: 1.4 }}>{n.message}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0a1f52', marginBottom: 2 }}>{title}</div>
+                          <div style={{ fontSize: 12, color: '#5a6584', lineHeight: 1.4 }}>{message}</div>
                         </div>
                       </>
                     );
                     var rowStyle = { padding: '13px 16px', display: 'flex', gap: 11, borderBottom: '1px solid #f6f8fb', textDecoration: 'none', background: n.is_read ? '#fff' : '#f2f7ff' };
-                    return n.link
-                      ? <Link key={n.id} to={n.link} onClick={function () { setBellOpen(false); }} style={rowStyle}>{inner}</Link>
-                      : <div key={n.id} style={rowStyle}>{inner}</div>;
+                    if (isInternal) {
+                      return <Link key={n.id} to={link} onClick={function () { setBellOpen(false); }} style={rowStyle}>{inner}</Link>;
+                    }
+                    return <div key={n.id} style={rowStyle}>{inner}</div>;
                   })}
                 </div>
               </div>
