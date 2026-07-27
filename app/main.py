@@ -911,23 +911,31 @@ MAINTENANCE_MODE = os.getenv("MAINTENANCE_MODE", "off").strip().lower() not in (
 MAINTENANCE_HTML = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>SuperAdPro — Temporarily Offline</title>
+<title>AdvantageLife — Launching Soon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--cobalt:#0a1438;--royal:#1e3a8a;--cyan:#22d3ee}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-font-family:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#e8eefc;
-background:radial-gradient(1200px 600px at 50% -10%,#13245e 0,var(--cobalt) 55%,#060b22 100%)}
+font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#eaf0ff;padding:24px;
+background:radial-gradient(1100px 560px at 50% -10%,#12388f 0,var(--navy) 55%,#060f2e 100%)}
 .card{max-width:560px;padding:48px 36px;text-align:center}
-h1{font-family:'Sora',sans-serif;font-weight:700;font-size:28px;margin:0 0 14px;letter-spacing:-.5px}
-p{font-size:16px;line-height:1.6;color:#aebbe0;margin:0 0 14px}
-.bar{height:4px;width:64px;margin:0 auto 28px;border-radius:4px;background:linear-gradient(90deg,var(--royal),var(--cyan))}
-.tag{display:inline-block;margin-top:18px;font-size:13px;color:#7d8cba}
+.mk{width:56px;height:56px;border-radius:15px;margin:0 auto 26px;background:linear-gradient(160deg,#12388f,#0a1f52);
+display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;color:#fff;
+box-shadow:0 14px 34px -10px rgba(0,0,0,.6)}
+.brand{font-weight:900;font-size:20px;letter-spacing:-.3px;margin-bottom:30px}
+.brand .life{color:#ff6b80}
+h1{font-weight:900;font-size:clamp(26px,5vw,34px);margin:0 0 16px;letter-spacing:-.8px;line-height:1.1;color:#fff}
+p{font-size:16px;line-height:1.6;color:#aebbe0;margin:0 0 14px;max-width:460px;margin-left:auto;margin-right:auto}
+.bar{height:4px;width:64px;margin:22px auto 0;border-radius:4px;background:linear-gradient(90deg,var(--navy2),var(--red))}
+.tag{display:inline-block;margin-top:26px;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7d8cba}
 </style></head><body><div class="card">
+<div class="mk">&#9650;</div>
+<div class="brand">Advantage<span class="life">Life</span></div>
+<h1>Something good is coming.</h1>
+<p>AdvantageLife is putting the finishing touches in place ahead of launch. The platform will open to members very soon.</p>
+<p>Thanks for your patience &mdash; it&#39;ll be worth the wait.</p>
 <div class="bar"></div>
-<h1>We&#39;re temporarily offline</h1>
-<p>SuperAdPro is paused for scheduled maintenance and security improvements. The platform is unavailable right now, including sign-in and payments.</p>
-<p>We&#39;ll be back shortly. Thank you for your patience.</p>
-<span class="tag">SuperAdPro</span>
+<span class="tag">Your effort. Your income. 100% yours.</span>
 </div></body></html>"""
 
 def _maintenance_admin_bypass(request) -> bool:
