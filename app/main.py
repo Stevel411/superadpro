@@ -40035,6 +40035,19 @@ async def mark_notifications_read(request: Request, user: User = Depends(get_cur
         ).update({Notification.is_read: True}, synchronize_session=False)
     db.commit()
     return JSONResponse({"ok": True})
+
+
+@app.post("/api/notifications/clear")
+async def clear_notifications(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Delete all of the member's notifications (what 'Clear all' should do).
+    Safe: action-bearing items (e.g. a pack sale awaiting confirmation) live
+    on their own surfaces (/my-sales etc.) — the notification is only a
+    pointer, so deleting it never loses the underlying action."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    n = db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
+    db.commit()
+    return JSONResponse({"ok": True, "deleted": int(n or 0)})
 # ═══════════════════════════════════════════════════════════════
 #  ACHIEVEMENT / BADGE SYSTEM
 # ═══════════════════════════════════════════════════════════════

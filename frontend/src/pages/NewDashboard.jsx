@@ -370,8 +370,8 @@ export default function NewDashboard() {
   }
 
   function clearAllNotifs() {
-    apiPost('/api/notifications/read', {}).catch(function () {});
-    setUnread(0); prevUnreadRef.current = 0; setBellOpen(false);
+    apiPost('/api/notifications/clear', {}).catch(function () {});
+    setNotifs([]); setUnread(0); prevUnreadRef.current = 0; setBellOpen(false);
   }
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState(null);
