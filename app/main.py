@@ -40597,7 +40597,7 @@ async def cron_security_watch(request: Request, secret: str = "", test: int = 0,
 
 @app.get("/cron/weekly-share-nudge")
 async def cron_weekly_share_nudge(request: Request, secret: str = "",
-                                  dry: int = 0, force_user: int = 0,
+                                  dry: int = 0, force_user: int = 0, test: int = 0,
                                   db: Session = Depends(get_db)):
     """Weekly in-app nudge to share the showcase. Runs daily; nudges members
     whose chosen weekday is today and who haven't been nudged in the last 6
@@ -40609,6 +40609,8 @@ async def cron_weekly_share_nudge(request: Request, secret: str = "",
 
       ?dry=1        report who WOULD be nudged, send nothing
       ?force_user=N nudge just this user now (testing), ignores day/6-day guard
+      ?test=1       with force_user, also ignore the active-pack requirement
+                    (so the notification itself can be previewed)
 
     Auth: CRON_SECRET (Railway cron) or a logged-in admin (tap from phone).
     """
@@ -40656,11 +40658,13 @@ async def cron_weekly_share_nudge(request: Request, secret: str = "",
             continue
         # Only nudge members who can actually earn from sharing (own a pack).
         # A member with no packs sharing does nothing for them \u2014 don't nag.
-        owns_pack = db.query(PackPurchase.id).filter(
-            PackPurchase.user_id == u.id, PackPurchase.status == "active").first()
-        if not owns_pack:
-            skipped += 1
-            continue
+        # ?test=1 bypasses this so the notification itself can be previewed.
+        if not (test and force_user):
+            owns_pack = db.query(PackPurchase.id).filter(
+                PackPurchase.user_id == u.id, PackPurchase.status == "active").first()
+            if not owns_pack:
+                skipped += 1
+                continue
 
         msg = "Time to share your showcase and keep your packs active for the week. One tap \u2014 post it to your audience."
         if quote_line:
