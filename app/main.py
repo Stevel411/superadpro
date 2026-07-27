@@ -40658,8 +40658,9 @@ async def cron_weekly_share_nudge(request: Request, secret: str = "",
             continue
         # Only nudge members who can actually earn from sharing (own a pack).
         # A member with no packs sharing does nothing for them \u2014 don't nag.
-        # ?test=1 bypasses this so the notification itself can be previewed.
-        if not (test and force_user):
+        # Admins "own everything" (same rule as al_engine.owned_level), so they
+        # pass the guard. ?test=1 also bypasses it for previewing.
+        if not (test and force_user) and not getattr(u, "is_admin", False):
             owns_pack = db.query(PackPurchase.id).filter(
                 PackPurchase.user_id == u.id, PackPurchase.status == "active").first()
             if not owns_pack:
