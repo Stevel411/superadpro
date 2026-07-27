@@ -303,6 +303,76 @@ export default function NewDashboard() {
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  // ── Notification bell ──
+  const [notifs, setNotifs] = useState([]);
+  const [unread, setUnread] = useState(0);
+  const [bellOpen, setBellOpen] = useState(false);
+  const prevUnreadRef = useRef(0);
+  const audioReadyRef = useRef(false);
+  const bellRef = useRef(null);
+
+  // A soft two-note chime via the Web Audio API — no asset to load.
+  function playChime() {
+    if (!audioReadyRef.current) return;  // needs a prior user interaction
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ac = new Ctx();
+      [880, 1174.7].forEach(function (freq, i) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sine'; o.frequency.value = freq;
+        var t0 = ac.currentTime + i * 0.13;
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(0.12, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+        o.connect(g); g.connect(ac.destination);
+        o.start(t0); o.stop(t0 + 0.3);
+      });
+      setTimeout(function () { try { ac.close(); } catch (e) {} }, 900);
+    } catch (e) { /* audio not available — silent */ }
+  }
+
+  function loadNotifs(isPoll) {
+    apiGet('/api/notifications').then(function (data) {
+      if (!data) return;
+      var list = data.notifications || [];
+      var u = data.unread_count || 0;
+      setNotifs(list);
+      setUnread(u);
+      // New notification arrived while on the page → chime once.
+      if (isPoll && u > prevUnreadRef.current) playChime();
+      prevUnreadRef.current = u;
+    }).catch(function () {});
+  }
+
+  useEffect(function () {
+    loadNotifs(false);
+    var iv = setInterval(function () { loadNotifs(true); }, 30000);
+    // The first user interaction unlocks audio (browser autoplay policy).
+    function unlock() { audioReadyRef.current = true; window.removeEventListener('pointerdown', unlock); }
+    window.addEventListener('pointerdown', unlock);
+    return function () { clearInterval(iv); window.removeEventListener('pointerdown', unlock); };
+  }, []);
+
+  useEffect(function () {
+    function onDoc(e) { if (bellRef.current && !bellRef.current.contains(e.target)) setBellOpen(false); }
+    if (bellOpen) document.addEventListener('mousedown', onDoc);
+    return function () { document.removeEventListener('mousedown', onDoc); };
+  }, [bellOpen]);
+
+  function toggleBell() {
+    var willOpen = !bellOpen;
+    setBellOpen(willOpen);
+    if (willOpen && unread > 0) {
+      apiPost('/api/notifications/read', {}).catch(function () {});
+      setUnread(0); prevUnreadRef.current = 0;
+    }
+  }
+
+  function clearAllNotifs() {
+    apiPost('/api/notifications/read', {}).catch(function () {});
+    setUnread(0); prevUnreadRef.current = 0; setBellOpen(false);
+  }
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
@@ -540,6 +610,47 @@ export default function NewDashboard() {
             <span>Advantage<span className="life">Life</span></span>
           </span>
           <span className="sp"></span>
+          <div className="bell-wrap" ref={bellRef} style={{ position: 'relative', marginRight: 10 }}>
+            <button className="bell-btn" onClick={toggleBell} aria-label="Notifications"
+              style={{ position: 'relative', width: 40, height: 40, borderRadius: 11, background: 'rgba(255,255,255,.08)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: .85 }}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              {unread > 0 && (
+                <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 19, height: 19, padding: '0 5px', background: '#c8102e', borderRadius: 99, color: '#fff', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0a1f52' }}>{unread > 9 ? '9+' : unread}</span>
+              )}
+            </button>
+            {bellOpen && (
+              <div style={{ position: 'absolute', top: 50, right: 0, width: 330, maxWidth: '90vw', background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', boxShadow: '0 24px 60px rgba(10,20,56,.25)', overflow: 'hidden', zIndex: 60 }}>
+                <div style={{ padding: '13px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <b style={{ fontSize: 14, color: '#0a1f52' }}>Notifications</b>
+                  {notifs.length > 0 && (
+                    <span onClick={clearAllNotifs} style={{ fontSize: 11, fontWeight: 800, color: '#94a0c2', cursor: 'pointer' }}>Clear all</span>
+                  )}
+                </div>
+                <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+                  {notifs.length === 0 ? (
+                    <div style={{ padding: '38px 16px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 26, opacity: .2, marginBottom: 6 }}>🔔</div>
+                      <div style={{ fontSize: 13, color: '#94a0c2' }}>No notifications yet</div>
+                    </div>
+                  ) : notifs.map(function (n) {
+                    var inner = (
+                      <>
+                        <div style={{ width: 34, height: 34, borderRadius: 9, background: '#eef2fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{n.icon || '🔔'}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#0a1f52', marginBottom: 2 }}>{n.title}</div>
+                          <div style={{ fontSize: 12, color: '#5a6584', lineHeight: 1.4 }}>{n.message}</div>
+                        </div>
+                      </>
+                    );
+                    var rowStyle = { padding: '13px 16px', display: 'flex', gap: 11, borderBottom: '1px solid #f6f8fb', textDecoration: 'none', background: n.is_read ? '#fff' : '#f2f7ff' };
+                    return n.link
+                      ? <Link key={n.id} to={n.link} onClick={function () { setBellOpen(false); }} style={rowStyle}>{inner}</Link>
+                      : <div key={n.id} style={rowStyle}>{inner}</div>;
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="acct" onClick={function (e) { e.stopPropagation(); }}>
             <button className="avatar-btn" onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Menu" aria-expanded={menuOpen}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
