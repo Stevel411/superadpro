@@ -40624,6 +40624,7 @@ async def cron_weekly_share_nudge(request: Request, secret: str = "",
     now = datetime.utcnow()
     today_wd = now.weekday()  # 0=Mon
     six_days_ago = now - timedelta(days=6)
+    from sqlalchemy import or_
 
     q = db.query(ShareLink).filter(ShareLink.is_active == True,
                                    ShareLink.nudge_enabled == True)
