@@ -1,8 +1,12 @@
-// AdvantageLife Service Worker v4
-// CACHE renamed superadpro-v3 -> advantagelife-v4 deliberately: a new cache
-// name makes every returning browser drop the old one, so members stop being
-// served stale SuperAdPro-era assets from disk.
-var CACHE = 'advantagelife-v4';
+// AdvantageLife Service Worker v5
+// v5 (26 Jul 2026): app bundles under /static/app/ are now served
+// NETWORK-FIRST, not cache-first — a cache-first SW was pinning returning
+// browsers to stale JS after deploys (the dashboard bell not appearing was
+// this). Bumping the cache name forces every browser to drop the old cache
+// and install this SW, clearing the stale bundles.
+// v4: CACHE renamed superadpro-v3 -> advantagelife-v4 so returning browsers
+// stop being served stale SuperAdPro-era assets from disk.
+var CACHE = 'advantagelife-v5';
 var STATIC = [
   '/',
   '/watch',
@@ -49,7 +53,26 @@ self.addEventListener('fetch', function(e) {
   // API calls — always network
   if (url.includes('/api/')) return;
 
-  // Static assets — cache first
+  // App bundles (/static/app/assets/*) are content-hashed by Vite, but a
+  // cache-first SW can still pin a browser to an old index-*.js if the HTML
+  // that names it was cached, or the entry file was cached under a stable
+  // name. Serve these NETWORK-FIRST so every new deploy is picked up at once;
+  // fall back to cache only when offline. (Fixes members being stuck on stale
+  // JS after a deploy — e.g. the dashboard bell not appearing.)
+  if (url.includes('/static/app/')) {
+    e.respondWith(
+      fetch(e.request).then(function(response) {
+        var clone = response.clone();
+        caches.open(CACHE).then(function(c) { c.put(e.request, clone); });
+        return response;
+      }).catch(function() {
+        return caches.match(e.request);
+      })
+    );
+    return;
+  }
+
+  // Other static assets (icons, manifest — rarely change) — cache first
   if (url.includes('/static/')) {
     e.respondWith(
       caches.match(e.request).then(function(cached) {
