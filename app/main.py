@@ -1950,6 +1950,12 @@ h1{font-weight:900;font-size:clamp(40px,7.4vw,72px);letter-spacing:-2.5px;line-h
 h1 .u{position:relative;white-space:nowrap}
 h1 .u::after{content:"";position:absolute;left:2%;right:2%;bottom:-6px;height:7px;background:var(--red);border-radius:4px}
 .hsub{font-size:clamp(15px,2.3vw,19px);font-weight:600;color:#eaf0ff;max-width:640px;margin:26px auto 34px;line-height:1.6;text-shadow:0 2px 14px rgba(0,0,0,.4)}
+.hvid{max-width:820px;margin:0 auto 30px}
+.hvid-label{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#9fb4f0;margin-bottom:12px}
+.hvid-box{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:#0a1948;border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 90px -30px rgba(2,8,30,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.hvid-box video{width:100%;height:100%;object-fit:cover;border-radius:20px;background:#0a1948}
+.hvid-play{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:0 16px 40px -10px rgba(200,16,46,.8)}
+.hvid-cap{color:#9fb4f0;font-size:13px;font-weight:600}
 .cta{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:16.5px;text-decoration:none;border-radius:13px;padding:18px 34px;box-shadow:0 18px 40px -12px rgba(200,16,46,.75)}
 .cta2{display:inline-block;color:#fff;font-weight:800;font-size:15px;text-decoration:none;border:1.5px solid rgba(255,255,255,.45);background:rgba(10,20,50,.3);backdrop-filter:blur(6px);border-radius:13px;padding:17px 30px;margin-left:10px}
 .trust{margin-top:20px;font-size:13px;font-weight:700;color:#dbe6ff}
@@ -2008,6 +2014,7 @@ footer a{color:#b9c8ef}
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
+  <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box"><div class="hvid-play">▶</div><div class="hvid-cap">Explainer video coming soon</div></div></div>
   <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
   <div class="trust"><span class="ok">✓</span> Annual $50 or Lifetime $100 · pay by card or USDT · your sponsor earns nothing on your join</div>
   <div class="pills">
