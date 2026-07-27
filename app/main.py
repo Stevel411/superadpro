@@ -2132,7 +2132,7 @@ footer a{color:var(--dim)}
   <div class="k">The AdvantageLife Plan</div>
   <h1>Your effort. Your income.<br>100% yours.</h1>
   <div class="hsub">100% commission, member to member, on every campaign pack. Here's exactly how you get paid — watch it, or read it below.</div>
-  <div class="vid"><video controls preload="metadata" playsinline poster="" style="width:100%;height:100%;border-radius:20px;object-fit:cover;background:#0a1948" src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/Get-Paid-100%25-Instantly-Infinite-Pass-Up-Chain-That-Scales-Your-Team-Forever.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/Get-Paid-100%25-Instantly-Infinite-Pass-Up-Chain-That-Scales-Your-Team-Forever.mp4" style="color:#ff8090">Open it here.</a></video></div>
+  <div class="vid"><video controls preload="metadata" playsinline poster="" style="width:100%;height:100%;border-radius:20px;object-fit:cover;background:#0a1948" src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/AdvantageLife%20Business%20Plan.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/AdvantageLife%20Business%20Plan.mp4" style="color:#ff8090">Open it here.</a></video></div>
 </div>
 
 <section>
