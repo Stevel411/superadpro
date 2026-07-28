@@ -22,7 +22,7 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "",
     """Send a transactional email via Brevo.
 
     By default uses the platform's noreply sender. For broadcasts that
-    should appear FROM Steve personally, pass from_email='steve@superadpro.com'
+    should appear FROM Steve personally, pass from_email=FROM_EMAIL
     and from_name='Steve Lawson'. reply_to_email lets replies go to a
     different address than the sender.
 
@@ -605,9 +605,9 @@ def send_founder_offer_broadcast_one(to_email: str, first_name: str,
         rendered["subject"],
         rendered["html"],
         rendered["text"],
-        from_email="steve@superadpro.com",
+        from_email=FROM_EMAIL,
         from_name="Steve Lawson",
-        reply_to_email="steve@superadpro.com",
+        reply_to_email=FROM_EMAIL,
         reply_to_name="Steve Lawson",
         return_message_id=True,
         category="marketing",
@@ -756,9 +756,9 @@ def send_reengagement_broadcast_one(to_email: str, first_name: str,
         rendered["subject"],
         rendered["html"],
         rendered["text"],
-        from_email="steve@superadpro.com",
+        from_email=FROM_EMAIL,
         from_name="Steve Lawson",
-        reply_to_email="steve@superadpro.com",
+        reply_to_email=FROM_EMAIL,
         reply_to_name="Steve Lawson",
         return_message_id=True,
         category="marketing",
