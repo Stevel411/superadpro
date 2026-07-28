@@ -68536,6 +68536,7 @@ def admin_api_gift_packs_to_lifetime(
     dry_run: int = 1,
     exclude: str = "",
     include_admins: int = 0,
+    single: int = 0,
     db: Session = Depends(get_db),
 ):
     """ONE-PUSH transition gift: give every LIFETIME member one of each pack up
@@ -68562,6 +68563,15 @@ def admin_api_gift_packs_to_lifetime(
                .order_by(CampaignPack.level.asc()).all())
     if not packs:
         return JSONResponse({"error": f"No active packs at or below level {up_to_level}."}, status_code=400)
+
+    # single=1 → gift only ONE pack at up_to_level (not the whole stack below it).
+    # Owning that level qualifies the member to earn on every sale at that
+    # level OR LOWER (the pass-up rule is "own level-or-higher"), so one $100
+    # pack already covers $10–$100 earnings — without four campaigns to run.
+    if single:
+        packs = [p for p in packs if p.level == up_to_level]
+        if not packs:
+            return JSONResponse({"error": f"No active pack at exactly level {up_to_level}."}, status_code=400)
 
     excluded_names = {x.strip().lstrip("@").lower() for x in exclude.split(",") if x.strip()}
 
