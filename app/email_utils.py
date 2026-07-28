@@ -370,80 +370,77 @@ def send_renewal_reminder_email(to_email, first_name, days_left):
 # ═══════════════════════════════════════════════════════════════
 
 def send_nurture_email(to_email, first_name, email_num, unsubscribe_url=None):
-    a = f"{SITE_URL}/pay-membership"
+    """AdvantageLife follow-up sequence for free signups who haven't joined.
+    5 emails. Real model only: $100 lifetime / $50 annual, sell Watch-to-Earn
+    packs 100% P2P, 3/6/9 pass-up. Claims stay clean — income tied to effort,
+    never guaranteed; '100%' scoped to packs. Gated off unless NURTURE_ENABLED."""
+    a = f"{SITE_URL}/join"
 
     if email_num == 1:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128075;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Hey {first_name}, your account is ready &mdash; but it\'s not activated yet</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">You created your SuperAdPro account but haven\'t activated your membership. Here\'s what\'s waiting &mdash; including the founding partner offer that won\'t be around forever.</p>'
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128075;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">{first_name}, here\'s what your account can do</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your free account is live &mdash; so let me tell you plainly what it is, and what it becomes when you unlock it.</p>'
         body = _card(
-            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#d97706;margin:0 0 10px">&#11088; Founding Partner offer &mdash; limited to the first 100</p>'
-            '<p style="margin:0;font-size:14px;color:#78350f;line-height:1.6">Activate now and lock in <strong>$15/month for life</strong> as a Founding Partner. That price never goes up, no matter what we charge new members later. Once the 100 spots are filled, the offer is gone permanently.</p>',
-            bg='#fffbeb', border='#fde68a',
-        ) + _card(
-            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What activating unlocks</p>' +
+            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">The full toolkit, one membership</p>' +
             _check(
-                'Earn $10/month for every Partner you refer &mdash; recurring while they remain active',
-                'Full Creative Studio &mdash; AI video, images, music, voiceover, lip sync',
-                'Brand Poster Generator + MyLeads CRM + SuperPages',
-                'Access the 8-level Profit Grid and earn from your whole network',
-                'Build all four income streams: Membership, Grid, Nexus, Course Academy',
+                'Page Builder &mdash; landing pages and funnels that convert',
+                'LinkHub &mdash; one smart, branded link for everything you share',
+                'Email Marketing &mdash; lists, automated sequences, broadcasts',
+                'Video Campaigns &mdash; get your ad in front of real members',
             ),
             bg='#f0f9ff', border='#bae6fd',
-        ) + _btn(a, "Claim my Founding Partner spot &rarr;", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">$15/month locked for life &middot; Cancel anytime</p>'
-        subj = f"You're in &mdash; but you haven't claimed your founding spot yet, {first_name}"
-        hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">The tools are only half of it. The other half is a real advertising product you can sell &mdash; and keep 100% of. More on that soon. For now, have a look around.</p>',
+            bg='#f8fafc', border='#e2e8f0',
+        ) + _btn(a, "See what unlocking gets me &rarr;")
+        subj = f"{first_name}, here's what your AdvantageLife account can do"
+        hbg = "linear-gradient(135deg,#f0f9ff,#e0f2fe)"
 
     elif email_num == 2:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#4c1d95;line-height:1.2">Let\'s talk about what $15/month actually buys you</p><p style="margin:0;font-size:15px;color:#6d28d9;line-height:1.7">Most subscriptions cost $15/month and give you software. SuperAdPro gives you software <strong>and</strong> an income &mdash; and Founding Partners lock that price in for life.</p>'
-        stats = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="32%" style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#d97706;margin:0 0 4px">$15</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Founding Partner<br>per month, locked</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#c8102e;margin:0 0 4px">$10</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">earned per referral<br>per month</p></td><td width="2%"></td><td width="32%" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:18px;text-align:center;vertical-align:top"><p style="font-size:26px;font-weight:900;color:#c8102e;margin:0 0 4px">8</p><p style="font-size:12px;color:#64748b;margin:0;line-height:1.4">Profit Grid<br>levels deep</p></td></tr></table>'
-        comp = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr><td width="49%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#94a3b8;margin:0 0 12px">&#10060; Free account</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No commission earnings</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">No grid access</p><p style="font-size:14px;color:#64748b;margin:4px 0;line-height:1.5">Limited tools</p></td><td width="2%"></td><td width="49%" style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px;vertical-align:top"><p style="font-size:13px;font-weight:800;color:#16a34a;margin:0 0 12px">&#10003; Active Partner</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">$10/month per referral, recurring</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Full 8-level Profit Grid</p><p style="font-size:14px;color:#166534;margin:4px 0;line-height:1.5">Creative Studio + all AI tools</p></td></tr></table>'
-        body = stats + comp + _card('<p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7"><strong>Here\'s the thing:</strong> Your referral link is already live. Every person who visits it and joins is in your network &mdash; but you won\'t earn a single dollar unless your membership is active. And if you activate before the first 100 founding spots are gone, you lock in $15/month for life.</p>', bg='#faf5ff', border='#ddd6fe') + _btn(a, "Claim my Founding Partner spot &rarr;", "#d97706")
-        subj = f"Here's what $15/month locked for life actually gets you"
-        hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
-
-    elif email_num == 3:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#129327;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#15803d;line-height:1.2">What if your membership paid for itself?</p><p style="margin:0;font-size:15px;color:#166534;line-height:1.7">It can. Here\'s the exact math at the Founding Partner price &mdash; no fluff, no hype.</p>'
-        calc = '<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:24px"><tr><td><p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#15803d;margin:0 0 16px">The self-funding formula &mdash; Founding Partner price</p><table width="100%" cellpadding="0" cellspacing="0"><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">Your monthly Founding Partner cost</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#0f172a;text-align:right">&minus; $15.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">1 Partner referral &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $10.00</td></tr><tr style="border-bottom:1px solid rgba(0,0,0,0.07)"><td style="padding:10px 0;font-size:15px;color:#334155">2 Partner referrals &times; $10/month</td><td style="padding:10px 0;font-size:15px;font-weight:700;color:#16a34a;text-align:right">+ $20.00</td></tr><tr><td style="padding:12px 0;font-size:16px;font-weight:800;color:#0f172a">Net result with just 2 referrals</td><td style="padding:12px 0;font-size:18px;font-weight:900;color:#15803d;text-align:right">+ $5.00 profit &#127881;</td></tr></table></td></tr></table>'
-        body = calc + _card('<p style="margin:0;font-size:15px;color:#0284c7;line-height:1.7"><strong>And it compounds:</strong> 5 referrals = $35/month profit. 10 referrals = $85/month. Plus you earn from their networks through the 8-level Profit Grid, the Nexus matrix, and Course Academy pass-ups. The Founding Partner price stays locked at $15/month forever.</p>', bg='#f0f9ff', border='#bae6fd') + _btn(a, "Claim my founding spot &amp; start earning &rarr;", "#d97706")
-        subj = f"2 referrals = $5/month profit at the founding price, {first_name}"
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128176;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">The part most people don\'t believe at first</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Here\'s what makes AdvantageLife different from anything you\'ve seen.</p>'
+        body = _card(
+            '<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">The product is <strong>Watch-to-Earn campaign packs</strong> &mdash; real advertising, real views delivered by real members. When you sell one, the price of that pack passes <strong>straight to you</strong>. Member to member. The company takes no cut of the pack. You keep 100%.</p>',
+            bg='#f0fdf4', border='#bbf7d0',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">That\'s not a teaser rate or a "first sale" gimmick &mdash; it\'s how every pack sale works. There\'s a fair <strong>3/6/9 pass-up</strong> on top, so the team you build together can grow into something bigger than you could sell alone. But the foundation is simple: you sell a pack, you get paid.</p>',
+            bg='#f8fafc', border='#e2e8f0',
+        ) + _btn(a, "Unlock my account &rarr;") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">What you earn depends on your effort and the team you build &mdash; it\'s not automatic. But it\'s real, and it\'s yours.</p>'
+        subj = "The part most people don't believe at first"
         hbg = "linear-gradient(135deg,#f0fdf4,#dcfce7)"
 
-    elif email_num == 4:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128064;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">You\'re missing out on tools <em>and</em> income, {first_name}</p><p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">Every day without an active membership is a day you\'re not earning from your network or using the AI tools that come with it. And every day, more Founding Partner spots get claimed.</p>'
+    elif email_num == 3:
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#129300;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Is this too good to be true? Fair question.</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">If part of you is skeptical, good &mdash; you should be. There\'s a lot of junk online.</p>'
         body = _card(
-            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#92400e;margin:0 0 14px">What you\'re missing right now</p>' +
-            _check(
-                'Recurring $10/month commissions from every Partner you refer',
-                'Creative Studio &mdash; AI video, image, music, voiceover, lip sync',
-                'Brand Poster Generator + MyLeads CRM + SuperPages',
-                'Profit Grid earnings from people joining your network',
-                'Founding Partner $15/month price &mdash; locked for life if you act now',
-            ),
-            bg='#fffbeb', border='#fde68a',
+            '<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">Here\'s why AdvantageLife holds up: the packs are a <strong>real advertising product</strong>. Real members watch real ads and deliver real views. That\'s what you\'re selling &mdash; not a spot in a scheme. The daily watch isn\'t busywork; it\'s what makes the views genuine and the whole thing legitimate.</p>',
+            bg='#f8fafc', border='#e2e8f0',
         ) + _card(
-            '<p style="margin:0;font-size:15px;color:#9a3412;line-height:1.7"><strong>Timing matters.</strong> The earlier you activate, the stronger your position in the grid &mdash; and the more Founding Partner spots are still available. Once 100 are claimed, the $15/month locked price is gone for good.</p>',
-            bg='#fff7ed', border='#fed7aa',
-        ) + _card(
-            '<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">&#10003; <strong>The good news:</strong> Your account is still here, your referral link is still live, and your founding spot is still available. One click and you\'re in.</p>',
+            '<p style="margin:0;font-size:15px;color:#166534;line-height:1.7">That\'s the difference between this and the "get rich quick" pitches you\'ve rightly learned to ignore. There\'s an actual product, with actual deliverables, and you keep the commission because you did the work of selling it.</p>',
             bg='#f0fdf4', border='#bbf7d0',
-        ) + _btn(a, "Claim my founding spot now &rarr;", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">$15/month locked for life &middot; Cancel anytime &middot; Earnings depend on your referrals and activity</p>'
-        subj = f"You're missing out on tools and income, {first_name}"
-        hbg = "linear-gradient(135deg,#fffbeb,#fef3c7)"
+        ) + _btn(a, "Take a proper look &rarr;")
+        subj = "Is this too good to be true? Fair question."
+        hbg = "linear-gradient(135deg,#f0f9ff,#e0f2fe)"
+
+    elif email_num == 4:
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128273;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">One decision, then it\'s yours</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Joining AdvantageLife is a one-time decision &mdash; not a monthly bill hanging over you.</p>'
+        body = _card(
+            '<p style="margin:0;font-size:16px;color:#0f172a;line-height:1.7"><strong>$100 once, for lifetime access.</strong> Or <strong>$50 for a year</strong> if you\'d rather start smaller. Either way you get the full toolkit and the ability to sell packs and earn. No subscription creeping up on you every month.</p>',
+            bg='#f0f9ff', border='#bae6fd',
+        ) + _card(
+            '<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">Pay by card or crypto &mdash; whichever suits you. And your sponsor earns nothing on your join, so nobody\'s pushing you in for their own commission. It\'s just the platform, unlocked.</p>',
+            bg='#f8fafc', border='#e2e8f0',
+        ) + _btn(a, "Join AdvantageLife &rarr;")
+        subj = f"One decision, then it's yours, {first_name}"
+        hbg = "linear-gradient(135deg,#f0f9ff,#e0f2fe)"
 
     else:
-        hero = f'<div style="font-size:48px;margin-bottom:14px">&#128680;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#991b1b;line-height:1.2">This is our last nudge, {first_name}</p><p style="margin:0;font-size:15px;color:#7f1d1d;line-height:1.7">This is the final email in this sequence. After this, we\'ll stop &mdash; but your account stays open and your referral link stays live.</p>'
+        hero = f'<div style="font-size:48px;margin-bottom:14px">&#127775;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">What this is really about</p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Underneath the tools and the packs, here\'s what AdvantageLife is really about: building something that\'s yours, on your terms.</p>'
         body = _card(
-            '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;margin:0 0 14px">A quick summary of what\'s waiting</p>' +
-            _check(
-                '$10/month for every Partner you refer &mdash; recurring while they stay active',
-                '8-level Profit Grid earning from your whole network',
-                'Creative Studio &mdash; AI video, images, music, voiceover, lip sync',
-                'Brand Poster Generator, MyLeads CRM, SuperPages, LinkHub',
-                'Withdraw earnings in USDT anytime from $10',
-                'Founding Partner $15/month price &mdash; locked for life if claimed before 100 spots are filled',
-            ),
-        ) + _btn(a, "Claim my Founding Partner spot &mdash; $15/month locked", "#d97706") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;line-height:1.8">Not interested? No hard feelings &mdash; your free account stays open.<br>We won\'t send any more activation emails after this one.</p>'
-        subj = f"This is our last email to you, {first_name} &mdash; we mean it"
-        hbg = "linear-gradient(135deg,#fef2f2,#fee2e2)"
+            '<p style="margin:0;font-size:15px;color:#334155;line-height:1.7">The people who do well here aren\'t lucky. They show up, they use the tools, they build a real team, and they keep 100% of what they sell. It takes effort &mdash; real effort. But the effort is <strong>yours</strong>, the income is <strong>yours</strong>, and the life you build with it is <strong>yours</strong>.</p>',
+            bg='#f8fafc', border='#e2e8f0',
+        ) + _card(
+            '<p style="margin:0;font-size:16px;color:#0a1f52;line-height:1.7;font-weight:700;text-align:center">Your effort. Your income. 100% yours.</p>',
+            bg='#f0f9ff', border='#bae6fd',
+        ) + _btn(a, "Join AdvantageLife &rarr;") + '<p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;line-height:1.8">This is the last email in this series &mdash; I won\'t keep nudging.<br>But your account\'s here whenever you decide.</p>'
+        subj = "What this is really about"
+        hbg = "linear-gradient(135deg,#f0f9ff,#e0f2fe)"
 
     return send_email(to_email, subj, _nurture_shell(f"Email {email_num} of 5", hbg, hero, body, unsubscribe_url=unsubscribe_url), category="marketing", list_unsubscribe=unsubscribe_url)
 
