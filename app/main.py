@@ -32166,6 +32166,14 @@ def admin_broadcast_founder_offer(
     is skipped automatically, so re-running send is safe.
     """
     _require_admin(user)
+    # RETIRED on AdvantageLife: the Founding Partner offer ($15/month locked
+    # subscription) is a SuperAdPro concept and does not exist here (AL is a
+    # $100 one-time lifetime / $50 annual join). Block so this old-model email
+    # can never be sent to AL members.
+    if brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "retired_on_advantagelife",
+                             "detail": "The Founding Partner offer does not exist on AdvantageLife. This broadcast is disabled."},
+                            status_code=410)
     mode = (mode or "preview").lower()
     if mode not in ("preview", "dry-run", "send"):
         return JSONResponse(
@@ -32597,6 +32605,13 @@ def admin_broadcast_reengagement(
     is skipped automatically.
     """
     _require_admin(user)
+    # RETIRED on AdvantageLife: this May-2026 re-engagement email carries the
+    # old SuperAdPro model copy. Use /admin/api/al/launch-broadcast instead
+    # (AL-correct content). Block so the stale one can't be sent to AL members.
+    if brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "retired_on_advantagelife",
+                             "detail": "This old re-engagement broadcast is disabled on AdvantageLife. Use /admin/api/al/launch-broadcast."},
+                            status_code=410)
     mode = (mode or "preview").lower()
     if mode not in ("preview", "dry-run", "send"):
         return JSONResponse(
