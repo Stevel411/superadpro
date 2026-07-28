@@ -32514,14 +32514,17 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
             unsub = f"https://www.advantagelife.club/unsubscribe?token={_ensure_unsubscribe_token(db, u)}"
             r = _al_launch_render(campaign, (u.first_name or u.username or "there"), unsub)
             res = send_email(u.email, r["subject"], r["html"], return_message_id=True,
-                             category="marketing", member_bulk=True, list_unsubscribe=unsub,
+                             category="marketing", list_unsubscribe=unsub,
                              from_name="Steve — AdvantageLife")
             ok = res[0] if isinstance(res, tuple) else bool(res)
             msg_id = res[1] if isinstance(res, tuple) and len(res) > 1 else None
             if ok:
                 _broadcast_mark_sent(db, log_id, msg_id); stats["sent"] += 1
             else:
-                _broadcast_mark_failed(db, log_id, "send returned False"); stats["failed"] += 1
+                _broadcast_mark_failed(db, log_id, "send returned False (provider/suppression)")
+                stats["failed"] += 1
+                if len(stats["errors"]) < 5:
+                    stats["errors"].append(f"user {u.id} ({u.email}): send returned False — likely provider not configured or address suppressed")
         except Exception as e:
             _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
             stats["failed"] += 1
