@@ -89,14 +89,14 @@ var THEMES = {
 // claims on a public page. This shows what an advertiser actually buys.
 var PACKS = [
   { price:10,   views:'1,000',   color:'#e8203f' },
-  { price:20,   views:'2,200',   color:'#e8203f' },
-  { price:50,   views:'6,000',   color:'#c8102e' },
-  { price:100,  views:'12,500',  color:'#c8102e' },
-  { price:200,  views:'26,000',  color:'#12388f' },
-  { price:400,  views:'55,000',  color:'#12388f' },
-  { price:600,  views:'85,000',  color:'#0e2a6e' },
-  { price:800,  views:'120,000', color:'#0e2a6e' },
-  { price:1000, views:'160,000', color:'#0a1f52' },
+  { price:20,   views:'2,000',   color:'#e8203f' },
+  { price:50,   views:'4,000',   color:'#c8102e' },
+  { price:100,  views:'8,000',   color:'#c8102e' },
+  { price:200,  views:'15,000',  color:'#12388f' },
+  { price:400,  views:'30,000',  color:'#12388f' },
+  { price:600,  views:'50,000',  color:'#0e2a6e' },
+  { price:800,  views:'80,000',  color:'#0e2a6e' },
+  { price:1000, views:'120,000', color:'#0a1f52' },
 ];
 function getTools(t) {
   return [

@@ -7063,17 +7063,14 @@ def referral_link(username: str, request: Request):
     return response
 @app.get("/join/{username}")
 def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
-    """SuperLink — personalised sales page for affiliate sharing.
-    Sets referral cookie and serves the React SPA which reads the username from the URL."""
-    # Verify sponsor exists
+    """Affiliate referral link. Sets the sponsor cookie and sends the visitor
+    into the SAME correct join/register flow as /ref/{username} — NOT the old
+    React SuperLink sales page (wrong design + stale pack numbers). Consistent,
+    on-brand, and sponsor attribution preserved via the ref cookie."""
     sponsor = db.query(User).filter(User.username == username).first()
     if not sponsor:
         return RedirectResponse(url="/", status_code=302)
-    # Serve React SPA with referral cookie
-    if _react_index.exists():
-        response = _spa_shell()
-    else:
-        response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
+    response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
     return response
