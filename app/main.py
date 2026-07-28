@@ -218,7 +218,7 @@ _install_secret_redaction()
 # a non-prod environment if you need them.
 _API_DOCS = os.getenv("ENABLE_API_DOCS", "").strip().lower() == "true"
 app = FastAPI(
-    title="SuperAdPro",
+    title="AdvantageLife",
     docs_url="/docs" if _API_DOCS else None,
     redoc_url="/redoc" if _API_DOCS else None,
     openapi_url="/openapi.json" if _API_DOCS else None,
@@ -260,6 +260,17 @@ class CacheHeaderMiddleware(BaseHTTPMiddleware):
                     response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
                 elif any(path.endswith(ext) for ext in [".css",".js",".json"]):
                     response.headers["Cache-Control"] = "public, max-age=3600"
+        else:
+            # Server-rendered HTML pages (/, /join, /dashboard, /plan, etc.)
+            # carry auth-dependent content. Without an explicit no-store the
+            # browser's back/forward cache (bfcache) can serve a stale snapshot
+            # from before login — which shows a logged-in member a
+            # "logged-out" page when they hit Back (e.g. after the /join flow).
+            # Only tag actual HTML responses; JSON APIs and redirects are
+            # unaffected.
+            ctype = response.headers.get("content-type", "")
+            if "text/html" in ctype and "Cache-Control" not in response.headers:
+                response.headers["Cache-Control"] = "no-store"
         return response
 app.add_middleware(CacheHeaderMiddleware)
 
@@ -7402,7 +7413,7 @@ def register_process(
                 from .email_utils import send_email
                 send_email(
                     to_email=sponsor_obj.email,
-                    subject=f"🎉 {first_name} just joined your SuperAdPro team!",
+                    subject=f"🎉 {first_name} just joined your AdvantageLife team!",
                     html_body=f"""
                     <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
                         <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:24px;margin-bottom:20px;">
@@ -7427,7 +7438,7 @@ def register_process(
                         <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro — AI Marketing & Advertising Platform</p>
                     </div>
                     """,
-                    text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message."
+                    text_body=f"{first_name} ({username}) just joined your AdvantageLife team! Send them a welcome message."
                 )
         except Exception:
             pass
@@ -7441,7 +7452,7 @@ def register_process(
                 welcome_msg = TeamMessage(
                     from_user_id=sponsor_id,
                     to_user_id=user.id,
-                    message=f"Hey {first_name}! 👋 Welcome to SuperAdPro! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! 🚀",
+                    message=f"Hey {first_name}! 👋 Welcome to AdvantageLife! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! 🚀",
                     is_read=False,
                 )
                 db.add(welcome_msg)
@@ -10030,7 +10041,7 @@ def admin_api_test_email(
         return JSONResponse(out)
     try:
         from app.email_utils import send_welcome_free_email
-        result = send_welcome_free_email(target, "Steve", "SuperAdPro")
+        result = send_welcome_free_email(target, "Steve", "AdvantageLife")
         # send_email returns bool or (bool, message_id) depending on call site
         ok = result[0] if isinstance(result, tuple) else bool(result)
         out["sent"] = ok
@@ -17010,7 +17021,7 @@ def admin_api_brevo_downline_proof(
 ):
     """Read-only PROOF table from Brevo's external email logs (survived the wipe):
     for one sponsor, list every member Brevo says joined THEIR team
-    ('<name> just joined your SuperAdPro team!', recipient=sponsor), matched to a
+    ('<name> just joined your AdvantageLife team!', recipient=sponsor), matched to a
     current user by first name + signup-time proximity, with that user's CURRENT
     sponsor_id and a corruption verdict. Surfaces reset-to-1 victims BY NAME
     (which brevo-team-recovery hides as 'conflict'), so a broken sponsor link can
@@ -17134,14 +17145,14 @@ def admin_teammessage_sponsor_recovery(
 ):
     """Read-only: recover original sponsors from the auto 'welcome' Team Messenger
     message sent on every sponsored signup (from_user_id=sponsor -> to_user_id=
-    joiner, body 'Welcome to SuperAdPro! I'm <sponsor>, your sponsor.'). These are
+    joiner, body 'Welcome to AdvantageLife! I'm <sponsor>, your sponsor.'). These are
     INTERNAL rows written since 25 Mar, so if they survived the wipe they name the
     real sponsor reaching back PAST Brevo's 14 May edge. Reports survival (count +
     date range), how many corrupted (sponsor_id 1/NULL) members are recoverable, a
     sample, and specific ids. No writes — validate the source before any apply."""
     _require_admin(user)
     from .database import User as _U, TeamMessage as _TM
-    MARK = "Welcome to SuperAdPro! I'm"
+    MARK = "Welcome to AdvantageLife! I'm"
     wmsgs = (db.query(_TM.to_user_id, _TM.from_user_id, _TM.created_at)
              .filter(_TM.is_broadcast == False,  # noqa: E712
                      _TM.message.like(f"%{MARK}%"))
@@ -17221,7 +17232,7 @@ def admin_corrupted_cohort_breakdown(
     from .database import User as _U, TeamMessage as _TM
     from datetime import datetime as _dt
     EDGE = _dt(2026, 5, 14)  # Brevo retention edge; prior = unreachable via Brevo
-    MARK = "Welcome to SuperAdPro! I'm"
+    MARK = "Welcome to AdvantageLife! I'm"
 
     joiner_sponsor = {}
     for to_uid, from_uid in (db.query(_TM.to_user_id, _TM.from_user_id)
@@ -38654,15 +38665,15 @@ YOUR PERSONALITY & RULES:
         if any(w in msg_lower for w in ["cost", "price", "how much", "expensive"]):
             reply = f"Great question! Membership is $20/month which gives you access to all the AI marketing tools, the funnel builder, and the income opportunity. When you consider that similar tools cost $50-100/month elsewhere, it's genuinely good value. Want me to tell you more about what's included?"
         elif any(w in msg_lower for w in ["scam", "legit", "real", "trust", "ponzi"]):
-            reply = f"I totally understand the caution — there's a lot of rubbish out there. SuperAdPro is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
+            reply = f"I totally understand the caution — there's a lot of rubbish out there. AdvantageLife is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
         elif any(w in msg_lower for w in ["earn", "money", "income", "commission"]):
             reply = f"There are multiple ways to earn: direct referral commissions (30%), uni-level commissions through the 4×4 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
         elif any(w in msg_lower for w in ["join", "sign up", "start", "register", "link"]):
             reply = f"Great to hear you're interested! You can sign up through {owner_name}'s referral link. Membership is $20/month in USDT on Base Chain. You'll get instant access to all the AI tools and can start building straight away. 🚀"
         elif any(w in msg_lower for w in ["hello", "hi", "hey", "sup"]):
-            reply = f"Hey! 👋 Welcome! I'm the AI assistant on {owner_name}'s page. I'm here to answer any questions you have about SuperAdPro and the opportunity. What would you like to know?"
+            reply = f"Hey! 👋 Welcome! I'm the AI assistant on {owner_name}'s page. I'm here to answer any questions you have about AdvantageLife and the opportunity. What would you like to know?"
         else:
-            reply = f"Thanks for your question! I'm here to help you understand what SuperAdPro offers. We're a video advertising platform with built-in AI marketing tools and an affiliate income opportunity. What specifically would you like to know more about?"
+            reply = f"Thanks for your question! I'm here to help you understand what AdvantageLife offers. We're a video advertising platform with built-in AI marketing tools and an affiliate income opportunity. What specifically would you like to know more about?"
         return JSONResponse({"reply": reply})
 
     try:
@@ -39903,7 +39914,7 @@ async def api_register(
                     from .email_utils import send_email
                     send_email(
                         to_email=sponsor_obj.email,
-                        subject=f"\U0001f389 {first_name} just joined your SuperAdPro team!",
+                        subject=f"\U0001f389 {first_name} just joined your AdvantageLife team!",
                         html_body=f"""
                         <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
                             <div style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:16px;padding:24px;margin-bottom:20px;">
@@ -39924,7 +39935,7 @@ async def api_register(
                             <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro \u2014 AI Marketing & Advertising Platform</p>
                         </div>
                         """,
-                        text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message."
+                        text_body=f"{first_name} ({username}) just joined your AdvantageLife team! Send them a welcome message."
                     )
             except Exception:
                 pass
@@ -39939,7 +39950,7 @@ async def api_register(
                     ), {
                         "from_id": sponsor_id,
                         "to_id": user.id,
-                        "msg": f"Hey {first_name}! \U0001f44b Welcome to SuperAdPro! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! \U0001f680",
+                        "msg": f"Hey {first_name}! \U0001f44b Welcome to AdvantageLife! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! \U0001f680",
                     })
                     db.commit()
             except Exception:
@@ -39952,7 +39963,7 @@ async def api_register(
                 user_id=user.id,
                 type="system",
                 icon="👋",
-                title="Welcome to SuperAdPro!",
+                title="Welcome to AdvantageLife!",
                 message=(f"Hey {first_name}, welcome aboard! Your account is set up. "
                          f"To unlock the AI tools and start earning, activate your membership. "
                          f"Then activate a Campaign Tier to enable Watch-to-Earn and start earning commissions."),
@@ -41496,7 +41507,7 @@ def _create_reengagement_notification(db: Session, user_id: int) -> bool:
         user_id=user_id,
         type=REENGAGEMENT_NOTIF_TYPE,
         icon="💛",
-        title="Your SuperAdPro membership lapsed",
+        title="Your AdvantageLife membership lapsed",
         message="Your network and earnings are still here waiting for you. Click below to reactivate.",
         link=REENGAGEMENT_LINK,
         translation_key=REENGAGEMENT_TRANSLATION_KEY,
@@ -44875,7 +44886,7 @@ async def api_comp_plan_chat(request: Request):
                 messages.append({"role": m["role"], "content": str(m["content"])[:1000]})
 
         if not messages:
-            return JSONResponse({"reply": "Sorry, I didn't catch that. What would you like to know about earning with SuperAdPro?"})
+            return JSONResponse({"reply": "Sorry, I didn't catch that. What would you like to know about earning with AdvantageLife?"})
 
         from .grok_service import ai_text_generate
         try:
@@ -44886,8 +44897,8 @@ async def api_comp_plan_chat(request: Request):
                 temperature=0.7,
             )
         except Exception:
-            reply = "I'm not sure about that one. Feel free to ask me anything about how you earn with SuperAdPro!"
-        return JSONResponse({"reply": reply or "I'm not sure about that one. Feel free to ask me anything about how you earn with SuperAdPro!"})
+            reply = "I'm not sure about that one. Feel free to ask me anything about how you earn with AdvantageLife!"
+        return JSONResponse({"reply": reply or "I'm not sure about that one. Feel free to ask me anything about how you earn with AdvantageLife!"})
 
     except Exception as e:
         logger.error(f"Comp Plan chat error: {e}")
@@ -47993,7 +48004,7 @@ Return ONLY a valid JSON array. No markdown."""
         page = FunnelPage(
             user_id=user.id,
             slug=f"{user.username}/{slug}",
-            title=funnel_data.get("headline", "Join SuperAdPro"),
+            title=funnel_data.get("headline", "Join AdvantageLife"),
             template_type="ai_funnel",
             status="published",
             headline=funnel_data.get("headline"),
@@ -51450,7 +51461,7 @@ def _notify_team_gift_recipient(db, voucher, gifter, recipient):
         user_id=recipient.id,
         type="gift_received",
         icon="🎁",
-        title=f"{gifter_name} has gifted you a SuperAdPro membership",
+        title=f"{gifter_name} has gifted you a AdvantageLife membership",
         message=(
             f"{gifter_name} wants to gift you a free month of SuperAdPro. "
             f"Open the gift to accept — you have {TEAM_GIFT_ACCEPTANCE_DAYS} "
@@ -52028,7 +52039,7 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
 
     return {
         "success": True,
-        "message": "Your membership has been activated! Welcome to SuperAdPro.",
+        "message": "Your membership has been activated! Welcome to AdvantageLife.",
         "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
     }
 
@@ -54703,7 +54714,7 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
             await send_email(
                 to_email=recipient,
                 to_name="Steve",
-                subject=f"[SuperAdPro Support] {subject}",
+                subject=f"[AdvantageLife Support] {subject}",
                 html_content=html_body,
                 # Reply-To so admin can hit Reply in their inbox and the
                 # response goes back to the member directly.
@@ -57900,7 +57911,7 @@ def _welcome_template(name: str, kind: str) -> str:
     sponsor adds the personal touch."""
     n = name.split()[0] if name else "there"
     if kind == "just_joined":
-        return (f"Hey {n} — welcome to SuperAdPro! Saw you just signed up. "
+        return (f"Hey {n} — welcome to AdvantageLife! Saw you just signed up. "
                 f"I'm here if you have any questions getting started. "
                 f"What brought you in?")
     if kind == "unactivated_warm":
@@ -62240,7 +62251,7 @@ async def sc_voiceover_preview(voice_id: str):
         return FileResponse(str(cache_file), media_type="audio/mpeg")
 
     # Generate preview
-    sample_text = "Welcome to the Creative Studio by SuperAdPro. This is a preview of how this voice sounds for your video narration."
+    sample_text = "Welcome to the Creative Studio by AdvantageLife. This is a preview of how this voice sounds for your video narration."
     try:
         communicate = edge_tts.Communicate(sample_text, voice_id)
         await communicate.save(str(cache_file))
@@ -64100,7 +64111,7 @@ def bpg_share_landing(share_slug: str, request: Request, db: Session = Depends(g
 <h1>{template.name}</h1>
 <p class="desc">{template.description}</p>
 {f'<div class="preview"><img src="{template.preview_image_url}" alt="{template.name} example"></div>' if template.preview_image_url else ''}
-<a class="cta" href="/signup">Join SuperAdPro Free →</a>
+<a class="cta" href="/signup">Join AdvantageLife Free →</a>
 <p style="color: #94a3b8; font-size: 14px; margin-top: 40px;">
 Make posters like this in 60 seconds. Brand Poster Generator inside Creative Studio.
 </p>
@@ -66120,7 +66131,7 @@ async def grok_sales_agent_endpoint(request: Request):
     from .grok_service import grok_sales_agent
     body = await request.json()
     message = (body.get("message", "") or "")[:500]  # Cap message length
-    product_info = body.get("product_info", "SuperAdPro is a business-in-a-box platform for digital marketers with AI creative tools, income opportunities, and affiliate marketing.")
+    product_info = body.get("product_info", "AdvantageLife is a business-in-a-box platform for digital marketers with AI creative tools, income opportunities, and affiliate marketing.")
     history = body.get("history", [])[-10:]  # Cap conversation history to last 10 messages
 
     if not message.strip():
@@ -66679,7 +66690,7 @@ async def api_early_bird(request: Request):
 </div>""")
             from .email_utils import send_email as _provider_send
             _provider_send(
-                email, "You're on the list — SuperAdPro is coming soon", _welcome_html,
+                email, "You're on the list — AdvantageLife is coming soon", _welcome_html,
                 from_email=from_email, from_name="SuperAdPro",
             )
         except Exception as e:
