@@ -32319,6 +32319,202 @@ def admin_broadcast_founder_offer(
 # ════════════════════════════════════════════════════════════
 
 REENGAGEMENT_BROADCAST_KEY = "reengagement_2026_05_16"
+
+# ── AdvantageLife launch warm-up broadcasts ──────────────────────────────
+# Two audiences, two emails, sent through the platform's own admin-broadcast
+# machinery (idempotent via broadcast_log, phased with limit=N, dry-run first).
+# Content kept clean per the claims discipline: no guaranteed income, gifts
+# framed as a head start not a promise.
+
+AL_LAUNCH_EMAILS = {
+    # Audience: the 53 grandfathered lifetime members (loyal, paid SuperAdPro)
+    "loyal": {
+        "broadcast_key": "al_launch_loyal_2026_07",
+        "audience": "lifetime",
+        "subject": "Your loyalty just earned you something (AdvantageLife)",
+        "body_md": (
+            "Hi {name},\n\n"
+            "You stuck with us.\n\n"
+            "Through the hack, through the problems, through the quiet stretches \u2014 "
+            "you kept your membership and you kept believing this could become "
+            "something. I haven't forgotten that, and I'm not going to.\n\n"
+            "So before we open the doors to anyone else, I wanted you to hear this first.\n\n"
+            "SuperAdPro is becoming <b>AdvantageLife</b> \u2014 rebuilt from the ground up "
+            "on a fresh, secure platform. New name, new look, and a model that's "
+            "simpler and fairer than anything we've run before: you sell advertising "
+            "packs member-to-member, and 100% of every pack price passes straight to "
+            "you. No company cut on the packs. Your effort, your income.\n\n"
+            "And because you were here when it mattered, I've already put something "
+            "in your account:\n\n"
+            "<b>A $100 campaign pack \u2014 gifted, yours, waiting.</b>\n\n"
+            "That pack means when we launch, you're not starting from zero. You're "
+            "starting as one of the founding members with a live pack, ready to earn "
+            "from your team's sales the moment things go live.\n\n"
+            "There's nothing you need to do today \u2014 the platform's still in final "
+            "preparation. But when we open (very soon), there'll be two quick steps to "
+            "switch your pack on: record a short video ad for it, and do the daily "
+            "watch. I'll walk you through both, and I'll be there to help.\n\n"
+            "For now, just know this: you're set up, you're ahead, and you earned it.\n\n"
+            "More very soon.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. This gifted pack is a thank-you, not a promise of income \u2014 what you "
+            "earn depends on the team you build and the work you put in. But you've "
+            "already shown you'll do the work. That's exactly why you're getting the "
+            "head start."
+        ),
+    },
+    # Audience: the 500+ free SuperAdPro members (re-engage + anticipation)
+    "free": {
+        "broadcast_key": "al_launch_free_2026_07",
+        "audience": "free",
+        "subject": "Remember SuperAdPro? It's back \u2014 and completely rebuilt",
+        "body_md": (
+            "Hi {name},\n\n"
+            "A while ago you signed up to SuperAdPro. Then things went quiet \u2014 we hit "
+            "some real problems, including a security breach, and rather than paper "
+            "over the cracks, I made the call to rebuild the whole thing properly.\n\n"
+            "That rebuild is almost done. And it's better than what you signed up for.\n\n"
+            "It's called <b>AdvantageLife</b> now \u2014 a fresh, secure platform with a "
+            "genuinely simple idea behind it:\n\n"
+            "\u2022 A full set of AI marketing tools \u2014 landing pages, funnels, email "
+            "automation, a creative studio \u2014 the kind of kit that normally costs a "
+            "small fortune across half a dozen subscriptions, all in one place.\n\n"
+            "\u2022 A real advertising product: campaign packs that real members watch, "
+            "delivering real views. Not points, not hype \u2014 an actual ad platform.\n\n"
+            "\u2022 And a way to earn from it that's refreshingly fair: when you sell a "
+            "pack, 100% of the price passes straight to you, member to member. No "
+            "company cut on the packs.\n\n"
+            "I'm not asking you to do anything today. The doors aren't open yet \u2014 "
+            "we're in the final stretch of preparation. I just wanted you to hear it "
+            "from me before launch, because you were one of the early ones, and "
+            "there'll be a genuine first-mover advantage for people who move early.\n\n"
+            "When we open, you'll be among the first to know. Keep an eye on your inbox.\n\n"
+            "Something good is coming.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real "
+            "advertising product \u2014 not a get-rich-quick scheme. What anyone earns "
+            "depends on the effort they put in and the audience they build."
+        ),
+    },
+}
+
+
+def _al_launch_recipients(db: Session, campaign: dict):
+    """Users in the target audience (by access_level) with an email, not yet
+    sent this campaign (idempotent via broadcast_log)."""
+    key = campaign["broadcast_key"]
+    audience = campaign["audience"]
+    already = db.execute(text(
+        "SELECT DISTINCT user_id FROM broadcast_log "
+        "WHERE broadcast_key = :k AND status IN ('sent','sending')"
+    ), {"k": key}).fetchall()
+    already_set = {row[0] for row in already}
+    q = db.query(User).filter(
+        User.access_level == audience,
+        User.email.isnot(None),
+        User.email != "",
+        User.is_admin == False,  # noqa: E712 — never mail the admin
+    ).order_by(User.id.asc())
+    return [u for u in q.all() if u.id not in already_set]
+
+
+def _al_launch_render(campaign: dict, name: str, unsub_url: str) -> dict:
+    """Render one recipient's email (simple, brand-consistent HTML)."""
+    body_html = campaign["body_md"].format(name=name).replace("\n\n", "</p><p>").replace("\n", "<br>")
+    html = (
+        "<div style='font-family:-apple-system,Segoe UI,Arial,sans-serif;max-width:560px;"
+        "margin:0 auto;color:#1e293b;font-size:15px;line-height:1.6'>"
+        "<div style='text-align:center;padding:8px 0 22px'>"
+        "<span style='font-weight:900;font-size:20px;color:#0a1f52'>Advantage</span>"
+        "<span style='font-weight:900;font-size:20px;color:#c8102e'>Life</span></div>"
+        f"<p>{body_html}</p>"
+        "<hr style='border:none;border-top:1px solid #e2e8f0;margin:26px 0 14px'>"
+        "<div style='font-size:12px;color:#94a3b8;text-align:center'>"
+        "You're receiving this because you registered with SuperAdPro / AdvantageLife.<br>"
+        f"<a href='{unsub_url}' style='color:#94a3b8'>Unsubscribe</a></div></div>"
+    )
+    return {"subject": campaign["subject"], "html": html}
+
+
+@app.get("/admin/api/al/launch-broadcast")
+def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "preview",
+                              confirm: str = "", limit: int = 0,
+                              user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """AdvantageLife launch warm-up broadcast — the platform's own send.
+
+      which=loyal|free   which email/audience (loyal=53 lifetime, free=500+)
+      mode=preview       render the email HTML, no send            (default)
+      mode=dry-run       list eligible recipients, no send
+      mode=send&confirm=YES_SEND_NOW   actually send
+      limit=N            cap recipients this call (PHASED SENDING — use this to
+                         protect SES reputation on the big 'free' list)
+
+    Idempotent: broadcast_log prevents double-sending anyone. Reusable for
+    future announcements by adding entries to AL_LAUNCH_EMAILS.
+    """
+    _require_admin(user)
+    campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
+    if not campaign:
+        return JSONResponse({"error": "which must be one of: loyal, free"}, status_code=400)
+    mode = (mode or "preview").lower()
+    if mode not in ("preview", "dry-run", "send"):
+        return JSONResponse({"error": "mode must be preview, dry-run or send"}, status_code=400)
+
+    _ensure_broadcast_log_table(db)
+    eligible = _al_launch_recipients(db, campaign)
+
+    if mode == "preview":
+        r = _al_launch_render(campaign, "[FirstName]", "https://www.advantagelife.club/unsubscribe?token=SAMPLE")
+        return HTMLResponse(
+            "<html><head><title>Launch broadcast preview</title>"
+            "<style>body{font-family:system-ui;max-width:760px;margin:20px auto;padding:0 20px;color:#1e293b}"
+            ".meta{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:16px;margin-bottom:20px}</style></head>"
+            f"<body><h1>Launch broadcast — {which} — PREVIEW</h1>"
+            f"<div class='meta'><p><b>Subject:</b> {r['subject']}</p>"
+            f"<p><b>Audience:</b> access_level = {campaign['audience']}</p>"
+            f"<p><b>Eligible recipients (not yet sent):</b> {len(eligible)}</p>"
+            f"<p style='font-size:14px'><a href='?which={which}&mode=dry-run'>\u2192 recipient list (dry-run)</a> \u00b7 "
+            f"<a href='?which={which}&mode=send&confirm=YES_SEND_NOW&limit=25' style='color:#dc2626;font-weight:700'>\u26a0\ufe0f send first 25 (phased)</a></p></div>"
+            f"<div style='border:1px solid #cbd5e1;border-radius:8px;padding:16px'>{r['html']}</div></body></html>")
+
+    if mode == "dry-run":
+        return {"ok": True, "which": which, "audience": campaign["audience"],
+                "eligible_count": len(eligible),
+                "recipients": [{"id": u.id, "username": u.username, "email": u.email} for u in eligible[:200]],
+                "note": "DRY RUN — nothing sent. Add &mode=send&confirm=YES_SEND_NOW (use &limit=N to phase)."}
+
+    # mode == send
+    if confirm != "YES_SEND_NOW":
+        return JSONResponse({"error": "send requires confirm=YES_SEND_NOW"}, status_code=400)
+    from .email_utils import send_email
+    targets = eligible[:limit] if limit and limit > 0 else eligible
+    stats = {"which": which, "sent": 0, "failed": 0, "skipped_already_sent": 0,
+             "requested": len(targets), "errors": []}
+    for u in targets:
+        log_id = _broadcast_claim_recipient(db, campaign["broadcast_key"], u.id, u.email)
+        if log_id is None:
+            stats["skipped_already_sent"] += 1
+            continue
+        try:
+            unsub = f"https://www.advantagelife.club/unsubscribe?token={_ensure_unsubscribe_token(db, u)}"
+            r = _al_launch_render(campaign, (u.first_name or u.username or "there"), unsub)
+            res = send_email(u.email, r["subject"], r["html"], return_message_id=True,
+                             category="marketing", member_bulk=True, list_unsubscribe=unsub,
+                             from_name="Steve — AdvantageLife")
+            ok = res[0] if isinstance(res, tuple) else bool(res)
+            msg_id = res[1] if isinstance(res, tuple) and len(res) > 1 else None
+            if ok:
+                _broadcast_mark_sent(db, log_id, msg_id); stats["sent"] += 1
+            else:
+                _broadcast_mark_failed(db, log_id, "send returned False"); stats["failed"] += 1
+        except Exception as e:
+            _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
+            stats["failed"] += 1
+            stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
+            logger.exception(f"al_launch_broadcast send failed user {u.id}")
+    logger.warning(f"AL_LAUNCH_BROADCAST {which} by {user.username}: sent={stats['sent']} failed={stats['failed']}")
+    return stats
 REENGAGEMENT_WINDOW_HOURS = 72
 
 
