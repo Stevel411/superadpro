@@ -73,9 +73,19 @@ def _partner_annual_price_id() -> Optional[str]:
     return os.environ.get("STRIPE_PARTNER_ANNUAL_PRICE_ID")
 
 def _public_url() -> str:
-    # Used for Checkout success/cancel URLs. Defaults to production domain
-    # so links work in staging without explicit env var setup.
-    return os.environ.get("PUBLIC_BASE_URL", "https://www.superadpro.com").rstrip("/")
+    # Used for Checkout success/cancel URLs. Prefer the explicit PUBLIC_BASE_URL,
+    # then fall back to the brand's BASE_URL (advantagelife.club on AL) so the
+    # post-payment redirect lands on the RIGHT domain — never the retired
+    # superadpro.com. (Bug: PUBLIC_BASE_URL unset in AL env sent Stripe returns
+    # to superadpro.com/join and 404'd.)
+    explicit = os.environ.get("PUBLIC_BASE_URL")
+    if explicit:
+        return explicit.rstrip("/")
+    try:
+        from . import brand_config
+        return brand_config.BASE_URL.rstrip("/")
+    except Exception:
+        return "https://www.superadpro.com"
 
 def is_configured() -> bool:
     """True iff all required env vars are set AND the stripe library is installed.
