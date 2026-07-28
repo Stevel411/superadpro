@@ -173,7 +173,7 @@ def _nurture_shell(tag, hero_bg, hero, body, unsubscribe_url=None):
 def send_welcome_email(to_email, first_name, username):
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#127881;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Welcome to {BRAND_NAME}, <span style="color:#c8102e">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your account is live and ready. You\'re now part of a growing community using AI to build their business.</p>'
     creds = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:14px;padding:22px 26px"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Username</td><td align="right" style="font-size:14px;color:#fff;font-weight:700">{username}</td></tr></table></td></tr><tr><td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15)"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Status</td><td align="right" style="font-size:14px;color:#4ade80;font-weight:700">&#10003; Active</td></tr></table></td></tr><tr><td style="padding:9px 0"><table width="100%"><tr><td style="font-size:14px;color:rgba(255,255,255,0.6)">Dashboard</td><td align="right" style="font-size:13px;color:#fff;font-weight:600">advantagelife.club/dashboard</td></tr></table></td></tr></table></td></tr></table>'
-    body = creds + _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' + _check('Sell Watch-to-Earn campaign packs member-to-member — you keep 100%', 'Create AI videos, images, and music in the Creative Studio', 'Build your personal LinkHub page and share it everywhere', 'Do your daily watch to stay qualified to earn'), bg='#f0f9ff', border='#bae6fd') + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;")
+    body = creds + _card('<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' + _check('Sell Watch-to-Earn campaign packs member-to-member — you keep 100%', 'Build landing pages and funnels with the Page Builder', 'Grow your list with Email Marketing, and share your LinkHub', 'Do your daily watch to stay qualified to earn'), bg='#f0f9ff', border='#bae6fd') + _btn(f"{SITE_URL}/dashboard", "Go to my dashboard &rarr;")
     return send_email(to_email, f"Welcome to {BRAND_NAME}, {first_name}!", _shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body), f"Welcome to {BRAND_NAME}, {first_name}! Username: {username}. Login: {SITE_URL}/dashboard")
 
 
@@ -212,10 +212,10 @@ def send_welcome_free_email(to_email, first_name, username):
             '<p style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">'
             'Unlock every tool &mdash; $100 lifetime or $50/year</p>'
             + _check(
-                'SuperPages &mdash; build landing pages and funnels',
-                'SuperLeads &mdash; capture leads and follow up automatically',
-                'Creative Studio &mdash; generate images and video with AI',
-                'Ad Studio &mdash; turn them into ad creative ready to run',
+                'Page Builder &mdash; landing pages and funnels that convert',
+                'LinkHub &mdash; one smart, branded link for everything you share',
+                'Email Marketing &mdash; lists, automated sequences, broadcasts',
+                'Video Campaigns &mdash; get your ad in front of real members',
             ),
             bg='#f0f9ff', border='#bae6fd',
         )
