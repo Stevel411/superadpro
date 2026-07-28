@@ -7433,9 +7433,9 @@ def register_process(
                             <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 12px;">
                                 Welcome them with a message in <strong>Team Messenger</strong> — members who connect with their sponsor in the first 24 hours are 5x more likely to stay active.
                             </p>
-                            <a href="https://www.superadpro.com/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message →</a>
+                            <a href="{brand_config.BASE_URL}/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message →</a>
                         </div>
-                        <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro — AI Marketing & Advertising Platform</p>
+                        <p style="font-size:12px;color:#94a3b8;text-align:center;">{brand_config.BRAND_NAME} — AI Marketing & Advertising Platform</p>
                     </div>
                     """,
                     text_body=f"{first_name} ({username}) just joined your AdvantageLife team! Send them a welcome message."
@@ -39930,9 +39930,9 @@ async def api_register(
                                 <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 12px;">
                                     Welcome them with a message in <strong>Team Messenger</strong> — members who connect with their sponsor in the first 24 hours are 5x more likely to stay active.
                                 </p>
-                                <a href="https://www.superadpro.com/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message \u2192</a>
+                                <a href="{brand_config.BASE_URL}/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message \u2192</a>
                             </div>
-                            <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro \u2014 AI Marketing & Advertising Platform</p>
+                            <p style="font-size:12px;color:#94a3b8;text-align:center;">{brand_config.BRAND_NAME} \u2014 AI Marketing & Advertising Platform</p>
                         </div>
                         """,
                         text_body=f"{first_name} ({username}) just joined your AdvantageLife team! Send them a welcome message."
