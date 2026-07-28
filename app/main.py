@@ -32401,7 +32401,8 @@ AL_LAUNCH_EMAILS = {
 
 def _al_launch_recipients(db: Session, campaign: dict):
     """Users in the target audience (by access_level) with an email, not yet
-    sent this campaign (idempotent via broadcast_log)."""
+    sent this campaign (idempotent via broadcast_log). Test accounts and the
+    admin are always excluded."""
     key = campaign["broadcast_key"]
     audience = campaign["audience"]
     already = db.execute(text(
@@ -32409,13 +32410,26 @@ def _al_launch_recipients(db: Session, campaign: dict):
         "WHERE broadcast_key = :k AND status IN ('sent','sending')"
     ), {"k": key}).fetchall()
     already_set = {row[0] for row in already}
+    # Never mail test/staging accounts (username starting 'test' or a
+    # +tag test address on the owner's mailbox).
+    EXCLUDE_USERNAMES = {"test64", "test65"}
     q = db.query(User).filter(
         User.access_level == audience,
         User.email.isnot(None),
         User.email != "",
         User.is_admin == False,  # noqa: E712 — never mail the admin
     ).order_by(User.id.asc())
-    return [u for u in q.all() if u.id not in already_set]
+    out = []
+    for u in q.all():
+        if u.id in already_set:
+            continue
+        uname = (u.username or "").lower()
+        if uname in EXCLUDE_USERNAMES or uname.startswith("test"):
+            continue
+        if "stevelawsonmarketing+" in (u.email or "").lower():
+            continue
+        out.append(u)
+    return out
 
 
 def _al_launch_render(campaign: dict, name: str, unsub_url: str) -> dict:
