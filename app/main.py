@@ -68835,9 +68835,21 @@ def admin_api_al_user_packs(user_id: int = 0, username: str = "", secret: str = 
         "activated_at": (r.activated_at.isoformat() if r.activated_at else None),
     } for r in rows]
     active = [p for p in packs if p["status"] == "active"]
+    from . import al_engine as _ale_v
+    _owned = _ale_v.owned_level(db, u.id)
+    _earning = _ale_v.earning_level(db, u.id)
     return {"ok": True,
             "user": {"id": u.id, "username": u.username,
                      "is_admin": bool(u.is_admin), "access_level": u.access_level},
+            "earning_gate": {
+                "owned_level": _owned,
+                "earning_level": _earning,
+                "can_earn": _earning > 0 or bool(u.is_admin),
+                "explain": ("owned_level = packs owned; earning_level = packs with a "
+                            "RUNNING AD. can_earn is false when a member owns a pack but "
+                            "hasn't submitted its video ad (needs_ad) — they must create "
+                            "the campaign to start earning."),
+            },
             "note": ("is_admin=true means owned_level returns the ADMIN sentinel — "
                      "every level shows OWNED regardless of these rows. The rows below "
                      "are the ACTUAL PackPurchase records."),
