@@ -85,7 +85,11 @@ def _apply_share_pause(db: Session, user_id: int) -> None:
 
 
 def owned_level(db: Session, user_id: int) -> int:
-    """Highest ACTIVE pack level the user owns ($). Admin owns everything."""
+    """Highest ACTIVE pack level the user owns ($). Admin owns everything.
+
+    This is OWNERSHIP — used for UI display, the buy-block, and pack-state. It
+    does NOT require a running ad. For EARNING eligibility use earning_level(),
+    which additionally requires the pack to have a running video ad."""
     u = db.query(User).filter(User.id == user_id).first()
     if u is None:
         return 0
@@ -98,6 +102,34 @@ def owned_level(db: Session, user_id: int) -> int:
     top = db.query(func.max(PackPurchase.pack_level)).filter(
         PackPurchase.user_id == user_id,
         PackPurchase.status == "active",
+    ).scalar()
+    return int(top or 0)
+
+
+def earning_level(db: Session, user_id: int) -> int:
+    """Highest pack level that QUALIFIES the member to EARN ($). Same as
+    owned_level BUT the pack must have a running video ad (campaign_id set) —
+    a pack in the 'needs_ad' state does NOT count toward earning.
+
+    This is the legally load-bearing rule: a member can only earn a commission
+    at a level if they are actually running an advertising campaign at that
+    level (real ad content in the watch/share pool). Owning a pack with no ad
+    submitted earns nothing until they create the campaign — the same
+    obligation every member has, including the grandfathered/gifted packs.
+
+    Admin owns everything (sentinel). Mirrors owned_level's lazy expiry/pause so
+    the earn gate stays current without a scheduler."""
+    u = db.query(User).filter(User.id == user_id).first()
+    if u is None:
+        return 0
+    if u.is_admin:
+        return _ADMIN_LEVEL
+    _expire_overdue_packs(db, user_id)
+    _apply_share_pause(db, user_id)
+    top = db.query(func.max(PackPurchase.pack_level)).filter(
+        PackPurchase.user_id == user_id,
+        PackPurchase.status == "active",
+        PackPurchase.campaign_id.isnot(None),   # has a running ad — needs_ad excluded
     ).scalar()
     return int(top or 0)
 
@@ -204,7 +236,11 @@ def _member(db: Session, user_id, cache: dict):
         sponsor_id=u.sponsor_id,
         pass_up_sponsor_id=u.pass_up_sponsor_id,
         pack_sale_count=u.pack_sale_count or 0,
-        owned_level=owned_level(db, user_id),
+        # EARNING eligibility requires a RUNNING AD, not just ownership. A pack
+        # in 'needs_ad' (owned, no campaign submitted) does not count — the
+        # member must be running a real advertising campaign at that level to
+        # receive a commission there. earning_level enforces this.
+        owned_level=earning_level(db, user_id),
         # "watch_qualified" carries the full CAN-RECEIVE gate into the pure
         # core: watch gate AND payability AND active membership. Semantically
         # "eligible earner". An expired annual member fails here and is skipped

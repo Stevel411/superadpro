@@ -70344,6 +70344,7 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
                    "daily_watch_required": p.daily_watch_required,
                    **_al_pack_state(db, user, p)} for p in packs],
         "owned_level": _ale.owned_level(db, user.id),
+        "earning_level": _ale.earning_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
         "pack_sale_count": user.pack_sale_count or 0,
@@ -71998,8 +71999,12 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     });
     (function(){var on=document.getElementById('ownNote');
       if(j.owned_level>=1000000){on.innerHTML='You own <b>every level</b> \u2014 a sale at any level pays you.';return;}
-      var op=(packs.find(function(p){return p.level===j.owned_level})||{}).price;
-      on.innerHTML=j.owned_level>0?('Your current level: <b>$'+Number(op||0).toLocaleString()+'</b> \u2014 own a level to earn at that level.'):'Own a level to earn at that level.';})();
+      var el=(j.earning_level||0), ol=(j.owned_level||0);
+      var ep=(packs.find(function(p){return p.level===el})||{}).price;
+      var op=(packs.find(function(p){return p.level===ol})||{}).price;
+      if(el>0){ on.innerHTML='Earning at <b>$'+Number(ep||0).toLocaleString()+'</b> \u2014 your ad is running at this level.'; }
+      else if(ol>0){ on.innerHTML='You own <b>$'+Number(op||0).toLocaleString()+'</b>, but it\u2019s not earning yet \u2014 <b>submit your video ad</b> to start earning.'; }
+      else { on.innerHTML='Own a pack and run its ad to earn at that level.'; }})();
     if(!j.has_payout_method){var w=document.getElementById('gwarn');w.style.display='block';
       w.innerHTML='You have no receiving method on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
     show('sPick');
