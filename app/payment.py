@@ -1261,10 +1261,24 @@ def process_auto_renewals(db: Session) -> dict:
     Called daily (via scheduler or admin endpoint).
     Deducts $20 from wallet for members due renewal.
     Issues 3-day warnings. Lapses after 5-day grace period.
+
+    RETIRED ON ADVANTAGELIFE. This is the SuperAdPro monthly-membership renewal
+    system ($15/$20 wallet auto-deduction, "top up your wallet" reminders,
+    superadpro.com footer). AdvantageLife has NO monthly renewal — it's a $100
+    one-time lifetime / $50 annual join, and annual expiry is handled by the AL
+    activation path, not this wallet-deduction cron. Running it on AL emailed
+    migrated members a wrong-model "$15 renewal / top up" notice. Hard-gate it
+    off for AL at the source so it can't fire from ANY caller (it has several).
     """
+    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": [], "errors": [], "final_warned": []}
+    try:
+        from . import brand_config
+        if brand_config.IS_ADVANTAGELIFE:
+            return results  # no-op on AdvantageLife
+    except Exception:
+        pass
     from datetime import timedelta
     now       = datetime.utcnow()
-    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": [], "backfilled": [], "errors": [], "final_warned": []}
     try:
         from .database import Notification as _NotifModel
     except Exception:
