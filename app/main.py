@@ -40951,6 +40951,100 @@ async def cron_weekly_share_nudge(request: Request, secret: str = "",
             "nudged": nudged[:50]}
 
 
+@app.get("/cron/al-annual-renewal-reminder")
+def cron_al_annual_renewal_reminder(request: Request, secret: str = "",
+                                    dry: int = 0, force_user: int = 0,
+                                    days: int = 14, db: Session = Depends(get_db)):
+    """AdvantageLife ANNUAL renewal reminder.
+
+    AL annual membership is a one-time $50 that EXPIRES after 365 days (it does
+    NOT auto-charge — there is no wallet, no recurring subscription). This cron
+    emails annual members whose membership_expires_at falls within the next
+    `days` (default 14) so they can actively re-pay before losing access.
+
+    Idempotent: drops a Notification(type='al_renewal_reminder') per member per
+    renewal window and skips anyone who already has an UNREAD one for the
+    current expiry — so re-running daily never double-emails.
+
+      ?dry=1         report who WOULD be reminded, send nothing
+      ?force_user=N  remind just this user now (testing), ignores window/idempotency
+      ?days=N        look-ahead window in days (default 14)
+
+    Auth: CRON_SECRET (Railway/cron-job.org) or a logged-in admin.
+    Gated to AdvantageLife (lifetime members never expire; free never paid).
+    """
+    if not brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "advantagelife_only"}, status_code=410)
+
+    _valid = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
+    _admin = False
+    try:
+        _admin = _maintenance_admin_bypass(request)
+    except Exception:
+        _admin = False
+    if not ((secret and secret in _valid) or _admin):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    from .email_utils import send_renewal_reminder_email
+    now = datetime.utcnow()
+    window_end = now + timedelta(days=max(1, days))
+
+    if force_user:
+        q = db.query(User).filter(User.id == force_user)
+    else:
+        # Annual members whose one-time year is expiring within the window.
+        # membership_billing='annual' AND access_level='annual' AND a real
+        # expiry between now and window_end. Lifetime (2099 sentinel) excluded
+        # by the upper bound; expired-already handled by the lapse path, not here.
+        q = db.query(User).filter(
+            User.access_level == "annual",
+            User.membership_billing == "annual",
+            User.membership_expires_at.isnot(None),
+            User.membership_expires_at > now,
+            User.membership_expires_at <= window_end,
+            User.email.isnot(None), User.email != "",
+            User.is_admin == False,  # noqa: E712
+        )
+
+    reminded, skipped = [], []
+    for u in q.all():
+        exp = u.membership_expires_at
+        if not exp:
+            skipped.append({"id": u.id, "why": "no_expiry"}); continue
+        days_left = max(0, (exp - now).days)
+        # Idempotency: one reminder per member per expiry date. Marker stores
+        # the expiry in the link field so a NEW year's expiry re-triggers.
+        marker = f"al_renewal:{exp.strftime('%Y%m%d')}"
+        if not force_user:
+            existing = db.query(Notification).filter(
+                Notification.user_id == u.id,
+                Notification.type == "al_renewal_reminder",
+                Notification.link == marker,
+            ).first()
+            if existing:
+                skipped.append({"id": u.id, "why": "already_reminded"}); continue
+        if dry:
+            reminded.append({"id": u.id, "username": u.username, "days_left": days_left}); continue
+        try:
+            send_renewal_reminder_email(u.email, (u.first_name or u.username or "there"), days_left)
+            db.add(Notification(user_id=u.id, type="al_renewal_reminder",
+                                icon="\U0001f4c5",
+                                title="Your annual membership is coming up for renewal",
+                                message=f"Your AdvantageLife membership expires in {days_left} "
+                                        f"day{'s' if days_left != 1 else ''}. Renew any time to keep your access.",
+                                link=marker))
+            db.commit()
+            reminded.append({"id": u.id, "username": u.username, "days_left": days_left})
+        except Exception as e:
+            db.rollback()
+            skipped.append({"id": u.id, "why": f"error: {type(e).__name__}"})
+            logger.exception(f"al_annual_renewal_reminder failed for user {u.id}")
+
+    return {"ok": True, "dry": bool(dry), "window_days": days,
+            "reminded_count": len(reminded), "reminded": reminded[:50],
+            "skipped_count": len(skipped), "skipped": skipped[:50]}
+
+
 @app.post("/api/al/share-nudge-prefs")
 async def api_share_nudge_prefs(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):

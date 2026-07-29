@@ -357,12 +357,42 @@ def send_membership_activated_email(to_email, first_name, billing="monthly",
 # EMAIL 5: RENEWAL REMINDER
 # ═══════════════════════════════════════════════════════════════
 def send_renewal_reminder_email(to_email, first_name, days_left):
+    """AdvantageLife ANNUAL renewal reminder. AL annual membership is a one-time
+    $50 that expires after 365 days — it does NOT auto-charge and there is no
+    wallet. This is a 'renew to keep your access' notice, not a 'you'll be
+    charged' one. (Replaces the retired SuperAdPro $20-wallet-deduction version.)"""
+    import os as _os
+    price = _os.environ.get("AL_ANNUAL_PRICE_USD", "50")
     dw = f"{days_left} day{'s' if days_left != 1 else ''}"
-    uc = "#ef4444" if days_left <= 3 else "#f59e0b"
-    hero = f'<div style="font-size:48px;margin-bottom:14px">&#9200;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#92400e;line-height:1.2">Your membership renews in <span style="color:{uc}">{dw}</span></p><p style="margin:0;font-size:15px;color:#78350f;line-height:1.7">Just a friendly heads up, {first_name} — make sure your wallet has enough to cover your renewal.</p>'
-    det = f'<table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr><td style="font-size:15px;color:#475569">Renewal date</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">in {dw}</td></tr></table></td></tr><tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr><td style="font-size:15px;color:#475569">Amount needed</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">$20 USDT</td></tr></table></td></tr><tr><td style="padding:10px 0"><table width="100%"><tr><td style="font-size:15px;color:#475569">Paid from</td><td align="right" style="font-size:15px;color:#0f172a;font-weight:700">your wallet balance</td></tr></table></td></tr></table>'
-    body = _card(det, bg='#fffbeb', border='#fde68a') + _card('<p style="margin:0;font-size:14px;color:#9a3412;line-height:1.6;text-align:center">If your wallet doesn\'t have enough funds, your commissions will pause until renewal is complete.</p>', bg='#fff7ed', border='#fed7aa') + _btn(f"{SITE_URL}/wallet", "Check my wallet balance", uc)
-    return send_email(to_email, f"Your {BRAND_NAME} membership renews in {dw}", _shell("Renewal", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body), f"Hi {first_name}, your membership renews in {dw}. Check balance: {SITE_URL}/wallet")
+    urgent = days_left <= 7
+    accent = "#c8102e" if urgent else "#12388f"
+    hero = (f'<div style="font-size:44px;margin-bottom:14px">&#128197;</div>'
+            f'<p style="margin:0 0 10px;font-size:27px;font-weight:900;color:#0a1f52;line-height:1.2">'
+            f'Your annual membership expires in <span style="color:{accent}">{dw}</span></p>'
+            f'<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">'
+            f'A quick heads-up, {first_name} — your AdvantageLife annual membership is coming up for renewal.</p>')
+    det = (f'<table width="100%" cellpadding="0" cellspacing="0">'
+           f'<tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr>'
+           f'<td style="font-size:15px;color:#475569">Expires</td>'
+           f'<td align="right" style="font-size:15px;color:#0a1f52;font-weight:700">in {dw}</td></tr></table></td></tr>'
+           f'<tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><table width="100%"><tr>'
+           f'<td style="font-size:15px;color:#475569">To renew</td>'
+           f'<td align="right" style="font-size:15px;color:#0a1f52;font-weight:700">${price} for another year</td></tr></table></td></tr>'
+           f'<tr><td style="padding:10px 0"><table width="100%"><tr>'
+           f'<td style="font-size:15px;color:#475569">Pay by</td>'
+           f'<td align="right" style="font-size:15px;color:#0a1f52;font-weight:700">card or crypto</td></tr></table></td></tr></table>')
+    body = (_card(det, bg='#f0f9ff', border='#bae6fd')
+            + _card('<p style="margin:0;font-size:14px;color:#334155;line-height:1.6;text-align:center">'
+                    'An active membership keeps your tools unlocked and keeps you qualified to earn from your team. '
+                    'Renewing is a one-time payment &mdash; nothing is charged automatically.</p>',
+                    bg='#f8fafc', border='#e2e8f0')
+            + _btn(f"{SITE_URL}/join", "Renew my membership", accent))
+    return send_email(
+        to_email,
+        f"Your {BRAND_NAME} membership renews in {dw}",
+        _shell("Renewal", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body),
+        f"Hi {first_name}, your {BRAND_NAME} annual membership expires in {dw}. "
+        f"Renew for ${price} to keep your access: {SITE_URL}/join")
 
 
 # ═══════════════════════════════════════════════════════════════
