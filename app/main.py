@@ -72453,6 +72453,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
   </div>
   <h1>Incoming <span class="r">sales</span></h1>
   <div class="sub">Buyers pay you directly, wallet to wallet. Check your wallet &mdash; confirm only once the money has actually arrived.</div>
+  <a href="/sale-approval-guide" style="display:inline-flex;align-items:center;gap:7px;background:#eef3ff;color:#0a1f52;font-weight:800;font-size:13.5px;text-decoration:none;padding:10px 15px;border-radius:10px;border:1px solid #d3ddf5;margin:2px 0 18px">▶ New to this? How approving a sale works</a>
   <div class="sum" id="sum" style="display:none">
     <div class="s hot"><div class="n" id="sumAction">0</div><div class="l">Needs your confirmation</div></div>
     <div class="s"><div class="n" id="sumEarned">$0</div><div class="l">Received all time</div></div>
@@ -73403,6 +73404,23 @@ def al_purge_bsc_chunks(apply: int = 0, user: User = Depends(_al_user)):
 
 
 # ── Daily Wisdom ──────────────────────────────────────────────────────
+@app.get("/sale-approval-guide")
+def sale_approval_guide_page(user: User = Depends(get_current_user)):
+    """The animated 'Approving a Sale' guide (6 steps). Self-contained
+    bulletproof HTML (React inlined, no CDN). Linked from the Confirm a Sale
+    page and standalone. Gated to logged-in members."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_sale_approval_guide.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+
+
 @app.get("/comp-plan-guide")
 def comp_plan_guide_page(user: User = Depends(get_current_user)):
     """The animated compensation-plan guide (6 chapters). Self-contained
