@@ -125,15 +125,15 @@ export default function CreateCampaign() {
       {/* 3 info cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:20 }}>
         {[
-          { Icon:Video, title:t('createCampaign.pasteAndGo'), desc:t('createCampaign.pasteAndGoDesc'), gradient:'linear-gradient(135deg,#0f766e,#14b8a6)' },
-          { Icon:Globe, title:t('createCampaign.realViews'), desc:t('createCampaign.realViewsDesc'), gradient:'linear-gradient(135deg,#1e40af,#3b82f6)' },
-          { Icon:BarChart3, title:t('createCampaign.liveAnalytics'), desc:t('createCampaign.liveAnalyticsDesc'), gradient:'linear-gradient(135deg,#6d28d9,#9db0e0)' },
+          { Icon:Video, title:t('createCampaign.pasteAndGo'), desc:t('createCampaign.pasteAndGoDesc'), gradient:'linear-gradient(135deg,#c8102e,#e8203f)' },
+          { Icon:Globe, title:t('createCampaign.realViews'), desc:t('createCampaign.realViewsDesc'), gradient:'linear-gradient(135deg,#12388f,#1e50c8)' },
+          { Icon:BarChart3, title:t('createCampaign.liveAnalytics'), desc:t('createCampaign.liveAnalyticsDesc'), gradient:'linear-gradient(135deg,#0a1f52,#12388f)' },
         ].map(function(card, i) {
           return <div key={i} style={{ background:'#fff', border:'1px solid #e6ecf5', borderRadius:14, padding:'20px', position:'relative', overflow:'hidden' }}>
             <div style={{ width:40, height:40, borderRadius:12, background:card.gradient, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12 }}>
               <card.Icon size={20} color="#fff"/>
             </div>
-            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#0a1f52', marginBottom:4 }}>{card.title}</div>
+            <div style={{ fontFamily:"'Inter',sans-serif", fontSize:14, fontWeight:800, color:'#0a1f52', marginBottom:4 }}>{card.title}</div>
             <div style={{ fontSize:13, color:'#475569', lineHeight:1.6 }}>{card.desc}</div>
           </div>;
         })}
@@ -202,8 +202,8 @@ export default function CreateCampaign() {
 
         <div style={{ display:'flex', alignItems:'center', gap:16, marginTop:24 }}>
           <button onClick={handleSubmit} disabled={submitting}
-            style={{ padding:'14px 36px', borderRadius:12, fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, border:'none', cursor:submitting?'not-allowed':'pointer',
-              background:submitting?'#7a8899':'linear-gradient(135deg,#c8102e,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
+            style={{ padding:'14px 36px', borderRadius:12, fontFamily:"'Inter',sans-serif", fontSize:15, fontWeight:800, border:'none', cursor:submitting?'not-allowed':'pointer',
+              background:submitting?'#7a8899':'linear-gradient(120deg,#c8102e,#e8203f)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
             {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
           </button>
           <div style={{ fontSize:13, color:'#7a8899' }}>{t('createCampaign.tierNote')}</div>
