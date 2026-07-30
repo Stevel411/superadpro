@@ -71066,8 +71066,8 @@ AL_PAYOUT_METHODS = {
                      "hint": 'Your $Cashtag — starts with "$"', "auto_verify": False,
                      "reversible": True,
                      "seller_note": "Cash App payments can be reversed. Confirm only once the money shows as settled in your balance — not just received."},
-    "paypal":       {"label": "PayPal", "family": "email",
-                     "hint": "Your PayPal email address", "auto_verify": False,
+    "paypal":       {"label": "PayPal", "family": "paypal",
+                     "hint": "Your PayPal email, or a PayPal.me link (lets buyers pay by card)", "auto_verify": False,
                      "reversible": True,
                      "seller_note": "PayPal payments can be disputed for up to 180 days. Confirm only once the money is in your PayPal balance, and keep proof of the sale."},
     "wise":         {"label": "Wise", "family": "wise",
@@ -71086,6 +71086,8 @@ _AL_ADDR_RE = {
     "tron":    re.compile(r"^T[1-9A-HJ-NP-Za-km-z]{33}$"),
     "cashtag": re.compile(r"^\$[a-zA-Z][a-zA-Z0-9_]{1,19}$"),
     "email":   re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$"),
+    # PayPal: email OR a PayPal.me link (paypal.me/name or full https URL)
+    "paypal":  re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|(?:https?://)?(?:www\.)?paypal\.me/[a-zA-Z0-9._-]{1,50}(?:/[0-9.]+)?)$", re.IGNORECASE),
     # Wise: email OR @Wisetag
     "wise":    re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|@[a-zA-Z][a-zA-Z0-9]{2,29})$"),
     # Zelle: US email OR US phone
@@ -71333,7 +71335,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var menu=document.getElementById('ddMenu');menu.innerHTML='';
     var usdt=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdt')===0});
     var usdc=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdc')===0});
-    var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email';});
+    var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email'||r.family==='paypal';});
     // Bank & money-transfer apps — irreversible account-to-account (Wise/Zelle/Revolut).
     var bank=REG.filter(function(r){return r.family==='wise'||r.family==='zelle'||r.family==='revtag';});
     function grp(title){var g=document.createElement('div');g.className='dd-group';g.textContent=title;menu.appendChild(g)}
@@ -71356,9 +71358,9 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var si=document.getElementById('ddSelIcon');si.style.background=i.bg;si.textContent=i.s;
     document.getElementById('ddSelText').innerHTML='<b>'+esc(CUR.label)+'</b><span>'+(CUR.auto_verify?'Auto-verified on-chain':'Confirmed by the seller')+'</span>';
     document.getElementById('hint').textContent=CUR.hint||'';
-    document.getElementById('addrLabel').textContent=(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':(CUR.family==='wise')?'Wise email or @Wisetag':(CUR.family==='zelle')?'Zelle email or US phone':(CUR.family==='revtag')?'@Revtag, email or phone':'Wallet address';
-    document.getElementById('addr').placeholder=(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':(CUR.family==='wise')?'name@email.com or @Wisetag':(CUR.family==='zelle')?'name@email.com or +1…':(CUR.family==='revtag')?'@Revtag':'0x\u2026';
-    document.getElementById('addr').style.fontFamily=(CUR.family==='email'||CUR.family==='cashtag'||CUR.family==='wise'||CUR.family==='zelle'||CUR.family==='revtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
+    document.getElementById('addrLabel').textContent=(CUR.family==='paypal')?'PayPal email or PayPal.me link':(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':(CUR.family==='wise')?'Wise email or @Wisetag':(CUR.family==='zelle')?'Zelle email or US phone':(CUR.family==='revtag')?'@Revtag, email or phone':'Wallet address';
+    document.getElementById('addr').placeholder=(CUR.family==='paypal')?'name@email.com or paypal.me/you':(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':(CUR.family==='wise')?'name@email.com or @Wisetag':(CUR.family==='zelle')?'name@email.com or +1…':(CUR.family==='revtag')?'@Revtag':'0x\u2026';
+    document.getElementById('addr').style.fontFamily=(CUR.family==='paypal'||CUR.family==='email'||CUR.family==='cashtag'||CUR.family==='wise'||CUR.family==='zelle'||CUR.family==='revtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
     var rn=document.getElementById('recvnote');
     if(rn){if(CUR.recv_note){rn.textContent=CUR.recv_note;rn.style.display='block'}else{rn.style.display='none'}}
     var sw=document.getElementById('sellwarn');
@@ -72022,6 +72024,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         <div class="phd"><span class="plbl">Send exactly</span><span class="pbadge" id="pBadge">USDT</span></div>
         <div class="pamt" id="pAmt">$0</div>
         <div class="paddr"><code id="addr">…</code><button class="pcp" id="copyBtn">COPY</button></div>
+        <a id="payLink" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;justify-content:center;gap:8px;background:#003087;color:#fff;font-weight:800;font-size:15px;text-decoration:none;padding:14px 20px;border-radius:12px;margin-top:10px">💳 Pay by card with PayPal →</a>
         <div class="pwarn" id="pWarn"></div>
         <div id="pQr"></div>
         <div class="pcount"><span>This purchase expires in</span><b id="ttl">—</b></div>
@@ -72085,6 +72088,19 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     if(crypto){w.className="pwarn crypto";w.textContent=chainWarn(mt)||"\u26A0 Send on the correct network only — funds sent on another chain are lost."}
     else if(mt==="cashapp"){w.className="pwarn";w.innerHTML="\u26A0 Send as a normal Cash App payment to this $Cashtag, then confirm below. The seller checks their balance before releasing your pack."}
     else{w.className="pwarn";w.innerHTML="\u26A0 Send to this PayPal, then confirm below. The seller releases your pack once the money is in their balance."}
+    // PayPal.me link -> show a clickable "pay by card" button
+    var pl=document.getElementById("payLink");
+    if(pl){
+      var isPPme=(mt==="paypal"&&addr&&/paypal\.me\//i.test(addr));
+      if(isPPme){
+        var href=addr;
+        if(!/^https?:\/\//i.test(href)) href="https://"+href.replace(/^\/+/,"");
+        // append the amount so the PayPal page pre-fills it (paypal.me/name/AMOUNT)
+        if(!/paypal\.me\/[^/]+\/[0-9]/i.test(href)) href=href.replace(/\/+$/,"")+"/"+Number(amount).toFixed(2);
+        pl.href=href; pl.style.display="flex";
+        w.innerHTML="\u26A0 Tap \u201CPay by card\u201D to pay the seller through PayPal (card or PayPal balance), then confirm below. The seller releases your pack once the money is in their balance.";
+      } else { pl.style.display="none"; }
+    }
     var q=document.getElementById("pQr");q.innerHTML="";if(crypto&&window.QRCode&&addr){new QRCode(q,{text:addr,width:98,height:98})}
     var tr=document.getElementById("txref");
     if(crypto){tr.style.display="";tr.placeholder="Paste your transaction hash";tr.style.fontFamily="'JetBrains Mono',monospace"}
