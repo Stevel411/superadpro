@@ -28,8 +28,9 @@ const CSS = `
 .cp .sec{padding:46px 0}
 .cp .vidsec{padding-top:34px}
 .cp .vidwrap{position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55);border:1px solid var(--line);background:var(--navy)}
-.cp .vidframe{display:block;width:100%;height:min(760px,88vh);border:0}
-@media(max-width:640px){.cp .vidframe{height:82vh}}
+.cp .vidframe{display:block;width:100%;height:1000px;border:0;overflow:hidden}
+@media(max-width:900px){.cp .vidframe{height:1040px}}
+@media(max-width:560px){.cp .vidframe{height:1080px}}
 .cp .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
 .cp .eyebrow.on-navy{color:#7fa3ff}
 .cp h1{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.03;margin:0}
