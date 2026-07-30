@@ -679,7 +679,7 @@ export default function NewDashboard() {
           <aside className="side">
             <a className="on" href="/dashboard">Dashboard</a>
             <div className="navhdr">GET STARTED</div>
-            <a href="/start-here" style={{ color: '#c8102e', fontWeight: 900 }}>⭐ Start Here</a>
+            <a href="/start-here" style={{ color: '#c8102e', fontWeight: 900, fontSize: 18 }}><span style={{ fontSize: 22 }}>⭐</span> Start Here</a>
             <Link to="/video-library">Create Campaign</Link>
             <a href="/payout-methods">Payment Details</a>
             <a href="/packs">Buy a Pack</a>

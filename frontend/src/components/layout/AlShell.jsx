@@ -45,7 +45,7 @@ const CHROME = `
 const NAV = [
   { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { header: 'GET STARTED' },
-  { key: 'start', label: '\u2b50 Start Here', to: '/start-here', link: false },
+  { key: 'start', label: 'Start Here', to: '/start-here', link: false, big: true },
   { key: 'campaigns', label: 'Create Campaign', to: '/campaigns', link: true },
   { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
   { key: 'packs', label: 'Buy a Pack', to: '/packs', link: false },
@@ -100,6 +100,9 @@ export default function AlShell({ active, back, children }) {
                 return <div key={'h'+i} className="alnavhdr" style={{ fontSize: 10, fontWeight: 800, letterSpacing: '1.2px', color: 'rgba(255,255,255,0.45)', padding: '14px 0 5px', textTransform: 'uppercase' }}>{n.header}</div>;
               }
               const cls = n.key === active ? 'on' : undefined;
+              if (n.big) {
+                return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#c8102e' }}><span style={{ fontSize: 22 }}>{'\u2b50'}</span> {n.label}</a>;
+              }
               return n.link
                 ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
                 : <a key={n.key} className={cls} href={n.to}>{n.label}</a>;
