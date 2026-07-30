@@ -23,9 +23,13 @@ import { apiGet } from '../utils/api';
 //     rule is what makes each of the three chains infinite in depth
 
 const CSS = `
-.cp{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--line:#dfe5f1;--mute:#5b6b8c;--wash:#f4f7fd}
+.cp{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--line:#dfe5f1;--mute:#5b6b8c;--wash:#f4f7fd;max-width:1080px;margin:0 auto}
 .cp *{box-sizing:border-box}
 .cp .sec{padding:46px 0}
+.cp .vidsec{padding-top:34px}
+.cp .vidwrap{position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55);border:1px solid var(--line);background:var(--navy)}
+.cp .vidframe{display:block;width:100%;height:min(760px,88vh);border:0}
+@media(max-width:640px){.cp .vidframe{height:82vh}}
 .cp .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
 .cp .eyebrow.on-navy{color:#7fa3ff}
 .cp h1{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.03;margin:0}
@@ -221,6 +225,18 @@ export default function CompensationPlan() {
             </div>
           </div>
         </header>
+
+        <section className="sec vidsec">
+          <div className="eyebrow">Watch: how it works</div>
+          <div className="vidwrap">
+            <iframe
+              src="/comp-plan-guide"
+              title="AdvantageLife Compensation Plan walkthrough"
+              className="vidframe"
+              loading="lazy"
+            />
+          </div>
+        </section>
 
         <section className="sec">
           <div className="eyebrow">Before you can earn</div>
