@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CategoryShell from '../components/CategoryShell';
 import { apiGet } from '../utils/api';
 
@@ -27,10 +27,14 @@ const CSS = `
 .cp *{box-sizing:border-box}
 .cp .sec{padding:46px 0}
 .cp .vidsec{padding-top:34px}
-.cp .vidwrap{position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55);border:1px solid var(--line);background:var(--navy)}
-.cp .vidframe{display:block;width:100%;height:1000px;border:0;overflow:hidden}
-@media(max-width:900px){.cp .vidframe{height:1040px}}
-@media(max-width:560px){.cp .vidframe{height:1080px}}
+/* The guide is a fixed 1180x1010 design. We render it at that size and SCALE
+   it to fit the available width — so it never scrolls (horizontally or
+   vertically) on any screen, desktop or mobile. The outer .vidsec may break
+   out slightly wider than the text column for a roomier video, but never
+   edge-to-edge. */
+.cp .vidsec{width:min(1180px,calc(100vw - 48px));margin-left:calc(50% - min(1180px,calc(100vw - 48px))/2);margin-right:calc(50% - min(1180px,calc(100vw - 48px))/2)}
+.cp .vidscale{position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55);border:1px solid var(--line);background:var(--navy)}
+.cp .vidframe{display:block;width:1180px;height:1010px;border:0;transform-origin:top left}
 .cp .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
 .cp .eyebrow.on-navy{color:#7fa3ff}
 .cp h1{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.03;margin:0}
@@ -171,6 +175,37 @@ function money(v) {
   return '$' + Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
+// Renders the fixed-size (1180x1010) animated guide and SCALES it to fit the
+// available width, so it never scrolls on any screen. The wrapper height
+// tracks the scaled height so no space is clipped or wasted.
+const GUIDE_W = 1180, GUIDE_H = 1010;
+function GuideEmbed() {
+  const wrapRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    function fit() {
+      const el = wrapRef.current;
+      if (!el) return;
+      const w = el.clientWidth;
+      setScale(Math.min(1, w / GUIDE_W));
+    }
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+  return (
+    <div ref={wrapRef} className="vidscale" style={{ height: GUIDE_H * scale }}>
+      <iframe
+        src="/comp-plan-guide"
+        title="AdvantageLife Compensation Plan walkthrough"
+        className="vidframe"
+        loading="lazy"
+        style={{ transform: 'scale(' + scale + ')' }}
+      />
+    </div>
+  );
+}
+
 export default function CompensationPlan() {
   const [packs, setPacks] = useState(null);
   const [error, setError] = useState('');
@@ -229,14 +264,7 @@ export default function CompensationPlan() {
 
         <section className="sec vidsec">
           <div className="eyebrow">Watch: how it works</div>
-          <div className="vidwrap">
-            <iframe
-              src="/comp-plan-guide"
-              title="AdvantageLife Compensation Plan walkthrough"
-              className="vidframe"
-              loading="lazy"
-            />
-          </div>
+          <GuideEmbed />
         </section>
 
         <section className="sec">
