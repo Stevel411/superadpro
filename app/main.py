@@ -41045,6 +41045,114 @@ def cron_al_annual_renewal_reminder(request: Request, secret: str = "",
             "skipped_count": len(skipped), "skipped": skipped[:50]}
 
 
+@app.get("/cron/al-unconfirmed-sale-reminder")
+def cron_al_unconfirmed_sale_reminder(request: Request, secret: str = "",
+                                      dry: int = 0, force_intent: int = 0,
+                                      after_hours: int = 12, gap_hours: int = 24,
+                                      db: Session = Depends(get_db)):
+    """Nudge a SELLER sitting on an unconfirmed pack sale.
+
+    When a buyer submits proof of payment, the seller (the resolved payee —
+    including a pass-up recipient) is asked to confirm receipt, which activates
+    the buyer's pack. If the seller doesn't act, the buyer is stuck. This cron
+    re-nudges the seller (in-app + email) for any P2PIntent still in
+    'proof_submitted' whose proof was submitted more than `after_hours` ago,
+    at most once per `gap_hours` (idempotent via a Notification marker).
+
+      ?after_hours=N  only nudge sales awaiting confirmation longer than N h (default 12)
+      ?gap_hours=N    minimum hours between reminders for the same sale (default 24)
+      ?dry=1          report who WOULD be nudged, send nothing
+      ?force_intent=N nudge this intent now (testing), ignores timing/idempotency
+
+    Auth: CRON_SECRET or admin. Gated to AdvantageLife.
+    """
+    if not brand_config.IS_ADVANTAGELIFE:
+        return JSONResponse({"error": "advantagelife_only"}, status_code=410)
+    _valid = {s for s in (os.getenv("CRON_SECRET", ""), os.getenv("ADMIN_SECRET", "")) if s}
+    _admin = False
+    try:
+        _admin = _maintenance_admin_bypass(request)
+    except Exception:
+        _admin = False
+    if not ((secret and secret in _valid) or _admin):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    now = datetime.utcnow()
+    if force_intent:
+        q = db.query(P2PIntent).filter(P2PIntent.id == force_intent)
+    else:
+        cutoff = now - timedelta(hours=max(1, after_hours))
+        q = db.query(P2PIntent).filter(
+            P2PIntent.status == "proof_submitted",
+            P2PIntent.earner_id.isnot(None),       # company-payee sales are admin-confirmed, not member-nudged
+            P2PIntent.submitted_at.isnot(None),
+            P2PIntent.submitted_at <= cutoff,
+        )
+
+    reminded, skipped = [], []
+    for it in q.all():
+        seller = db.query(User).filter(User.id == it.earner_id).first()
+        if not seller:
+            skipped.append({"intent": it.id, "why": "no_seller"}); continue
+        # Idempotency marker doubles as the tap-through URL: unique per sale AND
+        # takes the seller straight to the sale in Confirm a Sale.
+        marker = f"/my-sales?sale={it.id}"
+        if not force_intent:
+            recent = db.query(Notification).filter(
+                Notification.user_id == seller.id,
+                Notification.type == "al_sale_reminder",
+                Notification.link == marker,
+                Notification.created_at >= (now - timedelta(hours=max(1, gap_hours))),
+            ).first()
+            if recent:
+                skipped.append({"intent": it.id, "why": "reminded_recently"}); continue
+        buyer = db.query(User).filter(User.id == it.buyer_id).first()
+        bname = (buyer.username if buyer else "A member")
+        amt = float(it.amount or 0)
+        hrs = int((now - it.submitted_at).total_seconds() // 3600) if it.submitted_at else 0
+        if dry:
+            reminded.append({"intent": it.id, "seller": seller.username, "hours_waiting": hrs}); continue
+        try:
+            db.add(Notification(
+                user_id=seller.id, type="al_sale_reminder", icon="\u23f0",
+                link=marker, title="Still awaiting your confirmation",
+                message=f"{bname} paid you ${amt:.2f} for a Level {it.pack_level} pack "
+                        f"{hrs}h ago. Confirm at Confirm a Sale once the money's "
+                        f"arrived to release their pack."))
+            db.commit()
+        except Exception:
+            db.rollback()
+        # Email nudge
+        try:
+            if seller.email:
+                _base = os.environ.get("SITE_URL", "https://www.advantagelife.club").rstrip("/")
+                _sub = f"\u23f0 Reminder: confirm {bname}'s ${amt:.2f} payment to release their pack"
+                _html = (
+                    f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
+                    f"<h2 style=\"color:#0a1f52\">You have a sale awaiting confirmation</h2>"
+                    f"<p><b>{bname}</b> reported paying you <b>${amt:.2f}</b> for a Level {it.pack_level} "
+                    f"campaign pack about {hrs} hours ago, and it's still waiting on you.</p>"
+                    f"<p><b>What to do:</b> check the account they paid, and once the money has arrived, "
+                    f"confirm the sale to activate their pack. If you never received it, you can decline.</p>"
+                    f"<p style=\"margin:24px 0\"><a href=\"{_base}/my-sales\" "
+                    f"style=\"background:#c8102e;color:#fff;font-weight:800;text-decoration:none;"
+                    f"padding:14px 26px;border-radius:10px;display:inline-block\">Review this sale \u2192</a></p>"
+                    f"<p style=\"font-size:13px;color:#5a6584\">Only confirm once you've actually received "
+                    f"the money. Member-to-member payments can't be reversed by AdvantageLife.</p></div>")
+                _text = (f"Reminder: {bname} paid you ${amt:.2f} for a Level {it.pack_level} pack {hrs}h ago. "
+                         f"Confirm once received: {_base}/my-sales")
+                from .email_utils import send_email as _send
+                _send(seller.email, _sub, _html, _text)
+            reminded.append({"intent": it.id, "seller": seller.username, "hours_waiting": hrs})
+        except Exception:
+            logger.exception(f"AL unconfirmed-sale reminder email failed for intent {it.id}")
+            skipped.append({"intent": it.id, "why": "email_error"})
+
+    return {"ok": True, "dry": bool(dry), "after_hours": after_hours, "gap_hours": gap_hours,
+            "reminded_count": len(reminded), "reminded": reminded[:50],
+            "skipped_count": len(skipped), "skipped": skipped[:50]}
+
+
 @app.post("/api/al/share-nudge-prefs")
 async def api_share_nudge_prefs(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
