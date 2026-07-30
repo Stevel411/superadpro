@@ -68918,6 +68918,35 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/al/r2-check")
+def admin_al_r2_check(key: str = "", user: User = Depends(get_current_user)):
+    """Admin diagnostic: does an object exist in R2, and what's the configured
+    public URL? Helps diagnose 404s on uploaded video URLs."""
+    if not user or not getattr(user, "is_admin", False):
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    from . import r2_storage as _r2
+    info = {"R2_PUBLIC_URL": _r2.R2_PUBLIC_URL, "R2_BUCKET": _r2.R2_BUCKET,
+            "r2_available": _r2.r2_available()}
+    try:
+        client = _r2._get_client()
+        # list a few objects under videos/ to prove upload landed
+        resp = client.list_objects_v2(Bucket=_r2.R2_BUCKET, Prefix="videos/", MaxKeys=10)
+        objs = [{"key": o["Key"], "size": o["Size"]} for o in resp.get("Contents", [])]
+        info["videos_objects"] = objs
+        if key:
+            try:
+                head = client.head_object(Bucket=_r2.R2_BUCKET, Key=key)
+                info["key_exists"] = True
+                info["key_size"] = head.get("ContentLength")
+                info["key_content_type"] = head.get("ContentType")
+            except Exception as e:
+                info["key_exists"] = False
+                info["key_error"] = str(e)
+    except Exception as e:
+        info["list_error"] = str(e)
+    return info
+
+
 @app.get("/admin/al/upload-video")
 def admin_al_upload_video_page(user: User = Depends(get_current_user)):
     """Mobile-friendly admin page to upload a video file to R2 and get its
