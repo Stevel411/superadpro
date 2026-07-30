@@ -43,6 +43,7 @@ const CHROME = `
 `;
 
 const NAV = [
+  { key: 'start', label: '\u2b50 Start Here', to: '/start-here', link: false },
   { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { key: 'ai-tools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'campaigns', label: 'Campaigns', to: '/campaigns', link: true },

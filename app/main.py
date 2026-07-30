@@ -73209,6 +73209,23 @@ def al_purge_bsc_chunks(apply: int = 0, user: User = Depends(_al_user)):
 
 
 # ── Daily Wisdom ──────────────────────────────────────────────────────
+@app.get("/start-here")
+def start_here_page(user: User = Depends(get_current_user)):
+    """The animated new-member activation walkthrough (6 steps, P2P order).
+    Self-contained bulletproof HTML (React + all deps inlined — no CDN). Gated
+    to logged-in members; served as its own full-page standalone guide."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_start_here.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+
+
 @app.get("/wisdom")
 def wisdom_page(user: User = Depends(get_current_user)):
     """Serve the React shell for the Daily Wisdom library.

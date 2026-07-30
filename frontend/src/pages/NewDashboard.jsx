@@ -676,6 +676,7 @@ export default function NewDashboard() {
 
         <div className="cols">
           <aside className="side">
+            <a href="/start-here" style={{ color: '#c8102e', fontWeight: 900 }}>⭐ Start Here</a>
             <a className="on" href="/dashboard">Dashboard</a>
             <Link to="/ai-tools">Marketing Tools</Link>
             <Link to="/video-library">Campaigns</Link>
