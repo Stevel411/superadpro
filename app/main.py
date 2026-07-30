@@ -71071,13 +71071,13 @@ AL_PAYOUT_METHODS = {
                      "reversible": True,
                      "seller_note": "PayPal payments can be disputed for up to 180 days. Confirm only once the money is in your PayPal balance, and keep proof of the sale."},
     "wise":         {"label": "Wise", "family": "wise",
-                     "hint": "Your Wise email or @Wisetag", "auto_verify": False,
+                     "hint": "Your Wise email or @Wisetag — buyers can pay by card", "auto_verify": False,
                      "recv_note": "Send to your Wise account (email or Wisetag) — not a Wise card. Account-to-account Wise transfers are final and can't be reversed."},
     "zelle":        {"label": "Zelle", "family": "zelle",
                      "hint": "Your Zelle email or US phone number", "auto_verify": False,
                      "recv_note": "US bank accounts only. Zelle transfers are instant and final — there's no chargeback."},
     "revolut":      {"label": "Revolut", "family": "revtag",
-                     "hint": "Your @Revtag, email or phone", "auto_verify": False,
+                     "hint": "Your @Revtag, email or phone — buyers can pay by card", "auto_verify": False,
                      "recv_note": "Send to your Revolut account (Revtag, email or phone) — not a Revolut card. Account-to-account transfers are final."},
 }
 
@@ -71336,8 +71336,11 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var usdt=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdt')===0});
     var usdc=REG.filter(function(r){return (r.family==='evm'||r.family==='tron')&&r.key.indexOf('usdc')===0});
     var cash=REG.filter(function(r){return r.family==='cashtag'||r.family==='email'||r.family==='paypal';});
-    // Bank & money-transfer apps — irreversible account-to-account (Wise/Zelle/Revolut).
-    var bank=REG.filter(function(r){return r.family==='wise'||r.family==='zelle'||r.family==='revtag';});
+    // Bank & money-transfer apps — irreversible account-to-account. Wise & Revolut
+    // first (card-fundable, global); Zelle last (US-only).
+    var bankOrder={wise:0,revolut:1,zelle:2};
+    var bank=REG.filter(function(r){return r.family==='wise'||r.family==='zelle'||r.family==='revtag';})
+                .sort(function(a,b){return (bankOrder[a.key]===undefined?9:bankOrder[a.key])-(bankOrder[b.key]===undefined?9:bankOrder[b.key]);});
     function grp(title){var g=document.createElement('div');g.className='dd-group';g.textContent=title;menu.appendChild(g)}
     function opt(r){
       var i=ic(r.key);var o=document.createElement('div');o.className='dd-opt';o.dataset.key=r.key;
@@ -71347,10 +71350,10 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       o.onclick=function(){choose(r.key)};
       menu.appendChild(o);
     }
-    if(usdt.length){grp('USDT \u2014 instant & irreversible');usdt.forEach(opt)}
-    if(usdc.length){grp('USDC \u2014 instant & irreversible');usdc.forEach(opt)}
-    if(bank.length){grp('Bank & transfer apps \u2014 final, no chargeback');bank.forEach(opt)}
-    if(cash.length){grp('Cash apps \u2014 confirmed by the seller');cash.forEach(opt)}
+    if(bank.length){grp('\ud83d\udcb3 Pay by card \u2014 Wise & Revolut (recommended)');bank.forEach(opt)}
+    if(cash.length){grp('Other apps \u2014 PayPal, Cash App');cash.forEach(opt)}
+    if(usdt.length){grp('USDT \u2014 crypto, instant & irreversible');usdt.forEach(opt)}
+    if(usdc.length){grp('USDC \u2014 crypto, instant & irreversible');usdc.forEach(opt)}
   }
   function choose(k){
     CUR=REG.find(function(x){return x.key===k});if(!CUR)return;
