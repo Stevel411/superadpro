@@ -68918,6 +68918,63 @@ def admin_api_grant_lifetime(
             "total_lifetime_now": db.query(User).filter(User.access_level == "lifetime").count()}
 
 
+@app.get("/admin/al/upload-video")
+def admin_al_upload_video_page(user: User = Depends(get_current_user)):
+    """Mobile-friendly admin page to upload a video file to R2 and get its
+    public URL (the old /admin/videos SPA page is retired on AL). Posts to the
+    existing /admin/api/videos/upload endpoint. Admin only."""
+    if not user or not getattr(user, "is_admin", False):
+        return HTMLResponse("<h1>Admin only</h1>", status_code=403)
+    html = """<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upload Video — AdvantageLife</title>
+<style>
+  body{font-family:Inter,system-ui,Arial,sans-serif;background:#0a1f52;color:#fff;margin:0;padding:24px;display:flex;justify-content:center}
+  .card{background:#fff;color:#0a1f52;border-radius:16px;max-width:520px;width:100%;padding:26px;box-shadow:0 20px 50px -20px rgba(0,0,0,.5)}
+  h1{font-size:22px;font-weight:900;margin:0 0 6px}
+  p{color:#5a6584;font-size:14px;margin:0 0 18px;line-height:1.5}
+  input[type=file]{width:100%;padding:14px;border:2px dashed #c8d3ec;border-radius:12px;margin-bottom:16px;font-size:14px}
+  button{background:#c8102e;color:#fff;font-weight:800;font-size:15px;border:0;border-radius:11px;padding:14px 22px;cursor:pointer;width:100%}
+  button:disabled{opacity:.6}
+  .out{margin-top:18px;padding:14px;border-radius:11px;background:#f4f7fd;border:1px solid #dfe5f1;font-size:13px;word-break:break-all;display:none}
+  .out.show{display:block}
+  .url{font-weight:800;color:#0a1f52}
+  .copy{background:#0a1f52;margin-top:10px;padding:10px}
+  .err{color:#c8102e;font-weight:700}
+  .bar{height:8px;background:#eef1f8;border-radius:6px;overflow:hidden;margin:12px 0;display:none}
+  .bar.show{display:block}.bar span{display:block;height:100%;background:#c8102e;width:0%;transition:width .2s}
+</style></head><body>
+<div class="card">
+  <h1>Upload a video</h1>
+  <p>Pick a video file (mp4/mov/webm). It uploads to storage and gives you a public URL to share with Claude for embedding.</p>
+  <input type="file" id="f" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm,.m4v">
+  <div class="bar" id="bar"><span id="barfill"></span></div>
+  <button id="btn">Upload video</button>
+  <div class="out" id="out"></div>
+</div>
+<script>
+var btn=document.getElementById('btn'),f=document.getElementById('f'),out=document.getElementById('out'),bar=document.getElementById('bar'),fill=document.getElementById('barfill');
+btn.onclick=function(){
+  if(!f.files||!f.files[0]){alert('Choose a file first');return;}
+  var fd=new FormData();fd.append('file',f.files[0]);
+  btn.disabled=true;btn.textContent='Uploading…';bar.classList.add('show');out.classList.remove('show');
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST','/admin/api/videos/upload');
+  xhr.upload.onprogress=function(e){if(e.lengthComputable){fill.style.width=Math.round(e.loaded/e.total*100)+'%';}};
+  xhr.onload=function(){
+    btn.disabled=false;btn.textContent='Upload video';
+    try{var j=JSON.parse(xhr.responseText);
+      if(j.ok&&j.url){out.className='out show';out.innerHTML='<div>Uploaded ✓ Public URL:</div><div class="url">'+j.url+'</div><button class="copy" onclick="navigator.clipboard.writeText(\\''+j.url+'\\');this.textContent=\\'Copied!\\'">Copy URL</button>';}
+      else{out.className='out show';out.innerHTML='<span class="err">'+(j.error||'Upload failed')+'</span>';}
+    }catch(e){out.className='out show';out.innerHTML='<span class="err">Upload failed ('+xhr.status+')</span>';}
+  };
+  xhr.onerror=function(){btn.disabled=false;btn.textContent='Upload video';out.className='out show';out.innerHTML='<span class="err">Network error</span>';};
+  xhr.send(fd);
+};
+</script></body></html>"""
+    return HTMLResponse(html)
+
+
 @app.get("/admin/api/al/user-packs")
 def admin_api_al_user_packs(user_id: int = 0, username: str = "", secret: str = "", db: Session = Depends(get_db)):
     """READ-ONLY: the actual AL PackPurchase rows a user holds — real ownership,
