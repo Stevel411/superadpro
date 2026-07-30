@@ -43,6 +43,7 @@ const CSS = `
 .al .side a{display:flex;align-items:center;gap:12px;color:#c7d3f2;font-weight:800;font-size:15px;padding:14px 16px;border-radius:13px;margin-bottom:5px}
 .al .side a.on{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
 .al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
+.al .side .navhdr{font-size:10px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.42);text-transform:uppercase;padding:15px 16px 6px}
 .al .side .sdiv{height:1px;background:rgba(255,255,255,.12);margin:14px 6px;margin-top:auto}
 .al .wshBack{position:fixed;inset:0;background:rgba(10,31,82,.55);z-index:120;display:flex;align-items:center;justify-content:center;padding:18px}
 .al .wsh{background:#fff;border-radius:18px;padding:20px;max-width:400px;width:100%;max-height:92vh;overflow:auto}
@@ -676,18 +677,21 @@ export default function NewDashboard() {
 
         <div className="cols">
           <aside className="side">
-            <a href="/start-here" style={{ color: '#c8102e', fontWeight: 900 }}>⭐ Start Here</a>
             <a className="on" href="/dashboard">Dashboard</a>
+            <div className="navhdr">GET STARTED</div>
+            <a href="/start-here" style={{ color: '#c8102e', fontWeight: 900 }}>⭐ Start Here</a>
+            <Link to="/video-library">Create Campaign</Link>
+            <a href="/payout-methods">Payment Details</a>
+            <a href="/packs">Buy a Pack</a>
+            <Link to="/watch">Daily Watch</Link>
+            <Link to="/my-marketing">Share Your Page</Link>
+            <div className="navhdr">RUN YOUR BUSINESS</div>
+            <a href="/my-sales">Confirm a Sale</a>
             <Link to="/ai-tools">Marketing Tools</Link>
-            <Link to="/video-library">Campaigns</Link>
-            <Link to="/watch">Watch-to-Earn</Link>
+            <Link to="/compensation-plan">Compensation Plan</Link>
+            <div className="navhdr">MORE</div>
             <Link to="/wisdom">Daily Wisdom</Link>
             <Link to="/collaborations">Vetted Extras</Link>
-            <Link to="/my-marketing">My Marketing</Link>
-            <Link to="/compensation-plan">Compensation Plan</Link>
-            <a href="/packs">Buy Packs</a>
-            <a href="/my-sales">Confirm Sale</a>
-            <a href="/payout-methods">Get Paid</a>
             <div className="sdv" />
             <ShareCard />
           </aside>

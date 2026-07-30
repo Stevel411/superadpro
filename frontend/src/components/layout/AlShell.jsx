@@ -43,15 +43,21 @@ const CHROME = `
 `;
 
 const NAV = [
-  { key: 'start', label: '\u2b50 Start Here', to: '/start-here', link: false },
   { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
+  { header: 'GET STARTED' },
+  { key: 'start', label: '\u2b50 Start Here', to: '/start-here', link: false },
+  { key: 'campaigns', label: 'Create Campaign', to: '/campaigns', link: true },
+  { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
+  { key: 'packs', label: 'Buy a Pack', to: '/packs', link: false },
+  { key: 'watch', label: 'Daily Watch', to: '/watch', link: true },
+  { key: 'marketing', label: 'Share Your Page', to: '/my-marketing', link: true },
+  { header: 'RUN YOUR BUSINESS' },
+  { key: 'sales', label: 'Confirm a Sale', to: '/my-sales', link: false },
   { key: 'ai-tools', label: 'Marketing Tools', to: '/ai-tools', link: true },
-  { key: 'campaigns', label: 'Campaigns', to: '/campaigns', link: true },
-  { key: 'watch', label: 'Watch-to-Earn', to: '/watch', link: true },
-  { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
-  { key: 'packs', label: 'Buy Packs', to: '/packs', link: false },
-  { key: 'sales', label: 'Confirm Sale', to: '/my-sales', link: false },
-  { key: 'wallet', label: 'Wallet', to: '/payout-methods', link: false },
+  { key: 'comp', label: 'Compensation Plan', to: '/compensation-plan', link: true },
+  { header: 'MORE' },
+  { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },
+  { key: 'extras', label: 'Vetted Extras', to: '/collaborations', link: true },
 ];
 
 export default function AlShell({ active, back, children }) {
@@ -89,7 +95,10 @@ export default function AlShell({ active, back, children }) {
 
         <div className="cols">
           <aside className="side">
-            {NAV.map(function (n) {
+            {NAV.map(function (n, i) {
+              if (n.header) {
+                return <div key={'h'+i} className="alnavhdr" style={{ fontSize: 10, fontWeight: 800, letterSpacing: '1.2px', color: 'rgba(255,255,255,0.45)', padding: '14px 0 5px', textTransform: 'uppercase' }}>{n.header}</div>;
+              }
               const cls = n.key === active ? 'on' : undefined;
               return n.link
                 ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
