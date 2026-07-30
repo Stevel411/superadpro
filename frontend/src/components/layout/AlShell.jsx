@@ -101,7 +101,7 @@ export default function AlShell({ active, back, children }) {
               }
               const cls = n.key === active ? 'on' : undefined;
               if (n.big) {
-                return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#c8102e' }}><span style={{ fontSize: 22 }}>{'\u2b50'}</span> {n.label}</a>;
+                return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#2ecc71' }}><span style={{ fontSize: 22 }}>{'\u2b50'}</span> {n.label}</a>;
               }
               return n.link
                 ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
