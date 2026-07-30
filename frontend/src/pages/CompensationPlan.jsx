@@ -35,6 +35,7 @@ const CSS = `
 .cp .vidsec{width:min(1180px,calc(100vw - 48px));margin-left:calc(50% - min(1180px,calc(100vw - 48px))/2);margin-right:calc(50% - min(1180px,calc(100vw - 48px))/2)}
 .cp .vidscale{position:relative;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55);border:1px solid var(--line);background:var(--navy)}
 .cp .vidframe{display:block;width:1180px;height:1010px;border:0;transform-origin:top left}
+.cp .pvid{max-width:820px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 20px 50px -24px rgba(10,31,82,.55)}
 .cp .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
 .cp .eyebrow.on-navy{color:#7fa3ff}
 .cp h1{font-size:clamp(32px,7vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.03;margin:0}
@@ -206,6 +207,24 @@ function GuideEmbed() {
   );
 }
 
+// Native HTML5 player for the pass-up explainer video (hosted on R2).
+const PASSUP_VIDEO = "https://pub-00339c2939d54d488708a19799130b10.r2.dev/Passups%20.mp4";
+function PassupVideo() {
+  return (
+    <div className="pvid">
+      <video
+        controls
+        preload="metadata"
+        playsInline
+        style={{ width: '100%', display: 'block', borderRadius: 16, background: '#0a1f52' }}
+      >
+        <source src={PASSUP_VIDEO} type="video/mp4" />
+        Your browser doesn't support video playback.
+      </video>
+    </div>
+  );
+}
+
 export default function CompensationPlan() {
   const [packs, setPacks] = useState(null);
   const [error, setError] = useState('');
@@ -331,6 +350,8 @@ export default function CompensationPlan() {
               </div>
             </div>
           </div>
+          <div className="eyebrow" style={{ marginTop: 40 }}>Watch: the infinite pass-up</div>
+          <PassupVideo />
         </section>
 
         <section className="sec" style={{ paddingTop: 0 }}>
