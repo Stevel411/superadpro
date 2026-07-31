@@ -71218,110 +71218,156 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
 <title>Receiving methods — AdvantageLife</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0}
-:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
-body{font-family:'Inter',sans-serif;background:linear-gradient(165deg,var(--navy),var(--navy2));min-height:100vh;color:#fff;padding-bottom:120px}
-.wrap{max-width:720px;margin:0 auto;padding:34px 22px 80px}
-.mk{text-align:center;font-weight:900;font-size:21px;margin-bottom:4px}.mk i{font-style:normal;color:#ff5a70}
-.tag{text-align:center;font-size:12px;font-weight:700;letter-spacing:.14em;color:#aebcf0;text-transform:uppercase;margin-bottom:26px}
-.card{background:#fff;color:var(--ink);border-radius:24px;padding:38px 36px;box-shadow:0 30px 70px -30px rgba(2,8,30,.6)}
-h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{color:var(--red)}
-.sub{font-size:15px;color:var(--dim);font-weight:600;line-height:1.55;margin-bottom:24px}
-.seclabel{font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 14px}
-.warn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:12px 15px;font-size:12.5px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:16px;display:none}
-.m{border:2px solid var(--line);border-radius:17px;padding:18px 20px;margin-bottom:13px;display:flex;align-items:center;gap:15px}
-.m.def{border-color:#bfe6cd;background:#f5fdf8}
-.m .mi{width:48px;height:48px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff}
-.m .minfo{flex:1;min-width:0}
-.m .who{font-weight:900;font-size:16px}
-.m .tx{font-family:'JetBrains Mono';font-size:12px;background:#f6f8fd;border-radius:8px;padding:6px 10px;margin-top:6px;word-break:break-all;color:#33406b;display:inline-block}
-.m .ver{font-size:11px;font-weight:800;color:var(--grn);margin-top:6px}
-.badge{background:var(--grn);color:#fff;font-weight:900;font-size:11px;border-radius:9px;padding:5px 11px;flex:none}
-.macts{display:flex;gap:8px;flex:none}
-.editrow{display:none}
-.m.editing{flex-wrap:wrap}
-.m.editing .tx,.m.editing .ver,.m.editing .macts{display:none}
-.m.editing .editrow{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:4px}
-.editrow .einp{width:100%;border:2px solid var(--line);border-radius:12px;padding:14px 16px;font-family:'JetBrains Mono';font-size:14px;box-sizing:border-box}
-.editrow .einp:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
-.editrow .ehint{font-size:12.5px;font-weight:600;color:var(--dim);margin:-2px 2px 0}
-.editrow .eerr{font-size:13px;font-weight:700;color:var(--red);display:none;margin:2px}
-.editrow .eacts{display:flex;gap:10px;margin-top:2px}
-.editrow .esave{border:none;border-radius:11px;padding:12px 22px;font-family:'Inter';font-weight:900;font-size:13.5px;cursor:pointer;background:var(--red);color:#fff;box-shadow:0 10px 22px -12px rgba(200,16,46,.6)}
-.editrow .ecancel{border:2px solid var(--line);border-radius:11px;padding:12px 22px;font-family:'Inter';font-weight:800;font-size:13.5px;cursor:pointer;background:#fff;color:#33406b}
-.editrow .ecancel:hover{background:#f6f8fd}
-.sm{border:none;border-radius:9px;padding:9px 14px;font-family:'Inter';font-weight:800;font-size:12.5px;cursor:pointer;background:#f6f8fd;color:#33406b}
-.sm.danger{color:var(--red)}
-.add{border:2px dashed #cdd6ea;border-radius:19px;padding:26px;margin-top:20px;background:#fafbfe}
-.add .addh{font-weight:900;font-size:16.5px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.add .addh i{font-style:normal;color:var(--red)}
-.fl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#33406b;margin-bottom:9px;display:block}
-.dd{position:relative;margin-bottom:19px}
-.dd-btn{width:100%;border:2px solid var(--line);border-radius:15px;padding:16px 18px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:15px;font-family:'Inter';transition:border .15s,box-shadow .15s}
-.dd-btn:hover{border-color:var(--red)}
-.dd-btn.open{border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
-.dd-selicon{width:42px;height:42px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;background:#0a7d5a}
-.dd-seltext{flex:1;text-align:left}
-.dd-seltext b{display:block;font-size:16px;font-weight:900;color:var(--navy)}
-.dd-seltext span{font-size:12.5px;font-weight:600;color:var(--dim)}
-.dd-chev{color:var(--dim);transition:transform .2s}
-.dd-btn.open .dd-chev{transform:rotate(180deg)}
-.dd-menu{position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border:2px solid var(--line);border-radius:16px;box-shadow:0 28px 56px -18px rgba(10,31,82,.42);overflow:hidden;z-index:20;max-height:0;opacity:0;pointer-events:none;transition:max-height .22s,opacity .18s}
-.dd-menu.open{max-height:460px;opacity:1;pointer-events:auto;overflow-y:auto}
-.dd-group{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#94a0c2;padding:13px 18px 7px;background:#fafbfe}
-.dd-opt{display:flex;align-items:center;gap:15px;padding:14px 18px;cursor:pointer;transition:background .12s;border-top:1px solid #f0f3fa}
-.dd-opt:hover{background:#f6f8fd}
-.dd-opt.sel{background:#fdf2f4}
-.dd-oi{width:40px;height:40px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff}
-.dd-ot{flex:1}
-.dd-ot b{display:block;font-size:15px;font-weight:900;color:var(--navy)}
-.dd-ot span{font-size:12px;font-weight:600;color:var(--dim)}
-.dd-tag{font-size:9.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:7px;flex:none}
-.dd-tag.auto{background:#e4f7ee;color:#0a7d5a}
-.dd-tag.man{background:#fff1d6;color:#9a6a08}
-.dd-check{color:var(--red);font-weight:900;font-size:18px;flex:none}
-.inp{width:100%;border:2px solid var(--line);border-radius:14px;padding:16px 18px;font-family:'JetBrains Mono';font-size:15px;background:#fff;box-sizing:border-box}
-.inp:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 4px rgba(200,16,46,.1)}
-.hint{font-size:13px;font-weight:600;color:var(--dim);margin:9px 2px 0}
-.sellwarn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:12px;padding:12px 15px;font-size:12.5px;font-weight:700;color:#7a5a10;line-height:1.55;margin-top:14px;display:none}
-.btn{display:block;width:100%;border:none;border-radius:15px;padding:18px;font-family:'Inter';font-weight:900;font-size:16.5px;cursor:pointer;background:var(--red);color:#fff;margin-top:18px;box-shadow:0 14px 30px -12px rgba(200,16,46,.6)}
-.err{display:none;background:#fdecec;color:#a3132e;border-radius:11px;padding:11px 14px;font-size:13px;font-weight:700;margin-top:12px}
-.note{font-size:12px;color:#94a0c2;font-weight:600;text-align:center;margin-top:18px;line-height:1.6}
-.empty{text-align:center;padding:18px 0;color:var(--dim);font-weight:700;font-size:14px;display:none}
-.backlink{display:inline-flex;align-items:center;gap:7px;color:#aebcf0;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px;padding:8px 14px;border-radius:10px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);transition:background .15s}
-.backlink:hover{background:rgba(255,255,255,.16);color:#fff}
-</style></head><body>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--grn:#0b7a3e;--wash:#f4f7fd}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;margin:0;color:var(--ink);background:#fbfcff;min-height:100vh;padding:0 20px 80px;
+    background-image:radial-gradient(110% 45% at 90% -6%,rgba(200,16,46,.06),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.09),transparent 55%);background-attachment:fixed}
+  .wrap{max-width:1120px;margin:0 auto}
+  .topnav{display:flex;flex-wrap:wrap;gap:8px;padding:18px 0 0}
+  .topnav a{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none}
+  .topnav a.backlink{background:var(--navy);color:#fff;border-color:var(--navy)}
+  /* HERO */
+  .hero{position:relative;margin:16px -20px 34px;padding:40px 20px 36px;background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;overflow:hidden;border-bottom-left-radius:34px;border-bottom-right-radius:34px;box-shadow:0 24px 60px -34px rgba(10,31,82,.55)}
+  .hero .flow{position:absolute;inset:0;opacity:.5;pointer-events:none}
+  .hero .flow span{position:absolute;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:flow 4.5s linear infinite}
+  .hero .flow span:nth-child(1){top:26%;left:-40%;width:38%;animation-delay:0s}
+  .hero .flow span:nth-child(2){top:58%;left:-40%;width:30%;animation-delay:1.1s;background:linear-gradient(90deg,transparent,rgba(255,90,112,.6),transparent)}
+  .hero .flow span:nth-child(3){top:78%;left:-40%;width:34%;animation-delay:2.2s}
+  .hero .flow span:nth-child(4){top:42%;left:-40%;width:26%;animation-delay:3s;background:linear-gradient(90deg,transparent,rgba(255,90,112,.5),transparent)}
+  @keyframes flow{to{left:120%}}
+  @media(prefers-reduced-motion:reduce){.hero .flow span{animation:none;opacity:.25}}
+  .hero .inner{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap}
+  .hero .htext{max-width:560px}
+  .mk{font-weight:900;font-size:15px;margin-bottom:18px}.mk i{font-style:normal;color:#ff5a70}
+  .hero h1{font-weight:900;font-size:32px;line-height:1.06;letter-spacing:-1px;margin:0 0 11px}.hero h1 .r{color:#ff5a70}
+  .hero p{font-size:15px;line-height:1.55;color:#cdd8f5;font-weight:600;margin:0;max-width:520px}
+  .truths{display:flex;flex-direction:column;gap:9px;flex:none}
+  .truths span{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:#eaf0ff;font-size:12.5px;font-weight:800;padding:9px 15px;border-radius:100px;white-space:nowrap}
+  .truths span b{color:#7dffb0}
+  /* TWO-COLUMN */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+  @media(max-width:860px){.cols{grid-template-columns:1fr;gap:20px}}
+  .colhead{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 16px}
+  .colhead .n{background:var(--red);color:#fff;width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+  .colhead.blue .n{background:var(--navy2)}.colhead.blue{color:var(--navy2)}
+  /* WARN (no method on file) */
+  .warn{background:#fff8e9;border:1.5px solid #f2dfae;border-radius:14px;padding:14px 16px;font-size:13px;font-weight:700;color:#7a5a10;line-height:1.5;margin-bottom:16px;display:none}
+  /* method cards (rendered by JS into #list) — classes match the JS output */
+  .m{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:17px 18px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;box-shadow:0 2px 4px rgba(10,31,82,.03)}
+  .m:hover{transform:translateY(-2px);box-shadow:0 16px 36px -22px rgba(10,31,82,.28);border-color:#cdd8f5}
+  .m.def{border-color:#bfe6cd;background:linear-gradient(180deg,#f5fdf8,#fff)}
+  .mi{width:44px;height:44px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;box-shadow:0 8px 16px -8px rgba(10,31,82,.5)}
+  .minfo{flex:1;min-width:0}
+  .who{font-weight:900;font-size:15px;letter-spacing:-.2px}
+  .tx{font-family:'JetBrains Mono';font-size:11.5px;background:var(--wash);border-radius:8px;padding:5px 10px;margin-top:7px;word-break:break-all;color:#33406b;display:inline-block}
+  .ver{font-size:11px;font-weight:800;color:#0a6836;margin-top:6px}
+  .macts{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+  .badge{background:var(--grn);color:#fff;font-weight:900;font-size:10px;letter-spacing:.05em;border-radius:100px;padding:5px 11px;flex:none;text-transform:uppercase}
+  .sm{background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:800;color:var(--dim);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .sm:hover{border-color:var(--navy);color:var(--navy)}
+  .sm.danger:hover{border-color:var(--red);color:var(--red)}
+  /* inline edit row */
+  .editrow{display:none;margin-top:10px}
+  .m.editing .editrow{display:block}
+  .m.editing .tx,.m.editing .ver{display:none}
+  .einp{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font-family:'JetBrains Mono';font-size:13px;box-sizing:border-box}
+  .einp:focus{outline:none;border-color:var(--navy2)}
+  .ehint{font-size:11.5px;color:var(--dim);font-weight:600;margin-top:6px}
+  .eerr{font-size:11.5px;color:var(--red);font-weight:700;margin-top:6px;display:none}
+  .eacts{display:flex;gap:7px;margin-top:9px}
+  .esave{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:12.5px;font-weight:800;cursor:pointer}
+  .ecancel{background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:8px 16px;font-size:12.5px;font-weight:800;color:var(--dim);cursor:pointer}
+  .empty{font-size:13px;color:var(--dim);font-weight:600;padding:8px 2px;display:none}
+  .mnote{font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.5;margin-top:6px;padding:0 2px}
+  /* ADD card (sticky right) */
+  .addwrap{position:sticky;top:24px}
+  @media(max-width:860px){.addwrap{position:static}}
+  .add{background:#fff;border:1.5px solid var(--line);border-radius:22px;padding:24px 22px;box-shadow:0 20px 50px -30px rgba(10,31,82,.35)}
+  .addh{font-weight:900;font-size:17px;margin:0 0 3px;display:flex;align-items:center;gap:9px}
+  .addh i{color:var(--red);font-size:23px;line-height:1;font-style:normal}
+  .fl{display:block;font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:18px 0 9px}
+  /* dropdown */
+  .dd{position:relative}
+  .dd-btn{width:100%;border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--wash);display:flex;align-items:center;gap:13px;cursor:pointer;transition:border-color .15s;font-family:inherit;text-align:left}
+  .dd-btn:hover{border-color:var(--navy2)}
+  .dd-selicon{width:40px;height:40px;border-radius:11px;background:#1f2a5c;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px;flex:none}
+  .dd-seltext{flex:1}.dd-seltext b{font-weight:900;font-size:14.5px;color:var(--navy);display:block}.dd-seltext span{font-size:12px;color:var(--dim);font-weight:600;margin-top:2px;display:block}
+  .dd-chev{color:var(--dim)}
+  .dd-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1.5px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(10,31,82,.4);max-height:320px;overflow-y:auto;z-index:50;padding:6px}
+  .dd.open .dd-menu{display:block}
+  .dd-group{font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:12px 12px 6px}
+  .dd-opt{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;cursor:pointer}
+  .dd-opt:hover{background:var(--wash)}
+  .dd-oi{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;flex:none}
+  .dd-ot{flex:1}.dd-ot b{font-weight:800;font-size:13.5px;display:block}.dd-ot span{font-size:11.5px;color:var(--dim);font-weight:600;display:block;margin-top:1px}
+  .dd-tag{font-size:9.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:100px;flex:none}
+  .dd-tag.auto{background:#e4f7ee;color:#0a6836}.dd-tag.man{background:#eef2fb;color:#5a6584}
+  .inp{width:100%;border:1.5px solid var(--line);border-radius:13px;padding:15px 16px;font-family:'Inter';font-size:15px;box-sizing:border-box}
+  .inp:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 4px rgba(18,56,143,.1)}
+  .hint{font-size:12.5px;color:var(--dim);font-weight:600;margin-top:8px;line-height:1.45}
+  .sellwarn{font-size:12px;font-weight:700;color:#7a5a10;background:#fff8e9;border:1px solid #f2dfae;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:8px;display:none}
+  .err{font-size:12.5px;font-weight:700;color:var(--red);margin-top:8px;display:none}
+  .btn{width:100%;margin-top:20px;background:linear-gradient(120deg,var(--red),#e8203f);color:#fff;font-weight:900;font-size:15.5px;border:none;border-radius:13px;padding:16px;cursor:pointer;box-shadow:0 14px 30px -12px rgba(200,16,46,.55);transition:transform .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .note{font-size:12px;font-weight:700;color:#7a5a10;background:#fff8e9;border:1.5px solid #f2dfae;border-radius:13px;padding:12px 14px;line-height:1.5;margin-top:16px;display:flex;gap:9px;align-items:flex-start}
+</style></head>
+<body>
 <div class="wrap">
-  <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/my-sales" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">My sales</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
-  <div class="mk">Advantage<i>Life</i></div>
-  <div class="tag">Your effort. Your income. 100% yours.</div>
-  <div class="card">
-    <h1>How you get <span class="r">paid</span></h1>
-    <div class="sub">Add every way you're happy to be paid &mdash; buyers choose one of <b>your</b> methods at checkout and pay you directly, member to member. More options, more sales.</div>
-    <div class="warn" id="warn">&#9888; No receiving method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
-    <div class="seclabel">How you receive payment</div>
-    <div id="list"></div>
-    <div class="empty" id="empty">No methods yet &mdash; add your first below.</div>
-    <div class="add">
-      <div class="addh"><i>+</i> Add a way to receive payment</div>
-      <span class="fl">Payment type</span>
-      <div class="dd" id="dd">
-        <button class="dd-btn" id="ddBtn" type="button">
-          <span class="dd-selicon" id="ddSelIcon">&#8366;</span>
-          <span class="dd-seltext" id="ddSelText"><b>Select a method</b><span>Choose how buyers pay you</span></span>
-          <span class="dd-chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
-        </button>
-        <div class="dd-menu" id="ddMenu"></div>
+  <div class="topnav">
+    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+    <a href="/my-sales">My sales</a>
+    <a href="/packs">Buy packs</a>
+  </div>
+
+  <div class="hero">
+    <div class="flow"><span></span><span></span><span></span><span></span></div>
+    <div class="inner">
+      <div class="htext">
+        <div class="mk">Advantage<i>Life</i></div>
+        <h1>How you get <span class="r">paid</span></h1>
+        <p>Buyers pay <b style="color:#fff">you</b> directly &mdash; member to member. Add the ways you're happy to receive money; buyers pick one at checkout. AdvantageLife never holds a penny of it.</p>
       </div>
-      <span class="fl" id="addrLabel">Address</span>
-      <input class="inp" id="addr" placeholder="Select a payment type first">
-      <div class="hint" id="hint"></div>
-      <div class="sellwarn" id="sellwarn"></div>
-      <div class="recvnote" id="recvnote" style="display:none;font-size:11px;font-weight:700;color:#0a6836;background:#e4f7ee;border:1px solid #a7f3d0;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:8px"></div>
-      <div class="err" id="err"></div>
-      <button class="btn" id="save">Save receiving method</button>
+      <div class="truths">
+        <span>Paid <b>directly</b></span>
+        <span>You keep <b>100%</b></span>
+        <span>You're <b>in control</b></span>
+      </div>
     </div>
-    <div class="note">Double-check every detail &mdash; payments are member-to-member and AdvantageLife can't reverse a mistaken transfer.</div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="colhead"><span class="n">&#10003;</span> Your receiving methods</div>
+      <div class="warn" id="warn">&#9888; No receiving method on file &mdash; sales <b>pass over you</b> to the next qualified member until you add one.</div>
+      <div id="list"></div>
+      <div class="empty" id="empty">No methods yet &mdash; add your first on the right.</div>
+      <div class="mnote">The one marked <b>Default</b> is offered to buyers first. Keep as many as you like &mdash; more options mean more ways buyers can pay you.</div>
+    </div>
+
+    <div class="addwrap">
+      <div class="colhead blue"><span class="n">+</span> Add a method</div>
+      <div class="add">
+        <div class="addh"><i>+</i> Add a way to receive payment</div>
+        <span class="fl">Payment type</span>
+        <div class="dd" id="dd">
+          <button class="dd-btn" id="ddBtn" type="button">
+            <span class="dd-selicon" id="ddSelIcon">&#8366;</span>
+            <span class="dd-seltext" id="ddSelText"><b>Select a method</b><span>Choose how buyers pay you</span></span>
+            <span class="dd-chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+          </button>
+          <div class="dd-menu" id="ddMenu"></div>
+        </div>
+        <span class="fl" id="addrLabel">Address</span>
+        <input class="inp" id="addr" placeholder="Select a payment type first">
+        <div class="hint" id="hint"></div>
+        <div class="sellwarn" id="sellwarn"></div>
+        <div class="recvnote" id="recvnote" style="display:none;font-size:11px;font-weight:700;color:#0a6836;background:#e4f7ee;border:1px solid #a7f3d0;border-radius:9px;padding:9px 11px;line-height:1.5;margin-top:8px"></div>
+        <div class="err" id="err"></div>
+        <button class="btn" id="save">Save receiving method</button>
+        <div class="note">&#9888; Double-check every detail &mdash; payments are member-to-member and AdvantageLife can't reverse a mistaken transfer.</div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
