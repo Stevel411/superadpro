@@ -71294,7 +71294,7 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
   .dd-seltext{flex:1}.dd-seltext b{font-weight:900;font-size:14.5px;color:var(--navy);display:block}.dd-seltext span{font-size:12px;color:var(--dim);font-weight:600;margin-top:2px;display:block}
   .dd-chev{color:var(--dim)}
   .dd-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1.5px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(10,31,82,.4);max-height:320px;overflow-y:auto;z-index:50;padding:6px}
-  .dd.open .dd-menu{display:block}
+  .dd-menu.open{display:block}
   .dd-group{font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:12px 12px 6px}
   .dd-opt{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;cursor:pointer}
   .dd-opt:hover{background:var(--wash)}
