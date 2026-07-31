@@ -782,6 +782,36 @@ class PayoutMethod(Base):
     is_default   = Column(Boolean, default=False)
     created_at   = Column(DateTime, default=datetime.utcnow)
 
+
+class SupportTicket(Base):
+    """A member support ticket. Raised by a logged-in member OR a logged-out
+    person (name/email captured directly). The conversation lives in
+    TicketMessage rows; replies happen on-platform (admin queue), with email
+    used only to nudge the member back to read a reply."""
+    __tablename__ = "al_support_tickets"
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # null = logged-out submitter
+    name          = Column(String, nullable=True)   # submitter name (esp. for logged-out)
+    email         = Column(String, index=True)      # reply-to / notify address
+    username      = Column(String, nullable=True)   # optional, for logged-out who know their handle
+    category      = Column(String, default="other")
+    subject       = Column(String)
+    status        = Column(String, default="open", index=True)   # open / replied / resolved
+    # who's waiting: 'admin' = member sent last (needs your reply), 'member' = you replied last
+    awaiting      = Column(String, default="admin")
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at    = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class TicketMessage(Base):
+    """One message in a support ticket thread."""
+    __tablename__ = "al_ticket_messages"
+    id            = Column(Integer, primary_key=True, index=True)
+    ticket_id     = Column(Integer, ForeignKey("al_support_tickets.id"), index=True)
+    author        = Column(String, default="member")   # 'member' or 'admin'
+    body          = Column(Text)
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
+
 # ── Username write tripwire (11 Jul 2026): a confirmed rename of user 1
 #    reverted with NO app-side writer found. Log every username change
 #    with a stack so any future write is caught red-handed. Remove after

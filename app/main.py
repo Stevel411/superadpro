@@ -45,6 +45,7 @@ from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_us
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
 from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod, DirectJoinPayment, CAMPAIGN_GRACE_DAYS  # AdvantageLife P2P settlement (7 Jul 2026)
+from .database import SupportTicket, TicketMessage  # AdvantageLife support system (31 Jul 2026)
 from .database import CoPilotBriefing
 from .database import MemberLead, LeadList
 from .database import ShareCode
@@ -54833,6 +54834,284 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
             entry["target"] = badge.get("target", 1)
             available.append(entry)
     return {"earned": earned, "available": available}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AdvantageLife Support System (31 Jul 2026)
+# Stored tickets + threaded messages. Platform-based replies: admin responds
+# from /admin/support; the member is emailed a nudge to read it on-platform.
+# Works for logged-in members AND logged-out submitters (fixes the old public
+# form that silently dropped submissions).
+# ═══════════════════════════════════════════════════════════════════════════
+
+_AL_SUPPORT_CATEGORIES = {
+    "payment": "Payment / pack purchase",
+    "commission": "Commission / pass-up",
+    "account": "My account",
+    "technical": "Technical problem",
+    "other": "Something else",
+}
+
+
+async def _al_notify_new_ticket(db: Session, ticket: "SupportTicket", first_msg: str):
+    """Notify the admin of a new ticket: in-app bell + email alert."""
+    try:
+        admin = db.query(User).filter(User.is_admin == True).first()
+        if admin:
+            db.add(Notification(
+                user_id=admin.id, type="support", icon="\U0001F3A7",
+                title=f"Support: {ticket.subject}"[:140],
+                message=f"New ticket from {ticket.name or ticket.email}",
+                link="/admin/support",
+            ))
+            db.commit()
+    except Exception:
+        db.rollback()
+    # email alert to the admin
+    try:
+        recipient = os.environ.get("SUPPORT_ALERT_EMAIL") or os.environ.get("DAILY_BRIEFING_EMAIL") or ""
+        if recipient:
+            from .brevo_service import send_email, wrap_email_html
+            cat = _AL_SUPPORT_CATEGORIES.get(ticket.category, ticket.category)
+            body = (
+                f"<h2 style='font-family:Inter,sans-serif;color:#0a1f52'>New support ticket</h2>"
+                f"<p style='font-family:Inter,sans-serif;color:#0d1230'>"
+                f"<b>{_html_escape(ticket.subject)}</b><br>"
+                f"From: {_html_escape(ticket.name or '')} ({_html_escape(ticket.email)})"
+                f"{(' &middot; @' + _html_escape(ticket.username)) if ticket.username else ''}<br>"
+                f"Category: {_html_escape(cat)}</p>"
+                f"<div style='background:#f4f7fd;border-left:4px solid #c8102e;padding:14px 18px;"
+                f"border-radius:8px;font-family:Inter,sans-serif;color:#0d1230;white-space:pre-wrap'>"
+                f"{_html_escape(first_msg)}</div>"
+                f"<p style='font-family:Inter,sans-serif'><a href='{brand_config.BASE_URL}/admin/support' "
+                f"style='color:#c8102e;font-weight:800'>Open the support queue &rarr;</a></p>"
+            )
+            await send_email(recipient, "Admin", f"\U0001F3A7 New support ticket: {ticket.subject}"[:120],
+                             wrap_email_html(body, "Admin"))
+    except Exception as e:
+        logger.warning(f"support: admin email alert failed: {e}")
+
+
+def _html_escape(s):
+    return (str(s or "")
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+
+@app.post("/api/al/support/create")
+async def al_support_create(request: Request,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Create a support ticket. Works logged-in (user attached) or logged-out
+    (name+email required from the body)."""
+    body = await request.json()
+    subject = (body.get("subject") or "").strip()[:200]
+    message = (body.get("message") or "").strip()[:5000]
+    category = (body.get("category") or "other").strip().lower()
+    if category not in _AL_SUPPORT_CATEGORIES:
+        category = "other"
+    if not subject or not message:
+        return JSONResponse({"ok": False, "error": "Subject and details are required."}, status_code=400)
+
+    if user:
+        name = (getattr(user, "full_name", None) or getattr(user, "username", None) or "").strip()
+        email = (getattr(user, "email", "") or "").strip()
+        username = getattr(user, "username", None)
+        uid = user.id
+    else:
+        name = (body.get("name") or "").strip()[:120]
+        email = (body.get("email") or "").strip()[:200]
+        username = (body.get("username") or "").strip()[:80] or None
+        uid = None
+        if not email:
+            return JSONResponse({"ok": False, "error": "Email is required so we can reply."}, status_code=400)
+
+    now = datetime.utcnow()
+    ticket = SupportTicket(
+        user_id=uid, name=name, email=email, username=username,
+        category=category, subject=subject, status="open", awaiting="admin",
+        created_at=now, updated_at=now,
+    )
+    db.add(ticket); db.commit(); db.refresh(ticket)
+    db.add(TicketMessage(ticket_id=ticket.id, author="member", body=message, created_at=now))
+    db.commit()
+
+    await _al_notify_new_ticket(db, ticket, message)
+    return {"ok": True, "ticket_id": ticket.id}
+
+
+@app.get("/api/al/support/my-tickets")
+def al_support_my_tickets(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List the logged-in member's own tickets (newest first)."""
+    if not user:
+        return JSONResponse({"ok": False, "error": "Login required"}, status_code=401)
+    rows = (db.query(SupportTicket)
+            .filter(SupportTicket.user_id == user.id)
+            .order_by(SupportTicket.updated_at.desc()).all())
+    out = []
+    for t in rows:
+        msgs = db.query(TicketMessage).filter(TicketMessage.ticket_id == t.id).count()
+        out.append({
+            "id": t.id, "subject": t.subject,
+            "category": _AL_SUPPORT_CATEGORIES.get(t.category, t.category),
+            "status": t.status, "awaiting": t.awaiting,
+            "messages": msgs,
+            "updated_at": t.updated_at.isoformat() if t.updated_at else None,
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+        })
+    return {"ok": True, "tickets": out}
+
+
+@app.get("/api/al/support/ticket/{ticket_id}")
+def al_support_get_ticket(ticket_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member views one of their own ticket threads."""
+    if not user:
+        return JSONResponse({"ok": False, "error": "Login required"}, status_code=401)
+    t = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+    if not t or t.user_id != user.id:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    msgs = (db.query(TicketMessage).filter(TicketMessage.ticket_id == t.id)
+            .order_by(TicketMessage.created_at.asc()).all())
+    return {"ok": True, "ticket": {
+        "id": t.id, "subject": t.subject, "status": t.status,
+        "category": _AL_SUPPORT_CATEGORIES.get(t.category, t.category),
+        "messages": [{"author": m.author, "body": m.body,
+                      "at": m.created_at.isoformat() if m.created_at else None} for m in msgs],
+    }}
+
+
+@app.post("/api/al/support/ticket/{ticket_id}/reply")
+async def al_support_member_reply(ticket_id: int, request: Request,
+                                  user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member adds a reply to their own ticket."""
+    if not user:
+        return JSONResponse({"ok": False, "error": "Login required"}, status_code=401)
+    t = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+    if not t or t.user_id != user.id:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    body = await request.json()
+    msg = (body.get("message") or "").strip()[:5000]
+    if not msg:
+        return JSONResponse({"ok": False, "error": "Message required"}, status_code=400)
+    now = datetime.utcnow()
+    db.add(TicketMessage(ticket_id=t.id, author="member", body=msg, created_at=now))
+    t.status = "open"; t.awaiting = "admin"; t.updated_at = now
+    db.commit()
+    # ping admin that the member replied
+    try:
+        admin = db.query(User).filter(User.is_admin == True).first()
+        if admin:
+            db.add(Notification(user_id=admin.id, type="support", icon="\U0001F3A7",
+                                title=f"Reply: {t.subject}"[:140],
+                                message=f"{t.name or t.email} replied", link="/admin/support"))
+            db.commit()
+    except Exception:
+        db.rollback()
+    return {"ok": True}
+
+
+@app.post("/api/al/support/admin/reply/{ticket_id}")
+async def al_support_admin_reply(ticket_id: int, request: Request,
+                                 user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin replies to a ticket. Saves to the thread + emails the member a
+    nudge to read it on-platform."""
+    _require_admin(user)
+    t = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+    if not t:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    body = await request.json()
+    msg = (body.get("message") or "").strip()[:5000]
+    if not msg:
+        return JSONResponse({"ok": False, "error": "Message required"}, status_code=400)
+    now = datetime.utcnow()
+    db.add(TicketMessage(ticket_id=t.id, author="admin", body=msg, created_at=now))
+    t.status = "replied"; t.awaiting = "member"; t.updated_at = now
+    db.commit()
+    # in-app notification to the member (if they have an account)
+    if t.user_id:
+        try:
+            db.add(Notification(user_id=t.user_id, type="support", icon="\U0001F3A7",
+                                title="Support: you have a reply",
+                                message=t.subject, link="/support"))
+            db.commit()
+        except Exception:
+            db.rollback()
+    # email nudge
+    try:
+        if t.email:
+            from .brevo_service import send_email, wrap_email_html
+            html = (
+                f"<h2 style='font-family:Inter,sans-serif;color:#0a1f52'>You have a reply</h2>"
+                f"<p style='font-family:Inter,sans-serif;color:#0d1230'>We've replied to your support ticket "
+                f"&mdash; <b>{_html_escape(t.subject)}</b>.</p>"
+                f"<p style='font-family:Inter,sans-serif'><a href='{brand_config.BASE_URL}/support' "
+                f"style='display:inline-block;background:#c8102e;color:#fff;font-weight:800;padding:12px 22px;"
+                f"border-radius:10px;text-decoration:none'>Read the reply &rarr;</a></p>"
+                f"<p style='font-family:Inter,sans-serif;color:#5a6584;font-size:13px'>"
+                f"Reply from your support page to keep the conversation in one place.</p>"
+            )
+            await send_email(t.email, t.name or "Member",
+                             f"Re: {t.subject}"[:120], wrap_email_html(html, t.name or "Member"))
+    except Exception as e:
+        logger.warning(f"support: member reply email failed: {e}")
+    return {"ok": True}
+
+
+@app.get("/api/al/support/admin/list")
+def al_support_admin_list(status: str = "open", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin queue: tickets filtered by status (open/replied/resolved/all)."""
+    _require_admin(user)
+    q = db.query(SupportTicket)
+    if status in ("open", "replied", "resolved"):
+        q = q.filter(SupportTicket.status == status)
+    rows = q.order_by(SupportTicket.updated_at.desc()).limit(300).all()
+    counts = {
+        "open": db.query(SupportTicket).filter(SupportTicket.status == "open").count(),
+        "replied": db.query(SupportTicket).filter(SupportTicket.status == "replied").count(),
+        "resolved": db.query(SupportTicket).filter(SupportTicket.status == "resolved").count(),
+    }
+    out = []
+    for t in rows:
+        out.append({
+            "id": t.id, "subject": t.subject,
+            "category": _AL_SUPPORT_CATEGORIES.get(t.category, t.category),
+            "status": t.status, "awaiting": t.awaiting,
+            "name": t.name, "email": t.email, "username": t.username, "user_id": t.user_id,
+            "updated_at": t.updated_at.isoformat() if t.updated_at else None,
+        })
+    return {"ok": True, "tickets": out, "counts": counts}
+
+
+@app.get("/api/al/support/admin/ticket/{ticket_id}")
+def al_support_admin_get(ticket_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin views a full ticket thread + member context."""
+    _require_admin(user)
+    t = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+    if not t:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    msgs = (db.query(TicketMessage).filter(TicketMessage.ticket_id == t.id)
+            .order_by(TicketMessage.created_at.asc()).all())
+    return {"ok": True, "ticket": {
+        "id": t.id, "subject": t.subject, "status": t.status,
+        "category": _AL_SUPPORT_CATEGORIES.get(t.category, t.category),
+        "name": t.name, "email": t.email, "username": t.username, "user_id": t.user_id,
+        "messages": [{"author": m.author, "body": m.body,
+                      "at": m.created_at.isoformat() if m.created_at else None} for m in msgs],
+    }}
+
+
+@app.post("/api/al/support/admin/resolve/{ticket_id}")
+def al_support_admin_resolve(ticket_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin marks a ticket resolved (or reopens it)."""
+    _require_admin(user)
+    t = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+    if not t:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    t.status = "open" if t.status == "resolved" else "resolved"
+    t.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "status": t.status}
+
+
 @app.post("/api/support/ticket")
 async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
