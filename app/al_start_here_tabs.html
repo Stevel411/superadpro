@@ -29,7 +29,12 @@
   .vidbox video{width:100%;display:block}
   /* guide iframe — scale-to-fit (fixed 1120x965 design scaled to container width, no scrollbars) */
   .guidewrap{position:relative;width:100%;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff;border:1.5px solid var(--line)}
-  .guidewrap iframe{display:block;width:1120px;height:1000px;border:0;transform-origin:top left}
+  .guidewrap iframe{display:block;width:1120px;height:1000px;border:0;transform-origin:top left;opacity:0;transition:opacity .25s ease}
+  .guidewrap iframe.ready{opacity:1}
+  /* loading placeholder while the guide scales in */
+  .guideload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);font-weight:700;font-size:14px}
+  .guideload::after{content:"";width:26px;height:26px;margin-left:10px;border:3px solid var(--line);border-top-color:var(--navy2);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   @media(max-width:640px){h1{font-size:24px}.tab{padding:11px 18px;font-size:14px}}
 </style></head>
 <body>
@@ -61,7 +66,8 @@
   </div>
 
   <div class="panel" id="panelSteps">
-    <div class="guidewrap">
+    <div class="guidewrap" style="min-height:400px">
+      <div class="guideload" id="guideLoad">Loading guide</div>
       <iframe id="guideFrame" src="" title="Step-by-step activation guide" loading="lazy"></iframe>
     </div>
   </div>
@@ -69,15 +75,28 @@
 
 <script>
   var GUIDE_W=1120, GUIDE_H=1000;
-  var guideLoaded=false;
+  var guideLoaded=false, guideReady=false;
   function fitGuide(){
     var wrap=document.querySelector('.guidewrap');
     var frame=document.getElementById('guideFrame');
     if(!wrap||!frame)return;
     var w=wrap.clientWidth;
+    if(!w) return; // panel not visible yet — skip (avoids scaling to 0)
     var scale=Math.min(1, w/GUIDE_W);
     frame.style.transform='scale('+scale+')';
-    wrap.style.height=(GUIDE_H*scale)+'px';
+    if(guideReady) wrap.style.height=(GUIDE_H*scale)+'px';
+  }
+  function onGuideLoad(){
+    // iframe content is loaded — scale it correctly BEFORE revealing, then fade in
+    guideReady=true;
+    fitGuide();
+    var frame=document.getElementById('guideFrame');
+    var load=document.getElementById('guideLoad');
+    // next frame so the scaled transform is applied before opacity transitions in
+    requestAnimationFrame(function(){
+      frame.classList.add('ready');
+      if(load) load.style.display='none';
+    });
   }
   function showTab(which){
     var w=which==='watch';
@@ -85,21 +104,21 @@
     document.getElementById('tabSteps').classList.toggle('on',!w);
     document.getElementById('panelWatch').classList.toggle('on',w);
     document.getElementById('panelSteps').classList.toggle('on',!w);
-    // lazy-load the guide iframe only when first opened, then scale it to fit
-    if(!w && !guideLoaded){
-      document.getElementById('guideFrame').src='/start-here/guide';
-      guideLoaded=true;
-    }
     if(!w){
-      // panel just became visible — measure on next frame, and again on iframe load
-      requestAnimationFrame(fitGuide);
-      setTimeout(fitGuide, 60);
       var gf=document.getElementById('guideFrame');
-      if(gf) gf.onload=fitGuide;
+      if(!guideLoaded){
+        // wire the load handler BEFORE setting src, so we catch the load event
+        gf.onload=onGuideLoad;
+        gf.src='/start-here/guide';
+        guideLoaded=true;
+      } else if(guideReady){
+        // already loaded — just re-fit for the current width
+        fitGuide();
+      }
+      // pause the video when leaving the Watch tab
+      var v=document.querySelector('#panelWatch video');if(v&&!v.paused)v.pause();
     }
-    // pause the video when leaving the Watch tab
-    if(!w){var v=document.querySelector('#panelWatch video');if(v&&!v.paused)v.pause();}
   }
-  window.addEventListener('resize', fitGuide);
+  window.addEventListener('resize', function(){ if(guideReady) fitGuide(); });
 </script>
 </body></html>
