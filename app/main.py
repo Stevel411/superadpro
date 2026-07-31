@@ -71077,7 +71077,7 @@ AL_PAYOUT_METHODS = {
                      "hint": "Your Zelle email or US phone number", "auto_verify": False,
                      "recv_note": "US bank accounts only. Zelle transfers are instant and final — there's no chargeback."},
     "revolut":      {"label": "Revolut", "family": "revtag",
-                     "hint": "Your @Revtag, email or phone — buyers can pay by card", "auto_verify": False,
+                     "hint": "@Revtag, email, phone, or a Revolut.me link (lets buyers pay by card)", "auto_verify": False,
                      "recv_note": "Send to your Revolut account (Revtag, email or phone) — not a Revolut card. Account-to-account transfers are final."},
 }
 
@@ -71092,8 +71092,8 @@ _AL_ADDR_RE = {
     "wise":    re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|@[a-zA-Z][a-zA-Z0-9]{2,29})$"),
     # Zelle: US email OR US phone
     "zelle":   re.compile(r"^(?:[^@\s]+@[^@\s]+\.[^@\s]+|\+?1?[\s\-.]?\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4})$"),
-    # Revolut: @Revtag OR email OR phone
-    "revtag":  re.compile(r"^(?:@[a-zA-Z0-9]{4,20}|[^@\s]+@[^@\s]+\.[^@\s]+|\+?\d[\d\s\-.]{6,14}\d)$"),
+    # Revolut: @Revtag OR email OR phone OR a Revolut.me link
+    "revtag":  re.compile(r"^(?:@[a-zA-Z0-9]{4,20}|[^@\s]+@[^@\s]+\.[^@\s]+|\+?\d[\d\s\-.]{6,14}\d|(?:https?://)?(?:www\.)?revolut\.me/[a-zA-Z0-9._-]{1,50}(?:/[0-9a-z.]+)?)$", re.IGNORECASE),
 }
 
 
@@ -71361,8 +71361,8 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
     var si=document.getElementById('ddSelIcon');si.style.background=i.bg;si.textContent=i.s;
     document.getElementById('ddSelText').innerHTML='<b>'+esc(CUR.label)+'</b><span>'+(CUR.auto_verify?'Auto-verified on-chain':'Confirmed by the seller')+'</span>';
     document.getElementById('hint').textContent=CUR.hint||'';
-    document.getElementById('addrLabel').textContent=(CUR.family==='paypal')?'PayPal email or PayPal.me link':(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':(CUR.family==='wise')?'Wise email or @Wisetag':(CUR.family==='zelle')?'Zelle email or US phone':(CUR.family==='revtag')?'@Revtag, email or phone':'Wallet address';
-    document.getElementById('addr').placeholder=(CUR.family==='paypal')?'name@email.com or paypal.me/you':(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':(CUR.family==='wise')?'name@email.com or @Wisetag':(CUR.family==='zelle')?'name@email.com or +1…':(CUR.family==='revtag')?'@Revtag':'0x\u2026';
+    document.getElementById('addrLabel').textContent=(CUR.family==='paypal')?'PayPal email or PayPal.me link':(CUR.family==='email')?'PayPal email':(CUR.family==='cashtag')?'Your $Cashtag':(CUR.family==='wise')?'Wise email or @Wisetag':(CUR.family==='zelle')?'Zelle email or US phone':(CUR.family==='revtag')?'@Revtag, email, phone or Revolut.me link':'Wallet address';
+    document.getElementById('addr').placeholder=(CUR.family==='paypal')?'name@email.com or paypal.me/you':(CUR.family==='email')?'name@email.com':(CUR.family==='cashtag')?'$YourCashtag':(CUR.family==='wise')?'name@email.com or @Wisetag':(CUR.family==='zelle')?'name@email.com or +1…':(CUR.family==='revtag')?'@Revtag or revolut.me/you':'0x\u2026';
     document.getElementById('addr').style.fontFamily=(CUR.family==='paypal'||CUR.family==='email'||CUR.family==='cashtag'||CUR.family==='wise'||CUR.family==='zelle'||CUR.family==='revtag')?"'Inter',sans-serif":"'JetBrains Mono',monospace";
     var rn=document.getElementById('recvnote');
     if(rn){if(CUR.recv_note){rn.textContent=CUR.recv_note;rn.style.display='block'}else{rn.style.display='none'}}
@@ -72091,17 +72091,27 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     if(crypto){w.className="pwarn crypto";w.textContent=chainWarn(mt)||"\u26A0 Send on the correct network only — funds sent on another chain are lost."}
     else if(mt==="cashapp"){w.className="pwarn";w.innerHTML="\u26A0 Send as a normal Cash App payment to this $Cashtag, then confirm below. The seller checks their balance before releasing your pack."}
     else{w.className="pwarn";w.innerHTML="\u26A0 Send to this PayPal, then confirm below. The seller releases your pack once the money is in their balance."}
-    // PayPal.me link -> show a clickable "pay by card" button
+    // PayPal.me / Revolut.me link -> show a clickable "pay by card" button
     var pl=document.getElementById("payLink");
     if(pl){
       var isPPme=(mt==="paypal"&&addr&&/paypal\.me\//i.test(addr));
+      var isRevMe=(mt==="revolut"&&addr&&/revolut\.me\//i.test(addr));
       if(isPPme){
         var href=addr;
         if(!/^https?:\/\//i.test(href)) href="https://"+href.replace(/^\/+/,"");
         // append the amount so the PayPal page pre-fills it (paypal.me/name/AMOUNT)
         if(!/paypal\.me\/[^/]+\/[0-9]/i.test(href)) href=href.replace(/\/+$/,"")+"/"+Number(amount).toFixed(2);
-        pl.href=href; pl.style.display="flex";
+        pl.href=href; pl.style.background="#003087";
+        pl.innerHTML="\ud83d\udcb3 Pay by card with PayPal \u2192"; pl.style.display="flex";
         w.innerHTML="\u26A0 Tap \u201CPay by card\u201D to pay the seller through PayPal (card or PayPal balance), then confirm below. The seller releases your pack once the money is in their balance.";
+      } else if(isRevMe){
+        var rhref=addr;
+        if(!/^https?:\/\//i.test(rhref)) rhref="https://"+rhref.replace(/^\/+/,"");
+        // append amount so the Revolut page pre-fills it (revolut.me/name/AMOUNTccy)
+        if(!/revolut\.me\/[^/]+\/[0-9]/i.test(rhref)) rhref=rhref.replace(/\/+$/,"")+"/"+Number(amount).toFixed(2)+"gbp";
+        pl.href=rhref; pl.style.background="#0a1f52";
+        pl.innerHTML="\ud83d\udcb3 Pay by card with Revolut \u2192"; pl.style.display="flex";
+        w.innerHTML="\u26A0 Tap \u201CPay by card\u201D to pay the seller through Revolut (card or Revolut balance), then confirm below. The seller releases your pack once the money has arrived.";
       } else { pl.style.display="none"; }
     }
     var q=document.getElementById("pQr");q.innerHTML="";if(crypto&&window.QRCode&&addr){new QRCode(q,{text:addr,width:98,height:98})}
