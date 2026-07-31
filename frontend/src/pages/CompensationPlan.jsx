@@ -208,7 +208,7 @@ function GuideEmbed() {
 }
 
 // Native HTML5 player for the pass-up explainer video (hosted on R2).
-const PASSUP_VIDEO = "https://pub-00339c2939d54d488708a19799130b10.r2.dev/Passups%20.mp4";
+const PASSUP_VIDEO = "https://pub-00339c2939d54d488708a19799130b10.r2.dev/Passups%20exlained.mp4";
 function PassupVideo() {
   return (
     <div className="pvid">
