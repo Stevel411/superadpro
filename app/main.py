@@ -71071,13 +71071,13 @@ AL_PAYOUT_METHODS = {
                      "reversible": True,
                      "seller_note": "PayPal payments can be disputed for up to 180 days. Confirm only once the money is in your PayPal balance, and keep proof of the sale."},
     "wise":         {"label": "Wise", "family": "wise",
-                     "hint": "Your Wise email or @Wisetag — buyers can pay by card", "auto_verify": False,
+                     "hint": "Your Wise email or @Wisetag (the buyer sends to your Wise account)", "auto_verify": False,
                      "recv_note": "Send to your Wise account (email or Wisetag) — not a Wise card. Account-to-account Wise transfers are final and can't be reversed."},
     "zelle":        {"label": "Zelle", "family": "zelle",
                      "hint": "Your Zelle email or US phone number", "auto_verify": False,
                      "recv_note": "US bank accounts only. Zelle transfers are instant and final — there's no chargeback."},
     "revolut":      {"label": "Revolut", "family": "revtag",
-                     "hint": "@Revtag, email, phone, or a Revolut.me link (lets buyers pay by card)", "auto_verify": False,
+                     "hint": "@Revtag, email, phone, or your Revolut.me link (buyers can open the link to pay you)", "auto_verify": False,
                      "recv_note": "Send to your Revolut account (Revtag, email or phone) — not a Revolut card. Account-to-account transfers are final."},
 }
 
@@ -71350,7 +71350,7 @@ h1{font-weight:900;font-size:28px;letter-spacing:-.7px;margin-bottom:6px}h1 .r{c
       o.onclick=function(){choose(r.key)};
       menu.appendChild(o);
     }
-    if(bank.length){grp('\ud83d\udcb3 Pay by card \u2014 Wise & Revolut (recommended)');bank.forEach(opt)}
+    if(bank.length){grp('Bank & transfer apps \u2014 Wise & Revolut (recommended)');bank.forEach(opt)}
     if(cash.length){grp('Other apps \u2014 PayPal, Cash App');cash.forEach(opt)}
     if(usdt.length){grp('USDT \u2014 crypto, instant & irreversible');usdt.forEach(opt)}
     if(usdc.length){grp('USDC \u2014 crypto, instant & irreversible');usdc.forEach(opt)}
