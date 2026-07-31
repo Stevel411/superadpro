@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Queue — AdvantageLife Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#0b7a3e;--amber:#b7791f;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--wash:#f4f7fd}
+  *{box-sizing:border-box}body{font-family:'Inter',sans-serif;margin:0;color:var(--ink);background:#f4f7fd;padding:0 16px 60px}
+  .wrap{max-width:1200px;margin:0 auto;padding-top:16px}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+  .head h1{font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:10px}
+  .head h1 .pill{background:var(--red);color:#fff;font-size:12px;font-weight:900;border-radius:100px;padding:3px 11px}
+  .back{font-size:12.5px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 13px;text-decoration:none}
+  .filters{display:flex;gap:7px;flex-wrap:wrap}
+  .filt{font-size:12.5px;font-weight:800;color:var(--dim);background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer}
+  .filt.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .layout{display:grid;grid-template-columns:370px 1fr;gap:18px;align-items:start}
+  @media(max-width:860px){.layout{grid-template-columns:1fr}}
+  .list{background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden}
+  .row{padding:15px 17px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+  .row:hover{background:var(--wash)}.row.sel{background:#eef3ff;border-left:3px solid var(--navy)}
+  .row .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .row .subj{font-weight:800;font-size:14px}
+  .row .who{font-size:12px;color:var(--dim);font-weight:600;margin-top:4px}
+  .st{font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:100px;flex:none}
+  .st.open{background:#fff4e5;color:var(--amber)}.st.replied{background:#e6f0ff;color:var(--navy2)}.st.resolved{background:#e4f7ee;color:var(--grn)}
+  .thread{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:22px;min-height:200px}
+  .thempty{color:var(--dim);font-weight:600;text-align:center;padding:60px 20px}
+  .thd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:1.5px solid var(--line);padding-bottom:16px;margin-bottom:16px}
+  .thd-head h2{font-size:18px;font-weight:900;margin:0 0 6px}
+  .thd-head .ctx{font-size:12.5px;color:var(--dim);font-weight:600;line-height:1.7}
+  .thd-head .ctx a{color:var(--navy2);font-weight:800;text-decoration:none}
+  .acts{display:flex;gap:7px;flex:none}
+  .abtn{font-size:12px;font-weight:800;border-radius:9px;padding:9px 14px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--dim)}
+  .abtn.resolve{background:var(--grn);color:#fff;border-color:var(--grn)}
+  .abtn.reopen{background:#fff;color:var(--amber);border-color:#f2dfae}
+  .m{margin-bottom:14px;display:flex;gap:11px}
+  .m .av{width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff}
+  .m.member .av{background:var(--navy2)}.m.admin .av{background:var(--red)}
+  .m .bub{flex:1;background:var(--wash);border-radius:12px;padding:12px 15px;font-size:14px;line-height:1.55;white-space:pre-wrap}
+  .m.admin .bub{background:#fff5f6}
+  .m .nm{font-weight:800;font-size:12.5px;margin-bottom:4px}.m .nm span{font-weight:600;color:var(--dim);margin-left:7px}
+  .reply{margin-top:18px;border-top:1.5px solid var(--line);padding-top:16px}
+  .reply textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;font-family:inherit;font-size:14px;min-height:90px;box-sizing:border-box}
+  .reply textarea:focus{outline:none;border-color:var(--navy2)}
+  .reply .send{margin-top:12px;background:var(--navy);color:#fff;font-weight:900;font-size:14px;border:none;border-radius:11px;padding:13px 26px;cursor:pointer}
+  .reply .send:disabled{opacity:.6}
+  .err{color:var(--red);font-weight:700;font-size:12.5px;margin-top:8px;display:none}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Support queue <span class="pill" id="openPill">…</span></h1>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="filters">
+        <span class="filt on" data-f="open" onclick="setFilter('open')">Open</span>
+        <span class="filt" data-f="replied" onclick="setFilter('replied')">Replied</span>
+        <span class="filt" data-f="resolved" onclick="setFilter('resolved')">Resolved</span>
+        <span class="filt" data-f="all" onclick="setFilter('all')">All</span>
+      </div>
+      <a class="back" href="/admin">Admin</a>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="list" id="list"><div class="thempty">Loading…</div></div>
+    <div class="thread" id="thread"><div class="thempty">Select a ticket to view the conversation.</div></div>
+  </div>
+</div>
+
+<script>
+  var curFilter='open', curTicket=null;
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function ago(iso){if(!iso)return '';var d=new Date(iso),s=(Date.now()-d)/1000;
+    if(s<3600)return Math.max(1,Math.floor(s/60))+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+  async function loadList(){
+    try{
+      var r=await fetch('/api/al/support/admin/list?status='+curFilter);var j=await r.json();
+      if(!j.ok){document.getElementById('list').innerHTML='<div class="thempty">Access error.</div>';return;}
+      document.getElementById('openPill').textContent=(j.counts.open||0)+' open';
+      var el=document.getElementById('list');
+      if(!j.tickets.length){el.innerHTML='<div class="thempty">No '+curFilter+' tickets.</div>';return;}
+      el.innerHTML=j.tickets.map(function(t){
+        var who=(t.username?'@'+t.username:t.name||t.email);
+        return '<div class="row'+(t.id===curTicket?' sel':'')+'" onclick="openTicket('+t.id+')"><div class="top">'
+          +'<span class="subj">'+esc(t.subject)+'</span><span class="st '+t.status+'">'+t.status+'</span></div>'
+          +'<div class="who">'+esc(who)+(t.user_id?' (#'+t.user_id+')':'')+' · '+ago(t.updated_at)+'</div></div>';
+      }).join('');
+    }catch(e){document.getElementById('list').innerHTML='<div class="thempty">Couldn\\'t load.</div>';}
+  }
+
+  function setFilter(f){curFilter=f;
+    Array.prototype.forEach.call(document.querySelectorAll('.filt'),function(x){x.classList.toggle('on',x.dataset.f===f);});
+    loadList();}
+
+  async function openTicket(id){
+    curTicket=id;loadList();
+    try{
+      var r=await fetch('/api/al/support/admin/ticket/'+id);var j=await r.json();
+      if(!j.ok){return;}
+      var t=j.ticket;
+      var uid=t.user_id;
+      var links = uid ? ('Quick links: '
+        +'<a href="/admin/api/user-fulfillment?user_id='+uid+'" target="_blank">User fulfillment →</a> · '
+        +'<a href="/admin/api/user-ledger?user_id='+uid+'" target="_blank">User ledger →</a>'
+        + (t.username ? (' · <a href="/admin/lookup?u='+encodeURIComponent(t.username)+'" target="_blank">Lookup →</a>') : '')) : '<i>Logged-out submitter — no linked account.</i>';
+      var resolved = t.status==='resolved';
+      var msgs=t.messages.map(function(m){
+        var who=m.author==='admin'?'You (AdvantageLife)':(t.name||t.email);var av=m.author==='admin'?'A':(t.name||'M').charAt(0).toUpperCase();
+        return '<div class="m '+m.author+'"><div class="av">'+av+'</div><div class="bub"><div class="nm">'+esc(who)+'<span>'+ago(m.at)+'</span></div>'+esc(m.body)+'</div></div>';
+      }).join('');
+      document.getElementById('thread').innerHTML=
+        '<div class="thd-head"><div><h2>'+esc(t.subject)+'</h2>'
+        +'<div class="ctx">'+esc(t.category)+' · <b>'+esc(t.name||t.email)+'</b>'+(t.username?(' · @'+esc(t.username)):'')+' · '+esc(t.email)+'<br>'+links+'</div></div>'
+        +'<div class="acts"><button class="abtn '+(resolved?'reopen':'resolve')+'" onclick="toggleResolve('+t.id+')">'+(resolved?'↺ Reopen':'✓ Resolve')+'</button></div></div>'
+        +msgs
+        +'<div class="reply"><textarea id="repMsg" placeholder="Type your reply — it\\'ll email '+esc(t.name||t.email)+' and appear on their support page."></textarea>'
+        +'<button class="send" id="repSend" onclick="sendReply('+t.id+')">Send reply</button><div class="err" id="repErr"></div></div>';
+    }catch(e){}
+  }
+
+  async function sendReply(id){
+    var msg=document.getElementById('repMsg').value.trim();
+    var err=document.getElementById('repErr');err.style.display='none';
+    if(!msg){err.textContent='Type a reply first.';err.style.display='block';return;}
+    var btn=document.getElementById('repSend');btn.disabled=true;btn.textContent='Sending…';
+    try{
+      var r=await fetch('/api/al/support/admin/reply/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+      var j=await r.json();
+      if(j.ok){openTicket(id);}else{err.textContent=j.error||'Failed.';err.style.display='block';btn.disabled=false;btn.textContent='Send reply';}
+    }catch(e){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Send reply';}
+  }
+
+  async function toggleResolve(id){
+    try{var r=await fetch('/api/al/support/admin/resolve/'+id,{method:'POST'});var j=await r.json();
+      if(j.ok){openTicket(id);loadList();}}catch(e){}
+  }
+
+  loadList();
+  setInterval(loadList, 30000); // refresh the queue every 30s
+</script>
+</body></html>

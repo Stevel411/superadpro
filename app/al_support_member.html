@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#0b7a3e;--amber:#b7791f;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--wash:#f4f7fd}
+  *{box-sizing:border-box}body{font-family:'Inter',sans-serif;margin:0;color:var(--ink);background:#fbfcff;padding:0 20px 70px;
+    background-image:radial-gradient(110% 45% at 90% -6%,rgba(200,16,46,.06),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.09),transparent 55%)}
+  .wrap{max-width:920px;margin:0 auto;padding-top:18px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 14px;text-decoration:none;margin-bottom:16px}
+  .hero{background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border-radius:22px;padding:26px 28px;margin-bottom:24px}
+  .hero h1{font-weight:900;font-size:26px;letter-spacing:-.5px;margin:0 0 6px}
+  .hero p{font-size:14.5px;color:#cdd8f5;font-weight:600;margin:0;line-height:1.5}
+  .cols{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;align-items:start}
+  @media(max-width:800px){.cols{grid-template-columns:1fr}}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px}
+  .card h2{font-size:16px;font-weight:900;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  .card h2 .n{background:var(--red);color:#fff;width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .card h2.blue .n{background:var(--navy2)}
+  label{display:block;font-size:11.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:16px 0 7px}
+  input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;font-family:inherit;font-size:14.5px;box-sizing:border-box}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 4px rgba(18,56,143,.1)}
+  textarea{min-height:110px;resize:vertical}
+  .btn{width:100%;margin-top:18px;background:linear-gradient(120deg,var(--red),#e8203f);color:#fff;font-weight:900;font-size:15px;border:none;border-radius:12px;padding:15px;cursor:pointer;box-shadow:0 14px 30px -12px rgba(200,16,46,.55)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .tik{border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:11px;cursor:pointer;transition:all .15s}
+  .tik:hover{border-color:#cdd8f5;transform:translateY(-1px);box-shadow:0 12px 28px -18px rgba(10,31,82,.3)}
+  .tik .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .tik .subj{font-weight:800;font-size:14.5px}
+  .st{font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:100px;flex:none}
+  .st.open{background:#fff4e5;color:var(--amber)}.st.replied{background:#e6f0ff;color:var(--navy2)}.st.resolved{background:#e4f7ee;color:var(--grn)}
+  .tik .meta{font-size:12px;color:var(--dim);font-weight:600;margin-top:5px}
+  .empty{font-size:13.5px;color:var(--dim);font-weight:600;text-align:center;padding:26px 10px}
+  .msg-ok{background:#e4f7ee;border:1.5px solid #a7f3d0;color:#0a6836;font-weight:700;font-size:13.5px;border-radius:11px;padding:12px 14px;margin-top:14px;display:none}
+  .err{color:var(--red);font-weight:700;font-size:13px;margin-top:10px;display:none}
+  /* thread view (overlay) */
+  .thread{display:none;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:24px;margin-top:6px}
+  .thread.on{display:block}
+  .thd-back{font-size:13px;font-weight:800;color:var(--navy2);background:none;border:none;cursor:pointer;padding:0;margin-bottom:14px}
+  .thd h2{font-size:19px;font-weight:900;margin:0 0 14px}
+  .m{margin-bottom:13px;display:flex;gap:11px}
+  .m .av{width:32px;height:32px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff}
+  .m.member .av{background:var(--navy2)}.m.admin .av{background:var(--red)}
+  .m .bub{flex:1;background:var(--wash);border-radius:12px;padding:11px 14px;font-size:14px;line-height:1.55;white-space:pre-wrap}
+  .m.admin .bub{background:#fff5f6}
+  .m .nm{font-weight:800;font-size:12px;margin-bottom:3px}.m .nm span{font-weight:600;color:var(--dim);margin-left:6px}
+  .rep{margin-top:16px;border-top:1.5px solid var(--line);padding-top:14px}
+</style></head>
+<body>
+<div class="wrap">
+  <a class="back" href="/dashboard">‹ Dashboard</a>
+  <div class="hero">
+    <h1>Support</h1>
+    <p>Got a question or an issue? Raise a ticket and we'll get back to you by email and here on this page. We aim to reply within one business day.</p>
+  </div>
+
+  <div class="cols" id="mainCols">
+    <div class="card">
+      <h2><span class="n">+</span> Raise a ticket</h2>
+      <label>Category</label>
+      <select id="fCat">
+        <option value="payment">Payment / pack purchase</option>
+        <option value="commission">Commission / pass-up</option>
+        <option value="account">My account</option>
+        <option value="technical">Technical problem</option>
+        <option value="other">Something else</option>
+      </select>
+      <label>Subject</label>
+      <input id="fSubj" placeholder="Short summary of your issue" maxlength="200">
+      <label>Details</label>
+      <textarea id="fMsg" placeholder="Tell us what's happening — include any pack, amount, or transaction detail that helps us look into it." maxlength="5000"></textarea>
+      <button class="btn" id="fSend" onclick="sendTicket()">Send ticket</button>
+      <div class="msg-ok" id="okMsg">✓ Ticket sent. We'll reply by email and here on this page.</div>
+      <div class="err" id="errMsg"></div>
+    </div>
+    <div class="card">
+      <h2 class="blue"><span class="n">≡</span> My tickets</h2>
+      <div id="tikList"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+
+  <div class="thread" id="thread">
+    <button class="thd-back" onclick="closeThread()">‹ Back to my tickets</button>
+    <div class="thd">
+      <h2 id="thdSubj"></h2>
+      <div id="thdMsgs"></div>
+      <div class="rep">
+        <label>Add a reply</label>
+        <textarea id="repMsg" placeholder="Type your reply…" maxlength="5000"></textarea>
+        <button class="btn" id="repSend" onclick="sendReply()">Send reply</button>
+        <div class="err" id="repErr"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var curTicket=null;
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function ago(iso){if(!iso)return '';var d=new Date(iso),s=(Date.now()-d)/1000;
+    if(s<3600)return Math.max(1,Math.floor(s/60))+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+  async function loadTickets(){
+    try{
+      var r=await fetch('/api/al/support/my-tickets');var j=await r.json();
+      var el=document.getElementById('tikList');
+      if(!j.ok||!j.tickets||!j.tickets.length){el.innerHTML='<div class="empty">No tickets yet. Raise one on the left and it\\'ll show here.</div>';return;}
+      el.innerHTML=j.tickets.map(function(t){
+        return '<div class="tik" onclick="openThread('+t.id+')"><div class="top"><span class="subj">'+esc(t.subject)+'</span>'
+          +'<span class="st '+t.status+'">'+t.status+'</span></div>'
+          +'<div class="meta">'+esc(t.category)+' · '+ago(t.updated_at)+(t.awaiting==='member'?' · new reply':'')+'</div></div>';
+      }).join('');
+    }catch(e){document.getElementById('tikList').innerHTML='<div class="empty">Couldn\\'t load tickets.</div>';}
+  }
+
+  async function sendTicket(){
+    var subj=document.getElementById('fSubj').value.trim();
+    var msg=document.getElementById('fMsg').value.trim();
+    var cat=document.getElementById('fCat').value;
+    var err=document.getElementById('errMsg'),ok=document.getElementById('okMsg');
+    err.style.display='none';ok.style.display='none';
+    if(!subj||!msg){err.textContent='Please add a subject and details.';err.style.display='block';return;}
+    var btn=document.getElementById('fSend');btn.disabled=true;btn.textContent='Sending…';
+    try{
+      var r=await fetch('/api/al/support/create',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({category:cat,subject:subj,message:msg})});
+      var j=await r.json();
+      if(j.ok){ok.style.display='block';document.getElementById('fSubj').value='';document.getElementById('fMsg').value='';loadTickets();}
+      else{err.textContent=j.error||'Something went wrong.';err.style.display='block';}
+    }catch(e){err.textContent='Network error — please try again.';err.style.display='block';}
+    btn.disabled=false;btn.textContent='Send ticket';
+  }
+
+  async function openThread(id){
+    curTicket=id;
+    try{
+      var r=await fetch('/api/al/support/ticket/'+id);var j=await r.json();
+      if(!j.ok){return;}
+      document.getElementById('thdSubj').textContent=j.ticket.subject;
+      document.getElementById('thdMsgs').innerHTML=j.ticket.messages.map(function(m){
+        var who=m.author==='admin'?'AdvantageLife':'You';
+        var av=m.author==='admin'?'A':'Y';
+        return '<div class="m '+m.author+'"><div class="av">'+av+'</div><div class="bub"><div class="nm">'+who+'<span>'+ago(m.at)+'</span></div>'+esc(m.body)+'</div></div>';
+      }).join('');
+      document.getElementById('mainCols').style.display='none';
+      document.getElementById('thread').classList.add('on');
+      window.scrollTo(0,0);
+    }catch(e){}
+  }
+  function closeThread(){
+    document.getElementById('thread').classList.remove('on');
+    document.getElementById('mainCols').style.display='';
+    document.getElementById('repMsg').value='';
+    loadTickets();
+  }
+
+  async function sendReply(){
+    var msg=document.getElementById('repMsg').value.trim();
+    var err=document.getElementById('repErr');err.style.display='none';
+    if(!msg){err.textContent='Please type a reply.';err.style.display='block';return;}
+    var btn=document.getElementById('repSend');btn.disabled=true;btn.textContent='Sending…';
+    try{
+      var r=await fetch('/api/al/support/ticket/'+curTicket+'/reply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+      var j=await r.json();
+      if(j.ok){openThread(curTicket);document.getElementById('repMsg').value='';}
+      else{err.textContent=j.error||'Failed to send.';err.style.display='block';}
+    }catch(e){err.textContent='Network error.';err.style.display='block';}
+    btn.disabled=false;btn.textContent='Send reply';
+  }
+
+  loadTickets();
+</script>
+</body></html>

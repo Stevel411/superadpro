@@ -6818,7 +6818,43 @@ async def support_post(
     message: str = Form(), tx_hash: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    logger.warning(f"Support ticket: {email} | {category} | {subject}")
+    """Public (logged-out) support form. Previously this silently dropped
+    submissions — now it creates a real stored ticket + alerts the admin, so
+    people who can't log in can still reach support."""
+    logger.warning(f"Support ticket (public): {email} | {category} | {subject}")
+    try:
+        subject = (subject or "").strip()[:200]
+        body_text = (message or "").strip()[:5000]
+        if tx_hash:
+            body_text += f"\n\n[Transaction ref: {tx_hash.strip()[:120]}]"
+        if not subject or not body_text:
+            return JSONResponse({"success": False, "message": "Subject and message are required."}, status_code=400)
+        cat = (category or "other").strip().lower()
+        if cat not in _AL_SUPPORT_CATEGORIES:
+            cat = "other"
+        name = f"{(first_name or '').strip()} {(last_name or '').strip()}".strip()[:120]
+        # link to an existing account if the email/username matches one
+        acct = None
+        if email:
+            acct = db.query(User).filter(User.email == email.strip()).first()
+        if not acct and username:
+            acct = db.query(User).filter(User.username == username.strip()).first()
+        now = datetime.utcnow()
+        ticket = SupportTicket(
+            user_id=(acct.id if acct else None),
+            name=name, email=(email or "").strip()[:200],
+            username=(username or "").strip()[:80] or None,
+            category=cat, subject=subject, status="open", awaiting="admin",
+            created_at=now, updated_at=now,
+        )
+        db.add(ticket); db.commit(); db.refresh(ticket)
+        db.add(TicketMessage(ticket_id=ticket.id, author="member", body=body_text, created_at=now))
+        db.commit()
+        await _al_notify_new_ticket(db, ticket, body_text)
+    except Exception as e:
+        logger.error(f"Public support ticket failed: {e}")
+        db.rollback()
+        return JSONResponse({"success": False, "message": "Something went wrong. Please email us directly."}, status_code=500)
     return JSONResponse({"success": True, "message": "Support ticket received. We'll be in touch shortly."})
 
 @app.get("/legal")
@@ -73801,6 +73837,35 @@ def comp_plan_guide_page(user: User = Depends(get_current_user)):
             return HTMLResponse(_f.read())
     except Exception:
         return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+
+
+@app.get("/support-center")
+def al_support_member_page(user: User = Depends(get_current_user)):
+    """AdvantageLife member support page — raise tickets, view own tickets,
+    reply on-platform. Gated to logged-in members."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_support_member.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return HTMLResponse("<h1>Support temporarily unavailable</h1>", status_code=500)
+
+
+@app.get("/admin/support")
+def al_support_admin_page(user: User = Depends(get_current_user)):
+    """AdvantageLife admin support queue — list, thread, reply, resolve."""
+    _require_admin(user)
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_support_admin.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return HTMLResponse("<h1>Support admin temporarily unavailable</h1>", status_code=500)
 
 
 @app.get("/start-here")
