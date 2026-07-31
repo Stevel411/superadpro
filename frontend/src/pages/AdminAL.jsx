@@ -573,8 +573,14 @@ function Sharing() {
 export default function AdminAL() {
   const [tab, setTab] = useState('overview');
   const [ov, setOv] = useState(null);
+  const [supportOpen, setSupportOpen] = useState(0);
   const loadOv = useCallback(() => { apiGet('/admin/api/al/overview').then(setOv).catch(() => setOv(null)); }, []);
   useEffect(() => { loadOv(); }, [loadOv]);
+  useEffect(() => {
+    apiGet('/api/al/support/admin/list?status=open')
+      .then(d => setSupportOpen((d && d.counts && d.counts.open) || 0))
+      .catch(() => {});
+  }, []);
 
   return (
     <AlShell active="dashboard" back={{ to: '/dashboard', label: 'Dashboard' }}>
@@ -587,6 +593,7 @@ export default function AdminAL() {
           </div>
           <a href="/admin/wisdom" style={{ marginLeft: 'auto', background: 'rgba(255,255,255,.1)', color: '#fff', border: '1.5px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>Daily Wisdom</a>
           <a href="/admin/collaborations" style={{  background: 'rgba(255,255,255,.1)', color: '#fff', border: '1.5px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>Vetted Extras</a>
+          <a href="/admin/support" style={{ background: supportOpen > 0 ? '#c8102e' : 'rgba(255,255,255,.1)', color: '#fff', border: '1.5px solid ' + (supportOpen > 0 ? '#c8102e' : 'rgba(255,255,255,.2)'), borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>Support{supportOpen > 0 ? ' (' + supportOpen + ')' : ''}</a>
           <button onClick={loadOv} style={{ background: 'rgba(255,255,255,.1)', color: '#fff', border: '1.5px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '9px 15px', fontWeight: 800, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><RefreshCw size={14} /> Refresh</button>
         </div>
 

@@ -58,7 +58,7 @@ const NAV = [
   { header: 'MORE' },
   { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },
   { key: 'extras', label: 'Vetted Extras', to: '/collaborations', link: true },
-  { key: 'support', label: 'Support', to: '/support-center', link: true },
+  { key: 'support', label: 'Support', to: '/support-center', link: false },
 ];
 
 export default function AlShell({ active, back, children }) {
@@ -86,6 +86,7 @@ export default function AlShell({ active, back, children }) {
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
                 <Link to="/account">Profile</Link>
                 <Link to="/account?tab=security">Security</Link>
+                <a href="/support-center">Support</a>
                 {user && user.is_admin && (<><div className="sep"></div><Link to="/admin/al" style={{ color: '#c8102e', fontWeight: 900 }}>Admin</Link></>)}
                 <div className="sep"></div>
                 <a className="out" href="/logout">Sign out</a>
