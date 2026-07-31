@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start Here — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#2ecc71;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;color:var(--ink);background:#fbfcff;min-height:100vh;
+    background-image:radial-gradient(110% 45% at 90% -6%,rgba(46,204,113,.07),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.09),transparent 55%);background-attachment:fixed}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px 20px 60px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 14px;text-decoration:none;margin-bottom:18px}
+  .head{text-align:center;margin-bottom:22px}
+  .mk{font-weight:900;font-size:15px;color:var(--navy)}.mk i{font-style:normal;color:var(--red)}
+  h1{font-weight:900;font-size:30px;letter-spacing:-.8px;margin:12px 0 6px}h1 .g{color:var(--grn)}
+  .sub{font-size:15px;color:var(--dim);font-weight:600;margin:0 auto;max-width:520px;line-height:1.5}
+  /* tabs */
+  .tabs{display:flex;gap:8px;justify-content:center;margin:26px 0 22px}
+  .tab{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:800;font-size:15px;
+    color:var(--dim);background:#fff;border:2px solid var(--line);border-radius:100px;padding:12px 24px;cursor:pointer;transition:all .18s}
+  .tab:hover{border-color:#cdd8f5}
+  .tab.on{color:#fff;background:var(--grn);border-color:var(--grn);box-shadow:0 10px 24px -12px rgba(46,204,113,.6)}
+  .tab.on.blue{background:var(--navy);border-color:var(--navy);box-shadow:0 10px 24px -12px rgba(10,31,82,.5)}
+  /* panels */
+  .panel{display:none}.panel.on{display:block}
+  .vidbox{max-width:900px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.5);background:var(--navy)}
+  .vidbox video{width:100%;display:block}
+  .vcap{text-align:center;font-size:14px;color:var(--dim);font-weight:600;margin-top:16px}
+  .vcap b{color:var(--navy)}
+  .switch{display:block;margin:18px auto 0;font-family:inherit;font-weight:800;font-size:14px;color:var(--navy2);background:none;border:none;cursor:pointer;text-decoration:underline}
+  /* guide iframe */
+  .guidewrap{border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff;border:1.5px solid var(--line)}
+  .guidewrap iframe{width:100%;height:900px;border:0;display:block}
+  @media(max-width:640px){h1{font-size:24px}.tab{padding:11px 18px;font-size:14px}.guidewrap iframe{height:820px}}
+</style></head>
+<body>
+<div class="wrap">
+  <a class="back" href="/dashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
+
+  <div class="head">
+    <div class="mk">Advantage<i>Life</i></div>
+    <h1>Start <span class="g">here</span></h1>
+    <div class="sub">New to AdvantageLife? Here's exactly how to get set up and earning — watch the quick walkthrough, or step through it yourself.</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tabWatch" onclick="showTab('watch')">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      Watch
+    </button>
+    <button class="tab blue" id="tabSteps" onclick="showTab('steps')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      Step-by-step
+    </button>
+  </div>
+
+  <div class="panel on" id="panelWatch">
+    <div class="vidbox">
+      <video controls preload="metadata" playsinline>
+        <source src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/Getting%20started%202.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="vcap">A <b>90-second</b> walkthrough of your six activation steps.</div>
+    <button class="switch" onclick="showTab('steps')">Prefer to click through it yourself? Open the step-by-step guide →</button>
+  </div>
+
+  <div class="panel" id="panelSteps">
+    <div class="guidewrap">
+      <iframe id="guideFrame" src="" title="Step-by-step activation guide" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  var guideLoaded=false;
+  function showTab(which){
+    var w=which==='watch';
+    document.getElementById('tabWatch').classList.toggle('on',w);
+    document.getElementById('tabSteps').classList.toggle('on',!w);
+    document.getElementById('panelWatch').classList.toggle('on',w);
+    document.getElementById('panelSteps').classList.toggle('on',!w);
+    // lazy-load the guide iframe only when first opened
+    if(!w && !guideLoaded){
+      document.getElementById('guideFrame').src='/start-here/guide';
+      guideLoaded=true;
+    }
+    // pause the video when leaving the Watch tab
+    if(!w){var v=document.querySelector('#panelWatch video');if(v&&!v.paused)v.pause();}
+  }
+</script>
+</body></html>

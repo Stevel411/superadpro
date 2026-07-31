@@ -73526,9 +73526,25 @@ def comp_plan_guide_page(user: User = Depends(get_current_user)):
 
 @app.get("/start-here")
 def start_here_page(user: User = Depends(get_current_user)):
-    """The animated new-member activation walkthrough (6 steps, P2P order).
-    Self-contained bulletproof HTML (React + all deps inlined — no CDN). Gated
-    to logged-in members; served as its own full-page standalone guide."""
+    """Start Here — tabbed: 'Watch' (narrated video) first, 'Step-by-step'
+    (the animated interactive guide, in an iframe) second. Gated to members."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_start_here_tabs.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+
+
+@app.get("/start-here/guide")
+def start_here_guide(user: User = Depends(get_current_user)):
+    """The raw animated activation walkthrough (6 steps, P2P order). Self-
+    contained bulletproof HTML (React + deps inlined — no CDN). Served inside
+    the Start Here 'Step-by-step' tab via iframe. Gated to logged-in members."""
     _gate = _al_gate_page(user, shared_route=True)
     if _gate:
         return _gate
