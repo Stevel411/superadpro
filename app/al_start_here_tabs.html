@@ -9,14 +9,15 @@
   html,body{margin:0;padding:0}
   body{font-family:'Inter',sans-serif;color:var(--ink);background:#fbfcff;min-height:100vh;
     background-image:radial-gradient(110% 45% at 90% -6%,rgba(46,204,113,.07),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.09),transparent 55%);background-attachment:fixed}
-  .wrap{max-width:1000px;margin:0 auto;padding:22px 20px 60px}
-  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 14px;text-decoration:none;margin-bottom:18px}
-  .head{text-align:center;margin-bottom:22px}
-  .mk{font-weight:900;font-size:15px;color:var(--navy)}.mk i{font-style:normal;color:var(--red)}
-  h1{font-weight:900;font-size:30px;letter-spacing:-.8px;margin:12px 0 6px}h1 .g{color:var(--grn)}
-  .sub{font-size:15px;color:var(--dim);font-weight:600;margin:0 auto;max-width:520px;line-height:1.5}
+  .wrap{max-width:1040px;margin:0 auto;padding:16px 20px 60px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 14px;text-decoration:none;margin-bottom:14px}
+  .head{text-align:center;margin-bottom:4px}
+  h1{font-weight:900;font-size:32px;letter-spacing:-.8px;margin:0}h1 .g{color:var(--grn)}
+  .sub{font-size:15px;color:var(--dim);font-weight:600;margin:0 auto;max-width:560px;line-height:1.55}
+  .sub.below{text-align:center;margin-top:20px;max-width:600px}
+  .sub.below b{color:var(--navy)}
   /* tabs */
-  .tabs{display:flex;gap:8px;justify-content:center;margin:26px 0 22px}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:16px 0 20px}
   .tab{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:800;font-size:15px;
     color:var(--dim);background:#fff;border:2px solid var(--line);border-radius:100px;padding:12px 24px;cursor:pointer;transition:all .18s}
   .tab:hover{border-color:#cdd8f5}
@@ -24,11 +25,8 @@
   .tab.on.blue{background:var(--navy);border-color:var(--navy);box-shadow:0 10px 24px -12px rgba(10,31,82,.5)}
   /* panels */
   .panel{display:none}.panel.on{display:block}
-  .vidbox{max-width:900px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.5);background:var(--navy)}
+  .vidbox{max-width:1040px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.5);background:var(--navy)}
   .vidbox video{width:100%;display:block}
-  .vcap{text-align:center;font-size:14px;color:var(--dim);font-weight:600;margin-top:16px}
-  .vcap b{color:var(--navy)}
-  .switch{display:block;margin:18px auto 0;font-family:inherit;font-weight:800;font-size:14px;color:var(--navy2);background:none;border:none;cursor:pointer;text-decoration:underline}
   /* guide iframe */
   .guidewrap{border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff;border:1.5px solid var(--line)}
   .guidewrap iframe{width:100%;height:900px;border:0;display:block}
@@ -39,9 +37,7 @@
   <a class="back" href="/dashboard"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a>
 
   <div class="head">
-    <div class="mk">Advantage<i>Life</i></div>
     <h1>Start <span class="g">here</span></h1>
-    <div class="sub">New to AdvantageLife? Here's exactly how to get set up and earning — watch the quick walkthrough, or step through it yourself.</div>
   </div>
 
   <div class="tabs">
@@ -61,8 +57,7 @@
         <source src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/Getting%20started%202.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="vcap">A <b>90-second</b> walkthrough of your six activation steps.</div>
-    <button class="switch" onclick="showTab('steps')">Prefer to click through it yourself? Open the step-by-step guide →</button>
+    <div class="sub below">New to AdvantageLife? This quick walkthrough shows you exactly how to get set up and earning. Prefer to go at your own pace? Switch to the <b>step-by-step</b> guide above.</div>
   </div>
 
   <div class="panel" id="panelSteps">
