@@ -112,9 +112,9 @@ export default function CategoryTopBar({ backTo = '/dashboard', backLabel = 'Das
         </div>
       )}
       <div className="rt">
-        <a className="bal" href="/payout-methods" aria-label="Payout wallets">
+        <a className="bal" href="/payout-methods" aria-label="Payment details">
           <span className="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14h2"/></svg></span>
-          <span className="txt"><span className="l">Payout</span><span className="a">wallets</span></span>
+          <span className="txt"><span className="l">Payment</span><span className="a">details</span></span>
         </a>
         <div className="acct" ref={acctRef}>
         <button className={'burger' + (menuOpen ? ' open' : '')} onClick={function () { setMenuOpen(function (o) { return !o; }); }} aria-label="Account menu" aria-expanded={menuOpen}>

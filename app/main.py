@@ -72477,7 +72477,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 </style></head><body>
 <div class="wrap">
   <div class="top">
-    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/payout-methods" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Payout wallets</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
+    <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/payout-methods" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Payment Details</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
     <div class="mk">Advantage<i>Life</i></div>
   </div>
   <h1>Incoming <span class="r">sales</span></h1>

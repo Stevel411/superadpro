@@ -69,7 +69,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.myTeam', { defaultValue: 'My Team' }), shortLabel: t('navShort.myTeam', { defaultValue: 'Team' }), icon: Users, path: '/my-team' },
       { label: t('nav.campaignPacks', { defaultValue: 'Campaign Packs' }), shortLabel: t('navShort.campaignPacks', { defaultValue: 'Packs' }), icon: Target, path: '/packs', basic: true, external: true },
       { label: t('nav.mySales', { defaultValue: 'My Sales' }), shortLabel: t('navShort.mySales', { defaultValue: 'Sales' }), icon: DollarSign, path: '/my-sales', basic: true, external: true },
-      { label: t('nav.payoutWallets', { defaultValue: 'Payout Wallets' }), shortLabel: t('navShort.payoutWallets', { defaultValue: 'Wallets' }), icon: Layers, path: '/payout-methods', basic: true, external: true },
+      { label: t('nav.payoutWallets', { defaultValue: 'Payment Details' }), shortLabel: t('navShort.payoutWallets', { defaultValue: 'Payment' }), icon: Layers, path: '/payout-methods', basic: true, external: true },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch', basic: true, tierLocked: true },
       { label: t('nav.myCampaigns', { defaultValue: 'Campaigns' }), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Campaigns' }), icon: Film, path: '/campaigns', basic: true },
     ]},
