@@ -1,74 +1,139 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Sale chat — AdvantageLife</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#0b7a3e;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--wash:#f4f7fd}
-  *{box-sizing:border-box}html,body{margin:0;height:100%}
-  body{font-family:'Inter',sans-serif;color:var(--ink);background:#fbfcff;display:flex;flex-direction:column;
-    background-image:radial-gradient(110% 40% at 90% -6%,rgba(200,16,46,.05),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.08),transparent 55%)}
-  .top{background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;flex:none}
-  .top .bk{color:#fff;text-decoration:none;font-weight:800;font-size:20px;line-height:1}
-  .top .ttl{font-weight:900;font-size:16px}
-  .top .sub{font-size:12px;color:#cdd8f5;font-weight:600;margin-top:2px}
-  .top .badge{margin-left:auto;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:100px;padding:5px 11px}
-  .wrap{flex:1;max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;min-height:0}
-  .msgs{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:10px}
-  .hint{text-align:center;font-size:12.5px;color:var(--dim);font-weight:600;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:6px;line-height:1.5}
-  .b{max-width:78%;padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
-  .b.them{background:#fff;border:1.5px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px}
-  .b.me{background:var(--navy);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
-  .b .t{font-size:10.5px;font-weight:700;opacity:.6;margin-top:5px}
-  .empty{text-align:center;color:var(--dim);font-weight:600;font-size:13.5px;padding:30px 10px}
-  .composer{flex:none;background:#fff;border-top:1.5px solid var(--line);padding:12px 14px;display:flex;gap:10px;align-items:flex-end}
-  .composer textarea{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font-family:inherit;font-size:14.5px;resize:none;max-height:120px;box-sizing:border-box}
-  .composer textarea:focus{outline:none;border-color:var(--navy2)}
-  .composer button{flex:none;background:var(--red);color:#fff;border:none;border-radius:12px;width:46px;height:46px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .composer button:disabled{opacity:.5}
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#e8203f;--grn:#2ecc71;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--wash:#f4f7fd}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{font-family:'Inter',sans-serif;color:var(--ink);background:#eef2fa;display:flex;flex-direction:column}
+  .top{position:relative;flex:none;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;
+    padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0));
+    display:flex;align-items:center;gap:12px;box-shadow:0 6px 22px -10px rgba(10,31,82,.6);z-index:5}
+  .top .bk{flex:none;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:22px;line-height:1;transition:background .15s}
+  .top .bk:active{background:rgba(255,255,255,.26)}
+  .top .pfp{flex:none;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3b56b0,#1a2f70);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;border:2px solid rgba(255,255,255,.25);position:relative}
+  .top .pfp .dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:var(--grn);border:2.5px solid var(--navy)}
+  .top .who{flex:1;min-width:0}
+  .top .who .nm{font-weight:900;font-size:16px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top .who .st{font-size:12px;color:#aebbe4;font-weight:600;margin-top:1px;display:flex;align-items:center;gap:5px}
+  .top .who .st .live{width:6px;height:6px;border-radius:50%;background:var(--grn);display:inline-block}
+  .pill{flex:none;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:100px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22)}
+  .pill.confirmed{background:rgba(46,204,113,.22);border-color:rgba(46,204,113,.5);color:#c6ffdf}
+  .pill.proof_submitted{background:rgba(255,193,7,.2);border-color:rgba(255,193,7,.45);color:#ffe7a3}
+  .ctx{flex:none;background:#fff;border-bottom:1.5px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--dim);font-weight:600}
+  .ctx svg{flex:none;color:var(--navy2)}
+  .ctx b{color:var(--navy)}
+  .msgs{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 14px 8px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;
+    background:radial-gradient(circle at 12% 8%, rgba(18,56,143,.04), transparent 42%),radial-gradient(circle at 88% 92%, rgba(200,16,46,.035), transparent 42%),#eef2fa}
+  .divider{align-self:center;font-size:11px;font-weight:800;color:var(--dim);background:#dfe6f4;border-radius:100px;padding:5px 14px;margin:8px 0 12px}
+  .intro{align-self:stretch;text-align:center;font-size:12.5px;color:#4a5878;font-weight:600;background:linear-gradient(180deg,#fff,#fbfcff);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin:0 4px 14px;line-height:1.55;box-shadow:0 8px 24px -18px rgba(10,31,82,.4)}
+  .intro .em{font-size:20px;display:block;margin-bottom:5px}
+  .intro b{color:var(--navy)}
+  .row{display:flex;align-items:flex-end;gap:8px;max-width:100%;margin-bottom:2px;animation:pop .22s cubic-bezier(.2,.7,.3,1)}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .row.me{flex-direction:row-reverse}
+  .row .mav{flex:none;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b56b0,#1a2f70);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;margin-bottom:2px}
+  .row.me .mav{display:none}
+  .row.tail-hide .mav{visibility:hidden}
+  .b{position:relative;max-width:74%;padding:10px 14px;font-size:14.5px;line-height:1.45;word-wrap:break-word;white-space:pre-wrap;box-shadow:0 2px 6px -3px rgba(10,31,82,.18)}
+  .b.them{background:#fff;color:var(--ink);border-radius:18px 18px 18px 6px}
+  .b.me{background:linear-gradient(135deg,var(--navy2),var(--navy));color:#fff;border-radius:18px 18px 6px 18px}
+  .row.grouped .b.them{border-radius:18px}
+  .row.grouped .b.me{border-radius:18px}
+  .b .t{font-size:10px;font-weight:600;margin-top:4px;opacity:.55;text-align:right}
+  .b.them .t{color:var(--dim)}
+  .b.me .t{color:#cdd8f5}
+  .empty{align-self:center;text-align:center;color:var(--dim);font-weight:600;font-size:13.5px;padding:26px 16px;line-height:1.6}
+  .empty .em{font-size:32px;display:block;margin-bottom:8px;opacity:.7}
+  .composer{flex:none;background:#fff;border-top:1.5px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0)) 12px;display:flex;gap:9px;align-items:flex-end;box-shadow:0 -6px 20px -14px rgba(10,31,82,.3)}
+  .composer .field{flex:1;display:flex;align-items:flex-end;background:var(--wash);border:1.5px solid var(--line);border-radius:22px;padding:4px 6px 4px 16px;transition:border-color .15s}
+  .composer .field:focus-within{border-color:var(--navy2);background:#fff}
+  .composer textarea{flex:1;border:none;background:transparent;padding:9px 0;font-family:inherit;font-size:15px;resize:none;max-height:110px;outline:none;line-height:1.4}
+  .composer .send{flex:none;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px -8px rgba(200,16,46,.6);transition:transform .12s}
+  .composer .send:active{transform:scale(.9)}
+  .composer .send:disabled{opacity:.45;box-shadow:none}
 </style></head>
 <body>
   <div class="top">
-    <a class="bk" href="__BACK__" title="Back">‹</a>
-    <div><div class="ttl" id="ttl">Sale chat</div><div class="sub" id="sub">Loading…</div></div>
-    <span class="badge" id="statusBadge"></span>
-  </div>
-  <div class="wrap">
-    <div class="msgs" id="msgs"><div class="empty">Loading…</div></div>
-    <div class="composer">
-      <textarea id="inp" placeholder="Message…" rows="1" maxlength="2000"></textarea>
-      <button id="send" onclick="sendMsg()" aria-label="Send">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-      </button>
+    <a class="bk" href="__BACK__" aria-label="Back">&lsaquo;</a>
+    <div class="pfp" id="pfp">?<span class="dot"></span></div>
+    <div class="who">
+      <div class="nm" id="ttl">Sale chat</div>
+      <div class="st" id="sub"><span class="live"></span> Loading&hellip;</div>
     </div>
+    <span class="pill" id="statusBadge"></span>
+  </div>
+  <div class="ctx" id="ctxStrip" style="display:none">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 010-4h12v4M4 6v12a2 2 0 002 2h14v-4M18 12a2 2 0 000 4h4v-4z"/></svg>
+    <span id="ctxText"></span>
+  </div>
+  <div class="msgs" id="msgs"><div class="empty"><span class="em">&#128172;</span>Loading conversation&hellip;</div></div>
+  <div class="composer">
+    <div class="field"><textarea id="inp" placeholder="Type a message&hellip;" rows="1" maxlength="2000"></textarea></div>
+    <button class="send" id="send" onclick="sendMsg()" aria-label="Send">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
   </div>
 <script>
   var INTENT=__INTENT__;
   function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function tm(iso){if(!iso)return '';var d=new Date(iso);return d.toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
-  var lastCount=-1;
-
+  function timeOf(iso){if(!iso)return '';var d=new Date(iso);return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+  function dayKey(iso){if(!iso)return '';return new Date(iso).toDateString();}
+  function dayLabel(iso){if(!iso)return '';var d=new Date(iso);var t=new Date();var y=new Date();y.setDate(t.getDate()-1);
+    if(d.toDateString()===t.toDateString())return 'Today';
+    if(d.toDateString()===y.toDateString())return 'Yesterday';
+    return d.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});}
+  var lastCount=-1, roleGlobal=null;
+  function statusPill(s){
+    var el=document.getElementById('statusBadge');
+    el.className='pill'+(s?(' '+s):'');
+    var label = s==='confirmed'?'\u2713 Confirmed':s==='proof_submitted'?'Awaiting confirm':s==='pending'?'Awaiting payment':s==='disputed'?'Disputed':s==='expired'?'Expired':(s||'');
+    el.textContent=label;
+  }
   async function load(){
     try{
       var r=await fetch('/api/al/intent/'+INTENT+'/messages');var j=await r.json();
-      if(!j.ok){document.getElementById('msgs').innerHTML='<div class="empty">'+esc(j.error||'Unable to load this chat.')+'</div>';return;}
-      var other=j.role==='buyer'?('Seller: @'+esc(j.other_name)):(j.role==='seller'?('Buyer: @'+esc(j.other_name)):'Conversation');
-      document.getElementById('ttl').textContent = j.role==='buyer'?'Message your seller':(j.role==='seller'?'Message your buyer':'Sale conversation');
-      document.getElementById('sub').textContent = other;
-      document.getElementById('statusBadge').textContent = j.status||'';
-      if(j.messages.length===lastCount) return; // no change, skip re-render (avoids scroll jump)
-      lastCount=j.messages.length;
+      if(!j.ok){document.getElementById('msgs').innerHTML='<div class="empty"><span class="em">&#128274;</span>'+esc(j.error||'Unable to load this chat.')+'</div>';return;}
+      roleGlobal=j.role;
+      var other=esc(j.other_name||'Member');
+      document.getElementById('ttl').textContent='@'+other;
+      document.getElementById('pfp').firstChild.textContent=(other[0]||'?').toUpperCase();
+      var youAre = j.role==='buyer'?"You're the buyer":(j.role==='seller'?"You're the seller":'Conversation');
+      document.getElementById('sub').innerHTML='<span class="live"></span> '+youAre;
+      statusPill(j.status);
+      var cs=document.getElementById('ctxStrip');
+      var who = j.role==='buyer'?('Paying <b>@'+other+'</b> for your pack'):(j.role==='seller'?('<b>@'+other+'</b> is buying a pack from you'):'Sale conversation');
+      document.getElementById('ctxText').innerHTML=who;
+      cs.style.display='flex';
+      if(j.messages.length===lastCount) return;
       var el=document.getElementById('msgs');
-      var head='<div class="hint">This chat is just between you and the other member, about this one sale. '
-        +'Use it to coordinate payment — never share passwords or anything you wouldn\\'t put in writing.</div>';
-      if(!j.messages.length){el.innerHTML=head+'<div class="empty">No messages yet. Say hello to get started.</div>';return;}
-      el.innerHTML=head+j.messages.map(function(m){
-        return '<div class="b '+(m.mine?'me':'them')+'">'+esc(m.body)+'<div class="t">'+tm(m.at)+'</div></div>';
-      }).join('');
-      el.scrollTop=el.scrollHeight;
-    }catch(e){document.getElementById('msgs').innerHTML='<div class="empty">Couldn\\'t load this chat. Please refresh, or head back and try again.</div>';}
+      var wasNearBottom = true;
+      if(lastCount>=0){ wasNearBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 120; }
+      lastCount=j.messages.length;
+      var html='<div class="intro"><span class="em">&#129309;</span>This chat is private &mdash; just you and <b>@'+other+'</b>, about this one sale. Use it to sort out payment. <b>Never share passwords</b> or anything you wouldn\u0027t put in writing.</div>';
+      if(!j.messages.length){
+        html+='<div class="empty"><span class="em">&#128075;</span>No messages yet.<br>Say hello to get the ball rolling.</div>';
+        el.innerHTML=html; return;
+      }
+      var lastDay=null, prevSender=null;
+      j.messages.forEach(function(m,idx){
+        var dk=dayKey(m.at);
+        if(dk!==lastDay){ html+='<div class="divider">'+dayLabel(m.at)+'</div>'; lastDay=dk; prevSender=null; }
+        var grouped = (m.sender===prevSender);
+        var next=j.messages[idx+1];
+        var tailHide = next && next.sender===m.sender && dayKey(next.at)===dk;
+        var av=(m.sender==='buyer'?'B':(m.sender==='seller'?'S':'A'));
+        html+='<div class="row '+(m.mine?'me':'')+(grouped?' grouped':'')+(tailHide?' tail-hide':'')+'">'
+          +(m.mine?'':'<div class="mav">'+av+'</div>')
+          +'<div class="b '+(m.mine?'me':'them')+'">'+esc(m.body)+'<div class="t">'+timeOf(m.at)+'</div></div></div>';
+        prevSender=m.sender;
+      });
+      el.innerHTML=html;
+      if(wasNearBottom) el.scrollTop=el.scrollHeight;
+    }catch(e){document.getElementById('msgs').innerHTML='<div class="empty"><span class="em">&#9888;</span>Couldn\u0027t load this chat.<br>Please refresh, or head back and try again.</div>';}
   }
-
   async function sendMsg(){
     var inp=document.getElementById('inp');var msg=inp.value.trim();
     if(!msg)return;
@@ -76,17 +141,14 @@
     try{
       var r=await fetch('/api/al/intent/'+INTENT+'/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
       var j=await r.json();
-      if(j.ok){inp.value='';inp.style.height='auto';lastCount=-1;await load();}
+      if(j.ok){inp.value='';inp.style.height='auto';lastCount=-1;await load();var el=document.getElementById('msgs');el.scrollTop=el.scrollHeight;}
     }catch(e){}
     btn.disabled=false;inp.focus();
   }
-
-  // textarea auto-grow + Enter to send (Shift+Enter = newline)
   var inp=document.getElementById('inp');
-  inp.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(120,this.scrollHeight)+'px';});
+  inp.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(110,this.scrollHeight)+'px';});
   inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
-
   load();
-  setInterval(load, 8000); // poll for new messages every 8s
+  setInterval(load, 6000);
 </script>
 </body></html>
