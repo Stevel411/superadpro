@@ -46,6 +46,7 @@ from .database import DigitalProduct, DigitalProductPurchase, DigitalProductRevi
 from .database import CreditMatrix, CreditMatrixPosition, CreditMatrixCommission
 from .database import CampaignPack, PackPurchase, PackCommission, P2PIntent, PayoutMethod, DirectJoinPayment, CAMPAIGN_GRACE_DAYS  # AdvantageLife P2P settlement (7 Jul 2026)
 from .database import SupportTicket, TicketMessage  # AdvantageLife support system (31 Jul 2026)
+from .database import IntentMessage  # AdvantageLife transaction-scoped chat (1 Aug 2026)
 from .database import CoPilotBriefing
 from .database import MemberLead, LeadList
 from .database import ShareCode
@@ -55148,6 +55149,90 @@ def al_support_admin_resolve(ticket_id: int, user: User = Depends(get_current_us
     return {"ok": True, "status": t.status}
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# AdvantageLife Transaction-Scoped Chat (1 Aug 2026)
+# A private thread between the BUYER and SELLER of one specific P2P pack sale,
+# attached to the P2PIntent. Only the two parties can read/post. Smooths
+# payment coordination ("sent it, ref is X" / "not arrived yet, which account?")
+# and doubles as a dispute record. NOT open member-to-member messaging.
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _al_intent_party(intent, user):
+    """Return 'buyer' / 'seller' if the user is a party to this intent, else None."""
+    if not intent or not user:
+        return None
+    if intent.buyer_id == user.id:
+        return "buyer"
+    if intent.earner_id == user.id:
+        return "seller"
+    return None
+
+
+@app.get("/api/al/intent/{intent_id}/messages")
+def al_intent_messages(intent_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List the chat thread for a sale. Only the buyer or seller of that intent
+    (or an admin) may read it."""
+    if not user:
+        return JSONResponse({"ok": False, "error": "Login required"}, status_code=401)
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    role = _al_intent_party(intent, user)
+    if not role and not is_admin(user):
+        return JSONResponse({"ok": False, "error": "Not your transaction"}, status_code=403)
+    msgs = (db.query(IntentMessage).filter(IntentMessage.intent_id == intent_id)
+            .order_by(IntentMessage.created_at.asc()).all())
+    # resolve the other party's display name for the header
+    other_id = intent.earner_id if role == "buyer" else intent.buyer_id
+    other = db.query(User).filter(User.id == other_id).first() if other_id else None
+    other_name = (getattr(other, "username", None) or "Company") if (other or role == "seller") else "Company"
+    out = []
+    for m in msgs:
+        out.append({
+            "mine": (m.sender_id == user.id),
+            "sender": "buyer" if m.sender_id == intent.buyer_id else ("seller" if m.sender_id == intent.earner_id else "admin"),
+            "body": m.body,
+            "at": m.created_at.isoformat() if m.created_at else None,
+        })
+    return {"ok": True, "role": role or "admin", "status": intent.status,
+            "other_name": other_name, "messages": out}
+
+
+@app.post("/api/al/intent/{intent_id}/messages")
+async def al_intent_post_message(intent_id: int, request: Request,
+                                 user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Post a message to a sale's chat. Buyer or seller only."""
+    if not user:
+        return JSONResponse({"ok": False, "error": "Login required"}, status_code=401)
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return JSONResponse({"ok": False, "error": "Not found"}, status_code=404)
+    role = _al_intent_party(intent, user)
+    if not role:
+        return JSONResponse({"ok": False, "error": "Not your transaction"}, status_code=403)
+    body = await request.json()
+    msg = (body.get("message") or "").strip()[:2000]
+    if not msg:
+        return JSONResponse({"ok": False, "error": "Empty message"}, status_code=400)
+    now = datetime.utcnow()
+    db.add(IntentMessage(intent_id=intent_id, sender_id=user.id, body=msg, created_at=now))
+    db.commit()
+    # notify the other party (in-app bell)
+    try:
+        other_id = intent.earner_id if role == "buyer" else intent.buyer_id
+        if other_id:
+            db.add(Notification(
+                user_id=other_id, type="intent_chat", icon="\U0001F4AC",
+                title="New message about your sale",
+                message=f"{getattr(user, 'username', 'A member')} sent you a message",
+                link="/my-sales" if role == "buyer" else "/packs",
+            ))
+            db.commit()
+    except Exception:
+        db.rollback()
+    return {"ok": True}
+
+
 @app.post("/api/support/ticket")
 async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -72800,6 +72885,8 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 .who{font-weight:900;font-size:16px;letter-spacing:-.2px}.who span{color:var(--dim);font-weight:700}
 .meta{font-size:12px;font-weight:600;color:var(--dim);margin-top:3px}
 .tx{font-family:var(--mono);font-size:10.5px;color:#8a93ab;margin-top:4px;word-break:break-all}
+.chatlink{display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:12px;font-weight:800;color:#12388f;text-decoration:none;background:#eef3ff;border:1px solid #d3ddf5;border-radius:8px;padding:5px 10px}
+.chatlink:hover{background:#e2ebff}
 .amt{font-family:var(--mono);font-weight:700;font-size:22px;letter-spacing:-1px;color:var(--navy);text-align:right;white-space:nowrap}
 .sale.done .amt{color:var(--grn)}.sale.dead .amt{color:#a7aec2}
 .st{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:99px;margin-left:7px;vertical-align:1px}
@@ -72951,7 +73038,8 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
     d.innerHTML='<div class="av">'+esc(initial(s.buyer&&s.buyer.username))+'</div>'
       +'<div><div class="who">@'+esc(s.buyer&&s.buyer.username)+' <span>'+verb+' your $'+Number(s.amount).toFixed(0)+' pack</span></div>'
       +'<div class="meta">'+esc(pk.name||('Level '+pk.level))+' pack<span class="st '+stcls+'">'+stLabel(s.status)+'</span></div>'
-      +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')+'</div>'
+      +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')
+      +(s.intent_id?('<a class="chatlink" href="/sale-chat/'+s.intent_id+'">\uD83D\uDCAC Message buyer</a>'):'')+'</div>'
       +'<div class="amt">'+money+'</div>';
     if(s.action_needed){
       if(s.reversible&&s.seller_note){var w=document.createElement('div');w.className='warn';w.textContent='\u26A0 '+s.seller_note;d.appendChild(w)}
@@ -73837,6 +73925,32 @@ def comp_plan_guide_page(user: User = Depends(get_current_user)):
             return HTMLResponse(_f.read())
     except Exception:
         return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+
+
+@app.get("/sale-chat/{intent_id}")
+def al_sale_chat_page(intent_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Transaction-scoped chat between the buyer and seller of one P2P sale.
+    Only a party to the intent may open it."""
+    _gate = _al_gate_page(user, shared_route=True)
+    if _gate:
+        return _gate
+    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    if not intent:
+        return HTMLResponse("<h1>Sale not found</h1>", status_code=404)
+    if not _al_intent_party(intent, user) and not is_admin(user):
+        return HTMLResponse("<h1>Not your transaction</h1>", status_code=403)
+    # buyers came from their pay/sales area; sellers from Confirm a Sale
+    role = _al_intent_party(intent, user)
+    back = "/my-sales" if role == "seller" else "/packs"
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_sale_chat.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            html = _f.read()
+        html = html.replace("__INTENT__", str(intent_id)).replace("__BACK__", back)
+        return HTMLResponse(html)
+    except Exception:
+        return HTMLResponse("<h1>Chat temporarily unavailable</h1>", status_code=500)
 
 
 @app.get("/support-center")

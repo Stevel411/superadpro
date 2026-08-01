@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sale chat — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#0b7a3e;--ink:#0d1230;--dim:#5a6584;--line:#e7ebf6;--wash:#f4f7fd}
+  *{box-sizing:border-box}html,body{margin:0;height:100%}
+  body{font-family:'Inter',sans-serif;color:var(--ink);background:#fbfcff;display:flex;flex-direction:column;
+    background-image:radial-gradient(110% 40% at 90% -6%,rgba(200,16,46,.05),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.08),transparent 55%)}
+  .top{background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;flex:none}
+  .top .bk{color:#fff;text-decoration:none;font-weight:800;font-size:20px;line-height:1}
+  .top .ttl{font-weight:900;font-size:16px}
+  .top .sub{font-size:12px;color:#cdd8f5;font-weight:600;margin-top:2px}
+  .top .badge{margin-left:auto;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:100px;padding:5px 11px}
+  .wrap{flex:1;max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;min-height:0}
+  .msgs{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:10px}
+  .hint{text-align:center;font-size:12.5px;color:var(--dim);font-weight:600;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:6px;line-height:1.5}
+  .b{max-width:78%;padding:11px 14px;border-radius:15px;font-size:14.5px;line-height:1.5;word-wrap:break-word;white-space:pre-wrap}
+  .b.them{background:#fff;border:1.5px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px}
+  .b.me{background:var(--navy);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+  .b .t{font-size:10.5px;font-weight:700;opacity:.6;margin-top:5px}
+  .empty{text-align:center;color:var(--dim);font-weight:600;font-size:13.5px;padding:30px 10px}
+  .composer{flex:none;background:#fff;border-top:1.5px solid var(--line);padding:12px 14px;display:flex;gap:10px;align-items:flex-end}
+  .composer textarea{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;font-family:inherit;font-size:14.5px;resize:none;max-height:120px;box-sizing:border-box}
+  .composer textarea:focus{outline:none;border-color:var(--navy2)}
+  .composer button{flex:none;background:var(--red);color:#fff;border:none;border-radius:12px;width:46px;height:46px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .composer button:disabled{opacity:.5}
+</style></head>
+<body>
+  <div class="top">
+    <a class="bk" href="__BACK__" title="Back">‹</a>
+    <div><div class="ttl" id="ttl">Sale chat</div><div class="sub" id="sub">Loading…</div></div>
+    <span class="badge" id="statusBadge"></span>
+  </div>
+  <div class="wrap">
+    <div class="msgs" id="msgs"><div class="empty">Loading…</div></div>
+    <div class="composer">
+      <textarea id="inp" placeholder="Message…" rows="1" maxlength="2000"></textarea>
+      <button id="send" onclick="sendMsg()" aria-label="Send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+<script>
+  var INTENT=__INTENT__;
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function tm(iso){if(!iso)return '';var d=new Date(iso);return d.toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+  var lastCount=-1;
+
+  async function load(){
+    try{
+      var r=await fetch('/api/al/intent/'+INTENT+'/messages');var j=await r.json();
+      if(!j.ok){document.getElementById('msgs').innerHTML='<div class="empty">'+esc(j.error||'Unable to load this chat.')+'</div>';return;}
+      var other=j.role==='buyer'?('Seller: @'+esc(j.other_name)):(j.role==='seller'?('Buyer: @'+esc(j.other_name)):'Conversation');
+      document.getElementById('ttl').textContent = j.role==='buyer'?'Message your seller':(j.role==='seller'?'Message your buyer':'Sale conversation');
+      document.getElementById('sub').textContent = other;
+      document.getElementById('statusBadge').textContent = j.status||'';
+      if(j.messages.length===lastCount) return; // no change, skip re-render (avoids scroll jump)
+      lastCount=j.messages.length;
+      var el=document.getElementById('msgs');
+      var head='<div class="hint">This chat is just between you and the other member, about this one sale. '
+        +'Use it to coordinate payment — never share passwords or anything you wouldn\\'t put in writing.</div>';
+      if(!j.messages.length){el.innerHTML=head+'<div class="empty">No messages yet. Say hello to get started.</div>';return;}
+      el.innerHTML=head+j.messages.map(function(m){
+        return '<div class="b '+(m.mine?'me':'them')+'">'+esc(m.body)+'<div class="t">'+tm(m.at)+'</div></div>';
+      }).join('');
+      el.scrollTop=el.scrollHeight;
+    }catch(e){}
+  }
+
+  async function sendMsg(){
+    var inp=document.getElementById('inp');var msg=inp.value.trim();
+    if(!msg)return;
+    var btn=document.getElementById('send');btn.disabled=true;
+    try{
+      var r=await fetch('/api/al/intent/'+INTENT+'/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+      var j=await r.json();
+      if(j.ok){inp.value='';inp.style.height='auto';lastCount=-1;await load();}
+    }catch(e){}
+    btn.disabled=false;inp.focus();
+  }
+
+  // textarea auto-grow + Enter to send (Shift+Enter = newline)
+  var inp=document.getElementById('inp');
+  inp.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(120,this.scrollHeight)+'px';});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+
+  load();
+  setInterval(load, 8000); // poll for new messages every 8s
+</script>
+</body></html>

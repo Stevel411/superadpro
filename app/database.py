@@ -812,6 +812,19 @@ class TicketMessage(Base):
     body          = Column(Text)
     created_at    = Column(DateTime, default=datetime.utcnow, index=True)
 
+
+class IntentMessage(Base):
+    """Transaction-scoped chat: a message between the buyer and seller of a
+    specific P2P pack sale, attached to the P2PIntent. Only the two parties to
+    the intent can read or post. Doubles as a payment-coordination record if a
+    sale is later disputed."""
+    __tablename__ = "al_intent_messages"
+    id            = Column(Integer, primary_key=True, index=True)
+    intent_id     = Column(Integer, ForeignKey("p2p_intents.id"), index=True)
+    sender_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    body          = Column(Text)
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
+
 # ── Username write tripwire (11 Jul 2026): a confirmed rename of user 1
 #    reverted with NO app-side writer found. Log every username change
 #    with a stack so any future write is caught red-handed. Remove after
