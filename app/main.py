@@ -72837,7 +72837,8 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
             var f=x.querySelector('.flag.now'); if(f) f.remove();});
           d.classList.add('sel');
           if(!d.querySelector('.flag.now')){var nf=document.createElement('span');nf.className='flag now';nf.textContent='Selected';d.insertBefore(nf,d.firstChild);}
-          var b=document.getElementById('btnGo');b.disabled=false;b.textContent='Continue with the $'+Number(pk.price).toLocaleString()+' '+esc(pk.name||'pack')+' →'};
+          startPurchase(pk);
+      };
       }
       // "Add your ad" button for needs_ad packs -> opens the ad step for that purchase
       var adbtn=d.querySelector('[data-act="ad"]');
@@ -72856,13 +72857,19 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       w.innerHTML='You have no receiving method on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
     show('sPick');
   }
-  document.getElementById('btnGo').onclick=function(){
-    if(!sel)return;var b=this;b.disabled=true;b.textContent='Preparing your purchase…';
-    fetch('/api/al/packs/'+sel.level+'/intent',{method:'POST'}).then(function(r){return r.json().then(function(j){return{ok:r.ok,s:r.status,j:j}})}).then(function(x){
+  function startPurchase(pk){
+    if(!pk){ if(!sel)return; pk=sel; }
+    sel=pk;
+    var b=document.getElementById('btnGo');
+    if(b){b.disabled=true;b.textContent='Preparing your purchase…';}
+    fetch('/api/al/packs/'+pk.level+'/intent',{method:'POST'}).then(function(r){return r.json().then(function(j){return{ok:r.ok,s:r.status,j:j}})}).then(function(x){
       if(x.ok&&x.j.intent_id){intent=x.j; if(x.j.campaign_id){renderIntent(x.j)}else{renderAdStep(x.j)} }
       else if(x.s===409&&x.j.intent){handleExisting(x.j.intent)}
-      else{fail('errPick',x.j.error||'Could not start this purchase');b.disabled=false;b.textContent='Try again'}
-    }).catch(function(){fail('errPick','Network error — try again');b.disabled=false;b.textContent='Try again'});
+      else{fail('errPick',x.j.error||'Could not start this purchase'); if(b){b.disabled=false;b.textContent='Try again'}}
+    }).catch(function(){fail('errPick','Network error — try again'); if(b){b.disabled=false;b.textContent='Try again'}});
+  }
+  document.getElementById('btnGo').onclick=function(){
+    startPurchase(sel);
   };
   // Reorder (18 Jul): create the ad BEFORE payment. renderAdStep shows the ad
   // form; on save the campaign is created 'pending' and we move to payment.
