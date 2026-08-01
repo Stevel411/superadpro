@@ -72888,12 +72888,14 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 .chatlink{display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:12px;font-weight:800;color:#12388f;text-decoration:none;background:#eef3ff;border:1px solid #d3ddf5;border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit}
 .chatlink:hover{background:#e2ebff}
 /* ── inline chat panel ── */
-#chatOverlay{position:fixed;inset:0;background:rgba(10,31,82,.34);backdrop-filter:blur(3px);z-index:900;display:none;opacity:0;transition:opacity .2s}
-#chatOverlay.on{display:block;opacity:1}
-#chatPanel{position:fixed;top:0;right:0;height:100%;width:420px;max-width:100%;background:#eef2fa;z-index:901;display:flex;flex-direction:column;
-  box-shadow:-16px 0 50px -20px rgba(10,31,82,.5);transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.7,.3,1)}
-#chatPanel.on{transform:none}
-@media(max-width:520px){#chatPanel{width:100%}}
+#chatOverlay{position:fixed;inset:0;background:transparent;z-index:900;display:none}
+#chatOverlay.on{display:block}
+#chatPanel{position:fixed;right:24px;bottom:24px;width:390px;max-width:calc(100% - 48px);height:600px;max-height:calc(100vh - 48px);
+  background:#eef2fa;z-index:901;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 70px -18px rgba(10,31,82,.5),0 0 0 1px rgba(10,31,82,.06);
+  transform:translateY(16px) scale(.98);opacity:0;transform-origin:bottom right;transition:transform .24s cubic-bezier(.2,.7,.3,1),opacity .2s;pointer-events:none}
+#chatPanel.on{transform:none;opacity:1;pointer-events:auto}
+@media(max-width:520px){#chatPanel{right:0;bottom:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0}}
 #chatPanel .ch-top{flex:none;background:linear-gradient(135deg,#0a1f52,#12388f);color:#fff;padding:15px 16px;display:flex;align-items:center;gap:12px}
 #chatPanel .ch-x{flex:none;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #chatPanel .ch-pfp{flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b56b0,#1a2f70);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;border:2px solid rgba(255,255,255,.25);position:relative}
