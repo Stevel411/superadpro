@@ -86,7 +86,7 @@
           +'<span class="subj">'+esc(t.subject)+'</span><span class="st '+t.status+'">'+t.status+'</span></div>'
           +'<div class="who">'+esc(who)+(t.user_id?' (#'+t.user_id+')':'')+' · '+ago(t.updated_at)+'</div></div>';
       }).join('');
-    }catch(e){document.getElementById('list').innerHTML='<div class="thempty">Couldn\\'t load.</div>';}
+    }catch(e){document.getElementById('list').innerHTML='<div class="thempty">Couldn\'t load.</div>';}
   }
 
   function setFilter(f){curFilter=f;
@@ -114,7 +114,7 @@
         +'<div class="ctx">'+esc(t.category)+' · <b>'+esc(t.name||t.email)+'</b>'+(t.username?(' · @'+esc(t.username)):'')+' · '+esc(t.email)+'<br>'+links+'</div></div>'
         +'<div class="acts"><button class="abtn '+(resolved?'reopen':'resolve')+'" onclick="toggleResolve('+t.id+')">'+(resolved?'↺ Reopen':'✓ Resolve')+'</button></div></div>'
         +msgs
-        +'<div class="reply"><textarea id="repMsg" placeholder="Type your reply — it\\'ll email '+esc(t.name||t.email)+' and appear on their support page."></textarea>'
+        +'<div class="reply"><textarea id="repMsg" placeholder="Type your reply — it\'ll email '+esc(t.name||t.email)+' and appear on their support page."></textarea>'
         +'<button class="send" id="repSend" onclick="sendReply('+t.id+')">Send reply</button><div class="err" id="repErr"></div></div>';
     }catch(e){}
   }

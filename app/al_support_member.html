@@ -105,13 +105,13 @@
     try{
       var r=await fetch('/api/al/support/my-tickets');var j=await r.json();
       var el=document.getElementById('tikList');
-      if(!j.ok||!j.tickets||!j.tickets.length){el.innerHTML='<div class="empty">No tickets yet. Raise one on the left and it\\'ll show here.</div>';return;}
+      if(!j.ok||!j.tickets||!j.tickets.length){el.innerHTML='<div class="empty">No tickets yet. Raise one on the left and it\'ll show here.</div>';return;}
       el.innerHTML=j.tickets.map(function(t){
         return '<div class="tik" onclick="openThread('+t.id+')"><div class="top"><span class="subj">'+esc(t.subject)+'</span>'
           +'<span class="st '+t.status+'">'+t.status+'</span></div>'
           +'<div class="meta">'+esc(t.category)+' · '+ago(t.updated_at)+(t.awaiting==='member'?' · new reply':'')+'</div></div>';
       }).join('');
-    }catch(e){document.getElementById('tikList').innerHTML='<div class="empty">Couldn\\'t load tickets.</div>';}
+    }catch(e){document.getElementById('tikList').innerHTML='<div class="empty">Couldn\'t load tickets.</div>';}
   }
 
   async function sendTicket(){

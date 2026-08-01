@@ -58,7 +58,6 @@ const NAV = [
   { header: 'MORE' },
   { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },
   { key: 'extras', label: 'Vetted Extras', to: '/collaborations', link: true },
-  { key: 'support', label: 'Support', to: '/support-center', link: false },
 ];
 
 export default function AlShell({ active, back, children }) {
