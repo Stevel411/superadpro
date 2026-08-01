@@ -55068,7 +55068,7 @@ async def al_support_admin_reply(ticket_id: int, request: Request,
         try:
             db.add(Notification(user_id=t.user_id, type="support", icon="\U0001F3A7",
                                 title="Support: you have a reply",
-                                message=t.subject, link="/support"))
+                                message=t.subject, link="/support-center"))
             db.commit()
         except Exception:
             db.rollback()
@@ -55080,7 +55080,7 @@ async def al_support_admin_reply(ticket_id: int, request: Request,
                 f"<h2 style='font-family:Inter,sans-serif;color:#0a1f52'>You have a reply</h2>"
                 f"<p style='font-family:Inter,sans-serif;color:#0d1230'>We've replied to your support ticket "
                 f"&mdash; <b>{_html_escape(t.subject)}</b>.</p>"
-                f"<p style='font-family:Inter,sans-serif'><a href='{brand_config.BASE_URL}/support' "
+                f"<p style='font-family:Inter,sans-serif'><a href='{brand_config.BASE_URL}/support-center' "
                 f"style='display:inline-block;background:#c8102e;color:#fff;font-weight:800;padding:12px 22px;"
                 f"border-radius:10px;text-decoration:none'>Read the reply &rarr;</a></p>"
                 f"<p style='font-family:Inter,sans-serif;color:#5a6584;font-size:13px'>"
