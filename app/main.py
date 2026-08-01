@@ -72349,7 +72349,7 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .flag.cov{background:rgba(46,204,113,.25);color:#c8ffde;border:1px solid rgba(46,204,113,.5)}
 .pk.owned .reach{color:#a9e3c2}.pk.owned .earn b{color:#7dffb0}.pk.owned .earn span{color:#a9e3c2}
 .pk.owned .rbar i{background:linear-gradient(90deg,#2fd07a,#7dffb0)}
-.flag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:3px 10px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
+.flag{display:inline-block;margin:0 auto 12px;font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:5px 12px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
 .flag.own{background:var(--grn);color:#fff}.flag.now{background:var(--red);color:#fff}
 .flag.needs{background:#e08e00;color:#fff}.flag.run{background:#0d8a4a;color:#fff}
 .flag.grace{background:var(--red);color:#fff}.flag.paused{background:#94651a;color:#fff}
