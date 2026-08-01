@@ -73522,7 +73522,7 @@ def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(
     _gate = _al_gate_page(user)
     if _gate:
         return _gate
-    return HTMLResponse(_AL_PACKS_PAGE)
+    return HTMLResponse(_AL_PACKS_PAGE, headers={"Cache-Control": "no-store, must-revalidate"})
 
 
 @app.get("/claim")
