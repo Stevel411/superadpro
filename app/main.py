@@ -72812,7 +72812,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
       }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
   }
-  function cancelPurchase(){
+  window.cancelPurchase=function(){
     if(!intent||!intent.intent_id){ location.href='/dashboard'; return; }
     if(!confirm('Cancel this pack purchase? Your unpaid order will be removed and no money changes hands.')) return;
     var btn=document.getElementById('btnCancelAd'); if(btn){btn.disabled=true;btn.textContent='Cancelling…';}
