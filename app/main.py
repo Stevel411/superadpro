@@ -71077,6 +71077,16 @@ def _al_pack_state(db, user, pack):
                         PackPurchase.status == "active")
                 .order_by(PackPurchase.id.desc()).first())
     if not active:
+        # A member who owns a HIGHER pack is already earning-eligible on this
+        # lower level (the 'own that level or higher' rule) — they don't need to
+        # buy it. Mark it 'covered' so the card shows that, not a plain buy card.
+        try:
+            _owned = _ale.owned_level(db, user.id)
+        except Exception:
+            _owned = 0
+        if _owned and _owned > pack.level:
+            return {"state": "covered", "active": False, "needs_ad": False,
+                    "blocked": False, "covered_by": _owned, "progress": None}
         return {"state": "buyable", "active": False, "needs_ad": False,
                 "blocked": False, "progress": None}
     # active — does it have its ad yet?
@@ -72290,6 +72300,14 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .pk.sel .reach{color:#ffe0e5}.pk.sel .earn b{color:#fff}.pk.sel .earn span{color:#ffe0e5}
 .pk.sel .rbar{background:rgba(255,255,255,.28)}.pk.sel .rbar i{background:#fff}
 .pk.owned{background:linear-gradient(150deg,#08381f,#0b7a3e)}
+.pk.covered{background:linear-gradient(155deg,#123a25,#0e5233);border-color:#1f7d4d}
+.pk.covered .price,.pk.covered .amt{color:#eafff2}
+.pk.covered .views,.pk.covered .paysl,.pk.covered .reach{color:#a9e6c4}
+.pk.covered .pays{color:#8affbe}
+.pk.covered .rbar,.pk.covered .bar{background:rgba(255,255,255,.14)}
+.pk.covered .rbar i,.pk.covered .bar i{background:#4fd98a}
+.pk.covered .covnote{font-size:11px;font-weight:800;color:#8affbe;margin-top:12px;line-height:1.4}
+.flag.cov{background:rgba(46,204,113,.25);color:#c8ffde;border:1px solid rgba(46,204,113,.5)}
 .pk.owned .reach{color:#a9e3c2}.pk.owned .earn b{color:#7dffb0}.pk.owned .earn span{color:#a9e3c2}
 .pk.owned .rbar i{background:linear-gradient(90deg,#2fd07a,#7dffb0)}
 .flag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:3px 10px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
@@ -72798,7 +72816,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       var _p='$'+Number(pk.price).toLocaleString();
       var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
       var running=(st==='running'||st==='in_grace'||st==='paused'||st==='needs_ad');
-      d.className='pk'+(running?' running':'')+(st==='needs_ad'?' needs':'')+(st==='paused'?' paused':'')+(st==='in_grace'?' grace':'');
+      d.className='pk'+(running?' running':'')+(st==='needs_ad'?' needs':'')+(st==='paused'?' paused':'')+(st==='in_grace'?' grace':'')+(st==='covered'?' covered':'');
       d.dataset.state=st;
       // badge per state
       var badge='';
@@ -72807,6 +72825,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       else if(st==='in_grace') badge='<span class="flag grace">Finishing</span>';
       else if(st==='paused') badge='<span class="flag paused">Paused</span>';
       else if(st==='owned_admin') badge='<span class="flag own">Owned</span>';
+      else if(st==='covered') badge='<span class="flag cov">\u2713 Active \u00b7 Covered</span>';
       // progress bar (real, if running) else the decorative reach bar
       var barHtml;
       if(pk.progress && pk.progress.target){
@@ -72821,6 +72840,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       else if(st==='running') foot='<button class="pkbtn ghost" disabled>Running — can\'t re-buy yet</button>';
       else if(st==='in_grace') foot='<button class="pkbtn ghost" disabled>Finishing — re-buy soon</button>';
       else if(st==='paused') foot='<button class="pkbtn ghost" disabled>Paused — share to resume</button>';
+      else if(st==='covered') foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div><div class="covnote">\u2713 You already earn on '+_p+' sales<br>via your $'+Number(pk.covered_by).toLocaleString()+' pack</div>';
       else foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
       d.innerHTML=badge
         +'<div class="pay">'+_p+'</div><div class="reach">'+_v+'</div>'
