@@ -72737,6 +72737,11 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   }
   function renderPicker(j){
     packs=j.packs||[];
+    // reset the buy button + selection whenever we (re)show the picker — e.g.
+    // after cancelling a purchase — so it never stays stuck on 'Preparing…'.
+    sel=null;
+    var _bg=document.getElementById('btnGo');
+    if(_bg){_bg.disabled=true;_bg.textContent='Select a pack above';}
     var g=document.getElementById('packGrid');g.innerHTML='';
     packs.forEach(function(pk){
       var d=document.createElement('div');
