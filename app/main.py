@@ -70768,6 +70768,27 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
                     "anything still live are never touched.",
         },
     }
+
+    # List the live (pending/proof_submitted) intents with IDs + buyer, so an
+    # admin can see exactly which one is stuck and cancel it via ?cancel_id=N.
+    live = (db.query(P2PIntent)
+            .filter(P2PIntent.status.in_(("pending", "proof_submitted")))
+            .order_by(P2PIntent.id.desc()).limit(50).all())
+    _base = brand_config.BASE_URL.rstrip("/") + "/admin/api/al/tidy-intents?apply=1"
+    live_list = []
+    for it in live:
+        bu = db.query(User.username).filter(User.id == it.buyer_id).first()
+        live_list.append({
+            "intent_id": it.id,
+            "buyer_id": it.buyer_id,
+            "buyer": (bu[0] if bu else None),
+            "status": it.status,
+            "pack_level": it.pack_level,
+            "has_ad": bool(it.campaign_id),
+            "cancel_url": _base + ("&cancel_id=%d" % it.id) + ("&force=1" if it.status == "proof_submitted" else ""),
+        })
+    out["live_intents"] = live_list
+
     if note:
         out["cancel_note"] = note
 
@@ -70778,9 +70799,7 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
         db.commit()
         out["deleted"] = n
     elif not apply:
-        base = brand_config.BASE_URL.rstrip("/") + "/admin/api/al/tidy-intents?apply=1"
-        out["apply_url"] = base
-        out["apply_and_cancel_41_url"] = base + "&cancel_id=41"
+        out["apply_url"] = _base
     return JSONResponse(out)
 
 
