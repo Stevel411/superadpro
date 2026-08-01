@@ -72531,7 +72531,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd" style="display:none"></div>
       <button class="btn" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
-      <button class="btncancel" id="btnCancelAd" onclick="cancelPurchase()">Cancel — I don't want to buy this pack</button>
+      <button class="btncancel" id="btnCancelAd" onclick="cancelPurchase()">← Cancel — choose a different pack</button>
     </div>
 
     <div class="scr" id="sAd2">
@@ -72813,13 +72813,20 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
   }
   window.cancelPurchase=function(){
-    if(!intent||!intent.intent_id){ location.href='/dashboard'; return; }
-    if(!confirm('Cancel this pack purchase? Your unpaid order will be removed and no money changes hands.')) return;
+    if(!intent||!intent.intent_id){ show('sPick'); return; }
+    if(!confirm('Cancel this pack purchase and choose a different pack? Your unpaid order will be removed — no money changes hands.')) return;
     var btn=document.getElementById('btnCancelAd'); if(btn){btn.disabled=true;btn.textContent='Cancelling…';}
     fetch('/api/al/intents/'+intent.intent_id+'/cancel',{method:'POST'})
       .then(function(r){return r.json().catch(function(){return{}})})
-      .then(function(){ intent=null; location.href='/dashboard'; })
-      .catch(function(){ location.href='/dashboard'; });
+      .then(function(){
+        intent=null;
+        // return to the pack picker with fresh data, not the dashboard
+        fetch('/api/al/packs').then(function(r){return r.json()}).then(function(j){
+          if(j){renderPicker(j);} show('sPick');
+          if(btn){btn.disabled=false;btn.textContent="Cancel — choose a different pack";}
+        }).catch(function(){ location.href='/packs'; });
+      })
+      .catch(function(){ location.href='/packs'; });
   }
   // Add-ad for an already-active pack that still needs its creative (needs_ad).
   function openAdForPurchase(pid,pk){
