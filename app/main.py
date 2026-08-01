@@ -72532,7 +72532,6 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="packs" id="packGrid"></div>
       <div class="err" id="errPick"></div>
       <div class="cta">
-        <button class="btn red" id="btnGo" disabled>Select a pack above</button>
         <div class="note" id="ownNote"></div>
       </div>
 
@@ -72868,9 +72867,8 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       else{fail('errPick',x.j.error||'Could not start this purchase'); if(b){b.disabled=false;b.textContent='Try again'}}
     }).catch(function(){fail('errPick','Network error — try again'); if(b){b.disabled=false;b.textContent='Try again'}});
   }
-  document.getElementById('btnGo').onclick=function(){
-    startPurchase(sel);
-  };
+  var _btnGo=document.getElementById('btnGo');
+  if(_btnGo){ _btnGo.onclick=function(){ startPurchase(sel); }; }
   // Reorder (18 Jul): create the ad BEFORE payment. renderAdStep shows the ad
   // form; on save the campaign is created 'pending' and we move to payment.
   function renderAdStep(it){
