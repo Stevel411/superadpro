@@ -55218,18 +55218,51 @@ async def al_intent_post_message(intent_id: int, request: Request,
     db.add(IntentMessage(intent_id=intent_id, sender_id=user.id, body=msg, created_at=now))
     db.commit()
     # notify the other party (in-app bell)
+    other_id = intent.earner_id if role == "buyer" else intent.buyer_id
     try:
-        other_id = intent.earner_id if role == "buyer" else intent.buyer_id
         if other_id:
             db.add(Notification(
                 user_id=other_id, type="intent_chat", icon="\U0001F4AC",
                 title="New message about your sale",
                 message=f"{getattr(user, 'username', 'A member')} sent you a message",
-                link="/my-sales" if role == "buyer" else "/packs",
+                link=f"/sale-chat/{intent_id}",
             ))
             db.commit()
     except Exception:
         db.rollback()
+    # email nudge to the other party — throttled: only if we haven't emailed
+    # them about THIS thread in the last 15 min (avoids spamming during a
+    # rapid back-and-forth while both are online).
+    try:
+        other = db.query(User).filter(User.id == other_id).first() if other_id else None
+        if other and getattr(other, "email", None):
+            recent_cut = now - timedelta(minutes=15)
+            # count messages I sent in this thread in the window (proxy for "already nudged")
+            recent_mine = (db.query(IntentMessage)
+                           .filter(IntentMessage.intent_id == intent_id,
+                                   IntentMessage.sender_id == user.id,
+                                   IntentMessage.created_at >= recent_cut).count())
+            if recent_mine <= 1:  # this is the first message in the window → send the nudge
+                from .brevo_service import send_email, wrap_email_html
+                sender_name = getattr(user, "username", "A member")
+                preview = _html_escape(msg[:140]) + ("\u2026" if len(msg) > 140 else "")
+                html = (
+                    f"<h2 style='font-family:Inter,sans-serif;color:#0a1f52'>New message about your sale</h2>"
+                    f"<p style='font-family:Inter,sans-serif;color:#0d1230'><b>@{_html_escape(sender_name)}</b> "
+                    f"sent you a message about a pack sale:</p>"
+                    f"<div style='background:#f4f7fd;border-left:4px solid #12388f;padding:13px 16px;border-radius:8px;"
+                    f"font-family:Inter,sans-serif;color:#0d1230'>{preview}</div>"
+                    f"<p style='font-family:Inter,sans-serif;margin-top:20px'><a href='{brand_config.BASE_URL}/sale-chat/{intent_id}' "
+                    f"style='display:inline-block;background:#c8102e;color:#fff;font-weight:800;padding:12px 24px;"
+                    f"border-radius:10px;text-decoration:none'>Open the chat &rarr;</a></p>"
+                    f"<p style='font-family:Inter,sans-serif;color:#5a6584;font-size:13px'>"
+                    f"Reply from the chat to keep everything about this sale in one place.</p>"
+                )
+                await send_email(other.email, getattr(other, "username", "Member"),
+                                 f"\U0001F4AC New message from @{sender_name}"[:120],
+                                 wrap_email_html(html, getattr(other, "username", "Member")))
+    except Exception as e:
+        logger.warning(f"intent chat: email nudge failed: {e}")
     return {"ok": True}
 
 
