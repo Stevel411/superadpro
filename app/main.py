@@ -70803,6 +70803,56 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/reset-member-packs")
+def al_reset_member_packs(member_id: int = 0, confirm: int = 0,
+                          user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN, for test accounts: wipe a member's pack ownership back to blank so
+    the full buy flow can be tested from scratch. Read-only preview until
+    ?confirm=1. Removes that member's PackPurchase rows, their VideoCampaign
+    rows (abandoned ad drafts), and cancels any live intents. Touches ONLY the
+    named member. Never deletes confirmed *sales made by other people*, only
+    this member's own ownership/drafts."""
+    _require_admin(user)
+    if not member_id:
+        return JSONResponse({"error": "pass ?member_id=N"}, status_code=400)
+    m = db.query(User).filter(User.id == member_id).first()
+    if not m:
+        return JSONResponse({"error": "No such member"}, status_code=404)
+
+    packs = db.query(PackPurchase).filter(PackPurchase.user_id == member_id).all()
+    camps = db.query(VideoCampaign).filter(VideoCampaign.user_id == member_id).all()
+    live_intents = (db.query(P2PIntent)
+                    .filter(P2PIntent.buyer_id == member_id,
+                            P2PIntent.status.in_(("pending", "proof_submitted"))).all())
+
+    preview = {
+        "member": {"id": m.id, "username": m.username},
+        "would_remove": {
+            "pack_purchases": [{"id": p.id, "level": p.pack_level,
+                                "status": p.status, "source": getattr(p, "source", None)} for p in packs],
+            "video_campaigns": [{"id": c.id, "title": getattr(c, "title", None)} for c in camps],
+            "live_intents": [{"id": i.id, "status": i.status, "level": i.pack_level} for i in live_intents],
+        },
+    }
+    if not confirm:
+        preview["read_only"] = True
+        preview["confirm_url"] = (brand_config.BASE_URL.rstrip("/")
+                                  + "/admin/api/al/reset-member-packs?member_id=%d&confirm=1" % member_id)
+        return JSONResponse(preview)
+
+    # apply: cancel intents, delete campaigns + pack purchases for THIS member only
+    for i in live_intents:
+        i.status = "cancelled"
+    n_camp = db.query(VideoCampaign).filter(VideoCampaign.user_id == member_id).delete(synchronize_session=False)
+    n_pack = db.query(PackPurchase).filter(PackPurchase.user_id == member_id).delete(synchronize_session=False)
+    db.commit()
+    preview["read_only"] = False
+    preview["removed"] = {"pack_purchases": n_pack, "video_campaigns": n_camp,
+                          "intents_cancelled": len(live_intents)}
+    preview["result"] = "%s is now blank — no packs owned. Ready to test a fresh purchase." % m.username
+    return JSONResponse(preview)
+
+
 @app.get("/admin/api/al/login-history")
 def al_login_history(member_id: int = 0, limit: int = 50,
                      user: User = Depends(_al_user), db: Session = Depends(get_db)):
