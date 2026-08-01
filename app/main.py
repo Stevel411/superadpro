@@ -72863,8 +72863,14 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     }).catch(function(){b.disabled=false;fail('errPay','Network error — try again')});
   };
   document.getElementById('btnCancel').onclick=function(){
-    if(!confirm('Cancel this purchase?'))return;
-    fetch('/api/al/intents/'+intent.intent_id+'/cancel',{method:'POST'}).then(function(){location.reload()});
+    if(!confirm('Cancel this purchase and choose a different pack? Your unpaid order will be removed — no money changes hands.'))return;
+    if(!intent||!intent.intent_id){show('sPick');return;}
+    fetch('/api/al/intents/'+intent.intent_id+'/cancel',{method:'POST'}).then(function(){
+      intent=null;
+      fetch('/api/al/packs').then(function(r){return r.json()}).then(function(j){
+        if(j){renderPicker(j);} show('sPick');
+      }).catch(function(){location.href='/packs';});
+    }).catch(function(){location.href='/packs';});
   };
   fetch('/api/al/packs').then(function(r){if(r.status===401){location.href='/login?next=/packs';return null}return r.json()}).then(function(j){
     if(!j)return;
