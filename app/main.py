@@ -72395,6 +72395,48 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
 .plats{font-size:11.5px;color:var(--dim);font-weight:600;margin:-6px 0 16px}
 .gatewarn{background:#fdf2f4;border:1.5px solid #f3c2cc;border-radius:12px;padding:11px 13px;font-size:11.5px;font-weight:700;color:#8f1830;line-height:1.5;margin-bottom:14px}
 .gatewarn a{color:#8f1830}
+
+#chatOverlay{position:fixed;inset:0;background:transparent;z-index:900;display:none}
+#chatOverlay.on{display:block}
+#chatPanel{position:fixed;right:24px;bottom:24px;width:390px;max-width:calc(100% - 48px);height:600px;max-height:calc(100vh - 48px);
+  background:#eef2fa;z-index:901;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 70px -18px rgba(10,31,82,.5),0 0 0 1px rgba(10,31,82,.06);
+  transform:translateY(16px) scale(.98);opacity:0;transform-origin:bottom right;transition:transform .24s cubic-bezier(.2,.7,.3,1),opacity .2s;pointer-events:none}
+#chatPanel.on{transform:none;opacity:1;pointer-events:auto}
+@media(max-width:520px){#chatPanel{right:0;bottom:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0}}
+#chatPanel .ch-top{flex:none;background:linear-gradient(135deg,#0a1f52,#12388f);color:#fff;padding:15px 16px;display:flex;align-items:center;gap:12px}
+#chatPanel .ch-x{flex:none;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#chatPanel .ch-pfp{flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b56b0,#1a2f70);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;border:2px solid rgba(255,255,255,.25);position:relative}
+#chatPanel .ch-pfp .d{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#2ecc71;border:2.5px solid #0a1f52}
+#chatPanel .ch-who{flex:1;min-width:0}
+#chatPanel .ch-nm{font-weight:900;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chatPanel .ch-sub{font-size:11.5px;color:#aebbe4;font-weight:600;margin-top:1px}
+#chatPanel .ch-pill{flex:none;font-size:9.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:5px 9px;border-radius:100px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22)}
+#chatPanel .ch-pill.confirmed{background:rgba(46,204,113,.22);border-color:rgba(46,204,113,.5);color:#c6ffdf}
+#chatPanel .ch-pill.proof_submitted{background:rgba(255,193,7,.2);border-color:rgba(255,193,7,.45);color:#ffe7a3}
+#chatPanel .ch-msgs{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:2px;background:radial-gradient(circle at 12% 8%,rgba(18,56,143,.04),transparent 42%),#eef2fa}
+#chatPanel .ch-intro{text-align:center;font-size:12px;color:#4a5878;font-weight:600;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 2px 12px;line-height:1.5}
+#chatPanel .ch-intro b{color:#0a1f52}
+#chatPanel .ch-div{align-self:center;font-size:10.5px;font-weight:800;color:#5a6584;background:#dfe6f4;border-radius:100px;padding:4px 12px;margin:6px 0 10px}
+#chatPanel .ch-row{display:flex;align-items:flex-end;gap:7px;margin-bottom:2px;animation:chpop .2s ease}
+@keyframes chpop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#chatPanel .ch-row.me{flex-direction:row-reverse}
+#chatPanel .ch-av{flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b56b0,#1a2f70);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;color:#fff}
+#chatPanel .ch-row.me .ch-av{display:none}
+#chatPanel .ch-row.th .ch-av{visibility:hidden}
+#chatPanel .ch-b{max-width:76%;padding:9px 13px;font-size:14px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 2px 6px -3px rgba(10,31,82,.18)}
+#chatPanel .ch-b.them{background:#fff;color:#0d1230;border-radius:16px 16px 16px 5px}
+#chatPanel .ch-b.me{background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;border-radius:16px 16px 5px 16px}
+#chatPanel .ch-t{font-size:9.5px;font-weight:600;margin-top:3px;opacity:.55;text-align:right}
+#chatPanel .ch-b.me .ch-t{color:#cdd8f5}
+#chatPanel .ch-empty{text-align:center;color:#5a6584;font-weight:600;font-size:13px;padding:24px 14px;line-height:1.6}
+#chatPanel .ch-empty .em{font-size:28px;display:block;margin-bottom:6px;opacity:.7}
+#chatPanel .ch-comp{flex:none;background:#fff;border-top:1.5px solid var(--line);padding:10px 12px;display:flex;gap:9px;align-items:flex-end}
+#chatPanel .ch-field{flex:1;background:#f4f7fd;border:1.5px solid var(--line);border-radius:22px;padding:2px 6px 2px 15px;display:flex}
+#chatPanel .ch-field:focus-within{border-color:#12388f;background:#fff}
+#chatPanel .ch-field textarea{flex:1;border:none;background:transparent;padding:9px 0;font-family:inherit;font-size:14.5px;resize:none;max-height:100px;outline:none;line-height:1.4}
+#chatPanel .ch-send{flex:none;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#c8102e,#e8203f);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px -8px rgba(200,16,46,.6)}
+#chatPanel .ch-send:active{transform:scale(.9)}
 </style></head><body>
 <div class="wrap">
   <div class="top">
@@ -72505,7 +72547,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <h1>Pay for your <span class="r" id="payPack">pack</span></h1>
       <div class="sub" id="payViews">paid member to member</div>
       <div class="payee"><div class="av" id="pAv">M</div><div><b id="pWho">Member</b><span id="pSub">earns this sale — you pay them directly</span></div></div>
-      <a id="msgSeller" class="msgseller" href="#" style="display:none">\uD83D\uDCAC Message seller</a>
+      <button id="msgSeller" class="msgseller" onclick="openChat(window._chatIntent, window._chatSeller||'seller')" style="display:none">\uD83D\uDCAC Message seller</button>
       <div class="mpick">Choose how to pay</div>
       <div class="mopts" id="mopts"></div>
       <div class="paypanel" id="paypanel">
@@ -72617,7 +72659,8 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     try{
       var ms=document.getElementById("msgSeller");
       if(ms&&j.intent_id&&!payee.is_company){
-        ms.href="/sale-chat/"+j.intent_id;
+        window._chatIntent=j.intent_id;
+        window._chatSeller=(payee.username||"seller");
         ms.style.display="inline-flex";
       }else if(ms){ms.style.display="none";}
     }catch(e){}
@@ -72885,8 +72928,100 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     for(var i=1;i<=10;i++){var d=document.createElement('div');
       if(UP.indexOf(i)>-1)d.className='up';
       if(i===10){d.className+=' ten';d.textContent='10+'}else d.textContent=i;
-      st.appendChild(d);}})();
+      st.appendChild(d);}// ── Inline sale chat panel ──────────────────────────────────
+  var CHAT_INTENT=null, CHAT_LAST=-1, CHAT_TIMER=null, CHAT_ROLE=null;
+  function chEsc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function chTime(iso){if(!iso)return '';return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+  function chDayKey(iso){return iso?new Date(iso).toDateString():'';}
+  function chDayLabel(iso){if(!iso)return '';var d=new Date(iso),t=new Date(),y=new Date();y.setDate(t.getDate()-1);
+    if(d.toDateString()===t.toDateString())return 'Today';if(d.toDateString()===y.toDateString())return 'Yesterday';
+    return d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}
+  function chPill(s){var e=document.getElementById('chPill');e.className='ch-pill'+(s?(' '+s):'');
+    e.textContent=s==='confirmed'?'\u2713 Confirmed':s==='proof_submitted'?'Awaiting confirm':s==='pending'?'Awaiting payment':s==='disputed'?'Disputed':s==='expired'?'Expired':(s||'');}
+
+  window.openChat=function(intentId,buyerName){
+    CHAT_INTENT=intentId;CHAT_LAST=-1;
+    document.getElementById('chNm').textContent='@'+(buyerName||'buyer');
+    document.getElementById('chPfp').firstChild.textContent=((buyerName||'?')[0]||'?').toUpperCase();
+    document.getElementById('chSub').textContent='Loading\u2026';
+    document.getElementById('chMsgs').innerHTML='<div class="ch-empty"><span class="em">\uD83D\uDCAC</span>Loading\u2026</div>';
+    document.getElementById('chatOverlay').classList.add('on');
+    document.getElementById('chatPanel').classList.add('on');
+    chLoad();
+    if(CHAT_TIMER)clearInterval(CHAT_TIMER);
+    CHAT_TIMER=setInterval(chLoad,6000);
+  };
+  window.closeChat=function(){
+    document.getElementById('chatOverlay').classList.remove('on');
+    document.getElementById('chatPanel').classList.remove('on');
+    if(CHAT_TIMER){clearInterval(CHAT_TIMER);CHAT_TIMER=null;}
+    CHAT_INTENT=null;
+  };
+  async function chLoad(){
+    if(!CHAT_INTENT)return;
+    try{
+      var r=await fetch('/api/al/intent/'+CHAT_INTENT+'/messages');var j=await r.json();
+      if(!j.ok){document.getElementById('chMsgs').innerHTML='<div class="ch-empty"><span class="em">\uD83D\uDD12</span>'+chEsc(j.error||'Unable to load.')+'</div>';return;}
+      CHAT_ROLE=j.role;
+      var other=chEsc(j.other_name||'buyer');
+      document.getElementById('chSub').textContent=j.role==='buyer'?"You're the buyer":(j.role==='seller'?"You're the seller":'Conversation');
+      chPill(j.status);
+      if(j.messages.length===CHAT_LAST)return;
+      var el=document.getElementById('chMsgs');
+      var near=CHAT_LAST<0?true:(el.scrollHeight-el.scrollTop-el.clientHeight)<120;
+      CHAT_LAST=j.messages.length;
+      var html='<div class="ch-intro">This chat is private \u2014 just you and <b>@'+other+'</b>, about this one sale. <b>Never share passwords</b> or anything you wouldn\u0027t put in writing.</div>';
+      if(!j.messages.length){html+='<div class="ch-empty"><span class="em">\uD83D\uDC4B</span>No messages yet.<br>Say hello to get started.</div>';el.innerHTML=html;return;}
+      var lastDay=null,prev=null;
+      j.messages.forEach(function(m,idx){
+        var dk=chDayKey(m.at);
+        if(dk!==lastDay){html+='<div class="ch-div">'+chDayLabel(m.at)+'</div>';lastDay=dk;prev=null;}
+        var next=j.messages[idx+1];var th=next&&next.sender===m.sender&&chDayKey(next.at)===dk;
+        var av=(m.sender==='buyer'?'B':(m.sender==='seller'?'S':'A'));
+        html+='<div class="ch-row '+(m.mine?'me':'')+(th?' th':'')+'">'
+          +(m.mine?'':'<div class="ch-av">'+av+'</div>')
+          +'<div class="ch-b '+(m.mine?'me':'them')+'">'+chEsc(m.body)+'<div class="ch-t">'+chTime(m.at)+'</div></div></div>';
+        prev=m.sender;
+      });
+      el.innerHTML=html;
+      if(near)el.scrollTop=el.scrollHeight;
+    }catch(e){}
+  }
+  window.chSend=async function(){
+    var inp=document.getElementById('chInp');var msg=inp.value.trim();if(!msg||!CHAT_INTENT)return;
+    var btn=document.getElementById('chSendBtn');btn.disabled=true;
+    try{
+      var r=await fetch('/api/al/intent/'+CHAT_INTENT+'/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+      var j=await r.json();
+      if(j.ok){inp.value='';inp.style.height='auto';CHAT_LAST=-1;await chLoad();var el=document.getElementById('chMsgs');el.scrollTop=el.scrollHeight;}
+    }catch(e){}
+    btn.disabled=false;inp.focus();
+  };
+  document.addEventListener('DOMContentLoaded',function(){
+    var ci=document.getElementById('chInp');
+    if(ci){ci.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(100,this.scrollHeight)+'px';});
+      ci.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();window.chSend();}});}
+  });
+})();
 </script>
+
+<div id="chatOverlay" onclick="closeChat()"></div>
+<div id="chatPanel">
+  <div class="ch-top">
+    <button class="ch-x" onclick="closeChat()" aria-label="Close">&times;</button>
+    <div class="ch-pfp" id="chPfp">?<span class="d"></span></div>
+    <div class="ch-who"><div class="ch-nm" id="chNm">Buyer</div><div class="ch-sub" id="chSub">Loading&hellip;</div></div>
+    <span class="ch-pill" id="chPill"></span>
+  </div>
+  <div class="ch-msgs" id="chMsgs"></div>
+  <div class="ch-comp">
+    <div class="ch-field"><textarea id="chInp" placeholder="Type a message&hellip;" rows="1" maxlength="2000"></textarea></div>
+    <button class="ch-send" id="chSendBtn" onclick="chSend()" aria-label="Send">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
 </body></html>"""
 
 
