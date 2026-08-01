@@ -4155,6 +4155,38 @@ try:
 except Exception as _e:
     print(f"al_username_audit migration skipped: {_e}")
 
+# ── AdvantageLife: support + transaction-chat tables (31 Jul / 1 Aug 2026) ──
+# These run UNCONDITIONALLY (not gated by SKIP_MIGRATIONS) because create_all is
+# skipped on the live deploy, so new tables would otherwise never be created.
+# All CREATE TABLE IF NOT EXISTS — safe to re-run every boot.
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS al_support_tickets (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            name VARCHAR, email VARCHAR, username VARCHAR,
+            category VARCHAR DEFAULT 'other',
+            subject VARCHAR, status VARCHAR DEFAULT 'open',
+            awaiting VARCHAR DEFAULT 'admin',
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS al_ticket_messages (
+            id SERIAL PRIMARY KEY,
+            ticket_id INTEGER REFERENCES al_support_tickets(id),
+            author VARCHAR DEFAULT 'member',
+            body TEXT,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS al_intent_messages (
+            id SERIAL PRIMARY KEY,
+            intent_id INTEGER REFERENCES p2p_intents(id),
+            sender_id INTEGER REFERENCES users(id),
+            body TEXT,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.commit()
+    print("✅ AL support + intent-chat tables ensured")
+except Exception as _e:
+    print(f"AL support/chat table creation skipped: {_e}")
+
 # ── AdvantageLife: direct join payments table (isolated, crypto-only join 10 Jul 2026) ──
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')

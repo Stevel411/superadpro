@@ -66,7 +66,7 @@
         return '<div class="b '+(m.mine?'me':'them')+'">'+esc(m.body)+'<div class="t">'+tm(m.at)+'</div></div>';
       }).join('');
       el.scrollTop=el.scrollHeight;
-    }catch(e){}
+    }catch(e){document.getElementById('msgs').innerHTML='<div class="empty">Couldn\\'t load this chat. Please refresh, or head back and try again.</div>';}
   }
 
   async function sendMsg(){
