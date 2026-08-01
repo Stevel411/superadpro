@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
-import { BookOpen, FileText, MessageCircle, Send, HelpCircle, Mail, CheckCircle, ChevronDown, ChevronRight, Zap, Shield, CreditCard, Users, Eye, LayoutGrid } from 'lucide-react';
+import { BookOpen, FileText, MessageCircle, Send, HelpCircle, Mail, CheckCircle, ChevronDown, ChevronRight, Zap, Shield, CreditCard, Users, Eye, TrendingUp } from 'lucide-react';
 
 // FAQ_ITEMS moved inside component
 
@@ -13,7 +13,7 @@ export default function Support() {
   var FAQ_ITEMS = [
     { q: t('support.faq1Q'), a: t('support.faq1A'), icon: Zap, color: 'var(--sap-green)' },
     { q: t('support.faq2Q'), a: t('support.faq2A'), icon: Eye, color: 'var(--sap-accent)' },
-    { q: t('support.faq3Q'), a: t('support.faq3A'), icon: LayoutGrid, color: 'var(--sap-purple)' },
+    { q: t('support.faq3Q'), a: t('support.faq3A'), icon: TrendingUp, color: 'var(--sap-purple)' },
     { q: t('support.faq4Q'), a: t('support.faq4A'), icon: CreditCard, color: 'var(--sap-amber)' },
     { q: t('support.faq5Q'), a: t('support.faq5A'), icon: Shield, color: 'var(--sap-pink)' },
     { q: t('support.faq6Q'), a: t('support.faq6A'), icon: Users, color: 'var(--sap-indigo)' },
@@ -51,7 +51,7 @@ export default function Support() {
         {[
           { icon: BookOpen, title: t('support.trainingCentre'), desc: t('support.trainingCentreDesc'), link: '/training', color: 'var(--sap-green)' },
           { icon: FileText, title: t('support.compensationPlan'), desc: t('support.compensationPlanDesc'), link: '/compensation-plan', color: 'var(--sap-indigo)' },
-          { icon: MessageCircle, title: t('support.teamMessenger'), desc: t('support.teamMessengerDesc'), link: '/team-messenger', color: 'var(--sap-amber)' },
+          { icon: MessageCircle, title: t('support.startHereTitle', { defaultValue: 'Getting Started' }), desc: t('support.startHereDesc', { defaultValue: 'The step-by-step setup walkthrough' }), link: '/start-here', color: 'var(--sap-amber)' },
         ].map(function(q) {
           var Icon = q.icon;
           return (
