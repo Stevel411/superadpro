@@ -72327,6 +72327,8 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   .sec>p{font-size:13px}
   #sPay,#sPend,#sDone{padding:22px 18px}
 }
+.msgseller{display:inline-flex;align-items:center;gap:6px;margin:-4px 0 14px;font-size:12.5px;font-weight:800;color:#12388f;background:#eef3ff;border:1px solid #d3ddf5;border-radius:9px;padding:7px 12px;text-decoration:none}
+.msgseller:hover{background:#e2ebff}
 .payee{display:flex;align-items:center;gap:12px;background:#f6f8fd;border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
 .payee .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .payee b{font-weight:900;font-size:15px;display:block}
@@ -72503,6 +72505,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <h1>Pay for your <span class="r" id="payPack">pack</span></h1>
       <div class="sub" id="payViews">paid member to member</div>
       <div class="payee"><div class="av" id="pAv">M</div><div><b id="pWho">Member</b><span id="pSub">earns this sale — you pay them directly</span></div></div>
+      <a id="msgSeller" class="msgseller" href="#" style="display:none">\uD83D\uDCAC Message seller</a>
       <div class="mpick">Choose how to pay</div>
       <div class="mopts" id="mopts"></div>
       <div class="paypanel" id="paypanel">
@@ -72611,6 +72614,13 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     document.getElementById("pWho").textContent=(payee.display||payee.username||"Member")+" \u00b7 @"+(payee.username||"");
     document.getElementById("pSub").textContent=(payee.is_company?"platform-routed sale":"earns this sale")+" — you pay them directly";
     document.getElementById("pAv").textContent=(payee.display||payee.username||"M").charAt(0).toUpperCase();
+    try{
+      var ms=document.getElementById("msgSeller");
+      if(ms&&j.intent_id&&!payee.is_company){
+        ms.href="/sale-chat/"+j.intent_id;
+        ms.style.display="inline-flex";
+      }else if(ms){ms.style.display="none";}
+    }catch(e){}
 
     var opts=j.payout_options||(j.payout?[j.payout]:[]);
     var chosen=j.chosen_method||(opts[0]&&opts[0].method_type)||null;
