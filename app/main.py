@@ -70803,6 +70803,39 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/gift-packs-summary")
+def al_gift_packs_summary(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: launch-readiness snapshot of gifted (comped) campaign packs — how
+    many members hold one, and how many still need their video ad before the
+    pack can run and earn. Answers 'will the comped members' packs be active
+    when they log in and create their ad?'."""
+    _require_admin(user)
+    gifts = (db.query(PackPurchase)
+             .filter(PackPurchase.source == "gift",
+                     PackPurchase.status == "active").all())
+    holders = set()
+    needs_ad = 0
+    running = 0
+    by_level = {}
+    for p in gifts:
+        holders.add(p.user_id)
+        by_level[p.pack_level] = by_level.get(p.pack_level, 0) + 1
+        if p.campaign_id:
+            running += 1
+        else:
+            needs_ad += 1
+    return JSONResponse({
+        "gifted_packs_total": len(gifts),
+        "distinct_members_with_a_gift_pack": len(holders),
+        "packs_still_needing_their_ad": needs_ad,
+        "packs_already_running": running,
+        "by_level": {("$%d" % k): v for k, v in sorted(by_level.items())},
+        "note": "A gifted pack is 'active' (owned) immediately, but only DELIVERS "
+                "views and earns once the member adds their video ad (needs_ad -> "
+                "running). Membership alone does NOT include a pack.",
+    })
+
+
 @app.get("/admin/api/al/gift-member-pack")
 def al_gift_member_pack(member_id: int = 0, level: int = 0, confirm: int = 0,
                         user: User = Depends(_al_user), db: Session = Depends(get_db)):
