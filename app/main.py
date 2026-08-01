@@ -70803,6 +70803,45 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/gift-member-pack")
+def al_gift_member_pack(member_id: int = 0, level: int = 0, confirm: int = 0,
+                        user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN, for testing: gift one active pack (source='gift', $0) to a member
+    so the picker's 'covered' states can be seen live. Read-only preview until
+    ?confirm=1. Admin-session gated, no ?secret=. NO commission/pass-up fires."""
+    _require_admin(user)
+    if not member_id or not level:
+        return JSONResponse({"error": "pass ?member_id=N&level=L (e.g. level=50)"}, status_code=400)
+    m = db.query(User).filter(User.id == member_id).first()
+    if not m:
+        return JSONResponse({"error": "No such member"}, status_code=404)
+    pack = db.query(CampaignPack).filter(CampaignPack.level == level,
+                                         CampaignPack.is_active == True).first()  # noqa: E712
+    if not pack:
+        valid = sorted([p.level for p in db.query(CampaignPack).filter(CampaignPack.is_active == True).all()])  # noqa: E712
+        return JSONResponse({"error": "No active pack at level %d. Valid: %s" % (level, valid)}, status_code=400)
+    if not confirm:
+        return JSONResponse({
+            "read_only": True,
+            "would_gift": {"member": m.username, "level": pack.level, "name": pack.name},
+            "confirm_url": (brand_config.BASE_URL.rstrip("/")
+                            + "/admin/api/al/gift-member-pack?member_id=%d&level=%d&confirm=1" % (member_id, level)),
+        })
+    _dwr = pack.daily_watch_required if pack.daily_watch_required is not None else 1
+    db.add(PackPurchase(
+        user_id=m.id, pack_id=pack.id, pack_level=pack.level,
+        amount=0.0, payment_method="gift", status="active",
+        source="gift", daily_watch_required=_dwr,
+        activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
+    ))
+    db.commit()
+    return JSONResponse({
+        "read_only": False,
+        "gifted": {"member": m.username, "level": pack.level, "name": pack.name},
+        "result": "Gifted the $%d %s pack to %s. Lower packs will now show 'Covered'." % (pack.level, pack.name, m.username),
+    })
+
+
 @app.get("/admin/api/al/reset-member-packs")
 def al_reset_member_packs(member_id: int = 0, confirm: int = 0,
                           user: User = Depends(_al_user), db: Session = Depends(get_db)):
