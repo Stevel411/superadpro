@@ -231,22 +231,40 @@ async def create_brevo_contact(email: str, first_name: str = "", list_ids: list 
         return None
 
 
-def wrap_email_html(body_html: str, member_name: str = "SuperAdPro Member"):
-    """Wrap email body in a styled template."""
+def wrap_email_html(body_html: str, member_name: str = None):
+    """Wrap email body in a styled template. Brand-aware: uses AdvantageLife
+    identity (navy/red, Inter) on the AL deploy, SuperAdPro otherwise."""
+    try:
+        from . import brand_config as _bc
+        is_al = getattr(_bc, "IS_ADVANTAGELIFE", False)
+        brand_name = getattr(_bc, "BRAND_NAME", "SuperAdPro")
+    except Exception:
+        is_al = False
+        brand_name = "SuperAdPro"
+    if member_name is None:
+        member_name = f"{brand_name} Member"
+    if is_al:
+        header_bg = "linear-gradient(135deg,#0a1f52,#12388f)"
+        logo_html = 'Advantage<span style="color:#ff2743;">Life</span>'
+        font_family = "'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
+    else:
+        header_bg = "linear-gradient(135deg,#0f172a,#1e293b)"
+        logo_html = 'Super<span style="color:#38bdf8;">Ad</span>Pro'
+        font_family = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
     return f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:{font_family};">
 <div style="max-width:600px;margin:0 auto;padding:20px;">
 <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-<div style="background:linear-gradient(135deg,#0f172a,#1e293b);padding:24px 28px;">
-<div style="font-size:18px;font-weight:800;color:#fff;">Super<span style="color:#38bdf8;">Ad</span>Pro</div>
+<div style="background:{header_bg};padding:24px 28px;">
+<div style="font-size:18px;font-weight:800;color:#fff;">{logo_html}</div>
 </div>
 <div style="padding:28px;font-size:15px;line-height:1.8;color:#334155;">
 {body_html}
 </div>
 <div style="padding:16px 28px;background:#f8f9fb;border-top:1px solid #e8ecf2;font-size:11px;color:#94a3b8;text-align:center;">
-Sent by {member_name} via SuperAdPro · <a href="{{{{unsubscribe_url}}}}" style="color:#94a3b8;">Unsubscribe</a>
+Sent by {member_name} via {brand_name} · <a href="{{{{unsubscribe_url}}}}" style="color:#94a3b8;">Unsubscribe</a>
 </div>
 </div>
 </div>

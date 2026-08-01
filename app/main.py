@@ -72261,6 +72261,8 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .sbbtn.warn{background:linear-gradient(135deg,var(--red),#e8203f)}
 .cta{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:40px}
 .cta .btn{max-width:380px}
+.btncancel{display:block;margin:12px auto 0;background:none;border:none;color:#8a93ab;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;padding:6px}
+.btncancel:hover{color:var(--red)}
 .note{font-size:12.5px;color:var(--dim);font-weight:600;text-align:center;margin-top:0;line-height:1.6}
 .note b{color:var(--ink)}
 .band{border-top:1px solid var(--line);padding-top:38px}
@@ -72529,6 +72531,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd" style="display:none"></div>
       <button class="btn" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
+      <button class="btncancel" id="btnCancelAd" onclick="cancelPurchase()">Cancel — I don't want to buy this pack</button>
     </div>
 
     <div class="scr" id="sAd2">
@@ -72808,6 +72811,15 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         if(x.ok){intent.campaign_id=x.j.campaign_id; renderIntent(intent);}
         else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
       }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
+  }
+  function cancelPurchase(){
+    if(!intent||!intent.intent_id){ location.href='/dashboard'; return; }
+    if(!confirm('Cancel this pack purchase? Your unpaid order will be removed and no money changes hands.')) return;
+    var btn=document.getElementById('btnCancelAd'); if(btn){btn.disabled=true;btn.textContent='Cancelling…';}
+    fetch('/api/al/intents/'+intent.intent_id+'/cancel',{method:'POST'})
+      .then(function(r){return r.json().catch(function(){return{}})})
+      .then(function(){ intent=null; location.href='/dashboard'; })
+      .catch(function(){ location.href='/dashboard'; });
   }
   // Add-ad for an already-active pack that still needs its creative (needs_ad).
   function openAdForPurchase(pid,pk){
