@@ -134,7 +134,7 @@ function buildNav(t, isAdmin) {
     // intent for members. Standalones rather than a group so they're
     // always one click from anywhere.
     { type: 'standalone', label: t('nav.faq'), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
-    { type: 'standalone', label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Help' }), icon: Headphones, path: '/support' },
+    { type: 'standalone', label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Help' }), icon: Headphones, path: '/support-center' },
   ];
 
   if (isAdmin) {
