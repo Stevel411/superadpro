@@ -319,11 +319,23 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
     res = resolution or resolve_payee(db, seller.id, pack_level)
 
     # wire the buyer's pass-up target once (do not re-wire on repeat purchases,
-    # and never overwrite a migrated member's derived target)
+    # and never overwrite a migrated member's derived target).
+    # Use the position LOCKED at intent (carried in resolution['type']) rather
+    # than recomputing the slot from the live counter — confirms can land out of
+    # order relative to intent creation, so the live counter may not match the
+    # slot this sale actually occupied. A pass-up-typed sale wires the buyer up
+    # the pass-up chain; a direct/company-direct sale wires to the seller.
     if buyer.pass_up_sponsor_id is None:
-        slot = (seller.pack_sale_count or 0) + 1
+        locked_type = (resolution or {}).get("type") if resolution else None
+        if locked_type in ("pass_up", "pass_up_company"):
+            was_passup_slot = True
+        elif locked_type in ("direct", "direct_company"):
+            was_passup_slot = False
+        else:
+            # No locked type (fresh resolve path) — fall back to counter slot.
+            was_passup_slot = ((seller.pack_sale_count or 0) + 1) in pe.PASSUP_POSITIONS
         buyer.pass_up_sponsor_id = (seller.pass_up_sponsor_id
-                                    if slot in pe.PASSUP_POSITIONS else seller.id)
+                                    if was_passup_slot else seller.id)
 
     seller.pack_sale_count = (seller.pack_sale_count or 0) + 1
     res["_commission"] = _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)

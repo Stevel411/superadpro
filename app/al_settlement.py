@@ -168,7 +168,18 @@ def submit_proof(db: Session, intent_id: int, tx_ref: str = None,
 def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bool = True):
     """Payee (or admin) confirms receipt. Honours the locked payee, commits the
     sale through the engine, activates the pack, marks the commission paid."""
-    intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
+    # Row-lock the intent so two near-simultaneous confirms (e.g. a mobile
+    # double-tap or a client retry) can't both pass the status guard and each
+    # write a PackPurchase + commission + counter increment for one sale. The
+    # second confirm blocks until the first commits, then sees status=confirmed
+    # and raises. Mirrors the with_for_update pattern used for grid/credits.
+    try:
+        intent = (db.query(P2PIntent)
+                    .filter(P2PIntent.id == intent_id)
+                    .with_for_update().first())
+    except Exception:
+        # Fallback for backends without row-lock support; guard still applies.
+        intent = db.query(P2PIntent).filter(P2PIntent.id == intent_id).first()
     if intent is None or intent.status == "confirmed":
         raise ValueError("intent not confirmable")
 
