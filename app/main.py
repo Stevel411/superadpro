@@ -70896,8 +70896,8 @@ def al_sponsor_provenance(user_id: int, user: User = Depends(_al_user), db: Sess
     # rotator_assignments row (if the /start rotator assigned this signup)
     try:
         r = db.execute(_t(
-            "SELECT assigned_sponsor_id, source, created_at FROM rotator_assignments "
-            "WHERE signup_user_id = :u ORDER BY created_at DESC LIMIT 5"),
+            "SELECT assigned_sponsor_id, funnel_source, assigned_at FROM rotator_assignments "
+            "WHERE signup_user_id = :u ORDER BY assigned_at DESC LIMIT 5"),
             {"u": user_id}).fetchall()
         out["rotator_assignments"] = ([{"assigned_sponsor_id": rr[0], "source": rr[1],
                                         "created_at": str(rr[2])} for rr in r]
