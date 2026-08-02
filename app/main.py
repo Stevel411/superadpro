@@ -73870,7 +73870,6 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
         if(x.ok){intent.campaign_id=x.j.campaign_id; renderIntent(intent);}
         else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
       }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
-  }rk error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
   }
   window.cancelPurchase=function(){
     if(!intent||!intent.intent_id){ show('sPick'); return; }
