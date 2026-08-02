@@ -71132,19 +71132,26 @@ def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depend
     grandfather migration like 'success' was. Read-only."""
     _require_admin(user)
     from sqlalchemy import or_ as _or
-    candidates = db.query(User).filter(
-        User.access_level == "free",
-        _or(
-            User.stripe_subscription_id.isnot(None),
-            User.stripe_customer_id.isnot(None),
-            User.stripe_charge_id.isnot(None),
-            User.stripe_payment_intent_id.isnot(None),
-            User.actually_paid == True,  # noqa: E712
-            User.amount_paid > 0,
-            User.is_founding_member == True,  # noqa: E712
-            User.membership_tier.notin_(["free", "", None]),
-        ),
-    ).all()
+    try:
+        candidates = db.query(User).filter(
+            User.access_level == "free",
+            _or(
+                User.stripe_subscription_id.isnot(None),
+                User.stripe_customer_id.isnot(None),
+                User.stripe_charge_id.isnot(None),
+                User.stripe_payment_intent_id.isnot(None),
+                User.actually_paid == True,  # noqa: E712
+                User.amount_paid > 0,
+                User.is_founding_member == True,  # noqa: E712
+                _or(User.membership_tier == "basic", User.membership_tier == "pro",
+                    User.membership_tier == "founding", User.membership_tier == "partner"),
+            ),
+        ).all()
+    except Exception as _e:
+        import traceback as _tb
+        logger.error(f"[reconcile-v2] query failed: {_tb.format_exc()}")
+        return JSONResponse({"error": "reconcile query failed",
+                             "detail": f"{type(_e).__name__}: {str(_e)[:200]}"}, status_code=500)
     missed = []
     for u in candidates:
         # skip if they somehow already have a gift pack
