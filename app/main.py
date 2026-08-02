@@ -19007,6 +19007,8 @@ def upload_video_post(
 
     user_tier = get_user_highest_tier(db, user.id)
     from .database import CAMPAIGN_TIER_FEATURES, GRID_TIER_NAMES
+    logger.info(f"[UPLOAD-DIAG] user={user.id} tier={user_tier} "
+                f"url={video_url[:60]!r} title_len={len(title)}")
 
     # ── Money-flow gate (Apr 2026) ──
     # Block campaign creation for users without an active Campaign Tier.
@@ -19017,6 +19019,7 @@ def upload_video_post(
     # diluting the pool. Admin users bypass this gate (get_user_highest_tier
     # returns 8 for is_admin=true).
     if user_tier < 0:
+        logger.info(f"[UPLOAD-DIAG] user={user.id} REJECTED: tier<0 (no owned pack per get_user_highest_tier)")
         return err(
             "You need an active Campaign Tier to create a campaign. "
             "Purchase a Campaign Tier from /campaign-tiers to get started."
@@ -19030,11 +19033,14 @@ def upload_video_post(
         VideoCampaign.status == "active"
     ).count()
     if active_count >= tier_features["max_campaigns"]:
+        logger.info(f"[UPLOAD-DIAG] user={user.id} REJECTED: active_count={active_count} >= "
+                    f"max={tier_features['max_campaigns']} (tier {user_tier})")
         tier_name = GRID_TIER_NAMES.get(user_tier, "Starter")
         return err(f"Your {tier_name} tier allows {tier_features['max_campaigns']} active campaign(s). Upgrade your tier or pause an existing campaign.")
 
     parsed = parse_video_url(video_url)
     if not parsed:
+        logger.info(f"[UPLOAD-DIAG] user={user.id} REJECTED: parse_video_url failed for {video_url[:80]!r}")
         return err("Unsupported video URL. Please paste a YouTube or Vimeo link.")
 
     campaign = VideoCampaign(
