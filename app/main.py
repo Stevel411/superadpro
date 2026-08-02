@@ -70971,16 +70971,34 @@ def al_audience_check(user: User = Depends(_al_user), db: Session = Depends(get_
         gifted_breakdown[lvl] = gifted_breakdown.get(lvl, 0) + 1
     total_with_email = db.query(_f.count(User.id)).filter(
         User.email.isnot(None), User.email != "", User.is_admin == False).scalar()
+    # broadcast_log state per campaign key + live recipient count per audience
+    campaign_state = {}
+    for which, camp in AL_LAUNCH_EMAILS.items():
+        key = camp["broadcast_key"]
+        try:
+            log_rows = db.execute(text(
+                "SELECT status, COUNT(*) FROM broadcast_log WHERE broadcast_key = :k "
+                "GROUP BY status"), {"k": key}).fetchall()
+            log_state = {r[0]: r[1] for r in log_rows} or "no log rows"
+        except Exception as e:
+            log_state = f"(query error: {str(e)[:80]})"
+        try:
+            live_recips = len(_al_launch_recipients(db, camp))
+        except Exception as e:
+            live_recips = f"(error: {str(e)[:80]})"
+        campaign_state[which] = {"broadcast_key": key, "audience": camp["audience"],
+                                 "broadcast_log": log_state,
+                                 "live_eligible_now": live_recips}
     return JSONResponse({
         "access_level_distribution": dist,
         "gifted_pack_holders_total": len(gifted_ids),
         "gifted_pack_holders_by_access_level": gifted_breakdown,
         "total_members_with_email": total_with_email,
-        "diagnosis": ("The 'loyal' email targets access_level='lifetime'. If the "
-                      "gifted-pack holders are mostly 'free', that's why loyal "
-                      "returns 0 — a gifted PACK is separate from lifetime "
-                      "MEMBERSHIP. Fix: either target the gifted-pack cohort "
-                      "directly, or grant them lifetime, depending on intent."),
+        "campaign_state": campaign_state,
+        "diagnosis": ("If live_eligible_now is 0 but the audience count is high, "
+                      "check broadcast_log: rows marked sent/sending for that key "
+                      "exclude those members (idempotency). A stale/prior run of "
+                      "that broadcast_key would zero out the audience."),
     })
 
 
