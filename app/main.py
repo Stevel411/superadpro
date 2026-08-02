@@ -32577,6 +32577,16 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
     future announcements by adding entries to AL_LAUNCH_EMAILS.
     """
     _require_admin(user)
+    try:
+        return _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user)
+    except Exception as _e:
+        import traceback as _tb
+        return JSONResponse({"error": "launch-broadcast failed",
+                             "detail": f"{type(_e).__name__}: {str(_e)[:300]}",
+                             "trace": _tb.format_exc()[-800:]}, status_code=500)
+
+
+def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
         return JSONResponse({"error": "which must be one of: loyal, free, all"}, status_code=400)
