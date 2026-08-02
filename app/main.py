@@ -71123,6 +71123,54 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/comping-reconcile")
+def al_comping_reconcile(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: find members who look like they SHOULD have been grandfathered
+    (have a Stripe subscription id) but are currently access_level='free' with
+    no gifted pack — i.e. missed by the comping. Scopes the 'my free pack isn't
+    working' problem. Read-only."""
+    _require_admin(user)
+    # everyone with a stripe subscription id on record
+    subs = db.query(User).filter(
+        User.stripe_subscription_id.isnot(None),
+        User.stripe_subscription_id != "").all()
+    missed = []
+    comped_ok = 0
+    for u in subs:
+        gifted = (db.query(PackPurchase)
+                    .filter(PackPurchase.user_id == u.id,
+                            PackPurchase.source == "gift").count())
+        if u.access_level == "lifetime" and gifted > 0:
+            comped_ok += 1
+        else:
+            missed.append({"user_id": u.id, "username": u.username,
+                           "email": u.email, "access_level": u.access_level,
+                           "gifted_packs": gifted,
+                           "stripe_sub": (u.stripe_subscription_id or "")[:18]})
+    # also: lifetime members with NO gifted pack (the other kind of miss)
+    lifers_no_pack = []
+    for u in db.query(User).filter(User.access_level == "lifetime").all():
+        g = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == u.id,
+                       PackPurchase.source == "gift").count())
+        if g == 0:
+            lifers_no_pack.append({"user_id": u.id, "username": u.username,
+                                   "email": u.email})
+    return JSONResponse({
+        "members_with_stripe_sub_total": len(subs),
+        "comped_correctly": comped_ok,
+        "stripe_subscribers_MISSED": missed,
+        "missed_count": len(missed),
+        "lifetime_members_with_no_gifted_pack": lifers_no_pack,
+        "lifetime_no_pack_count": len(lifers_no_pack),
+        "diagnosis": ("stripe_subscribers_MISSED = had a subscription but aren't "
+                      "fully comped (lifetime + pack). These are the members who'd "
+                      "report 'my free pack isn't working'. lifetime_members_with_"
+                      "no_gifted_pack = made lifetime but the pack gift didn't land. "
+                      "Both are fixable by re-running the grant + gift for those IDs."),
+    })
+
+
 @app.get("/admin/api/al/comped-member-check")
 def al_comped_member_check(user_id: int = 0, username: str = "",
                            user: User = Depends(_al_user), db: Session = Depends(get_db)):
