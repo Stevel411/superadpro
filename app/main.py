@@ -71123,6 +71123,60 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/comping-reconcile-v2")
+def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: comprehensive miss-detector. Flags any member showing EVIDENCE of
+    having paid on SuperAdPro (any stripe id, actually_paid, amount_paid>0,
+    membership_tier != free, or is_founding_member) who is currently
+    access_level='free' with no gifted pack — i.e. likely dropped by the
+    grandfather migration like 'success' was. Read-only."""
+    _require_admin(user)
+    from sqlalchemy import or_ as _or
+    candidates = db.query(User).filter(
+        User.access_level == "free",
+        _or(
+            User.stripe_subscription_id.isnot(None),
+            User.stripe_customer_id.isnot(None),
+            User.stripe_charge_id.isnot(None),
+            User.stripe_payment_intent_id.isnot(None),
+            User.actually_paid == True,  # noqa: E712
+            User.amount_paid > 0,
+            User.is_founding_member == True,  # noqa: E712
+            User.membership_tier.notin_(["free", "", None]),
+        ),
+    ).all()
+    missed = []
+    for u in candidates:
+        # skip if they somehow already have a gift pack
+        g = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == u.id,
+                       PackPurchase.source == "gift").count())
+        if g > 0:
+            continue
+        evidence = []
+        if u.stripe_subscription_id: evidence.append("stripe_sub")
+        if u.stripe_customer_id: evidence.append("stripe_customer")
+        if u.stripe_charge_id: evidence.append("stripe_charge")
+        if u.stripe_payment_intent_id: evidence.append("stripe_pi")
+        if getattr(u, "actually_paid", False): evidence.append("actually_paid")
+        if (getattr(u, "amount_paid", 0) or 0) > 0: evidence.append(f"amount_paid={u.amount_paid}")
+        if getattr(u, "is_founding_member", False): evidence.append("founding_member")
+        if u.membership_tier and u.membership_tier not in ("free", ""): evidence.append(f"tier={u.membership_tier}")
+        missed.append({"user_id": u.id, "username": u.username, "email": u.email,
+                       "evidence_of_paying": evidence})
+    return JSONResponse({
+        "likely_missed_comps": missed,
+        "count": len(missed),
+        "diagnosis": ("These free members show evidence they paid on SuperAdPro "
+                      "but were left access_level=free with no pack — same failure "
+                      "as 'success'. Review the list: genuine paying members get "
+                      "grant-lifetime + grant-pack (level 100). Verify each against "
+                      "your intended comp list before granting — some evidence "
+                      "fields (e.g. stripe_customer_id) can exist for non-paying "
+                      "or refunded users."),
+    })
+
+
 @app.get("/admin/api/al/comping-reconcile")
 def al_comping_reconcile(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: find members who look like they SHOULD have been grandfathered
