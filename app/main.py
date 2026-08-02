@@ -71138,10 +71138,6 @@ def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depend
             _or(
                 User.stripe_subscription_id.isnot(None),
                 User.stripe_customer_id.isnot(None),
-                User.stripe_charge_id.isnot(None),
-                User.stripe_payment_intent_id.isnot(None),
-                User.actually_paid == True,  # noqa: E712
-                User.amount_paid > 0,
                 User.is_founding_member == True,  # noqa: E712
                 _or(User.membership_tier == "basic", User.membership_tier == "pro",
                     User.membership_tier == "founding", User.membership_tier == "partner"),
@@ -71163,10 +71159,6 @@ def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depend
         evidence = []
         if u.stripe_subscription_id: evidence.append("stripe_sub")
         if u.stripe_customer_id: evidence.append("stripe_customer")
-        if u.stripe_charge_id: evidence.append("stripe_charge")
-        if u.stripe_payment_intent_id: evidence.append("stripe_pi")
-        if getattr(u, "actually_paid", False): evidence.append("actually_paid")
-        if (getattr(u, "amount_paid", 0) or 0) > 0: evidence.append(f"amount_paid={u.amount_paid}")
         if getattr(u, "is_founding_member", False): evidence.append("founding_member")
         if u.membership_tier and u.membership_tier not in ("free", ""): evidence.append(f"tier={u.membership_tier}")
         missed.append({"user_id": u.id, "username": u.username, "email": u.email,
