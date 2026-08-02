@@ -70954,6 +70954,11 @@ def al_brand_check(user: User = Depends(_al_user), db: Session = Depends(get_db)
         "sample_reset_url": sample_reset,
         "email_provider": provider,
         "email_provider_ok": (provider == "ses"),
+        "member_bulk_provider": _os.getenv("MEMBER_BULK_PROVIDER", "ses").strip().lower(),
+        "member_bulk_isolated_identity": bool(_os.getenv("SES_BULK_SMTP_HOST", "").strip()),
+        "member_bulk_note": ("Member blasts run on a SEPARATE SES identity if SES_BULK_SMTP_* "
+                             "is set; otherwise they fall back to the MAIN SES creds (works, but "
+                             "not reputation-isolated — set SES_BULK_SMTP_* to isolate)."),
         "ses_from_domain": _os.getenv("SES_FROM_EMAIL", _os.getenv("FROM_EMAIL", "(unset)")),
         "sender_display_name": (_os.getenv("BRAND_SENDER_NAME") or brand_config.BRAND_NAME),
         "daily_briefing_recipient": (_os.getenv("DAILY_BRIEFING_EMAIL", "").strip() or "(UNSET — briefing has nowhere to send)"),

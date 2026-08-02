@@ -63,7 +63,7 @@ async def send_email(to_email: str, to_name: str, subject: str, html_content: st
             mailer.ses_send,
             to_email, subject, html_content, None,
             sender_email, sender_name, reply_to_email, reply_to_name,
-            list_unsubscribe,
+            list_unsubscribe, member_bulk,
         )
         if r["ok"]:
             return {"ok": True, "message_id": r["message_id"] or ""}

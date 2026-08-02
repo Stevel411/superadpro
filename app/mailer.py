@@ -135,13 +135,12 @@ def provider() -> str:
 
 def member_bulk_provider() -> str:
     """Provider for MEMBER-owned bulk sends (autoresponder drips + member
-    broadcasts to their own leads), independent of the platform-wide
-    EMAIL_PROVIDER. Lets member bulk run on a SEPARATE Amazon SES account (its
-    own reputation/IP pool) while SuperAdPro's own transactional mail stays on
-    the global provider — so one member's bad list can never get the account
-    that sends password resets/receipts suspended. Default 'brevo' (no-op until
-    flipped to 'ses' once the members SES account is out of sandbox)."""
-    return os.getenv("MEMBER_BULK_PROVIDER", "brevo").strip().lower()
+    broadcasts to their own leads). Now defaults to 'ses' (Brevo retired). Runs
+    on a SEPARATE SES identity (SES_BULK_SMTP_* creds) so a member's bad list
+    can never harm the reputation of the account that sends password resets +
+    receipts — see ses_send(member_bulk=True). Falls back to the main SES creds
+    if the bulk identity isn't configured yet."""
+    return os.getenv("MEMBER_BULK_PROVIDER", "ses").strip().lower()
 
 # Back-compat module-level flag (most call sites read mailer.EMAIL_PROVIDER).
 EMAIL_PROVIDER = provider()
@@ -180,7 +179,7 @@ def _html_to_text(html: str) -> str:
 def ses_send(to_email: str, subject: str, html: str, text: str = None,
              from_email: str = None, from_name: str = None,
              reply_to_email: str = None, reply_to_name: str = None,
-             list_unsubscribe: str = None) -> dict:
+             list_unsubscribe: str = None, member_bulk: bool = False) -> dict:
     """Deliver one email via Amazon SES over SMTP. Synchronous.
 
     list_unsubscribe: optional URL/mailto for the List-Unsubscribe header.
@@ -190,11 +189,28 @@ def ses_send(to_email: str, subject: str, html: str, text: str = None,
 
     Returns {"ok", "message_id", "error"}.
     """
-    host = os.getenv("SES_SMTP_HOST", "")
-    port = int(os.getenv("SES_SMTP_PORT", "587"))
-    smtp_user = os.getenv("SES_SMTP_USER", "")
-    smtp_pass = os.getenv("SES_SMTP_PASS", "")
-    from_email = from_email or os.getenv("FROM_EMAIL", "") or _BRAND_FROM_EMAIL
+    # Member-bulk (members blasting their OWN lead lists) runs on a SEPARATE SES
+    # identity/credentials so a member's bad list can never harm the reputation
+    # of the account that sends password resets + receipts. If the separate
+    # SES_BULK_* vars aren't set, fall back to the main creds (no breakage) but
+    # log it, since the isolation is the whole point.
+    if member_bulk:
+        host = os.getenv("SES_BULK_SMTP_HOST", "") or os.getenv("SES_SMTP_HOST", "")
+        port = int(os.getenv("SES_BULK_SMTP_PORT", "") or os.getenv("SES_SMTP_PORT", "587"))
+        smtp_user = os.getenv("SES_BULK_SMTP_USER", "") or os.getenv("SES_SMTP_USER", "")
+        smtp_pass = os.getenv("SES_BULK_SMTP_PASS", "") or os.getenv("SES_SMTP_PASS", "")
+        from_email = (from_email or os.getenv("SES_BULK_FROM_EMAIL", "")
+                      or os.getenv("MEMBER_FROM_EMAIL", "") or os.getenv("FROM_EMAIL", "")
+                      or _BRAND_FROM_EMAIL)
+        if not os.getenv("SES_BULK_SMTP_HOST", ""):
+            logger.warning("[mailer/ses] member-bulk send using MAIN SES creds — "
+                           "set SES_BULK_SMTP_* to isolate member marketing reputation.")
+    else:
+        host = os.getenv("SES_SMTP_HOST", "")
+        port = int(os.getenv("SES_SMTP_PORT", "587"))
+        smtp_user = os.getenv("SES_SMTP_USER", "")
+        smtp_pass = os.getenv("SES_SMTP_PASS", "")
+        from_email = from_email or os.getenv("FROM_EMAIL", "") or _BRAND_FROM_EMAIL
     # Brevo is retired — do NOT let a stale BREVO_SENDER_NAME env (= "SuperAdPro")
     # override the brand. Explicit from_name wins; otherwise BRAND_SENDER_NAME if
     # set, else the brand name (AdvantageLife).
