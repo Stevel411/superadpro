@@ -71132,9 +71132,13 @@ def al_stripe_comp_reconcile(user: User = Depends(_al_user), db: Session = Depen
     _require_admin(user)
     import time as _time
     try:
+        from . import stripe_service as _ss
+        if not _ss.is_configured():
+            return JSONResponse({"error": "stripe not configured in env"}, status_code=500)
+        _ss._ensure_sdk()  # sets stripe.api_key from env
         import stripe as _stripe
     except Exception as e:
-        return JSONResponse({"error": f"stripe import failed: {e}"}, status_code=500)
+        return JSONResponse({"error": f"stripe init failed: {str(e)[:150]}"}, status_code=500)
     # collect active-subscriber emails from Stripe
     active_emails = set()
     capped = False
