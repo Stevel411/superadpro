@@ -19141,6 +19141,11 @@ def upload_video_post(
                           .first())
             if unlinked:
                 unlinked.campaign_id = campaign.id
+                # AL has no manual showcase-approval step: a campaign backed by a
+                # paid pack is legitimate by definition, so auto-approve it into
+                # the share rotation (else it never appears on any showcase page).
+                campaign.share_approved = True
+                campaign.share_approved_at = datetime.utcnow()
                 # align the campaign's view target to the pack tier if unset
                 if not campaign.views_target:
                     _pack = db.query(CampaignPack).filter(
@@ -71190,6 +71195,45 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/approve-active-campaigns")
+def al_approve_active_campaigns(apply: int = 0, user: User = Depends(_al_user),
+                                db: Session = Depends(get_db)):
+    """ADMIN: showcase-approve every ACTIVE campaign that's backed by a pack but
+    still has share_approved=False (so it never appeared on any showcase page).
+    AL has no manual approval step — a pack-backed campaign is legitimate.
+    Dry-run by default; &apply=1 to write."""
+    _require_admin(user)
+    # active campaigns not yet share_approved, whose owner holds a linked pack
+    camps = (db.query(VideoCampaign)
+               .filter(VideoCampaign.status == "active",
+                       VideoCampaign.share_approved.is_(False)).all())
+    plan = []
+    for c in camps:
+        linked = db.query(PackPurchase).filter(
+            PackPurchase.campaign_id == c.id).first()
+        if not linked:
+            continue
+        owner = db.query(User).filter(User.id == c.user_id).first()
+        plan.append({"campaign_id": c.id, "user_id": c.user_id,
+                     "username": (owner.username if owner else "?"),
+                     "title": c.title, "pack_level": linked.pack_level})
+        if apply:
+            c.share_approved = True
+            if c.share_approved_at is None:
+                c.share_approved_at = datetime.utcnow()
+    if apply:
+        db.commit()
+        _invalidate_showcase_cache()
+    return JSONResponse({
+        "active_unapproved_pack_campaigns": len(plan),
+        ("approved" if apply else "would_approve"): len(plan),
+        "details": plan[:100],
+        "applied": bool(apply),
+        "note": ("DRY RUN — add &apply=1 to write." if not apply else
+                 "Approved for showcase. They now appear in the share rotation."),
+    })
+
+
 @app.get("/admin/api/al/reactivate-paused-campaigns")
 def al_reactivate_paused_campaigns(apply: int = 0, user: User = Depends(_al_user),
                                    db: Session = Depends(get_db)):
@@ -71220,6 +71264,9 @@ def al_reactivate_paused_campaigns(apply: int = 0, user: User = Depends(_al_user
         plan.append(row)
         if apply and pack:
             c.status = "active"
+            c.share_approved = True  # AL: pack-backed campaign is showcase-eligible
+            if c.share_approved_at is None:
+                c.share_approved_at = datetime.utcnow()
             if target_pack and target_pack.views_target:
                 c.views_target = target_pack.views_target
                 c.campaign_tier = pack.pack_level
@@ -71986,6 +72033,10 @@ def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db
             "share_qualified": qualified,
             "membership_active": _ale.membership_active(db, user.id),
             "owns_pack": _ale.owned_level(db, user.id) > 0,
+            "has_active_campaign": bool(
+                db.query(VideoCampaign).filter(
+                    VideoCampaign.user_id == user.id,
+                    VideoCampaign.status == "active").first()),
             "share_url": f"/w/{link.token}",
             "last_shared_at": link.last_shared_at.isoformat() if link.last_shared_at else None,
             "next_due": next_due,
@@ -71998,7 +72049,19 @@ def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db
 def al_weekly_share(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Member shares their showcase for the week. Stamps last_shared_at, then
     re-runs the pause sweep so any paused packs RESUME immediately. Returns how
-    many reactivated so the UI can celebrate."""
+    many reactivated so the UI can celebrate.
+
+    Requires an ACTIVE campaign: sharing a showcase you have no video in is
+    meaningless (nothing to show) and shouldn't satisfy the weekly-share earning
+    gate. A member with a pack but no ad is told to create their ad first."""
+    has_campaign = (db.query(VideoCampaign)
+                      .filter(VideoCampaign.user_id == user.id,
+                              VideoCampaign.status == "active").first())
+    if not has_campaign:
+        return JSONResponse({"error": "no_campaign",
+                             "message": "Create your video ad first — there's "
+                             "nothing to showcase until your campaign is live."},
+                            status_code=400)
     link = _get_or_create_share_link(db, user)
     link.last_shared_at = datetime.utcnow()
     link.share_count = (link.share_count or 0) + 1
