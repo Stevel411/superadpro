@@ -73852,12 +73852,22 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     var u=document.getElementById('adUrl').value.trim();
     var eb=document.getElementById('errAd'); eb.style.display='none';
     if(!t||!u){eb.textContent='Add a title and a video link.';eb.style.display='block';return;}
+    // Guard: without a purchase intent the create-ad URL is malformed and the
+    // click silently throws (TypeError on intent.intent_id) — the 'red button
+    // goes nowhere' bug. Recover by restarting the purchase for the selected pack.
+    if(!intent||!intent.intent_id){
+      eb.textContent='Your order session expired. Re-selecting your pack…';
+      eb.style.display='block';
+      if(sel){ startPurchase(sel); } else { show('sPick'); }
+      return;
+    }
     var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
     fetch('/api/al/intents/'+intent.intent_id+'/create-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
         if(x.ok){intent.campaign_id=x.j.campaign_id; renderIntent(intent);}
         else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
       }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
+  }rk error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
   }
   window.cancelPurchase=function(){
     if(!intent||!intent.intent_id){ show('sPick'); return; }
