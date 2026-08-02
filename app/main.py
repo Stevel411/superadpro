@@ -19027,7 +19027,26 @@ def upload_video_post(
 
     tier_features = CAMPAIGN_TIER_FEATURES.get(user_tier, CAMPAIGN_TIER_FEATURES[1])
 
-    # Enforce campaign limit
+    # ── AdvantageLife: user_tier is a PACK LEVEL ($10..$1000), not an old 0-8
+    # tier number, so CAMPAIGN_TIER_FEATURES.get(user_tier) misses and falls back
+    # to tier 1 (max_campaigns=1, 500 views) — wrong, and it blocks a member who
+    # owns a pack from creating their ad. On AL, derive the allowance from the
+    # PACK: one active campaign PER owned pack, and the pack's real views_target.
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        owned_packs = db.query(PackPurchase).filter(
+            PackPurchase.user_id == user.id,
+            PackPurchase.status == "active").count()
+        top_pack = (db.query(CampaignPack)
+                      .filter(CampaignPack.level == user_tier,
+                              CampaignPack.is_active == True).first())  # noqa: E712
+        tier_features = dict(tier_features)  # copy so we don't mutate the shared dict
+        tier_features["max_campaigns"] = max(1, owned_packs)
+        tier_features["monthly_views"] = (top_pack.views_target
+                                          if top_pack and top_pack.views_target
+                                          else tier_features.get("monthly_views", 500))
+        logger.info(f"[UPLOAD-DIAG] AL pack-based allowance user={user.id} "
+                    f"owned_packs={owned_packs} views={tier_features['monthly_views']}")
     active_count = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user.id,
         VideoCampaign.status == "active"
