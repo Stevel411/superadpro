@@ -32398,7 +32398,7 @@ AL_LAUNCH_EMAILS = {
     "loyal": {
         "broadcast_key": "al_launch_loyal_2026_07",
         "audience": "lifetime",
-        "subject": "Your loyalty just earned you something (AdvantageLife)",
+        "subject": "We're live \u2014 claim your account and your gifted pack (AdvantageLife)",
         "body_md": (
             "Hi {name},\n\n"
             "You stuck with us.\n\n"
@@ -32406,7 +32406,7 @@ AL_LAUNCH_EMAILS = {
             "you kept your membership and you kept believing this could become "
             "something. I haven't forgotten that, and I'm not going to.\n\n"
             "So before we open the doors to anyone else, I wanted you to hear this first.\n\n"
-            "SuperAdPro is becoming <b>AdvantageLife</b> \u2014 rebuilt from the ground up "
+            "SuperAdPro is now <b>AdvantageLife</b> \u2014 rebuilt from the ground up "
             "on a fresh, secure platform. New name, new look, and a model that's "
             "simpler and fairer than anything we've run before: you sell advertising "
             "packs member-to-member, and 100% of every pack price passes straight to "
@@ -32414,20 +32414,22 @@ AL_LAUNCH_EMAILS = {
             "And because you were here when it mattered, I've already put something "
             "in your account:\n\n"
             "<b>A $100 campaign pack \u2014 gifted, yours, waiting.</b>\n\n"
-            "That pack means when we launch, you're not starting from zero. You're "
-            "starting as one of the founding members with a live pack, ready to earn "
-            "from your team's sales the moment things go live.\n\n"
-            "There's nothing you need to do today \u2014 the platform's still in final "
-            "preparation. But when we open (very soon), there'll be two quick steps to "
-            "switch your pack on: record a short video ad for it, and do the daily "
-            "watch. I'll walk you through both, and I'll be there to help.\n\n"
-            "For now, just know this: you're set up, you're ahead, and you earned it.\n\n"
-            "More very soon.\n\n"
+            "That pack means you're not starting from zero. You're starting as a "
+            "founding member with a live pack, ready to earn from your team's sales.\n\n"
+            "<b>We're live now. Two quick steps to get going:</b>\n\n"
+            "<b>1. Claim your account.</b> For security after the breach, I didn't "
+            "carry passwords over \u2014 so set a fresh one here:\n"
+            "\ud83d\udc49 https://www.advantagelife.club/claim\n"
+            "Just enter this email address and follow the secure link I send you.\n\n"
+            "<b>2. Switch your pack on.</b> Once you're logged in, record a short "
+            "video ad for your pack and it goes live. I'll walk you through it, and "
+            "I'll be there to help.\n\n"
+            "That's it. You're set up, you're ahead, and you earned it.\n\n"
             "Steve\nFounder, AdvantageLife\n\n"
-            "P.S. This gifted pack is a thank-you, not a promise of income \u2014 what you "
-            "earn depends on the team you build and the work you put in. But you've "
-            "already shown you'll do the work. That's exactly why you're getting the "
-            "head start."
+            "P.S. This gifted pack is a thank-you, not a promise of income \u2014 what "
+            "you earn depends on the team you build and the work you put in. But "
+            "you've already shown you'll do the work. That's exactly why you're "
+            "getting the head start."
         ),
     },
     # Audience: the 500+ free SuperAdPro members (re-engage + anticipation)
@@ -32463,6 +32465,42 @@ AL_LAUNCH_EMAILS = {
             "depends on the effort they put in and the audience they build."
         ),
     },
+    # Audience: EVERY member (generic rebrand + mandatory password re-claim).
+    # Deliberately makes NO free-pack claim (only the 53 comped have one).
+    "all": {
+        "broadcast_key": "al_launch_all_2026_08",
+        "audience": "all",
+        "subject": "Important: SuperAdPro is now AdvantageLife \u2014 action needed to log back in",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Some important news about your account.\n\n"
+            "SuperAdPro has been rebuilt from the ground up and relaunched as "
+            "<b>AdvantageLife</b> \u2014 a fresh, more secure platform with a simpler, "
+            "fairer model. Your membership has moved across with you.\n\n"
+            "<b>One thing you need to do to get back in:</b>\n\n"
+            "For security, passwords were <b>not</b> carried over to the new platform. "
+            "Before you can log in, you'll need to reclaim your account and set a new "
+            "password:\n\n"
+            "\ud83d\udc49 https://www.advantagelife.club/claim\n\n"
+            "Just enter the email address this was sent to, and we'll send you a "
+            "secure link to set your new password. It takes about a minute.\n\n"
+            "<b>What's changed:</b>\n\n"
+            "\u2022 A full set of AI marketing tools \u2014 landing pages, funnels, email "
+            "automation and a creative studio \u2014 in one place.\n"
+            "\u2022 A real advertising product: campaign packs that real members watch, "
+            "delivering real views.\n"
+            "\u2022 A genuinely fair way to earn: when you sell a pack, 100% of the "
+            "price passes straight to you, member to member. No company cut on the "
+            "packs.\n\n"
+            "Once you're back in, the Start Here guide will walk you through "
+            "everything step by step.\n\n"
+            "Welcome to AdvantageLife.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real "
+            "advertising product \u2014 not a get-rich-quick scheme. What anyone earns "
+            "depends on the effort they put in and the audience they build."
+        ),
+    },
 }
 
 
@@ -32480,12 +32518,16 @@ def _al_launch_recipients(db: Session, campaign: dict):
     # Never mail test/staging accounts (username starting 'test' or a
     # +tag test address on the owner's mailbox).
     EXCLUDE_USERNAMES = {"test64", "test65"}
+    # audience='all' targets every member with an email (used for the generic
+    # rebrand + password-claim announcement). Otherwise filter by access_level.
     q = db.query(User).filter(
-        User.access_level == audience,
         User.email.isnot(None),
         User.email != "",
         User.is_admin == False,  # noqa: E712 — never mail the admin
-    ).order_by(User.id.asc())
+    )
+    if audience != "all":
+        q = q.filter(User.access_level == audience)
+    q = q.order_by(User.id.asc())
     out = []
     for u in q.all():
         if u.id in already_set:
@@ -32537,7 +32579,7 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
     _require_admin(user)
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
-        return JSONResponse({"error": "which must be one of: loyal, free"}, status_code=400)
+        return JSONResponse({"error": "which must be one of: loyal, free, all"}, status_code=400)
     mode = (mode or "preview").lower()
     if mode not in ("preview", "dry-run", "send"):
         return JSONResponse({"error": "mode must be preview, dry-run or send"}, status_code=400)
