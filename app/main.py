@@ -72207,7 +72207,10 @@ async def al_create_intent(pack_level: int,
                              "intent": _al_intent_json(db, existing, user.id)}, status_code=409)
     try:
         intent = _als.create_intent(db, user.id, pack_level)
+        logger.info(f"[INTENT-DIAG] user={user.id} pack={pack_level} "
+                    f"intent={intent.id} earner={intent.earner_id} status={intent.status}")
     except ValueError as e:
+        logger.info(f"[INTENT-DIAG] user={user.id} pack={pack_level} REJECTED: {str(e)[:120]}")
         return JSONResponse({"error": str(e)}, status_code=400)
     payout = _al_payout_for(intent)
     if intent.earner_id is not None and not payout:
