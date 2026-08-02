@@ -71123,6 +71123,56 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/comped-member-check")
+def al_comped_member_check(user_id: int = 0, username: str = "",
+                           user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: full activation state for ONE comped member — diagnoses 'my free
+    pack isn't working'. Shows: account claimed (password set)? pack present +
+    state? each earning gate? Read-only."""
+    _require_admin(user)
+    t = None
+    if user_id:
+        t = db.query(User).filter(User.id == user_id).first()
+    elif username:
+        t = db.query(User).filter(User.username == username).first()
+    if not t:
+        return JSONResponse({"error": "user not found — pass ?user_id=N or ?username=X"}, status_code=404)
+    # gifted packs held
+    gifts = (db.query(PackPurchase)
+             .filter(PackPurchase.user_id == t.id, PackPurchase.source == "gift").all())
+    all_packs = db.query(PackPurchase).filter(PackPurchase.user_id == t.id).all()
+    pack_rows = [{"id": p.id, "level": p.pack_level, "status": p.status,
+                  "source": p.source, "campaign_id": p.campaign_id,
+                  "state": ("running" if p.campaign_id else "needs_ad")} for p in all_packs]
+    # has the member claimed (password set post-migration)?
+    has_password = bool(t.password and len(t.password or "") > 20)  # bcrypt hash length
+    out = {
+        "user_id": t.id, "username": t.username, "email": t.email,
+        "access_level": t.access_level,
+        "account_claimed_password_set": has_password,
+        "last_login": (t.last_login.isoformat() if getattr(t, "last_login", None) else None),
+        "gifted_packs_count": len(gifts),
+        "all_packs": pack_rows,
+    }
+    # earning gates (best-effort via al_engine if present)
+    try:
+        from . import al_engine as _ale
+        m = _ale._member(db, t.id)
+        out["earning_gates"] = {
+            "earning_level": getattr(m, "earning_level", None),
+            "watch_qualified": getattr(m, "watch_qualified", None),
+            "membership_active": getattr(m, "membership_active", None),
+        }
+    except Exception as e:
+        out["earning_gates"] = f"(al_engine check error: {str(e)[:100]})"
+    out["diagnosis"] = (
+        "If account_claimed_password_set is False, they haven't set a password "
+        "yet (can't log in). If gifted_packs_count is 0, the pack is missing. If "
+        "a pack shows state=needs_ad, they own it but must add a video ad to make "
+        "it run. access_level should be 'lifetime' for comped members.")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/secrets-status")
 def al_secrets_status(user: User = Depends(_al_user)):
     """ADMIN: reports which required secrets are SET, as booleans + length only
