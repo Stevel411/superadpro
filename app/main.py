@@ -70804,6 +70804,57 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/mail-diagnose")
+def al_mail_diagnose(to: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: full-path mail diagnosis. SES is confirmed OUT of sandbox (50k
+    quota), so 'accepted but not arriving' is now: app-suppression, SES
+    account-level suppression, or spam-foldering. This checks the APP path:
+    is the address app-suppressed, and does a REAL send via the normal
+    send_email() path (which applies suppression/unsubscribe filters, unlike
+    the raw ses-deep-test) succeed or get filtered."""
+    _require_admin(user)
+    if "@" not in to:
+        return JSONResponse({"error": "pass ?to=you@example.com"}, status_code=400)
+    out = {"to": to}
+    # 1. app-level suppression
+    try:
+        from . import suppression as _supp
+        out["app_suppressed_transactional"] = _supp.is_suppressed(to, "transactional")
+        out["app_suppressed_marketing"] = _supp.is_suppressed(to, "marketing")
+    except Exception as e:
+        out["app_suppression_check_error"] = str(e)[:150]
+    # 2. is there a bounce/complaint row for this address in our log?
+    try:
+        row = db.execute(text(
+            "SELECT status, COUNT(*) c FROM email_send_log WHERE lower(recipient)=lower(:e) "
+            "GROUP BY status ORDER BY c DESC LIMIT 10"), {"e": to}).fetchall()
+        out["send_log_history"] = [{"status": r[0], "count": r[1]} for r in row] or "no prior sends logged"
+    except Exception as e:
+        out["send_log_error"] = str(e)[:150]
+    # 3. real send through the NORMAL path (applies all app filters)
+    try:
+        from .email_utils import send_email
+        res = send_email(to, "AdvantageLife mail-path test",
+                         "<p>If this arrives, the normal send path + SES delivery both work. "
+                         "Check spam/promotions if it's not in your inbox.</p>",
+                         return_message_id=True)
+        out["normal_path_send_result"] = str(res)
+        out["normal_path_ok"] = bool(res)
+        if not res:
+            out["diagnosis"] = ("Normal send path returned FALSE — the address is filtered "
+                                "app-side (suppressed/unsubscribed) even though raw SES accepts it. "
+                                "That's why nothing arrives. Check app_suppressed_* above.")
+        else:
+            out["diagnosis"] = ("Normal path sent OK. SES is out of sandbox and accepted it. If it's "
+                                "STILL not in your inbox, it's landing in SPAM/PROMOTIONS, or the "
+                                "address is on the SES ACCOUNT-level suppression list (SES console -> "
+                                "Suppression list -> search the address -> remove it). Also verify the "
+                                "advantagelife.club domain identity shows DKIM 'Successful' in SES.")
+    except Exception as e:
+        out["normal_path_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/ses-deep-test")
 def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: send ONE email straight through SES SMTP and return the RAW server
