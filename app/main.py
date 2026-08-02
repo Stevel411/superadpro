@@ -71542,6 +71542,12 @@ def al_comped_member_check(user_id: int = 0, username: str = "",
         "last_login": (t.last_login.isoformat() if getattr(t, "last_login", None) else None),
         "gifted_packs_count": len(gifts),
         "all_packs": pack_rows,
+        "campaigns": [{"id": c.id, "title": c.title, "status": c.status,
+                       "share_approved": bool(c.share_approved),
+                       "views_delivered": c.views_delivered or 0,
+                       "views_target": c.views_target or 0}
+                      for c in db.query(VideoCampaign).filter(
+                          VideoCampaign.user_id == t.id).all()],
     }
     # earning gates (best-effort via al_engine if present)
     try:
