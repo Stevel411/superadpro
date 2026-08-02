@@ -19088,6 +19088,38 @@ def upload_video_post(
     db.add(campaign)
     db.commit()
 
+    # ── AdvantageLife: link the new campaign to the member's pack ──
+    # On AL, creating a campaign must activate a pack (needs_ad -> running).
+    # The AL frontend posts here (not to al_pack_submit_ad), so /upload owns the
+    # linking: attach this campaign to the member's oldest active gift/bought
+    # pack that has no campaign yet. Without this the pack stays needs_ad forever
+    # and the pack page never updates.
+    try:
+        from . import brand_config as _bc
+        if _bc.IS_ADVANTAGELIFE:
+            unlinked = (db.query(PackPurchase)
+                          .filter(PackPurchase.user_id == user.id,
+                                  PackPurchase.status == "active",
+                                  PackPurchase.campaign_id.is_(None))
+                          .order_by(PackPurchase.pack_level.desc(),
+                                    PackPurchase.id.asc())
+                          .first())
+            if unlinked:
+                unlinked.campaign_id = campaign.id
+                # align the campaign's view target to the pack tier if unset
+                if not campaign.views_target:
+                    _pack = db.query(CampaignPack).filter(
+                        CampaignPack.id == unlinked.pack_id).first()
+                    if _pack and _pack.views_target:
+                        campaign.views_target = _pack.views_target
+                        campaign.campaign_tier = unlinked.pack_level
+                db.commit()
+                logger.info(f"[AL-UPLOAD] linked campaign {campaign.id} -> pack "
+                            f"{unlinked.id} (level {unlinked.pack_level}) for user {user.id}")
+    except Exception as _e:
+        logger.error(f"[AL-UPLOAD] pack-link failed for user {user.id}: {_e}")
+        # campaign is still created; don't fail the request
+
     return JSONResponse({"success": True, "status": campaign.status, "id": campaign.id, "title": campaign.title})
 
 # ═══════════════════════════════════════════════════════════════
@@ -71121,6 +71153,60 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         out["ok"] = False
         out["diagnosis"] = f"Send failed: {type(e).__name__}: {str(e)[:200]}"
         return JSONResponse(out, status_code=200)
+
+
+@app.get("/admin/api/al/backfill-stuck-packs")
+def al_backfill_stuck_packs(apply: int = 0, user: User = Depends(_al_user),
+                            db: Session = Depends(get_db)):
+    """ADMIN: repair members who created a campaign but whose pack stayed
+    needs_ad (the /upload didn't link it pre-fix). For each such member, links
+    their oldest unlinked active pack to their oldest active campaign. Dry-run
+    by default; &apply=1 to write. Read-only unless apply=1."""
+    _require_admin(user)
+    # members with at least one active pack that has no campaign_id
+    stuck_packs = (db.query(PackPurchase)
+                     .filter(PackPurchase.status == "active",
+                             PackPurchase.campaign_id.is_(None))
+                     .order_by(PackPurchase.user_id.asc(),
+                               PackPurchase.pack_level.desc()).all())
+    plan = []
+    seen_users = set()
+    for p in stuck_packs:
+        if p.user_id in seen_users:
+            continue  # one link per user per run (their newest campaign)
+        # does this member have an active campaign not yet linked to any pack?
+        camp = (db.query(VideoCampaign)
+                  .filter(VideoCampaign.user_id == p.user_id,
+                          VideoCampaign.status == "active")
+                  .order_by(VideoCampaign.created_at.desc()).first())
+        if not camp:
+            continue
+        # is that campaign already linked to another pack?
+        already_linked = (db.query(PackPurchase)
+                            .filter(PackPurchase.campaign_id == camp.id).first())
+        if already_linked:
+            continue
+        u = db.query(User).filter(User.id == p.user_id).first()
+        plan.append({"user_id": p.user_id, "username": (u.username if u else "?"),
+                     "pack_id": p.id, "pack_level": p.pack_level,
+                     "campaign_id": camp.id, "campaign_title": camp.title})
+        seen_users.add(p.user_id)
+        if apply:
+            p.campaign_id = camp.id
+            if not camp.views_target:
+                _pk = db.query(CampaignPack).filter(CampaignPack.id == p.pack_id).first()
+                if _pk and _pk.views_target:
+                    camp.views_target = _pk.views_target
+                    camp.campaign_tier = p.pack_level
+    if apply:
+        db.commit()
+    return JSONResponse({
+        "would_fix" if not apply else "fixed": len(plan),
+        "details": plan[:100],
+        "applied": bool(apply),
+        "note": ("DRY RUN — add &apply=1 to write." if not apply else
+                 "Linked each listed pack to its member's campaign. Packs now run."),
+    })
 
 
 @app.get("/admin/api/al/stripe-comp-reconcile")
