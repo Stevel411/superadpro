@@ -71190,6 +71190,55 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/reactivate-paused-campaigns")
+def al_reactivate_paused_campaigns(apply: int = 0, user: User = Depends(_al_user),
+                                   db: Session = Depends(get_db)):
+    """ADMIN: repair AL campaigns wrongly frozen at 'paused_no_tier' by the old
+    grid-based boot sweep. Flips them back to active, links each to the owner's
+    pack (needs_ad -> running), and fixes the views_target to the pack tier.
+    Dry-run by default; &apply=1 to write."""
+    _require_admin(user)
+    paused = (db.query(VideoCampaign)
+                .filter(VideoCampaign.status == "paused_no_tier").all())
+    plan = []
+    for c in paused:
+        owner = db.query(User).filter(User.id == c.user_id).first()
+        # the owner's oldest active pack (prefer one already linked to THIS campaign)
+        pack = (db.query(PackPurchase)
+                  .filter(PackPurchase.user_id == c.user_id,
+                          PackPurchase.status == "active")
+                  .order_by(PackPurchase.pack_level.desc(),
+                            PackPurchase.id.asc()).first())
+        target_pack = (db.query(CampaignPack)
+                         .filter(CampaignPack.level == (pack.pack_level if pack else 0),
+                                 CampaignPack.is_active == True).first())  # noqa: E712
+        row = {"campaign_id": c.id, "user_id": c.user_id,
+               "username": (owner.username if owner else "?"),
+               "has_pack": bool(pack),
+               "pack_level": (pack.pack_level if pack else None),
+               "new_views_target": (target_pack.views_target if target_pack else None)}
+        plan.append(row)
+        if apply and pack:
+            c.status = "active"
+            if target_pack and target_pack.views_target:
+                c.views_target = target_pack.views_target
+                c.campaign_tier = pack.pack_level
+            # link the pack to this campaign if not already linked
+            if pack.campaign_id is None:
+                pack.campaign_id = c.id
+    if apply:
+        db.commit()
+    return JSONResponse({
+        "paused_campaigns_found": len(paused),
+        ("reactivated" if apply else "would_reactivate"): sum(1 for r in plan if r["has_pack"]),
+        "skipped_no_pack": [r for r in plan if not r["has_pack"]],
+        "details": plan[:100],
+        "applied": bool(apply),
+        "note": ("DRY RUN — add &apply=1 to write." if not apply else
+                 "Reactivated + linked to packs. Campaigns now active with correct views."),
+    })
+
+
 @app.get("/admin/api/al/backfill-stuck-packs")
 def al_backfill_stuck_packs(apply: int = 0, user: User = Depends(_al_user),
                             db: Session = Depends(get_db)):
