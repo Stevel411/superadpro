@@ -18603,6 +18603,11 @@ def api_start_next_sponsor(request: Request, db: Session = Depends(get_db)):
     around an ad campaign launch and we don't need second-level precision.
     """
     from sqlalchemy import text as _text
+    # AdvantageLife: rotator retired — never surface a rotator-picked sponsor.
+    from . import brand_config as _bc
+    if _bc.IS_ADVANTAGELIFE:
+        return JSONResponse({"username": None},
+                            headers={"Cache-Control": "public, max-age=10"})
     try:
         row = db.execute(_text(
             "SELECT u.username "
@@ -18649,6 +18654,14 @@ def api_start_peek_next_sponsor(
     same one.
     """
     try:
+        # AdvantageLife: the rotator is RETIRED. In a pass-up model the sponsor
+        # tree is load-bearing — a signup must attach to its ACTUAL referrer, not
+        # a random rotator-picked Founder. Return no pick so the register flow
+        # falls through to the real ref (or house). Does NOT advance the queue.
+        from . import brand_config as _bc
+        if _bc.IS_ADVANTAGELIFE:
+            return {"sponsor_username": "", "queue_size": 0, "fallback": True,
+                    "disabled": "rotator retired on AdvantageLife"}
         picked_id = _pick_next_rotator_sponsor(db)
         if not picked_id:
             db.commit()
@@ -39854,6 +39867,17 @@ async def api_register(
         # peek-next-sponsor handler put in the URL (the rotator's
         # already-advanced pick). Honour it directly.
         via = sanitize(body.get("via", "").strip())
+
+        # AdvantageLife: the /start rotator is retired. A ref arriving with
+        # via=start on AL can only be a rotator artifact (the peek endpoint is
+        # gated off, but the old frontend may still send ref=SuperAdPro as a
+        # fallback). Never attach an AL signup to a rotator/SuperAdPro pick —
+        # drop the ref so it falls through to the house (real referrer links
+        # come through /ref/<name> without via=start and are unaffected).
+        from . import brand_config as _bc2
+        if _bc2.IS_ADVANTAGELIFE and via == "start":
+            logger.info(f"[REG-REF] AL: dropping via=start ref={ref!r} (rotator retired)")
+            ref = ""
 
         sponsor_id = None
         logger.info(f"[REG-REF] incoming ref={ref!r} for new username={body.get('username')!r}")
