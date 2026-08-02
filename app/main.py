@@ -70873,6 +70873,47 @@ def al_mail_diagnose(to: str = "", user: User = Depends(_al_user), db: Session =
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/sponsor-provenance")
+def al_sponsor_provenance(user_id: int, user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: trace HOW a user got their sponsor — the raw record + any
+    rotator_assignments audit row. Answers 'why is this member's sponsor X
+    when they didn't use X's link?'. Read-only."""
+    _require_admin(user)
+    from sqlalchemy import text as _t
+    t = db.query(User).filter(User.id == user_id).first()
+    if not t:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+    sp = db.query(User).filter(User.id == t.sponsor_id).first() if t.sponsor_id else None
+    pu = db.query(User).filter(User.id == t.pass_up_sponsor_id).first() if t.pass_up_sponsor_id else None
+    out = {
+        "user_id": t.id, "username": t.username, "email": t.email,
+        "created_at": t.created_at.isoformat() if t.created_at else None,
+        "sponsor_id": t.sponsor_id,
+        "sponsor_username": (sp.username if sp else None),
+        "pass_up_sponsor_id": t.pass_up_sponsor_id,
+        "pass_up_sponsor_username": (pu.username if pu else None),
+    }
+    # rotator_assignments row (if the /start rotator assigned this signup)
+    try:
+        r = db.execute(_t(
+            "SELECT assigned_sponsor_id, source, created_at FROM rotator_assignments "
+            "WHERE signup_user_id = :u ORDER BY created_at DESC LIMIT 5"),
+            {"u": user_id}).fetchall()
+        out["rotator_assignments"] = ([{"assigned_sponsor_id": rr[0], "source": rr[1],
+                                        "created_at": str(rr[2])} for rr in r]
+                                      or "none — NOT assigned via the rotator")
+    except Exception as e:
+        out["rotator_assignments"] = f"(table query error: {str(e)[:120]})"
+    out["diagnosis"] = (
+        "If rotator_assignments has a row, this signup came through the /start "
+        "funnel and was auto-assigned that sponsor (not a personal ref link). "
+        "If 'none', the sponsor came from the ref submitted at registration "
+        "(?ref= URL param, which wins over cookie) or from how the account was "
+        "created/migrated. sponsor_id is the DIRECT sponsor; pass_up_sponsor_id "
+        "is where pass-ups flow (set separately).")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/ses-deep-test")
 def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: send ONE email straight through SES SMTP and return the RAW server
