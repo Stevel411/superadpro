@@ -195,7 +195,10 @@ def ses_send(to_email: str, subject: str, html: str, text: str = None,
     smtp_user = os.getenv("SES_SMTP_USER", "")
     smtp_pass = os.getenv("SES_SMTP_PASS", "")
     from_email = from_email or os.getenv("FROM_EMAIL", "") or _BRAND_FROM_EMAIL
-    from_name = from_name or os.getenv("BREVO_SENDER_NAME") or _BRAND_NAME
+    # Brevo is retired — do NOT let a stale BREVO_SENDER_NAME env (= "SuperAdPro")
+    # override the brand. Explicit from_name wins; otherwise BRAND_SENDER_NAME if
+    # set, else the brand name (AdvantageLife).
+    from_name = from_name or os.getenv("BRAND_SENDER_NAME") or _BRAND_NAME
 
     if not (host and smtp_user and smtp_pass):
         logger.error("[mailer/ses] SES_SMTP_HOST/USER/PASS not configured")

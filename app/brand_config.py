@@ -40,7 +40,7 @@ IS_ADVANTAGELIFE = ("advantagelife" in BRAND_NAME.lower()) or ("advantagelife" i
 # on AL's own legal documents because SUPPORT_EMAIL was never set in Railway.
 _MAIL_DOMAIN  = "advantagelife.club" if IS_ADVANTAGELIFE else "superadpro.com"
 FROM_EMAIL    = _env("FROM_EMAIL", f"noreply@{_MAIL_DOMAIN}")
-SENDER_NAME   = _env("BRAND_SENDER_NAME", _env("BREVO_SENDER_NAME", BRAND_NAME))
+SENDER_NAME   = _env("BRAND_SENDER_NAME", BRAND_NAME)
 SUPPORT_EMAIL = _env("SUPPORT_EMAIL", f"support@{_MAIL_DOMAIN}")
 
 # ── Affiliate / public CTAs ───────────────────────────────────────────
