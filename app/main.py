@@ -70536,6 +70536,7 @@ def al_admin_members(q: str = "", limit: int = 50, user: User = Depends(_al_user
             "owned_level": _ale.owned_level(db, u.id),
             "watch_qualified": _ale.watch_qualified(db, u.id),
             "payable": _ale.payable(db, u.id),
+            "membership_active": _ale.membership_active(db, u.id),
             "is_admin": bool(u.is_admin),
             "created_at": u.created_at.isoformat() if u.created_at else None,
         })
@@ -71098,6 +71099,7 @@ def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
             "owned_level": _ale.owned_level(db, m.id),
             "watch_qualified": _ale.watch_qualified(db, m.id),
             "payable": _ale.payable(db, m.id),
+            "membership_active": _ale.membership_active(db, m.id),
         },
         "sales_made": sales_made,
         "packs": packs,
@@ -71130,6 +71132,7 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
         "earning_level": _ale.earning_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
+        "membership_active": _ale.membership_active(db, user.id),
         "pack_sale_count": user.pack_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
     }
