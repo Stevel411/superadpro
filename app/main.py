@@ -71123,6 +71123,73 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/stripe-comp-reconcile")
+def al_stripe_comp_reconcile(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: the DEFINITIVE comp check. Pulls ACTIVE Stripe subscribers (the
+    real comp criterion) straight from Stripe, matches them to AL members by
+    email, and reports which active subscribers are NOT yet comped (lifetime +
+    pack) — the true 'success'-class misses. Read-only."""
+    _require_admin(user)
+    import time as _time
+    try:
+        import stripe as _stripe
+    except Exception as e:
+        return JSONResponse({"error": f"stripe import failed: {e}"}, status_code=500)
+    # collect active-subscriber emails from Stripe
+    active_emails = set()
+    capped = False
+    sparams = {"status": "active", "limit": 100, "expand": ["data.customer"]}
+    t0 = _time.time()
+    try:
+        while True:
+            if _time.time() - t0 > 20:
+                capped = True
+                break
+            page = _stripe.Subscription.list(**sparams)
+            for s in page.data:
+                cust = getattr(s, "customer", None)
+                email = None
+                if cust and not isinstance(cust, str):
+                    email = getattr(cust, "email", None)
+                if email:
+                    active_emails.add(email.strip().lower())
+            if getattr(page, "has_more", False) and page.data:
+                sparams["starting_after"] = page.data[-1].id
+            else:
+                break
+    except Exception as e:
+        return JSONResponse({"error": f"stripe subscription query failed: {str(e)[:200]}"}, status_code=500)
+    # match against AL members
+    matched, missed, not_in_al = [], [], []
+    for em in active_emails:
+        u = db.query(User).filter(func.lower(User.email) == em).first()
+        if not u:
+            not_in_al.append(em)
+            continue
+        gifted = (db.query(PackPurchase)
+                    .filter(PackPurchase.user_id == u.id,
+                            PackPurchase.source == "gift").count())
+        row = {"user_id": u.id, "username": u.username, "email": u.email,
+               "access_level": u.access_level, "gifted_packs": gifted}
+        if u.access_level == "lifetime" and gifted > 0:
+            matched.append(row)
+        else:
+            missed.append(row)
+    return JSONResponse({
+        "active_stripe_subscribers_found": len(active_emails),
+        "stripe_query_capped_at_20s": capped,
+        "comped_correctly": len(matched),
+        "active_subscribers_NOT_comped": missed,
+        "missed_count": len(missed),
+        "subscriber_emails_with_no_AL_account": not_in_al,
+        "diagnosis": ("active_subscribers_NOT_comped = paying Stripe subscribers "
+                      "who should be lifetime+pack but aren't — the real misses "
+                      "like 'success'. Each gets grant-lifetime + grant-pack "
+                      "level 100. This is ground-truth from Stripe, not inferred "
+                      "from migrated DB fields."),
+    })
+
+
 @app.get("/admin/api/al/comping-reconcile-v2")
 def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: comprehensive miss-detector. Flags any member showing EVIDENCE of
