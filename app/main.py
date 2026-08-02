@@ -72876,6 +72876,13 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   }
   function renderPicker(j){
     packs=j.packs||[];
+    // does the member actually OWN at least one pack? (owned_level>0, or any
+    // card in an owned/needs_ad/running/grace state). Drives the share banner
+    // so we never say 'Your packs are active' when they own no packs.
+    window._ownsPack = (j.owned_level||0) > 0 || packs.some(function(p){
+      return ['needs_ad','running','in_grace','paused','owned_admin'].indexOf(p.state)>=0;
+    });
+    if(typeof loadShareBanner==='function') loadShareBanner();
     // reset the buy button + selection whenever we (re)show the picker — e.g.
     // after cancelling a purchase — so it never stays stuck on 'Preparing…'.
     sel=null;
@@ -73056,6 +73063,14 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
     fetch('/api/al/share-status').then(function(r){return r.ok?r.json():null}).then(function(s){
       if(!s||!s.ok)return;
       var el=document.getElementById('shareBanner');if(!el)return;
+      // If the member owns no pack, there's nothing to be 'active' — show a
+      // get-started prompt instead of the share/active banner.
+      if(window._ownsPack===false){
+        el.innerHTML='<div class="sb"><div class="sbrow"><span class="sbic">\uD83D\uDC4B</span>'
+          +'<div><div class="sbh">Pick a pack to get started</div>'
+          +'<div class="sbp">You don\'t own a campaign pack yet. Choose one below to create your ad and start earning from your team\'s sales.</div></div></div></div>';
+        return;
+      }
       if(s.share_qualified){
         var due=s.next_due?Math.max(0,Math.ceil((new Date(s.next_due)-new Date())/86400000)):7;
         el.innerHTML='<div class="sb ok"><div class="sbrow"><span class="sbic">📣</span>'
