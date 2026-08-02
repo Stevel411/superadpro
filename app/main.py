@@ -7166,7 +7166,7 @@ def marketing_asset_page(slug: str, username: str, request: Request, db: Session
     first_name = (sponsor.first_name or sponsor.username or "").strip() or sponsor.username
     substitutions = {
         "{{ACTIVATION_URL}}": f"/register?ref={sponsor.username}",
-        "{{REFERRAL_URL}}":   f"https://www.superadpro.com/ref/{sponsor.username}",
+        "{{REFERRAL_URL}}":   f"{brand_config.BASE_URL}/ref/{sponsor.username}",
         "{{USERNAME}}":       sponsor.username,
         "{{FIRST_NAME}}":     first_name,
     }
@@ -7688,7 +7688,7 @@ async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
         )
         db.add(reset_token)
         db.commit()
-        reset_url = f"https://www.superadpro.com/reset-password?token={token}"
+        reset_url = f"{brand_config.BASE_URL}/reset-password?token={token}"
         send_password_reset_email(
             to_email=user.email,
             first_name=user.first_name or user.username,
@@ -25212,7 +25212,7 @@ def forgot_password_process(
     db.commit()
 
     # Send email (fails silently if SMTP not configured)
-    reset_url = f"https://www.superadpro.com/reset-password?token={token}"
+    reset_url = f"{brand_config.BASE_URL}/reset-password?token={token}"
     send_password_reset_email(
         to_email   = user.email,
         first_name = user.first_name or user.username,
