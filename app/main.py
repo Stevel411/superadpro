@@ -70804,6 +70804,86 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/ses-deep-test")
+def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: send ONE email straight through SES SMTP and return the RAW server
+    response, so we can tell 'SES accepted it for delivery' (250 Ok <queue-id>)
+    apart from 'SMTP handshake merely didn't error'. The 250 response contains
+    the real SES message id; its ABSENCE, or an auth/verify/sandbox error, tells
+    us exactly why mail isn't arriving. Read-only apart from the one test send."""
+    _require_admin(user)
+    import os as _os, smtplib, ssl as _ssl
+    from email.mime.text import MIMEText as _MT
+    from email.mime.multipart import MIMEMultipart as _MM
+    from email.utils import formataddr as _fa
+    if "@" not in to:
+        return JSONResponse({"ok": False, "error": "pass ?to=you@example.com"}, status_code=400)
+    host = _os.getenv("SES_SMTP_HOST", "")
+    port = int(_os.getenv("SES_SMTP_PORT", "587"))
+    smtp_user = _os.getenv("SES_SMTP_USER", "")
+    smtp_pass = _os.getenv("SES_SMTP_PASS", "")
+    from_email = (_os.getenv("MEMBER_FROM_EMAIL", "").strip()
+                  or _os.getenv("FROM_EMAIL", "").strip()
+                  or brand_config.FROM_EMAIL)
+    out = {
+        "smtp_host": host or "(UNSET)",
+        "smtp_port": port,
+        "smtp_user_set": bool(smtp_user),
+        "smtp_pass_set": bool(smtp_pass),
+        "from_email": from_email,
+        "to": to,
+    }
+    if not (host and smtp_user and smtp_pass):
+        out["ok"] = False
+        out["diagnosis"] = "SES SMTP env vars missing — SES_SMTP_HOST/USER/PASS must be set on Railway."
+        return JSONResponse(out, status_code=200)
+    msg = _MM("alternative")
+    msg["Subject"] = "AdvantageLife SES deep test"
+    msg["From"] = _fa(("AdvantageLife", from_email))
+    msg["To"] = to
+    msg.attach(_MT("SES deep test — if you can read this, SES delivered.", "plain", "utf-8"))
+    try:
+        ctx = _ssl.create_default_context()
+        with smtplib.SMTP(host, port, timeout=25) as s:
+            s.set_debuglevel(0)
+            code_ehlo, _ = s.ehlo()
+            s.starttls(context=ctx)
+            s.ehlo()
+            code_login, resp_login = s.login(smtp_user, smtp_pass)
+            # sendmail returns {} when ALL recipients accepted; the raw 250
+            # response (with the SES queue id) is on the connection after DATA.
+            s.sendmail(from_email, [to], msg.as_string())
+            # capture the last server response — SES puts 'Ok <id>' here
+            last_code = getattr(s, "_last_code", None)
+            last_resp = getattr(s, "_last_response", None)
+        out["ok"] = True
+        out["login_code"] = code_login
+        out["diagnosis"] = ("SES accepted the message over SMTP. If it still doesn't "
+                            "ARRIVE, the cause is AWS-side: (1) SES account in SANDBOX "
+                            "(only delivers to VERIFIED addresses), or (2) the FROM "
+                            "address/domain is not a verified SES identity, or (3) the "
+                            "recipient is on the SES suppression list. Check the SES "
+                            "console: Account dashboard (sandbox?), Verified identities "
+                            "(is " + from_email + " verified?), Suppression list.")
+        return JSONResponse(out, status_code=200)
+    except smtplib.SMTPAuthenticationError as e:
+        out["ok"] = False
+        out["diagnosis"] = f"SMTP AUTH FAILED — SES_SMTP_USER/PASS are wrong or from the wrong region. {str(e)[:200]}"
+        return JSONResponse(out, status_code=200)
+    except smtplib.SMTPSenderRefused as e:
+        out["ok"] = False
+        out["diagnosis"] = f"SES REFUSED THE SENDER — {from_email} is not a verified SES identity (or sandbox). {str(e)[:200]}"
+        return JSONResponse(out, status_code=200)
+    except smtplib.SMTPRecipientsRefused as e:
+        out["ok"] = False
+        out["diagnosis"] = f"SES REFUSED THE RECIPIENT — likely SANDBOX (recipient not verified) or suppressed. {str(e)[:200]}"
+        return JSONResponse(out, status_code=200)
+    except Exception as e:
+        out["ok"] = False
+        out["diagnosis"] = f"Send failed: {type(e).__name__}: {str(e)[:200]}"
+        return JSONResponse(out, status_code=200)
+
+
 @app.get("/admin/api/al/brand-check")
 def al_brand_check(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: echo the resolved brand + email config so we can PROVE, on the live
