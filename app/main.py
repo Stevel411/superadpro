@@ -73533,7 +73533,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <input id="adUrl" class="fin" placeholder="https://youtube.com/watch?v=…">
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd" style="display:none"></div>
-      <button class="btn" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
+      <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
       <button class="btncancel" id="btnCancelAd" onclick="cancelPurchase()">← Cancel — choose a different pack</button>
     </div>
 
@@ -73546,7 +73546,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <input id="adUrl2" class="fin" placeholder="https://youtube.com/watch?v=…">
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd2" style="display:none"></div>
-      <button class="btn" id="btnAd2" onclick="submitAd2()">Put my ad live →</button>
+      <button class="btn red" id="btnAd2" onclick="submitAd2()">Put my ad live →</button>
     </div>
 
     <div class="scr" id="sPay">
