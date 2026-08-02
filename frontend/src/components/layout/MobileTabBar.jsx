@@ -11,7 +11,9 @@ var tabs = [
   // expecting an earnings-only view. Renamed 2 May 2026 to match what
   // tapping it actually opens.
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-  { key: 'wallet', label: 'Wallet', icon: CircleDollarSign, path: '/wallet' },
+  ((typeof window !== 'undefined' && window.location.hostname.indexOf('advantagelife') !== -1)
+    ? { key: 'wallet', label: 'Get Paid', icon: CircleDollarSign, path: '/payout-methods' }
+    : { key: 'wallet', label: 'Wallet', icon: CircleDollarSign, path: '/wallet' }),
 ];
 
 export default function MobileTabBar() {

@@ -294,7 +294,7 @@ function AppRoutes() {
       <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />
       <Route path="/command-centre/directs/never-paid" element={<ProtectedRoute><BucketList bucketKey="directs-never-paid" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
-      <Route path="/wallet" element={<ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>} />
+      <Route path="/wallet" element={<WalletRoute />} />
       <Route path="/w/:token" element={<SharePage />} />
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
@@ -490,6 +490,22 @@ function HardRedirect({ to }) {
   // required (react-router would render nothing for these paths).
   React.useEffect(function () { window.location.replace(to); }, [to]);
   return null;
+}
+
+function WalletRoute() {
+  // AdvantageLife is 100% peer-to-peer: buyers pay sellers directly and the
+  // platform never holds funds, so there is no balance to withdraw. On AL,
+  // /wallet must never render the withdrawal UI (a member reaching it via a
+  // client-side nav link would otherwise bypass the server redirect). Send
+  // them to /payout-methods (where they set how buyers pay them). SuperAdPro
+  // keeps its normal Wallet.
+  var host = (typeof window !== 'undefined' ? window.location.hostname : '');
+  if (host.indexOf('advantagelife') !== -1) {
+    return <HardRedirect to="/payout-methods" />;
+  }
+  return (
+    <ProtectedRoute><RequireTier tier="basic"><Wallet /></RequireTier></ProtectedRoute>
+  );
 }
 
 export default function App() {
