@@ -42350,9 +42350,10 @@ async def admin_trigger_daily_briefing(
     Added 26 May 2026 for the cron-worker investigation.
     """
     from . import brand_config as _bc
-    if _bc.IS_ADVANTAGELIFE:
-        from fastapi.responses import JSONResponse as _JR
-        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
+    # (Re-enabled for AdvantageLife 2 Aug 2026: the AL daily briefing is now
+    # configured with DAILY_BRIEFING_EMAIL, so the admin needs this manual
+    # trigger to test it. Admin-gated + idempotent via the daily_briefings
+    # UNIQUE constraint, so safe on both brands.)
     from fastapi.responses import JSONResponse
     if not user or not user.is_admin:
         return JSONResponse({"error": "Admin only"}, status_code=403)
