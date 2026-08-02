@@ -71123,6 +71123,28 @@ def al_ses_deep_test(to: str = "", user: User = Depends(_al_user), db: Session =
         return JSONResponse(out, status_code=200)
 
 
+@app.get("/admin/api/al/secrets-status")
+def al_secrets_status(user: User = Depends(_al_user)):
+    """ADMIN: reports which required secrets are SET, as booleans + length only
+    — never the values. Lets Steve verify Railway config safely."""
+    _require_admin(user)
+    import os as _os
+    def _set(name):
+        v = _os.getenv(name, "")
+        return {"set": bool(v and v.strip()), "length": (len(v) if v else 0)}
+    required = ["SESSION_SECRET", "MIGRATION_SECRET", "CRON_SECRET",
+                "ADMIN_SECRET", "ADMIN_RESET_SECRET"]
+    optional = ["BACKUP_SECRET", "REMOTION_RENDER_SECRET", "ORIGIN_VERIFY_SECRET"]
+    out = {"required": {n: _set(n) for n in required},
+           "optional": {n: _set(n) for n in optional}}
+    missing = [n for n in required if not out["required"][n]["set"]]
+    out["missing_required"] = missing
+    out["all_required_set"] = (len(missing) == 0)
+    out["note"] = ("Values never shown — only set/length. Aim for 32+ chars. "
+                   "Any missing required secret should be set in Railway.")
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/brand-check")
 def al_brand_check(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: echo the resolved brand + email config so we can PROVE, on the live
