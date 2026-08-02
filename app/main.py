@@ -71973,6 +71973,24 @@ def _al_pack_state(db, user, pack):
     right thing on each card: buyable / needs-ad / running (with progress) /
     in-grace. Admin owns everything via the sentinel (no blocking rows)."""
     if user.is_admin:
+        # Admin owns everything via the sentinel, so every card is 'owned_admin'
+        # by default. BUT if the admin is actually RUNNING a campaign, reflect it
+        # on the matching pack level (green 'running' + real progress) rather than
+        # a flat navy 'OWNED' — otherwise the admin's own live campaign is
+        # invisible on their packs page. Match by the campaign's views_target to
+        # the pack's views_target (that's the level the ad is running at).
+        camp = (db.query(VideoCampaign)
+                  .filter(VideoCampaign.user_id == user.id,
+                          VideoCampaign.status == "active",
+                          VideoCampaign.views_target == pack.views_target)
+                  .order_by(VideoCampaign.id.desc()).first())
+        if camp:
+            delivered = camp.views_delivered or 0
+            target = camp.views_target or pack.views_target or 0
+            return {"state": "running", "active": True, "needs_ad": False,
+                    "blocked": False, "owned_admin": True,
+                    "progress": {"delivered": delivered, "target": target,
+                                 "pct": (round(100 * delivered / target) if target else 0)}}
         return {"state": "owned_admin", "active": True, "needs_ad": False,
                 "blocked": False, "progress": None}
     # newest active pack at this level (if any)
