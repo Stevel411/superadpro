@@ -70955,6 +70955,8 @@ def al_brand_check(user: User = Depends(_al_user), db: Session = Depends(get_db)
         "email_provider": provider,
         "email_provider_ok": (provider == "ses"),
         "ses_from_domain": _os.getenv("SES_FROM_EMAIL", _os.getenv("FROM_EMAIL", "(unset)")),
+        "sender_display_name": (_os.getenv("BRAND_SENDER_NAME") or brand_config.BRAND_NAME),
+        "daily_briefing_recipient": (_os.getenv("DAILY_BRIEFING_EMAIL", "").strip() or "(UNSET — briefing has nowhere to send)"),
         "note": "base_url must contain 'advantagelife' or reset/claim links go to the "
                 "old platform. email_provider should be 'ses' now Brevo is retired.",
     })
