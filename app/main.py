@@ -70949,6 +70949,41 @@ def al_mail_diagnose(to: str = "", user: User = Depends(_al_user), db: Session =
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/audience-check")
+def al_audience_check(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: how many members each launch-email audience would actually target.
+    Diagnoses the 'loyal=0 recipients' problem: are the gifted-pack members
+    access_level='lifetime' (loyal targets that) or still 'free'? Read-only."""
+    _require_admin(user)
+    from sqlalchemy import func as _f
+    # access_level distribution across all members
+    dist = dict(db.query(User.access_level, _f.count(User.id))
+                  .group_by(User.access_level).all())
+    dist = {(k or "NULL"): v for k, v in dist.items()}
+    # members holding a gifted pack (source='gift')
+    gifted_ids = [r[0] for r in db.query(PackPurchase.user_id)
+                    .filter(PackPurchase.source == "gift").distinct().all()]
+    # of those, how many are lifetime vs free vs other
+    gifted_breakdown = {}
+    for uid in gifted_ids:
+        u = db.query(User).filter(User.id == uid).first()
+        lvl = (u.access_level if u else "?") or "NULL"
+        gifted_breakdown[lvl] = gifted_breakdown.get(lvl, 0) + 1
+    total_with_email = db.query(_f.count(User.id)).filter(
+        User.email.isnot(None), User.email != "", User.is_admin == False).scalar()
+    return JSONResponse({
+        "access_level_distribution": dist,
+        "gifted_pack_holders_total": len(gifted_ids),
+        "gifted_pack_holders_by_access_level": gifted_breakdown,
+        "total_members_with_email": total_with_email,
+        "diagnosis": ("The 'loyal' email targets access_level='lifetime'. If the "
+                      "gifted-pack holders are mostly 'free', that's why loyal "
+                      "returns 0 — a gifted PACK is separate from lifetime "
+                      "MEMBERSHIP. Fix: either target the gifted-pack cohort "
+                      "directly, or grant them lifetime, depending on intent."),
+    })
+
+
 @app.get("/admin/api/al/sponsor-provenance")
 def al_sponsor_provenance(user_id: int, user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: trace HOW a user got their sponsor — the raw record + any
