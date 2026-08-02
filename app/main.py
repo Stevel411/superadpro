@@ -32581,9 +32581,9 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
         return _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user)
     except Exception as _e:
         import traceback as _tb
+        logger.error(f"[launch-broadcast] failed: {_tb.format_exc()}")
         return JSONResponse({"error": "launch-broadcast failed",
-                             "detail": f"{type(_e).__name__}: {str(_e)[:300]}",
-                             "trace": _tb.format_exc()[-800:]}, status_code=500)
+                             "detail": f"{type(_e).__name__}"}, status_code=500)
 
 
 def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
