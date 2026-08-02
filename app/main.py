@@ -70804,6 +70804,31 @@ def al_tidy_intents(apply: int = 0, cancel_id: int = 0, force: int = 0,
     return JSONResponse(out)
 
 
+@app.get("/admin/api/al/brand-check")
+def al_brand_check(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: echo the resolved brand + email config so we can PROVE, on the live
+    deploy, that password-reset/referral links point to AdvantageLife (not the
+    superadpro.com default) and which email provider is active. Read-only."""
+    _require_admin(user)
+    import os as _os
+    base = brand_config.BASE_URL
+    sample_reset = f"{base}/reset-password?token=SAMPLE"
+    provider = _os.getenv("EMAIL_PROVIDER", "brevo").strip().lower()
+    return JSONResponse({
+        "brand_name": brand_config.BRAND_NAME,
+        "base_url": base,
+        "is_advantagelife": brand_config.IS_ADVANTAGELIFE,
+        "reset_links_point_to": ("AdvantageLife ✓" if "advantagelife" in base.lower()
+                                 else "*** SuperAdPro — WRONG, set BASE_URL env ***"),
+        "sample_reset_url": sample_reset,
+        "email_provider": provider,
+        "email_provider_ok": (provider == "ses"),
+        "ses_from_domain": _os.getenv("SES_FROM_EMAIL", _os.getenv("FROM_EMAIL", "(unset)")),
+        "note": "base_url must contain 'advantagelife' or reset/claim links go to the "
+                "old platform. email_provider should be 'ses' now Brevo is retired.",
+    })
+
+
 @app.get("/admin/api/al/gift-packs-summary")
 def al_gift_packs_summary(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: launch-readiness snapshot of gifted (comped) campaign packs — how
