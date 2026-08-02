@@ -71157,7 +71157,7 @@ def al_comped_member_check(user_id: int = 0, username: str = "",
     # earning gates (best-effort via al_engine if present)
     try:
         from . import al_engine as _ale
-        m = _ale._member(db, t.id)
+        m = _ale._member(db, t.id, {})
         out["earning_gates"] = {
             "earning_level": getattr(m, "earning_level", None),
             "watch_qualified": getattr(m, "watch_qualified", None),
@@ -71165,6 +71165,16 @@ def al_comped_member_check(user_id: int = 0, username: str = "",
         }
     except Exception as e:
         out["earning_gates"] = f"(al_engine check error: {str(e)[:100]})"
+    # which launch emails did this user receive? (loyal = free-pack promise)
+    try:
+        from sqlalchemy import text as _t
+        rows = db.execute(_t(
+            "SELECT broadcast_key, status FROM broadcast_log WHERE user_id = :u"),
+            {"u": t.id}).fetchall()
+        out["launch_emails_received"] = [{"key": r[0], "status": r[1]} for r in rows] or "none"
+        out["got_free_pack_email"] = any("loyal" in (r[0] or "") for r in rows)
+    except Exception as e:
+        out["launch_emails_received"] = f"(error: {str(e)[:80]})"
     out["diagnosis"] = (
         "If account_claimed_password_set is False, they haven't set a password "
         "yet (can't log in). If gifted_packs_count is 0, the pack is missing. If "
