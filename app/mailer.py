@@ -40,8 +40,10 @@ from email.utils import formataddr, make_msgid
 
 try:
     from app.brand_config import BRAND_NAME as _BRAND_NAME
+    from app.brand_config import FROM_EMAIL as _BRAND_FROM_EMAIL
 except Exception:
     _BRAND_NAME = os.getenv("BRAND_NAME", "AdvantageLife")
+    _BRAND_FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@advantagelife.club")
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +194,7 @@ def ses_send(to_email: str, subject: str, html: str, text: str = None,
     port = int(os.getenv("SES_SMTP_PORT", "587"))
     smtp_user = os.getenv("SES_SMTP_USER", "")
     smtp_pass = os.getenv("SES_SMTP_PASS", "")
-    from_email = from_email or os.getenv("FROM_EMAIL", "noreply@superadpro.com")
+    from_email = from_email or os.getenv("FROM_EMAIL", "") or _BRAND_FROM_EMAIL
     from_name = from_name or os.getenv("BREVO_SENDER_NAME") or _BRAND_NAME
 
     if not (host and smtp_user and smtp_pass):
