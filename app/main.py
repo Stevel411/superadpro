@@ -71411,6 +71411,66 @@ def al_stripe_comp_reconcile(user: User = Depends(_al_user), db: Session = Depen
     })
 
 
+@app.get("/admin/api/al/simulate-buy")
+def al_simulate_buy(user_id: int, pack_level: int = 100,
+                    user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: replay exactly what happens when a member tries to buy a pack, so
+    we can see WHY the buy flow fails for them — without needing server logs.
+    Read-only: rolls back any intent it creates."""
+    _require_admin(user)
+    out = {"user_id": user_id, "pack_level": pack_level, "steps": []}
+    buyer = db.query(User).filter(User.id == user_id).first()
+    if not buyer:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+    out["buyer"] = {"username": buyer.username, "access_level": buyer.access_level,
+                    "is_lifetime": _al_is_lifetime(buyer),
+                    "sponsor_id": buyer.sponsor_id}
+    # Step 1: is the buyer allowed (lifetime gate)?
+    if not _al_is_lifetime(buyer):
+        out["steps"].append("BLOCKED: not lifetime — packs require lifetime membership")
+        out["verdict"] = "buyer is not lifetime; /intent returns 403"
+        return JSONResponse(out)
+    out["steps"].append("OK: buyer is lifetime")
+    # Step 2: existing open intent?
+    existing = (db.query(P2PIntent)
+                  .filter(P2PIntent.buyer_id == user_id,
+                          P2PIntent.status.in_(("pending", "proof_submitted"))).first())
+    if existing:
+        out["steps"].append(f"HAS OPEN INTENT id={existing.id} status={existing.status} "
+                            f"campaign_id={existing.campaign_id} — /intent returns 409 (resume this)")
+        out["existing_intent"] = {"id": existing.id, "status": existing.status,
+                                  "campaign_id": existing.campaign_id,
+                                  "pack_level": existing.pack_level}
+        out["verdict"] = ("Member has an OPEN intent — the buy page should RESUME it, "
+                          "not start fresh. If the UI doesn't resume, that's the stuck point.")
+        return JSONResponse(out)
+    out["steps"].append("OK: no existing open intent")
+    # Step 3: try to create the intent (then roll back)
+    try:
+        intent = _als.create_intent(db, user_id, pack_level, do_commit=False)
+        out["steps"].append(f"OK: intent would be created — earner_id={intent.earner_id} "
+                            f"type/amount={float(intent.amount or 0)}")
+        # payability
+        payout = _al_payout_for(intent)
+        if intent.earner_id is not None and not payout:
+            out["steps"].append("PROBLEM: resolved payee has NO payout method — intent would "
+                                "be cancelled with 'Could not prepare this purchase'")
+            out["verdict"] = "Payee has no payout method — THIS is the block."
+        else:
+            out["steps"].append(f"OK: payee payout resolved ({'company' if intent.earner_id is None else 'member'})")
+            out["verdict"] = "Buy flow should work — intent creates cleanly. If UI still stuck, it's client-side."
+        db.rollback()  # never persist the simulated intent
+    except ValueError as e:
+        db.rollback()
+        out["steps"].append(f"BLOCKED at create_intent: {str(e)[:160]}")
+        out["verdict"] = f"create_intent raised: {str(e)[:120]}"
+    except Exception as e:
+        db.rollback()
+        out["steps"].append(f"ERROR at create_intent: {type(e).__name__}: {str(e)[:160]}")
+        out["verdict"] = "unexpected error — see step"
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/comping-reconcile-v2")
 def al_comping_reconcile_v2(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: comprehensive miss-detector. Flags any member showing EVIDENCE of
