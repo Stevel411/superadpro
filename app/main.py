@@ -42339,6 +42339,7 @@ async def admin_daily_briefing_status(
 @app.get("/admin/trigger-daily-briefing")
 async def admin_trigger_daily_briefing(
     request: Request,
+    force: int = 0,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -42366,6 +42367,22 @@ async def admin_trigger_daily_briefing(
             {"error": "CRON_SECRET not configured in environment"},
             status_code=500,
         )
+    # ?force=1 — delete today's briefing row first, so it REGENERATES and
+    # actually sends. Needed when today's row was created earlier (e.g. before
+    # DAILY_BRIEFING_EMAIL was set) so it generated but never emailed, and the
+    # normal idempotency check would otherwise skip it forever.
+    if force:
+        try:
+            from .database import DailyBriefing
+            from datetime import date as _date
+            _today = str(_date.today())
+            _n = db.query(DailyBriefing).filter(
+                DailyBriefing.briefing_date == _today).delete(synchronize_session=False)
+            db.commit()
+            logger.info(f"[briefing] force=1 deleted {_n} row(s) for {_today} to resend")
+        except Exception as e:
+            db.rollback()
+            return JSONResponse({"error": f"force-delete failed: {str(e)[:200]}"}, status_code=500)
     # Re-enter cron_daily_briefing with the correct secret. It returns
     # a dict (success) or JSONResponse (auth/error path).
     result = await cron_daily_briefing(
