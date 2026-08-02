@@ -32396,7 +32396,7 @@ REENGAGEMENT_BROADCAST_KEY = "reengagement_2026_05_16"
 AL_LAUNCH_EMAILS = {
     # Audience: the 53 grandfathered lifetime members (loyal, paid SuperAdPro)
     "loyal": {
-        "broadcast_key": "al_launch_loyal_2026_07",
+        "broadcast_key": "al_launch_loyal_2026_08_relaunch",
         "audience": "lifetime",
         "subject": "We're live \u2014 claim your account and your gifted pack (AdvantageLife)",
         "body_md": (
