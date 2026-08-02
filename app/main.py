@@ -568,52 +568,62 @@ async def startup_event():
     try:
         from .database import SessionLocal, VideoCampaign, User, Grid
         from sqlalchemy import and_, or_
-        cleanup_db = SessionLocal()
-        try:
-            # Find user IDs with at least one active grid (= has paid tier)
-            from sqlalchemy import distinct
-            paid_ids = {r[0] for r in cleanup_db.query(distinct(Grid.owner_id)).filter(
-                Grid.is_complete == False
-            ).all()}
-            # Plus admins always count as paid
-            admin_ids = {u.id for u in cleanup_db.query(User).filter(User.is_admin == True).all()}
-            qualified_owners = paid_ids | admin_ids
+        # ── AdvantageLife: SKIP this entirely. This cleanup pauses any campaign
+        # whose owner has no active GRID — but AL retired grids and gates on PACK
+        # ownership instead. On AL every member fails the grid check, so this
+        # wrongly pauses EVERY campaign to paused_no_tier (the "No Tier" badge)
+        # and no pack ever activates. Pack ownership is enforced at /upload.
+        from . import brand_config as _bc
+        if _bc.IS_ADVANTAGELIFE:
+            logger.info("[BOOT-CLEANUP] AdvantageLife — skipping grid-based "
+                        "paused_no_tier sweep (AL gates on packs, not grids)")
+        else:
+            cleanup_db = SessionLocal()
+            try:
+                # Find user IDs with at least one active grid (= has paid tier)
+                from sqlalchemy import distinct
+                paid_ids = {r[0] for r in cleanup_db.query(distinct(Grid.owner_id)).filter(
+                    Grid.is_complete == False
+                ).all()}
+                # Plus admins always count as paid
+                admin_ids = {u.id for u in cleanup_db.query(User).filter(User.is_admin == True).all()}
+                qualified_owners = paid_ids | admin_ids
 
-            # Find active campaigns whose owner is NOT in the qualified set.
-            # If qualified_owners is empty (extreme edge case: no one on the
-            # platform has a tier), we want to pause ALL active campaigns.
-            stuck_query = cleanup_db.query(VideoCampaign).filter(
-                VideoCampaign.status == "active",
-            )
-            if qualified_owners:
-                stuck_query = stuck_query.filter(
-                    ~VideoCampaign.user_id.in_(qualified_owners)
+                # Find active campaigns whose owner is NOT in the qualified set.
+                # If qualified_owners is empty (extreme edge case: no one on the
+                # platform has a tier), we want to pause ALL active campaigns.
+                stuck_query = cleanup_db.query(VideoCampaign).filter(
+                    VideoCampaign.status == "active",
                 )
-            stuck = stuck_query.all()
+                if qualified_owners:
+                    stuck_query = stuck_query.filter(
+                        ~VideoCampaign.user_id.in_(qualified_owners)
+                    )
+                stuck = stuck_query.all()
 
-            paused_count = 0
-            notified_users = set()
-            for c in stuck:
-                c.status = "paused_no_tier"
-                paused_count += 1
-                # Notify owner once (not once per campaign)
-                if c.user_id not in notified_users:
-                    try:
-                        send_notification(cleanup_db, c.user_id, "campaign_paused", "⏸️",
-                            "Your campaign is paused",
-                            "You need an active Campaign Tier to keep your campaigns running. "
-                            "Visit Campaign Tiers to purchase a tier and reactivate your campaign.")
-                        notified_users.add(c.user_id)
-                    except Exception:
-                        # Notification failure doesn't block the pause itself
-                        pass
-            cleanup_db.commit()
-            if paused_count > 0:
-                print(f"✅ Paused {paused_count} Tier-0 campaign(s); notified {len(notified_users)} owner(s)")
-            else:
-                print("✅ No Tier-0 campaigns to pause")
-        finally:
-            cleanup_db.close()
+                paused_count = 0
+                notified_users = set()
+                for c in stuck:
+                    c.status = "paused_no_tier"
+                    paused_count += 1
+                    # Notify owner once (not once per campaign)
+                    if c.user_id not in notified_users:
+                        try:
+                            send_notification(cleanup_db, c.user_id, "campaign_paused", "⏸️",
+                                "Your campaign is paused",
+                                "You need an active Campaign Tier to keep your campaigns running. "
+                                "Visit Campaign Tiers to purchase a tier and reactivate your campaign.")
+                            notified_users.add(c.user_id)
+                        except Exception:
+                            # Notification failure doesn't block the pause itself
+                            pass
+                cleanup_db.commit()
+                if paused_count > 0:
+                    print(f"✅ Paused {paused_count} Tier-0 campaign(s); notified {len(notified_users)} owner(s)")
+                else:
+                    print("✅ No Tier-0 campaigns to pause")
+            finally:
+                cleanup_db.close()
     except Exception as e:
         print(f"⚠️ Tier-0 cleanup skipped: {e}")
 
