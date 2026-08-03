@@ -71411,6 +71411,57 @@ def al_stripe_comp_reconcile(user: User = Depends(_al_user), db: Session = Depen
     })
 
 
+@app.get("/admin/api/al/test-create-draft")
+def al_test_create_draft(user_id: int,
+                         user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: run the create-draft ad logic for a user and report exactly what
+    happens (success or the failing check/exception). Read-only — rolls back."""
+    _require_admin(user)
+    out = {"user_id": user_id, "steps": []}
+    t = db.query(User).filter(User.id == user_id).first()
+    if not t:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+    out["is_admin"] = bool(t.is_admin)
+    out["access_level"] = getattr(t, "access_level", "?")
+    # gate 1: lifetime/membership
+    lifetime_ok = _al_is_lifetime(t)
+    out["steps"].append(f"gate _al_is_lifetime = {lifetime_ok}"
+                        + ("" if lifetime_ok else " -> would 403 'join for $100'"))
+    if not lifetime_ok:
+        out["verdict"] = "BLOCKED at lifetime gate — create-draft returns 403 (button shows error, or nothing if error box hidden)."
+        return JSONResponse(out)
+    # gate 2: url parse
+    parsed = parse_video_url("https://www.youtube.com/watch?v=kXp_XEm_5EA&t=2s")
+    out["steps"].append(f"parse_video_url(test) = {'ok '+str(parsed.get('platform')) if parsed else 'FAILED'}")
+    if not parsed:
+        out["verdict"] = "URL parse failed."
+        return JSONResponse(out)
+    # try the actual create (rolled back)
+    try:
+        existing_draft = (db.query(VideoCampaign)
+                            .filter(VideoCampaign.user_id == t.id,
+                                    VideoCampaign.status == "draft")
+                            .order_by(VideoCampaign.id.desc()).first())
+        out["steps"].append(f"existing draft: {existing_draft.id if existing_draft else 'none'}")
+        camp = VideoCampaign(
+            user_id=t.id, title="[TEST] draft", platform=parsed["platform"],
+            video_url="https://www.youtube.com/watch?v=kXp_XEm_5EA",
+            embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
+            status="draft", views_target=0, views_delivered=0, campaign_tier=0,
+            is_completed=False, share_approved=False, created_at=datetime.utcnow())
+        db.add(camp); db.flush()
+        out["steps"].append(f"draft created OK id={camp.id} status={camp.status}")
+        out["verdict"] = "create-draft WORKS for this user. If the button does nothing, it's client-side (JS/fetch), not the endpoint."
+        db.rollback()
+    except Exception as e:
+        import traceback as _tb
+        db.rollback()
+        out["steps"].append(f"EXCEPTION: {type(e).__name__}: {str(e)[:200]}")
+        out["trace_tail"] = _tb.format_exc().splitlines()[-5:]
+        out["verdict"] = "create-draft RAISES for this user — THIS is why the button does nothing (500)."
+    return JSONResponse(out)
+
+
 @app.get("/admin/api/al/test-new-flow")
 def al_test_new_flow(user_id: int, pack_level: int = 10,
                      user: User = Depends(_al_user), db: Session = Depends(get_db)):
