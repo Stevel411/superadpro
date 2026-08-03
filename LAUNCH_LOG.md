@@ -1413,6 +1413,18 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Recently shipped (last 7 days)
 
+- ee3b527 AL campaign-limit message: "buy another pack" not "upgrade your tier" (1:1 pack=campaign confirmed) (3 Aug)
+- bbef8bd AL watch timer instant-qualify fix (5-min resume grace) + CTA link field added to Create Campaign (3 Aug)
+- 8841845 AL copy: "$10 pack" not "Level 10"; pack-activated notif says "ad is now live" not "create your campaign" (3 Aug)
+- 06acbc1 AL: Brand Posters removed from my-marketing (retired SAP feature) (3 Aug)
+- d0fe6a8 AL: treasury-drain watchdog disabled — AL holds no funds, strict P2P (was firing false drain alarms) (3 Aug)
+- d91c371 AL showcase: real YouTube video thumbnails instead of gradient placeholders (3 Aug)
+- 6a003f6 AL FIX: small campaigns starved out of showcase rotation — include all when they fit + backfill (3 Aug)
+- 4a62bf7 AL nav: Create Campaign always opens ad-creation step (?new=1); My Campaigns = separate stats page (3 Aug)
+- 196b0d9 AL FIX: notification click bounced to dashboard — use real <a> for server pages, <Link> for SPA routes (3 Aug)
+- 06280dc AL Confirm-a-Sale: hide dead cancelled/expired intents from seller view (3 Aug)
+- a26205b AL FIX: dead "Save my ad" button — submitAd trapped in IIFE, exposed window.submitAd (3 Aug)
+- a6cbac3 + f2d7927 + 6b66c48 NEW AD-FIRST BUY FLOW: create ad (draft) → payout → package → pay; verified e2e on test8 (3 Aug)
 - b3a1d405 Bookkeeping fix: `_activate_membership` now writes the `membership_company` row (10 May)
 - b305fdcf MCP monitoring: bucket commissions table by income stream — also fixed latent reconciliation bug in `financial_sanity` (10 May)
 - 6acd877 membership_tier='basic' default lie eliminated — proper data model fix (10 May)
