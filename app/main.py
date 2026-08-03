@@ -74299,7 +74299,12 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     loadShareBanner();
     // Route to the right step of the NEW flow: open purchase resumes at payment;
     // otherwise ad first, then receiving method, then package.
+    // 'Create Campaign' (?new=1) always starts fresh at the ad-creation step,
+    // so it behaves like a creation page — never jumps to package selection just
+    // because a draft already exists. Only an OPEN paid intent still resumes.
+    var forceNew = new URLSearchParams(location.search).get('new') === '1';
     if(j.open_intent){ handleExisting(j.open_intent); }
+    else if(forceNew){ show('sAd'); }
     else if(!j.has_draft_ad){ show('sAd'); }
     else if(!j.has_payout_method){ show('sPayout'); }
     else { show('sPick'); }
