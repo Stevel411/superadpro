@@ -692,9 +692,9 @@ export default function NewDashboard() {
             <a className="on" href="/dashboard">Dashboard</a>
             <div className="navhdr">GET STARTED</div>
             <a href="/start-here" style={{ color: '#2ecc71', fontWeight: 900, fontSize: 18 }}><span style={{ fontSize: 22 }}>⭐</span> Start Here</a>
-            <Link to="/video-library">Create Campaign</Link>
+            <a href="/packs">Create Campaign</a>
+            <Link to="/campaigns">My Campaigns</Link>
             <a href="/payout-methods">Payment Details</a>
-            <a href="/packs">Buy a Pack</a>
             <Link to="/watch">Daily Watch</Link>
             <Link to="/my-marketing">Share Your Page</Link>
             <div className="navhdr">RUN YOUR BUSINESS</div>
