@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdvantageLife — You're invited</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0a1f52; --navy-2:#12388f; --navy-deep:#071736;
+    --red:#c8102e; --red-bright:#ff2743;
+    --bg:#ffffff; --bg-soft:#f4f7fe; --bg-tint:#eef3fd;
+    --slate:#43537b; --mute:#8393ba;
+    --line:#e2e9f7; --card-line:#e7edfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--navy);
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:0 22px}
+  @media(min-width:820px){.wrap{max-width:1000px;padding:0 40px}}
+
+  /* ── HERO ── */
+  .hero{
+    position:relative;padding:60px 0 54px;
+    background:
+      radial-gradient(120% 80% at 50% -20%, rgba(200,16,46,.10) 0%, rgba(200,16,46,0) 55%),
+      radial-gradient(100% 70% at 88% 0%, rgba(18,56,143,.10) 0%, rgba(18,56,143,0) 60%),
+      linear-gradient(180deg,#ffffff 0%, var(--bg-soft) 100%);
+  }
+  .invite-pill{
+    display:inline-flex;align-items:center;gap:9px;padding:8px 15px;
+    border:1px solid var(--line);border-radius:999px;background:#fff;
+    box-shadow:0 4px 14px -6px rgba(10,31,82,.14);margin-bottom:24px;
+  }
+  .invite-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px rgba(200,16,46,.5)}
+  .invite-pill span{font-size:12.5px;font-weight:700;color:var(--slate)}
+  .invite-pill b{color:var(--navy)}
+
+  h1{font-weight:900;letter-spacing:-.035em;line-height:1.02;font-size:clamp(42px,12vw,72px);color:var(--navy)}
+  h1 .yours{display:block;color:var(--red)}
+  .lede{margin-top:20px;max-width:30ch;font-size:clamp(16px,4.4vw,19px);font-weight:500;color:var(--slate)}
+  @media(min-width:820px){.lede{max-width:44ch;font-size:20px}}
+
+  .cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--red);color:#fff;font-weight:800;font-size:17px;
+    padding:18px 30px;border-radius:14px;border:none;cursor:pointer;text-decoration:none;
+    box-shadow:0 12px 28px -8px rgba(200,16,46,.5), inset 0 1px 0 rgba(255,255,255,.2);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 18px 38px -8px rgba(255,39,67,.55)}
+  .cta .arw{transition:transform .15s ease}.cta:hover .arw{transform:translateX(4px)}
+  .cta-row{margin-top:30px}
+  .cta-note{margin-top:14px;font-size:13px;color:var(--mute);font-weight:500}
+  .cta-note b{color:var(--slate);font-weight:700}
+
+  /* ── payout receipt (light) ── */
+  .payout{
+    position:relative;margin-top:42px;max-width:380px;border-radius:20px;
+    padding:24px 22px 20px;background:#fff;border:1px solid var(--card-line);
+    box-shadow:0 30px 60px -30px rgba(10,31,82,.35);overflow:hidden;
+  }
+  .payout::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),var(--red-bright))}
+  .payout-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .payout-tag{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+  .payout-live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#129d5f}
+  .payout-live .pulse{width:7px;height:7px;border-radius:50%;background:#2ecc71;box-shadow:0 0 0 0 rgba(46,204,113,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.5)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
+  .payout-amt{font-size:46px;font-weight:900;letter-spacing:-.03em;line-height:1;color:var(--navy)}
+  .payout-amt .cur{color:var(--mute);font-size:26px;font-weight:800;vertical-align:top;margin-right:2px}
+  .payout-sub{margin-top:6px;font-size:13.5px;color:var(--slate);font-weight:600}
+  .payout-flow{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .node{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+  .node .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .node.buyer .av{background:var(--bg-tint);color:var(--slate)}
+  .node.you .av{background:var(--red);color:#fff;box-shadow:0 4px 14px rgba(200,16,46,.35)}
+  .node small{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mute)}
+  .node.you small{color:var(--navy)}
+  .flow-arrow{flex:0 0 auto;color:var(--red);font-weight:900;font-size:15px;display:flex;flex-direction:column;align-items:center}
+  .flow-arrow small{font-size:9px;letter-spacing:.06em;color:var(--mute);font-weight:700;text-transform:uppercase;margin-top:2px}
+
+  @media(min-width:820px){
+    .hero{padding:92px 0 80px}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+    .payout{margin-top:0;margin-left:auto}
+  }
+
+  /* ── sections ── */
+  section.blk{padding:58px 0}
+  @media(min-width:820px){section.blk{padding:82px 0}}
+  .seclabel{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+  .sectitle{font-size:clamp(28px,7vw,40px);font-weight:900;letter-spacing:-.03em;line-height:1.06;max-width:18ch;color:var(--navy)}
+  .secintro{margin-top:16px;font-size:16px;color:var(--slate);font-weight:500;max-width:52ch}
+
+  /* ── video card (light + thumbnail) ── */
+  .videowrap{max-width:760px;margin:0 auto}
+  .videocard{
+    position:relative;border-radius:20px;overflow:hidden;cursor:pointer;aspect-ratio:16/9;
+    border:1px solid var(--card-line);background:#0a1f4d center/cover no-repeat;
+    box-shadow:0 30px 60px -30px rgba(10,31,82,.4);
+  }
+  .videocard video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000}
+  .videocard.playing video{display:block}
+  .videocard.playing .poster{display:none}
+  .poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    background:linear-gradient(180deg, rgba(7,23,54,.10) 0%, rgba(7,23,54,.05) 40%, rgba(7,23,54,.55) 100%);}
+  .poster .play{width:76px;height:76px;border-radius:50%;background:var(--red);display:grid;place-items:center;
+    box-shadow:0 0 0 12px rgba(255,255,255,.14),0 14px 36px -6px rgba(200,16,46,.6);transition:transform .16s ease}
+  .videocard:hover .play{transform:scale(1.06)}
+  .poster .play svg{width:30px;height:30px;fill:#fff;margin-left:4px}
+  .poster .vmeta{position:absolute;left:20px;bottom:18px;text-align:left}
+  .poster .vlabel{font-size:15px;font-weight:800;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+  .poster .vsub{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);text-shadow:0 2px 8px rgba(0,0,0,.5);margin-top:2px}
+
+  /* ── steps (light cards) ── */
+  .steps{margin-top:34px;display:flex;flex-direction:column;gap:14px}
+  @media(min-width:820px){.steps{flex-direction:row}}
+  .step{flex:1;background:#fff;border:1px solid var(--card-line);border-radius:18px;padding:24px 22px;
+    box-shadow:0 12px 30px -22px rgba(10,31,82,.4)}
+  .step .num{font-size:13px;font-weight:900;letter-spacing:.05em;color:var(--red);display:inline-flex;align-items:center;gap:8px;margin-bottom:14px}
+  .step .num::before{content:"";width:26px;height:2px;background:var(--red);border-radius:2px}
+  .step h3{font-size:19px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;color:var(--navy)}
+  .step p{font-size:14.5px;color:var(--slate);font-weight:500;line-height:1.55}
+  .step p b{color:var(--navy);font-weight:700}
+
+  /* ── proof (soft tint) ── */
+  .proof{background:var(--bg-soft)}
+  .proof-grid{margin-top:36px;display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:820px){.proof-grid{grid-template-columns:repeat(3,1fr)}}
+  .pcard{border:1px solid var(--card-line);border-radius:16px;padding:24px;background:#fff;box-shadow:0 12px 30px -24px rgba(10,31,82,.4)}
+  .pcard .ic{width:42px;height:42px;border-radius:12px;background:rgba(200,16,46,.08);display:grid;place-items:center;margin-bottom:16px}
+  .pcard .ic svg{width:21px;height:21px;stroke:var(--red)}
+  .pcard h4{font-size:16.5px;font-weight:800;margin-bottom:7px;color:var(--navy)}
+  .pcard p{font-size:14px;color:var(--slate);font-weight:500;line-height:1.55}
+
+  /* ── founding: navy contrast band ── */
+  .founding{
+    margin-top:6px;border-radius:22px;padding:36px 28px;color:#fff;
+    background:
+      radial-gradient(90% 130% at 100% 0%, rgba(255,39,67,.28), rgba(255,39,67,0) 55%),
+      linear-gradient(160deg,var(--navy-2) 0%, var(--navy) 55%, var(--navy-deep) 100%);
+    box-shadow:0 30px 60px -30px rgba(10,31,82,.5);
+  }
+  @media(min-width:820px){.founding{padding:46px 44px;display:flex;align-items:center;justify-content:space-between;gap:40px}}
+  .founding h3{font-size:clamp(24px,6vw,32px);font-weight:900;letter-spacing:-.03em;line-height:1.08}
+  .founding p{margin-top:12px;font-size:15px;color:#c3cff0;font-weight:500;max-width:46ch}
+  .founding .slot{color:var(--red-bright);font-weight:800}
+  .founding-cta{margin-top:22px;flex-shrink:0}
+  @media(min-width:820px){.founding-cta{margin-top:0}}
+
+  /* ── final ── */
+  .final{text-align:center;padding:72px 0 40px;background:var(--bg-soft)}
+  .final h2{font-size:clamp(32px,9vw,52px);font-weight:900;letter-spacing:-.035em;line-height:1.02;color:var(--navy)}
+  .final h2 .yours{color:var(--red)}
+  .final p{margin-top:16px;font-size:16px;color:var(--slate);font-weight:500;max-width:40ch;margin-left:auto;margin-right:auto}
+  .final .cta-row{margin-top:28px}
+
+  footer{background:var(--navy-deep);color:#fff;padding:30px 0 44px;text-align:center}
+  footer .brand{font-weight:900;letter-spacing:-.02em;font-size:16px}
+  footer .brand .a{color:var(--red-bright)}
+  footer p{margin-top:10px;font-size:12px;color:#8fa0cf;font-weight:500;max-width:52ch;margin-left:auto;margin-right:auto;line-height:1.5}
+
+  .rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .rv.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.payout-live .pulse{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="invite-pill"><span class="dot"></span><span><b>{{SPONSOR_NAME}}</b> invited you to AdvantageLife</span></div>
+        <h1>Your effort.<br>Your income.<br><span class="yours">100% yours.</span></h1>
+        <p class="lede">Real attention, turned into real income. You advertise, members watch, and every pack commission goes straight from one member to the next — no company skimming the middle.</p>
+        <div class="cta-row">
+          <a href="/register?ref={{REF}}" class="cta">Claim your spot <span class="arw">→</span></a>
+          <div class="cta-note"><b>$100 once</b> to join for life. No subscription, ever.</div>
+        </div>
+      </div>
+      <div class="payout rv">
+        <div class="payout-top"><span class="payout-tag">Commission received</span><span class="payout-live"><span class="pulse"></span> paid</span></div>
+        <div class="payout-amt"><span class="cur">$</span>50.00</div>
+        <div class="payout-sub">Campaign pack — paid directly to your account</div>
+        <div class="payout-flow">
+          <div class="node buyer"><div class="av">B</div><small>Buyer</small></div>
+          <div class="flow-arrow">$50.00<small>member → member</small></div>
+          <div class="node you"><div class="av">You</div><small>You keep 100%</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SALES VIDEO -->
+<section class="blk" style="padding:44px 0 8px">
+  <div class="wrap videowrap">
+    <div class="videocard rv" style="background-image:url('/static/images/al/sales-thumb-whatis.jpg')" onclick="playVid(this)">
+      <video controls preload="none" playsinline src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4"></video>
+      <div class="poster">
+        <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="vmeta"><div class="vlabel">Watch: what AdvantageLife is</div><div class="vsub">The whole idea, in one watch</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW YOU EARN -->
+<section class="blk">
+  <div class="wrap">
+    <div class="seclabel">How you actually earn</div>
+    <h2 class="sectitle">Three moving parts. That's the whole machine.</h2>
+    <div class="steps">
+      <div class="step rv"><div class="num">Step one</div><h3>Join once, own it for life</h3><p>A single <b>$100</b> unlocks the full toolkit and your place in the network — forever. No monthly fee hanging over you.</p></div>
+      <div class="step rv"><div class="num">Step two</div><h3>Run a video ad</h3><p>Buy a campaign pack and your video goes in front of <b>real, logged-in members</b> who watch it — 30 seconds, verified, no bots.</p></div>
+      <div class="step rv"><div class="num">Step three</div><h3>Get paid — the full amount</h3><p>When someone you bring in buys a pack, <b>you're paid the whole pack price</b>. Member to member, straight to your account.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMP-PLAN VIDEO -->
+<section class="blk" style="padding-top:0">
+  <div class="wrap">
+    <div class="seclabel">Want the full picture?</div>
+    <h2 class="sectitle" style="font-size:clamp(24px,6vw,32px)">See exactly how the plan pays.</h2>
+    <div class="videowrap" style="margin-top:28px">
+      <div class="videocard rv" style="background-image:url('/static/images/al/sales-thumb-plan.jpg')" onclick="playVid(this)">
+        <video controls preload="none" playsinline src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/AdvantageLife%20Business%20Plan.mp4"></video>
+        <div class="poster">
+          <div class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          <div class="vmeta"><div class="vlabel">Watch the full plan</div><div class="vsub">How the commissions and pass-ups work</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT'S REAL -->
+<section class="blk proof">
+  <div class="wrap">
+    <div class="seclabel">Why this isn't the usual</div>
+    <h2 class="sectitle">Built on real attention, not empty promises.</h2>
+    <p class="secintro">Everyone in this space claims easy money. What makes AdvantageLife different is that there's an actual product underneath, and the money moves the honest way — directly between people.</p>
+    <div class="proof-grid">
+      <div class="pcard rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div><h4>A real product</h4><p>Every pack is a genuine ad campaign with a set number of views to deliver — not a number invented to move money around.</p></div>
+      <div class="pcard rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><h4>Real attention</h4><p>Views only count after 30 proven seconds — deduplicated, bot-filtered. A view means a real person actually watched.</p></div>
+      <div class="pcard rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h4>Real ownership</h4><p>The platform never holds your money. Buyers pay you directly, so your commission is yours the moment it lands.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDING -->
+<section class="blk">
+  <div class="wrap">
+    <div class="founding rv">
+      <div>
+        <h3>Founding spots are open now.</h3>
+        <p>The earliest members set the pace and sit highest in the network as it grows beneath them.</p>
+      </div>
+      <div class="founding-cta"><a href="/register?ref={{REF}}" class="cta">Claim your spot <span class="arw">→</span></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final">
+  <div class="wrap">
+    <h2>Your effort.<br>Your income.<br><span class="yours">100% yours.</span></h2>
+    <p>{{SPONSOR_NAME}} is already in. One decision puts you in beside them.</p>
+    <div class="cta-row">
+      <a href="/register?ref={{REF}}" class="cta">Claim your spot <span class="arw">→</span></a>
+      <div class="cta-note"><b>$100 once.</b> Yours for life.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">Advantage<span class="a">Life</span></div>
+    <p>Real income takes real effort — AdvantageLife is not a get-rich-quick scheme, and results depend on the work you put in. Campaign packs are advertising products with defined deliverables.</p>
+  </div>
+</footer>
+
+<script>
+  function playVid(card){card.classList.add('playing');const v=card.querySelector('video');if(v){try{v.play()}catch(e){}}}
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

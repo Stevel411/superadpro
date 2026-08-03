@@ -7126,16 +7126,35 @@ def referral_video_page(username: str, request: Request, db: Session = Depends(g
     )
     return response
 
-# ── Referral link ─────────────────────────────────────────────
+# ── Referral link → personalised sales page ───────────────────
+def _al_esc(v):
+    return ((v or "").replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace('"', "&quot;"))
+
 @app.get("/ref/{username}")
-def referral_link(username: str, request: Request):
-    # Route directly to the registration page with the sponsor code pre-filled.
-    # Cookie is still set so the sponsor is preserved if the user navigates away
-    # and comes back later.
-    response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
-    response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
-                        httponly=False, samesite="lax")
-    return response
+def referral_link(username: str, request: Request, db: Session = Depends(get_db)):
+    """Affiliate landing: serve the personalised sales page (not a bare
+    registration redirect). Every CTA carries ref=<sponsor> and the ref cookie
+    is set, so signups attribute to the sharing member. Old handles resolve via
+    the rename-aware resolver; unknown handles fall to the homepage."""
+    sponsor = _al_resolve_ref_user(db, username)
+    if not sponsor:
+        return RedirectResponse(url="/", status_code=302)
+    ref = sponsor.username
+    name = (sponsor.first_name or "").strip() or sponsor.username
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_ref_sales.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            html = _f.read()
+        html = html.replace("{{SPONSOR_NAME}}", _al_esc(name)).replace("{{REF}}", _al_esc(ref))
+        resp = HTMLResponse(html)
+    except Exception:
+        # A template error must never dead-end a live affiliate link.
+        resp = RedirectResponse(url=f"/register?ref={ref}", status_code=302)
+    resp.set_cookie(key="ref", value=ref, max_age=60*60*24*30,
+                    httponly=False, samesite="lax")
+    return resp
 @app.get("/join/{username}")
 def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
     """Affiliate referral link. Sets the sponsor cookie and sends the visitor
