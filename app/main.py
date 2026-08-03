@@ -73084,6 +73084,10 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
     <a href="/packs">Buy packs</a>
   </div>
 
+  <div id="flowContinue" style="display:none;max-width:920px;margin:0 auto 4px;padding:0 20px">
+    <a id="flowContinueBtn" href="/packs" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#0b7a3e;color:#fff;font-weight:900;font-size:15px;padding:15px;border-radius:13px;text-decoration:none;box-shadow:0 12px 26px -12px rgba(11,122,62,.55)">✓ Receiving method saved — continue to choose your package →</a>
+  </div>
+
   <div class="hero">
     <div class="flow"><span></span><span></span><span></span><span></span></div>
     <div class="inner">
@@ -73188,6 +73192,19 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
   document.getElementById('ddMenu').onclick=function(e){e.stopPropagation()};
   function load(){fetch('/api/al/payout-methods').then(function(r){return r.json()}).then(function(j){
     REG=j.registry||[];buildMenu();
+    // Flow continuation: if the member arrived from the buy flow (?next=) and now
+    // has at least one receiving method, surface a clear 'continue' button so they
+    // know how to get back into the next step instead of hunting for it.
+    try{
+      var qn=new URLSearchParams(location.search).get('next');
+      var fc=document.getElementById('flowContinue');
+      if(fc){
+        if(qn && (j.methods||[]).length>0){
+          document.getElementById('flowContinueBtn').setAttribute('href', qn);
+          fc.style.display='block';
+        } else { fc.style.display='none'; }
+      }
+    }catch(e){}
     var L=document.getElementById('list');L.innerHTML='';
     (j.methods||[]).forEach(function(m){
       var i=ic(m.method_type);
