@@ -72496,6 +72496,9 @@ async def al_create_draft_ad(request: Request,
     if draft:
         draft.title = title
         draft.description = (body.get("description") or "").strip() or None
+        draft.category = (body.get("category") or "business").strip()[:50] or "business"
+        draft.target_country = (body.get("target_country") or "").strip()[:200] or None
+        draft.target_interests = (body.get("target_interests") or "").strip()[:200] or None
         draft.platform = parsed["platform"]
         draft.video_url = video_url
         draft.embed_url = parsed["embed_url"]
@@ -72505,6 +72508,9 @@ async def al_create_draft_ad(request: Request,
         campaign = VideoCampaign(
             user_id=user.id, title=title,
             description=(body.get("description") or "").strip() or None,
+            category=(body.get("category") or "business").strip()[:50] or "business",
+            target_country=(body.get("target_country") or "").strip()[:200] or None,
+            target_interests=(body.get("target_interests") or "").strip()[:200] or None,
             platform=parsed["platform"], video_url=video_url,
             embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
             status="draft",           # standalone; not live, not delivering
@@ -73852,6 +73858,23 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <label class="fl">Video link</label>
       <input id="adUrl" class="fin" placeholder="https://youtube.com/watch?v=…">
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
+      <label class="fl">Category</label>
+      <select id="adCategory" class="fin">
+        <option value="business">Business</option>
+        <option value="marketing">Marketing</option>
+        <option value="crypto">Crypto</option>
+        <option value="health">Health</option>
+        <option value="education">Education</option>
+        <option value="tech">Tech</option>
+        <option value="lifestyle">Lifestyle</option>
+        <option value="ecommerce">E-commerce</option>
+      </select>
+      <label class="fl">Description <span style="color:#5a6584;font-weight:600">(optional)</span></label>
+      <textarea id="adDesc" class="fin" rows="3" placeholder="A short summary of what your ad is about"></textarea>
+      <label class="fl">Target countries <span style="color:#5a6584;font-weight:600">(optional — comma-separated, blank = worldwide)</span></label>
+      <input id="adCountry" class="fin" placeholder="e.g. US, UK, CA">
+      <label class="fl">Target interests <span style="color:#5a6584;font-weight:600">(optional — comma-separated)</span></label>
+      <input id="adInterests" class="fin" placeholder="e.g. crypto, investing, side income">
       <div class="err" id="errAd" style="display:none"></div>
       <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue →</button>
     </div>
@@ -74165,8 +74188,12 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     if(!t||!u){if(eb){eb.textContent='Add a title and a video link.';}return;}
     if(eb)eb.style.display='none';
     // NEW FLOW Step 1: create the ad STANDALONE (draft, no pack/intent yet).
+    var cat=(document.getElementById('adCategory')||{}).value||'business';
+    var desc=(document.getElementById('adDesc')||{}).value||'';
+    var ctry=(document.getElementById('adCountry')||{}).value||'';
+    var intr=(document.getElementById('adInterests')||{}).value||'';
     var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
-    fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
+    fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u,category:cat,description:desc,target_country:ctry,target_interests:intr})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
         btn.disabled=false;btn.textContent='Save my ad & continue →';
         if(x.ok){ window._hasDraftAd=true; gotoPayoutStep(); }
