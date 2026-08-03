@@ -7072,6 +7072,33 @@ def for_advertisers(request: Request):
 # /ref/{username} redirect below, otherwise FastAPI tries to match
 # the parameter pattern of the latter on /ref/foo/video which would
 # 404. Order matters for path-segment-count routes in FastAPI.
+def _al_resolve_ref_user(db, ref):
+    """Resolve a referral/sponsor handle to a live User, tolerant of case AND
+    of past renames. Tries the current username (case-insensitive); on a miss,
+    falls back to the username-change audit so links shared under an OLD handle
+    keep crediting the member after they rename (old /ref/<old> would otherwise
+    SILENTLY lose attribution — worse than a 404). Returns User | None."""
+    if not ref:
+        return None
+    from sqlalchemy import func as _f
+    from .database import UsernameAudit as _UA
+    clean = (ref or "").strip().lstrip("@")
+    if not clean:
+        return None
+    u = db.query(User).filter(_f.lower(User.username) == clean.lower()).first()
+    if u:
+        return u
+    try:
+        aud = (db.query(_UA)
+                 .filter(_f.lower(_UA.from_name) == clean.lower())
+                 .order_by(_UA.at.desc()).first())
+        if aud and aud.user_id:
+            return db.query(User).filter(User.id == aud.user_id).first()
+    except Exception:
+        pass
+    return None
+
+
 @app.get("/ref/{username}/video")
 def referral_video_page(username: str, request: Request, db: Session = Depends(get_db)):
     """Serve the React video sales page at /ref/{username}/video.
@@ -7083,7 +7110,7 @@ def referral_video_page(username: str, request: Request, db: Session = Depends(g
     """
     # Verify the sponsor actually exists — surface 404 cleanly for
     # mistyped/expired usernames rather than serving a broken page.
-    sponsor = db.query(User).filter(User.username == username).first()
+    sponsor = _al_resolve_ref_user(db, username)
     if not sponsor:
         return RedirectResponse(url="/", status_code=302)
 
@@ -7115,7 +7142,7 @@ def superlink_page(username: str, request: Request, db: Session = Depends(get_db
     into the SAME correct join/register flow as /ref/{username} — NOT the old
     React SuperLink sales page (wrong design + stale pack numbers). Consistent,
     on-brand, and sponsor attribution preserved via the ref cookie."""
-    sponsor = db.query(User).filter(User.username == username).first()
+    sponsor = _al_resolve_ref_user(db, username)
     if not sponsor:
         return RedirectResponse(url="/", status_code=302)
     response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
@@ -40014,9 +40041,7 @@ async def api_register(
         if ref:
             from sqlalchemy import func as _f
             _ref_clean = ref.strip().lstrip("@")
-            sponsor = (db.query(User)
-                         .filter(_f.lower(User.username) == _ref_clean.lower())
-                         .first())
+            sponsor = _al_resolve_ref_user(db, _ref_clean)
             if sponsor:
                 sponsor_id = sponsor.id
                 logger.info(f"[REG-REF] resolved ref={_ref_clean!r} -> sponsor_id={sponsor_id}")
@@ -48089,7 +48114,7 @@ async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)
 @app.get("/api/join/{username}")
 async def api_join_funnel(username: str, db: Session = Depends(get_db)):
     """Public: return sponsor data for the join funnel page."""
-    sponsor = db.query(User).filter(User.username == username).first()
+    sponsor = _al_resolve_ref_user(db, username)
     if not sponsor:
         return JSONResponse({"error": "Not found"}, status_code=404)
     total_members = db.query(User).filter(User.is_active == True).count()
@@ -72017,6 +72042,85 @@ def al_gift_packs_summary(user: User = Depends(_al_user), db: Session = Depends(
                 "views and earns once the member adds their video ad (needs_ad -> "
                 "running). Membership alone does NOT include a pack.",
     })
+
+
+@app.get("/admin/api/al/rename-member")
+def al_rename_member(username: str = "", member_id: int = 0, to: str = "",
+                     confirm: int = 0,
+                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: change a member's username (their /ref/ affiliate handle).
+    Read-only preview until ?confirm=1. Admin-session gated, no ?secret=.
+
+    Genealogy is ID-based, so downline / pass-up / commissions are untouched.
+    The change is audited (al_username_audit via the ORM listener). Links shared
+    under the OLD handle keep crediting the member through _al_resolve_ref_user,
+    so old /ref/<old> links never silently lose attribution."""
+    _require_admin(user)
+    from sqlalchemy import func as _f
+    to_clean = (to or "").strip().lstrip("@")
+    m = None
+    if member_id:
+        m = db.query(User).filter(User.id == member_id).first()
+    elif username:
+        m = _al_resolve_ref_user(db, username)
+    if not m:
+        return JSONResponse({"error": "pass ?username=<current> (or ?member_id=N) &to=<new>"}, status_code=404)
+    if (not to_clean or len(to_clean) < 3 or len(to_clean) > 40
+            or not re.match(r"^[A-Za-z0-9_]+$", to_clean)):
+        return JSONResponse({"error": "?to= must be 3-40 chars: letters, numbers, underscore only"}, status_code=400)
+    clash = (db.query(User)
+               .filter(_f.lower(User.username) == to_clean.lower(), User.id != m.id)
+               .first())
+    base = brand_config.BASE_URL.rstrip("/")
+    directs = db.query(User).filter(User.sponsor_id == m.id).count()
+    link = db.query(ShareLink).filter(ShareLink.user_id == m.id).first()
+    last_shared = link.last_shared_at.isoformat() if (link and link.last_shared_at) else None
+    if not confirm:
+        return JSONResponse({
+            "read_only": True,
+            "member": {"id": m.id, "current_username": m.username,
+                       "direct_referrals": directs,
+                       "has_shared_link": bool(link and link.last_shared_at),
+                       "last_shared_at": last_shared},
+            "new_username": to_clean,
+            "available": (clash is None),
+            "clash_with_user_id": (clash.id if clash else None),
+            "old_ref_link": f"{base}/ref/{m.username}",
+            "new_ref_link": f"{base}/ref/{to_clean}",
+            "old_link_after_rename": "keeps crediting this member (rename-aware resolver)",
+            "confirm_url": (f"{base}/admin/api/al/rename-member?member_id={m.id}&to={to_clean}&confirm=1"
+                            if clash is None else None),
+        })
+    if clash is not None:
+        return JSONResponse({"error": f"'{to_clean}' already taken (user {clash.id})"}, status_code=409)
+    old = m.username
+    m.username = to_clean            # ORM listener writes the al_username_audit row
+    db.commit()
+    return JSONResponse({
+        "read_only": False,
+        "renamed": {"user_id": m.id, "from": old, "to": to_clean},
+        "new_ref_link": f"{base}/ref/{to_clean}",
+        "old_link_note": f"{base}/ref/{old} still credits user {m.id} via the rename-aware resolver.",
+        "genealogy": f"{directs} direct referrals + full downline unchanged (ID-based).",
+        "verify_old_link": f"{base}/admin/api/al/resolve-ref?ref={old}",
+    })
+
+
+@app.get("/admin/api/al/resolve-ref")
+def al_resolve_ref(ref: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: show who a referral handle resolves to right now, including via the
+    rename-aware fallback. Use after a rename to prove an OLD /ref/<handle> link
+    still credits the right member. Read-only."""
+    _require_admin(user)
+    if not ref:
+        return JSONResponse({"error": "pass ?ref=<handle>"}, status_code=400)
+    who = _al_resolve_ref_user(db, ref)
+    if not who:
+        return JSONResponse({"ref": ref, "resolves_to": None,
+                             "note": "no live member — a signup on this link would fall to the house account"})
+    return JSONResponse({"ref": ref, "resolves_to": {"user_id": who.id, "username": who.username},
+                         "matched_by": ("current_username" if who.username.lower() == ref.strip().lstrip("@").lower()
+                                        else "old_handle_via_audit")})
 
 
 @app.get("/admin/api/al/gift-member-pack")
