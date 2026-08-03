@@ -75703,7 +75703,11 @@ def al_sale_chat_page(intent_id: int, user: User = Depends(get_current_user), db
         return HTMLResponse("<h1>Not your transaction</h1>", status_code=403)
     # buyers came from their pay/sales area; sellers from Confirm a Sale
     role = _al_intent_party(intent, user)
-    back = "/my-sales" if role == "seller" else "/packs"
+    # Back destination by role: a SELLER reached this chat because someone is
+    # buying their pack and needs it confirmed — send them to Confirm a Sale,
+    # the exact place they act next. A BUYER (paying for their own pack) has no
+    # sale to confirm, so send them to the dashboard hub.
+    back = "/my-sales" if role == "seller" else "/dashboard"
     try:
         import os as _os
         _p = _os.path.join(_os.path.dirname(__file__), "al_sale_chat.html")
