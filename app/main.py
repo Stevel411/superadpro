@@ -69366,6 +69366,50 @@ def _check_migration_secret(secret: str):
         raise HTTPException(status_code=403, detail="Invalid or missing migration secret")
 
 
+@app.get("/admin/api/al/diag-showcase")
+def al_diag_showcase(secret: str, username: str = "", db: Session = Depends(get_db)):
+    """Secret-gated: shows whether a member's campaign is eligible for the
+    watch-feed / showcase rotation, with the exact reason if not."""
+    _check_migration_secret(secret)
+    t = db.query(User).filter(User.username == username).first()
+    if not t:
+        return JSONResponse({"error": "member not found"}, status_code=404)
+    camps = db.query(VideoCampaign).filter(VideoCampaign.user_id == t.id).all()
+    rows = []
+    for c in camps:
+        eligible = (c.status == "active" and bool(c.share_approved)
+                    and not c.is_completed)
+        reasons = []
+        if c.status != "active":
+            reasons.append(f"status is '{c.status}' (need 'active')")
+        if not c.share_approved:
+            reasons.append("share_approved is False (need True)")
+        if c.is_completed:
+            reasons.append("is_completed is True (campaign finished)")
+        rows.append({
+            "campaign_id": c.id, "title": c.title, "status": c.status,
+            "share_approved": bool(c.share_approved),
+            "is_completed": bool(c.is_completed),
+            "views_delivered": c.views_delivered or 0,
+            "views_target": c.views_target or 0,
+            "in_watch_showcase_pool": eligible,
+            "blocking_reasons": reasons or ["none — it IS in the pool"],
+        })
+    # is it actually in the live rotation right now?
+    pool = _rotate_share_campaigns(db)
+    pool_ids = [c.id for c in pool] if pool else []
+    return JSONResponse({
+        "user_id": t.id, "username": t.username,
+        "campaigns": rows,
+        "live_rotation_pool_ids": pool_ids,
+        "member_campaigns_in_live_pool": [c["campaign_id"] for c in rows
+                                          if c["campaign_id"] in pool_ids],
+        "note": ("in_watch_showcase_pool = passes the filters. "
+                 "live_rotation_pool_ids = what the rotation returns right now "
+                 "(weighted/random, so a valid campaign may not appear every call)."),
+    })
+
+
 @app.get("/admin/api/al/diag-member")
 def al_diag_member_bysecret(secret: str, username: str = "", user_id: int = 0,
                             db: Session = Depends(get_db)):
