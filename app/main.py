@@ -72766,7 +72766,13 @@ def al_my_purchases(user: User = Depends(_al_user), db: Session = Depends(get_db
 def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """The payee's action queue: sales awaiting their confirmation, plus history."""
     _al_expire_stale(db)
-    intents = (db.query(P2PIntent).filter(P2PIntent.earner_id == user.id)
+    # Exclude dead intents (cancelled / expired abandoned carts) — they're not
+    # sales, they're failed/abandoned buyer attempts and only clutter the seller's
+    # Confirm-a-Sale view. Keep pending (a live buyer mid-purchase), proof_submitted
+    # (needs action), and confirmed (real history).
+    intents = (db.query(P2PIntent)
+                 .filter(P2PIntent.earner_id == user.id,
+                         P2PIntent.status.in_(("pending", "proof_submitted", "confirmed")))
                  .order_by(P2PIntent.id.desc()).limit(50).all())
     out = []
     for i in intents:
