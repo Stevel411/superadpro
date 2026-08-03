@@ -63,10 +63,6 @@ export default function MyMarketing() {
     {
       heading: t('myMarketing.sectionCreate', { defaultValue: 'Create & materials' }),
       cards: [
-        { key: 'posters', icon: Image, grad: 'linear-gradient(135deg,#12388f,#12388f)',
-          title: t('myMarketing.brandPosters', { defaultValue: 'Brand Posters' }),
-          desc: t('myMarketing.brandPostersDesc', { defaultValue: 'Generate branded marketing posters with the AI poster tool.' }),
-          onClick: go('/brand-posters') },
         { key: 'email', icon: Mail, grad: 'linear-gradient(135deg,#0a1f52,#e8203f)',
           title: t('myMarketing.emailSwipes', { defaultValue: 'Email Swipes' }),
           desc: t('myMarketing.emailSwipesDesc', { defaultValue: 'Pre-written email copy you can personalise and send.' }),

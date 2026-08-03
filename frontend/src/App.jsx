@@ -311,10 +311,10 @@ function AppRoutes() {
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/pay-it-forward" element={<HardRedirect to="/dashboard" />} />
       {/* Brand Poster Generator — gallery is open to all members (preview), generation gated by Nexus pack ownership in the backend */}
-      <Route path="/brand-posters" element={<ProtectedRoute><RequireTier tier="basic"><BrandPostersGallery /></RequireTier></ProtectedRoute>} />
-      <Route path="/brand-posters/template/:slug" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterForm /></RequireTier></ProtectedRoute>} />
-      <Route path="/brand-posters/result/:generationId" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterResult /></RequireTier></ProtectedRoute>} />
-      <Route path="/brand-posters/history" element={<ProtectedRoute><RequireTier tier="basic"><BrandPosterHistory /></RequireTier></ProtectedRoute>} />
+      <Route path="/brand-posters" element={<Navigate to="/my-marketing" replace />} />
+      <Route path="/brand-posters/template/:slug" element={<Navigate to="/my-marketing" replace />} />
+      <Route path="/brand-posters/result/:generationId" element={<Navigate to="/my-marketing" replace />} />
+      <Route path="/brand-posters/history" element={<Navigate to="/my-marketing" replace />} />
       <Route path="/gift/team/:code" element={<ProtectedRoute><TeamGiftAccept /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />

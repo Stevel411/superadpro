@@ -28,8 +28,6 @@ function buildTabs(t) {
       icon: Share2, tone: 'cyan', path: '/social-share', match: ['/social-share'] },
     { id: 'plan', label: t('myMarketing.tabs.plan', { defaultValue: 'Comp Plan' }),
       icon: FileText, tone: 'cobalt', path: '/compensation-plan', match: ['/compensation-plan'] },
-    { id: 'posters', label: t('myMarketing.tabs.posters', { defaultValue: 'Brand Posters' }),
-      icon: Image, tone: 'cobalt', path: '/brand-posters', match: ['/brand-posters'] },
     { id: 'email', label: t('myMarketing.tabs.email', { defaultValue: 'Email Swipes' }),
       icon: Mail, tone: 'cobalt', path: '/email-swipes', match: ['/email-swipes'] },
   ];
