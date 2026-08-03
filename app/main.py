@@ -69366,6 +69366,44 @@ def _check_migration_secret(secret: str):
         raise HTTPException(status_code=403, detail="Invalid or missing migration secret")
 
 
+@app.get("/admin/api/al/diag-member")
+def al_diag_member_bysecret(secret: str, username: str = "", user_id: int = 0,
+                            db: Session = Depends(get_db)):
+    """Secret-gated (works from ANY browser, no admin session needed): reports a
+    member's buy-flow readiness — access level, membership gate, draft ad, payout
+    method — plus a verdict on whether the Save-my-ad button would work for them.
+    Built because Steve tests from separate account sessions on mobile."""
+    _check_migration_secret(secret)
+    t = None
+    if user_id:
+        t = db.query(User).filter(User.id == user_id).first()
+    elif username:
+        t = db.query(User).filter(User.username == username).first()
+    if not t:
+        return JSONResponse({"error": "member not found (pass ?username= or ?user_id=)"}, status_code=404)
+    lifetime = _al_is_lifetime(t)
+    draft = (db.query(VideoCampaign)
+               .filter(VideoCampaign.user_id == t.id,
+                       VideoCampaign.status == "draft").first())
+    payout = _ale.payable(db, t.id)
+    if lifetime:
+        verdict = ("Save-my-ad SHOULD work (member passes the membership gate). "
+                   "If it does nothing, it's client-side — cached old JS. Try incognito / hard refresh.")
+    else:
+        verdict = ("BLOCKED: member is NOT lifetime/annual, so create-draft returns 403 "
+                   "'join for $100'. The button appears to do nothing because the flow "
+                   "should route them to /join — this is the real issue for this account.")
+    return JSONResponse({
+        "user_id": t.id, "username": t.username,
+        "access_level": getattr(t, "access_level", "?"),
+        "is_admin": bool(t.is_admin),
+        "membership_gate_passes": lifetime,
+        "has_draft_ad": bool(draft),
+        "has_payout_method": payout,
+        "verdict": verdict,
+    })
+
+
 @app.get("/admin/migrate", response_class=HTMLResponse)
 def admin_migrate_page(request: Request, secret: str = ""):
     _check_migration_secret(secret)
