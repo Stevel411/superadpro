@@ -54781,6 +54781,18 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                     # but the frontend timer is showing 30s remaining and
                     # the button stays disabled.
                     elapsed = (datetime.utcnow() - existing_started.started_at).total_seconds() if existing_started.started_at else 0
+                    # Resume is only genuine if the started row is RECENT. A row
+                    # from hours earlier (e.g. started the video, closed the tab,
+                    # came back much later) must NOT instant-qualify — that would
+                    # let someone skip the 30s watch entirely. If the session is
+                    # stale (older than a short grace window), restart the full
+                    # timer instead of resuming a near-zero remainder.
+                    RESUME_GRACE_SECONDS = 5 * 60   # 5 min: real resume window
+                    if elapsed > RESUME_GRACE_SECONDS:
+                        # stale — treat as a fresh watch of this same video
+                        existing_started.started_at = datetime.utcnow()
+                        db.commit()
+                        elapsed = 0
                     seconds_remaining = max(0, int(WATCH_DURATION - elapsed))
                     next_video = {
                         "id": forced_c.id, "title": forced_c.title,
@@ -72611,6 +72623,7 @@ async def al_create_draft_ad(request: Request,
         draft.category = (body.get("category") or "business").strip()[:50] or "business"
         draft.target_country = (body.get("target_country") or "").strip()[:200] or None
         draft.target_interests = (body.get("target_interests") or "").strip()[:200] or None
+        draft.cta_url = (body.get("cta_url") or "").strip()[:300] or None
         draft.platform = parsed["platform"]
         draft.video_url = video_url
         draft.embed_url = parsed["embed_url"]
@@ -72623,6 +72636,7 @@ async def al_create_draft_ad(request: Request,
             category=(body.get("category") or "business").strip()[:50] or "business",
             target_country=(body.get("target_country") or "").strip()[:200] or None,
             target_interests=(body.get("target_interests") or "").strip()[:200] or None,
+            cta_url=(body.get("cta_url") or "").strip()[:300] or None,
             platform=parsed["platform"], video_url=video_url,
             embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
             status="draft",           # standalone; not live, not delivering
@@ -74011,6 +74025,9 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <input id="adCountry" class="fin" placeholder="e.g. US, UK, CA">
       <label class="fl">Target interests <span style="color:#5a6584;font-weight:600">(optional — comma-separated)</span></label>
       <input id="adInterests" class="fin" placeholder="e.g. crypto, investing, side income">
+      <label class="fl">Your link <span style="color:#5a6584;font-weight:600">(optional — where the "Learn more" button sends watchers)</span></label>
+      <input id="adCta" class="fin" placeholder="https://your-website.com/offer">
+      <div class="plats">This is the page your ad drives traffic to — your offer, sign-up, or website.</div>
       <div class="err" id="errAd" style="display:none"></div>
       <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue →</button>
     </div>
@@ -74328,8 +74345,9 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     var desc=(document.getElementById('adDesc')||{}).value||'';
     var ctry=(document.getElementById('adCountry')||{}).value||'';
     var intr=(document.getElementById('adInterests')||{}).value||'';
+    var ctaurl=(document.getElementById('adCta')||{}).value||'';
     var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
-    fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u,category:cat,description:desc,target_country:ctry,target_interests:intr})})
+    fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u,category:cat,description:desc,target_country:ctry,target_interests:intr,cta_url:ctaurl})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
         btn.disabled=false;btn.textContent='Save my ad & continue →';
         if(x.ok){ window._hasDraftAd=true; gotoPayoutStep(); }
