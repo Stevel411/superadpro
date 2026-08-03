@@ -41312,7 +41312,7 @@ def cron_al_unconfirmed_sale_reminder(request: Request, secret: str = "",
             db.add(Notification(
                 user_id=seller.id, type="al_sale_reminder", icon="\u23f0",
                 link=marker, title="Still awaiting your confirmation",
-                message=f"{bname} paid you ${amt:.2f} for a Level {it.pack_level} pack "
+                message=f"{bname} paid you ${amt:.2f} for a ${it.pack_level} pack "
                         f"{hrs}h ago. Confirm at Confirm a Sale once the money's "
                         f"arrived to release their pack."))
             db.commit()
@@ -41326,7 +41326,7 @@ def cron_al_unconfirmed_sale_reminder(request: Request, secret: str = "",
                 _html = (
                     f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
                     f"<h2 style=\"color:#0a1f52\">You have a sale awaiting confirmation</h2>"
-                    f"<p><b>{bname}</b> reported paying you <b>${amt:.2f}</b> for a Level {it.pack_level} "
+                    f"<p><b>{bname}</b> reported paying you <b>${amt:.2f}</b> for a ${it.pack_level} "
                     f"campaign pack about {hrs} hours ago, and it's still waiting on you.</p>"
                     f"<p><b>What to do:</b> check the account they paid, and once the money has arrived, "
                     f"confirm the sale to activate their pack. If you never received it, you can decline.</p>"
@@ -41335,7 +41335,7 @@ def cron_al_unconfirmed_sale_reminder(request: Request, secret: str = "",
                     f"padding:14px 26px;border-radius:10px;display:inline-block\">Review this sale \u2192</a></p>"
                     f"<p style=\"font-size:13px;color:#5a6584\">Only confirm once you've actually received "
                     f"the money. Member-to-member payments can't be reversed by AdvantageLife.</p></div>")
-                _text = (f"Reminder: {bname} paid you ${amt:.2f} for a Level {it.pack_level} pack {hrs}h ago. "
+                _text = (f"Reminder: {bname} paid you ${amt:.2f} for a ${it.pack_level} pack {hrs}h ago. "
                          f"Confirm once received: {_base}/my-sales")
                 from .email_utils import send_email as _send
                 _send(seller.email, _sub, _html, _text)
@@ -72749,7 +72749,7 @@ async def al_submit_proof(intent_id: int, request: Request,
                                 icon="💰", link="/my-sales",
                                 title="Payment sent — confirm to release the pack",
                                 message=f"{user.username} reports paying you ${amt:.2f} for a "
-                                        f"Level {intent.pack_level} pack. Check your wallet, then "
+                                        f"${intent.pack_level} pack. Check your wallet, then "
                                         f"confirm at Confirm Sale to activate their pack."))
             db.commit()
         except Exception:
@@ -72763,7 +72763,7 @@ async def al_submit_proof(intent_id: int, request: Request,
                     f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
                     f"<h2 style=\"color:#0a1f52\">You have an incoming pack sale</h2>"
                     f"<p><b>{user.username}</b> reports sending you <b>${amt:.2f}</b> for a "
-                    f"Level {intent.pack_level} campaign pack.</p>"
+                    f"${intent.pack_level} campaign pack.</p>"
                     f"<p><b>What to do:</b> check the wallet or account they paid, and once the money "
                     f"has arrived, confirm the sale to activate their pack and advance your counter.</p>"
                     f"<p style=\"margin:24px 0\"><a href=\"{_base}/my-sales\" "
@@ -72772,7 +72772,7 @@ async def al_submit_proof(intent_id: int, request: Request,
                     f"<p style=\"font-size:13px;color:#5a6584\">Only confirm once you have actually "
                     f"received the money. Member-to-member payments can't be reversed by AdvantageLife.</p>"
                     f"</div>")
-                _text = (f"{user.username} reports paying you ${amt:.2f} for a Level {intent.pack_level} pack. "
+                _text = (f"{user.username} reports paying you ${amt:.2f} for a ${intent.pack_level} pack. "
                          f"Confirm once received: {_base}/my-sales")
                 from .email_utils import send_email as _send
                 _send(seller.email, _sub, _html, _text)
@@ -72802,11 +72802,11 @@ async def al_confirm_intent(intent_id: int,
     buyer = db.query(User).filter(User.id == intent.buyer_id).first()
     try:
         db.add(Notification(user_id=intent.buyer_id, type="al_pack",
-                            icon="🎉", link="/video-library",
-                            title="Pack activated — you can create your campaign",
-                            message=f"Your Level {intent.pack_level} campaign pack is live. "
-                                    "Create your video campaign to start getting views, and "
-                                    "you now earn at this level on your own sales."))
+                            icon="🎉", link="/campaigns",
+                            title="Pack activated — your ad is now live",
+                            message=f"Your ${intent.pack_level} campaign pack is confirmed and your "
+                                    "video ad is now delivering views. You can track its progress in "
+                                    "My Campaigns, and you now earn at this level on your own sales."))
         db.commit()
     except Exception:
         db.rollback()
@@ -72814,20 +72814,21 @@ async def al_confirm_intent(intent_id: int,
     try:
         if buyer and buyer.email:
             _base = os.environ.get("SITE_URL", "https://www.advantagelife.club").rstrip("/")
-            _sub = f"🎉 Your Level {intent.pack_level} pack is active — create your campaign"
+            _sub = f"🎉 Your ${intent.pack_level} pack is active — your ad is live"
             _html = (
                 f"<div style=\"font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;color:#0a1f52\">"
                 f"<h2 style=\"color:#0b7a3e\">Your pack is live 🎉</h2>"
-                f"<p>Your payment was confirmed and your <b>Level {intent.pack_level}</b> campaign pack "
+                f"<p>Your payment was confirmed and your <b>${intent.pack_level}</b> campaign pack "
                 f"is now active.</p>"
-                f"<p><b>Two things you can do now:</b></p>"
-                f"<ul><li>Create your video campaign to start getting real member views.</li>"
+                f"<p><b>What this means:</b></p>"
+                f"<ul><li>Your video ad is now delivering real member views.</li>"
                 f"<li>You now earn at this level on your own pack sales.</li></ul>"
-                f"<p style=\"margin:24px 0\"><a href=\"{_base}/video-library\" "
+                f"<p style=\"margin:24px 0\"><a href=\"{_base}/campaigns\" "
                 f"style=\"background:#c8102e;color:#fff;font-weight:800;text-decoration:none;"
-                f"padding:14px 26px;border-radius:10px;display:inline-block\">Create your campaign →</a></p>"
+                f"padding:14px 26px;border-radius:10px;display:inline-block\">Track your campaign →</a></p>"
                 f"</div>")
-            _text = (f"Your Level {intent.pack_level} pack is active. Create your campaign: {_base}/video-library")
+            _text = (f"Your ${intent.pack_level} pack is active and your ad is now live. "
+                     f"Track it: {_base}/campaigns")
             from .email_utils import send_email as _send
             _send(buyer.email, _sub, _html, _text)
     except Exception:
