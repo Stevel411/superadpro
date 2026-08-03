@@ -103,9 +103,9 @@ export default function VideoLibrary() {
             <Link to="/campaign-analytics" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:800,color:'rgba(255,255,255,.92)',background:'rgba(255,255,255,.12)',border:'1px solid rgba(255,255,255,.22)',padding:'9px 15px',borderRadius:10,textDecoration:'none'}}>
               {t('videos.performance', { defaultValue: 'Performance' })}
             </Link>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:900,color:'#fff',background:'#c8102e',padding:'9px 16px',borderRadius:10,textDecoration:'none',boxShadow:'0 8px 18px -8px rgba(200,16,46,.7)'}}>
+            <a href="/packs" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:900,color:'#fff',background:'#c8102e',padding:'9px 16px',borderRadius:10,textDecoration:'none',boxShadow:'0 8px 18px -8px rgba(200,16,46,.7)'}}>
               <Plus size={12}/> {t('videos.newCampaign')}
-            </Link>
+            </a>
           </div>
         </div>
         {campaigns.length > 0 ? (
@@ -188,15 +188,10 @@ export default function VideoLibrary() {
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
             <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
-            <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20,maxWidth:420,marginLeft:'auto',marginRight:'auto',lineHeight:1.6}}>{t('videos.needAPack', { defaultValue: 'You need a campaign pack before your video can be delivered to members. Packs start at $10.' })}</div>
-            <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap',marginBottom:4}}>
-              <a href="/packs" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:14,fontWeight:800,color:'#0a1f52',background:'#fff',border:'2px solid #d7deef',borderRadius:13,padding:'13px 22px',textDecoration:'none'}}>
-                {t('videos.buyAPack', { defaultValue: 'Buy a pack' })}
-              </a>
-            </div>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:900,color:'#fff',background:'#c8102e',borderRadius:13,padding:'15px 28px',textDecoration:'none',boxShadow:'0 14px 30px -12px rgba(200,16,46,.6)'}}>
+            <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20,maxWidth:440,marginLeft:'auto',marginRight:'auto',lineHeight:1.6}}>Create your video ad first — it's the whole point of the platform. You'll add how you get paid and choose your package next, all in one flow.</div>
+            <a href="/packs" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:900,color:'#fff',background:'#c8102e',borderRadius:13,padding:'15px 28px',textDecoration:'none',boxShadow:'0 14px 30px -12px rgba(200,16,46,.6)'}}>
               <Plus size={16}/> {t('videos.createFirst')}
-            </Link>
+            </a>
           </div>
         )}
       </div>
