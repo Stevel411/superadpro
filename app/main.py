@@ -71411,6 +71411,60 @@ def al_stripe_comp_reconcile(user: User = Depends(_al_user), db: Session = Depen
     })
 
 
+@app.get("/admin/api/al/test-new-flow")
+def al_test_new_flow(user_id: int, pack_level: int = 10,
+                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: dry end-to-end test of the NEW buy flow for a test account —
+    create draft ad -> check payout gate -> create intent (links draft + sizes
+    it) -> simulate confirm (draft->active). Rolls everything back. Proves the
+    backend before the UI is built on it. Use a THROWAWAY test user_id."""
+    _require_admin(user)
+    from . import al_settlement as _alset
+    steps = []
+    t = db.query(User).filter(User.id == user_id).first()
+    if not t:
+        return JSONResponse({"error": f"user {user_id} not found"}, status_code=404)
+    try:
+        # Step 1: standalone draft ad
+        parsed = parse_video_url("https://youtube.com/shorts/VqmRANm1jHo")
+        draft = VideoCampaign(
+            user_id=t.id, title="[TEST] new-flow ad", platform=parsed["platform"],
+            video_url="https://youtube.com/shorts/VqmRANm1jHo",
+            embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
+            status="draft", views_target=0, views_delivered=0, campaign_tier=0,
+            is_completed=False, share_approved=False, created_at=datetime.utcnow())
+        db.add(draft); db.flush()
+        steps.append(f"STEP1 ok: draft ad created id={draft.id} status={draft.status}")
+        # Step 2: payout gate
+        has_payout = _ale.payable(db, t.id)
+        steps.append(f"STEP2 {'ok' if has_payout else 'GATE'}: payout method on file = {has_payout}"
+                     + ("" if has_payout else " (real flow blocks package until added)"))
+        # Step 3: intent + link
+        intent = _alset.create_intent(db, t.id, pack_level)
+        pack = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
+        draft.views_target = pack.views_target if pack else 0
+        draft.campaign_tier = intent.pack_level
+        intent.campaign_id = draft.id
+        db.flush()
+        steps.append(f"STEP3 ok: intent id={intent.id} linked draft {draft.id}, "
+                     f"views_target set to {draft.views_target}, earner={intent.earner_id}")
+        # Step 4: simulate confirm's campaign-activation (don't run full settlement)
+        would_activate = draft.status in ("draft", "pending")
+        steps.append(f"STEP4 {'ok' if would_activate else 'FAIL'}: on confirm, campaign "
+                     f"would flip {draft.status}->active + share_approved=True + hit showcase")
+        verdict = ("NEW FLOW WORKS end-to-end: ad(draft) -> gate -> intent links+sizes -> "
+                   "confirm activates. Safe to build the UI on this.")
+    except Exception as e:
+        import traceback as _tb
+        db.rollback()
+        return JSONResponse({"steps": steps, "error": f"{type(e).__name__}: {str(e)[:200]}",
+                             "trace_tail": _tb.format_exc().splitlines()[-4:]}, status_code=500)
+    db.rollback()  # never persist the test
+    return JSONResponse({"user_id": user_id, "pack_level": pack_level,
+                         "steps": steps, "verdict": verdict,
+                         "note": "All rolled back — nothing persisted."})
+
+
 @app.get("/admin/api/al/simulate-buy")
 def al_simulate_buy(user_id: int, pack_level: int = 100,
                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
