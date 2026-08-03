@@ -73499,7 +73499,7 @@ body{font-family:'Inter',sans-serif;background:#eef1f8;color:var(--ink);padding:
 
 _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campaign packs — AdvantageLife</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Sora:wght@600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
