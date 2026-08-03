@@ -53894,6 +53894,19 @@ def _share_fingerprint(request: Request) -> str:
     return hashlib.sha256(f"{salt}|{ip}|{ua}".encode()).hexdigest()
 
 
+def _optional_user_id(request: Request):
+    """Best-effort: the logged-in user's id from the session cookie, or None.
+    Used on PUBLIC endpoints (no auth dependency) to attribute is_self without
+    forcing a login."""
+    token = request.cookies.get("session")
+    if not token:
+        return None
+    try:
+        return int(session_serializer.loads(token, max_age=60 * 60 * 24 * 30))
+    except (BadSignature, SignatureExpired, ValueError, TypeError):
+        return None
+
+
 def _looks_like_bot(request: Request) -> bool:
     ua = (request.headers.get("user-agent") or "").lower()
     if not ua:
@@ -54116,8 +54129,14 @@ async def api_share_view_start(token: str, request: Request, db: Session = Depen
                         ShareView.view_date == today).first())
     if existing:
         return {"ok": True, "tracked": False, "reason": "already_viewed_today"}
+    # is_self: the sharer watching their own showcase must NEVER count toward
+    # their own share-qualification. Catches the realistic case — the member
+    # logged in, opening their own link. (A logged-out second device is
+    # genuinely indistinguishable from a real anonymous viewer.)
+    viewer_id = _optional_user_id(request)
+    is_self = viewer_id is not None and viewer_id == link.user_id
     row = ShareView(share_link_id=link.id, campaign_id=campaign_id, fingerprint=fp,
-                    view_date=today, started_at=datetime.utcnow())
+                    view_date=today, started_at=datetime.utcnow(), is_self=is_self)
     db.add(row)
     db.commit()
     return {"ok": True, "tracked": True, "view_id": row.id}

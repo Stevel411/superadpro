@@ -22,7 +22,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from . import passup_engine as pe
-from .database import User, PackPurchase, PackCommission, WatchQuota, PayoutMethod, P2PIntent, ShareLink
+from .database import User, PackPurchase, PackCommission, WatchQuota, PayoutMethod, P2PIntent, ShareLink, ShareView, VideoCampaign
 
 _ADMIN_LEVEL = 10 ** 9  # admin/master owns every level
 
@@ -31,19 +31,56 @@ _ADMIN_LEVEL = 10 ** 9  # admin/master owns every level
 SHARE_WINDOW_DAYS = 7  # a member must share their showcase within this rolling
                        # window to keep their packs ACTIVE (Steve, 18 Jul 2026)
 
+# Phase-2 verified-view share gate (Steve, 3 Aug 2026). A share now counts only
+# when it produces REAL watched views, not a self-reported button press.
+SHARE_VIEWS_REQUIRED = 1   # verified, non-self views in the window to stay qualified
+SHARE_GRACE_DAYS     = 7   # a new advertiser is auto-qualified for this long after
+                           # their first campaign goes live, so they're never paused
+                           # before real traffic can realistically arrive.
+
 
 def share_qualified(db: Session, user_id: int) -> bool:
-    """True if the member has shared their showcase within the rolling 7-day
-    window (or is admin). Drives package pause/resume — NOT a withdrawal gate."""
+    """Phase-2 share gate: a member keeps their packs ACTIVE by DRIVING REAL
+    TRAFFIC to their showcase, proven by VERIFIED views — not a self-reported
+    button press (which is trivially faked). Qualified if EITHER:
+
+      • GRACE   — their first campaign went live to the showcase within the last
+                  SHARE_GRACE_DAYS. A brand-new advertiser can't have views yet,
+                  so we never pause them before real traffic can realistically
+                  arrive (same fairness logic as the 48h watch grace), OR
+      • TRACTION — at least SHARE_VIEWS_REQUIRED verified, non-self views landed
+                  on their share link in the rolling SHARE_WINDOW_DAYS window.
+
+    A "verified view" = a real viewer who watched >=30 server-proven seconds,
+    deduped one-per-fingerprint-per-day, bot-filtered, and not the sharer's own
+    session (is_self). Admin bypasses. Drives package pause/resume — NOT a
+    withdrawal gate."""
     u = db.query(User).filter(User.id == user_id).first()
     if u is None:
         return False
     if u.is_admin:
         return True
     link = db.query(ShareLink).filter(ShareLink.user_id == user_id).first()
-    if link is None or link.last_shared_at is None:
+    if link is None:
         return False
-    return link.last_shared_at >= (datetime.utcnow() - timedelta(days=SHARE_WINDOW_DAYS))
+    now = datetime.utcnow()
+    # GRACE: earliest showcase-approval among this member's campaigns. share_approved_at
+    # is stamped when a sale confirms and the ad goes live — the moment they first
+    # have something to share and views can begin flowing.
+    first_live = (db.query(func.min(VideoCampaign.share_approved_at))
+                    .filter(VideoCampaign.user_id == user_id,
+                            VideoCampaign.share_approved_at.isnot(None))
+                    .scalar())
+    if first_live is not None and first_live >= now - timedelta(days=SHARE_GRACE_DAYS):
+        return True
+    # TRACTION: verified, non-self views on THIS member's share link in the window.
+    verified = (db.query(ShareView.id)
+                  .filter(ShareView.share_link_id == link.id,
+                          ShareView.is_verified.is_(True),
+                          ShareView.is_self.is_(False),
+                          ShareView.verified_at >= now - timedelta(days=SHARE_WINDOW_DAYS))
+                  .count())
+    return verified >= SHARE_VIEWS_REQUIRED
 
 
 def _apply_share_pause(db: Session, user_id: int) -> None:
