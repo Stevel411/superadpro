@@ -54041,10 +54041,36 @@ def api_share_page_data(token: str, db: Session = Depends(get_db)):
             "advertiser": (c.category or "Advertiser"),
             "embed_url": c.embed_url,
             "platform": c.platform,
+            "thumbnail": _al_video_thumbnail(c),
             "cta_url": f"/campaign-cta/{c.id}" if c.cta_url else None,
         } for c in campaigns],
         "view_seconds": SHARE_VIEW_SECONDS,
     }
+
+
+def _al_video_thumbnail(c):
+    """Best-effort thumbnail URL for a campaign's video. YouTube exposes a
+    predictable thumbnail from the video id; others fall back to None (the card
+    keeps its gradient). video_id is stored on the campaign; if missing we parse
+    it from the embed_url."""
+    try:
+        vid = getattr(c, "video_id", None)
+        plat = (getattr(c, "platform", "") or "").lower()
+        if not vid and c.embed_url:
+            import re as _re
+            m = _re.search(r"/embed/([A-Za-z0-9_-]{6,})", c.embed_url) \
+                or _re.search(r"[?&]v=([A-Za-z0-9_-]{6,})", c.embed_url)
+            if m:
+                vid = m.group(1)
+        if plat == "youtube" and vid:
+            # hqdefault always exists; maxresdefault isn't guaranteed.
+            return f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"
+        if plat == "vimeo" and vid:
+            # Vimeo needs an API call for the exact thumb; skip for now → gradient.
+            return None
+    except Exception:
+        pass
+    return None
 
 
 @app.post("/api/share/{token}/view-start")

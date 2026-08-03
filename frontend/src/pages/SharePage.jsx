@@ -56,17 +56,25 @@ function VideoCard({ v, i, token, viewSeconds }) {
 
   return (
     <div style={{ background: '#fff', borderRadius: 15, overflow: 'hidden', border: '1px solid ' + LINE, boxShadow: '0 10px 30px -20px rgba(10,31,82,.3)', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ aspectRatio: '16/9', position: 'relative', background: THUMBS[i % THUMBS.length], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ aspectRatio: '16/9', position: 'relative', background: THUMBS[i % THUMBS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        {!playing && v.thumbnail && (
+          <img src={v.thumbnail} alt="" loading="lazy"
+               onError={function(e){ e.currentTarget.style.display = 'none'; }}
+               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        )}
+        {!playing && v.thumbnail && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,31,82,.28)' }} />
+        )}
         {playing ? (
           <iframe src={v.embed_url + (v.embed_url.includes('?') ? '&' : '?') + 'autoplay=1'} title={v.title} allow="autoplay; encrypted-media" allowFullScreen loading="lazy"
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }} />
         ) : (
           <button onClick={start} aria-label={'Play: ' + v.title}
-                  style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,.92)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,0,0,.25)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={NAVY} style={{ marginLeft: 3 }}><path d="M8 5v14l11-7z" /></svg>
+                  style={{ position: 'relative', zIndex: 2, width: 54, height: 54, borderRadius: '50%', background: 'rgba(255,255,255,.95)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 20px rgba(0,0,0,.35)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill={NAVY} style={{ marginLeft: 3 }}><path d="M8 5v14l11-7z" /></svg>
           </button>
         )}
-        {counted && <span style={{ position: 'absolute', left: 8, bottom: 8, background: 'rgba(0,0,0,.72)', color: '#fff', fontSize: 10.5, fontWeight: 800, padding: '4px 9px', borderRadius: 20 }}>✓ Viewed</span>}
+        {counted && <span style={{ position: 'absolute', left: 8, bottom: 8, zIndex: 2, background: 'rgba(0,0,0,.72)', color: '#fff', fontSize: 10.5, fontWeight: 800, padding: '4px 9px', borderRadius: 20 }}>✓ Viewed</span>}
       </div>
       <div style={{ padding: '13px 14px 14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ fontWeight: 800, fontSize: 14.5, lineHeight: 1.32, color: NAVY }}>{v.title}</div>
