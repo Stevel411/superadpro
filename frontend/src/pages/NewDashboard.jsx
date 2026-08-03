@@ -638,7 +638,14 @@ export default function NewDashboard() {
                     var title = (n.title == null ? '' : String(n.title));
                     var message = (n.message == null ? '' : String(n.message));
                     var link = (typeof n.link === 'string') ? n.link : '';
-                    var isInternal = link.charAt(0) === '/';   // only internal paths are safe for <Link>
+                    var isInternal = link.charAt(0) === '/';   // only internal paths are safe
+                    // Some notification targets are SERVER-rendered pages (e.g.
+                    // /sale-chat, /my-sales, /payout-methods) with no React route —
+                    // React Router <Link> would fail to match and bounce to the
+                    // dashboard. Use a real <a> (full navigation) for those; keep
+                    // <Link> only for known SPA routes.
+                    var spaRoutes = ['/dashboard','/watch','/my-marketing','/videos','/create-campaign','/compensation-plan'];
+                    var isSpa = isInternal && spaRoutes.some(function(r){ return link === r || link.indexOf(r + '/') === 0 || link.indexOf(r + '?') === 0; });
                     var inner = (
                       <>
                         <div style={{ width: 34, height: 34, borderRadius: 9, background: '#eef2fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{icon}</div>
@@ -649,8 +656,12 @@ export default function NewDashboard() {
                       </>
                     );
                     var rowStyle = { padding: '13px 16px', display: 'flex', gap: 11, borderBottom: '1px solid #f6f8fb', textDecoration: 'none', background: n.is_read ? '#fff' : '#f2f7ff' };
-                    if (isInternal) {
+                    if (isSpa) {
                       return <Link key={n.id} to={link} onClick={function () { setBellOpen(false); }} style={rowStyle}>{inner}</Link>;
+                    }
+                    if (isInternal) {
+                      // server-rendered page — full navigation so it actually loads
+                      return <a key={n.id} href={link} onClick={function () { setBellOpen(false); }} style={rowStyle}>{inner}</a>;
                     }
                     return <div key={n.id} style={rowStyle}>{inner}</div>;
                   })}
