@@ -73765,7 +73765,6 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd" style="display:none"></div>
       <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue →</button>
-      <button class="btncancel" id="btnCancelAd" onclick="show('sPick')">← Skip to packages</button>
     </div>
 
     <div class="scr" id="sPayout">
