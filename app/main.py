@@ -40933,7 +40933,10 @@ def run_security_watch(db, dry=False):
     # exactly that long. The bound caps the whole cycle; a missed tick's treasury
     # read is recovered by the next responsive tick (drain persists in balance).
     cur_treasury = None
-    try:
+    # AdvantageLife has no treasury, so don't even make the BSC RPC call to read
+    # its balance — it's meaningless here and a hung RPC would just slow the tick.
+    if not brand_config.IS_ADVANTAGELIFE:
+      try:
         from .walletconnect_payments import health_check as _bsc_health
         import concurrent.futures as _cf
         _tex = _cf.ThreadPoolExecutor(max_workers=1)
@@ -40942,7 +40945,7 @@ def run_security_watch(db, dry=False):
             cur_treasury = _tfut.result(timeout=8)
         finally:
             _tex.shutdown(wait=False)  # never block on a hung RPC thread
-    except Exception as _te:
+      except Exception as _te:
         cur_treasury = None
         try:
             logging.error(f"[secwatch] treasury read skipped (failed/slow): {_te}")
@@ -40952,6 +40955,13 @@ def run_security_watch(db, dry=False):
         db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0))
           .filter(Withdrawal.status == "paid").scalar() or 0)
     treasury_first = True
+    # ── AdvantageLife: NO treasury-drain check. AL is strict peer-to-peer —
+    # buyers pay sellers directly, the platform never holds member funds, so
+    # there is no treasury to drain and no withdrawals to reconcile against.
+    # This entire check is a SuperAdPro concept; on AL it only ever produces
+    # false "TREASURY DRAIN SIGNAL" alarms from on-chain read noise. Skip it.
+    if brand_config.IS_ADVANTAGELIFE:
+        cur_treasury = None
     if cur_treasury is not None:
         base_treasury_raw = _secwatch_get(db, "secwatch_treasury_usdt", "")
         base_paid_wd_raw  = _secwatch_get(db, "secwatch_paid_wd_total", "")
