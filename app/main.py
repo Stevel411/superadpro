@@ -73676,6 +73676,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   <div class="foot">Member-to-member payments can't be reversed by AdvantageLife &mdash; always double-check the chain and address.</div>
 </div>
 <script>
+window.addEventListener('pageshow',function(e){if(e.persisted){location.reload();}});
 (function(){
   function packWidth(v){
     v=Number(v||0); if(v<=0) return 6;
