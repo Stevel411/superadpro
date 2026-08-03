@@ -53933,15 +53933,47 @@ def _rotate_share_campaigns(db: Session, exclude_user_id=None):
             w *= max(0.15, 1.0 - (done / float(target)))   # near-complete → less airtime
         weights.append(max(w, 0.01))
     picks, seen = [], set()
-    for _ in range(min(SHARE_PAGE_SLOTS * 4, len(pool) * 3)):
-        if len(picks) >= min(SHARE_PAGE_SLOTS, len(pool)):
+    slots = min(SHARE_PAGE_SLOTS, len(pool))
+    # If every eligible campaign fits in the page, show them ALL — weighting is
+    # only meant to RANK when there are more campaigns than slots, never to starve
+    # a small advertiser out entirely. (Bug: a $10 campaign competing against a
+    # heavily-weighted $600 one could lose every weighted draw and vanish despite
+    # open slots.) Weighted order still applies; we just guarantee inclusion.
+    if len(pool) <= SHARE_PAGE_SLOTS:
+        # weighted shuffle: order by a weighted key so bigger packs tend higher,
+        # but every campaign is included.
+        import random as _r
+        ordered = sorted(pool, key=lambda c: _r.random() ** (1.0 / max(0.01, _wt(c))), reverse=True)
+        return ordered
+    for _ in range(min(SHARE_PAGE_SLOTS * 6, len(pool) * 4)):
+        if len(picks) >= slots:
             break
         c = random.choices(pool, weights=weights, k=1)[0]
         if c.id in seen:
             continue
         seen.add(c.id)
         picks.append(c)
+    # Backfill any remaining slots with unpicked campaigns (never leave a slot
+    # empty while eligible campaigns wait).
+    if len(picks) < slots:
+        for c in pool:
+            if c.id not in seen:
+                picks.append(c); seen.add(c.id)
+                if len(picks) >= slots:
+                    break
     return picks
+
+
+def _wt(c):
+    """Airtime weight for a campaign (shared by the rotation)."""
+    w = float(max(1, (c.owner_tier or 1))) ** 1.5
+    w *= 1.0 + 0.5 * float(getattr(c, "priority_level", 0) or 0)
+    if getattr(c, "is_featured", False):
+        w *= 1.5
+    target, done = int(c.views_target or 0), int(c.views_delivered or 0)
+    if target > 0:
+        w *= max(0.15, 1.0 - (done / float(target)))
+    return max(w, 0.01)
 
 
 @app.get("/api/share/my-link")
