@@ -19065,6 +19065,12 @@ def upload_video_post(
         logger.info(f"[UPLOAD-DIAG] user={user.id} REJECTED: active_count={active_count} >= "
                     f"max={tier_features['max_campaigns']} (tier {user_tier})")
         tier_name = GRID_TIER_NAMES.get(user_tier, "Starter")
+        if _bc.IS_ADVANTAGELIFE:
+            _n = tier_features["max_campaigns"]
+            _pk = "pack" if _n == 1 else "packs"
+            return err(f"Each pack runs one campaign. You own {_n} {_pk}, so you can run "
+                       f"{_n} active campaign(s) at once. To run another, buy another pack "
+                       f"or pause an existing campaign to free a slot.")
         return err(f"Your {tier_name} tier allows {tier_features['max_campaigns']} active campaign(s). Upgrade your tier or pause an existing campaign.")
 
     parsed = parse_video_url(video_url)
