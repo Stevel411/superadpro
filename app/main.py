@@ -72076,6 +72076,15 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
         "earning_level": _ale.earning_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
+        "has_draft_ad": bool(db.query(VideoCampaign.id).filter(
+            VideoCampaign.user_id == user.id,
+            VideoCampaign.status == "draft").first()),
+        "my_draft_ad": (lambda d: ({"id": d.id, "title": d.title,
+                                    "video_url": d.video_url} if d else None))(
+            db.query(VideoCampaign).filter(
+                VideoCampaign.user_id == user.id,
+                VideoCampaign.status == "draft").order_by(
+                VideoCampaign.id.desc()).first()),
         "membership_active": _ale.membership_active(db, user.id),
         "pack_sale_count": user.pack_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
@@ -73747,7 +73756,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
 
     <div class="scr" id="sAd">
       <h1>Create your <span class="r">video ad</span></h1>
-      <div class="sub" style="margin-bottom:6px">Step 2 of 3 — set up your advertising, then pay. <b id="adPackName"></b> <span id="adViews" style="color:#5a6584"></span></div>
+      <div class="sub" style="margin-bottom:6px">Step 1 of 4 — build your ad. It stays ready (not delivering views) until you choose and pay for a package.</div>
       <div class="whybox">On AdvantageLife you create your ad first, then pay. This makes every pack a real ad campaign — and means you're ready to earn the moment your payment clears. Your ad goes live automatically once the sale is confirmed.</div>
       <label class="fl">Ad title</label>
       <input id="adTitle" class="fin" placeholder="e.g. Why I joined AdvantageLife">
@@ -73755,8 +73764,19 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <input id="adUrl" class="fin" placeholder="https://youtube.com/watch?v=…">
       <div class="plats">Supported: YouTube · Rumble · Vimeo</div>
       <div class="err" id="errAd" style="display:none"></div>
-      <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue to payment →</button>
-      <button class="btncancel" id="btnCancelAd" onclick="cancelPurchase()">← Cancel — choose a different pack</button>
+      <button class="btn red" id="btnAd" onclick="submitAd()">Save my ad &amp; continue →</button>
+      <button class="btncancel" id="btnCancelAd" onclick="show('sPick')">← Skip to packages</button>
+    </div>
+
+    <div class="scr" id="sPayout">
+      <h1>How you'll <span class="r">get paid</span></h1>
+      <div class="sub" style="margin-bottom:6px">Step 2 of 4 — add where your sales are paid to.</div>
+      <div class="whybox">When you sell a package to your team, the buyer pays <b>you</b> directly — AdvantageLife never holds it. Add at least one receiving method so your sales can reach you. Set this up before you transact.</div>
+      <div id="payoutBox" style="margin:16px 0">
+        <a href="/payout-methods?next=/packs" class="btn red" style="text-decoration:none;display:block">Add / manage receiving methods →</a>
+      </div>
+      <div class="whybox" style="background:#eafaf0;border-color:#b7e6c9;color:#0b7a3e">Once you've saved a method, come back here and you'll continue to choosing your package.</div>
+      <button class="btncancel" onclick="show('sAd')">← Back to my ad</button>
     </div>
 
     <div class="scr" id="sAd2">
@@ -74029,9 +74049,12 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     var b=document.getElementById('btnGo');
     if(b){b.disabled=true;b.textContent='Preparing your purchase…';}
     fetch('/api/al/packs/'+pk.level+'/intent',{method:'POST'}).then(function(r){return r.json().then(function(j){return{ok:r.ok,s:r.status,j:j}})}).then(function(x){
-      if(x.ok&&x.j.intent_id){intent=x.j; if(x.j.campaign_id){renderIntent(x.j)}else{renderAdStep(x.j)} }
-      else if(x.s===409&&x.j.intent){handleExisting(x.j.intent)}
-      else{fail('errPick',x.j.error||'Could not start this purchase'); if(b){b.disabled=false;b.textContent='Try again'}}
+      if(b){b.disabled=false;b.textContent='Continue →';}
+      if(x.ok&&x.j.intent_id){ intent=x.j; renderIntent(x.j); scrollTop(); }
+      else if(x.s===409&&x.j.action==='create_ad'){ show('sAd'); scrollTop(); }
+      else if(x.s===409&&x.j.action==='add_payout'){ show('sPayout'); scrollTop(); }
+      else if(x.s===409&&x.j.intent){ handleExisting(x.j.intent); }
+      else{fail('errPick',x.j.error||'Could not start this purchase');}
     }).catch(function(){fail('errPick','Network error — try again'); if(b){b.disabled=false;b.textContent='Try again'}});
   }
   var _btnGo=document.getElementById('btnGo');
@@ -74051,22 +74074,22 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     var u=document.getElementById('adUrl').value.trim();
     var eb=document.getElementById('errAd'); eb.style.display='none';
     if(!t||!u){eb.textContent='Add a title and a video link.';eb.style.display='block';return;}
-    // Guard: without a purchase intent the create-ad URL is malformed and the
-    // click silently throws (TypeError on intent.intent_id) — the 'red button
-    // goes nowhere' bug. Recover by restarting the purchase for the selected pack.
-    if(!intent||!intent.intent_id){
-      eb.textContent='Your order session expired. Re-selecting your pack…';
-      eb.style.display='block';
-      if(sel){ startPurchase(sel); } else { show('sPick'); }
-      return;
-    }
+    // NEW FLOW Step 1: create the ad STANDALONE (draft, no pack/intent yet).
     var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
-    fetch('/api/al/intents/'+intent.intent_id+'/create-ad',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
+    fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
-        if(x.ok){intent.campaign_id=x.j.campaign_id; renderIntent(intent);}
-        else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';}
-      }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue to payment →';});
+        btn.disabled=false;btn.textContent='Save my ad & continue →';
+        if(x.ok){ window._hasDraftAd=true; gotoPayoutStep(); }
+        else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';}
+      }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue →';});
   }
+  // NEW FLOW Step 2: receiving method. We send the member to the payout-methods
+  // surface, then bring them back to /packs which resumes at the package step.
+  function gotoPayoutStep(){
+    if(window._hasPayout){ show('sPick'); scrollTop(); return; }
+    show('sPayout'); scrollTop();
+  }
+  function scrollTop(){try{window.scrollTo(0,0);}catch(e){}}
   window.cancelPurchase=function(){
     if(!intent||!intent.intent_id){ show('sPick'); return; }
     if(!confirm('Cancel this pack purchase and choose a different pack? Your unpaid order will be removed — no money changes hands.')) return;
@@ -74129,9 +74152,16 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
   };
   fetch('/api/al/packs').then(function(r){if(r.status===401){location.href='/login?next=/packs';return null}return r.json()}).then(function(j){
     if(!j)return;
-    if(j.open_intent){handleExisting(j.open_intent)}else{renderPicker(j)}
-    if(!j.open_intent)renderPicker(j);
+    renderPicker(j);                 // always build the pack grid (used at Step 3)
+    window._hasPayout=!!j.has_payout_method;
+    window._hasDraftAd=!!j.has_draft_ad;
     loadShareBanner();
+    // Route to the right step of the NEW flow: open purchase resumes at payment;
+    // otherwise ad first, then receiving method, then package.
+    if(j.open_intent){ handleExisting(j.open_intent); }
+    else if(!j.has_draft_ad){ show('sAd'); }
+    else if(!j.has_payout_method){ show('sPayout'); }
+    else { show('sPick'); }
   });
 })();
 
