@@ -72258,6 +72258,19 @@ async def al_create_intent(pack_level: int,
         return JSONResponse({"error": "Campaign packs are for lifetime members. Join for $100 (one time) to unlock packs.",
                              "action": "join", "join_url": "/join"}, status_code=403)
     _al_expire_stale(db)
+    # NEW FLOW gates: the ad must exist (Step 1) and a receiving method must be
+    # on file (Step 2) BEFORE a package can be bought (Step 3). This enforces the
+    # approved order and prevents stranded purchases.
+    draft = (db.query(VideoCampaign)
+               .filter(VideoCampaign.user_id == user.id,
+                       VideoCampaign.status == "draft")
+               .order_by(VideoCampaign.id.desc()).first())
+    if not draft:
+        return JSONResponse({"error": "Create your ad first.", "step": "ad",
+                             "action": "create_ad"}, status_code=409)
+    if not _ale.payable(db, user.id):
+        return JSONResponse({"error": "Add how you'll get paid first.", "step": "payout",
+                             "action": "add_payout"}, status_code=409)
     existing = (db.query(P2PIntent)
                   .filter(P2PIntent.buyer_id == user.id,
                           P2PIntent.status.in_(("pending", "proof_submitted")))
@@ -72280,10 +72293,78 @@ async def al_create_intent(pack_level: int,
         db.commit()
         logger.error(f"AL intent {intent.id}: resolved payee {intent.earner_id} has no payout method DESPITE gate")
         return JSONResponse({"error": "Could not prepare this purchase — try again shortly"}, status_code=500)
+    # Link the draft ad to this purchase + size it to the chosen pack. It stays
+    # status='draft' (not delivering) until the sale confirms, which flips it live.
+    pack = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
+    draft.views_target = (pack.views_target if pack and pack.views_target else 0)
+    draft.campaign_tier = intent.pack_level
+    intent.campaign_id = draft.id
+    db.commit()
     out = _al_intent_json(db, intent, user.id)
+    out["campaign_id"] = draft.id
     out["message"] = (f"Your payment goes directly to {out['payee']['display']} — "
                       "AdvantageLife never holds it. Pay the exact amount, then submit proof below.")
     return out
+
+
+@app.post("/api/al/ad/create-draft")
+async def al_create_draft_ad(request: Request,
+                             user: User = Depends(_al_user),
+                             db: Session = Depends(get_db)):
+    """NEW FLOW (Step 1): create the video ad FIRST, standalone — before any
+    package or purchase intent exists. The campaign is created status='draft'
+    (NOT in the watch feed, NOT delivering views). It becomes live only when a
+    package is bought and the sale confirms (Option A). One open draft per member
+    is reused so re-submitting edits the same draft rather than piling up rows."""
+    if not _al_is_lifetime(user):
+        return JSONResponse({"error": "Campaign packs are for lifetime members. Join for $100 (one time) to unlock.",
+                             "action": "join", "join_url": "/join"}, status_code=403)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    video_url = (body.get("video_url") or "").strip()
+    if not title or not video_url:
+        return JSONResponse({"error": "A title and a video URL are both required."}, status_code=400)
+    parsed = parse_video_url(video_url)
+    if not parsed:
+        return JSONResponse({"error": "That video URL isn't a supported platform (YouTube, Rumble, Vimeo)."}, status_code=400)
+
+    # Reuse an existing draft that isn't yet attached to a purchase (edit in place)
+    draft = (db.query(VideoCampaign)
+               .filter(VideoCampaign.user_id == user.id,
+                       VideoCampaign.status == "draft")
+               .order_by(VideoCampaign.id.desc()).first())
+    # A draft already linked to an open intent must not be silently reused for a
+    # different ad — only reuse ones with no intent pointing at them.
+    if draft:
+        linked = db.query(P2PIntent).filter(
+            P2PIntent.campaign_id == draft.id,
+            P2PIntent.status.in_(("pending", "proof_submitted"))).first()
+        if linked:
+            draft = None
+    if draft:
+        draft.title = title
+        draft.description = (body.get("description") or "").strip() or None
+        draft.platform = parsed["platform"]
+        draft.video_url = video_url
+        draft.embed_url = parsed["embed_url"]
+        draft.video_id = parsed.get("video_id")
+        campaign = draft
+    else:
+        campaign = VideoCampaign(
+            user_id=user.id, title=title,
+            description=(body.get("description") or "").strip() or None,
+            platform=parsed["platform"], video_url=video_url,
+            embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
+            status="draft",           # standalone; not live, not delivering
+            views_target=0, views_delivered=0,
+            campaign_tier=0, is_completed=False,
+            share_approved=False,
+            created_at=datetime.utcnow(),
+        )
+        db.add(campaign)
+    db.commit()
+    return {"ok": True, "campaign_id": campaign.id, "status": "draft",
+            "message": "Ad saved. Next, add how you'll get paid, then choose your package."}
 
 
 @app.post("/api/al/intents/{intent_id}/create-ad")

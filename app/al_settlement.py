@@ -204,9 +204,13 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
     db.flush()  # need purchase.id
 
     # Flip the pre-created ad live so it enters the watch feed now that the sale
-    # is confirmed.
-    if pending_campaign is not None and pending_campaign.status == "pending":
+    # is confirmed. New flow parks it as 'draft', legacy as 'pending' — activate
+    # either, and approve it for the showcase (pack-backed = legitimate).
+    if pending_campaign is not None and pending_campaign.status in ("draft", "pending"):
         pending_campaign.status = "active"
+        pending_campaign.share_approved = True
+        if getattr(pending_campaign, "share_approved_at", None) is None:
+            pending_campaign.share_approved_at = datetime.utcnow()
 
     # honour the payee LOCKED at intent (the buyer already paid them)
     locked = {
