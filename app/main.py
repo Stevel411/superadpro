@@ -74158,19 +74158,22 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     show('sAd');
   }
   function submitAd(){
+    var eb=document.getElementById('errAd');
+    if(eb){eb.style.display='block';eb.textContent='Saving…';}  // proves the click fired
     var t=document.getElementById('adTitle').value.trim();
     var u=document.getElementById('adUrl').value.trim();
-    var eb=document.getElementById('errAd'); eb.style.display='none';
-    if(!t||!u){eb.textContent='Add a title and a video link.';eb.style.display='block';return;}
+    if(!t||!u){if(eb){eb.textContent='Add a title and a video link.';}return;}
+    if(eb)eb.style.display='none';
     // NEW FLOW Step 1: create the ad STANDALONE (draft, no pack/intent yet).
     var btn=document.getElementById('btnAd');btn.disabled=true;btn.textContent='Saving your ad…';
     fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
         btn.disabled=false;btn.textContent='Save my ad & continue →';
         if(x.ok){ window._hasDraftAd=true; gotoPayoutStep(); }
-        else{eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';}
-      }).catch(function(){eb.textContent='Network error — try again.';eb.style.display='block';btn.disabled=false;btn.textContent='Save my ad & continue →';});
+        else{if(eb){eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';}}
+      }).catch(function(err){if(eb){eb.textContent='Network error: '+(err&&err.message||'try again');eb.style.display='block';}btn.disabled=false;btn.textContent='Save my ad & continue →';});
   }
+  window.submitAd=submitAd;  // expose globally so inline onclick can always resolve it
   // NEW FLOW Step 2: receiving method. We send the member to the payout-methods
   // surface, then bring them back to /packs which resumes at the package step.
   function gotoPayoutStep(){
