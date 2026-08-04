@@ -72063,6 +72063,55 @@ def al_gift_packs_summary(user: User = Depends(_al_user), db: Session = Depends(
     })
 
 
+@app.get("/admin/api/al/gifted-cohort")
+def al_gifted_cohort(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """ADMIN: the hand-gifted founder cohort — members granted lifetime access
+    and/or gifted campaign packs (source='gift'). Read-only. 'First 4 packs' =
+    levels 10, 20, 50, 100. Returns the precise cohort (lifetime AND all first-4
+    gifted) plus a full breakdown of everyone who was gifted anything, with
+    copy-ready username and email lists."""
+    _require_admin(user)
+    from collections import defaultdict as _dd
+    FIRST4 = {10, 20, 50, 100}
+    gift_levels = _dd(set)
+    for uid, lvl in (db.query(PackPurchase.user_id, PackPurchase.pack_level)
+                       .filter(PackPurchase.source == "gift").all()):
+        if lvl is not None:
+            gift_levels[uid].add(int(lvl))
+    lifetime_ids = {r[0] for r in db.query(User.id)
+                                    .filter(User.access_level == "lifetime").all()}
+    candidate_ids = set(gift_levels.keys()) | lifetime_ids
+    if not candidate_ids:
+        return JSONResponse({"total_candidates": 0,
+                             "cohort_lifetime_plus_first4": {"count": 0, "usernames": [], "emails": []},
+                             "all": []})
+    users = db.query(User).filter(User.id.in_(candidate_ids)).order_by(User.id).all()
+    rows = []
+    for u in users:
+        gl = sorted(gift_levels.get(u.id, set()))
+        rows.append({
+            "user_id": u.id,
+            "username": u.username,
+            "first_name": u.first_name or "",
+            "email": u.email,
+            "lifetime": (u.access_level == "lifetime"),
+            "gifted_pack_levels": gl,
+            "has_first_4_gifted": FIRST4.issubset(set(gl)),
+        })
+    cohort = [r for r in rows if r["lifetime"] and r["has_first_4_gifted"]]
+    return JSONResponse({
+        "total_candidates": len(rows),
+        "cohort_lifetime_plus_first4": {
+            "count": len(cohort),
+            "usernames": [r["username"] for r in cohort],
+            "emails": [r["email"] for r in cohort],
+        },
+        "gifted_lifetime_count": sum(1 for r in rows if r["lifetime"]),
+        "gifted_any_pack_count": sum(1 for r in rows if r["gifted_pack_levels"]),
+        "all": rows,
+    })
+
+
 @app.get("/admin/api/al/rename-member")
 def al_rename_member(username: str = "", member_id: int = 0, to: str = "",
                      confirm: int = 0,
