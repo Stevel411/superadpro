@@ -32683,6 +32683,37 @@ def _al_launch_render(campaign: dict, name: str, unsub_url: str) -> dict:
     return {"subject": campaign["subject"], "html": html}
 
 
+@app.get("/admin/api/al/launch-broadcast-test")
+def admin_al_launch_broadcast_test(to: str = "", which: str = "all",
+                                   user: User = Depends(get_current_user),
+                                   db: Session = Depends(get_db)):
+    """ADMIN: send ONE launch email to a test address through the EXACT broadcast
+    send path (same from_name / category / auth), so SPF-DKIM-DMARC and inbox
+    placement match a real send. Does NOT write broadcast_log (it is a test).
+    Use ?to=you@gmail.com&which=all|loyal|free."""
+    _require_admin(user)
+    to = (to or "").strip()
+    if not to or "@" not in to:
+        return JSONResponse({"error": "pass ?to=you@example.com"}, status_code=400)
+    campaign = AL_LAUNCH_EMAILS.get((which or "all").lower())
+    if not campaign:
+        return JSONResponse({"error": "which must be loyal|free|all"}, status_code=400)
+    from .email_utils import send_email
+    unsub = "https://www.advantagelife.club/unsubscribe?token=TESTTOKEN"
+    r = _al_launch_render(campaign, (user.first_name or "there"), unsub)
+    try:
+        res = send_email(to, "[TEST] " + r["subject"], r["html"], return_message_id=True,
+                         category="marketing", list_unsubscribe=unsub,
+                         from_name="Steve \u2014 AdvantageLife")
+        ok = res[0] if isinstance(res, tuple) else bool(res)
+        msg_id = res[1] if isinstance(res, tuple) and len(res) > 1 else None
+        return JSONResponse({"ok": bool(ok), "to": to, "which": which,
+                             "subject": r["subject"], "message_id": msg_id,
+                             "note": "Check Inbox vs Spam/Promotions. Then open the email, 'Show original' (or 'View source'), and read the SPF / DKIM / DMARC pass-fail lines."})
+    except Exception as e:
+        return JSONResponse({"error": "%s: %s" % (type(e).__name__, e)}, status_code=500)
+
+
 @app.get("/admin/api/al/launch-broadcast")
 def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "preview",
                               confirm: str = "", limit: int = 0,
