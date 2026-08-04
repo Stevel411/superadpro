@@ -9,7 +9,7 @@
   html,body{margin:0;padding:0}
   body{font-family:'Inter',sans-serif;color:var(--ink);background:#fbfcff;min-height:100vh;
     background-image:radial-gradient(110% 45% at 90% -6%,rgba(46,204,113,.07),transparent 60%),radial-gradient(110% 40% at 4% -3%,rgba(18,56,143,.09),transparent 55%);background-attachment:fixed}
-  .wrap{max-width:1040px;margin:0 auto;padding:16px 20px 60px}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px 20px 60px}
   .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;background:var(--navy);border-radius:9px;padding:8px 14px;text-decoration:none;margin-bottom:14px}
   .head{text-align:center;margin-bottom:4px}
   h1{font-weight:900;font-size:32px;letter-spacing:-.8px;margin:0}h1 .g{color:var(--grn)}
@@ -28,7 +28,7 @@
   .vidbox{max-width:1040px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.5);background:var(--navy)}
   .vidbox video{width:100%;display:block}
   /* guide iframe — scale-to-fit (fixed 1120x965 design scaled to container width, no scrollbars) */
-  .guidewrap{position:relative;width:100%;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff;border:1.5px solid var(--line)}
+  .guidewrap{position:relative;width:100%;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff}
   .guidewrap iframe{display:block;width:1168px;height:1180px;border:0;transform-origin:top left;opacity:0;transition:opacity .25s ease;overflow:hidden}
   .guidewrap iframe.ready{opacity:1}
   /* loading placeholder while the guide scales in */
@@ -82,30 +82,41 @@
     if(!wrap||!frame)return;
     var w=wrap.clientWidth;
     if(!w) return; // panel not visible yet — skip (avoids scaling to 0)
-    var scale=Math.min(1, w/GUIDE_W);
+    var scale=w/GUIDE_W;
     frame.style.transform='scale('+scale+')';
     if(guideReady) wrap.style.height=(GUIDE_H*scale)+'px';
   }
   function onGuideLoad(){
-    // iframe content is loaded — measure the real content box (immune to design drift),
-    // then scale it correctly BEFORE revealing, then fade in.
+    // The guide is a design-tool export that ships its own grey "mat" (an #eef1f7
+    // body + 36/24/52px padding + a fixed-width rounded card). It's same-origin, so
+    // strip that mat here — the white card then fills the panel edge-to-edge — and
+    // measure its true height so the panel fits exactly with no scrollbars.
     guideReady=true;
-    try{
-      var doc=document.getElementById('guideFrame').contentDocument;
-      var card=doc&&doc.querySelector('body > div > div');
-      if(card){
-        // card height + the wrapper's top/bottom padding (36px + 52px)
-        GUIDE_H=Math.ceil(card.getBoundingClientRect().height)+88;
-      }
-    }catch(e){/* cross-origin or not ready — keep the design default */}
-    fitGuide();
     var frame=document.getElementById('guideFrame');
     var load=document.getElementById('guideLoad');
-    // next frame so the scaled transform is applied before opacity transitions in
-    requestAnimationFrame(function(){
+    try{
+      var doc=frame.contentDocument;
+      var st=doc.createElement('style');
+      // :not([id]) avoids the bundler's fixed #__bundler_thumbnail / #__bundler_err overlays
+      st.textContent=
+        'html,body{background:#fff!important}'+
+        'body>div:not([id]){padding:0!important;background:#fff!important;min-height:0!important}'+
+        'body>div:not([id])>div{width:100%!important;margin:0!important;border-radius:0!important;box-shadow:none!important}';
+      doc.head.appendChild(st);
+    }catch(e){/* if ever cross-origin, fall back to the design default */}
+    function measureAndReveal(){
+      try{
+        var d=frame.contentDocument;
+        var h=(d&&d.body)?d.body.scrollHeight:0;
+        if(h>200){ GUIDE_H=Math.ceil(h); frame.style.height=GUIDE_H+'px'; }
+      }catch(e){}
+      fitGuide();
       frame.classList.add('ready');
       if(load) load.style.display='none';
-    });
+    }
+    // let the injected style + React paint settle, then measure; re-measure once more as a guard
+    requestAnimationFrame(function(){ requestAnimationFrame(measureAndReveal); });
+    setTimeout(measureAndReveal, 400);
   }
   function showTab(which){
     var w=which==='watch';
