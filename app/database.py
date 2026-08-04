@@ -320,6 +320,27 @@ DAILY_WATCH_BY_TIER = {
 
 # ── Campaign Tier Features ────────────────────────────────────
 # Controls what each grid tier unlocks for video campaigns
+# ── Video ads allowed per pack, by pack $ level (Steve, 4 Aug 2026) ──────
+# A pack backs multiple video ads; each accrues its own views. The pack's
+# TOTAL view target is unchanged and completion is driven by the AGGREGATE of
+# its videos, so a multi-video pack expires in exactly the same time as a
+# single-video one. Range-based helper so an admin sentinel or any unexpected
+# value still resolves sanely.
+VIDEOS_BY_PACK = {10: 2, 20: 2, 50: 2, 100: 4, 200: 4, 400: 4, 600: 6, 800: 6, 1000: 6}
+
+
+def videos_allowed_for_level(level) -> int:
+    try:
+        lvl = int(level)
+    except (TypeError, ValueError):
+        return 2
+    if lvl >= 600:
+        return 6
+    if lvl >= 100:
+        return 4
+    return 2
+
+
 CAMPAIGN_TIER_FEATURES = {
     0: {"max_campaigns": 1,  "monthly_views": 250,    "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
     1: {"max_campaigns": 1,  "monthly_views": 500,    "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
@@ -2481,6 +2502,7 @@ def run_migrations():
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved BOOLEAN DEFAULT FALSE",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",
         "CREATE INDEX IF NOT EXISTS ix_video_campaigns_share_approved ON video_campaigns (share_approved)",
         "CREATE INDEX IF NOT EXISTS ix_share_views_link_verified ON share_views (share_link_id, is_verified)",
         "CREATE INDEX IF NOT EXISTS ix_share_views_dedup ON share_views (fingerprint, campaign_id, view_date)",

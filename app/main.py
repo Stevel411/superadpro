@@ -518,6 +518,16 @@ async def startup_event():
         print(f"✅ Connection pool warmed ({len(warmup_conns)} connections)")
     except Exception as e:
         print(f"⚠️ Pool warmup skipped: {e}")
+    # Ensure the pack<->video link column exists BEFORE any request is served
+    # (additive, idempotent, runs even under SKIP_MIGRATIONS). Accessed only via
+    # raw SQL, so it never disturbs existing ORM VideoCampaign queries.
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER"))
+            conn.commit()
+        print("✅ video_campaigns.pack_purchase_id ensured")
+    except Exception as e:
+        print(f"⚠️ pack_purchase_id ensure skipped: {e}")
     try:
         run_migrations()
         print("✅ Migrations complete")
@@ -19102,19 +19112,24 @@ def upload_video_post(
     # PACK: one active campaign PER owned pack, and the pack's real views_target.
     from . import brand_config as _bc
     if _bc.IS_ADVANTAGELIFE:
-        owned_packs = db.query(PackPurchase).filter(
+        from .database import videos_allowed_for_level
+        active_packs = db.query(PackPurchase).filter(
             PackPurchase.user_id == user.id,
-            PackPurchase.status == "active").count()
+            PackPurchase.status == "active").all()
+        # Each pack backs 2/4/6 video ads by tier; total slots = sum across packs.
+        # The pack view target is unchanged and completion is aggregate-driven,
+        # so this does NOT change expiry speed.
+        total_slots = sum(videos_allowed_for_level(p.pack_level) for p in active_packs)
         top_pack = (db.query(CampaignPack)
                       .filter(CampaignPack.level == user_tier,
                               CampaignPack.is_active == True).first())  # noqa: E712
         tier_features = dict(tier_features)  # copy so we don't mutate the shared dict
-        tier_features["max_campaigns"] = max(1, owned_packs)
+        tier_features["max_campaigns"] = max(1, total_slots)
         tier_features["monthly_views"] = (top_pack.views_target
                                           if top_pack and top_pack.views_target
                                           else tier_features.get("monthly_views", 500))
-        logger.info(f"[UPLOAD-DIAG] AL pack-based allowance user={user.id} "
-                    f"owned_packs={owned_packs} views={tier_features['monthly_views']}")
+        logger.info(f"[UPLOAD-DIAG] AL slot allowance user={user.id} "
+                    f"packs={len(active_packs)} slots={total_slots} views={tier_features['monthly_views']}")
     active_count = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user.id,
         VideoCampaign.status == "active"
@@ -19125,10 +19140,9 @@ def upload_video_post(
         tier_name = GRID_TIER_NAMES.get(user_tier, "Starter")
         if _bc.IS_ADVANTAGELIFE:
             _n = tier_features["max_campaigns"]
-            _pk = "pack" if _n == 1 else "packs"
-            return err(f"Each pack runs one campaign. You own {_n} {_pk}, so you can run "
-                       f"{_n} active campaign(s) at once. To run another, buy another pack "
-                       f"or pause an existing campaign to free a slot.")
+            return err(f"You can run up to {_n} video ad(s) across your packs, and they're "
+                       f"all in use right now. To run more, buy another pack (higher tiers "
+                       f"allow more videos per pack) or pause a video to free a slot.")
         return err(f"Your {tier_name} tier allows {tier_features['max_campaigns']} active campaign(s). Upgrade your tier or pause an existing campaign.")
 
     parsed = parse_video_url(video_url)
@@ -19196,30 +19210,47 @@ def upload_video_post(
     try:
         from . import brand_config as _bc
         if _bc.IS_ADVANTAGELIFE:
-            unlinked = (db.query(PackPurchase)
-                          .filter(PackPurchase.user_id == user.id,
-                                  PackPurchase.status == "active",
-                                  PackPurchase.campaign_id.is_(None))
-                          .order_by(PackPurchase.pack_level.desc(),
-                                    PackPurchase.id.asc())
-                          .first())
-            if unlinked:
-                unlinked.campaign_id = campaign.id
-                # AL has no manual showcase-approval step: a campaign backed by a
-                # paid pack is legitimate by definition, so auto-approve it into
-                # the share rotation (else it never appears on any showcase page).
+            from .database import videos_allowed_for_level as _val
+            # Link this video to a pack that still has a free slot. A pack backs
+            # _val(level) videos (2/4/6 by tier); each accrues its own views and
+            # the pack completes on the AGGREGATE (see the watch handler), so
+            # total delivery — and expiry speed — is unchanged vs a single video.
+            target_pack = None
+            for _p in (db.query(PackPurchase)
+                         .filter(PackPurchase.user_id == user.id,
+                                 PackPurchase.status == "active")
+                         .order_by(PackPurchase.pack_level.desc(),
+                                   PackPurchase.id.asc())
+                         .all()):
+                _used = db.execute(text(
+                    "SELECT COUNT(*) FROM video_campaigns "
+                    "WHERE pack_purchase_id = :pid AND status = 'active'"),
+                    {"pid": _p.id}).scalar() or 0
+                # legacy pack: its one ad is linked via campaign_id, not
+                # pack_purchase_id — count it so we don't over-fill the pack.
+                if _p.campaign_id and _used == 0:
+                    _used = 1
+                if _used < _val(_p.pack_level):
+                    target_pack = _p
+                    break
+            if target_pack is not None:
+                db.execute(text("UPDATE video_campaigns SET pack_purchase_id = :pid WHERE id = :cid"),
+                           {"pid": target_pack.id, "cid": campaign.id})
+                if not target_pack.campaign_id:
+                    target_pack.campaign_id = campaign.id   # first ad -> pack is now running (earning-qualified)
+                # A pack-backed ad is legitimate by definition — auto-approve it
+                # into the share rotation (no manual showcase-approval on AL).
                 campaign.share_approved = True
                 campaign.share_approved_at = datetime.utcnow()
-                # align the campaign's view target to the pack tier if unset
                 if not campaign.views_target:
                     _pack = db.query(CampaignPack).filter(
-                        CampaignPack.id == unlinked.pack_id).first()
+                        CampaignPack.id == target_pack.pack_id).first()
                     if _pack and _pack.views_target:
                         campaign.views_target = _pack.views_target
-                        campaign.campaign_tier = unlinked.pack_level
+                        campaign.campaign_tier = target_pack.pack_level
                 db.commit()
                 logger.info(f"[AL-UPLOAD] linked campaign {campaign.id} -> pack "
-                            f"{unlinked.id} (level {unlinked.pack_level}) for user {user.id}")
+                            f"{target_pack.id} (level {target_pack.pack_level}) for user {user.id}")
     except Exception as _e:
         logger.error(f"[AL-UPLOAD] pack-link failed for user {user.id}: {_e}")
         # campaign is still created; don't fail the request
@@ -56164,26 +56195,61 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
 
         # Increment campaign views delivered
         campaign.views_delivered = (campaign.views_delivered or 0) + 1
+        db.flush()  # persist the +1 so the aggregate SUM below (raw SQL) sees it
 
-        # ── FIX #4: Campaign completion check ──
-        # When views_delivered reaches views_target, mark campaign as completed
-        if campaign.views_target and campaign.views_delivered >= campaign.views_target and not campaign.is_completed:
-            campaign.is_completed = True
-            campaign.completed_at = datetime.utcnow()
-            campaign.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
-            campaign.status = "completed"
-            logger.info(f"Campaign {campaign.id} completed: {campaign.views_delivered}/{campaign.views_target} views")
-            # AL consumable pack: if this campaign is the ad for an AL pack, the
-            # pack's run is done. Stamp completion + grace. It stays 'active'
-            # (earning-qualified) through the grace window; a separate sweep /
-            # gate flips it to 'expired' once grace_expires_at passes.
+        # ── AL pack completion: AGGREGATE across the pack's videos ──
+        # A pack backs 1..N videos (2/4/6 by tier). Each video accrues its own
+        # views; the pack completes when the SUM across its videos reaches the
+        # pack's (unchanged) total target — so a multi-video pack completes in
+        # exactly the same time as a single-video one. The pack link resolves via
+        # the new pack_purchase_id, falling back to the legacy campaign_id link so
+        # existing single-video packs behave exactly as before.
+        _pp_id = db.execute(text("SELECT pack_purchase_id FROM video_campaigns WHERE id = :cid"),
+                            {"cid": campaign.id}).scalar()
+        linked_pack = None
+        if _pp_id:
+            linked_pack = (db.query(PackPurchase)
+                             .filter(PackPurchase.id == _pp_id,
+                                     PackPurchase.status == "active").first())
+        if linked_pack is None:
             linked_pack = (db.query(PackPurchase)
                              .filter(PackPurchase.campaign_id == campaign.id,
                                      PackPurchase.status == "active").first())
-            if linked_pack is not None:
-                linked_pack.completed_at = datetime.utcnow()
-                linked_pack.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
-                logger.info(f"AL pack {linked_pack.id} (level ${linked_pack.pack_level}) campaign complete; grace until {linked_pack.grace_expires_at}")
+        if linked_pack is not None:
+            if linked_pack.completed_at is None:
+                _cid = linked_pack.campaign_id or -1
+                pack_delivered = db.execute(text(
+                    "SELECT COALESCE(SUM(views_delivered),0) FROM video_campaigns "
+                    "WHERE pack_purchase_id = :pid OR id = :cid"),
+                    {"pid": linked_pack.id, "cid": _cid}).scalar() or 0
+                pack_total = db.execute(text(
+                    "SELECT views_target FROM campaign_packs "
+                    "WHERE level = :lvl AND is_active = TRUE ORDER BY id LIMIT 1"),
+                    {"lvl": linked_pack.pack_level}).scalar()
+                if pack_total and pack_delivered >= pack_total:
+                    linked_pack.completed_at = datetime.utcnow()
+                    linked_pack.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
+                    # retire ALL of this pack's videos together so none over-delivers
+                    db.execute(text(
+                        "UPDATE video_campaigns SET is_completed = TRUE, status = 'completed', "
+                        "completed_at = NOW(), grace_expires_at = NOW() + make_interval(days => :g) "
+                        "WHERE (pack_purchase_id = :pid OR id = :cid) AND is_completed = FALSE"),
+                        {"pid": linked_pack.id, "cid": _cid, "g": int(CAMPAIGN_GRACE_DAYS)})
+                    # keep the in-memory ORM row consistent with the raw update
+                    campaign.is_completed = True
+                    campaign.status = "completed"
+                    campaign.completed_at = linked_pack.completed_at
+                    campaign.grace_expires_at = linked_pack.grace_expires_at
+                    logger.info(f"AL pack {linked_pack.id} (${linked_pack.pack_level}) complete: "
+                                f"{pack_delivered}/{pack_total} aggregate views; grace until {linked_pack.grace_expires_at}")
+        else:
+            # non-pack campaign (legacy/none): keep per-video completion
+            if campaign.views_target and campaign.views_delivered >= campaign.views_target and not campaign.is_completed:
+                campaign.is_completed = True
+                campaign.completed_at = datetime.utcnow()
+                campaign.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
+                campaign.status = "completed"
+                logger.info(f"Campaign {campaign.id} completed: {campaign.views_delivered}/{campaign.views_target} views")
 
         db.commit()
 
