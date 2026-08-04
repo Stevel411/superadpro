@@ -72094,6 +72094,39 @@ def al_gift_packs_summary(user: User = Depends(_al_user), db: Session = Depends(
     })
 
 
+@app.get("/admin/api/al/broadcast-summary")
+def al_broadcast_summary(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """ADMIN: one-tap deliverability + claim picture. (a) every launch
+    broadcast's outcomes by status (sent / failed / sending) from broadcast_log;
+    (b) how many real members still have NOT claimed their account (no password
+    set = never logged into AL) — the precise group worth a targeted follow-up
+    instead of re-blasting everyone. Read-only."""
+    _require_admin(user)
+    _ensure_broadcast_log_table(db)
+    rows = db.execute(text(
+        "SELECT broadcast_key, status, COUNT(*) AS n FROM broadcast_log "
+        "GROUP BY broadcast_key, status ORDER BY broadcast_key")).mappings().all()
+    per = {}
+    for r in rows:
+        per.setdefault(r["broadcast_key"], {})[r["status"]] = r["n"]
+    _filt = ("email IS NOT NULL AND email <> '' AND is_admin = false "
+             "AND lower(username) NOT LIKE 'test%' "
+             "AND lower(email) NOT LIKE '%stevelawsonmarketing+%'")
+    total = db.execute(text("SELECT COUNT(*) FROM users WHERE " + _filt)).scalar() or 0
+    unclaimed = db.execute(text(
+        "SELECT COUNT(*) FROM users WHERE " + _filt +
+        " AND (password IS NULL OR password = '')")).scalar() or 0
+    return JSONResponse({
+        "broadcasts": per,
+        "members": {
+            "total_real_members": int(total),
+            "claimed_set_a_password": int(total) - int(unclaimed),
+            "not_yet_claimed": int(unclaimed),
+        },
+        "note": "not_yet_claimed = real members who have never set an AL password. That is the group to target with a follow-up, not the whole list.",
+    })
+
+
 @app.get("/admin/api/al/gifted-cohort")
 def al_gifted_cohort(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: the hand-gifted founder cohort — members granted lifetime access
