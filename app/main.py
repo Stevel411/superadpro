@@ -32666,6 +32666,131 @@ AL_LAUNCH_EMAILS = {
             "earns depends on the effort they put in and the audience they build."
         ),
     },
+    # ── Re-engagement drip (audience: unclaimed) ─────────────────────────
+    # re1 is fired manually by the admin (preview → dry-run → phased send).
+    # re2–re4 are sent by /cron/al-reengagement, stepping off each
+    # recipient's own broadcast_log.sent_at; anyone who claims (sets a
+    # password) leaves the unclaimed audience and the drip stops for them.
+    "re1": {
+        "broadcast_key": "al_reeng1_2026_08",
+        "audience": "unclaimed",
+        "subject": "Your AdvantageLife account is ready — here's how to get back in",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Some good news, and one small thing to do.\n\n"
+            "The platform you signed up to has been rebuilt from the ground up "
+            "and relaunched as <b>AdvantageLife</b> — a fresh, more secure "
+            "platform, with your membership carried across. It's all waiting "
+            "for you.\n\n"
+            "There's just one step between you and your account. For security "
+            "after the breach, passwords weren't carried over — so you'll "
+            "need to set a fresh one:\n\n"
+            "➡️ https://www.advantagelife.club/claim\n\n"
+            "Enter the email address this was sent to, and I'll send you a "
+            "secure link. It takes about a minute.\n\n"
+            "Once you're in, the Start Here guide walks you through everything, "
+            "step by step — and I'll be there to help.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
+        ),
+    },
+    "re2": {
+        "broadcast_key": "al_reeng2_2026_08",
+        "audience": "unclaimed",
+        "subject": "What's actually waiting inside your account",
+        "body_md": (
+            "Hi {name},\n\n"
+            "I wrote a few days ago about claiming your AdvantageLife account. "
+            "In case you're wondering whether it's worth the minute — here's "
+            "what's actually behind that step:\n\n"
+            "• <b>A full set of AI marketing tools</b> — a drag-and-drop "
+            "page builder, email marketing and a lead finder. The kind of kit "
+            "that normally costs a small fortune across half a dozen "
+            "subscriptions, all in one place.\n"
+            "• <b>A real advertising product</b> — campaign packs that "
+            "real members watch, delivering real views. Not points, not hype.\n"
+            "• <b>A genuinely fair way to earn</b> — when you sell a pack, "
+            "100% of the price passes straight to you, member to member. No "
+            "company cut on the packs.\n\n"
+            "All of it sits behind one step — setting your password:\n\n"
+            "➡️ https://www.advantagelife.club/claim\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
+        ),
+    },
+    "re3": {
+        "broadcast_key": "al_reeng3_2026_08",
+        "audience": "unclaimed",
+        "subject": "The three steps, once you're in",
+        "body_md": (
+            "Hi {name},\n\n"
+            "I don't want to keep nudging, so let me make it concrete. Here's "
+            "exactly what happens once you claim your account — three simple "
+            "steps and you're up and running:\n\n"
+            "<b>1. Claim your account</b> — the one-minute step: set your "
+            "password.\n"
+            "<b>2. Do your daily watch</b> — a few short ad views a day. It "
+            "keeps you earning-qualified, and it's what makes you a real "
+            "audience for other members' campaigns.\n"
+            "<b>3. Switch on your first pack and share your page</b> — record "
+            "a short video ad, and your own personal sales page does the rest.\n\n"
+            "That's the whole thing. No catch, no complexity — and the Start "
+            "Here guide walks you through each step the moment you're in.\n\n"
+            "Your account's still here whenever you're ready:\n\n"
+            "➡️ https://www.advantagelife.club/claim\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
+        ),
+    },
+    "re4": {
+        "broadcast_key": "al_reeng4_2026_08",
+        "audience": "unclaimed",
+        "subject": "Last note from me",
+        "body_md": (
+            "Hi {name},\n\n"
+            "This is the last time I'll email you about claiming your account "
+            "— I don't want to be a nuisance.\n\n"
+            "I rebuilt this whole platform properly, from the ground up, because "
+            "the people who backed the early version deserved better than what "
+            "went wrong. You were one of those people. Your account, and your "
+            "place in it, is still here.\n\n"
+            "If now's not the time, no hard feelings. But if you've been "
+            "meaning to take a look, it's still just one minute:\n\n"
+            "➡️ https://www.advantagelife.club/claim\n\n"
+            "Either way — thank you for being part of this.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
+        ),
+    },
+    # ── Weekly newsletter (audience: claimed) ────────────────────────────
+    # Fired manually per issue by the admin — no cron; Steve approves each.
+    "news1": {
+        "broadcast_key": "al_news_2026_08_04",
+        "audience": "claimed",
+        "subject": "Welcome in — three things worth doing this week",
+        "body_md": (
+            "Hi {name},\n\n"
+            "You're in — welcome to AdvantageLife properly.\n\n"
+            "I'll send a short note like this each week: what's new, and one or "
+            "two simple things worth doing. Never a time-waster. Here's this "
+            "week's:\n\n"
+            "<b>1. Do your daily watch.</b> A few short ad views keeps you "
+            "earning-qualified — and it's what makes your own campaign packs "
+            "a real advertising product, because real people are watching. It's "
+            "the habit everything else runs on.\n\n"
+            "<b>2. Share your page.</b> You've got a personal sales page, and "
+            "you can now pick a theme for it — light, dark or bold — so it "
+            "looks the way you want. Set it up and send it to one person today. "
+            "(In My Marketing.)\n\n"
+            "<b>3. Have a look at the packs.</b> When you're ready to earn, "
+            "campaign packs run from $10 to $1,000, and 100% of every pack "
+            "price passes straight to the member who sold it. No rush — just "
+            "worth knowing what's there: https://www.advantagelife.club/packs\n\n"
+            "That's it for this week. Reply to this email if you're stuck on "
+            "anything — it reaches me.\n\n"
+            "Steve\nFounder, AdvantageLife"
+        ),
+    },
 }
 
 
@@ -32692,6 +32817,8 @@ def _al_launch_recipients(db: Session, campaign: dict):
     )
     if audience == "unclaimed":
         q = q.filter((User.password.is_(None)) | (User.password == ""))
+    elif audience == "claimed":
+        q = q.filter(User.password.isnot(None), User.password != "")
     elif audience != "all":
         q = q.filter(User.access_level == audience)
     q = q.order_by(User.id.asc())
@@ -32784,10 +32911,48 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
                              "detail": f"{type(_e).__name__}"}, status_code=500)
 
 
+def _al_send_to_targets(db: Session, campaign: dict, targets, actor_label: str):
+    """Send one AL campaign to an explicit list of User rows, reusing the
+    broadcast_log claim/mark primitives. Idempotent per (broadcast_key, user):
+    a recipient already 'sent' is skipped. Shared by the admin launch-broadcast
+    endpoint and the /cron/al-reengagement drip so the send path is defined once."""
+    from .email_utils import send_email
+    which = campaign["broadcast_key"]
+    stats = {"which": which, "sent": 0, "failed": 0, "skipped_already_sent": 0,
+             "requested": len(targets), "errors": []}
+    for u in targets:
+        log_id = _broadcast_claim_recipient(db, campaign["broadcast_key"], u.id, u.email)
+        if log_id is None:
+            stats["skipped_already_sent"] += 1
+            continue
+        try:
+            unsub = f"https://www.advantagelife.club/unsubscribe?token={_ensure_unsubscribe_token(db, u)}"
+            r = _al_launch_render(campaign, (u.first_name or u.username or "there"), unsub)
+            res = send_email(u.email, r["subject"], r["html"], return_message_id=True,
+                             category="marketing", list_unsubscribe=unsub,
+                             from_name="Steve — AdvantageLife")
+            ok = res[0] if isinstance(res, tuple) else bool(res)
+            msg_id = res[1] if isinstance(res, tuple) and len(res) > 1 else None
+            if ok:
+                _broadcast_mark_sent(db, log_id, msg_id); stats["sent"] += 1
+            else:
+                _broadcast_mark_failed(db, log_id, "send returned False (provider/suppression)")
+                stats["failed"] += 1
+                if len(stats["errors"]) < 5:
+                    stats["errors"].append(f"user {u.id} ({u.email}): send returned False")
+        except Exception as e:
+            _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
+            stats["failed"] += 1
+            stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
+            logger.exception(f"al_send_to_targets failed user {u.id}")
+    logger.warning(f"AL_SEND {which} via {actor_label}: sent={stats['sent']} failed={stats['failed']}")
+    return stats
+
+
 def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
-        return JSONResponse({"error": "which must be one of: loyal, free, all, claim"}, status_code=400)
+        return JSONResponse({"error": "which must be one of: " + ", ".join(AL_LAUNCH_EMAILS)}, status_code=400)
     mode = (mode or "preview").lower()
     if mode not in ("preview", "dry-run", "send"):
         return JSONResponse({"error": "mode must be preview, dry-run or send"}, status_code=400)
@@ -32818,37 +32983,86 @@ def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     # mode == send
     if confirm != "YES_SEND_NOW":
         return JSONResponse({"error": "send requires confirm=YES_SEND_NOW"}, status_code=400)
-    from .email_utils import send_email
     targets = eligible[:limit] if limit and limit > 0 else eligible
-    stats = {"which": which, "sent": 0, "failed": 0, "skipped_already_sent": 0,
-             "requested": len(targets), "errors": []}
-    for u in targets:
-        log_id = _broadcast_claim_recipient(db, campaign["broadcast_key"], u.id, u.email)
-        if log_id is None:
-            stats["skipped_already_sent"] += 1
-            continue
-        try:
-            unsub = f"https://www.advantagelife.club/unsubscribe?token={_ensure_unsubscribe_token(db, u)}"
-            r = _al_launch_render(campaign, (u.first_name or u.username or "there"), unsub)
-            res = send_email(u.email, r["subject"], r["html"], return_message_id=True,
-                             category="marketing", list_unsubscribe=unsub,
-                             from_name="Steve — AdvantageLife")
-            ok = res[0] if isinstance(res, tuple) else bool(res)
-            msg_id = res[1] if isinstance(res, tuple) and len(res) > 1 else None
-            if ok:
-                _broadcast_mark_sent(db, log_id, msg_id); stats["sent"] += 1
-            else:
-                _broadcast_mark_failed(db, log_id, "send returned False (provider/suppression)")
-                stats["failed"] += 1
-                if len(stats["errors"]) < 5:
-                    stats["errors"].append(f"user {u.id} ({u.email}): send returned False — likely provider not configured or address suppressed")
-        except Exception as e:
-            _broadcast_mark_failed(db, log_id, f"{type(e).__name__}: {e}")
-            stats["failed"] += 1
-            stats["errors"].append(f"user {u.id}: {type(e).__name__}: {e}")
-            logger.exception(f"al_launch_broadcast send failed user {u.id}")
-    logger.warning(f"AL_LAUNCH_BROADCAST {which} by {user.username}: sent={stats['sent']} failed={stats['failed']}")
+    stats = _al_send_to_targets(db, campaign, targets, f"admin:{user.username}")
+    stats["which"] = which
     return stats
+# ── Re-engagement drip: timed follow-ups (re2→re4) ─────────────────────────
+# Each step targets members who (a) are STILL unclaimed, (b) received the
+# previous step >= gap_days ago (per their own broadcast_log.sent_at), and
+# (c) have not yet received this step. re1 is the admin-fired opener.
+AL_REENG_STEPS = [
+    # (this_dict_key, prev_dict_key, gap_days_since_prev)
+    ("re2", "re1", 3),
+    ("re3", "re2", 4),
+    ("re4", "re3", 5),
+]
+
+
+def _al_reengagement_step_recipients(db: Session, prev_key: str, this_key: str, gap_days: int):
+    """Unclaimed users who got prev_key >= gap_days ago and have not yet
+    received this_key. Same test/admin excludes as _al_launch_recipients."""
+    rows = db.execute(text("""
+        SELECT u.id
+        FROM users u
+        JOIN broadcast_log bprev
+          ON bprev.user_id = u.id
+         AND bprev.broadcast_key = :prev
+         AND bprev.status = 'sent'
+         AND bprev.sent_at <= NOW() - make_interval(days => :gap)
+        LEFT JOIN broadcast_log bthis
+          ON bthis.user_id = u.id
+         AND bthis.broadcast_key = :this
+         AND bthis.status IN ('sent','sending')
+        WHERE bthis.user_id IS NULL
+          AND (u.password IS NULL OR u.password = '')
+          AND u.email IS NOT NULL AND u.email <> ''
+          AND u.is_admin = FALSE
+        ORDER BY u.id ASC
+    """), {"prev": prev_key, "this": this_key, "gap": int(gap_days)}).fetchall()
+    ids = [r[0] for r in rows]
+    if not ids:
+        return []
+    users = db.query(User).filter(User.id.in_(ids)).order_by(User.id.asc()).all()
+    out = []
+    for u in users:
+        uname = (u.username or "").lower()
+        if uname in {"test64", "test65"} or uname.startswith("test"):
+            continue
+        if "stevelawsonmarketing+" in (u.email or "").lower():
+            continue
+        out.append(u)
+    return out
+
+
+@app.get("/cron/al-reengagement")
+def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
+    """Daily drip for the unclaimed re-engagement sequence (re2→re4).
+    re1 (the opener) is fired manually by the admin via
+    /admin/api/al/launch-broadcast. This cron only sends the TIMED
+    follow-ups, off each recipient's own broadcast_log.sent_at, and only to
+    members still unclaimed — anyone who claims drops out automatically.
+    CRON_SECRET-protected. &dryrun=1 reports counts without sending."""
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    _ensure_broadcast_log_table(db)
+    steps = []
+    for this_key, prev_key, gap in AL_REENG_STEPS:
+        this_c = AL_LAUNCH_EMAILS[this_key]
+        prev_c = AL_LAUNCH_EMAILS[prev_key]
+        targets = _al_reengagement_step_recipients(db, prev_c["broadcast_key"], this_c["broadcast_key"], gap)
+        if dry:
+            steps.append({"step": this_key, "gap_days": gap, "eligible": len(targets),
+                          "sample": [{"id": u.id, "email": u.email} for u in targets[:20]]})
+        else:
+            st = _al_send_to_targets(db, this_c, targets, "cron:al-reengagement")
+            steps.append({"step": this_key, "sent": st["sent"], "failed": st["failed"],
+                          "skipped_already_sent": st["skipped_already_sent"]})
+    return JSONResponse({"ok": True, "dryrun": dry, "steps": steps})
+
+
 REENGAGEMENT_WINDOW_HOURS = 72
 
 
