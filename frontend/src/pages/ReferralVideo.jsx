@@ -423,18 +423,9 @@ const styles = `
 
 /* ── carried over from the previous build: custom video player ── */
 /* Video player */
-  .rv-video-wrap { max-width: 1120px; margin: 16px auto 0; padding: 0 24px; }
+  .rv-video-wrap { max-width: 1120px; margin: 0 auto; padding: 0; }
 .rv-video-wrap-inner { position: relative; }
-.rv-video-wrap-inner::before {
-    content: '';
-    position: absolute;
-    inset: -12px -12px 12px 12px;
-    background: linear-gradient(135deg, #e8203f 0%, #c8102e 100%);
-    border-radius: 22px;
-    z-index: 0;
-    opacity: 0.18;
-    transform: rotate(0.6deg);
-  }
+.rv-video-wrap-inner::before { content: none; }
 .rv-video-frame {
     position: relative;
     background: #000;
@@ -522,7 +513,7 @@ const styles = `
     text-align: center;
     user-select: none;
   }
-.rv-video-wrap { padding: 0 16px; }
+.rv-video-wrap { padding: 0; }
 .rv-video-wrap-inner::before { inset: -8px -8px 8px 8px; }
 .rv-controls { padding: 10px 12px 12px; gap: 8px; }
 .rv-ctrl-btn { width: 32px; height: 32px; }
