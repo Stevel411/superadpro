@@ -438,7 +438,7 @@ const styles = `
 .rv-video-frame {
     position: relative;
     background: #000;
-    aspect-ratio: 1796 / 1080;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     cursor: pointer;
   }
@@ -446,7 +446,7 @@ const styles = `
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     background: #000;
   }
 .rv-play-overlay {
