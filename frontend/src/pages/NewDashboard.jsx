@@ -696,10 +696,10 @@ export default function NewDashboard() {
             <Link to="/campaigns">My Campaigns</Link>
             <a href="/payout-methods">Payment Details</a>
             <Link to="/watch">Daily Watch</Link>
-            <Link to="/my-marketing">Share Your Page</Link>
             <div className="navhdr">RUN YOUR BUSINESS</div>
             <a href="/my-sales">Confirm a Sale</a>
             <Link to="/ai-tools">Marketing Tools</Link>
+            <Link to="/my-marketing">My Marketing</Link>
             <Link to="/compensation-plan">Compensation Plan</Link>
             <div className="navhdr">MORE</div>
             <Link to="/wisdom">Daily Wisdom</Link>

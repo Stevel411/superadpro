@@ -1,30 +1,56 @@
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AlShell from '../components/layout/AlShell';
 import { useAuth } from '../hooks/useAuth';
-import {
-  Megaphone, Link2, Gift, PlayCircle, FileText, Tv,
-  Sparkles, Image, Files, Mail, Magnet,
-} from 'lucide-react';
 
-// ── My Marketing hub ────────────────────────────────────────────────
-// One front door for the member's promotional surfaces. Most cards point
-// at existing live pages; the hub just gathers them. Pay It Forward (the
-// gift-voucher page) gets its first menu placement here. Marketing Videos
-// is a net-new page built as a separate task — shown here as "coming soon"
-// and feature-flagged off until it's live + seeded, so members don't land
-// on an empty page.
-const COMING_SOON_MARKETING_VIDEOS = true;
+// ── My Marketing hub — AL-themed (Inter, navy/red/white) ─────────────
+// Rebuilt 3 Aug 2026 onto the Marketing Tools design language so the two
+// hubs are visual siblings: Marketing Tools = the tools to build,
+// My Marketing = the member's ready-to-share assets. Each card opens the
+// member's own personalised link (public /ref pages) or an in-app tool.
+
+const CSS = `
+.al .mmhero{background:#0a1f52;border-radius:24px;color:#fff;display:grid;grid-template-columns:1.15fr 1fr;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,31,82,.55);margin-bottom:22px}
+@media(max-width:820px){.al .mmhero{grid-template-columns:1fr}}
+.al .mmhero .hl{padding:clamp(24px,3vw,36px);align-self:center}
+.al .mmhero .k{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ff8fa0;margin-bottom:14px}
+.al .mmhero .k::before{content:'';width:26px;height:3px;background:#c8102e;border-radius:2px}
+.al .mmhero .htitle{font-weight:900;font-size:clamp(30px,4vw,42px);letter-spacing:-1.4px;line-height:1.04}
+.al .mmhero .cap{font-size:15.5px;font-weight:600;color:#c9d6f7;margin-top:10px;max-width:460px;line-height:1.5}
+.al .mmhero .img{position:relative;min-height:170px;background:radial-gradient(120% 90% at 80% 10%,rgba(200,16,46,.5),rgba(200,16,46,0) 60%),linear-gradient(160deg,#12388f,#0a1f52)}
+.al .mmhero .img .tag{position:absolute;left:16px;bottom:14px;background:rgba(6,14,40,.72);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:8px 13px;font-size:10.5px;font-weight:800;letter-spacing:.18em;color:#dbe6ff}
+.al .mmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:20px}
+.al .mmcard{background:#fff;border-radius:22px;box-shadow:0 10px 30px -18px rgba(10,31,82,.22);padding:24px;display:flex;flex-direction:column;transition:.17s;border:1.5px solid transparent;position:relative;cursor:pointer;text-align:left}
+.al .mmcard:hover{transform:translateY(-3px);box-shadow:0 22px 44px -20px rgba(10,31,82,.4);border-color:#e3e8f4}
+.al .mmcard:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(200,16,46,.32)}
+.al .mmcard.feat{border-color:#f7c1cb;box-shadow:0 16px 34px -18px rgba(200,16,46,.28)}
+.al .mmcard .thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.al .mmcard .tic{width:54px;height:54px;border-radius:15px;background:linear-gradient(160deg,#eef1fb,#dfe6fa);color:#12388f;display:flex;align-items:center;justify-content:center;flex:none}
+.al .mmcard.feat .tic{background:linear-gradient(160deg,#c8102e,#ff2743);color:#fff}
+.al .mmcard .go{width:34px;height:34px;border-radius:50%;border:1.5px solid #e3e8f4;display:flex;align-items:center;justify-content:center;color:#0a1f52;flex:none;transition:.17s;font-weight:900}
+.al .mmcard:hover .go{background:#c8102e;border-color:#c8102e;color:#fff}
+.al .mmcard h3{font-weight:900;font-size:19px;letter-spacing:-.4px;margin:0 0 7px;color:#0a1f52}
+.al .mmcard .td{font-size:14px;font-weight:600;color:#5a6584;line-height:1.5;flex:1}
+.al .mmcard .topen{display:flex;align-items:center;gap:6px;color:#c8102e;font-weight:900;font-size:13.5px;margin-top:16px}
+.al .mmcard .badge{position:absolute;top:16px;right:58px;background:#c8102e;color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.08em;padding:3px 9px;border-radius:6px}
+.al .mmcard .tic svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+`;
+
+const I = {
+  sales: <svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>,
+  video: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>,
+  link: <svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>,
+  plan: <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>,
+  email: <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M4 7.5l8 5.5 8-5.5"/></svg>,
+  lead: <svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M4 4h4M16 4h4"/><path d="M12 17v3"/></svg>,
+};
 
 export default function MyMarketing() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const refBase = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user && user.username ? user.username : '');
+  const origin = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club');
+  const refBase = origin + '/ref/' + (user && user.username ? user.username : '');
 
-  // Card factory. external=true uses window.open (for the member's own
-  // public referral video page, which lives outside the app shell).
   function go(path, external) {
     return function () {
       if (external) { window.open(path, '_blank', 'noopener'); }
@@ -32,126 +58,63 @@ export default function MyMarketing() {
     };
   }
 
-  const sections = [
-    {
-      heading: t('myMarketing.sectionShare', { defaultValue: 'Share & invite' }),
-      cards: [
-        { key: 'link', icon: Link2, grad: 'linear-gradient(135deg,#a00d24,#e8203f)',
-          title: t('myMarketing.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }),
-          desc: t('myMarketing.affiliateLinkDesc', { defaultValue: 'Your referral link, QR code and ready-made social posts.' }),
-          onClick: go('/social-share') },
-        { key: 'video', icon: PlayCircle, grad: 'linear-gradient(135deg,#0a1f52,#12388f)',
-          title: t('myMarketing.salesVideo', { defaultValue: 'Personal Sales Video' }),
-          desc: t('myMarketing.salesVideoDesc', { defaultValue: 'Your branded video sales page — share the link with prospects.' }),
-          onClick: go(refBase + '/video', true) },
-      ],
-    },
-    {
-      heading: t('myMarketing.sectionExplain', { defaultValue: 'Explain & convert' }),
-      cards: [
-        { key: 'plan', icon: FileText, grad: 'linear-gradient(135deg,#0a1f52,#c8102e)',
-          title: t('myMarketing.compPlan', { defaultValue: 'Compensation Plan' }),
-          desc: t('myMarketing.compPlanDesc', { defaultValue: 'Present the full earning plan — share or walk a prospect through it.' }),
-          onClick: go('/compensation-plan') },
-        { key: 'mvideos', icon: Tv, grad: 'linear-gradient(135deg,#0a1f52,#e8203f)',
-          title: t('myMarketing.marketingVideos', { defaultValue: 'Marketing Videos' }),
-          desc: t('myMarketing.marketingVideosDesc', { defaultValue: 'Company-branded videos to share with prospects.' }),
-          soon: COMING_SOON_MARKETING_VIDEOS,
-          onClick: COMING_SOON_MARKETING_VIDEOS ? null : go('/marketing-videos') },
-      ],
-    },
-    {
-      heading: t('myMarketing.sectionCreate', { defaultValue: 'Create & materials' }),
-      cards: [
-        { key: 'email', icon: Mail, grad: 'linear-gradient(135deg,#0a1f52,#e8203f)',
-          title: t('myMarketing.emailSwipes', { defaultValue: 'Email Swipes' }),
-          desc: t('myMarketing.emailSwipesDesc', { defaultValue: 'Pre-written email copy you can personalise and send.' }),
-          onClick: go('/email-swipes') },
-      ],
-    },
+  const cards = [
+    { key: 'sales', icon: I.sales, feat: true, badge: 'NEW',
+      title: 'Your Sales Page',
+      desc: 'Your full sales page with the videos built in. Share the link and it sells the opportunity for you.',
+      open: 'Open your page', onClick: go(refBase, true) },
+    { key: 'video', icon: I.video,
+      title: 'Personal Sales Video',
+      desc: 'Your branded video sales page — a focused pitch to send a prospect.',
+      open: 'Open your video', onClick: go(refBase + '/video', true) },
+    { key: 'link', icon: I.link,
+      title: 'Affiliate Link & Social Share',
+      desc: 'Your referral link, QR code and ready-made social posts.',
+      open: 'Open', onClick: go('/social-share') },
+    { key: 'plan', icon: I.plan,
+      title: 'Compensation Plan',
+      desc: 'Walk a prospect through the full earning plan, or share the link.',
+      open: 'Open', onClick: go('/compensation-plan') },
+    { key: 'email', icon: I.email,
+      title: 'Email Swipes',
+      desc: 'Pre-written emails you can personalise and send.',
+      open: 'Open', onClick: go('/email-swipes') },
+    { key: 'lead', icon: I.lead,
+      title: 'Lead Magnets',
+      desc: 'Done-for-you pages that grow your list on autopilot.',
+      open: 'Open', onClick: go('/my-marketing/lead-magnets') },
   ];
 
   return (
-    <AlShell active="marketing" back={{ to: '/dashboard', label: 'Dashboard' }}>
-      <style>{css}</style>
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+    <AlShell active="marketing">
+      <style>{CSS}</style>
 
-        <div className="mm-hero">
-          <div className="mm-hero-ico"><Megaphone size={88} /></div>
-          <h1>{t('myMarketing.heroTitle', { defaultValue: 'My Marketing' })}</h1>
-          <p>{t('myMarketing.heroSub', { defaultValue: 'Everything you need to promote your business and share AdvantageLife — your link, your sales video, posters, email swipes and the plan, all in one place.' })}</p>
+      <div className="mmhero">
+        <div className="hl">
+          <div className="k">Share &amp; promote</div>
+          <div className="htitle">My Marketing</div>
+          <div className="cap">Your ready-to-share sales pages, videos, swipes and materials — everything you hand a prospect, all in one place.</div>
         </div>
+        <div className="img"><span className="tag">SHARE IT &middot; ADVANTAGELIFE</span></div>
+      </div>
 
-        <div className="mm-feature"
-             onClick={go('/my-marketing/lead-magnets')}
-             role="button" tabIndex={0}
-             onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('/my-marketing/lead-magnets')(); } }}>
-          <div className="mm-feature-ico"><Magnet size={27} color="#fff" /></div>
-          <div className="mm-feature-txt">
-            <div className="mm-feature-tag">{t('myMarketing.leadMagnetsTag', { defaultValue: 'FREE · DONE-FOR-YOU' })}</div>
-            <h2>{t('myMarketing.leadMagnets', { defaultValue: 'Lead Magnets' })}</h2>
-            <p>{t('myMarketing.leadMagnetsFeatureDesc', { defaultValue: 'Two ready-to-share pages that grow your list on autopilot — share your link, and every signup joins your list and your welcome sequence automatically.' })}</p>
-          </div>
-          <div className="mm-feature-cta">{t('myMarketing.leadMagnetsCta', { defaultValue: 'Open Lead Magnets' })} →</div>
-        </div>
-
-        {sections.map(function (sec) {
+      <div className="mmgrid">
+        {cards.map(function (c) {
           return (
-            <div key={sec.heading}>
-              <div className="mm-sect">{sec.heading}</div>
-              <div className="mm-row">
-                {sec.cards.map(function (c) {
-                  var Icon = c.icon;
-                  return (
-                    <div key={c.key}
-                         className={'mm-card' + (c.soon ? ' soon' : '')}
-                         onClick={c.onClick || undefined}
-                         role="button"
-                         tabIndex={0}
-                         onKeyDown={function (e) { if ((e.key === 'Enter' || e.key === ' ') && c.onClick) { e.preventDefault(); c.onClick(); } }}>
-                      {c.soon ? <span className="mm-tag soon">Coming soon</span> : null}
-                      <div className="mm-ico" style={{ background: c.grad }}><Icon size={26} color="#fff" /></div>
-                      <h3>{c.title}</h3>
-                      <p>{c.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
+            <div key={c.key}
+                 className={'mmcard' + (c.feat ? ' feat' : '')}
+                 onClick={c.onClick}
+                 role="button" tabIndex={0}
+                 onKeyDown={function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.onClick(); } }}>
+              {c.badge ? <span className="badge">{c.badge}</span> : null}
+              <div className="thead"><div className="tic">{c.icon}</div><span className="go">&rarr;</span></div>
+              <h3>{c.title}</h3>
+              <div className="td">{c.desc}</div>
+              <div className="topen">{c.open} &rarr;</div>
             </div>
           );
         })}
-
       </div>
     </AlShell>
   );
 }
-
-var css = `
-  .mm-hero{background:linear-gradient(135deg,#0a1f52,#12388f);border-radius:14px;padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden}
-  .mm-hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;color:#fff;margin:0 0 5px;letter-spacing:-0.4px}
-  .mm-hero p{font-size:14.5px;color:#9fb4d8;margin:0;font-weight:500;max-width:580px;line-height:1.5}
-  .mm-hero-ico{position:absolute;right:-6px;top:-10px;color:rgba(232,32,63,0.10);transform:rotate(-12deg);pointer-events:none}
-  .mm-feature{position:relative;display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid #bfe3fb;border-radius:16px;padding:18px 22px 18px 26px;margin-bottom:8px;cursor:pointer;overflow:hidden;transition:transform .15s ease, box-shadow .15s ease;box-shadow:0 8px 24px rgba(14,116,180,0.10)}
-  .mm-feature::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#c8102e,#16a34a)}
-  .mm-feature:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(14,116,180,0.16)}
-  .mm-feature:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,32,63,0.35)}
-  .mm-feature-ico{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#0a1f52,#c8102e);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .mm-feature-txt{flex:1;min-width:0}
-  .mm-feature-tag{font-family:'Sora',sans-serif;font-size:10px;font-weight:800;letter-spacing:0.1em;color:#a00d24;margin-bottom:3px}
-  .mm-feature-txt h2{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#0a1f52;margin:0 0 3px}
-  .mm-feature-txt p{font-size:13px;color:#475569;margin:0;font-weight:500;line-height:1.45;max-width:640px}
-  .mm-feature-cta{flex-shrink:0;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;color:#fff;background:linear-gradient(135deg,#12388f,#c8102e);padding:12px 20px;border-radius:11px;white-space:nowrap;box-shadow:0 4px 12px rgba(14,116,180,0.3)}
-  .mm-sect{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin:20px 2px 12px}
-  .mm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:8px}
-  .mm-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative;text-align:left}
-  .mm-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(10,20,56,0.12)}
-  .mm-card:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,32,63,0.35)}
-  .mm-card.soon{cursor:default;opacity:0.72}
-  .mm-card.soon:hover{transform:none;box-shadow:none}
-  .mm-ico{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex-shrink:0}
-  .mm-card h3{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#0a1f52;margin:0 0 6px}
-  .mm-card p{font-size:14px;color:#64748b;margin:0;font-weight:500;line-height:1.5}
-  .mm-tag{position:absolute;top:13px;right:14px;font-size:9.5px;font-weight:800;letter-spacing:0.5px;padding:2px 8px;border-radius:5px;font-family:'Sora',sans-serif}
-  .mm-tag.soon{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
-  @media (max-width:900px){ .mm-row{grid-template-columns:1fr} .mm-feature{flex-direction:column;align-items:flex-start;gap:13px} .mm-feature-cta{width:100%;text-align:center} }
-`;
