@@ -1461,7 +1461,9 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Open issues / known gaps
 
-- **Re-engagement drip cron needs scheduling** — `/cron/al-reengagement?secret=$CRON_SECRET` must be added to cron-job.org (daily, like the 06:00 briefing) for re2→re4 to fire. Safe to schedule now: it's a no-op until re1 has been sent (the follow-up query requires a re1 `broadcast_log` row). Dry-run: append `&dryrun=1`. Until it's scheduled, only re1 (admin-fired) goes out and nobody gets follow-ups.
+- **Two email crons need scheduling on cron-job.org** (nothing sends until they're scheduled):
+  - `/cron/al-reengagement?secret=$CRON_SECRET` — **daily**. Sends the re1 opener to any not-yet-mailed unclaimed member, then re2→re4 follow-ups off each recipient's own `sent_at`. Fully hands-off; auto-stops on claim; picks up future unclaimed signups. **The first run mails re1 to the entire current unclaimed cohort at once** — schedule it when you're ready for that blast (dry-run first with `&dryrun=1`).
+  - `/cron/al-newsletter?secret=$CRON_SECRET` — **weekly**. Releases the next queued issue in `AL_NEWSLETTER_ORDER` to the claimed base, one per run, 6-day cadence guard. Sends only drafted+approved issues in the queue (news1 queued); empty/exhausted queue is a no-op. `&dryrun=1` previews. Adding a new issue = draft → you approve → I add the key + deploy; the cron releases it the following week.
 - **Coming Soon HTML cleanup** — ~100 lines of dead HTML at `app/main.py:177-270` (`COMING_SOON_HTML` constant, no longer renders since `PRE_LAUNCH_MODE=False` hardcoded on launch day). Pure code hygiene, no functional impact.
 - **Mobile audit Flows 2-6** — registration on mobile, upgrade page on mobile, WalletConnect modal on `/upgrade/checkout` on mobile, Pay It Forward on mobile, Wallet on mobile. Started but never completed.
 - **Member-facing dashboard hype-language audit** — not yet done.
