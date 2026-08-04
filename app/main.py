@@ -33038,10 +33038,12 @@ def _al_reengagement_step_recipients(db: Session, prev_key: str, this_key: str, 
 @app.get("/cron/al-reengagement")
 def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
     """Daily drip for the unclaimed re-engagement sequence (re2→re4).
-    re1 (the opener) is fired manually by the admin via
-    /admin/api/al/launch-broadcast. This cron only sends the TIMED
-    follow-ups, off each recipient's own broadcast_log.sent_at, and only to
-    members still unclaimed — anyone who claims drops out automatically.
+    Sends the opener (re1) to any not-yet-mailed unclaimed member, then the
+    TIMED follow-ups (re2→re4) off each recipient's own
+    broadcast_log.sent_at. Only members still unclaimed are targeted —
+    anyone who claims drops out automatically. Idempotent per (email, user):
+    safe to run daily. (re1 can still be fired manually via
+    /admin/api/al/launch-broadcast if ever needed.)
     CRON_SECRET-protected. &dryrun=1 reports counts without sending."""
     secret = request.query_params.get("secret")
     if not secret or secret != os.getenv("CRON_SECRET", ""):
@@ -33049,6 +33051,17 @@ def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
     dry = request.query_params.get("dryrun") in ("1", "true", "yes")
     _ensure_broadcast_log_table(db)
     steps = []
+    # Opener: re1 to any unclaimed member who hasn't received it yet —
+    # covers the initial cohort AND anyone who signs up unclaimed later.
+    re1_c = AL_LAUNCH_EMAILS["re1"]
+    re1_targets = _al_launch_recipients(db, re1_c)
+    if dry:
+        steps.append({"step": "re1", "eligible": len(re1_targets),
+                      "sample": [{"id": u.id, "email": u.email} for u in re1_targets[:20]]})
+    else:
+        st1 = _al_send_to_targets(db, re1_c, re1_targets, "cron:al-reengagement")
+        steps.append({"step": "re1", "sent": st1["sent"], "failed": st1["failed"],
+                      "skipped_already_sent": st1["skipped_already_sent"]})
     for this_key, prev_key, gap in AL_REENG_STEPS:
         this_c = AL_LAUNCH_EMAILS[this_key]
         prev_c = AL_LAUNCH_EMAILS[prev_key]
@@ -33061,6 +33074,81 @@ def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
             steps.append({"step": this_key, "sent": st["sent"], "failed": st["failed"],
                           "skipped_already_sent": st["skipped_already_sent"]})
     return JSONResponse({"ok": True, "dryrun": dry, "steps": steps})
+
+
+# ── Weekly newsletter automation (audience: claimed) ─────────────────────────
+# Ordered queue of newsletter issue keys (each a 'claimed'-audience entry in
+# AL_LAUNCH_EMAILS). /cron/al-newsletter releases the next never-released issue
+# to the claimed base, one per weekly run. Only issues that have been drafted
+# and approved (i.e. added to this list) are ever sent — the cron never invents
+# content, and an empty/exhausted queue is a safe no-op.
+AL_NEWSLETTER_ORDER = ["news1"]
+
+
+def _al_config_get(db: Session, key: str):
+    return db.execute(text("SELECT value FROM app_config WHERE key=:k"), {"k": key}).scalar()
+
+
+def _al_config_set(db: Session, key: str, value: str):
+    # app_config.updated_at is NOT NULL with only an ORM-level default — raw
+    # writes MUST set it explicitly (see LAUNCH_LOG note #8).
+    n = db.execute(text("UPDATE app_config SET value=:v, updated_at=NOW() WHERE key=:k"),
+                   {"v": value, "k": key}).rowcount
+    if not n:
+        db.execute(text("INSERT INTO app_config (key, value, updated_at) VALUES (:k, :v, NOW())"),
+                   {"k": key, "v": value})
+    db.commit()
+
+
+def _al_next_newsletter_key(db: Session):
+    """First queued issue with no broadcast_log rows yet (never released)."""
+    for k in AL_NEWSLETTER_ORDER:
+        bk = AL_LAUNCH_EMAILS[k]["broadcast_key"]
+        cnt = db.execute(text("SELECT COUNT(*) FROM broadcast_log WHERE broadcast_key=:k"),
+                         {"k": bk}).scalar()
+        if not cnt:
+            return k
+    return None
+
+
+@app.get("/cron/al-newsletter")
+def cron_al_newsletter(request: Request, db: Session = Depends(get_db)):
+    """Weekly cron — releases the next queued newsletter issue to the claimed
+    base. Schedule it weekly on cron-job.org. A 6-day cadence guard makes it
+    safe against extra/daily runs (won't release two issues in one week).
+    Sends only issues queued in AL_NEWSLETTER_ORDER (drafted + approved); empty
+    or exhausted queue is a no-op. CRON_SECRET-protected. &dryrun=1 previews."""
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    _ensure_broadcast_log_table(db)
+    key = _al_next_newsletter_key(db)
+    if not key:
+        return JSONResponse({"ok": True, "released": None,
+                             "note": "no unreleased newsletter issue queued"})
+    from datetime import timedelta as _td
+    if not dry:
+        last = _al_config_get(db, "al_newsletter_last_release")
+        if last:
+            try:
+                last_dt = datetime.fromisoformat(last)
+                if datetime.utcnow() - last_dt < _td(days=6):
+                    return JSONResponse({"ok": True, "released": None, "next_issue": key,
+                                         "note": f"cadence guard: last release {last} (<6 days ago)"})
+            except Exception:
+                pass
+    c = AL_LAUNCH_EMAILS[key]
+    targets = _al_launch_recipients(db, c)
+    if dry:
+        return JSONResponse({"ok": True, "dryrun": True, "would_release": key,
+                             "subject": c["subject"], "audience": c["audience"],
+                             "eligible": len(targets)})
+    st = _al_send_to_targets(db, c, targets, "cron:al-newsletter")
+    _al_config_set(db, "al_newsletter_last_release", datetime.utcnow().isoformat())
+    return JSONResponse({"ok": True, "released": key, "subject": c["subject"],
+                         "sent": st["sent"], "failed": st["failed"],
+                         "skipped_already_sent": st["skipped_already_sent"]})
 
 
 REENGAGEMENT_WINDOW_HOURS = 72
