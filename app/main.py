@@ -7147,7 +7147,11 @@ def referral_link(username: str, request: Request, db: Session = Depends(get_db)
         _p = _os.path.join(_os.path.dirname(__file__), "al_ref_sales.html")
         with open(_p, "r", encoding="utf-8") as _f:
             html = _f.read()
-        html = html.replace("{{SPONSOR_NAME}}", _al_esc(name)).replace("{{REF}}", _al_esc(ref))
+        _t = (request.query_params.get("t") or "").strip().lower()
+        _theme = {"dark": "t-dark", "bold": "t-bold"}.get(_t, "")
+        html = (html.replace("{{SPONSOR_NAME}}", _al_esc(name))
+                    .replace("{{REF}}", _al_esc(ref))
+                    .replace("{{THEME_CLASS}}", _theme))
         resp = HTMLResponse(html)
     except Exception:
         # A template error must never dead-end a live affiliate link.
