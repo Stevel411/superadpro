@@ -20,13 +20,13 @@
 //   watch quota 1-5/day, 48h grace .. DAILY_WATCH_BY_TIER + WATCH_GRACE_HOURS
 //
 // The custom VideoPlayer below is carried over unchanged and still works.
-// VIDEO_URL is a placeholder until Steve supplies the new overview video —
-// swapping it is a one-line change.
+// VIDEO_URL is the main AdvantageLife explainer ("What is AdvantageLife") —
+// the same flagship video used on the homepage hero. Swapping it is one line.
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-const VIDEO_URL = 'https://pub-c65d78296e574524bdcda856c402c7a1.r2.dev/funnel-videos/AdvantageLife%20Overview1.mp4';
+const VIDEO_URL = 'https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4';
 
 // Nine packs live in campaign_packs; these five are the shape of the ladder.
 // Shown as illustration only — /packs and /compensation-plan read the API.
