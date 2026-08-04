@@ -29,7 +29,7 @@
   .vidbox video{width:100%;display:block}
   /* guide iframe — scale-to-fit (fixed 1120x965 design scaled to container width, no scrollbars) */
   .guidewrap{position:relative;width:100%;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(10,31,82,.4);background:#fff;border:1.5px solid var(--line)}
-  .guidewrap iframe{display:block;width:1120px;height:1000px;border:0;transform-origin:top left;opacity:0;transition:opacity .25s ease}
+  .guidewrap iframe{display:block;width:1168px;height:1180px;border:0;transform-origin:top left;opacity:0;transition:opacity .25s ease;overflow:hidden}
   .guidewrap iframe.ready{opacity:1}
   /* loading placeholder while the guide scales in */
   .guideload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim);font-weight:700;font-size:14px}
@@ -68,13 +68,13 @@
   <div class="panel" id="panelSteps">
     <div class="guidewrap" style="min-height:400px">
       <div class="guideload" id="guideLoad">Loading guide</div>
-      <iframe id="guideFrame" src="" title="Step-by-step activation guide" loading="lazy"></iframe>
+      <iframe id="guideFrame" src="" title="Step-by-step activation guide" loading="lazy" scrolling="no"></iframe>
     </div>
   </div>
 </div>
 
 <script>
-  var GUIDE_W=1120, GUIDE_H=1000;
+  var GUIDE_W=1168, GUIDE_H=1180;
   var guideLoaded=false, guideReady=false;
   function fitGuide(){
     var wrap=document.querySelector('.guidewrap');
@@ -87,8 +87,17 @@
     if(guideReady) wrap.style.height=(GUIDE_H*scale)+'px';
   }
   function onGuideLoad(){
-    // iframe content is loaded — scale it correctly BEFORE revealing, then fade in
+    // iframe content is loaded — measure the real content box (immune to design drift),
+    // then scale it correctly BEFORE revealing, then fade in.
     guideReady=true;
+    try{
+      var doc=document.getElementById('guideFrame').contentDocument;
+      var card=doc&&doc.querySelector('body > div > div');
+      if(card){
+        // card height + the wrapper's top/bottom padding (36px + 52px)
+        GUIDE_H=Math.ceil(card.getBoundingClientRect().height)+88;
+      }
+    }catch(e){/* cross-origin or not ready — keep the design default */}
     fitGuide();
     var frame=document.getElementById('guideFrame');
     var load=document.getElementById('guideLoad');
