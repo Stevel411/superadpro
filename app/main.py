@@ -9802,6 +9802,14 @@ def my_marketing(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/my-marketing/sales-pages")
+def my_marketing_sales_pages(request: Request):
+    """Serve React SPA — Sales Pages hub (page types + sales-page themes)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/my-marketing/lead-magnets")
 def my_marketing_lead_magnets(request: Request):
     """Serve React SPA — Lead Magnets library."""

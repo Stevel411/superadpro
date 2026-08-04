@@ -35,6 +35,7 @@ const SharePage = React.lazy(() => import('./pages/SharePage'));
 const AdminAL = React.lazy(() => import('./pages/AdminAL'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
 const MyMarketing = React.lazy(() => import('./pages/MyMarketing'));
+const SalesPages = React.lazy(() => import('./pages/SalesPages'));
 const EmailSwipes = React.lazy(() => import('./pages/EmailSwipes'));
 const LeadMagnets = React.lazy(() => import('./pages/LeadMagnets'));
 const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials'));
@@ -303,6 +304,7 @@ function AppRoutes() {
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
+      <Route path="/my-marketing/sales-pages" element={<ProtectedRoute><SalesPages /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets" element={<ProtectedRoute><LeadMagnets /></ProtectedRoute>} />
       <Route path="/my-marketing/lead-magnets/:key" element={<ProtectedRoute><LeadMagnetDetail /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />

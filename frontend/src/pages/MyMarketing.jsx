@@ -61,8 +61,8 @@ export default function MyMarketing() {
   const cards = [
     { key: 'sales', icon: I.sales, feat: true, badge: 'NEW',
       title: 'Your Sales Page',
-      desc: 'Your full sales page with the videos built in. Share the link and it sells the opportunity for you.',
-      open: 'Open your page', onClick: go(refBase, true) },
+      desc: 'Pick a design — light, dark or bold — and grab your personalised link. Videos built in.',
+      open: 'Choose & share', onClick: go('/my-marketing/sales-pages') },
     { key: 'video', icon: I.video,
       title: 'Personal Sales Video',
       desc: 'Your branded video sales page — a focused pitch to send a prospect.',
