@@ -32625,6 +32625,35 @@ AL_LAUNCH_EMAILS = {
             "depends on the effort they put in and the audience they build."
         ),
     },
+    # Audience: members who have NEVER set an AL password (unclaimed). Follow-up
+    # nudge after the 'all' relaunch email — targets only those not yet in.
+    "claim": {
+        "broadcast_key": "al_claim_followup_2026_08",
+        "audience": "unclaimed",
+        "subject": "Quick reminder \u2014 your AdvantageLife account is ready to claim",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Just a quick follow-up.\n\n"
+            "A little while back I let you know that SuperAdPro has relaunched as "
+            "<b>AdvantageLife</b> \u2014 rebuilt from the ground up on a fresh, more "
+            "secure platform, with your membership carried across.\n\n"
+            "I'm following up because our records show you haven't claimed your "
+            "account yet \u2014 and that's the one thing you need to do before you "
+            "can log in.\n\n"
+            "For security, passwords weren't carried over to the new platform. "
+            "Setting a fresh one takes about a minute:\n\n"
+            "\u27a1\ufe0f https://www.advantagelife.club/claim\n\n"
+            "Just enter the email address this was sent to, and I'll send you a "
+            "secure link to set your password. Once you're in, the Start Here guide "
+            "walks you through everything, step by step.\n\n"
+            "That's all that's standing between you and your account \u2014 I'd love "
+            "to see you inside.\n\n"
+            "Steve\nFounder, AdvantageLife\n\n"
+            "P.S. AdvantageLife is a real platform with real tools and a real "
+            "advertising product \u2014 not a get-rich-quick scheme. What anyone "
+            "earns depends on the effort they put in and the audience they build."
+        ),
+    },
 }
 
 
@@ -32649,7 +32678,9 @@ def _al_launch_recipients(db: Session, campaign: dict):
         User.email != "",
         User.is_admin == False,  # noqa: E712 — never mail the admin
     )
-    if audience != "all":
+    if audience == "unclaimed":
+        q = q.filter((User.password.is_(None)) | (User.password == ""))
+    elif audience != "all":
         q = q.filter(User.access_level == audience)
     q = q.order_by(User.id.asc())
     out = []
@@ -32744,7 +32775,7 @@ def admin_al_launch_broadcast(request: Request, which: str = "", mode: str = "pr
 def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
-        return JSONResponse({"error": "which must be one of: loyal, free, all"}, status_code=400)
+        return JSONResponse({"error": "which must be one of: loyal, free, all, claim"}, status_code=400)
     mode = (mode or "preview").lower()
     if mode not in ("preview", "dry-run", "send"):
         return JSONResponse({"error": "mode must be preview, dry-run or send"}, status_code=400)
