@@ -1413,6 +1413,8 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Recently shipped (last 7 days)
 
+- 1554a00 AL EMAIL CAMPAIGN wired on the SES launch-broadcast spine: 4-email re-engagement drip (audience=unclaimed, re1..re4) + Newsletter Issue #1 (audience=claimed, new audience added). re2→re4 auto-drip via `/cron/al-reengagement` off each recipient's own `broadcast_log.sent_at`, auto-stopping the moment a member claims; re1 and each newsletter issue are admin-fired (preview→dry-run→send). Send path extracted to shared `_al_send_to_targets`. Copy approved by Steve 4 Aug. (4 Aug)
+- **Money path CONFIRMED LIVE (Steve, 4 Aug):** a real $100 join charge went through end-to-end. Supersedes the "real $100 card test outstanding" note in the 23–24 Jul blocks — that gap is closed; do not re-raise.
 - ee3b527 AL campaign-limit message: "buy another pack" not "upgrade your tier" (1:1 pack=campaign confirmed) (3 Aug)
 - bbef8bd AL watch timer instant-qualify fix (5-min resume grace) + CTA link field added to Create Campaign (3 Aug)
 - 8841845 AL copy: "$10 pack" not "Level 10"; pack-activated notif says "ad is now live" not "create your campaign" (3 Aug)
@@ -1459,6 +1461,7 @@ The single most important verified fact: **WalletConnect membership purchase wor
 
 ## Open issues / known gaps
 
+- **Re-engagement drip cron needs scheduling** — `/cron/al-reengagement?secret=$CRON_SECRET` must be added to cron-job.org (daily, like the 06:00 briefing) for re2→re4 to fire. Safe to schedule now: it's a no-op until re1 has been sent (the follow-up query requires a re1 `broadcast_log` row). Dry-run: append `&dryrun=1`. Until it's scheduled, only re1 (admin-fired) goes out and nobody gets follow-ups.
 - **Coming Soon HTML cleanup** — ~100 lines of dead HTML at `app/main.py:177-270` (`COMING_SOON_HTML` constant, no longer renders since `PRE_LAUNCH_MODE=False` hardcoded on launch day). Pure code hygiene, no functional impact.
 - **Mobile audit Flows 2-6** — registration on mobile, upgrade page on mobile, WalletConnect modal on `/upgrade/checkout` on mobile, Pay It Forward on mobile, Wallet on mobile. Started but never completed.
 - **Member-facing dashboard hype-language audit** — not yet done.
