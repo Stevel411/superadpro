@@ -78252,7 +78252,7 @@ def admin_email_broadcast_page(request: Request):
 # Per-member course funnel content. {{lead_name}} / {{member_name}} /
 # {{referral_link}} are filled at send time by _send_sequence_email. The PDF is
 # the shared course on R2/static; per-member PDF personalisation is a follow-up.
-_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/traffic-course.pdf"
+_COURSE_PDF_URL = f"{brand_config.BASE_URL}/static/downloads/traffic-course.pdf"
 
 def _course_btn(url, label):
     return ('<p style="text-align:center;margin:26px 0"><a href="' + url +
@@ -78347,7 +78347,7 @@ def _provision_course_funnel(db, user):
 # Traffic Course is live today; more get appended as they're built.
 # "provision" returns the member's shareable page URL.
 # ── Email List Course lead magnet (magnet #2) ───────────────
-_EMAIL_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/email-list-course.pdf"
+_EMAIL_COURSE_PDF_URL = f"{brand_config.BASE_URL}/static/downloads/email-list-course.pdf"
 
 EMAIL_COURSE_SEQUENCE_EMAILS = [
     {"subject": "Your Email List Course is here",
@@ -78432,7 +78432,7 @@ def _provision_email_course_funnel(db, user):
     return f"{brand_config.BASE_URL}/email-course/{user.username}"
 
 
-_ATTRACTION_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/attraction-marketing-course.pdf"
+_ATTRACTION_COURSE_PDF_URL = f"{brand_config.BASE_URL}/static/downloads/attraction-marketing-course.pdf"
 
 ATTRACTION_COURSE_SEQUENCE_EMAILS = [
     {"subject": "Your Attraction Marketing Course is here",
@@ -78542,7 +78542,7 @@ LEAD_MAGNETS = [
         "cover": "traffic",
         "cover_title": "The Traffic Course.",
         "badge": "27-PAGE PDF · FREE",
-        "pdf_url": "https://www.superadpro.com/static/downloads/traffic-course.pdf",
+        "pdf_url": _COURSE_PDF_URL,
         "list_name": "Traffic Course leads",
         "status": "live",
         "provision": _provision_course_funnel,
@@ -78688,6 +78688,158 @@ function submitCourse(){
 </script></body></html>"""
 
 
+# ── AL-themed course lead-magnet landing (rebrand of the 3 SAP templates) ──
+_AL_COURSE_TMPL = r"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;color:#fff;min-height:100vh;
+ background:radial-gradient(120% 80% at 50% -10%,rgba(200,16,46,.22),rgba(200,16,46,0) 55%),linear-gradient(180deg,#0a1f52 0%,#071736 100%)}
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:22px 22px 44px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.brand{font-weight:900;font-size:17px;display:flex;align-items:center;gap:9px;letter-spacing:-.02em}
+.brand .mk{width:28px;height:28px;border-radius:8px;background:#12388f;display:grid;place-items:center}
+.brand .life{color:#ff2743}
+.shared{font-size:11px;font-weight:700;color:#c3cff0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);padding:6px 12px;border-radius:999px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;color:#ff8fa0;text-transform:uppercase}
+h1{font-weight:900;font-size:clamp(30px,8vw,38px);line-height:1.05;margin:12px 0 0}
+h1 .hl{color:#ff2743}
+.sub{font-size:17px;color:#c3cff0;line-height:1.5;margin-top:14px;font-weight:500}
+.cover{margin:26px 0 0;border-radius:16px;background:linear-gradient(160deg,#12388f,#0a1f4d);border:1px solid #22376f;padding:22px}
+.cover .cpill{font-size:9.5px;font-weight:800;letter-spacing:.12em;color:#c3cff0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:3px 9px;border-radius:999px}
+.cover .ct{font-weight:900;font-size:26px;line-height:1.06;margin-top:12px}
+.cover .ct .hl{color:#ff2743}
+.formcard{background:#fff;border-radius:16px;padding:22px;margin-top:26px;box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.fh{font-weight:900;font-size:20px;color:#0a1f52;text-align:center}
+.fhs{font-size:13px;color:#64748b;text-align:center;margin-top:4px;margin-bottom:16px}
+.field{width:100%;border:1.5px solid #dbe3ee;border-radius:10px;padding:13px 14px;font-family:'Inter';font-size:15px;color:#0a1f52;margin-bottom:10px;background:#fbfcfe}
+.consent{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;cursor:pointer}
+.consent input{width:19px;height:19px;flex:none;margin-top:2px;accent-color:#c8102e}
+.consent span{font-size:12px;color:#5a6b82;line-height:1.4}
+.cta{width:100%;border:none;border-radius:11px;padding:16px;font-weight:800;font-size:17px;color:#fff;background:#c8102e;cursor:pointer;box-shadow:0 10px 24px -8px rgba(200,16,46,.6)}
+.micro{text-align:center;font-size:11px;color:#90a0b5;margin-top:11px;font-weight:700;letter-spacing:.04em}
+.msg{text-align:center;font-size:13px;margin-top:10px;min-height:16px}
+.trust{display:flex;gap:14px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.trust .ti{font-size:11.5px;font-weight:700;color:#c3cff0}
+.trust .ti b{color:#2ecc71;margin-right:3px}
+.inside{background:#fff;border-radius:16px;padding:22px;margin-top:16px}
+.inside h3{font-weight:900;font-size:17px;color:#0a1f52;margin-bottom:14px}
+.row{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.tick{width:24px;height:24px;border-radius:7px;flex:none;background:#fdecef;display:grid;place-items:center;color:#c8102e;font-weight:800}
+.row span{font-size:14px;color:#334155;line-height:1.4}
+.row b{color:#0a1f52}
+.foot{margin-top:26px;text-align:center;font-size:11px;color:rgba(255,255,255,.5);line-height:1.7;border-top:1px solid rgba(255,255,255,.12);padding-top:16px}
+.pw{font-size:10px;color:rgba(255,255,255,.4);margin-top:8px;font-weight:700}
+</style></head><body><div class="wrap">
+<div class="top"><div class="brand"><span class="mk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></div><div class="shared">shared by __MEMBER__</div></div>
+<div class="eyebrow">__EYEBROW__</div>
+<h1>__H1__</h1>
+<div class="sub">__SUB__</div>
+<div class="cover"><span class="cpill">THE COMPLETE COURSE</span><div class="ct">__COVER__</div></div>
+<div class="formcard" id="formwrap">
+<div class="fh">Send me the free course</div>
+<div class="fhs">Instant access &mdash; straight to your inbox.</div>
+<input class="field" id="nm" type="text" placeholder="First name" autocomplete="given-name">
+<input class="field" id="em" type="email" placeholder="Your best email" autocomplete="email">
+<label class="consent"><input type="checkbox" id="cs"><span>Yes &mdash; email me the free course and the occasional tip. I can unsubscribe anytime.</span></label>
+<button class="cta" id="btn" onclick="submitCourse()">Send me the free course &rarr;</button>
+<div class="msg" id="msg"></div>
+<div class="micro">__PAGES__ &middot; INSTANT ACCESS &middot; NO SPAM</div>
+</div>
+<div class="trust"><div class="ti"><b>&#10003;</b>No income claims</div><div class="ti"><b>&#10003;</b>Unsubscribe anytime</div><div class="ti"><b>&#10003;</b>Instant access</div></div>
+<div class="inside"><h3>What's inside</h3>
+__BENEFITS__
+</div>
+<div class="foot">You're joining __MEMBER__'s email list. We respect your privacy &mdash; unsubscribe in one click, anytime.<br>&copy; AdvantageLife &middot; __COURSE__<div class="pw">Powered by AdvantageLife</div></div>
+</div>
+<script>
+function submitCourse(){
+ var em=document.getElementById('em').value.trim();
+ var nm=document.getElementById('nm').value.trim();
+ var cs=document.getElementById('cs').checked;
+ var msg=document.getElementById('msg');
+ if(!em||em.indexOf('@')<1){msg.textContent='Please enter a valid email.';msg.style.color='#e11d48';return;}
+ if(!cs){msg.textContent='Please tick the box to continue.';msg.style.color='#e11d48';return;}
+ var btn=document.getElementById('btn');btn.textContent='Sending\u2026';btn.style.pointerEvents='none';msg.textContent='';
+ fetch('/api/capture/__USERNAME__/__SLUG__',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,name:nm,consent:true})})
+ .then(function(r){return r.json()}).then(function(d){
+   document.getElementById('formwrap').innerHTML='<div style="text-align:center;padding:26px 6px"><div style="font-weight:900;font-size:20px;color:#0a1f52">Check your inbox.</div><p style="color:#475569;margin-top:8px;font-size:14px">Your course is on its way to '+em+'.<br>(Peek in spam if it is not there in a minute.)</p></div>';
+ }).catch(function(){msg.textContent='Something went wrong \u2014 please try again.';msg.style.color='#e11d48';btn.textContent='Send me the free course \u2192';btn.style.pointerEvents='auto';});
+}
+</script></body></html>"""
+
+_AL_COURSE_MAGNETS = {
+    "traffic-course": {
+        "title": "The Complete Traffic Course \u2014 free",
+        "eyebrow": "Free 27-page course",
+        "h1": 'Get real traffic to <span class="hl">any website.</span>',
+        "sub": "The Complete Traffic Course \u2014 every realistic way to get visitors in 2026, free and paid. Yours in one click.",
+        "cover": 'The Traffic<br><span class="hl">Course.</span>',
+        "pages": "27-PAGE PDF",
+        "course": "The Traffic Course",
+        "benefits": [
+            ("The free + paid channels", "that actually drive traffic in 2026"),
+            ("How to get cited by AI search", "\u2014 ChatGPT, Perplexity, Gemini"),
+            ("A directory of real traffic-source websites", "you can use today"),
+            ("A 90-day plan", "you can start this week"),
+        ],
+    },
+    "email-list-course": {
+        "title": "The Complete Email List Course \u2014 free",
+        "eyebrow": "Free \u00b7 22-page course",
+        "h1": 'Build an email list that <span class="hl">actually pays.</span>',
+        "sub": "The complete, no-fluff playbook \u2014 lead magnets, opt-in pages, welcome emails and deliverability. Yours free, in one click.",
+        "cover": 'Email List<br><span class="hl">Course.</span>',
+        "pages": "22-PAGE PDF",
+        "course": "The Email List Course",
+        "benefits": [
+            ("Lead magnets that convert", "\u2014 with 2026 benchmarks"),
+            ("One-page opt-ins", "that capture the email"),
+            ("Welcome emails", "that warm up &amp; sell"),
+            ("Inbox, not spam", "\u2014 the 2026 rules made simple"),
+        ],
+    },
+    "attraction-marketing-course": {
+        "title": "The Attraction Marketing Course \u2014 free",
+        "eyebrow": "Free \u00b7 20-page course",
+        "h1": 'Stop chasing prospects. <span class="hl">Attract them.</span>',
+        "sub": "The complete system \u2014 positioning, content that pulls, list building, conversations that convert, and a 90-day plan. Yours free, in one click.",
+        "cover": 'Attraction<br><span class="hl">Marketing.</span>',
+        "pages": "20-PAGE PDF",
+        "course": "The Attraction Marketing Course",
+        "benefits": [
+            ("Push vs pull", "\u2014 make the right people come to you"),
+            ("The content engine", "\u2014 hooks, pillars, a weekly system"),
+            ("Capture &amp; nurture", "\u2014 build a list that trusts you"),
+            ("The 90-day plan", "\u2014 a daily method that compounds"),
+        ],
+    },
+}
+
+def _render_al_course(slug, owner):
+    """Render the AL-themed course landing for a magnet slug, personalised to owner."""
+    cfg = _AL_COURSE_MAGNETS[slug]
+    member_name = owner.first_name or owner.username
+    rows = "".join(
+        '<div class="row"><span class="tick">\u2713</span><span><b>' + b0 + '</b> ' + b1 + '</span></div>'
+        for (b0, b1) in cfg["benefits"])
+    return (_AL_COURSE_TMPL
+            .replace("__TITLE__", cfg["title"])
+            .replace("__EYEBROW__", cfg["eyebrow"])
+            .replace("__H1__", cfg["h1"])
+            .replace("__SUB__", cfg["sub"])
+            .replace("__COVER__", cfg["cover"])
+            .replace("__PAGES__", cfg["pages"])
+            .replace("__COURSE__", cfg["course"])
+            .replace("__BENEFITS__", rows)
+            .replace("__SLUG__", slug)
+            .replace("__MEMBER__", member_name)
+            .replace("__USERNAME__", owner.username))
+
+
 @app.get("/course/{username}")
 def course_page(username: str, db: Session = Depends(get_db)):
     """Public per-member course lead-magnet page. Auto-provisions the member's
@@ -78701,7 +78853,7 @@ def course_page(username: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.warning(f"course funnel provision failed for {username}: {e}")
     member_name = owner.first_name or owner.username
-    html = _COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    html = _render_al_course("traffic-course", owner)
     return HTMLResponse(html)
 
 
@@ -79001,7 +79153,7 @@ def email_course_page(username: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.warning(f"email course funnel provision failed for {username}: {e}")
     member_name = owner.first_name or owner.username
-    html = _EMAIL_COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    html = _render_al_course("email-list-course", owner)
     return HTMLResponse(html)
 
 
@@ -79019,7 +79171,7 @@ def attraction_course_page(username: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.warning(f"attraction course funnel provision failed for {username}: {e}")
     member_name = owner.first_name or owner.username
-    html = _ATTRACTION_COURSE_PAGE_TMPL.replace("__MEMBER__", member_name).replace("__USERNAME__", owner.username)
+    html = _render_al_course("attraction-marketing-course", owner)
     return HTMLResponse(html)
 
 
