@@ -78309,7 +78309,7 @@ def _provision_course_funnel(db, user):
     slug = f"{user.username}/traffic-course"
     page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
     if page and page.capture_sequence_id and page.default_list_id:
-        return f"https://www.superadpro.com/course/{user.username}"
+        return f"{brand_config.BASE_URL}/course/{user.username}"
 
     lst = db.query(LeadList).filter(LeadList.user_id == user.id,
                                     LeadList.name == "Traffic Course leads").first()
@@ -78336,7 +78336,7 @@ def _provision_course_funnel(db, user):
     page.default_list_id = lst.id
     page.status = "published"
     db.commit()
-    return f"https://www.superadpro.com/course/{user.username}"
+    return f"{brand_config.BASE_URL}/course/{user.username}"
 
 
 # ── Lead-magnet catalog ───────────────────────────────────────────────
@@ -78402,7 +78402,7 @@ def _provision_email_course_funnel(db, user):
     slug = f"{user.username}/email-list-course"
     page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
     if page and page.capture_sequence_id and page.default_list_id:
-        return f"https://www.superadpro.com/email-course/{user.username}"
+        return f"{brand_config.BASE_URL}/email-course/{user.username}"
 
     lst = db.query(LeadList).filter(LeadList.user_id == user.id,
                                     LeadList.name == "Email List Course leads").first()
@@ -78429,7 +78429,7 @@ def _provision_email_course_funnel(db, user):
     page.default_list_id = lst.id
     page.status = "published"
     db.commit()
-    return f"https://www.superadpro.com/email-course/{user.username}"
+    return f"{brand_config.BASE_URL}/email-course/{user.username}"
 
 
 _ATTRACTION_COURSE_PDF_URL = "https://www.superadpro.com/static/downloads/attraction-marketing-course.pdf"
@@ -78502,7 +78502,7 @@ def _provision_attraction_course_funnel(db, user):
     slug = f"{user.username}/attraction-marketing-course"
     page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
     if page and page.capture_sequence_id and page.default_list_id:
-        return f"https://www.superadpro.com/attraction-course/{user.username}"
+        return f"{brand_config.BASE_URL}/attraction-course/{user.username}"
 
     lst = db.query(LeadList).filter(LeadList.user_id == user.id,
                                     LeadList.name == "Attraction Marketing Course leads").first()
@@ -78529,7 +78529,7 @@ def _provision_attraction_course_funnel(db, user):
     page.default_list_id = lst.id
     page.status = "published"
     db.commit()
-    return f"https://www.superadpro.com/attraction-course/{user.username}"
+    return f"{brand_config.BASE_URL}/attraction-course/{user.username}"
 
 
 LEAD_MAGNETS = [
@@ -78695,7 +78695,7 @@ def course_page(username: str, db: Session = Depends(get_db)):
     uname = (username or "").strip().lstrip("@")
     owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
     if not owner:
-        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+        return RedirectResponse(url=brand_config.BASE_URL, status_code=302)
     try:
         _provision_course_funnel(db, owner)
     except Exception as e:
@@ -78995,7 +78995,7 @@ def email_course_page(username: str, db: Session = Depends(get_db)):
     uname = (username or "").strip().lstrip("@")
     owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
     if not owner:
-        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+        return RedirectResponse(url=brand_config.BASE_URL, status_code=302)
     try:
         _provision_email_course_funnel(db, owner)
     except Exception as e:
@@ -79013,7 +79013,7 @@ def attraction_course_page(username: str, db: Session = Depends(get_db)):
     uname = (username or "").strip().lstrip("@")
     owner = db.query(User).filter(func.lower(User.username) == uname.lower()).first()
     if not owner:
-        return RedirectResponse(url="https://www.superadpro.com", status_code=302)
+        return RedirectResponse(url=brand_config.BASE_URL, status_code=302)
     try:
         _provision_attraction_course_funnel(db, owner)
     except Exception as e:
