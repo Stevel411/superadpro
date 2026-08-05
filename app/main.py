@@ -73238,10 +73238,22 @@ def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db
             "delivered": (camp.views_delivered or 0) if camp else 0,
             "target": (camp.views_target or 0) if camp else 0,
         })
+    # Verified real visitors this member's shares brought — the motivation metric.
+    _now = datetime.utcnow()
+    _week = (_now - timedelta(days=_now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    _views_week = (db.query(func.count(ShareView.id))
+                     .filter(ShareView.share_link_id == link.id,
+                             ShareView.is_verified == True,  # noqa: E712
+                             ShareView.verified_at >= _week).scalar() or 0)
+    _views_total = (db.query(func.count(ShareView.id))
+                      .filter(ShareView.share_link_id == link.id,
+                              ShareView.is_verified == True).scalar() or 0)  # noqa: E712
     return {"ok": True,
             "share_qualified": qualified,
             "membership_active": _ale.membership_active(db, user.id),
             "owns_pack": _ale.owned_level(db, user.id) > 0,
+            "verified_views_week": int(_views_week),
+            "verified_views_total": int(_views_total),
             "has_active_campaign": bool(
                 db.query(VideoCampaign).filter(
                     VideoCampaign.user_id == user.id,
@@ -73252,6 +73264,28 @@ def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db
             "window_days": _ale.SHARE_WINDOW_DAYS,
             "paused_packs": paused_out,
             "paused_count": len(paused_out)}
+
+
+@app.get("/api/al/top-sharers")
+def al_top_sharers(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+    """This week's top members by VERIFIED real visitors their shares brought in.
+    A motivation board — rewards the members driving the most outside traffic.
+    Ranks on ShareView (real 30s+ watches), which can't be faked by tapping Share."""
+    now = datetime.utcnow()
+    week = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    rows = (db.query(ShareLink.user_id, func.count(ShareView.id).label("v"))
+              .join(ShareView, ShareView.share_link_id == ShareLink.id)
+              .filter(ShareView.is_verified == True,  # noqa: E712
+                      ShareView.verified_at >= week)
+              .group_by(ShareLink.user_id)
+              .order_by(func.count(ShareView.id).desc())
+              .limit(10).all())
+    unames = ({u.id: u.username for u in
+               db.query(User.id, User.username).filter(User.id.in_([r[0] for r in rows])).all()}
+              if rows else {})
+    out = [{"rank": i + 1, "username": unames.get(uid, "member"), "visitors": int(v),
+            "is_you": uid == user.id} for i, (uid, v) in enumerate(rows)]
+    return {"ok": True, "top": out, "you": next((r for r in out if r["is_you"]), None)}
 
 
 @app.post("/api/al/share")
@@ -74799,6 +74833,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       </div>
       <div class="gatewarn" id="gwarn" style="display:none"></div>
       <div id="shareBanner"></div>
+      <div id="topSharers"></div>
       <div class="packs" id="packGrid"></div>
       <div class="err" id="errPick"></div>
       <div class="cta">
@@ -75301,7 +75336,29 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
   });
 })();
 
+  function loadTopSharers(){
+    var _e=function(x){var d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML;};
+    fetch('/api/al/top-sharers').then(function(r){return r.ok?r.json():null}).then(function(d){
+      var el=document.getElementById('topSharers');if(!el||!d||!d.ok||!d.top||!d.top.length){if(el)el.innerHTML='';return;}
+      var medals=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+      var rows=d.top.map(function(t){
+        var badge=t.rank<=3?('<span style="font-size:16px">'+medals[t.rank-1]+'</span>'):('<span style="display:inline-block;width:22px;text-align:center;font-weight:900;color:#8a97b8">'+t.rank+'</span>');
+        var hl=t.is_you?';background:rgba(46,204,113,.10);border-radius:10px':'';
+        return '<div style="display:flex;align-items:center;gap:11px;padding:9px 10px'+hl+'">'
+          +'<span style="width:26px;text-align:center">'+badge+'</span>'
+          +'<span style="flex:1;font-weight:800;font-size:14px;color:#0a1f52">@'+_e(t.username)+(t.is_you?' <span style="color:#1a8f4e;font-weight:900">(you)</span>':'')+'</span>'
+          +'<span style="font-weight:900;font-size:14px;color:#12388f">'+Number(t.visitors).toLocaleString()+'</span>'
+          +'<span style="font-size:10.5px;font-weight:700;color:#aab4d0">visitors</span></div>';
+      }).join('');
+      el.innerHTML='<div style="background:#fff;border:1px solid #e7ecf5;border-radius:16px;padding:16px 18px;margin-top:16px;box-shadow:0 14px 30px -26px rgba(10,31,82,.4)">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:15px">\uD83C\uDFC6</span><span style="font-weight:900;font-size:15px;color:#0a1f52">Top sharers this week</span></div>'
+        +'<div style="font-size:11.5px;font-weight:700;color:#8a97b8;margin-bottom:8px">Ranked by real visitors brought in \u2014 verified 30-second watches, no fakes.</div>'
+        +rows+'</div>';
+    }).catch(function(){});
+  }
+
   function loadShareBanner(){
+    loadTopSharers();
     var _e=function(x){var d=document.createElement('div');d.textContent=x==null?'':x;return d.innerHTML;};
     fetch('/api/al/share-status').then(function(r){return r.ok?r.json():null}).then(function(s){
       if(!s||!s.ok)return;
@@ -75328,7 +75385,9 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
         el.innerHTML='<div class="sb ok"><div class="sbrow"><span class="sbic">📣</span>'
           +'<div><span class="sbpill ok">✓ Shared this week</span>'
           +'<div class="sbh">Your packs are active</div>'
-          +'<div class="sbp">You\'re eligible to receive payments from your team\'s sales. Share again within '+due+' day'+(due===1?'':'s')+' to keep your packs running.</div></div></div>'
+          +'<div class="sbp">You\'re eligible to receive payments from your team\'s sales. Share again within '+due+' day'+(due===1?'':'s')+' to keep your packs running.</div>'
+          +((s.verified_views_week||0)>0?'<div style="margin-top:9px;font-size:12.5px;font-weight:800;color:#1a8f4e">\uD83D\uDCCA Your shares brought <b>'+Number(s.verified_views_week).toLocaleString()+'</b> real visitor'+(s.verified_views_week===1?'':'s')+' this week</div>':'')
+          +'</div></div>'
           +'<button class="sbbtn ok" onclick="doShare(this)">Share my showcase →</button></div>';
       } else {
         var list='';
