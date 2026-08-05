@@ -75348,15 +75348,24 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     btn.disabled=true;var orig=btn.textContent;btn.textContent='Sharing…';
     fetch('/api/al/share',{method:'POST'}).then(function(r){return r.json()}).then(function(s){
       var url=location.origin+(s.share_url||'');
+      // Pre-composed caption so a share posts a hook, not a naked link. Rotates
+      // so it doesn't go stale. Honest angle: real views, no income promise.
+      var CAPS=[
+        "\uD83C\uDFA5 Real people watch real videos here \u2014 no bots, no fakes. See what's playing on my AdvantageLife showcase:",
+        "This is where I get my videos in front of real viewers every day. Take a look \uD83D\uDC47",
+        "Real ads, real views, real people \u2014 watch what's on my AdvantageLife showcase:",
+        "No bots. No fake views. Just real people watching real videos \u2014 my showcase:"
+      ];
+      var cap=CAPS[Math.floor(Math.random()*CAPS.length)];
       var isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
       // MOBILE: native share sheet — where Instagram/X/WhatsApp/Messages
       // actually appear. DESKTOP: the native sheet only offers AirDrop/Mail/
-      // Notes (useless for social), so copy the link + show a social chooser.
+      // Notes (useless for social), so copy the caption+link + show a chooser.
       if(isMobile && navigator.share){
-        navigator.share({title:'Watch on AdvantageLife',url:url}).catch(function(){});
+        navigator.share({title:'AdvantageLife showcase',text:cap,url:url}).catch(function(){});
       } else {
-        if(navigator.clipboard){navigator.clipboard.writeText(url).catch(function(){});}
-        openShareChooser(url);
+        if(navigator.clipboard){navigator.clipboard.writeText(cap+' '+url).catch(function(){});}
+        openShareChooser(url,cap);
       }
       loadShareBanner();
       if(s.reactivated>0){setTimeout(function(){location.reload();},600);}
@@ -75364,11 +75373,11 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     }).catch(function(){btn.disabled=false;btn.textContent=orig;});
   }
 
-  function openShareChooser(url){
+  function openShareChooser(url,cap){
     var ov=document.getElementById('shareChooser');
     if(ov){ov.remove();}
     var enc=encodeURIComponent(url);
-    var txt=encodeURIComponent('Watch on AdvantageLife — real ads, real views. Your effort, your income, 100% yours.');
+    var txt=encodeURIComponent(cap||'Watch on AdvantageLife — real ads, real views. Your effort, your income, 100% yours.');
     ov=document.createElement('div');ov.id='shareChooser';
     ov.style.cssText='position:fixed;inset:0;background:rgba(10,20,56,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
     ov.innerHTML=
