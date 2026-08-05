@@ -105,6 +105,9 @@ export default function SharePage() {
   if (!data) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', color: MUTED, fontWeight: 600 }}>Loading videos…</div>;
 
   const videos = data.videos || [];
+  const sharerName = data.sharer?.username;
+  const joinUrl = sharerName && sharerName !== 'a member' ? `/join/${encodeURIComponent(sharerName)}` : '/';
+
   return (
     <div style={{ fontFamily: 'Inter,system-ui,sans-serif', background: '#f3f5fb', minHeight: '100vh', color: NAVY }}>
       <div style={{ background: '#fff', borderBottom: '1px solid ' + LINE, padding: '14px clamp(14px,4vw,40px)', display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 9 }}>
@@ -113,7 +116,7 @@ export default function SharePage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /><path d="M15 5h6v6" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </span>Advantage<span style={{ color: RED }}>Life</span>
         </span>
-        <span style={{ marginLeft: 'auto', fontSize: 13, color: MUTED, fontWeight: 600 }}>Shared by <b style={{ color: NAVY }}>@{data.sharer?.username}</b></span>
+        <a href={joinUrl} style={{ marginLeft: 'auto', fontSize: 13, color: MUTED, fontWeight: 600, textDecoration: 'none' }}>Shared by <b style={{ color: RED }}>@{data.sharer?.username}</b></a>
       </div>
 
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: '26px clamp(14px,4vw,40px) 60px' }}>
@@ -136,7 +139,7 @@ export default function SharePage() {
         <div style={{ marginTop: 30, background: 'linear-gradient(120deg,#0e2a6e,#0a1f52)', borderRadius: 20, padding: 'clamp(22px,3vw,32px)', textAlign: 'center', color: '#fff', boxShadow: '0 26px 55px -30px rgba(10,31,82,.7)' }}>
           <h2 style={{ fontSize: 'clamp(19px,2.4vw,25px)', fontWeight: 900, letterSpacing: -.5 }}>Want your video seen by thousands?</h2>
           <p style={{ color: '#c9d6f7', fontWeight: 600, fontSize: 14, marginTop: 7, maxWidth: 560, margin: '7px auto 0' }}>AdvantageLife puts independent creators and businesses in front of real people. Lifetime access to the full marketing toolkit — one payment, no subscription.</p>
-          <a href="/" style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(120deg,#c8102e,#e8203f)', color: '#fff', borderRadius: 12, padding: '13px 26px', fontWeight: 900, fontSize: 14.5, textDecoration: 'none', boxShadow: '0 14px 30px -12px rgba(200,16,46,.7)' }}>See how it works →</a>
+          <a href={joinUrl} style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(120deg,#c8102e,#e8203f)', color: '#fff', borderRadius: 12, padding: '13px 26px', fontWeight: 900, fontSize: 14.5, textDecoration: 'none', boxShadow: '0 14px 30px -12px rgba(200,16,46,.7)' }}>{sharerName && sharerName !== 'a member' ? `Start yours — join under @${sharerName} →` : 'See how it works →'}</a>
         </div>
 
         <div style={{ textAlign: 'center', color: '#9aa6c2', fontSize: 11.5, fontWeight: 600, marginTop: 22, lineHeight: 1.6 }}>
