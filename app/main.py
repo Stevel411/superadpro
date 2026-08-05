@@ -7171,14 +7171,15 @@ def referral_link(username: str, request: Request, db: Session = Depends(get_db)
     return resp
 @app.get("/join/{username}")
 def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
-    """Affiliate referral link. Sets the sponsor cookie and sends the visitor
-    into the SAME correct join/register flow as /ref/{username} — NOT the old
-    React SuperLink sales page (wrong design + stale pack numbers). Consistent,
-    on-brand, and sponsor attribution preserved via the ref cookie."""
+    """Affiliate referral link. Sends the visitor to the personalised affiliate
+    SALES PAGE (/ref/{username}) with the sponsor cookie set — NOT straight to
+    the registration form. Cold visitors from a share need to be sold first; the
+    ref cookie is read at signup so attribution survives the sales page. Unknown
+    handles fall to the homepage."""
     sponsor = _al_resolve_ref_user(db, username)
     if not sponsor:
         return RedirectResponse(url="/", status_code=302)
-    response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
+    response = RedirectResponse(url=f"/ref/{username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
     return response
