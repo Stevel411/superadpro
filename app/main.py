@@ -70498,6 +70498,98 @@ def admin_api_gift_packs_to_lifetime(
     return {"ok": True, "plan": plan}
 
 
+def _al_activate_pending_drafts(db, user_id, limit=None):
+    """Link and activate a member's draft ad(s) against their owned active pack(s)
+    with a free video slot. This is the activation a PURCHASE's settlement confirm
+    performs, but which a GIFTED pack bypasses (grant-pack writes the pack row
+    directly). Highest packs first, oldest drafts first. Returns activated list."""
+    from .database import videos_allowed_for_level
+    drafts = (db.query(VideoCampaign)
+                .filter(VideoCampaign.user_id == user_id,
+                        VideoCampaign.status == "draft",
+                        VideoCampaign.embed_url != "")
+                .order_by(VideoCampaign.id.asc()).all())
+    if not drafts:
+        return []
+    packs = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == user_id,
+                       PackPurchase.status == "active")
+               .order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all())
+    if not packs:
+        return []
+    totals = {p.level: (p.views_target or 0) for p in db.query(CampaignPack)
+              .filter(CampaignPack.is_active == True).all()}  # noqa: E712
+    activated = []
+    for draft in drafts:
+        if limit is not None and len(activated) >= limit:
+            break
+        target_pack = None
+        for p in packs:
+            used = db.execute(text(
+                "SELECT COUNT(*) FROM video_campaigns "
+                "WHERE pack_purchase_id = :pid AND status = 'active'"),
+                {"pid": p.id}).scalar() or 0
+            if p.campaign_id and used == 0:
+                used = 1  # legacy pack: its one ad is linked via campaign_id
+            if used < videos_allowed_for_level(p.pack_level):
+                target_pack = p
+                break
+        if target_pack is None:
+            break  # no free slot left across owned packs
+        db.execute(text("UPDATE video_campaigns SET pack_purchase_id = :pid WHERE id = :cid"),
+                   {"pid": target_pack.id, "cid": draft.id})
+        if not target_pack.campaign_id:
+            target_pack.campaign_id = draft.id
+        draft.status = "active"
+        draft.share_approved = True
+        draft.share_approved_at = datetime.utcnow()
+        draft.views_target = int(totals.get(target_pack.pack_level, 0) or 0)
+        draft.campaign_tier = target_pack.pack_level
+        db.flush()  # so the next slot-count sees this newly-active ad
+        activated.append({"campaign_id": draft.id, "title": draft.title,
+                          "pack_purchase_id": target_pack.id, "level": target_pack.pack_level,
+                          "views_target": draft.views_target})
+    db.commit()
+    return activated
+
+
+@app.get("/admin/api/al/activate-drafts")
+def admin_api_al_activate_drafts(username: str = "", sweep: int = 0, dryrun: int = 0,
+                                 secret: str = "", db: Session = Depends(get_db)):
+    """Activate stuck draft ads against owned packs — the activation a GIFTED pack
+    bypasses. ?username=X for one member; ?sweep=1 for everyone with an owned active
+    pack + a draft ad. &dryrun=1 reports who WOULD be activated without changing
+    anything. Secret-gated."""
+    _check_migration_secret(secret)
+    if username:
+        u = db.query(User).filter(func.lower(User.username) == username.strip().lstrip("@").lower()).first()
+        if not u:
+            return JSONResponse({"error": "member not found"}, status_code=404)
+        targets = [u]
+    elif sweep:
+        rows = db.execute(text(
+            "SELECT DISTINCT v.user_id FROM video_campaigns v "
+            "JOIN pack_purchases p ON p.user_id = v.user_id AND p.status = 'active' "
+            "WHERE v.status = 'draft' AND v.embed_url <> ''")).fetchall()
+        targets = db.query(User).filter(User.id.in_([r[0] for r in rows])).all() if rows else []
+    else:
+        return JSONResponse({"error": "pass ?username=X or ?sweep=1"}, status_code=400)
+
+    results = []
+    for u in targets:
+        if dryrun:
+            n_drafts = db.query(VideoCampaign).filter(
+                VideoCampaign.user_id == u.id, VideoCampaign.status == "draft",
+                VideoCampaign.embed_url != "").count()
+            n_packs = db.query(PackPurchase).filter(
+                PackPurchase.user_id == u.id, PackPurchase.status == "active").count()
+            results.append({"username": u.username, "drafts": n_drafts, "active_packs": n_packs})
+        else:
+            results.append({"username": u.username,
+                            "activated": _al_activate_pending_drafts(db, u.id)})
+    return {"ok": True, "dryrun": bool(dryrun), "members": len(results), "results": results}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
@@ -70542,9 +70634,18 @@ def admin_api_grant_pack(
         granted.append({"username": u.username, "packs": count})
 
     db.commit()
+    # A gift bypasses the purchase-settlement that normally activates a member's
+    # draft ad, so do that activation here — the gifted pack launches their draft.
+    launched = []
+    for g in granted:
+        gu = db.query(User).filter(func.lower(User.username) == g["username"].lower()).first()
+        if gu:
+            act = _al_activate_pending_drafts(db, gu.id)
+            if act:
+                launched.append({"username": gu.username, "activated": act})
     return {"ok": True, "level": level, "count_each": count,
-            "granted": granted, "not_found": notfound,
-            "note": "Gift packs are active but need each member to submit a video ad before they deliver views. No commission fired."}
+            "granted": granted, "not_found": notfound, "drafts_launched": launched,
+            "note": "Gift packs are active. Any pending draft ad has been activated against the gift and is now live; no commission fired."}
 
 
 # ═══════════════════════════════════════════════════════════════════════
