@@ -71396,8 +71396,12 @@ def al_admin_overview(user: User = Depends(_al_user), db: Session = Depends(get_
     week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
 
     def _sales(since):
+        # Honest reporting: a "sale" means money actually changed hands. Admin
+        # gifts and migration fixtures carry amount=0, so amount>0 counts only
+        # genuine paid purchases (and can't be fooled by any zero-value source).
         r = (db.query(func.count(PackPurchase.id), func.coalesce(func.sum(PackPurchase.amount), 0))
-             .filter(PackPurchase.status == "active", PackPurchase.created_at >= since).first())
+             .filter(PackPurchase.status == "active", PackPurchase.amount > 0,
+                     PackPurchase.created_at >= since).first())
         return {"count": int(r[0] or 0), "value": round(float(r[1] or 0), 2)}
 
     # Commission split by type — 'company' rising is the early warning that
