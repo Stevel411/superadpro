@@ -255,6 +255,15 @@ export default function CompensationPlan() {
               The platform never touches the money.
             </p>
 
+            <a
+              href="/static/AdvantageLife-Compensation-Plan.pdf"
+              download="AdvantageLife-Compensation-Plan.pdf"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 8, background: '#c8102e', color: '#fff', fontWeight: 800, fontSize: 15, padding: '13px 24px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 12px 26px -10px rgba(200,16,46,.6)' }}
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+              Download the full plan (PDF)
+            </a>
+
             <div className="strip-block">
               <div className="strip-label">The three you pass up</div>
               <div className="strip">
