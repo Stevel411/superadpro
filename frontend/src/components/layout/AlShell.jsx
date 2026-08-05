@@ -46,7 +46,7 @@ const NAV = [
   { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { header: 'GET STARTED' },
   { key: 'start', label: 'Start Here', to: '/start-here', link: false, big: true },
-  { key: 'packs', label: 'Create Campaign', to: '/packs?new=1', link: false },
+  { key: 'packs', label: 'Create Campaign', to: '/create-campaign', link: true },
   { key: 'campaigns', label: 'My Campaigns', to: '/campaigns', link: true },
   { key: 'performance', label: 'Performance', to: '/campaign-analytics', link: true },
   { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
