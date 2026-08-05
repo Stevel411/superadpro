@@ -26,6 +26,10 @@ Default mental model: "Would Webflow / Leadpages / ConvertKit ship this?" If no,
 
 Steve will call out any patch-shaped suggestion. Engineering instincts borrowed from other products (e.g. Webflow's "component overrides survive theme changes") must be tested against "what would a SuperAdPro member — an affiliate marketer, not a designer — actually expect."
 
+**5 Aug 2026 — Steve directive (now doctrine): follow every technical ramification; NEVER assume.**
+
+Before making ANY change, trace it end-to-end and follow through every technical consequence: which other flows, endpoints, states, DB rows, or UI surfaces does it touch? What changes or breaks downstream? A change is not "done" until every affected surface has been checked and made consistent. NEVER assume how something works, where a button routes, what a field means, or that a flow does what its name implies — grep and read the ACTUAL code first, every time. (Assumptions caused repeated wrong fixes here — e.g. mis-routing "Create Campaign" before realising `/packs?new=1` IS the create-campaign flow.) The rule: verify against the real code → map the full ramifications → then change, logically and completely.
+
 ## 🔒 Membership Gate — SINGLE SOURCE OF TRUTH (28 Jun 2026)
 
 **`app/tier_gate.py` is the one place that decides which API endpoints require an active paid membership.** Do NOT scatter `if not user.is_active` checks into individual handlers — add/remove a prefix in `PAID_REQUIRED_PREFIXES` instead. This list drifted once (SuperPages/SuperLeads/SuperSeller/Pro/Posters were frontend-guarded but missing from the server gate, so direct API calls bypassed it); keeping it central is what prevents that recurring.

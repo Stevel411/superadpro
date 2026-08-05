@@ -103,9 +103,9 @@ export default function VideoLibrary() {
             <Link to="/campaign-analytics" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:800,color:'rgba(255,255,255,.92)',background:'rgba(255,255,255,.12)',border:'1px solid rgba(255,255,255,.22)',padding:'9px 15px',borderRadius:10,textDecoration:'none'}}>
               {t('videos.performance', { defaultValue: 'Performance' })}
             </Link>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:900,color:'#fff',background:'#c8102e',padding:'9px 16px',borderRadius:10,textDecoration:'none',boxShadow:'0 8px 18px -8px rgba(200,16,46,.7)'}}>
+            <a href="/packs?new=1" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:13,fontWeight:900,color:'#fff',background:'#c8102e',padding:'9px 16px',borderRadius:10,textDecoration:'none',boxShadow:'0 8px 18px -8px rgba(200,16,46,.7)'}}>
               <Plus size={12}/> {t('videos.newCampaign')}
-            </Link>
+            </a>
           </div>
         </div>
         {campaigns.length > 0 ? (

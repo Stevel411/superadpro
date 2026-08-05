@@ -70498,17 +70498,19 @@ def admin_api_gift_packs_to_lifetime(
     return {"ok": True, "plan": plan}
 
 
-def _al_activate_pending_drafts(db, user_id, limit=None):
+def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None):
     """Link and activate a member's draft ad(s) against their owned active pack(s)
     with a free video slot. This is the activation a PURCHASE's settlement confirm
     performs, but which a GIFTED pack bypasses (grant-pack writes the pack row
     directly). Highest packs first, oldest drafts first. Returns activated list."""
     from .database import videos_allowed_for_level
-    drafts = (db.query(VideoCampaign)
-                .filter(VideoCampaign.user_id == user_id,
-                        VideoCampaign.status == "draft",
-                        VideoCampaign.embed_url != "")
-                .order_by(VideoCampaign.id.asc()).all())
+    _dq = (db.query(VideoCampaign)
+             .filter(VideoCampaign.user_id == user_id,
+                     VideoCampaign.status == "draft",
+                     VideoCampaign.embed_url != ""))
+    if only_draft_id is not None:
+        _dq = _dq.filter(VideoCampaign.id == only_draft_id)
+    drafts = _dq.order_by(VideoCampaign.id.asc()).all()
     if not drafts:
         return []
     packs = (db.query(PackPurchase)
@@ -73160,6 +73162,16 @@ def _al_pack_state(db, user, pack):
                     "blocked": False, "owned_admin": True,
                     "progress": {"delivered": delivered, "target": target,
                                  "pct": (round(100 * delivered / target) if target else 0)}}
+        # No running campaign at this level. Show the admin's REAL top owned pack
+        # (from actual PackPurchase rows, not the sentinel) as OWNED, and every
+        # lower level as 'covered' (Active via own-level-or-higher) — matching the
+        # real-member model instead of a flat 'Owned' on every card.
+        _real_top = (db.query(func.max(PackPurchase.pack_level))
+                       .filter(PackPurchase.user_id == user.id,
+                               PackPurchase.status == "active").scalar()) or 0
+        if _real_top and pack.level < _real_top:
+            return {"state": "covered", "active": True, "needs_ad": False,
+                    "blocked": False, "covered_by": _real_top, "progress": None}
         return {"state": "owned_admin", "active": True, "needs_ad": False,
                 "blocked": False, "progress": None}
     # newest active pack at this level (if any)
@@ -73480,6 +73492,16 @@ async def al_create_draft_ad(request: Request,
         )
         db.add(campaign)
     db.commit()
+    # If the member already owns a pack with a FREE video slot, activate this ad
+    # against it now — no purchase needed (own-a-pack-with-a-free-slot path). Only
+    # when there's no free slot do they continue to the payout + buy steps.
+    _activated = _al_activate_pending_drafts(db, user.id, only_draft_id=campaign.id)
+    if _activated:
+        _a = _activated[0]
+        return {"ok": True, "activated": True, "campaign_id": campaign.id,
+                "pack_purchase_id": _a["pack_purchase_id"], "level": _a["level"],
+                "views_target": _a["views_target"],
+                "message": "Your ad is live — it's delivering views against a pack you own."}
     return {"ok": True, "campaign_id": campaign.id, "status": "draft",
             "message": "Ad saved. Next, add how you'll get paid, then choose your package."}
 
@@ -75183,7 +75205,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     fetch('/api/al/ad/create-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,video_url:u,category:cat,description:desc,target_country:ctry,target_interests:intr,cta_url:ctaurl})})
       .then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})}).then(function(x){
         btn.disabled=false;btn.textContent='Save my ad & continue →';
-        if(x.ok){ window._hasDraftAd=true; gotoPayoutStep(); }
+        if(x.ok){ if(x.j&&x.j.activated){ location.href='/campaigns'; return; } window._hasDraftAd=true; gotoPayoutStep(); }
         else{if(eb){eb.textContent=x.j.error||'Could not save your ad.';eb.style.display='block';}}
       }).catch(function(err){if(eb){eb.textContent='Network error: '+(err&&err.message||'try again');eb.style.display='block';}btn.disabled=false;btn.textContent='Save my ad & continue →';});
   }
