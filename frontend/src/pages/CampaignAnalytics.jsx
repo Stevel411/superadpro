@@ -11,12 +11,14 @@ export default function CampaignAnalytics() {
   var [selectedCampaign, setSelectedCampaign] = useState(null);
   var [dailyData, setDailyData] = useState(null);
   var [loadingDaily, setLoadingDaily] = useState(false);
+  var [packData, setPackData] = useState(null);
 
   useEffect(function() {
     apiGet('/api/campaign-analytics/overview').then(function(r) {
       if (r.success) setData(r);
       setLoading(false);
     }).catch(function() { setLoading(false); });
+    apiGet('/api/al/pack-performance').then(function(r) { setPackData(r); }).catch(function() {});
   }, []);
 
   function loadDaily(campaignId) {
@@ -90,6 +92,31 @@ export default function CampaignAnalytics() {
           })}
         </div>
       </div>
+
+      {/* Pack progress — aggregate across each pack's videos (completion driver) */}
+      {packData && packData.packs && packData.packs.length > 0 && (
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '18px 22px', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <Target size={18} color="var(--sap-accent)" />
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('campaignAnalytics.packProgress', { defaultValue: 'Pack progress' })}</div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)', marginBottom: 16 }}>{t('campaignAnalytics.packProgressDesc', { defaultValue: 'Each pack delivers its full view target across its videos — this is the pack overall.' })}</div>
+          {packData.packs.map(function(p) {
+            return (
+              <div key={p.pack_id} style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--sap-text-primary)' }}>${p.level} {p.name} pack</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)' }}>{(p.aggregate || 0).toLocaleString()} of {(p.total || 0).toLocaleString()} views · {p.slots_used}/{p.slots_total} videos</div>
+                  <div style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--sap-accent)' }}>{p.pct}%</div>
+                </div>
+                <div style={{ height: 10, background: '#eef1f8', borderRadius: 6, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: Math.max(2, p.pct) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* NEW: Country breakdown + hourly heatmap — only shown if there's data */}
       {campaigns.length > 0 && data && (data.top_countries || data.hourly_heatmap) && (

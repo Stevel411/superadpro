@@ -4099,14 +4099,6 @@ def campaigns_page(request: Request):
         return _spa_shell()
     return RedirectResponse(url="/campaign-tiers", status_code=302)
 
-
-@app.get("/pack-performance")
-def pack_performance_page(request: Request):
-    """Serve the React SPA for the AL pack-performance page."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/dashboard", status_code=302)
-
 @app.get("/team")
 def team_page(request: Request):
     """Serve React SPA for the Team category page (no-sidebar preview)."""

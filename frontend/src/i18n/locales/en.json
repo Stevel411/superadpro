@@ -1273,7 +1273,7 @@
     "analyticsTitle": "Analytics",
     "completePace": "Days to complete at current pace",
     "ctr": "CTR",
-    "daysToGo": "{{count}} days to go",
+    "daysToGo": "{{d}} days to go",
     "heatmapSub": "Hour-by-hour view distribution this week",
     "noCountryData": "No country data yet",
     "noCta": "No CTA link set",
