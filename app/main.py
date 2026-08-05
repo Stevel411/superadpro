@@ -4099,6 +4099,14 @@ def campaigns_page(request: Request):
         return _spa_shell()
     return RedirectResponse(url="/campaign-tiers", status_code=302)
 
+
+@app.get("/pack-performance")
+def pack_performance_page(request: Request):
+    """Serve the React SPA for the AL pack-performance page."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/dashboard", status_code=302)
+
 @app.get("/team")
 def team_page(request: Request):
     """Serve React SPA for the Team category page (no-sidebar preview)."""
@@ -69187,6 +69195,56 @@ async def api_credit_matrix_team_activity(user: User = Depends(get_current_user)
 # ═══════════════════════════════════════════════════════════
 #  CAMPAIGN ANALYTICS — Real view data for campaign owners
 # ═══════════════════════════════════════════════════════════
+
+@app.get("/api/al/pack-performance")
+async def api_al_pack_performance(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Per-pack performance for the member: aggregate views vs the pack's total
+    target (the completion driver), plus each video's own live view count. The
+    pack<->video link resolves via pack_purchase_id (new) or campaign_id (legacy)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import videos_allowed_for_level
+    packs = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == user.id,
+                       PackPurchase.status.in_(["active", "expired"]))
+               .order_by(PackPurchase.status.asc(), PackPurchase.id.desc())
+               .all())
+    meta = {p.level: p for p in db.query(CampaignPack)
+            .filter(CampaignPack.is_active == True).all()}  # noqa: E712
+    out = []
+    for pk in packs:
+        m = meta.get(pk.pack_level)
+        pack_total = int((m.views_target if m else 0) or 0)
+        pack_name = (m.name if m and m.name else f"${pk.pack_level}")
+        slots_total = videos_allowed_for_level(pk.pack_level)
+        rows = db.execute(text(
+            "SELECT id, title, platform, category, views_delivered, status "
+            "FROM video_campaigns "
+            "WHERE (pack_purchase_id = :pid OR id = :cid) AND status != 'deleted' "
+            "ORDER BY id ASC"),
+            {"pid": pk.id, "cid": pk.campaign_id or -1}).fetchall()
+        videos = [{"id": r[0], "title": r[1] or "(untitled)", "platform": r[2] or "",
+                   "category": r[3] or "", "views": int(r[4] or 0), "status": r[5]}
+                  for r in rows]
+        aggregate = sum(v["views"] for v in videos)
+        slots_used = sum(1 for v in videos if v["status"] == "active")
+        pct = int(min(100, round(100 * aggregate / pack_total))) if pack_total else 0
+        if pk.status == "expired":
+            label = "completed"
+        elif pk.completed_at is not None:
+            label = "wrapping"
+        else:
+            label = "active"
+        started = pk.activated_at or pk.created_at
+        out.append({
+            "pack_id": pk.id, "level": pk.pack_level, "name": pack_name, "status": label,
+            "aggregate": aggregate, "total": pack_total, "pct": pct,
+            "slots_total": slots_total, "slots_used": slots_used,
+            "started": started.isoformat() if started else None,
+            "videos": videos,
+        })
+    return {"success": True, "packs": out}
+
 
 @app.get("/api/campaign-analytics/overview")
 async def api_campaign_analytics_overview(user: User = Depends(get_current_user), db: Session = Depends(get_db)):

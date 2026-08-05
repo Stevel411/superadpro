@@ -45,6 +45,7 @@ const Watch = React.lazy(() => import('./pages/Watch'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Support = React.lazy(() => import('./pages/Support'));
 const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
+const PackPerformance = React.lazy(() => import('./pages/PackPerformance'));
 const Videos = React.lazy(() => import('./pages/Videos'));
 const VideoDetail = React.lazy(() => import('./pages/VideoDetail'));
 const AdminVideos = React.lazy(() => import('./pages/AdminVideos'));
@@ -289,6 +290,7 @@ function AppRoutes() {
       <Route path="/home-preview" element={<Navigate to="/dashboard" replace />} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
+      <Route path="/pack-performance" element={<ProtectedRoute><RequireTier tier="basic"><PackPerformance /></RequireTier></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
       <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />

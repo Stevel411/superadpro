@@ -48,6 +48,7 @@ const NAV = [
   { key: 'start', label: 'Start Here', to: '/start-here', link: false, big: true },
   { key: 'packs', label: 'Create Campaign', to: '/packs?new=1', link: false },
   { key: 'campaigns', label: 'My Campaigns', to: '/campaigns', link: true },
+  { key: 'packperf', label: 'Pack Performance', to: '/pack-performance', link: true },
   { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
   { key: 'watch', label: 'Daily Watch', to: '/watch', link: true },
   { header: 'RUN YOUR BUSINESS' },
