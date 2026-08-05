@@ -69243,7 +69243,17 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
             "started": started.isoformat() if started else None,
             "videos": videos,
         })
-    return {"success": True, "packs": out}
+    # Active campaigns with no pack behind them (admin-created, or a pack that was
+    # removed). Surface them so the page is never blank while an ad is running.
+    shown_ids = {v["id"] for pk in out for v in pk["videos"]}
+    all_active = db.execute(text(
+        "SELECT id, title, platform, category, views_delivered, views_target "
+        "FROM video_campaigns WHERE user_id = :uid AND status = 'active' ORDER BY id ASC"),
+        {"uid": user.id}).fetchall()
+    orphans = [{"id": r[0], "title": r[1] or "(untitled)", "platform": r[2] or "",
+                "category": r[3] or "", "views": int(r[4] or 0), "target": int(r[5] or 0)}
+               for r in all_active if r[0] not in shown_ids]
+    return {"success": True, "packs": out, "orphans": orphans}
 
 
 @app.get("/api/campaign-analytics/overview")
