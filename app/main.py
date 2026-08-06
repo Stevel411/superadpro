@@ -33067,24 +33067,11 @@ def _al_reengagement_step_recipients(db: Session, prev_key: str, this_key: str, 
     return out
 
 
-@app.get("/cron/al-reengagement")
-def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
-    """Daily drip for the unclaimed re-engagement sequence (re2→re4).
-    Sends the opener (re1) to any not-yet-mailed unclaimed member, then the
-    TIMED follow-ups (re2→re4) off each recipient's own
-    broadcast_log.sent_at. Only members still unclaimed are targeted —
-    anyone who claims drops out automatically. Idempotent per (email, user):
-    safe to run daily. (re1 can still be fired manually via
-    /admin/api/al/launch-broadcast if ever needed.)
-    CRON_SECRET-protected. &dryrun=1 reports counts without sending."""
-    secret = request.query_params.get("secret")
-    if not secret or secret != os.getenv("CRON_SECRET", ""):
-        return JSONResponse({"error": "forbidden"}, status_code=403)
-    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+def _al_run_reengagement(db, dry):
+    """Compute (dry) or send (live) the re-engagement drip. Extracted so the live
+    send can run off-request in a background task."""
     _ensure_broadcast_log_table(db)
     steps = []
-    # Opener: re1 to any unclaimed member who hasn't received it yet —
-    # covers the initial cohort AND anyone who signs up unclaimed later.
     re1_c = AL_LAUNCH_EMAILS["re1"]
     re1_targets = _al_launch_recipients(db, re1_c)
     if dry:
@@ -33105,7 +33092,43 @@ def cron_al_reengagement(request: Request, db: Session = Depends(get_db)):
             st = _al_send_to_targets(db, this_c, targets, "cron:al-reengagement")
             steps.append({"step": this_key, "sent": st["sent"], "failed": st["failed"],
                           "skipped_already_sent": st["skipped_already_sent"]})
-    return JSONResponse({"ok": True, "dryrun": dry, "steps": steps})
+    return steps
+
+
+def _al_reengagement_send_bg():
+    """Off-request send so the cron HTTP call returns instantly (cron-job.org
+    caps at 30s). Idempotent, so an interrupted send just continues next run."""
+    _db = SessionLocal()
+    try:
+        _al_run_reengagement(_db, dry=False)
+    except Exception as e:
+        try:
+            logger.error(f"al-reengagement background send failed: {e}")
+        except Exception:
+            pass
+    finally:
+        _db.close()
+
+
+@app.get("/cron/al-reengagement")
+def cron_al_reengagement(request: Request, background_tasks: BackgroundTasks,
+                         db: Session = Depends(get_db)):
+    """Daily drip for the unclaimed re-engagement sequence (re1 opener + re2→re4
+    timed follow-ups off each recipient's broadcast_log.sent_at). Unclaimed only;
+    anyone who claims drops out. Idempotent per (email, user), safe to run daily.
+    The live send runs in the BACKGROUND so the HTTP call returns instantly and
+    cron-job.org (30s cap) never times out. CRON_SECRET-protected. &dryrun=1
+    reports counts without sending."""
+    secret = request.query_params.get("secret")
+    if not secret or secret != os.getenv("CRON_SECRET", ""):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    if dry:
+        return JSONResponse({"ok": True, "dryrun": True,
+                             "steps": _al_run_reengagement(db, dry=True)})
+    background_tasks.add_task(_al_reengagement_send_bg)
+    return JSONResponse({"ok": True, "queued": True,
+                         "note": "sending in background; idempotent per recipient"})
 
 
 # ── Weekly newsletter automation (audience: claimed) ─────────────────────────
@@ -33143,13 +33166,28 @@ def _al_next_newsletter_key(db: Session):
     return None
 
 
+def _al_newsletter_send_bg(key):
+    """Off-request newsletter send so the cron HTTP call returns instantly."""
+    _db = SessionLocal()
+    try:
+        c = AL_LAUNCH_EMAILS[key]
+        _al_send_to_targets(_db, c, _al_launch_recipients(_db, c), "cron:al-newsletter")
+    except Exception as e:
+        try:
+            logger.error(f"al-newsletter background send failed: {e}")
+        except Exception:
+            pass
+    finally:
+        _db.close()
+
+
 @app.get("/cron/al-newsletter")
-def cron_al_newsletter(request: Request, db: Session = Depends(get_db)):
+def cron_al_newsletter(request: Request, background_tasks: BackgroundTasks,
+                       db: Session = Depends(get_db)):
     """Weekly cron — releases the next queued newsletter issue to the claimed
-    base. Schedule it weekly on cron-job.org. A 6-day cadence guard makes it
-    safe against extra/daily runs (won't release two issues in one week).
-    Sends only issues queued in AL_NEWSLETTER_ORDER (drafted + approved); empty
-    or exhausted queue is a no-op. CRON_SECRET-protected. &dryrun=1 previews."""
+    base. 6-day cadence guard makes it safe against extra/daily runs. The send
+    runs in the BACKGROUND so the HTTP call returns instantly (cron-job.org 30s
+    cap). CRON_SECRET-protected. &dryrun=1 previews."""
     secret = request.query_params.get("secret")
     if not secret or secret != os.getenv("CRON_SECRET", ""):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -33160,27 +33198,31 @@ def cron_al_newsletter(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"ok": True, "released": None,
                              "note": "no unreleased newsletter issue queued"})
     from datetime import timedelta as _td
-    if not dry:
-        last = _al_config_get(db, "al_newsletter_last_release")
-        if last:
-            try:
-                last_dt = datetime.fromisoformat(last)
-                if datetime.utcnow() - last_dt < _td(days=6):
-                    return JSONResponse({"ok": True, "released": None, "next_issue": key,
-                                         "note": f"cadence guard: last release {last} (<6 days ago)"})
-            except Exception:
-                pass
     c = AL_LAUNCH_EMAILS[key]
-    targets = _al_launch_recipients(db, c)
     if dry:
+        targets = _al_launch_recipients(db, c)
         return JSONResponse({"ok": True, "dryrun": True, "would_release": key,
                              "subject": c["subject"], "audience": c["audience"],
                              "eligible": len(targets)})
-    st = _al_send_to_targets(db, c, targets, "cron:al-newsletter")
+    last = _al_config_get(db, "al_newsletter_last_release")
+    if last:
+        try:
+            last_dt = datetime.fromisoformat(last)
+            if datetime.utcnow() - last_dt < _td(days=6):
+                return JSONResponse({"ok": True, "released": None, "next_issue": key,
+                                     "note": f"cadence guard: last release {last} (<6 days ago)"})
+        except Exception:
+            pass
+    # Mark the release NOW (before the background send) so the cadence guard holds
+    # even while the send is still in flight; then send off-request.
     _al_config_set(db, "al_newsletter_last_release", datetime.utcnow().isoformat())
+    try:
+        db.commit()
+    except Exception:
+        pass
+    background_tasks.add_task(_al_newsletter_send_bg, key)
     return JSONResponse({"ok": True, "released": key, "subject": c["subject"],
-                         "sent": st["sent"], "failed": st["failed"],
-                         "skipped_already_sent": st["skipped_already_sent"]})
+                         "queued": True, "note": "sending in background"})
 
 
 REENGAGEMENT_WINDOW_HOURS = 72
