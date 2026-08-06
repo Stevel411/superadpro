@@ -40755,9 +40755,10 @@ async def api_register(
                 type="system",
                 icon="👋",
                 title="Welcome to AdvantageLife!",
-                message=(f"Hey {first_name}, welcome aboard! Your account is set up. "
-                         f"To unlock the AI tools and start earning, activate your membership. "
-                         f"Then activate a Campaign Tier to enable Watch-to-Earn and start earning commissions."),
+                message=(f"Hey {first_name}, welcome aboard! 🎉 Your 7-day free trial is live — "
+                         f"you've got full access right now. Create your first ad, do your daily "
+                         f"watch, and share your showcase page. Upgrade to annual or lifetime any "
+                         f"time to keep your account and start earning after your free week."),
                 link="/upgrade",
             )
             db.add(notif)

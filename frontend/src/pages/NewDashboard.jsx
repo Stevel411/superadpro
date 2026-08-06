@@ -751,28 +751,6 @@ export default function NewDashboard() {
               <button className="copy" onClick={copyLink}>{copied ? 'Copied ✓' : 'Copy link'}</button>
             </div>
 
-            <div className="share">
-              <div>
-                <div className="lbl" style={{ color: '#2563eb' }}>Marketing tool · your Test Drive</div>
-                <div className="lk">{tryLink}</div>
-                <div style={{ fontSize: 11.5, fontWeight: 600, color: '#5a6584', marginTop: 5, maxWidth: 520, lineHeight: 1.5 }}>The link to send when someone's unsure — they try the whole platform in 3 minutes, no signup, and any signup lands under you.</div>
-              </div>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexShrink: 0 }}>
-                <button className="copy" style={{ background: '#0a1f52', boxShadow: '0 10px 22px -10px rgba(10,31,82,.5)' }} onClick={function () { window.open(tryLink, '_blank'); }}>Preview</button>
-                <button className="copy" style={{ background: '#2563eb', boxShadow: '0 10px 22px -10px rgba(37,99,235,.5)' }} onClick={copyTry}>{tryCopied ? 'Copied ✓' : 'Copy link'}</button>
-              </div>
-            </div>
-
-            <div className="share">
-              <div>
-                <div className="lbl" style={{ color: '#16a34a' }}>Free-trial link · start their week free</div>
-                <div className="lk">{trialLink}</div>
-                <div style={{ fontSize: 11.5, fontWeight: 600, color: '#5a6584', marginTop: 5, maxWidth: 520, lineHeight: 1.5 }}>Share this to let anyone start a free 7-day trial &mdash; full access, no card. Signups land under you.</div>
-              </div>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexShrink: 0 }}>
-                <button className="copy" style={{ background: '#16a34a', boxShadow: '0 10px 22px -10px rgba(22,163,74,.5)' }} onClick={copyTrial}>{trialCopied ? 'Copied ✓' : 'Copy link'}</button>
-              </div>
-            </div>
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
