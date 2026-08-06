@@ -229,6 +229,29 @@ export default function Register() {
         <h1 style={styles.heading}>{t('auth.createYourAccount')}</h1>
         <p style={styles.sub}>{t('auth.joinThousands')}</p>
 
+        {!isGiftFlow && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(22,163,74,.16), rgba(5,150,105,.16))',
+            border: '1px solid rgba(22,163,74,.35)',
+            borderRadius: 12,
+            padding: '14px 18px',
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            <div style={{ fontSize: 24 }}>🎉</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 2 }}>
+                Your first 7 days are free
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.65)', lineHeight: 1.4 }}>
+                Full access — create ads, do your daily watch, share your page. No card needed. Upgrade any time to keep going.
+              </div>
+            </div>
+          </div>
+        )}
+
         {refCode && (
           <div style={styles.refBadge}>
             {refIsRotatorPick ? (

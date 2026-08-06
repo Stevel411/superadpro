@@ -7222,6 +7222,21 @@ def superlink_page(username: str, request: Request, db: Session = Depends(get_db
     return response
 
 
+@app.get("/trial/{username}")
+def member_trial_link(username: str, request: Request, db: Session = Depends(get_db)):
+    """Promotable FREE-TRIAL link for members. Sets the sponsor cookie and lands
+    the visitor on the signup form framed as the 7-day free trial (every signup
+    is already a trial — this just makes the promise explicit and attributes the
+    signup to the sharer). Unknown handles fall to the homepage."""
+    sponsor = _al_resolve_ref_user(db, username)
+    if not sponsor:
+        return RedirectResponse(url="/", status_code=302)
+    resp = RedirectResponse(url=f"/register?ref={username}&trial=1", status_code=302)
+    resp.set_cookie(key="ref", value=username, max_age=60 * 60 * 24 * 30,
+                    httponly=False, samesite="lax")
+    return resp
+
+
 @app.get("/try/{username}")
 def member_test_drive(username: str, request: Request, db: Session = Depends(get_db)):
     """Standalone member MARKETING TOOL — the interactive 'Test Drive'. A member

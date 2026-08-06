@@ -387,6 +387,7 @@ export default function NewDashboard() {
   const [memTier, setMemTier] = useState(null);      // {is_lifetime,is_annual} for the tier badge
   const [wisShare, setWisShare] = useState(false);
   const [tryCopied, setTryCopied] = useState(false);   // Test Drive link copied
+  const [trialCopied, setTrialCopied] = useState(false);   // Free-trial link copied
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
   // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
@@ -491,6 +492,7 @@ export default function NewDashboard() {
   const watchedToday = !!w.watched_today;
   const refLink = 'https://www.advantagelife.club/ref/' + (user?.username || '');
   const tryLink = 'https://www.advantagelife.club/try/' + (user?.username || '');
+  const trialLink = 'https://www.advantagelife.club/trial/' + (user?.username || '');
   const thumb = feat ? ytThumb(feat.embed_url) : null;
 
   // Weekly showcase link — /w/{token}. Copying marks the share (analytics
@@ -582,6 +584,10 @@ export default function NewDashboard() {
 
   function copyTry() {
     try { navigator.clipboard.writeText(tryLink); setTryCopied(true); setTimeout(function () { setTryCopied(false); }, 1800); } catch (e) {}
+  }
+
+  function copyTrial() {
+    try { navigator.clipboard.writeText(trialLink); setTrialCopied(true); setTimeout(function () { setTrialCopied(false); }, 1800); } catch (e) {}
   }
 
   if (loading) return (<div className="al"><style>{CSS}</style><div className="loading">Loading your dashboard…</div></div>);
@@ -754,6 +760,17 @@ export default function NewDashboard() {
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexShrink: 0 }}>
                 <button className="copy" style={{ background: '#0a1f52', boxShadow: '0 10px 22px -10px rgba(10,31,82,.5)' }} onClick={function () { window.open(tryLink, '_blank'); }}>Preview</button>
                 <button className="copy" style={{ background: '#2563eb', boxShadow: '0 10px 22px -10px rgba(37,99,235,.5)' }} onClick={copyTry}>{tryCopied ? 'Copied ✓' : 'Copy link'}</button>
+              </div>
+            </div>
+
+            <div className="share">
+              <div>
+                <div className="lbl" style={{ color: '#16a34a' }}>Free-trial link · start their week free</div>
+                <div className="lk">{trialLink}</div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, color: '#5a6584', marginTop: 5, maxWidth: 520, lineHeight: 1.5 }}>Share this to let anyone start a free 7-day trial &mdash; full access, no card. Signups land under you.</div>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button className="copy" style={{ background: '#16a34a', boxShadow: '0 10px 22px -10px rgba(22,163,74,.5)' }} onClick={copyTrial}>{trialCopied ? 'Copied ✓' : 'Copy link'}</button>
               </div>
             </div>
 
