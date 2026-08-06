@@ -7184,6 +7184,35 @@ def superlink_page(username: str, request: Request, db: Session = Depends(get_db
                         httponly=False, samesite="lax")
     return response
 
+
+@app.get("/try/{username}")
+def member_test_drive(username: str, request: Request, db: Session = Depends(get_db)):
+    """Standalone member MARKETING TOOL — the interactive 'Test Drive'. A member
+    shares /try/{username} with a skeptic; it runs the guided product demo (watch
+    a real view -> launch your own campaign -> your public showcase -> and you
+    earn) and ends on the sponsor's join link, with the ref cookie set so a
+    signup attributes to them. This does NOT touch the /w/ showcase — it's a
+    separate tool members send OUT. Public (prospects aren't logged in). Unknown
+    handles fall to the homepage."""
+    sponsor = _al_resolve_ref_user(db, username)
+    if not sponsor:
+        return RedirectResponse(url="/", status_code=302)
+    ref = sponsor.username
+    name = (sponsor.first_name or "").strip() or sponsor.username
+    try:
+        import os as _os
+        _p = _os.path.join(_os.path.dirname(__file__), "al_test_drive.html")
+        with open(_p, "r", encoding="utf-8") as _f:
+            html = _f.read()
+        html = html.replace("{{SPONSOR}}", _al_esc(ref)).replace("{{SPONSOR_NAME}}", _al_esc(name))
+        resp = HTMLResponse(html)
+    except Exception:
+        # A template error must never dead-end a live marketing link.
+        resp = RedirectResponse(url=f"/join/{ref}", status_code=302)
+    resp.set_cookie(key="ref", value=ref, max_age=60*60*24*30,
+                    httponly=False, samesite="lax")
+    return resp
+
 # ═══════════════════════════════════════════════════════════════
 #  MARKETING ASSETS — short-URL personalised landing pages (23 May 2026)
 # ═══════════════════════════════════════════════════════════════

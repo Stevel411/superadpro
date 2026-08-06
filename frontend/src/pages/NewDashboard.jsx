@@ -386,6 +386,7 @@ export default function NewDashboard() {
   const [memExpiry, setMemExpiry] = useState(null);  // annual member nearing renewal
   const [memTier, setMemTier] = useState(null);      // {is_lifetime,is_annual} for the tier badge
   const [wisShare, setWisShare] = useState(false);
+  const [tryCopied, setTryCopied] = useState(false);   // Test Drive link copied
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
   // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
@@ -489,6 +490,7 @@ export default function NewDashboard() {
   const activeTeam = Number(d.directs_active != null ? d.directs_active : (d.network_active || 0));
   const watchedToday = !!w.watched_today;
   const refLink = 'https://www.advantagelife.club/ref/' + (user?.username || '');
+  const tryLink = 'https://www.advantagelife.club/try/' + (user?.username || '');
   const thumb = feat ? ytThumb(feat.embed_url) : null;
 
   // Weekly showcase link — /w/{token}. Copying marks the share (analytics
@@ -576,6 +578,10 @@ export default function NewDashboard() {
 
   function copyLink() {
     try { navigator.clipboard.writeText(refLink); setCopied(true); setTimeout(function () { setCopied(false); }, 1800); } catch (e) {}
+  }
+
+  function copyTry() {
+    try { navigator.clipboard.writeText(tryLink); setTryCopied(true); setTimeout(function () { setTryCopied(false); }, 1800); } catch (e) {}
   }
 
   if (loading) return (<div className="al"><style>{CSS}</style><div className="loading">Loading your dashboard…</div></div>);
@@ -737,6 +743,18 @@ export default function NewDashboard() {
                 <div className="lk">{refLink}</div>
               </div>
               <button className="copy" onClick={copyLink}>{copied ? 'Copied ✓' : 'Copy link'}</button>
+            </div>
+
+            <div className="share">
+              <div>
+                <div className="lbl" style={{ color: '#2563eb' }}>Marketing tool · your Test Drive</div>
+                <div className="lk">{tryLink}</div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, color: '#5a6584', marginTop: 5, maxWidth: 520, lineHeight: 1.5 }}>The link to send when someone's unsure — they try the whole platform in 3 minutes, no signup, and any signup lands under you.</div>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button className="copy" style={{ background: '#0a1f52', boxShadow: '0 10px 22px -10px rgba(10,31,82,.5)' }} onClick={function () { window.open(tryLink, '_blank'); }}>Preview</button>
+                <button className="copy" style={{ background: '#2563eb', boxShadow: '0 10px 22px -10px rgba(37,99,235,.5)' }} onClick={copyTry}>{tryCopied ? 'Copied ✓' : 'Copy link'}</button>
+              </div>
             </div>
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
