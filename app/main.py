@@ -1252,11 +1252,48 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     try:
         # Verify HMAC signature and check max age (30 days)
         user_id = session_serializer.loads(token, max_age=60 * 60 * 24 * 30)
-        return db.query(User).filter(User.id == int(user_id)).first()
+        u = db.query(User).filter(User.id == int(user_id)).first()
+        # Enforce the 7-day trial lazily: an expired trial loses access
+        # (is_active False) and the existing gates route it to the pay-membership
+        # wall. One-time write — after the flip it stays inactive.
+        if u is not None and u.is_active and getattr(u, "access_level", "") == "trial":
+            _exp = getattr(u, "membership_expires_at", None)
+            if _exp is not None and _exp <= datetime.utcnow():
+                u.is_active = False
+                try: db.commit()
+                except Exception: db.rollback()
+        return u
     except (BadSignature, SignatureExpired, ValueError, TypeError):
         return None
 
 def is_admin(user): return user is not None and getattr(user, "is_admin", False)
+
+
+def _al_start_trial(db, user, days=7):
+    """Turn a fresh signup into a 7-day full-access trial: live access + a
+    starter pack to create ads with. A trial member is simply an UNQUALIFIED
+    member on a timer — no new earning logic (P2P sales already climb past an
+    unqualified seller to the first paid upline). They pay to KEEP access AND to
+    COLLECT any sale they make."""
+    from datetime import timedelta as _td
+    user.is_active = True
+    user.access_level = "trial"
+    user.membership_expires_at = datetime.utcnow() + _td(days=days)
+    try:
+        db.flush()  # ensure user.id exists for the pack grant
+        already = db.query(PackPurchase).filter(
+            PackPurchase.user_id == user.id, PackPurchase.source == "trial").first()
+        pack = (db.query(CampaignPack)
+                  .filter(CampaignPack.level == 10, CampaignPack.is_active == True)  # noqa: E712
+                  .first())
+        if pack and not already:
+            db.add(PackPurchase(
+                user_id=user.id, pack_id=pack.id, pack_level=pack.level,
+                amount=0.0, payment_method="trial", status="active",
+                source="trial", activated_at=datetime.utcnow(),
+                created_at=datetime.utcnow()))
+    except Exception as e:
+        logger.warning(f"trial pack grant failed for user {getattr(user, 'id', None)}: {e}")
 
 
 def _safe_json(s):
@@ -7520,6 +7557,8 @@ def register_process(
     )
     if signup_country_name:
         user.display_city = signup_country_name
+
+    _al_start_trial(db, user)   # 7-day full-access trial + starter pack
 
     # Assign pass-up sponsor for course commission chain
     if sponsor_id:
@@ -40605,6 +40644,8 @@ async def api_register(
         )
         if signup_country_name:
             user.display_city = signup_country_name
+
+        _al_start_trial(db, user)   # 7-day full-access trial + starter pack
 
         # Assign pass-up sponsor for course commission chain
         if sponsor_id:
