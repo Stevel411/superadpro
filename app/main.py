@@ -9858,6 +9858,14 @@ def my_marketing_lead_magnets(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/my-marketing/daily-post")
+def my_marketing_daily_post(request: Request):
+    """Serve React SPA — Daily Sales Post (a fresh ready-to-post message a day)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/my-marketing/lead-magnets/{key}")
 def my_marketing_lead_magnet_detail(key: str, request: Request):
     """Serve React SPA — per-magnet lead-magnet detail / share page."""
@@ -76946,6 +76954,57 @@ def wisdom_page(user: User = Depends(get_current_user)):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+
+
+# ── Daily Sales Post — ready-to-post marketing content, one fresh drop a day ──
+# Text-first: each post carries the member's /try link, which renders a rich OG
+# preview when posted, so a plain text post is already visual. Honest angle only
+# (try-it-free / real-views), never an income promise.
+AL_SALES_POSTS = [
+    {"theme": "Try it free", "text": "Most \u2018make money online\u2019 pitches just ask you to trust them. This one lets you try the whole platform first \u2014 free, 3 minutes, no signup. Have a go \U0001f447\n{TRY}"},
+    {"theme": "Real views", "text": "Real people watching real videos \u2014 no bots, no fake views. That\u2019s the whole idea. See it for yourself, free:\n{TRY}"},
+    {"theme": "For skeptics", "text": "Think it might be a scam? Good \u2014 don\u2019t take my word for it. Try it yourself, free, right now, no signup needed:\n{TRY}"},
+    {"theme": "The ad angle", "text": "Got a video, a business or an offer? Get it in front of real people who actually watch. Try the platform free:\n{TRY}"},
+    {"theme": "Curiosity", "text": "I stopped explaining what I do and started letting people try it. 3 minutes, no signup, see exactly how it works:\n{TRY}"},
+    {"theme": "Honest", "text": "No hype. No \u2018get rich\u2019 promises. Just a real advertising platform you can try before you decide anything:\n{TRY}"},
+    {"theme": "Your effort", "text": "Your effort. Your income. 100% yours. See how it actually works \u2014 free, takes 3 minutes:\n{TRY}"},
+    {"theme": "Simple", "text": "Advertise your video. Real humans watch it. You can earn while you\u2019re at it. That\u2019s the whole thing. Try it free:\n{TRY}"},
+    {"theme": "For creators", "text": "If you make videos and want more real eyes on them, try this \u2014 free, no catch, no signup:\n{TRY}"},
+    {"theme": "Proof", "text": "The internet is full of fake views and bots. We deliver real ones. Try it and see the difference for yourself:\n{TRY}"},
+    {"theme": "Show, don\u2019t tell", "text": "I\u2019d rather show you than tell you. Tap it, try it free, and make your own mind up:\n{TRY}"},
+    {"theme": "The daily habit", "text": "Watch a few short ads a day, get your own content seen by real people. Simple, honest, real. Try it:\n{TRY}"},
+    {"theme": "Direct", "text": "3 minutes. No signup. See the whole platform for yourself and decide from there:\n{TRY}"},
+    {"theme": "Invitation", "text": "Real platform, real people, real views. Come and see what we\u2019re building \u2014 free to try:\n{TRY}"},
+]
+
+
+@app.get("/api/al/sales-post/today")
+def api_sales_post_today(user: User = Depends(get_current_user)):
+    """Today's ready-to-post sales content, personalised with the member's links.
+    Rotates daily (deterministic by date) so everyone gets a fresh drop."""
+    import datetime as _dt
+    try_link = f"https://www.advantagelife.club/try/{user.username}"
+    ref_link = f"https://www.advantagelife.club/ref/{user.username}"
+    n = len(AL_SALES_POSTS)
+    idx = _dt.date.today().toordinal() % n
+    p = AL_SALES_POSTS[idx]
+    text = p["text"].replace("{TRY}", try_link).replace("{REF}", ref_link)
+    return {"ok": True, "index": idx, "theme": p["theme"], "text": text,
+            "try_link": try_link, "ref_link": ref_link, "total": n}
+
+
+@app.get("/api/al/sales-post/library")
+def api_sales_post_library(user: User = Depends(get_current_user)):
+    """The full rotating library, personalised — so a member can browse and post
+    any of them, not just today's."""
+    import datetime as _dt
+    try_link = f"https://www.advantagelife.club/try/{user.username}"
+    ref_link = f"https://www.advantagelife.club/ref/{user.username}"
+    today = _dt.date.today().toordinal() % len(AL_SALES_POSTS)
+    posts = [{"index": i, "theme": p["theme"], "is_today": i == today,
+              "text": p["text"].replace("{TRY}", try_link).replace("{REF}", ref_link)}
+             for i, p in enumerate(AL_SALES_POSTS)]
+    return {"ok": True, "posts": posts, "try_link": try_link, "ref_link": ref_link}
 
 
 @app.get("/api/al/wisdom/today")

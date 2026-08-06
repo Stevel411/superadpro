@@ -42,6 +42,7 @@ const I = {
   plan: <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2.2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>,
   email: <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="M4 7.5l8 5.5 8-5.5"/></svg>,
   lead: <svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><path d="M4 4h4M16 4h4"/><path d="M12 17v3"/></svg>,
+  daily: <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2.2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15 13"/></svg>,
 };
 
 export default function MyMarketing() {
@@ -59,6 +60,10 @@ export default function MyMarketing() {
   }
 
   const cards = [
+    { key: 'daily', icon: I.daily, feat: true, badge: 'NEW',
+      title: 'Daily Sales Post',
+      desc: 'A fresh, ready-to-post message every day \u2014 with your link built in. Tap, copy, post.',
+      open: 'Get today\u2019s post', onClick: go('/my-marketing/daily-post') },
     { key: 'sales', icon: I.sales, feat: true, badge: 'NEW',
       title: 'Your Sales Page',
       desc: 'Pick a design — light, dark or bold — and grab your personalised link. Videos built in.',
