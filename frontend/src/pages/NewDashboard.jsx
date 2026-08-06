@@ -91,7 +91,7 @@ const CSS = `
 .al .hero .cap{font-size:15.5px;font-weight:600;color:#c9d6f7;margin:6px 0 20px}
 .al .hero .pill{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(120deg,#c8102e,#e8203f);border-radius:13px;padding:14px 22px;font-weight:900;font-size:15.5px;box-shadow:0 12px 26px -10px rgba(200,16,46,.7)}
 .al .hero .tierbadge{display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:9px 16px;font-weight:900;font-size:13.5px;letter-spacing:.03em;margin-bottom:20px}
-.al .hero .tierbadge.gold{background:linear-gradient(135deg,#9c6f14 0%,#f6dd8b 40%,#e7c04a 62%,#b8860b 100%);color:#3a2a02;box-shadow:0 10px 24px -10px rgba(230,190,70,.8);border:1px solid rgba(255,244,200,.7)}
+.al .hero .tierbadge.lifetime{background:linear-gradient(135deg,#065f46 0%,#059669 50%,#10b981 100%);color:#fff;box-shadow:0 10px 24px -10px rgba(16,185,129,.7);border:1px solid rgba(160,240,200,.4)}
 .al .hero .tierbadge.silver{background:linear-gradient(135deg,#7d8490 0%,#eef1f5 38%,#c7cdd8 60%,#949ba8 100%);color:#23293a;box-shadow:0 10px 24px -10px rgba(150,160,175,.75);border:1px solid rgba(255,255,255,.75)}
 .al .hero .note{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#8fa4d8;margin-top:18px}
 .al .hero .note i{font-style:normal;color:#7ef0a8}
@@ -716,7 +716,7 @@ export default function NewDashboard() {
             <div className="hero">
               <div className="hl">
                 {memTier && memTier.is_lifetime && (
-                  <span className="tierbadge gold"><svg width="15" height="15" viewBox="0 0 24 24" fill="#3a2a02"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>LIFETIME MEMBER</span>
+                  <span className="tierbadge lifetime"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>LIFETIME MEMBER</span>
                 )}
                 {memTier && !memTier.is_lifetime && memTier.is_annual && (
                   <span className="tierbadge silver"><svg width="15" height="15" viewBox="0 0 24 24" fill="#23293a"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>ANNUAL MEMBER</span>
