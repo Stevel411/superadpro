@@ -408,7 +408,7 @@ const styles = {
   logoText: { fontSize: 20, fontWeight: 900, color: '#0a1f52', fontFamily: "'Inter', sans-serif" },
   heading: { fontSize: 26, fontWeight: 900, color: '#0a1f52', margin: '0 0 6px', textAlign: 'center' },
   sub: { fontSize: 14, color: '#5a6584', fontWeight: 600, marginBottom: 24, textAlign: 'center' },
-  refBadge: { background: 'rgba(14,165,233,.1)', border: '1px solid rgba(14,165,233,.2)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#7dd3fc', marginBottom: 20, textAlign: 'center' },
+  refBadge: { background: 'rgba(18,56,143,.09)', border: '1px solid rgba(18,56,143,.3)', borderRadius: 10, padding: '11px 14px', fontSize: 13.5, fontWeight: 600, color: '#12388f', marginBottom: 20, textAlign: 'center' },
   errorBox: { background: '#fdecec', border: '1.5px solid #f3c2cc', borderRadius: 10, padding: '12px 14px', fontSize: 13, fontWeight: 700, color: '#a3132e', marginBottom: 20 },
   form: { display: 'flex', flexDirection: 'column', gap: 16 },
   row: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
