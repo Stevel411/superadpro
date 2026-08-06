@@ -76982,6 +76982,8 @@ AL_SALES_POSTS = [
 def api_sales_post_today(user: User = Depends(get_current_user)):
     """Today's ready-to-post sales content, personalised with the member's links.
     Rotates daily (deterministic by date) so everyone gets a fresh drop."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
     import datetime as _dt
     try_link = f"https://www.advantagelife.club/try/{user.username}"
     ref_link = f"https://www.advantagelife.club/ref/{user.username}"
@@ -76997,6 +76999,8 @@ def api_sales_post_today(user: User = Depends(get_current_user)):
 def api_sales_post_library(user: User = Depends(get_current_user)):
     """The full rotating library, personalised — so a member can browse and post
     any of them, not just today's."""
+    if not user:
+        return JSONResponse({"error": "Not signed in"}, status_code=401)
     import datetime as _dt
     try_link = f"https://www.advantagelife.club/try/{user.username}"
     ref_link = f"https://www.advantagelife.club/ref/{user.username}"
