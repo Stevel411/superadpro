@@ -70482,6 +70482,46 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/inspect-user")
+def al_inspect_user(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Trace a member's real state + how they got each pack (source tells us:
+    trial / gift / p2p / migration). Admin session OR MIGRATION_SECRET.
+    ?user_id=N or ?username=X."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    uid = request.query_params.get("user_id")
+    uname = request.query_params.get("username")
+    q = db.query(User)
+    target = q.filter(User.id == int(uid)).first() if uid else (
+        q.filter(User.username == uname).first() if uname else None)
+    if not target:
+        return {"error": "user not found"}
+    try:
+        packs = db.query(PackPurchase).filter(PackPurchase.user_id == target.id).order_by(PackPurchase.created_at.asc()).all()
+    except Exception:
+        packs = []
+    return {
+        "ok": True,
+        "user": {
+            "id": target.id, "username": target.username, "email": target.email,
+            "access_level": getattr(target, "access_level", None),
+            "is_active": bool(getattr(target, "is_active", False)),
+            "has_password": bool(getattr(target, "password", None)),
+            "membership_expires_at": str(getattr(target, "membership_expires_at", None)),
+            "created_at": str(getattr(target, "created_at", None))[:19],
+            "sponsor_id": getattr(target, "sponsor_id", None),
+        },
+        "packs": [{
+            "level": p.pack_level, "amount": float(p.amount or 0),
+            "source": getattr(p, "source", None),
+            "method": getattr(p, "payment_method", None),
+            "status": getattr(p, "status", None),
+            "created_at": str(p.created_at)[:19],
+        } for p in packs],
+    }
+
+
 @app.get("/admin/api/al/grant-trial-claimed-free")
 def al_grant_trial_claimed_free(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Give the 7-day free trial to members who CLAIMED (set a password) but never
