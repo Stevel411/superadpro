@@ -70482,6 +70482,35 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/grant-trial-claimed-free")
+def al_grant_trial_claimed_free(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Give the 7-day free trial to members who CLAIMED (set a password) but never
+    paid — they're currently stuck at the pay wall. Admin session OR
+    MIGRATION_SECRET. &dryrun=1 previews without granting."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    targets = db.query(User).filter(
+        User.password.isnot(None), User.password != "",
+        User.access_level == "free").all()
+    if dry:
+        return {"ok": True, "dryrun": True, "eligible": len(targets),
+                "sample": [{"id": u.id, "username": u.username, "email": u.email} for u in targets[:30]]}
+    granted = []
+    for u in targets:
+        try:
+            _al_start_trial(db, u)
+            granted.append(u.username)
+        except Exception as e:
+            logger.warning(f"grant-trial-claimed-free failed for {getattr(u, 'id', None)}: {e}")
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+    return {"ok": True, "granted_count": len(granted), "granted": granted[:100]}
+
+
 @app.get("/admin/api/grant-lifetime")
 def admin_api_grant_lifetime(
     usernames: str = "",
