@@ -70366,6 +70366,65 @@ async def admin_api_migrate_import(
     }
 
 
+@app.get("/admin/api/al/launch-stats")
+def al_launch_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Launch diagnostics: signups, member mix, and REAL package sales (amount>0,
+    i.e. excluding gifts and trial packs). Admin session OR MIGRATION_SECRET."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from datetime import timedelta as _td
+    now = datetime.utcnow()
+    wk = now - _td(days=7)
+
+    def c(q):
+        try:
+            return int(q.scalar() or 0)
+        except Exception:
+            return 0
+
+    total_users = c(db.query(func.count(User.id)))
+    signups_week = c(db.query(func.count(User.id)).filter(User.created_at >= wk))
+    lifetime = c(db.query(func.count(User.id)).filter(User.access_level == "lifetime"))
+    annual = c(db.query(func.count(User.id)).filter(User.access_level == "annual"))
+    active_trials = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.is_active == True))  # noqa: E712
+    free = c(db.query(func.count(User.id)).filter(User.access_level == "free"))
+    trial_signups_week = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.created_at >= wk))
+
+    # REAL paid package sales only — gifts and trial packs are amount 0.
+    try:
+        rows = db.query(PackPurchase).filter(PackPurchase.amount > 0).order_by(PackPurchase.created_at.desc()).all()
+    except Exception:
+        rows = []
+    real_sales = []
+    for s in rows:
+        buyer = db.query(User).filter(User.id == s.user_id).first()
+        real_sales.append({
+            "buyer": (buyer.username if buyer else s.user_id),
+            "level": s.pack_level,
+            "amount": float(s.amount or 0),
+            "method": getattr(s, "payment_method", None),
+            "when": str(s.created_at)[:19],
+        })
+    sales_week = [s for s in real_sales if s["when"] >= str(wk)[:19]]
+
+    return {
+        "ok": True,
+        "as_of": str(now)[:19],
+        "signups": {"total_ever": total_users, "this_week": signups_week,
+                    "trial_signups_this_week": trial_signups_week},
+        "members": {"paid_lifetime": lifetime, "paid_annual": annual,
+                    "paid_total": lifetime + annual,
+                    "active_trials": active_trials, "free_or_lapsed": free},
+        "real_package_sales": {
+            "count_total": len(real_sales),
+            "count_this_week": len(sales_week),
+            "value_total": round(sum(s["amount"] for s in real_sales), 2),
+            "recent": real_sales[:25],
+        },
+    }
+
+
 @app.get("/admin/api/grant-lifetime")
 def admin_api_grant_lifetime(
     usernames: str = "",
