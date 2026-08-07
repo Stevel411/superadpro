@@ -7880,6 +7880,14 @@ async def api_reset_password(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "User not found."}, status_code=400)
     user.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     reset.used = True
+    # First claim by a never-paid member → hand them the 7-day free trial (full
+    # access + starter pack), so "set your password" becomes "start your free
+    # week", not a pay wall. Paid/grandfathered members keep their status.
+    try:
+        if (getattr(user, "access_level", "free") or "free") == "free":
+            _al_start_trial(db, user)
+    except Exception as _e:
+        logger.warning(f"trial-on-claim grant failed for user {getattr(user, 'id', None)}: {_e}")
     db.commit()
     return {"success": True, "message": "Password reset successfully. You can now log in."}
 @app.get("/login/2fa")
@@ -25539,6 +25547,13 @@ def reset_password_process(
         password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
 
+    # First claim by a never-paid member → 7-day free trial (see api_reset_password).
+    try:
+        if (getattr(user, "access_level", "free") or "free") == "free":
+            _al_start_trial(db, user)
+    except Exception as _e:
+        logger.warning(f"trial-on-claim grant failed for user {getattr(user, 'id', None)}: {_e}")
+
     # Mark token as used
     reset.used = True
     db.commit()
@@ -32795,37 +32810,35 @@ AL_LAUNCH_EMAILS = {
     # recipient's own broadcast_log.sent_at; anyone who claims (sets a
     # password) leaves the unclaimed audience and the drip stops for them.
     "re1": {
-        "broadcast_key": "al_reeng1_2026_08",
+        "broadcast_key": "al_trial1_2026_08",
         "audience": "unclaimed",
-        "subject": "Your AdvantageLife account is ready — here's how to get back in",
+        "subject": "Come back to AdvantageLife — your first 7 days are free",
         "body_md": (
             "Hi {name},\n\n"
-            "Some good news, and one small thing to do.\n\n"
             "The platform you signed up to has been rebuilt from the ground up "
-            "and relaunched as <b>AdvantageLife</b> — a fresh, more secure "
-            "platform, with your membership carried across. It's all waiting "
-            "for you.\n\n"
-            "There's just one step between you and your account. For security "
-            "after the breach, passwords weren't carried over — so you'll "
-            "need to set a fresh one:\n\n"
+            "and relaunched as <b>AdvantageLife</b> — and I've made it easy to "
+            "come back and see it for yourself.\n\n"
+            "<b>Your first 7 days are completely free.</b> Full access, every "
+            "tool, your own campaigns and pages — no card, no catch. Have a "
+            "proper look around, and only decide once you've actually used it.\n\n"
+            "There's one quick step to get in — set a fresh password (we "
+            "couldn't carry the old ones across after the breach). About a "
+            "minute:\n\n"
             "➡️ https://www.advantagelife.club/claim\n\n"
-            "Enter the email address this was sent to, and I'll send you a "
-            "secure link. It takes about a minute.\n\n"
-            "Once you're in, the Start Here guide walks you through everything, "
-            "step by step — and I'll be there to help.\n\n"
+            "Enter the email this was sent to, follow the secure link, and your "
+            "free week starts the moment you're in.\n\n"
             "Steve\nFounder, AdvantageLife\n\n"
             "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
         ),
     },
     "re2": {
-        "broadcast_key": "al_reeng2_2026_08",
+        "broadcast_key": "al_trial2_2026_08",
         "audience": "unclaimed",
-        "subject": "What's actually waiting inside your account",
+        "subject": "What your free week actually gets you",
         "body_md": (
             "Hi {name},\n\n"
-            "I wrote a few days ago about claiming your AdvantageLife account. "
-            "In case you're wondering whether it's worth the minute — here's "
-            "what's actually behind that step:\n\n"
+            "In case you're wondering whether the free 7 days is worth the "
+            "minute it takes to get in — here's what's actually waiting:\n\n"
             "• <b>A full set of AI marketing tools</b> — a drag-and-drop "
             "page builder, email marketing and a lead finder. The kind of kit "
             "that normally costs a small fortune across half a dozen "
@@ -32835,50 +32848,50 @@ AL_LAUNCH_EMAILS = {
             "• <b>A genuinely fair way to earn</b> — when you sell a pack, "
             "100% of the price passes straight to you, member to member. No "
             "company cut on the packs.\n\n"
-            "All of it sits behind one step — setting your password:\n\n"
+            "All of it, free for your first week — no card needed. Set your "
+            "password and start looking around:\n\n"
             "➡️ https://www.advantagelife.club/claim\n\n"
             "Steve\nFounder, AdvantageLife\n\n"
             "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
         ),
     },
     "re3": {
-        "broadcast_key": "al_reeng3_2026_08",
+        "broadcast_key": "al_trial3_2026_08",
         "audience": "unclaimed",
-        "subject": "The three steps, once you're in",
+        "subject": "How to make the most of your free 7 days",
         "body_md": (
             "Hi {name},\n\n"
-            "I don't want to keep nudging, so let me make it concrete. Here's "
-            "exactly what happens once you claim your account — three simple "
-            "steps and you're up and running:\n\n"
-            "<b>1. Claim your account</b> — the one-minute step: set your "
-            "password.\n"
+            "If you do come in for your free week, here's the simple rhythm "
+            "that makes it click — three easy steps:\n\n"
+            "<b>1. Create your first ad</b> — record a short video campaign "
+            "and put it live.\n"
             "<b>2. Do your daily watch</b> — a few short ad views a day. It "
             "keeps you earning-qualified, and it's what makes you a real "
             "audience for other members' campaigns.\n"
-            "<b>3. Switch on your first pack and share your page</b> — record "
-            "a short video ad, and your own personal sales page does the rest.\n\n"
-            "That's the whole thing. No catch, no complexity — and the Start "
-            "Here guide walks you through each step the moment you're in.\n\n"
-            "Your account's still here whenever you're ready:\n\n"
+            "<b>3. Share your page</b> — your own personal sales page does the "
+            "rest.\n\n"
+            "That's the whole thing — and the Start Here guide walks you "
+            "through each step the moment you're in. Your free week's still "
+            "waiting:\n\n"
             "➡️ https://www.advantagelife.club/claim\n\n"
             "Steve\nFounder, AdvantageLife\n\n"
             "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
         ),
     },
     "re4": {
-        "broadcast_key": "al_reeng4_2026_08",
+        "broadcast_key": "al_trial4_2026_08",
         "audience": "unclaimed",
-        "subject": "Last note from me",
+        "subject": "Last note — your free week's still here",
         "body_md": (
             "Hi {name},\n\n"
-            "This is the last time I'll email you about claiming your account "
-            "— I don't want to be a nuisance.\n\n"
+            "This is the last time I'll email you about it — I don't want to "
+            "be a nuisance.\n\n"
             "I rebuilt this whole platform properly, from the ground up, because "
             "the people who backed the early version deserved better than what "
-            "went wrong. You were one of those people. Your account, and your "
-            "place in it, is still here.\n\n"
+            "went wrong. You were one of those people — and your free 7 days is "
+            "still here, full access, no card, no catch.\n\n"
             "If now's not the time, no hard feelings. But if you've been "
-            "meaning to take a look, it's still just one minute:\n\n"
+            "meaning to take a look, it's still just one minute to get in:\n\n"
             "➡️ https://www.advantagelife.club/claim\n\n"
             "Either way — thank you for being part of this.\n\n"
             "Steve\nFounder, AdvantageLife\n\n"
