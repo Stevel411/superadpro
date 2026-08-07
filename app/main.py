@@ -70531,24 +70531,53 @@ def al_grant_trial_claimed_free(request: Request, user: User = Depends(get_curre
     if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    send_email = request.query_params.get("email", "1") not in ("0", "false", "no")
     targets = db.query(User).filter(
         User.password.isnot(None), User.password != "",
         User.access_level == "free").all()
     if dry:
         return {"ok": True, "dryrun": True, "eligible": len(targets),
+                "will_email": send_email,
                 "sample": [{"id": u.id, "username": u.username, "email": u.email} for u in targets[:30]]}
     granted = []
     for u in targets:
         try:
             _al_start_trial(db, u)
-            granted.append(u.username)
+            granted.append(u)
         except Exception as e:
             logger.warning(f"grant-trial-claimed-free failed for {getattr(u, 'id', None)}: {e}")
     try:
         db.commit()
     except Exception:
         db.rollback()
-    return {"ok": True, "granted_count": len(granted), "granted": granted[:100]}
+    # Tell them their week's open, so the trial isn't spent unnoticed.
+    email_result = None
+    if send_email and granted:
+        try:
+            _ensure_broadcast_log_table(db)
+            _campaign = {
+                "broadcast_key": "al_trial_opened_2026_08",
+                "audience": "claimed-free",
+                "subject": "I've opened 7 days of free access on your account",
+                "body_md": (
+                    "Hi {name},\n\n"
+                    "Quick one — I've just opened up <b>7 days of full, free access</b> "
+                    "on your AdvantageLife account. No card, no catch.\n\n"
+                    "Everything's unlocked: create ads, do your daily watch, share "
+                    "your page — the whole platform, free for a week. Just log in and "
+                    "it's all there:\n\n"
+                    "➡️ https://www.advantagelife.club/login\n\n"
+                    "Have a proper look around while it's open.\n\n"
+                    "Steve\nFounder, AdvantageLife\n\n"
+                    "P.S. AdvantageLife is a real platform with real tools and a real advertising product — not a get-rich-quick scheme. What anyone earns depends on the effort they put in and the audience they build."
+                ),
+            }
+            email_result = _al_send_to_targets(db, _campaign, granted, "grant-trial-claimed-free")
+        except Exception as e:
+            email_result = {"error": str(e)}
+    return {"ok": True, "granted_count": len(granted),
+            "granted": [u.username for u in granted][:100],
+            "email": email_result}
 
 
 @app.get("/admin/api/grant-lifetime")
