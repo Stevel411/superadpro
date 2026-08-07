@@ -70425,6 +70425,50 @@ def al_launch_stats(request: Request, user: User = Depends(get_current_user), db
     }
 
 
+@app.get("/admin/api/al/drip-stats")
+def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Email drip reach: unclaimed vs claimed base, and per-broadcast send counts
+    (how many of the dormant base actually received each email + when last sent).
+    Admin session OR MIGRATION_SECRET."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        _ensure_broadcast_log_table(db)
+    except Exception:
+        pass
+
+    def c(q):
+        try:
+            return int(q.scalar() or 0)
+        except Exception:
+            return 0
+
+    unclaimed = c(db.query(func.count(User.id)).filter((User.password.is_(None)) | (User.password == "")))
+    claimed = c(db.query(func.count(User.id)).filter(User.password.isnot(None), User.password != ""))
+    try:
+        rows = db.execute(text(
+            "SELECT broadcast_key, status, COUNT(*) AS n, MAX(sent_at) AS last "
+            "FROM broadcast_log GROUP BY broadcast_key, status ORDER BY broadcast_key")).mappings().all()
+    except Exception:
+        rows = []
+    log = {}
+    for r in rows:
+        k = r["broadcast_key"]
+        log.setdefault(k, {"sent": 0, "failed": 0, "last": None})
+        if (r["status"] or "sent") == "failed":
+            log[k]["failed"] += int(r["n"])
+        else:
+            log[k]["sent"] += int(r["n"])
+        last = str(r["last"])[:19] if r["last"] else None
+        if last and (log[k]["last"] is None or last > log[k]["last"]):
+            log[k]["last"] = last
+
+    return {"ok": True,
+            "base": {"unclaimed": unclaimed, "claimed": claimed, "total": unclaimed + claimed},
+            "broadcasts": log}
+
+
 @app.get("/admin/api/grant-lifetime")
 def admin_api_grant_lifetime(
     usernames: str = "",
