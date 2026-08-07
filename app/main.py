@@ -73411,6 +73411,8 @@ def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
         "id": m.id, "username": m.username, "email": m.email,
         "is_admin": bool(m.is_admin),
         "access_level": getattr(m, "access_level", "free"),
+        "membership_expires_at": (m.membership_expires_at.isoformat()
+                                  if getattr(m, "membership_expires_at", None) else None),
         "lifetime": _al_is_lifetime(m),
         "created_at": m.created_at.isoformat() if m.created_at else None,
         "gates": {
