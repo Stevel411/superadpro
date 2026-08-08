@@ -70482,6 +70482,33 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/audit-users")
+def al_audit_users(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Report access_level + owned packs for a specific comma-separated username
+    list. Admin session, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    unames = request.query_params.get("usernames", "")
+    out = []
+    for u in unames.split(","):
+        u = u.strip().lstrip("@")
+        if not u:
+            continue
+        row = db.query(User).filter(User.username == u).first()
+        if not row:
+            out.append({"username": u, "found": False})
+            continue
+        owned = sorted({int(p.pack_level or 0) for p in db.query(PackPurchase).filter(
+            PackPurchase.user_id == row.id, PackPurchase.status == "active").all()})
+        out.append({"username": u, "found": True, "access_level": row.access_level,
+                    "is_active": bool(row.is_active), "packs": owned})
+    from collections import Counter
+    lvls = Counter(x.get("access_level") for x in out if x.get("found"))
+    return {"ok": True, "count": len(out), "by_access_level": dict(lvls), "users": out}
+
+
 @app.get("/admin/api/al/grant-grandfather-bundle")
 def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Bring lifetime members to the intended 'grandfather' state: free lifetime
