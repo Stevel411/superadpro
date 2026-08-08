@@ -70482,6 +70482,36 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/grant-audit")
+def al_grant_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Ground-truth audit: for each access level, how many members own which
+    packs — so we can see whether gifted/lifetime members actually have the four
+    packs up to $100, and whether trial members only have the $10 Launchpad.
+    Admin session OR MIGRATION_SECRET."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from collections import defaultdict
+    out = {}
+    for lvl in ["lifetime", "annual", "trial", "free"]:
+        users = db.query(User.id).filter(User.access_level == lvl).all()
+        uids = [u.id for u in users]
+        owned = defaultdict(set)
+        if uids:
+            for uid, plvl in db.query(PackPurchase.user_id, PackPurchase.pack_level).filter(
+                    PackPurchase.user_id.in_(uids), PackPurchase.status == "active").all():
+                owned[uid].add(int(plvl or 0))
+        four = {10, 20, 50, 100}
+        out[lvl] = {
+            "members": len(uids),
+            "own_100_or_higher": sum(1 for uid in uids if any(l >= 100 for l in owned.get(uid, set()))),
+            "own_all_four_to_100": sum(1 for uid in uids if four <= owned.get(uid, set())),
+            "own_only_10": sum(1 for uid in uids if owned.get(uid, set()) == {10}),
+            "no_pack": sum(1 for uid in uids if not owned.get(uid)),
+        }
+    return {"ok": True, "by_access_level": out}
+
+
 @app.get("/admin/api/al/trial-stats")
 def al_trial_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """7-day trial analytics: active trials (+ days-left buckets + expiring-soon
