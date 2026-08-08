@@ -70523,7 +70523,13 @@ def al_trial_stats(request: Request, user: User = Depends(get_current_user), db:
     active_count = len(active)
     lapsed = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.is_active == False))  # noqa: E712
     new_week = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.created_at >= wk))
-    converted = c(db.query(func.count(User.id)).filter(User.access_level == "lifetime", User.membership_expires_at.isnot(None)))
+    # A real trial→lifetime conversion carries the trial's near-future expiry
+    # (~now+7d). Grandfathered/permanent lifetimes are stamped 2099-12-31, so we
+    # exclude that sentinel — otherwise every migrated lifetime looks "converted".
+    converted = c(db.query(func.count(User.id)).filter(
+        User.access_level == "lifetime",
+        User.membership_expires_at.isnot(None),
+        User.membership_expires_at < datetime(2099, 1, 1)))
     started_total = active_count + lapsed + converted
     conv_rate = round(100.0 * converted / started_total, 1) if started_total else 0.0
 
