@@ -37397,12 +37397,13 @@ def admin_migrate_canvas_bg(request: Request, user: User = Depends(get_current_u
 
 
 @app.get("/api/diag/r2-test")
-def diag_r2_test(request: Request):
+def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
-    and returns the real error if it fails. MIGRATION_SECRET or CRON_SECRET."""
+    and returns the real error if it fails. Admin session, MIGRATION_SECRET, or
+    CRON_SECRET."""
     secret = request.query_params.get("secret", "")
     _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
-    if not (secret and secret in _secrets):
+    if not (is_admin(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     import traceback
     out = {}
