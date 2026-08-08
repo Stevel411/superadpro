@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiGet, apiPost } from '../utils/api';
 import AlShell from '../components/layout/AlShell';
-import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake, Activity, Share2 } from 'lucide-react';
+import { Gauge, ShieldCheck, Coins, Users, RefreshCw, Check, X, ExternalLink, Wallet, Handshake, Activity, Share2, Clock } from 'lucide-react';
 
 /* ────────────────────────────────────────────────────────────────
    AdvantageLife admin — built for the pack / pass-up model.
@@ -19,6 +19,7 @@ const TABS = [
   { key: 'finances', label: 'Finances', Icon: Wallet },
   { key: 'settlements', label: 'Settlements', Icon: Handshake },
   { key: 'members', label: 'Members', Icon: Users },
+  { key: 'trials', label: 'Trials', Icon: Clock },
   { key: 'sharing', label: 'Sharing', Icon: Share2 },
   { key: 'health', label: 'Health', Icon: Activity },
 ];
@@ -79,6 +80,57 @@ function Overview({ d }) {
           <Stat n={s.verified_views_this_week ?? 0} l="Verified share views (wk)" color={GREEN} />
           <Stat n={s.approved ?? 0} l="Campaigns share-approved" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function Trials() {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { apiGet('/admin/api/al/trial-stats').then(setD).catch(() => setErr('Could not load trial stats')); }, []);
+  if (err) return <div style={{ padding: 22, color: RED, fontWeight: 700 }}>{err}</div>;
+  if (!d) return <div style={{ padding: 22, color: MUTED, fontWeight: 600 }}>Loading…</div>;
+  const b = d.active_by_days_left || {};
+  return (
+    <div style={{ padding: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 18 }}>
+        <Stat n={d.active_trials ?? 0} l="Active trials" color={NAVY} />
+        <Stat n={d.new_trials_this_week ?? 0} l="New this week" color={RED} />
+        <Stat n={d.converted_to_lifetime ?? 0} l="Upgraded to lifetime" color={GREEN} />
+        <Stat n={(d.conversion_rate_pct ?? 0) + '%'} l="Conversion rate" color={GREEN} />
+        <Stat n={d.lapsed_no_upgrade ?? 0} l="Lapsed (no upgrade)" color={MUTED} />
+      </div>
+
+      <div style={{ background: '#fff', border: '1px solid ' + LINE, borderRadius: 14, padding: 18, marginBottom: 16 }}>
+        <div style={{ fontWeight: 900, fontSize: 14, color: NAVY, marginBottom: 12 }}>Active trials by time left</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+          <Stat n={b.expiring_today ?? 0} l="Expiring today" color={RED} />
+          <Stat n={b.in_1_2_days ?? 0} l="In 1–2 days" color="#b45309" />
+          <Stat n={b.in_3_7_days ?? 0} l="In 3–7 days" color={NAVY} />
+        </div>
+      </div>
+
+      <div style={{ background: '#fff', border: '1px solid ' + LINE, borderRadius: 14, padding: 18 }}>
+        <div style={{ fontWeight: 900, fontSize: 14, color: NAVY, marginBottom: 4 }}>Expiring soon — worth a nudge</div>
+        <div style={{ fontSize: 12, color: MUTED, marginBottom: 12 }}>Trials ending within 2 days. Reach out before their week's up.</div>
+        {(!d.expiring_soon || d.expiring_soon.length === 0)
+          ? <div style={{ fontSize: 13, color: MUTED, fontWeight: 600 }}>Nobody expiring in the next 2 days.</div>
+          : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ textAlign: 'left', fontSize: 11, color: MUTED, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                <th style={{ padding: '6px 8px' }}>Member</th><th style={{ padding: '6px 8px' }}>Email</th><th style={{ padding: '6px 8px' }}>Days left</th></tr></thead>
+              <tbody>
+                {d.expiring_soon.map((r, i) => (
+                  <tr key={i} style={{ borderTop: '1px solid ' + LINE }}>
+                    <td style={{ padding: '8px', fontWeight: 800, color: NAVY }}>@{r.username}</td>
+                    <td style={{ padding: '8px', color: MUTED, fontSize: 13 }}>{r.email}</td>
+                    <td style={{ padding: '8px', fontWeight: 800, color: r.days_left <= 1 ? RED : '#b45309' }}>{r.days_left}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
       </div>
     </div>
   );
@@ -623,6 +675,7 @@ export default function AdminAL() {
         {tab === 'finances' && <Finances />}
         {tab === 'settlements' && <Settlements />}
         {tab === 'members' && <Members />}
+        {tab === 'trials' && <Trials />}
         {tab === 'sharing' && <Sharing />}
         {tab === 'health' && <Health />}
       </div>

@@ -70482,6 +70482,64 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/trial-stats")
+def al_trial_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """7-day trial analytics: active trials (+ days-left buckets + expiring-soon
+    list), lapsed (didn't upgrade), new this week, and conversions (trial ->
+    lifetime, detected by the retained expiry timestamp grant-lifetime leaves).
+    Admin session OR MIGRATION_SECRET."""
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret == os.getenv("MIGRATION_SECRET", ""))):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from datetime import timedelta as _td
+    now = datetime.utcnow()
+    wk = now - _td(days=7)
+
+    def c(q):
+        try:
+            return int(q.scalar() or 0)
+        except Exception:
+            return 0
+
+    active = db.query(User).filter(User.access_level == "trial", User.is_active == True).all()  # noqa: E712
+    buckets = {"expiring_today": 0, "in_1_2_days": 0, "in_3_7_days": 0}
+    expiring_soon = []
+    for u in active:
+        exp = getattr(u, "membership_expires_at", None)
+        if not exp:
+            continue
+        dl = (exp - now).total_seconds() / 86400.0
+        if dl <= 1:
+            buckets["expiring_today"] += 1
+        elif dl <= 2:
+            buckets["in_1_2_days"] += 1
+        else:
+            buckets["in_3_7_days"] += 1
+        if dl <= 2:
+            expiring_soon.append({"username": u.username, "email": u.email,
+                                  "days_left": round(max(dl, 0), 1), "expires": str(exp)[:19]})
+    expiring_soon.sort(key=lambda x: x["days_left"])
+
+    active_count = len(active)
+    lapsed = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.is_active == False))  # noqa: E712
+    new_week = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.created_at >= wk))
+    converted = c(db.query(func.count(User.id)).filter(User.access_level == "lifetime", User.membership_expires_at.isnot(None)))
+    started_total = active_count + lapsed + converted
+    conv_rate = round(100.0 * converted / started_total, 1) if started_total else 0.0
+
+    return {
+        "ok": True, "as_of": str(now)[:19],
+        "active_trials": active_count,
+        "active_by_days_left": buckets,
+        "expiring_soon": expiring_soon[:40],
+        "lapsed_no_upgrade": lapsed,
+        "new_trials_this_week": new_week,
+        "converted_to_lifetime": converted,
+        "trials_started_total": started_total,
+        "conversion_rate_pct": conv_rate,
+    }
+
+
 @app.get("/admin/api/al/inspect-user")
 def al_inspect_user(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Trace a member's real state + how they got each pack (source tells us:
