@@ -362,7 +362,7 @@ export default function Register() {
                 lineHeight: 1.5,
               }}>
                 <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active member</div>
-                We'll connect you with one of our active Founding Partners — they're successful members of the platform and your point of contact.
+                We'll connect you with one of our active members — a successful member of the platform and your point of contact.
               </div>
             </div>
           ) : (
