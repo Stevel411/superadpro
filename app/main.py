@@ -1826,6 +1826,12 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
+    # AdvantageLife has no monthly membership, no per-referral monthly commission,
+    # and no Profit Grid — the SuperAdPro-era goal cards below are all false on AL.
+    # Suppress them until an AL-specific goal set is designed.
+    if getattr(brand_config, "IS_ADVANTAGELIFE", False):
+        return {"goals": [], "opportunities": []}
+
     goals = []
     opportunities = []
 
@@ -7652,14 +7658,9 @@ def register_process(
     # 3. In-app notification for sponsor
     if sponsor_id:
         try:
-            # Sponsor commission is flat $10 under flat-pricing (locked
-            # 15 May 2026) regardless of whether the referral is Partner
-            # ($20/mo) or Founding ($15/mo locked). Old logic showed
-            # $17.50 for 'pro' tier — that tier no longer exists.
-            commission = '$10.00'
             create_notification(db, sponsor_id, 'team',
                 f'{first_name} joined your team!',
-                f'{first_name} ({username}) just signed up through your referral link. You\'ll earn {commission}/month from this referral.',
+                f'{first_name} ({username}) just signed up through your referral link and started their free trial. When they upgrade and buy campaign packs, those sales pass to you — member to member.',
                 icon='🎉', link='/network')
         except Exception:
             pass
