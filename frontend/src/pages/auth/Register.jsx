@@ -256,7 +256,7 @@ export default function Register() {
         {refCode && (
           <div style={styles.refBadge}>
             {refIsRotatorPick ? (
-              <>🤝 You've been matched with <strong>{refCode}</strong> — an active Founder</>
+              <>🤝 You've been matched with <strong>{refCode}</strong> — an active member</>
             ) : (
               <>🤝 Referred by <strong>{refCode}</strong></>
             )}
@@ -361,7 +361,7 @@ export default function Register() {
                 color: 'rgba(255,255,255,.78)',
                 lineHeight: 1.5,
               }}>
-                <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active Founder</div>
+                <div style={{ fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>You'll be matched with an active member</div>
                 We'll connect you with one of our active Founding Partners — they're successful members of the platform and your point of contact.
               </div>
             </div>
