@@ -70504,25 +70504,47 @@ def al_trial_stats(request: Request, user: User = Depends(get_current_user), db:
     active = db.query(User).filter(User.access_level == "trial", User.is_active == True).all()  # noqa: E712
     buckets = {"expiring_today": 0, "in_1_2_days": 0, "in_3_7_days": 0}
     expiring_soon = []
+    signup_active = 0        # genuine new people via the trial link / normal signup
+    granted_active = 0       # trial landed on a pre-existing member (grants / claims)
+    signup_new_week = 0
+    signups_list = []
     for u in active:
         exp = getattr(u, "membership_expires_at", None)
-        if not exp:
-            continue
-        dl = (exp - now).total_seconds() / 86400.0
-        if dl <= 1:
-            buckets["expiring_today"] += 1
-        elif dl <= 2:
-            buckets["in_1_2_days"] += 1
+        created = getattr(u, "created_at", None)
+        # A new signup's account was created ~when the trial started (register
+        # runs _al_start_trial inline). A grant/claim lands a trial on an old
+        # account, so created_at is much earlier than the trial start.
+        is_signup = False
+        if exp and created:
+            trial_start = exp - _td(days=7)
+            if abs((created - trial_start).total_seconds()) < 86400 * 1.5:
+                is_signup = True
+        dl = (exp - now).total_seconds() / 86400.0 if exp else None
+        if dl is not None:
+            if dl <= 1:
+                buckets["expiring_today"] += 1
+            elif dl <= 2:
+                buckets["in_1_2_days"] += 1
+            else:
+                buckets["in_3_7_days"] += 1
+            if dl <= 2:
+                expiring_soon.append({"username": u.username, "email": u.email,
+                                      "days_left": round(max(dl, 0), 1), "expires": str(exp)[:19],
+                                      "from": "signup" if is_signup else "grant"})
+        if is_signup:
+            signup_active += 1
+            if created and created >= wk:
+                signup_new_week += 1
+            signups_list.append({"username": u.username, "email": u.email,
+                                 "joined": str(created)[:19] if created else None,
+                                 "days_left": round(max(dl, 0), 1) if dl is not None else None})
         else:
-            buckets["in_3_7_days"] += 1
-        if dl <= 2:
-            expiring_soon.append({"username": u.username, "email": u.email,
-                                  "days_left": round(max(dl, 0), 1), "expires": str(exp)[:19]})
+            granted_active += 1
     expiring_soon.sort(key=lambda x: x["days_left"])
+    signups_list.sort(key=lambda x: (x["joined"] or ""), reverse=True)
 
     active_count = len(active)
     lapsed = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.is_active == False))  # noqa: E712
-    new_week = c(db.query(func.count(User.id)).filter(User.access_level == "trial", User.created_at >= wk))
     # A real trial→lifetime conversion carries the trial's near-future expiry
     # (~now+7d). Grandfathered/permanent lifetimes are stamped 2099-12-31, so we
     # exclude that sentinel — otherwise every migrated lifetime looks "converted".
@@ -70536,10 +70558,13 @@ def al_trial_stats(request: Request, user: User = Depends(get_current_user), db:
     return {
         "ok": True, "as_of": str(now)[:19],
         "active_trials": active_count,
+        "from_trial_signups": signup_active,
+        "from_grants_or_claims": granted_active,
+        "signup_trials_this_week": signup_new_week,
         "active_by_days_left": buckets,
+        "trial_signups": signups_list[:50],
         "expiring_soon": expiring_soon[:40],
         "lapsed_no_upgrade": lapsed,
-        "new_trials_this_week": new_week,
         "converted_to_lifetime": converted,
         "trials_started_total": started_total,
         "conversion_rate_pct": conv_rate,

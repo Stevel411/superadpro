@@ -92,13 +92,22 @@ function Trials() {
   if (err) return <div style={{ padding: 22, color: RED, fontWeight: 700 }}>{err}</div>;
   if (!d) return <div style={{ padding: 22, color: MUTED, fontWeight: 600 }}>Loading…</div>;
   const b = d.active_by_days_left || {};
+  const signups = d.trial_signups || [];
+  const hd = { fontSize: 12, fontWeight: 800, color: MUTED, textTransform: 'uppercase', letterSpacing: '.06em', margin: '2px 0 10px' };
   return (
     <div style={{ padding: 18 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 18 }}>
-        <Stat n={d.active_trials ?? 0} l="Active trials" color={NAVY} />
-        <Stat n={d.new_trials_this_week ?? 0} l="New this week" color={RED} />
-        <Stat n={d.converted_to_lifetime ?? 0} l="Upgraded to lifetime" color={GREEN} />
+      <div style={hd}>Genuine trial-link signups — new people</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 22 }}>
+        <Stat n={d.from_trial_signups ?? 0} l="Trial signups (active)" color={NAVY} />
+        <Stat n={d.signup_trials_this_week ?? 0} l="New signups this week" color={RED} />
+        <Stat n={d.converted_to_lifetime ?? 0} l="Converted to paid" color={GREEN} />
         <Stat n={(d.conversion_rate_pct ?? 0) + '%'} l="Conversion rate" color={GREEN} />
+      </div>
+
+      <div style={hd}>Everything (includes the free upgrades you granted)</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 12, marginBottom: 22 }}>
+        <Stat n={d.active_trials ?? 0} l="All active trials" color={NAVY} />
+        <Stat n={d.from_grants_or_claims ?? 0} l="Granted / claimed" color={MUTED} />
         <Stat n={d.lapsed_no_upgrade ?? 0} l="Lapsed (no upgrade)" color={MUTED} />
       </div>
 
@@ -112,20 +121,21 @@ function Trials() {
       </div>
 
       <div style={{ background: '#fff', border: '1px solid ' + LINE, borderRadius: 14, padding: 18 }}>
-        <div style={{ fontWeight: 900, fontSize: 14, color: NAVY, marginBottom: 4 }}>Expiring soon — worth a nudge</div>
-        <div style={{ fontSize: 12, color: MUTED, marginBottom: 12 }}>Trials ending within 2 days. Reach out before their week's up.</div>
-        {(!d.expiring_soon || d.expiring_soon.length === 0)
-          ? <div style={{ fontSize: 13, color: MUTED, fontWeight: 600 }}>Nobody expiring in the next 2 days.</div>
+        <div style={{ fontWeight: 900, fontSize: 14, color: NAVY, marginBottom: 4 }}>Trial-link signups — the real ones</div>
+        <div style={{ fontSize: 12, color: MUTED, marginBottom: 12 }}>New people who signed up fresh — not your free upgrades. This is the trial link actually working.</div>
+        {signups.length === 0
+          ? <div style={{ fontSize: 13, color: MUTED, fontWeight: 600 }}>No genuine trial-link signups yet.</div>
           : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ textAlign: 'left', fontSize: 11, color: MUTED, textTransform: 'uppercase', letterSpacing: '.05em' }}>
-                <th style={{ padding: '6px 8px' }}>Member</th><th style={{ padding: '6px 8px' }}>Email</th><th style={{ padding: '6px 8px' }}>Days left</th></tr></thead>
+                <th style={{ padding: '6px 8px' }}>Member</th><th style={{ padding: '6px 8px' }}>Email</th><th style={{ padding: '6px 8px' }}>Joined</th><th style={{ padding: '6px 8px' }}>Days left</th></tr></thead>
               <tbody>
-                {d.expiring_soon.map((r, i) => (
+                {signups.map((r, i) => (
                   <tr key={i} style={{ borderTop: '1px solid ' + LINE }}>
                     <td style={{ padding: '8px', fontWeight: 800, color: NAVY }}>@{r.username}</td>
                     <td style={{ padding: '8px', color: MUTED, fontSize: 13 }}>{r.email}</td>
-                    <td style={{ padding: '8px', fontWeight: 800, color: r.days_left <= 1 ? RED : '#b45309' }}>{r.days_left}</td>
+                    <td style={{ padding: '8px', color: MUTED, fontSize: 13 }}>{r.joined ? new Date(r.joined).toLocaleDateString('en-GB') : '—'}</td>
+                    <td style={{ padding: '8px', fontWeight: 800, color: r.days_left <= 1 ? RED : NAVY }}>{r.days_left}</td>
                   </tr>
                 ))}
               </tbody>
