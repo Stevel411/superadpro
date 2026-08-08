@@ -37395,6 +37395,38 @@ def admin_migrate_canvas_bg(request: Request, user: User = Depends(get_current_u
     })
 
 
+@app.get("/api/diag/r2-test")
+def diag_r2_test(request: Request):
+    """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
+    and returns the real error if it fails. MIGRATION_SECRET or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    import traceback
+    out = {}
+    try:
+        import app.r2_storage as r2
+        out["r2_available"] = r2.r2_available()
+        out["account_id_set"] = bool(getattr(r2, "R2_ACCOUNT_ID", None))
+        out["access_key_set"] = bool(getattr(r2, "R2_ACCESS_KEY_ID", None))
+        out["secret_set"] = bool(getattr(r2, "R2_SECRET_ACCESS_KEY", None))
+        out["public_url"] = getattr(r2, "R2_PUBLIC_URL", None)
+        out["bucket"] = getattr(r2, "R2_BUCKET", None)
+        try:
+            url = r2.upload_image(b"hello-r2-test", "diag", "txt", "text/plain")
+            out["upload_ok"] = True
+            out["url"] = url
+        except Exception as e:
+            out["upload_ok"] = False
+            out["upload_error"] = f"{type(e).__name__}: {e}"
+            out["trace"] = traceback.format_exc()[-600:]
+    except Exception as e:
+        out["import_error"] = f"{type(e).__name__}: {e}"
+        out["trace"] = traceback.format_exc()[-600:]
+    return out
+
+
 @app.post("/api/funnels/upload-image")
 async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
