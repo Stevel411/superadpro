@@ -70482,6 +70482,61 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
             "broadcasts": log}
 
 
+@app.get("/admin/api/al/grant-grandfather-bundle")
+def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Bring lifetime members to the intended 'grandfather' state: free lifetime
+    + the first four packs ($10/$20/$50/$100). Idempotent — grants only the
+    packs a member is missing. &dryrun=1 shows who owns/misses what without
+    granting. Targets all lifetime members, or ?usernames=a,b. Admin session,
+    MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    unames = request.query_params.get("usernames")
+    if unames:
+        targets = []
+        for u in unames.split(","):
+            u = u.strip().lstrip("@")
+            if u:
+                row = db.query(User).filter(User.username == u).first()
+                if row:
+                    targets.append(row)
+    else:
+        targets = db.query(User).filter(User.access_level == "lifetime").all()
+    LEVELS = [10, 20, 50, 100]
+    packs_by_level = {}
+    for lvl in LEVELS:
+        packs_by_level[lvl] = db.query(CampaignPack).filter(
+            CampaignPack.level == lvl, CampaignPack.is_active == True).first()  # noqa: E712
+    members, granted_total = [], 0
+    for u in targets:
+        owned = {int(p.pack_level or 0) for p in db.query(PackPurchase).filter(
+            PackPurchase.user_id == u.id, PackPurchase.status == "active").all()}
+        missing = [l for l in LEVELS if l not in owned]
+        if dry:
+            members.append({"username": u.username, "owns": sorted(owned), "missing": missing})
+            continue
+        for lvl in missing:
+            pack = packs_by_level.get(lvl)
+            if pack:
+                db.add(PackPurchase(
+                    user_id=u.id, pack_id=pack.id, pack_level=pack.level,
+                    amount=0.0, payment_method="gift", status="active",
+                    source="grandfather", activated_at=datetime.utcnow(),
+                    created_at=datetime.utcnow()))
+                granted_total += 1
+        members.append({"username": u.username, "granted": missing})
+    if not dry:
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+    return {"ok": True, "dryrun": dry, "lifetime_members_checked": len(targets),
+            "packs_granted": granted_total, "members": members[:120]}
+
+
 @app.get("/admin/api/al/grant-audit")
 def al_grant_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Ground-truth audit: for each access level, how many members own which
