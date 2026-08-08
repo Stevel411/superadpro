@@ -54463,7 +54463,7 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
 # produces, so the threshold is set from evidence, not a guess. Members are
 # told this up-front (Steve: "make it clear... so nobody is surprised").
 
-SHARE_PAGE_SLOTS   = 8    # videos shown per share page
+SHARE_PAGE_SLOTS   = 12    # videos shown per share page
 SHARE_VIEW_SECONDS = 30   # watch time before a view counts — matches YouTube's
                           # view standard, so our CPM stays defensible.
 
