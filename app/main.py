@@ -7880,14 +7880,6 @@ async def api_reset_password(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "User not found."}, status_code=400)
     user.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     reset.used = True
-    # First claim by a never-paid member → hand them the 7-day free trial (full
-    # access + starter pack), so "set your password" becomes "start your free
-    # week", not a pay wall. Paid/grandfathered members keep their status.
-    try:
-        if (getattr(user, "access_level", "free") or "free") == "free":
-            _al_start_trial(db, user)
-    except Exception as _e:
-        logger.warning(f"trial-on-claim grant failed for user {getattr(user, 'id', None)}: {_e}")
     db.commit()
     return {"success": True, "message": "Password reset successfully. You can now log in."}
 @app.get("/login/2fa")
@@ -25546,13 +25538,6 @@ def reset_password_process(
     user.password = bcrypt.hashpw(
         password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
-
-    # First claim by a never-paid member → 7-day free trial (see api_reset_password).
-    try:
-        if (getattr(user, "access_level", "free") or "free") == "free":
-            _al_start_trial(db, user)
-    except Exception as _e:
-        logger.warning(f"trial-on-claim grant failed for user {getattr(user, 'id', None)}: {_e}")
 
     # Mark token as used
     reset.used = True
@@ -70480,6 +70465,61 @@ def al_drip_stats(request: Request, user: User = Depends(get_current_user), db: 
     return {"ok": True,
             "base": {"unclaimed": unclaimed, "claimed": claimed, "total": unclaimed + claimed},
             "broadcasts": log}
+
+
+@app.get("/admin/api/al/revert-granted-trials")
+def al_revert_granted_trials(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Undo trials that were GRANTED to pre-existing members (not earned via a
+    real trial-link signup). A granted trial sits on an account created well
+    before the trial started; a genuine signup's account is created at trial
+    start. Reverts matches to free + revokes their source='trial' packs. Genuine
+    signups and lifetime members are untouched. &dryrun=1 previews.
+    Admin, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    from datetime import timedelta as _td
+    trials = db.query(User).filter(User.access_level == "trial", User.is_active == True).all()  # noqa: E712
+    targets = []
+    for u in trials:
+        exp = getattr(u, "membership_expires_at", None)
+        created = getattr(u, "created_at", None)
+        if not (exp and created):
+            continue
+        trial_start = exp - _td(days=7)
+        # account created > 1.5 days before the trial started => it was GRANTED
+        # to a pre-existing member, not a fresh signup.
+        if (trial_start - created).total_seconds() > 86400 * 1.5:
+            targets.append(u)
+    rows = []
+    reverted = 0
+    packs_revoked = 0
+    for u in targets:
+        trial_packs = db.query(PackPurchase).filter(
+            PackPurchase.user_id == u.id, PackPurchase.source == "trial",
+            PackPurchase.status == "active").all()
+        if dry:
+            rows.append({"username": u.username, "email": u.email,
+                         "created": str(u.created_at)[:19],
+                         "trial_packs": [p.pack_level for p in trial_packs]})
+            continue
+        u.access_level = "free"
+        u.is_active = False
+        u.membership_expires_at = None
+        for p in trial_packs:
+            p.status = "reverted"
+            packs_revoked += 1
+        reverted += 1
+        rows.append({"username": u.username})
+    if not dry:
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+    return {"ok": True, "dryrun": dry, "would_revert" if dry else "reverted": len(targets),
+            "packs_revoked": (None if dry else packs_revoked), "members": rows[:120]}
 
 
 @app.get("/admin/api/al/audit-users")
