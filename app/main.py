@@ -37462,7 +37462,11 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
     # Try R2 first, fall back to local storage
     from app.r2_storage import r2_available, upload_image
     if r2_available():
-        url = upload_image(contents, "funnel-images", ext, file_content_type)
+        try:
+            url = upload_image(contents, "funnel-images", ext, file_content_type)
+        except Exception as e:
+            logger.error(f"R2 upload failed (funnel-images): {type(e).__name__}: {e}")
+            return JSONResponse({"error": "Image storage is temporarily unavailable — please try again shortly. (If this persists, the storage permissions need attention.)"}, status_code=503)
     else:
         upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
         os.makedirs(upload_dir, exist_ok=True)
