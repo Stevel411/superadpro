@@ -204,7 +204,10 @@ export default function Account() {
   // Joined = paid the $100 lifetime join OR grandfathered (access_level
   // 'lifetime'), OR an admin — admins bypass the join gate (is_al_member in
   // main.py). is_active covers members activated on any live rail.
-  var joined = (user.access_level === 'lifetime') || !!user.is_admin;
+  // Joined = any active member (free membership is the model now), a
+  // grandfathered lifetime/annual member, or an admin. Free members are
+  // is_active=true, so is_active is the join signal.
+  var joined = !!user.is_active || !!user.is_admin;
   var memberSince = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—';
 
   return (

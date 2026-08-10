@@ -83,9 +83,9 @@ export default function ReferralVideo() {
           </p>
           <div className="rv-vidwrap"><VideoPlayer src={VIDEO_URL} /></div>
           <div className="rv-trust">
-            <span>$100 once &mdash; lifetime access</span>
+            <span>Free to join</span>
             <span>No subscription</span>
-            <span>Full refund inside 7 days</span>
+            <span>Every tool included</span>
           </div>
         </div>
       </div>
@@ -93,15 +93,15 @@ export default function ReferralVideo() {
       <section className="rv-sec">
         <div className="rv-wrap">
           <div className="rv-eyebrow">What it costs</div>
-          <h2>One payment. That&rsquo;s the whole thing.</h2>
+          <h2>Nothing. It&rsquo;s free to join.</h2>
           <p className="rv-lede">
-            $100 gets you lifetime access to the platform and every tool on it. There is no
-            monthly membership, no renewal and nothing that recurs. If it isn&rsquo;t for you,
-            ask within 7 days and you get the full $100 back &mdash; no deductions.
+            Joining AdvantageLife is free and gets you every tool on the platform. There is no
+            membership fee, no subscription, no renewal and nothing that recurs. Earning starts
+            only when you create a campaign and buy a pack &mdash; entirely your choice.
           </p>
           <div className="rv-cards">
             <Card n="1" title="Nobody earns on your join"
-              body="No commission, bonus or override is paid on the $100. The person who invited you earns nothing from you signing up, so nobody has a reason to push you." />
+              body="No commission, bonus or override is paid when you join — it's free. The person who invited you earns nothing from you signing up, so nobody has a reason to push you." />
             <Card n="2" title="You own it for life"
               body="Access doesn't lapse and can't be cancelled out from under you. There is no tier to maintain and no bill arriving next month." />
             <Card n="3" title="Seven days to change your mind"
@@ -141,7 +141,7 @@ export default function ReferralVideo() {
             pays you directly, member to member. The platform never holds the money.
           </p>
           <div className="rv-big">
-            <h3>You pass up three sales. Three chains pay you back.</h3>
+            <h3>You keep most of your sales. Three pass up to your team.</h3>
             <p>
               Your 3rd, 6th and 9th sales go to a qualified member above you. Every other sale
               is yours, and from your 10th onward nothing is passed up again. In return, each of
@@ -180,7 +180,7 @@ export default function ReferralVideo() {
         <div className="rv-wrap">
           <h2>Ready when you are.</h2>
           <p className="rv-lede">
-            One payment, lifetime access, and a full refund if you change your mind inside a week.
+            Free to join, every tool included, and you only ever spend when you choose to buy a pack.
           </p>
           <a href={ctaUrl} className="rv-cta-lg">Join AdvantageLife</a>
           <p className="rv-fine">

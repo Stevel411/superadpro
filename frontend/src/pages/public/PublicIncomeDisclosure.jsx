@@ -42,10 +42,10 @@ export default function PublicIncomeDisclosure() {
           </Section>
 
           <Section title="Pack commission structure">
-            <p>AdvantageLife pays 100% of every VideoView pack sale to a member. Packs are bought and sold person to person, wallet to wallet — the platform does not take a cut and does not hold the money:</p>
+            <p>AdvantageLife pack sales are paid member to member, wallet to wallet — the platform does not hold the money. Across a member's sales, most of the value stays with members; the platform's only share is a recurring operational fee:</p>
             <CostBreakdown items={[
-              { pct: '100%', label: 'To a member', desc: 'The full pack price is paid directly by the buyer to the qualifying member. AdvantageLife takes no percentage.' },
-              { pct: '0%', label: 'To the platform', desc: 'The platform earns nothing from pack sales. Its income is the membership fee ($50 annual or $100 lifetime).' },
+              { pct: '10 of 11', label: 'To members', desc: 'Of every 11 sales a member makes, 7 are kept in full and 3 pass up to their qualifying upline — all paid directly, member to member.' },
+              { pct: '1 of 11', label: 'Operational fee', desc: 'The 3rd sale of each 11-sale cycle goes to the platform as an operational fee — funding hosting, the tools, and member support. It recurs every cycle.' },
             ]}/>
             <p style={{ fontSize: 14, color: 'rgba(200,220,255,0.55)', marginTop: 14 }}>
               Two conditions determine whether a member receives a commission, and both are disclosed to members before purchase.
@@ -72,16 +72,16 @@ export default function PublicIncomeDisclosure() {
                 ⚠ How the pass-up works — not an income claim
               </div>
               <p style={{ margin: 0 }}>
-                A member keeps their 1st and 2nd pack sales; their 3rd passes up to their sponsor. The same happens at the 6th and the 9th. From the 10th sale onward, every sale is theirs. A member earns only on a pack level they own themselves, and only while they meet the daily watch requirement. If either condition is unmet, the commission passes to the first qualifying member above them, or to the company. <strong style={{ color: '#0a1f52' }}>No income is promised, projected or implied. Many members earn nothing at all.</strong> What a member earns depends entirely on their own activity.
+                A member keeps their 1st, 2nd, 4th, 5th, 7th, 8th and 10th pack sales. The 3rd sale of each cycle is the platform's operational fee. The 6th, 9th and 11th pass up to the first qualifying member above them. This pattern repeats for every cycle of eleven sales, for as long as the member sells. A member earns only on a pack level they own themselves, and only while they meet the daily watch requirement. If either condition is unmet, the commission passes to the first qualifying member above them, or to the platform. <strong style={{ color: '#0a1f52' }}>No income is promised, projected or implied. Many members earn nothing at all.</strong> What a member earns depends entirely on their own activity.
               </p>
             </div>
           </Section>
 
-          <Section title="The joining fee pays no commission">
-            <p>AdvantageLife charges a membership fee for access to the platform and its tools — $50 for one year, or $100 for lifetime. This fee is paid to the platform. <strong>It generates no commission of any kind</strong> — the member who referred a new member earns nothing from that person joining:</p>
+          <Section title="Joining is free — and pays no commission">
+            <p>AdvantageLife is free to join. There is no membership fee and nothing to pay to open an account and use the tools. <strong>Joining generates no commission of any kind</strong> — the member who referred a new member earns nothing from that person joining:</p>
             <CostBreakdown items={[
-              { pct: '$0', label: 'To the referring member', desc: 'No commission, bonus or override is paid on the membership fee. Nobody earns from a signup.' },
-              { pct: 'Fee', label: 'To the platform', desc: 'The membership fee. Annual renews yearly; lifetime is a single payment. No pack or commission revenue goes to the platform.' },
+              { pct: '$0', label: 'To the referring member', desc: 'No commission, bonus or override is paid when someone joins. Nobody earns from a signup.' },
+              { pct: '$0', label: 'To join', desc: 'Joining is free. The platform funds itself from the recurring operational fee on sales — not from a joining charge.' },
             ]}/>
           </Section>
 
@@ -90,7 +90,7 @@ export default function PublicIncomeDisclosure() {
           </Section>
 
           <Section title={t('incomeDisclaimer.riskTitle', { defaultValue: 'Financial risk' })}>
-            <p>{t('incomeDisclaimer.body_L72', { defaultValue: 'Participating in AdvantageLife requires a membership ($50 annual or $100 lifetime), and earning from the compensation plan requires buying VideoView packs at your own expense. These are business expenses that you may not recover. Only spend what you can afford to lose. Do not treat platform activity as a guaranteed investment.' })}</p>
+            <p>{t('incomeDisclaimer.body_L72', { defaultValue: 'Joining AdvantageLife is free, but earning from the compensation plan requires buying VideoView packs at your own expense. These are business expenses that you may not recover. Only spend what you can afford to lose. Do not treat platform activity as a guaranteed investment.' })}</p>
           </Section>
 
           <Section title={t('incomeDisclaimer.complianceTitle', { defaultValue: 'Legal compliance' })}>

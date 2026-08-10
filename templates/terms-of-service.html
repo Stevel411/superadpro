@@ -48,11 +48,12 @@
         <div class="last-updated">Last updated: 22 July 2026</div>
 
         <div class="lede">
-            These terms govern your use of AdvantageLife. By creating an account, paying the one-time
-            join fee, or buying or selling a campaign pack, you agree to be bound by them.
-            AdvantageLife charges <strong>$100 once</strong> for lifetime access. There is no
-            subscription and nothing renews. Campaign packs are bought and sold
-            <strong>directly between members</strong> &mdash; we never hold that money.
+            These terms govern your use of AdvantageLife. By creating an account or buying or selling
+            a campaign pack, you agree to be bound by them. AdvantageLife is
+            <strong>free to join</strong> &mdash; there is no membership fee, subscription or renewal.
+            Campaign packs are bought and sold <strong>directly between members</strong> &mdash; we
+            never hold that money. The platform funds itself from a recurring operational fee on
+            sales, described in section&nbsp;7.
         </div>
 
         <h2>1. Who we are</h2>
@@ -64,7 +65,7 @@
         {% if trader.complete %}
         <p>
             AdvantageLife is a trading name of <strong>{{ trader.name }}</strong>, {{ trader.status }}.
-            Your $100 lifetime join is a contract with {{ trader.name }}. Address for service:
+            Your use of the platform is a contract with {{ trader.name }}. Address for service:
             {{ trader.address }}.
         </p>
         {% endif %}
@@ -82,15 +83,15 @@
             all accounts suspended and any unpaid commission entitlement forfeited.
         </p>
 
-        <h2>3. The $100 lifetime join</h2>
+        <h2>3. Joining is free</h2>
         <p>
-            Access to the platform costs <strong>$100, once</strong>. It is paid to us. It buys
-            lifetime access to the toolkit and does not expire.
+            Creating an account and using the toolkit is <strong>free</strong>. There is nothing to
+            pay to join, and access does not expire.
         </p>
         <ul>
-            <li><strong>There is no monthly membership, subscription or renewal.</strong> Nothing recurs, so there is nothing to cancel.</li>
+            <li><strong>There is no membership fee, subscription or renewal.</strong> Nothing recurs to join, so there is nothing to cancel.</li>
             <li><strong>No commission is paid on a join.</strong> Your sponsor earns nothing when you join &mdash; not a commission, not a bonus, not an override.</li>
-            <li>The join is refundable in full within 7 days. See the <a href="/refund-policy">Refund Policy</a>.</li>
+            <li>Earning from the compensation plan begins only when you create a campaign and buy a campaign pack (section&nbsp;5).</li>
         </ul>
         <p>
             You can pay by card (via Stripe) or in cryptocurrency. Pricing is shown in US dollars; card
@@ -121,14 +122,15 @@
 
         <h2>5. How campaign packs are paid for</h2>
         <p>
-            Campaign packs are sold <strong>100% member-to-member</strong>. The pack price is the
-            entire commission and passes directly from buyer to seller using the payment method the
-            seller has listed.
+            Campaign packs are sold <strong>directly member-to-member</strong>. The pack price is the
+            full commission and passes directly from buyer to seller using the payment method the
+            seller has listed. Most sales are paid to members; one sale in each cycle is the platform
+            operational fee described in section&nbsp;7.
         </p>
         <ul>
-            <li><strong>AdvantageLife never holds pack funds and takes no percentage of them.</strong></li>
+            <li><strong>AdvantageLife never holds pack funds.</strong> Every payment moves directly between the buyer and the member (or, for the operational-fee sale, directly to the platform's own account).</li>
             <li>Our role is to resolve who is due to be paid, lock that recipient at the point of sale, and record proof of payment.</li>
-            <li>Because the money never reaches us, <strong>pack purchases cannot be refunded by us</strong>. This is shown to you before you pay.</li>
+            <li>Because the money never reaches us to hold, <strong>pack purchases cannot be refunded by us</strong>. This is shown to you before you pay.</li>
         </ul>
         <p>
             You are transacting with another member. Confirm a sale only when you have actually
@@ -147,15 +149,25 @@
             watching means real views delivered. It is also the qualification gate for earning.
         </p>
 
-        <h2>7. The 3/6/9 pass-up</h2>
+        <h2>7. The recurring pass-up and the operational fee</h2>
         <p>
-            You keep sales <strong>1, 2, 4, 5, 7, 8 and every sale from the 10th onward</strong>. Your
-            <strong>3rd, 6th and 9th</strong> sales pass up to the first qualified member above you in
-            your pass-up chain.
+            Your sales run in repeating cycles of eleven. In each cycle you <strong>keep sales 1, 2,
+            4, 5, 7, 8 and 10</strong>. Your <strong>6th, 9th and 11th</strong> sales pass up to the
+            first qualified member above you in your pass-up chain. Your <strong>3rd</strong> sale is
+            the <strong>platform operational fee</strong>.
+        </p>
+        <p>
+            The operational fee is how AdvantageLife funds its ongoing running: the hosting and
+            infrastructure that keep the platform online, the tools members use, and member support.
+            It is not a membership charge and is never paid from your own pocket &mdash; it is a
+            single sale in each cycle, paid by the buyer directly to the platform's account. This
+            pattern <strong>repeats for every cycle of eleven sales</strong>, for as long as you sell,
+            so the operational fee is a recurring contribution to the platform's operating costs.
         </p>
         <ul>
-            <li>A <strong>direct sale</strong> where the recipient is not qualified goes to the company. It does not climb.</li>
-            <li>A <strong>pass-up</strong> climbs the chain until it reaches a qualified member. Only if nobody in the chain qualifies does it go to the company.</li>
+            <li>The <strong>3rd sale of every cycle</strong> is the operational fee and is paid to the platform. It does not climb the chain.</li>
+            <li>A <strong>direct sale</strong> (a sale you keep) where you are not qualified goes to the platform. It does not climb.</li>
+            <li>A <strong>pass-up</strong> (the 6th, 9th and 11th) climbs the chain until it reaches a qualified member. Only if nobody in the chain qualifies does it go to the platform.</li>
             <li>The sale counter increments when a sale is <strong>confirmed</strong>, not when it is started.</li>
         </ul>
         <p>
