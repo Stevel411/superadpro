@@ -110,7 +110,7 @@ export default function CampaignAnalytics() {
                   <div style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--sap-accent)' }}>{p.pct}%</div>
                 </div>
                 <div style={{ height: 10, background: '#eef1f8', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: Math.max(2, p.pct) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
+                  <div style={{ height: '100%', width: (p.pct > 0 ? Math.max(2, p.pct) : 0) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
                 </div>
               </div>
             );
