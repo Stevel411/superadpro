@@ -21,14 +21,14 @@ const CATS = [
 ];
 
 const SWIPES = [
-{ id:1, cat:'invite', title:'The tools-first intro', subject:'The toolkit I mentioned — $100, once',
+{ id:1, cat:'invite', title:'The tools-first intro', subject:'The toolkit I mentioned — free to join',
 body:`Hi {{name}},
 
 You asked what I'm using to run my marketing these days — here it is.
 
-It's called AdvantageLife. One payment of $100 and I have lifetime access: a page builder, email marketing, a blog, link tools — plus all the marketing materials.
+It's called AdvantageLife. It's free to open an account and I get the lot: a page builder, email marketing, a blog, link tools — plus all the marketing materials.
 
-Not $100 a month. $100 once. I was paying more than that every month across three separate subscriptions.
+No subscription, no monthly bill. I was paying more than that every month across three separate tools.
 
 The account is free to open, so you can look around properly before spending anything.
 
@@ -37,21 +37,21 @@ Here's my link: {{YOUR_LINK}}
 Happy to answer any questions.
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite the email below in my natural voice. Non-negotiables: $100 is ONE-TIME for LIFETIME access (never imply monthly), the account is free to open first, and it's a toolkit pitch — do NOT mention earning or commissions. My audience is [describe your list]. Under 130 words, no hype, one link placeholder.` },
+prompt:`Rewrite the email below in my natural voice. Non-negotiables: the account is FREE to open and use (never imply a fee or monthly charge), and it's a toolkit pitch — do NOT mention earning or commissions. My audience is [describe your list]. Under 130 words, no hype, one link placeholder.` },
 
 { id:2, cat:'invite', title:'The story angle', subject:'I cancelled three subscriptions last month',
 body:`Hi {{name}},
 
 Quick story. Last month I added up what I was paying for marketing tools — a page builder here, an email tool there, an AI subscription on top. It was embarrassing.
 
-So I moved everything to one platform: AdvantageLife. Pages, email, AI video and image creation, a blog, link tools. All of it for one payment of $100 — lifetime, no monthly bill.
+So I moved everything to one platform: AdvantageLife. Pages, email, AI video and image creation, a blog, link tools. All of it free to join — no monthly bill, no subscription.
 
-That was the bit that got me. I'd already spent more than $100 that month renting tools I didn't own.
+That was the bit that got me. I'd already spent a fortune that month renting tools I didn't own.
 
 You can open a free account and look before deciding anything: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this as my own story. The facts: I consolidated my marketing tools into AdvantageLife; my previous tools were [list yours]. Keep the "added up what I was paying" hook and the one-time-$100-vs-monthly-rental contrast. It is NOT a subscription — never say per month. Honest and conversational, soft link CTA, no earnings talk.` },
+prompt:`Rewrite this as my own story. The facts: I consolidated my marketing tools into AdvantageLife; my previous tools were [list yours]. Keep the "added up what I was paying" hook and the free-to-join-vs-monthly-rental contrast. It is NOT a subscription — never say per month, never imply a fee. Honest and conversational, soft link CTA, no earnings talk.` },
 
 { id:3, cat:'invite', title:'The advertising angle', subject:'Ads watched by real people (who can join your list)',
 body:`Hi {{name}},
@@ -74,7 +74,7 @@ body:`Hi {{name}},
 
 You asked how the earning side of AdvantageLife works. Here it is plainly, including the parts most people leave out.
 
-First, the honest bit: the $100 lifetime join earns me nothing. It goes to the platform. Nobody makes money from you joining.
+First, the honest bit: joining is free, and it earns me nothing. Nobody makes money from you joining.
 
 The earning happens on the advertising side. Members buy VideoView packs ($10 up to $1,000) and those sales are person-to-person — 100% of the pack price goes to a member. The company keeps none of it.
 
@@ -87,7 +87,7 @@ No screenshots from me — what you make depends entirely on what you do, and th
 Look at both sides here: {{YOUR_LINK}}
 
 {{YOUR_NAME}}`,
-prompt:`Rewrite this email in my voice. NON-NEGOTIABLE FACTS — do not change these numbers or soften them: (1) the $100 lifetime join pays the sponsor NOTHING, it goes to the platform; (2) pack sales are person-to-person and 100% of the pack price goes to a member; (3) packs run $10 to $1,000; (4) the 3/6/9 pass-up — keep sales 1 and 2, the 3rd passes up; same at 6 and 9; from the 10th on all sales are yours; (5) you only earn on a pack level you own, and you must watch your daily videos to stay qualified; (6) keep the "no screenshots / depends on what you do / disclaimer on the site" honesty and the tools-work-without-referring point. Audience: [describe]. Never invent earnings figures or timeframes.` },
+prompt:`Rewrite this email in my voice. NON-NEGOTIABLE FACTS — do not change these numbers or soften them: (1) joining is FREE and pays the sponsor NOTHING; (2) pack sales are person-to-person, paid member to member; (3) packs run $10 to $1,000; (4) the recurring pass-up runs in cycles of eleven — you keep sales 1,2,4,5,7,8,10; the 3rd is the platform operational fee; the 6th, 9th and 11th pass up; it repeats every cycle; (5) you only earn on a pack level you own, and you must watch your daily videos to stay qualified; (6) keep the "no screenshots / depends on what you do / disclaimer on the site" honesty and the tools-work-without-referring point. Audience: [describe]. Never invent earnings figures or timeframes.` },
 
 { id:5, cat:'welcome', title:'The expectation-setter', subject:'Welcome — here\\u2019s exactly what to expect',
 body:`Hi {{name}},
