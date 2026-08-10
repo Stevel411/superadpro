@@ -388,7 +388,6 @@ export default function NewDashboard() {
   const [memTier, setMemTier] = useState(null);      // {is_lifetime,is_annual} for the tier badge
   const [wisShare, setWisShare] = useState(false);
   const [tryCopied, setTryCopied] = useState(false);   // Test Drive link copied
-  const [trialCopied, setTrialCopied] = useState(false);   // Free-trial link copied
   const seenSalesRef = useRef(null);            // ids we've already alerted on
 
   // Play a short pleasant "cha-ching" using the Web Audio API (no asset needed)
@@ -493,7 +492,6 @@ export default function NewDashboard() {
   const watchedToday = !!w.watched_today;
   const refLink = 'https://www.advantagelife.club/ref/' + (user?.username || '');
   const tryLink = 'https://www.advantagelife.club/try/' + (user?.username || '');
-  const trialLink = 'https://www.advantagelife.club/trial/' + (user?.username || '');
   const thumb = feat ? ytThumb(feat.embed_url) : null;
 
   // Weekly showcase link — /w/{token}. Copying marks the share (analytics
@@ -585,10 +583,6 @@ export default function NewDashboard() {
 
   function copyTry() {
     try { navigator.clipboard.writeText(tryLink); setTryCopied(true); setTimeout(function () { setTryCopied(false); }, 1800); } catch (e) {}
-  }
-
-  function copyTrial() {
-    try { navigator.clipboard.writeText(trialLink); setTrialCopied(true); setTimeout(function () { setTrialCopied(false); }, 1800); } catch (e) {}
   }
 
   if (loading) return (<div className="al"><style>{CSS}</style><div className="loading">Loading your dashboard…</div></div>);

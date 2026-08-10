@@ -42,18 +42,15 @@ export default function Affiliate() {
   var [post, setPost] = useState('');
   var [copied, setCopied] = useState(false);
   var [tryCopied, setTryCopied] = useState(false);
-  var [trialCopied, setTrialCopied] = useState(false);
   var [postCopied, setPostCopied] = useState(false);
 
   var refLink = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club') + '/ref/' + (user ? user.username : '');
   var _origin = (typeof window !== 'undefined' ? window.location.origin : 'https://www.advantagelife.club');
   var tryLink = _origin + '/try/' + (user ? user.username : '');
-  var trialLink = _origin + '/trial/' + (user ? user.username : '');
   var selected = PLATFORMS.find(function(p) { return p.key === platform; }) || PLATFORMS[0];
 
   function copyRef() { navigator.clipboard.writeText(refLink); setCopied(true); setTimeout(function() { setCopied(false); }, 2000); }
   function copyTry() { navigator.clipboard.writeText(tryLink); setTryCopied(true); setTimeout(function() { setTryCopied(false); }, 2000); }
-  function copyTrial() { navigator.clipboard.writeText(trialLink); setTrialCopied(true); setTimeout(function() { setTrialCopied(false); }, 2000); }
 
   function generate() {
     setGenerating(true); setPost('');
@@ -94,11 +91,6 @@ export default function Affiliate() {
           <span style={{ fontSize: 12, fontWeight: 800, color: '#7fb0ff', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '.08em' }}>Test Drive</span>
           <span style={{ flex: 1, minWidth: 160, fontSize: 14, color: '#fff', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tryLink}</span>
           <button onClick={copyTry} style={{ background: tryCopied ? 'rgba(22,163,74,.9)' : 'linear-gradient(120deg,#12388f,#2563eb)', color: '#fff', padding: '8px 16px', borderRadius: 9, fontSize: 13, fontWeight: 900, border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{tryCopied ? t('socialShare.copied') : t('socialShare.copy')}</button>
-        </div>
-        <div style={{ marginTop: 10, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.14)', borderRadius: 11, padding: '11px 16px', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#4ade80', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '.08em' }}>Free Trial</span>
-          <span style={{ flex: 1, minWidth: 160, fontSize: 14, color: '#fff', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{trialLink}</span>
-          <button onClick={copyTrial} style={{ background: trialCopied ? 'rgba(22,163,74,.9)' : 'linear-gradient(120deg,#047857,#059669)', color: '#fff', padding: '8px 16px', borderRadius: 9, fontSize: 13, fontWeight: 900, border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{trialCopied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>

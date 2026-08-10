@@ -244,10 +244,10 @@ export default function Register() {
             <div style={{ fontSize: 26 }}>🎉</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', marginBottom: 3, letterSpacing: -.2 }}>
-                Your first 7 days are FREE
+                Join free — full access
               </div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#ffffff', opacity: .95, lineHeight: 1.45 }}>
-                Full access — create ads, do your daily watch, share your page. No card needed. Upgrade any time to keep going.
+                Create ads, do your daily watch, share your page. No card needed.
               </div>
             </div>
           </div>
