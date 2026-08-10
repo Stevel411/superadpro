@@ -364,13 +364,14 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
     # the pass-up chain; a direct/company-direct sale wires to the seller.
     if buyer.pass_up_sponsor_id is None:
         locked_type = (resolution or {}).get("type") if resolution else None
-        if locked_type in ("pass_up", "pass_up_company"):
+        if locked_type in ("pass_up", "pass_up_company", "operational_fee"):
             was_passup_slot = True
         elif locked_type in ("direct", "direct_company"):
             was_passup_slot = False
         else:
-            # No locked type (fresh resolve path) — fall back to counter slot.
-            was_passup_slot = ((seller.pack_sale_count or 0) + 1) in pe.PASSUP_POSITIONS
+            # No locked type (fresh resolve path) — fall back to the recurring
+            # cycle position for the seller's NEXT sale.
+            was_passup_slot = pe.leaves_seller(seller.pack_sale_count or 0)
         buyer.pass_up_sponsor_id = (seller.pass_up_sponsor_id
                                     if was_passup_slot else seller.id)
 

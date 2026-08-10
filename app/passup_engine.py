@@ -25,10 +25,35 @@ prove it before anything ships.
 
 from dataclasses import dataclass, field
 
-PASSUP_POSITIONS = {3, 6, 9}          # a member passes up exactly these sales
-SALE_TO_CHAIN    = {3: 1, 6: 2, 9: 3} # 3rd->Chain 1, 6th->Chain 2, 9th->Chain 3
-MAX_CASCADE_DEPTH = 500               # safety bound on the infinite climb
-COMPANY = "COMPANY"                   # sentinel: commission falls to the platform
+# ── RECURRING pass-up cycle (AdvantageLife operational model) ──────────────
+# The sale counter runs forever, but the pass-up pattern REPEATS every
+# CYCLE_LENGTH sales, so the platform earns continuously rather than once:
+#   position 3        -> the COMPANY   (operational fee — always, no climb)
+#   positions 6/9/11  -> pass up to the first qualified upline
+#   every other       -> the seller keeps it
+# So per 11-sale cycle: company 1, upline 3, seller 7 — repeating forever.
+CYCLE_LENGTH            = 11
+COMPANY_POSITION        = 3                 # 3rd of each cycle -> company fee
+UPLINE_PASSUP_POSITIONS = {6, 9, 11}        # climb to the first qualified upline
+# Positions where the sale LEAVES the seller (drives pass-up tree wiring):
+LEAVE_SELLER_POSITIONS  = {COMPANY_POSITION} | UPLINE_PASSUP_POSITIONS  # {3,6,9,11}
+CHAIN_OF                = {6: 1, 9: 2, 11: 3}  # display label for upline pass-ups
+MAX_CASCADE_DEPTH       = 500               # safety bound on the infinite climb
+COMPANY = "COMPANY"                         # sentinel: commission falls to the platform
+
+# Back-compat alias — some call sites still import this name.
+PASSUP_POSITIONS = LEAVE_SELLER_POSITIONS
+
+
+def cycle_position(pack_sale_count: int) -> int:
+    """1-based position (1..CYCLE_LENGTH) of the seller's NEXT sale within the
+    recurring cycle, given how many sales they've already made."""
+    return (pack_sale_count % CYCLE_LENGTH) + 1
+
+
+def leaves_seller(pack_sale_count: int) -> bool:
+    """True if the seller's NEXT sale leaves them (company fee or upline pass-up)."""
+    return cycle_position(pack_sale_count) in LEAVE_SELLER_POSITIONS
 
 
 @dataclass
@@ -57,9 +82,9 @@ def qualified(m: Member, pack_level: int) -> bool:
 # upward and makes the cascade infinite). Otherwise they flow to the sponsor.
 # ---------------------------------------------------------------------------
 def assign_pass_up_sponsor(members: dict, sponsor: Member, buyer: Member) -> None:
-    # This buyer becomes the sponsor's (count + 1)th sale — that is their slot.
-    slot = sponsor.pack_sale_count + 1
-    if slot in PASSUP_POSITIONS:
+    # A sale that LEAVES the seller (company fee or upline pass-up) re-wires the
+    # buyer upward, building the infinite cascade; a kept sale flows to the seller.
+    if cycle_position(sponsor.pack_sale_count) in LEAVE_SELLER_POSITIONS:
         buyer.pass_up_sponsor_id = sponsor.pass_up_sponsor_id  # inherit upward
     else:
         buyer.pass_up_sponsor_id = sponsor.id                  # flow to sponsor
@@ -89,25 +114,38 @@ def _first_qualified_upline(members: dict, start_id: str | None, pack_level: int
 # ---------------------------------------------------------------------------
 def resolve_payee(members: dict, buyer_sponsor_id: str, pack_level: int) -> dict:
     sponsor = members[buyer_sponsor_id]
-    sale_number = sponsor.pack_sale_count + 1
+    pos = cycle_position(sponsor.pack_sale_count)   # 1..CYCLE_LENGTH
+    sale_number = sponsor.pack_sale_count + 1        # lifetime number (for records)
 
-    if sale_number in PASSUP_POSITIONS:
+    # Position 3 of EVERY cycle -> the company operational fee. Always the
+    # company, no climb — nobody sits above the company.
+    if pos == COMPANY_POSITION:
+        return {"earner_id": COMPANY, "type": "operational_fee",
+                "sale_number": sale_number, "cycle_position": pos,
+                "chain": None, "pass_up_depth": 0}
+
+    # Positions 6/9/11 -> pass up to the first qualified upline (company only if
+    # the whole chain is unqualified).
+    if pos in UPLINE_PASSUP_POSITIONS:
         earner_id, depth = _first_qualified_upline(
             members, sponsor.pass_up_sponsor_id, pack_level)
         return {
             "earner_id": earner_id,
             "type": "pass_up" if earner_id != COMPANY else "pass_up_company",
             "sale_number": sale_number,
-            "chain": SALE_TO_CHAIN[sale_number],
+            "cycle_position": pos,
+            "chain": CHAIN_OF.get(pos),
             "pass_up_depth": depth,
         }
 
     # kept position -> direct sale. Unqualified sponsor -> COMPANY (no climb).
     if qualified(sponsor, pack_level):
         return {"earner_id": sponsor.id, "type": "direct",
-                "sale_number": sale_number, "chain": None, "pass_up_depth": 0}
+                "sale_number": sale_number, "cycle_position": pos,
+                "chain": None, "pass_up_depth": 0}
     return {"earner_id": COMPANY, "type": "direct_company",
-            "sale_number": sale_number, "chain": None, "pass_up_depth": 0}
+            "sale_number": sale_number, "cycle_position": pos,
+            "chain": None, "pass_up_depth": 0}
 
 
 # ---------------------------------------------------------------------------
