@@ -54731,7 +54731,7 @@ def public_share_page(token: str, db: Session = Depends(get_db)):
     title = (f"{sharer}'s video showcase" if sharer else "This week's video showcase")
     desc = ("Videos from independent creators and businesses — watch whatever "
             "interests you. Updated continuously.")
-    img = f"{base}/static/images/al-hero-bg.jpg"
+    img = f"{base}/static/og-showcase.jpg"
     url = f"{base}/w/{token}"
 
     def esc(v: str) -> str:
@@ -54745,6 +54745,11 @@ def public_share_page(token: str, db: Session = Depends(get_db)):
         f'<meta property="og:description" content="{esc(desc)}">'
         f'<meta property="og:url" content="{esc(url)}">'
         f'<meta property="og:image" content="{esc(img)}">'
+        f'<meta property="og:image:secure_url" content="{esc(img)}">'
+        f'<meta property="og:image:type" content="image/jpeg">'
+        f'<meta property="og:image:width" content="1200">'
+        f'<meta property="og:image:height" content="630">'
+        f'<meta property="og:image:alt" content="AdvantageLife Video Views — 100% Commissions">'
         f'<meta name="twitter:card" content="summary_large_image">'
         f'<meta name="twitter:title" content="{esc(title)}">'
         f'<meta name="twitter:description" content="{esc(desc)}">'
