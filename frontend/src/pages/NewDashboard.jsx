@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
+import LiveActivityFeed from '../components/LiveActivityFeed';
 
 // AdvantageLife dashboard — rebuilt 11 Jul 2026 to Steve's approved modern
 // light mockup: white page, floating navy sidebar, earnings hero with REAL
@@ -807,36 +808,7 @@ export default function NewDashboard() {
               </div>
 
               <div className="rightcol">
-              <div className="card lb cboard">
-                <div className="ch"><div><span className="ck">Team · {(board && board.month) || 'this month'}</span><h3>Referral Leaderboard</h3></div>
-                  <span className="live"><i></i> LIVE</span></div>
-              {board && board.leaders && board.leaders.length ? (
-                <div className="rows">
-                  {board.leaders.map(function (l) {
-                    return (
-                      <div key={l.rank} className={'r' + (l.rank <= 3 ? ' top' : '')}>
-                        <span className="rk">{l.rank}</span>
-                        <span className="who"><b>@{l.username}</b><span>{l.sales} sales · {l.referrals} direct referrals</span></span>
-                        <span className="amt">${Number(l.earned).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="empty">The board opens with the first confirmed sale of the month — every figure here is a real member-to-member payment.</div>
-              )}
-              <Link className="cbtn" to="/leaderboard">See full leaderboard →</Link>
-              </div>
-
-              <div className="card cteam">
-                <div className="ch"><div><span className="ck">Team</span><h3>Your network</h3></div>
-                  <Link className="go" to="/my-team">→</Link></div>
-                <div className="tm">
-                  <div className="box"><div className="n">{team}</div><div className="l">Team members</div></div>
-                  <div className="box"><div className="n">{activeTeam}</div><div className="l">Active</div></div>
-                </div>
-                <Link className="cbtn" to="/my-team">Open my team →</Link>
-              </div>
+                <LiveActivityFeed />
               </div>
             </div>
           </main>

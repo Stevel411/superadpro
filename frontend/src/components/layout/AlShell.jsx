@@ -53,6 +53,8 @@ const NAV = [
   { key: 'watch', label: 'Daily Watch', to: '/watch', link: true },
   { header: 'RUN YOUR BUSINESS' },
   { key: 'sales', label: 'Confirm a Sale', to: '/my-sales', link: false },
+  { key: 'team', label: 'My Team', to: '/my-team', link: true },
+  { key: 'leaderboard', label: 'Leaderboard', to: '/leaderboard', link: true },
   { key: 'ai-tools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'comp', label: 'Compensation Plan', to: '/compensation-plan', link: true },
