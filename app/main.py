@@ -25789,114 +25789,29 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     if not candidates:
         return None
 
-    # Score each campaign
+    # ── FAIR ROTATION (equity-based) ────────────────────────────────────────
+    # Package cost/tier plays NO role in how many views a campaign gets. Every
+    # eligible campaign is served purely by equity: whichever has received the
+    # FEWEST views so far is served next (random tiebreak among equals). Views
+    # spread evenly across every live campaign regardless of which pack it came
+    # from; a campaign only stops once it reaches the view target IT bought.
+    # Transparent one-line rule: "the next view goes to whoever has the fewest."
     import random
-    scored = []
+    eligible = []
     for c in candidates:
-        score = 0.0
-
-        # ── Priority boost (Elite tier 5+ gets priority queue placement) ──
-        priority = c.priority_level or 0
-        score += priority * 100  # strong boost for higher tiers
-
-        # ── View deficit score (campaigns furthest from target get priority) ──
-        target = c.views_target or 1
+        target = c.views_target or 0
         delivered = c.views_delivered or 0
-
-        # ── FIX #3: Monthly view cap enforcement ──
-        from .database import CAMPAIGN_TIER_FEATURES
-        # Defensive: campaigns without an owner_tier set should never reach
-        # this point (owner-tier filter earlier filters them out) but if
-        # they somehow did, skip rather than silently fall back to Tier 1.
-        if c.owner_tier is None or c.owner_tier < 0:
-            continue
-        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier, CAMPAIGN_TIER_FEATURES[1])
-        monthly_cap = tier_features.get("monthly_views", 500)
-        # Count views delivered this calendar month
-        from datetime import datetime
-        month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        monthly_views = db.query(func.count(VideoWatch.id)).filter(
-            VideoWatch.campaign_id == c.id,
-            VideoWatch.watched_at >= month_start,
-            VideoWatch.is_complete == True,  # noqa: E712
-        ).scalar() or 0
-        if monthly_views >= monthly_cap:
-            continue  # skip — monthly cap reached, don't show this campaign
-
-        # Skip campaigns that have hit their total view target
+        # A campaign drops out of rotation once it's had the views it paid for.
         if target > 0 and delivered >= target:
-            score -= 500  # heavily deprioritise completed campaigns
-        else:
-            pct_remaining = max(0, 1.0 - (delivered / target)) if target > 0 else 0.5
-            score += pct_remaining * 50
-
-        # ── Reach level (category/extended/full) ──
-        reach = tier_features.get("reach", "category")
-        if reach == "category" and c.category and watcher_interests:
-            # Category-only reach: penalty if no interest match
-            campaign_cat = (c.category or "").strip().lower()
-            if campaign_cat and campaign_cat not in watcher_interests:
-                score -= 15  # slight penalty for category mismatch on limited reach
-
-        # ── Geo targeting match (Advanced tier 4+) ──
-        if c.target_country and watcher_country:
-            target_countries = {t.strip().lower() for t in c.target_country.split(",") if t.strip()}
-            if target_countries and watcher_country in target_countries:
-                score += 30  # geo match bonus
-            elif target_countries:
-                score -= 20  # geo mismatch penalty (still shown, just deprioritised)
-
-        # ── Interest targeting match (Advanced tier 4+) ──
-        if c.target_interests and watcher_interests:
-            campaign_interests = {i.strip().lower() for i in c.target_interests.split(",") if i.strip()}
-            overlap = campaign_interests & watcher_interests
-            if overlap:
-                score += len(overlap) * 15  # bonus per matching interest
-            elif campaign_interests:
-                score -= 10  # slight penalty for no interest match
-
-        # ── Demographics targeting (Advanced tier 4+) ──
-        if c.target_gender and c.target_gender != "all":
-            watcher_gender = (watcher.gender or "").strip().lower() if watcher else ""
-            if watcher_gender and watcher_gender == c.target_gender:
-                score += 20  # gender match bonus
-            elif watcher_gender and watcher_gender != c.target_gender:
-                score -= 15  # gender mismatch penalty
-
-        if c.target_age_min or c.target_age_max:
-            watcher_age_range = (watcher.age_range or "").strip() if watcher else ""
-            if watcher_age_range:
-                # Parse age range midpoint (e.g. "25-34" → 29)
-                try:
-                    parts = watcher_age_range.replace("+", "-99").split("-")
-                    watcher_age_mid = (int(parts[0]) + int(parts[1])) // 2
-                    age_min = c.target_age_min or 0
-                    age_max = c.target_age_max or 99
-                    if age_min <= watcher_age_mid <= age_max:
-                        score += 20  # age match bonus
-                    else:
-                        score -= 15  # age mismatch penalty
-                except (ValueError, IndexError):
-                    pass
-
-        # ── Featured / Spotlight boost (Tier 6+/7+) ──
-        if getattr(c, 'is_spotlight', False):
-            score += 40  # spotlight campaigns get strong boost
-        elif getattr(c, 'is_featured', False):
-            score += 20  # featured campaigns get moderate boost
-
-        # ── Freshness bonus (newer campaigns get a small boost) ──
-        if c.created_at:
-            from datetime import datetime
-            age_days = (datetime.utcnow() - c.created_at).days
-            if age_days < 7:
-                score += (7 - age_days) * 3  # up to 21 points for brand new campaigns
-
-        scored.append((score, c))
-
-    # Sort by score descending with random tiebreaker so equal-scored campaigns rotate
-    scored.sort(key=lambda x: (x[0], random.random()), reverse=True)
-    return scored[0][1]
+            continue
+        eligible.append(c)
+    if not eligible:
+        # Everyone has already hit their target — fall back to the full pool so
+        # the watcher still has something to watch (stays earning-qualified).
+        eligible = candidates
+    # Fewest views first; random tiebreak so equal-count campaigns rotate evenly.
+    eligible.sort(key=lambda c: ((c.views_delivered or 0), random.random()))
+    return eligible[0]
 @app.get("/watch")
 def watch_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA. All quota/campaign data fetched client-side via /api/watch.
