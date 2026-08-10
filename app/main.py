@@ -2179,12 +2179,12 @@ footer a{color:#b9c8ef}
 _AL_PLAN = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The AdvantageLife Plan — Your effort. Your income. 100% yours.</title>
-<meta name="description" content="100% commission, member to member, on every campaign pack. Here's exactly how you get paid.">
+<title>The AdvantageLife Plan — Your effort. Your income.</title>
+<meta name="description" content="Sales are paid member to member, straight to your wallet. Here's exactly where every sale you make goes — the full 11-sale cycle, nothing hidden.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
-:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4;--grn:#0b7a3e}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#2ecc71;--grn2:#1f9d57;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;color:var(--ink);background:#f6f8fd}
 .bar{background:var(--navy);display:flex;align-items:center;gap:20px;padding:14px 24px}
@@ -2194,32 +2194,48 @@ body{font-family:'Inter',sans-serif;color:var(--ink);background:#f6f8fd}
 .bar .sp{flex:1}
 .bar a.back{color:#dbe6ff;font-weight:800;font-size:14px;text-decoration:none}
 .nb{background:var(--red);color:#fff;font-weight:900;font-size:14px;text-decoration:none;border-radius:11px;padding:12px 22px}
-.hero{background-image:linear-gradient(180deg,rgba(8,18,54,.66) 0%,rgba(8,18,54,.34) 45%,rgba(8,18,54,.55) 100%),url('/static/images/al-plan-bg.jpg'),url('/static/images/al-hero-bg.jpg');
-  background-size:cover,cover,cover;background-position:center;color:#fff;text-align:center;padding:64px 22px 70px}
+.hero{background-image:linear-gradient(180deg,rgba(8,18,54,.66) 0%,rgba(8,18,54,.34) 45%,rgba(8,18,54,.62) 100%),url('/static/images/al-plan-bg.jpg'),url('/static/images/al-hero-bg.jpg');
+  background-size:cover,cover,cover;background-position:center;color:#fff;text-align:center;padding:66px 22px 72px}
 .k{font-size:12px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:#ff5a70;margin-bottom:14px}
 h1{font-weight:900;font-size:clamp(36px,6.6vw,60px);letter-spacing:-2px;line-height:1.04;text-shadow:0 4px 26px rgba(0,0,0,.4)}
-.hsub{font-size:clamp(14.5px,2.2vw,18px);font-weight:600;color:#eaf0ff;max-width:600px;margin:20px auto 40px;line-height:1.6;text-shadow:0 2px 12px rgba(0,0,0,.4)}
-.vid{max-width:820px;margin:0 auto;background:rgba(10,25,70,.88);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:20px;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;box-shadow:0 40px 90px -30px rgba(2,8,30,.7)}
-.vid .play{width:86px;height:86px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;box-shadow:0 16px 40px -10px rgba(200,16,46,.8)}
-.vid .cap{font-size:11px;font-weight:800;letter-spacing:.22em;color:#8fa4d8;text-transform:uppercase}
-section{max-width:960px;margin:0 auto;padding:66px 22px}
+.hsub{font-size:clamp(14.5px,2.2vw,18px);font-weight:600;color:#eaf0ff;max-width:620px;margin:20px auto 0;line-height:1.6;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+section{max-width:960px;margin:0 auto;padding:60px 22px}
 .sk{font-size:12px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--red);text-align:center;margin-bottom:12px}
 h2{font-weight:900;font-size:clamp(26px,4.4vw,40px);letter-spacing:-1.3px;text-align:center;line-height:1.1;margin-bottom:14px}
-.lead{font-size:15px;font-weight:600;color:var(--dim);line-height:1.7;max-width:640px;margin:0 auto;text-align:center}
-.keepers{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:30px 0 8px}
-.kn{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;background:#fff;border:2px solid var(--line);color:var(--ink)}
-.kn.mine{background:#f0faf4;border-color:#8fd6a8;color:var(--grn)}
-.kn.up{background:#fdf2f4;border-color:#f3a8b8;color:var(--red)}
-.legend{display:flex;justify-content:center;gap:22px;font-size:12px;font-weight:800;margin-top:12px}
-.legend .g{color:var(--grn)}.legend .r{color:var(--red)}
-.card{background:#fff;border:2px solid var(--line);border-radius:20px;padding:clamp(22px,4vw,36px);margin-top:30px}
+.lead{font-size:15px;font-weight:600;color:var(--dim);line-height:1.7;max-width:660px;margin:0 auto;text-align:center}
+.lead b{color:var(--ink)}
+.cycle{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:9px;max-width:760px;margin:30px auto 0}
+.chip{border-radius:13px;padding:13px 6px;text-align:center;color:#fff}
+.chip .cn{font-size:21px;font-weight:900;line-height:1}
+.chip .ct{font-size:9px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-top:5px;opacity:.96}
+.chip.keep{background:var(--grn)}.chip.ops{background:var(--red)}.chip.up{background:var(--navy2)}
+.legend{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:18px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--navy)}
+.legend .ldot{width:13px;height:13px;border-radius:4px}
+.sum{display:flex;gap:12px;max-width:520px;margin:22px auto 0}
+.sc{flex:1;border-radius:15px;padding:17px 10px;text-align:center}
+.sc .big{font-size:30px;font-weight:900;line-height:1}
+.sc .lbl{font-size:10.5px;font-weight:800;margin-top:6px;letter-spacing:.04em}
+.sc.k{background:rgba(46,204,113,.13)}.sc.k .big,.sc.k .lbl{color:var(--grn2)}
+.sc.u{background:rgba(18,56,143,.1)}.sc.u .big,.sc.u .lbl{color:var(--navy2)}
+.sc.o{background:rgba(200,16,46,.1)}.sc.o .big,.sc.o .lbl{color:var(--red)}
+.card{background:#fff;border:2px solid var(--line);border-radius:20px;padding:clamp(22px,4vw,34px);margin-top:30px}
 .card h3{font-weight:900;font-size:19px;margin-bottom:10px}
 .card p{font-size:14px;font-weight:600;color:var(--dim);line-height:1.7}
 .card p b{color:var(--ink)}
-.packrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:22px}
-.pk{border:2px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
-.pk b{display:block;font-weight:900;font-size:16px}
-.pk span{font-size:10px;font-weight:700;color:var(--dim)}
+.ops-card{background:linear-gradient(135deg,#fff,#fff6f7);border-color:rgba(200,16,46,.22)}
+.ops-card h3{color:var(--red)}
+.repeat{display:flex;align-items:center;gap:13px;background:#f0f4fb;border-radius:15px;padding:15px 18px;margin-top:20px}
+.repeat .ic{font-size:23px}
+.repeat .tx{font-size:13.5px;color:#33415c;font-weight:600;line-height:1.5}
+.repeat .tx b{color:var(--navy);font-weight:800}
+table{width:100%;border-collapse:collapse;margin-top:18px}
+th{text-align:left;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);padding:0 10px 10px;border-bottom:1px solid var(--line)}
+th.num{text-align:right}
+td{padding:12px 10px;border-bottom:1px solid #f0f3f9;font-size:14px;color:var(--navy);font-weight:600}
+td.price{font-weight:800}
+td.num{text-align:right;font-weight:600;color:var(--dim)}
+.tbl-foot{font-size:12.5px;color:var(--dim);margin-top:14px;line-height:1.6}
 .gates{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
 @media(max-width:680px){.gates{grid-template-columns:1fr}}
 .gate{border:2px solid var(--line);border-radius:16px;padding:20px}
@@ -2229,7 +2245,7 @@ h2{font-weight:900;font-size:clamp(26px,4.4vw,40px);letter-spacing:-1.3px;text-a
 .honest h3{font-weight:900;font-size:19px;margin-bottom:10px}
 .honest p{font-size:14px;font-weight:600;color:#c9d6f7;line-height:1.75}
 .honest p b{color:#fff}
-.final{text-align:center;padding:20px 22px 90px}
+.final{text-align:center;padding:14px 22px 90px}
 .cta{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:16.5px;text-decoration:none;border-radius:13px;padding:18px 36px;box-shadow:0 18px 40px -12px rgba(200,16,46,.6)}
 .disc{font-size:11px;font-weight:600;color:#7c89ad;max-width:660px;margin:26px auto 0;line-height:1.7}
 footer{border-top:1.5px solid var(--line);padding:24px;text-align:center;font-size:12px;font-weight:700;color:var(--dim)}
@@ -2245,70 +2261,122 @@ footer a{color:var(--dim)}
 
 <div class="hero">
   <div class="k">The AdvantageLife Plan</div>
-  <h1>Your effort. Your income.<br>100% yours.</h1>
-  <div class="hsub">100% commission, member to member, on every campaign pack. Here's exactly how you get paid — watch it, or read it below.</div>
-  <div class="vid"><video controls preload="metadata" playsinline poster="" style="width:100%;height:100%;border-radius:20px;object-fit:cover;background:#0a1948" src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/AdvantageLife%20Business%20Plan.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/AdvantageLife%20Business%20Plan.mp4" style="color:#ff8090">Open it here.</a></video></div>
+  <h1>Your effort.<br>Your income.</h1>
+  <div class="hsub">Sales are paid member to member, straight to your wallet. Here's exactly where every sale you make goes — nothing hidden.</div>
 </div>
 
 <section>
-  <div class="sk">Step 1 · Your sales</div>
-  <h2>Get paid in full — and earn from your whole team</h2>
-  <div class="lead">Every campaign pack is bought member to member: the buyer pays the earning member <b>directly, wallet to wallet</b>. When it's your sale, it's your money — 100% of the pack price, the moment they pay. Nothing withheld, nothing to withdraw.</div>
-  <div class="keepers">
-    <span class="kn mine">1</span><span class="kn mine">2</span><span class="kn up">3</span><span class="kn mine">4</span><span class="kn mine">5</span><span class="kn up">6</span><span class="kn mine">7</span><span class="kn mine">8</span><span class="kn up">9</span><span class="kn mine">10+</span>
+  <div class="sk">The full cycle</div>
+  <h2>Every 11 sales</h2>
+  <div class="lead">This pattern repeats for as long as you keep selling. You <b>keep most</b>, three pass up to your team, and one funds the platform.</div>
+  <div class="cycle">
+    <div class="chip keep"><div class="cn">1</div><div class="ct">You</div></div>
+    <div class="chip keep"><div class="cn">2</div><div class="ct">You</div></div>
+    <div class="chip ops"><div class="cn">3</div><div class="ct">Ops</div></div>
+    <div class="chip keep"><div class="cn">4</div><div class="ct">You</div></div>
+    <div class="chip keep"><div class="cn">5</div><div class="ct">You</div></div>
+    <div class="chip up"><div class="cn">6</div><div class="ct">Pass-up</div></div>
+    <div class="chip keep"><div class="cn">7</div><div class="ct">You</div></div>
+    <div class="chip keep"><div class="cn">8</div><div class="ct">You</div></div>
+    <div class="chip up"><div class="cn">9</div><div class="ct">Pass-up</div></div>
+    <div class="chip keep"><div class="cn">10</div><div class="ct">You</div></div>
+    <div class="chip up"><div class="cn">11</div><div class="ct">Pass-up</div></div>
   </div>
-  <div class="legend"><span class="g">● yours, in full</span><span class="r">● passes up</span></div>
+  <div class="legend">
+    <span class="lg"><span class="ldot" style="background:#2ecc71"></span>You keep</span>
+    <span class="lg"><span class="ldot" style="background:#12388f"></span>Passes up to your upline</span>
+    <span class="lg"><span class="ldot" style="background:#c8102e"></span>Operational fee</span>
+  </div>
+  <div class="sum">
+    <div class="sc k"><div class="big">7</div><div class="lbl">YOU KEEP</div></div>
+    <div class="sc u"><div class="big">3</div><div class="lbl">PASS UP</div></div>
+    <div class="sc o"><div class="big">1</div><div class="lbl">OPERATIONS</div></div>
+  </div>
 </section>
 
 <section style="padding-top:0">
-  <div class="sk">Step 2 · The pass-up</div>
-  <h2>Three sales go up. Everyone's three come up to you.</h2>
-  <div class="lead">Your <b>3rd, 6th and 9th</b> sales pass up to the first qualified member above you. In return, every member in your team passes <b>their</b> 3rd, 6th and 9th up the same way — and their teams pass theirs, forever. Give three, receive from everyone below you. That's the whole engine.</div>
+  <div class="sk">Position 3</div>
+  <h2>The 3rd sale — your operational fee</h2>
+  <div class="card ops-card">
+    <h3>One sale in eleven keeps the lights on</h3>
+    <p>The 3rd sale of each cycle goes to the platform. It's what keeps AdvantageLife running — the hosting that keeps it online, the tools you use every day, and member support. There's <b>no separate subscription and nothing to pay from your pocket</b>: the platform funds itself from activity, so it can stay free to join and member-to-member on everything else.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="sk">Positions 6, 9 &amp; 11</div>
+  <h2>How pass-ups work</h2>
+  <div class="lead">Your <b>6th, 9th and 11th</b> sales pass up to the first qualified member above you — someone who owns that pack level or higher and has done their daily watch. That's the team-building engine: as your team sells, their pass-ups flow up to you too.</div>
   <div class="card">
-    <h3>Nine pack levels — earn at every level you own</h3>
-    <p>Pack price = the commission. You earn on sales at any level you <b>own or below</b> — own the $200 pack and a $200 sale pays you $200, member to member.</p>
-    <div class="packrow">
-      <div class="pk"><b>$10</b><span>1k views</span></div><div class="pk"><b>$20</b><span>2k views</span></div>
-      <div class="pk"><b>$50</b><span>4k views</span></div><div class="pk"><b>$100</b><span>8k views</span></div>
-      <div class="pk"><b>$200</b><span>15k views</span></div><div class="pk"><b>$400</b><span>30k views</span></div>
-      <div class="pk"><b>$600</b><span>50k views</span></div><div class="pk"><b>$800</b><span>80k views</span></div>
-      <div class="pk"><b>$1,000</b><span>120k views</span></div>
-    </div>
-    <p style="margin-top:16px;font-size:12.5px">Every pack is a real advertising product: your video, delivered to that many verified member views.</p>
+    <div class="repeat"><span class="ic">&#128257;</span><span class="tx"><b>It repeats.</b> After the 11th, the cycle starts again at sale 1. Keep selling, and you keep earning — cycle after cycle.</span></div>
   </div>
 </section>
 
 <section style="padding-top:0">
-  <div class="sk">Step 3 · Staying qualified</div>
-  <h2>Two simple gates keep it fair</h2>
+  <div class="sk">The product</div>
+  <h2>The packs</h2>
+  <div class="lead">Every pack is a real video-advertising campaign. The price is the full commission that moves member to member on each sale — own a level to earn on sales at that level or below.</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Pack</th><th class="num">Price</th><th class="num">Views</th><th class="num">Daily watch</th></tr></thead>
+      <tbody>
+{{PACK_ROWS}}
+      </tbody>
+    </table>
+    <p class="tbl-foot">Your watch quota follows the largest pack you own. A campaign runs until its views are delivered, then has a grace window before it expires.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="sk">Staying qualified</div>
+  <h2>Two simple gates</h2>
   <div class="lead">A sale only lands with you when both are true — otherwise it passes over you to the next qualified member above.</div>
   <div class="gates">
-    <div class="gate"><b>1 · Own the level</b><p>You earn at pack levels you own (or below). Skin in the game — nobody earns on a product they haven't bought.</p></div>
-    <div class="gate"><b>2 · Do your daily watch</b><p>Watch your daily campaign videos to stay earning-qualified (with a 48-hour grace window). Your watching is what makes every pack a real, delivered ad product.</p></div>
+    <div class="gate"><b>1 &middot; Own the level</b><p>You earn at pack levels you own (or below). Skin in the game — nobody earns on a product they haven't bought.</p></div>
+    <div class="gate"><b>2 &middot; Do your daily watch</b><p>Watch your daily campaign videos to stay earning-qualified (with a 48-hour grace window). Your watching is what makes every pack a real, delivered ad product.</p></div>
   </div>
   <div class="honest">
     <h3>The honest fine print — on the page, not buried</h3>
-    <p><b>Your join isn't a commission.</b> The Your membership ($50 annual or $100 lifetime) goes to the platform — your sponsor earns nothing on it. Income comes only from campaign pack sales.<br><br>
-    <b>Unqualified sales route to the platform.</b> If nobody in a chain qualifies for a sale, it goes to AdvantageLife — never silently redistributed.<br><br>
-    <b>You need a payout wallet on file.</b> Buyers pay you directly in USDT/USDC — no wallet means sales pass over you until you add one.</p>
+    <p><b>Joining is free.</b> Your sponsor earns nothing when you join — membership isn't a commissionable event.<br><br>
+    <b>The 3rd sale of each cycle is the platform's operational fee.</b> That's how AdvantageLife funds itself — there's no separate subscription, and every other sale stays member to member.<br><br>
+    <b>A pass-up with nobody qualified goes to the platform.</b> If a 6th, 9th or 11th sale finds no qualified member up the whole chain, it goes to AdvantageLife — never silently redistributed.<br><br>
+    <b>You need a receiving method on file.</b> Buyers pay you directly — no method saved means sales pass over you until you add one.</p>
   </div>
 </section>
 
 <div class="final">
-  <a class="cta" href="/join">Join AdvantageLife →</a>
+  <a class="cta" href="/join">Join AdvantageLife &rarr;</a>
   <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. This page describes the compensation structure — it makes no earnings promises. Results depend entirely on your own effort, consistency and sales. Most members should expect results proportional to the work they put in, and you can use every tool without earning at all.</div>
 </div>
 
-<footer>© AdvantageLife · advantagelife.club · <a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="/refund-policy">Refunds</a></footer>
+<footer>&copy; AdvantageLife &middot; advantagelife.club &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy-policy">Privacy</a> &middot; <a href="/refund-policy">Refunds</a></footer>
 </body></html>"""
 
 
 @app.get("/plan")
-def al_plan_page():
-    """The AdvantageLife compensation plan page (Steve's mockup, 10 Jul):
-    lifestyle hero + explainer-video slot + the 3-step plan with the 1-10
-    keeper strip, pack table, two gates, and the honest fine print."""
-    return HTMLResponse(_AL_PLAN)
+def al_plan_page(db: Session = Depends(get_db)):
+    """The AdvantageLife compensation plan page (public): the recurring
+    11-sale cycle (keep 7 / pass up 3 / operational fee 1), the operational-fee
+    explainer, pass-ups, the pack table, the two gates, and the honest fine
+    print. Pack rows are rendered live from campaign_packs so they can never
+    drift from what the engine actually sells."""
+    packs = (db.query(CampaignPack)
+               .filter(CampaignPack.is_active == True)
+               .order_by(CampaignPack.level).all())
+    rows = []
+    for p in packs:
+        price = float(p.price)
+        price_str = f"${price:,.0f}" if price == int(price) else f"${price:,.2f}"
+        views = f"{int(p.views_target or 0):,}"
+        watch = str(p.daily_watch_required) if p.daily_watch_required else "&mdash;"
+        rows.append(
+            f'        <tr><td>{_al_esc(p.name)}</td>'
+            f'<td class="price num">{price_str}</td>'
+            f'<td class="num">{views}</td>'
+            f'<td class="num">{watch}</td></tr>'
+        )
+    html = _AL_PLAN.replace("{{PACK_ROWS}}", "\n".join(rows))
+    return HTMLResponse(html)
 
 
 # White scrim over the lifestyle photo inside the Plan card, as a percentage.
