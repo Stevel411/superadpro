@@ -482,9 +482,10 @@ export default function NewDashboard() {
   const packList = ap.packs || [];
   const ownedLevel = Number(ap.owned_level || 0);
   const ownedPack = packList.find(function (p) { return p.level === ownedLevel; }) || null;
-  const saleCount = Number(ap.pack_sale_count || 0);
-  const nextSaleNo = saleCount + 1;
-  const nextPassesUp = nextSaleNo <= 9 && (nextSaleNo % 3 === 0);
+  const cycleCount = Number(ap.cycle_sale_count || 0);
+  const nextPos = cycleCount >= 11 ? 0 : cycleCount + 1;   // 0 = cycle complete, all yours
+  const nextIsOps = nextPos === 3;
+  const nextPassesUp = nextPos === 6 || nextPos === 9 || nextPos === 11;
   const confirmedSales = ((alSales || {}).sales || []).filter(function (x) { return x.status === 'confirmed'; });
   const earnedTotal = confirmedSales.reduce(function (a, x) { return a + Number(x.amount || 0); }, 0);
   const team = Number(d.total_team || 0);
@@ -734,7 +735,7 @@ export default function NewDashboard() {
                 <div className="lbl">Total earned — member to member</div>
                 <div className="big">{formatMoney(earnedTotal)}</div>
                 <div className="cap">Welcome back, {name} — {ownedPack ? ('earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : 'no pack yet'}</div>
-                <span className="pill">{saleCount} sales · next (#{nextSaleNo}) {nextPassesUp ? 'passes up' : 'yours — 100%'}</span>
+                <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
                 <div className="note"><i>ⓘ</i> Your own live figures — paid wallet-to-wallet, not a projection</div>
               </div>
               <div className="img"><span className="tag">FREEDOM HORIZON · ADVANTAGELIFE</span></div>

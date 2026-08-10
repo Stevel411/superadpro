@@ -203,6 +203,15 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
     db.add(purchase)
     db.flush()  # need purchase.id
 
+    # This activation starts the BUYER's own package cycle. Reset their pass-up
+    # counter to 0 so their next 11 sales run a fresh cycle (per-package model:
+    # every package a member activates re-arms one 11-sale cycle, then they keep
+    # 100% until the next activation). Independent of the seller's counter, which
+    # commit_sale increments below.
+    buyer_row = db.query(User).filter(User.id == intent.buyer_id).first()
+    if buyer_row is not None:
+        buyer_row.cycle_sale_count = 0
+
     # Flip the pre-created ad live so it enters the watch feed now that the sale
     # is confirmed. New flow parks it as 'draft', legacy as 'pending' — activate
     # either, and approve it for the showcase (pack-backed = legitimate).

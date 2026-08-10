@@ -272,7 +272,7 @@ def _member(db: Session, user_id, cache: dict):
         id=u.id,
         sponsor_id=u.sponsor_id,
         pass_up_sponsor_id=u.pass_up_sponsor_id,
-        pack_sale_count=u.pack_sale_count or 0,
+        cycle_sale_count=u.cycle_sale_count or 0,
         # EARNING eligibility requires a RUNNING AD, not just ownership. A pack
         # in 'needs_ad' (owned, no campaign submitted) does not count — the
         # member must be running a real advertising campaign at that level to
@@ -313,7 +313,7 @@ def resolve_payee(db: Session, seller_user_id: int, pack_level: int) -> dict:
         seller = pe.Member(
             id=seller.id, sponsor_id=seller.sponsor_id,
             pass_up_sponsor_id=seller.pass_up_sponsor_id,
-            pack_sale_count=(seller.pack_sale_count or 0) + open_intents,
+            cycle_sale_count=(seller.cycle_sale_count or 0) + open_intents,
             owned_level=seller.owned_level, watch_qualified=seller.watch_qualified,
         )
         cache[seller_user_id] = seller
@@ -371,11 +371,12 @@ def commit_sale(db: Session, buyer_user_id: int, pack_level: int,
         else:
             # No locked type (fresh resolve path) — fall back to the recurring
             # cycle position for the seller's NEXT sale.
-            was_passup_slot = pe.leaves_seller(seller.pack_sale_count or 0)
+            was_passup_slot = pe.leaves_seller(seller.cycle_sale_count or 0)
         buyer.pass_up_sponsor_id = (seller.pass_up_sponsor_id
                                     if was_passup_slot else seller.id)
 
-    seller.pack_sale_count = (seller.pack_sale_count or 0) + 1
+    seller.pack_sale_count = (seller.pack_sale_count or 0) + 1     # lifetime (records/stats)
+    seller.cycle_sale_count = (seller.cycle_sale_count or 0) + 1   # current package cycle (drives pass-up position; capped at 11 in the engine)
     res["_commission"] = _write_commission(db, purchase_id, buyer_user_id, res, pack_level, amount)
     if do_commit:
         db.commit()

@@ -25,13 +25,18 @@ prove it before anything ships.
 
 from dataclasses import dataclass, field
 
-# ── RECURRING pass-up cycle (AdvantageLife operational model) ──────────────
-# The sale counter runs forever, but the pass-up pattern REPEATS every
-# CYCLE_LENGTH sales, so the platform earns continuously rather than once:
+# ── Per-package pass-up cycle (AdvantageLife operational model) ─────────────
+# The cycle runs ONCE per package the member activates — it does NOT wrap.
+# Within a member's current package cycle, their first CYCLE_LENGTH (11) sales
+# follow the pattern:
 #   position 3        -> the COMPANY   (operational fee — always, no climb)
 #   positions 6/9/11  -> pass up to the first qualified upline
 #   every other       -> the seller keeps it
-# So per 11-sale cycle: company 1, upline 3, seller 7 — repeating forever.
+# So one cycle = company 1, upline 3, seller 7. From sale 12 on, the seller
+# keeps 100% of every further sale. The counter (cycle_sale_count) is reset to
+# 0 whenever the member activates a new package (a renewal or upgrade), which
+# starts a fresh cycle — so every package purchased re-arms one 11-sale cycle.
+# The counter driving this is the member's PER-CYCLE count, not a lifetime one.
 CYCLE_LENGTH            = 11
 COMPANY_POSITION        = 3                 # 3rd of each cycle -> company fee
 UPLINE_PASSUP_POSITIONS = {6, 9, 11}        # climb to the first qualified upline
@@ -45,15 +50,20 @@ COMPANY = "COMPANY"                         # sentinel: commission falls to the 
 PASSUP_POSITIONS = LEAVE_SELLER_POSITIONS
 
 
-def cycle_position(pack_sale_count: int) -> int:
-    """1-based position (1..CYCLE_LENGTH) of the seller's NEXT sale within the
-    recurring cycle, given how many sales they've already made."""
-    return (pack_sale_count % CYCLE_LENGTH) + 1
+def cycle_position(cycle_sale_count: int) -> int:
+    """1-based position (1..CYCLE_LENGTH) of the seller's NEXT sale within their
+    CURRENT package cycle. The cycle does NOT wrap: once the seller has made
+    CYCLE_LENGTH sales in this cycle, every further sale is a plain direct sale
+    (seller keeps 100%) until they activate a new package, which resets the
+    counter to 0. Returns 0 once the cycle is complete (sale 12+)."""
+    if cycle_sale_count >= CYCLE_LENGTH:
+        return 0
+    return cycle_sale_count + 1
 
 
-def leaves_seller(pack_sale_count: int) -> bool:
+def leaves_seller(cycle_sale_count: int) -> bool:
     """True if the seller's NEXT sale leaves them (company fee or upline pass-up)."""
-    return cycle_position(pack_sale_count) in LEAVE_SELLER_POSITIONS
+    return cycle_position(cycle_sale_count) in LEAVE_SELLER_POSITIONS
 
 
 @dataclass
@@ -61,7 +71,7 @@ class Member:
     id: str
     sponsor_id: str | None            # who referred them (placement tree)
     pass_up_sponsor_id: str | None = None  # where THEIR pass-ups flow (set at join)
-    pack_sale_count: int = 0          # confirmed sales they've made (all levels)
+    cycle_sale_count: int = 0          # confirmed sales they've made (all levels)
     owned_level: int = 0              # highest pack level they own ($). 0 = none
     watch_qualified: bool = False     # met the Watch-to-Earn requirement
 
@@ -84,7 +94,7 @@ def qualified(m: Member, pack_level: int) -> bool:
 def assign_pass_up_sponsor(members: dict, sponsor: Member, buyer: Member) -> None:
     # A sale that LEAVES the seller (company fee or upline pass-up) re-wires the
     # buyer upward, building the infinite cascade; a kept sale flows to the seller.
-    if cycle_position(sponsor.pack_sale_count) in LEAVE_SELLER_POSITIONS:
+    if cycle_position(sponsor.cycle_sale_count) in LEAVE_SELLER_POSITIONS:
         buyer.pass_up_sponsor_id = sponsor.pass_up_sponsor_id  # inherit upward
     else:
         buyer.pass_up_sponsor_id = sponsor.id                  # flow to sponsor
@@ -114,8 +124,8 @@ def _first_qualified_upline(members: dict, start_id: str | None, pack_level: int
 # ---------------------------------------------------------------------------
 def resolve_payee(members: dict, buyer_sponsor_id: str, pack_level: int) -> dict:
     sponsor = members[buyer_sponsor_id]
-    pos = cycle_position(sponsor.pack_sale_count)   # 1..CYCLE_LENGTH
-    sale_number = sponsor.pack_sale_count + 1        # lifetime number (for records)
+    pos = cycle_position(sponsor.cycle_sale_count)   # 1..CYCLE_LENGTH
+    sale_number = sponsor.cycle_sale_count + 1        # position in the current cycle (for the audit note)
 
     # Position 3 of EVERY cycle -> the company operational fee. Always the
     # company, no climb — nobody sits above the company.
@@ -157,7 +167,7 @@ def commit_sale(members: dict, buyer: Member, pack_level: int) -> dict:
     sponsor = members[buyer.sponsor_id]
     resolution = resolve_payee(members, sponsor.id, pack_level)  # uses count + 1
     assign_pass_up_sponsor(members, sponsor, buyer)              # wire buyer (slot = count + 1)
-    sponsor.pack_sale_count += 1                                 # commit the sale
+    sponsor.cycle_sale_count += 1                                 # commit the sale
     return {"buyer": buyer.id, "pack_level": pack_level, **resolution}
 
 
@@ -177,28 +187,37 @@ if __name__ == "__main__":
                    owned_level=1000, watch_qualified=True)
     members = {"Tom": tom, "Maria": maria}
 
-    print(f"Selling ten $%d packs, all referred by Maria:\n" % L)
-    print(f"{'Sale#':<6}{'Buyer':<8}{'-> earns':<10}{'type':<16}{'chain':<7}{'depth'}")
-    print("-" * 52)
-    for i in range(1, 11):
+    print(f"Maria sells fifteen $%d packs in ONE package cycle:\n" % L)
+    print(f"{'Sale#':<6}{'Buyer':<8}{'-> earns':<10}{'type':<18}{'chain':<7}{'depth'}")
+    print("-" * 54)
+    for i in range(1, 16):
         buyer = Member(f"b{i}", sponsor_id="Maria")
         members[buyer.id] = buyer
         rec = commit_sale(members, buyer, L)
         chain = rec["chain"] if rec["chain"] else "-"
         print(f"{rec['sale_number']:<6}{buyer.id:<8}{rec['earner_id']:<10}"
-              f"{rec['type']:<16}{str(chain):<7}{rec['pass_up_depth']}")
+              f"{rec['type']:<18}{str(chain):<7}{rec['pass_up_depth']}")
 
-    print("\nExpected: 1,2,4,5,7,8,10 -> Maria (direct); 3,6,9 -> Tom (pass_up, chains 1/2/3).\n")
+    print("\nExpected: 1,2,4,5,7,8,10 -> Maria (direct); 3 -> COMPANY (operational_fee);")
+    print("          6,9,11 -> Tom (pass_up, chains 1/2/3); 12,13,14,15 -> Maria (direct, kept 100%).\n")
+
+    # ---- Renewal test: package expires, Maria renews -> cycle resets to 0 ----
+    print("Renewal — Maria's package expires and she renews (cycle_sale_count -> 0):")
+    print(f"  Before renewal: cycle_sale_count = {maria.cycle_sale_count} (past the cycle, all direct)")
+    maria.cycle_sale_count = 0   # what a package activation does in the live engine
+    r = resolve_payee(members, "Maria", L)  # her NEXT sale after renewal
+    print(f"  First sale of the NEW cycle -> position {r['cycle_position']}, type {r['type']} "
+          f"(-> {r['earner_id']}). {'PASS' if r['cycle_position']==1 and r['type']=='direct' else 'FAIL'}\n")
 
     # ---- Gate test A: pass-up climbs PAST an unqualified upline ----
     print("Gate A — pass-up climbs past an unqualified upline:")
     #  Chain: buyer -> Kim(sponsor) -> Sue(not watch-qual) -> Ann(owns $1000, active)
     ann = Member("Ann", sponsor_id=None, pass_up_sponsor_id=None, owned_level=1000, watch_qualified=True)
     sue = Member("Sue", sponsor_id="Ann", pass_up_sponsor_id="Ann", owned_level=1000, watch_qualified=False)  # inactive
-    kim = Member("Kim", sponsor_id="Sue", pass_up_sponsor_id="Sue", owned_level=1000, watch_qualified=True, pack_sale_count=2)  # next sale = 3rd
+    kim = Member("Kim", sponsor_id="Sue", pass_up_sponsor_id="Sue", owned_level=1000, watch_qualified=True, cycle_sale_count=5)  # next sale = 6th (pass-up)
     g = {"Ann": ann, "Sue": sue, "Kim": kim}
     r = resolve_payee(g, "Kim", L)
-    print(f"  Kim's 3rd sale ($1000) -> {r['earner_id']} (type {r['type']}, depth {r['pass_up_depth']}) "
+    print(f"  Kim's 6th sale ($1000) -> {r['earner_id']} (type {r['type']}, depth {r['pass_up_depth']}) "
           f"— skipped Sue (not watch-qualified), landed on Ann. {'PASS' if r['earner_id']=='Ann' else 'FAIL'}\n")
 
     # ---- Gate test B: direct sale, sponsor doesn't own the level -> COMPANY ----

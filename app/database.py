@@ -366,7 +366,8 @@ class User(Base):
     course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
     # ── AdvantageLife model ──
     access_level        = Column(String, default="free", index=True)  # 'free' (pays $100 to join) or 'lifetime' ($100 join / grandfather gift)
-    pack_sale_count     = Column(Integer, default=0)              # AdvantageLife 3/6/9 pass-up counter (confirmed campaign-pack sales)
+    pack_sale_count     = Column(Integer, default=0)              # AdvantageLife LIFETIME confirmed campaign-pack sales (records/stats)
+    cycle_sale_count    = Column(Integer, default=0)              # sales in the member's CURRENT package cycle — drives pass-up position; resets to 0 on each package activation, caps at 11
     wallet_address      = Column(String, nullable=True)
     wallet_network      = Column(String, nullable=True)    # 'tron' (TRC-20) or 'bsc' (BEP-20). NULL for legacy users until they re-enter address.
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
@@ -4254,9 +4255,10 @@ try:
     with engine.connect() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS access_level VARCHAR DEFAULT 'free'"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS pack_sale_count INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS cycle_sale_count INTEGER DEFAULT 0"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_users_access_level ON users(access_level)"))
         conn.commit()
-        print("✅ access_level + pack_sale_count columns added/verified on users table")
+        print("✅ access_level + pack_sale_count + cycle_sale_count columns added/verified on users table")
 except Exception as e:
     print(f"⚠️ AdvantageLife user-columns migration failed: {e}")
 

@@ -74073,6 +74073,7 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
                 VideoCampaign.id.desc()).first()),
         "membership_active": _ale.membership_active(db, user.id),
         "pack_sale_count": user.pack_sale_count or 0,
+        "cycle_sale_count": user.cycle_sale_count or 0,
         "open_intent": _al_intent_json(db, open_intent, user.id) if open_intent else None,
     }
 
@@ -74751,20 +74752,31 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
         j["seller_note"] = m.get("seller_note") if m else None
         out.append(j)
 
-    # Pass-up standing, computed from the authoritative counter (not the 50-row
-    # window above — a member past 50 sales would miscount client-side).
-    # 3/6/9 rule: the NEXT sale is slot = count + 1. Slots 3,6,9 pass up; after
-    # the 9th, every sale is direct.
-    count = user.pack_sale_count or 0
-    next_slot = count + 1
-    if next_slot > 9:
-        passup = {"count": count, "next_slot": next_slot, "next_passes_up": False,
-                  "sales_until_passup": None, "all_direct": True}
+    # Pass-up standing for the member's CURRENT package cycle, from the
+    # authoritative per-cycle counter. Computed via the engine so it can't drift
+    # from how sales actually resolve: within a cycle, position 3 is the
+    # operational fee and 6/9/11 pass up; after 11 sales every further sale is
+    # 100% direct until the member activates a new package (which resets the
+    # cycle to 0).
+    from . import passup_engine as _pe
+    count = user.cycle_sale_count or 0
+    pos = _pe.cycle_position(count)          # 0 once the cycle is complete
+    if pos == 0:
+        passup = {"count": count, "next_position": None, "next_type": "direct",
+                  "next_passes_up": False, "sales_until_passup": None,
+                  "all_direct": True}
     else:
-        nxt = next(p for p in (3, 6, 9) if next_slot <= p)
-        passup = {"count": count, "next_slot": next_slot,
-                  "next_passes_up": next_slot in (3, 6, 9),
-                  "sales_until_passup": nxt - count, "all_direct": False}
+        if pos == _pe.COMPANY_POSITION:
+            next_type = "operational_fee"
+        elif pos in _pe.UPLINE_PASSUP_POSITIONS:
+            next_type = "pass_up"
+        else:
+            next_type = "direct"
+        leaves_ahead = sorted(p for p in _pe.UPLINE_PASSUP_POSITIONS if p >= pos)
+        passup = {"count": count, "next_position": pos, "next_type": next_type,
+                  "next_passes_up": pos in _pe.UPLINE_PASSUP_POSITIONS,
+                  "sales_until_passup": (leaves_ahead[0] - pos) if leaves_ahead else None,
+                  "all_direct": False}
     return {"sales": out, "passup": passup}
 
 
@@ -79066,6 +79078,10 @@ def al_reverse_sale(secret: str = "", intent_id: int = 0, apply: int = 0,
         commission.status = "reversed"
     if payee and (payee.pack_sale_count or 0) > 0:
         payee.pack_sale_count = payee.pack_sale_count - 1
+    # Also roll back the per-cycle counter so the payee's next pass-up position
+    # is correct after a reversal (mirror of commit_sale, which bumps both).
+    if payee and (payee.cycle_sale_count or 0) > 0:
+        payee.cycle_sale_count = payee.cycle_sale_count - 1
     intent.status = "reversed"
     try:
         db.execute(_t("INSERT INTO al_username_audit (user_id, from_name, to_name, source, stack) "
