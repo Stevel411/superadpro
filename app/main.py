@@ -77271,6 +77271,15 @@ def al_join_page(request: Request, ov: str = "", card: str = "", user: User = De
     ?ov=NN   (0-90)   background overlay strength. Lower = more photo.
     ?card=NN (55-100) card fill opacity. 100 = solid, lower frosts the card.
     Both preview live without a deploy."""
+    # Membership is FREE — the paid $50/$100 gateway is retired (Aug 2026). The
+    # /join page no longer sells membership; it routes to the free signup,
+    # preserving any referral. Logged-in members go straight to the dashboard.
+    # The old paid-join body below is retired and no longer reached.
+    if user:
+        return RedirectResponse(url="/dashboard", status_code=302)
+    _ref = request.query_params.get("ref", "") or request.cookies.get("ref", "")
+    return RedirectResponse(url=(("/register?ref=" + _ref) if _ref else "/register"),
+                            status_code=302)
     # Format for display without the destructive rstrip that turned "100" into "1":
     _raw_price = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
     price = str(int(_raw_price)) if _raw_price == int(_raw_price) else str(_raw_price)
