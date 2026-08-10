@@ -54521,6 +54521,46 @@ def record_activity(db: Session, event_type: str, user, amount=None, detail=None
         logger.warning(f"record_activity({event_type}) failed: {_e}")
 
 
+@app.get("/admin/api/al/activity-events-audit")
+def al_activity_events_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Cross-check every feed event against the actor's REAL current status, to
+    catch seeded events that don't reflect a genuine active member (e.g. a loose
+    backfill that labelled an inactive signup as a trial). &prune=1 deletes
+    join/trial events whose user is missing or not is_active — those never
+    represent a real active member. Sale events are left alone. Admin session,
+    MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    prune = request.query_params.get("prune") in ("1", "true", "yes")
+    rows = db.query(ActivityEvent).order_by(ActivityEvent.created_at.desc()).all()
+    out, to_delete = [], []
+    for e in rows:
+        u = db.query(User).filter(User.id == e.user_id).first() if e.user_id else None
+        bad = False
+        if e.event_type in ("join", "trial"):
+            # a real join/trial event must map to an existing, active member
+            if (u is None) or (not bool(getattr(u, "is_active", False))):
+                bad = True
+        rec = {"event_id": e.id, "type": e.event_type, "actor": e.actor_name,
+               "user_id": e.user_id,
+               "user_exists": bool(u),
+               "username": (u.username if u else None),
+               "access_level": (u.access_level if u else None),
+               "is_active": (bool(u.is_active) if u else None),
+               "flagged": bad}
+        out.append(rec)
+        if bad:
+            to_delete.append(e.id)
+    pruned = 0
+    if prune and to_delete:
+        pruned = db.query(ActivityEvent).filter(ActivityEvent.id.in_(to_delete)).delete(synchronize_session=False)
+        db.commit()
+    return {"ok": True, "prune": prune, "total_events": len(rows),
+            "flagged": len(to_delete), "pruned": pruned, "events": out[:120]}
+
+
 @app.get("/api/al/activity-feed")
 def api_al_activity_feed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """The live momentum feed: recent REAL events + today's stats bar. The
