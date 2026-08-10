@@ -54540,8 +54540,12 @@ def al_activity_events_audit(request: Request, user: User = Depends(get_current_
         u = db.query(User).filter(User.id == e.user_id).first() if e.user_id else None
         bad = False
         if e.event_type in ("join", "trial"):
-            # a real join/trial event must map to an existing, active member
+            # a real join/trial event must map to an existing, active member —
+            # and a "started a free trial" line must belong to an actual trial
+            # member (not a lifetime/annual/free account the backfill mislabelled)
             if (u is None) or (not bool(getattr(u, "is_active", False))):
+                bad = True
+            elif e.event_type == "trial" and getattr(u, "access_level", None) != "trial":
                 bad = True
         rec = {"event_id": e.id, "type": e.event_type, "actor": e.actor_name,
                "user_id": e.user_id,
@@ -54643,9 +54647,13 @@ def al_activity_backfill(request: Request, user: User = Depends(get_current_user
     seeded_joins, seeded_sales = 0, 0
     existing = {(e.user_id, e.event_type) for e in db.query(ActivityEvent.user_id, ActivityEvent.event_type).all()}
 
-    # Genuine recent signups → trial events (skip the migrated dormant base:
-    # only real accounts created in the last 21 days).
-    recent = db.query(User).filter(User.created_at >= since).order_by(User.created_at.desc()).limit(60).all()
+    # Genuine recent signups who are ACTUALLY active trial members → trial
+    # events (never the dormant/free base, never mislabel paid members).
+    recent = db.query(User).filter(
+        User.created_at >= since,
+        User.is_active == True,          # noqa: E712
+        User.access_level == "trial",
+    ).order_by(User.created_at.desc()).limit(60).all()
     for u in recent:
         if (u.id, "trial") in existing:
             continue
