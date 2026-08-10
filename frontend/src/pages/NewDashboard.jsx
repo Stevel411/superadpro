@@ -715,6 +715,8 @@ export default function NewDashboard() {
             <Link to="/watch">Daily Watch</Link>
             <div className="navhdr">RUN YOUR BUSINESS</div>
             <a href="/my-sales">Confirm a Sale</a>
+            <Link to="/my-team">My Team</Link>
+            <Link to="/leaderboard">Leaderboard</Link>
             <Link to="/ai-tools">Marketing Tools</Link>
             <Link to="/my-marketing">My Marketing</Link>
             <Link to="/compensation-plan">Compensation Plan</Link>
