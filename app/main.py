@@ -34,6 +34,7 @@ from . import stripe_service
 from . import brand_config
 from .database import StripeCharge
 from .database import ShareLink, ShareView
+from .database import ActivityEvent
 from .database import GridPlanFeedback
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
 from .database import AppConfig  # used by security-watch helpers (and others) at module scope
@@ -1294,6 +1295,8 @@ def _al_start_trial(db, user, days=7):
                 created_at=datetime.utcnow()))
     except Exception as e:
         logger.warning(f"trial pack grant failed for user {getattr(user, 'id', None)}: {e}")
+    # Momentum feed: a new member starting their free trial is a real join.
+    record_activity(db, "trial", user)
 
 
 def _safe_json(s):
@@ -54472,6 +54475,170 @@ def _get_or_create_share_link(db: Session, user: User) -> ShareLink:
     raise HTTPException(status_code=500, detail="Could not allocate share token")
 
 
+def _activity_actor_name(user) -> str:
+    """Friendly display name for the feed: first name if set, else @username."""
+    fn = (getattr(user, "first_name", None) or "").strip()
+    if fn:
+        return fn[:40]
+    un = (getattr(user, "username", None) or "member").strip()
+    return (f"@{un}")[:40]
+
+
+def _activity_location(user):
+    """Snapshot 'City, Country' for the feed, from GeoIP-populated fields."""
+    city = (getattr(user, "display_city", None) or "").strip()
+    country = (getattr(user, "country", None) or "").strip()
+    if city and country:
+        return f"{city}, {country}"[:80]
+    return (country or city or None)
+
+
+def record_activity(db: Session, event_type: str, user, amount=None, detail=None, commit=True):
+    """Record a REAL momentum-feed event (join, trial, sale, qualify, share,
+    milestone). Best-effort: it must NEVER break the real action it's logging,
+    so it swallows any error. With commit=True it persists its own row (call it
+    after the caller's own commit); with commit=False it just joins the caller's
+    open transaction (use inside a flow that will commit later)."""
+    try:
+        ev = ActivityEvent(
+            event_type=event_type,
+            user_id=getattr(user, "id", None),
+            actor_name=_activity_actor_name(user),
+            location=_activity_location(user),
+            amount=amount,
+            detail=((detail or "")[:160] or None),
+            created_at=datetime.utcnow(),
+        )
+        db.add(ev)
+        if commit:
+            db.commit()
+    except Exception as _e:
+        if commit:
+            try:
+                db.rollback()
+            except Exception:
+                pass
+        logger.warning(f"record_activity({event_type}) failed: {_e}")
+
+
+@app.get("/api/al/activity-feed")
+def api_al_activity_feed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The live momentum feed: recent REAL events + today's stats bar. The
+    viewer's own events render as 'You' and are flagged for highlighting."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    now = datetime.utcnow()
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def ago(dt):
+        if not dt:
+            return ""
+        s = (now - dt).total_seconds()
+        if s < 60:
+            return "just now"
+        if s < 3600:
+            return f"{int(s // 60)}m"
+        if s < 86400:
+            return f"{int(s // 3600)}h"
+        return f"{int(s // 86400)}d"
+
+    # label, kind (icon/colour), is_new_badge
+    TEXT = {
+        "join":    ("just joined", "join", True),
+        "trial":   ("started a free trial", "trial", True),
+        "sale":    (None, "sale", False),
+        "qualify": ("qualified for today", "qualify", False),
+        "share":   ("shared their showcase", "share", False),
+        "milestone": (None, "milestone", False),
+    }
+    rows = db.query(ActivityEvent).order_by(ActivityEvent.created_at.desc()).limit(40).all()
+    events = []
+    for r in rows:
+        is_you = (r.user_id == user.id)
+        name = "You" if is_you else (r.actor_name or "A member")
+        label, kind, is_new = TEXT.get(r.event_type, ("did something", "misc", False))
+        if r.event_type == "sale":
+            amt = int(r.amount or 0)
+            text_ = f"sold a ${amt} pack"
+        elif r.event_type == "milestone":
+            text_ = r.detail or "hit a milestone"
+        else:
+            text_ = label
+        events.append({
+            "id": r.id, "name": name, "text": text_, "kind": kind,
+            "location": (None if is_you else r.location),
+            "ago": ago(r.created_at),
+            "amount": (int(r.amount) if (r.event_type == "sale" and r.amount) else None),
+            "is_you": is_you, "is_new": bool(is_new and not is_you),
+        })
+
+    def c(q):
+        try:
+            return int(q.scalar() or 0)
+        except Exception:
+            return 0
+    joins_today = c(db.query(func.count(ActivityEvent.id)).filter(
+        ActivityEvent.event_type.in_(["join", "trial"]), ActivityEvent.created_at >= day_start))
+    sold_today = c(db.query(func.coalesce(func.sum(ActivityEvent.amount), 0)).filter(
+        ActivityEvent.event_type == "sale", ActivityEvent.created_at >= day_start))
+    active_today = c(db.query(func.count(func.distinct(ActivityEvent.user_id))).filter(
+        ActivityEvent.created_at >= day_start))
+    return {"ok": True, "events": events,
+            "stats": {"joins_today": joins_today, "sold_today": sold_today, "active_today": active_today}}
+
+
+@app.get("/admin/api/al/activity-backfill")
+def al_activity_backfill(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Seed the feed with REAL recent history so it isn't empty at launch:
+    genuine signups from the last 21 days (as trial/join events) and real paid
+    pack sales (as sale events). Idempotent — skips users/sales already seeded.
+    &dryrun=1 previews. Admin session, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    from datetime import timedelta as _td
+    since = datetime.utcnow() - _td(days=21)
+    seeded_joins, seeded_sales = 0, 0
+    existing = {(e.user_id, e.event_type) for e in db.query(ActivityEvent.user_id, ActivityEvent.event_type).all()}
+
+    # Genuine recent signups → trial events (skip the migrated dormant base:
+    # only real accounts created in the last 21 days).
+    recent = db.query(User).filter(User.created_at >= since).order_by(User.created_at.desc()).limit(60).all()
+    for u in recent:
+        if (u.id, "trial") in existing:
+            continue
+        seeded_joins += 1
+        if not dry:
+            db.add(ActivityEvent(event_type="trial", user_id=u.id,
+                                 actor_name=_activity_actor_name(u), location=_activity_location(u),
+                                 created_at=u.created_at or datetime.utcnow()))
+
+    # Real paid pack sales → sale events (amount > 0; excludes $0 grants/trials).
+    real_sales = db.query(PackPurchase).filter(PackPurchase.amount > 0,
+                                               PackPurchase.status == "active").order_by(
+        PackPurchase.created_at.desc()).limit(60).all()
+    for p in real_sales:
+        if (p.user_id, "sale") in existing:
+            continue
+        owner = db.query(User).filter(User.id == p.user_id).first()
+        if not owner:
+            continue
+        seeded_sales += 1
+        if not dry:
+            db.add(ActivityEvent(event_type="sale", user_id=owner.id,
+                                 actor_name=_activity_actor_name(owner), location=_activity_location(owner),
+                                 amount=float(p.amount or 0),
+                                 created_at=p.created_at or datetime.utcnow()))
+    if not dry:
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+    return {"ok": True, "dryrun": dry, "seeded_join_events": seeded_joins, "seeded_sale_events": seeded_sales}
+
+
 def _rotate_share_campaigns(db: Session, exclude_user_id=None):
     """Pick the campaigns for one page render, weighted by pack level.
 
@@ -54588,6 +54755,17 @@ def api_share_mark_shared(user: User = Depends(get_current_user),
     link.last_shared_at = datetime.utcnow()
     link.share_count = (link.share_count or 0) + 1
     db.commit()
+    # Momentum feed: only record the FIRST share per member per day, so a member
+    # tapping repeatedly doesn't spam the feed.
+    try:
+        _since = datetime.utcnow() - timedelta(hours=20)
+        _recent = db.query(ActivityEvent.id).filter(
+            ActivityEvent.user_id == user.id, ActivityEvent.event_type == "share",
+            ActivityEvent.created_at >= _since).first()
+        if not _recent:
+            record_activity(db, "share", user)
+    except Exception:
+        pass
     return {"ok": True, "url": f"/w/{link.token}", "share_count": link.share_count}
 
 
@@ -56285,6 +56463,10 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
             quota.last_quota_met = today_str
             quota.consecutive_missed = 0
             quota.commissions_paused = False
+            # Momentum feed: member just became qualified for today (fires once
+            # per day — later watches are blocked earlier). Join the caller's
+            # transaction rather than committing mid-flow.
+            record_activity(db, "qualify", user, commit=False)
 
         # Increment campaign views delivered
         campaign.views_delivered = (campaign.views_delivered or 0) + 1
@@ -74321,6 +74503,13 @@ async def al_confirm_intent(intent_id: int,
     if intent.status not in ("pending", "proof_submitted"):
         return JSONResponse({"error": f"Intent is {intent.status}"}, status_code=400)
     result = _als.confirm(db, intent.id, confirmed_by=user.id)
+    # Momentum feed: record the pack sale, credited to the member who earned it.
+    try:
+        _earner = db.query(User).filter(User.id == intent.earner_id).first() if intent.earner_id else None
+        if _earner:
+            record_activity(db, "sale", _earner, amount=float(intent.amount or 0))
+    except Exception:
+        pass
     buyer = db.query(User).filter(User.id == intent.buyer_id).first()
     try:
         db.add(Notification(user_id=intent.buyer_id, type="al_pack",
@@ -79011,6 +79200,13 @@ def al_admin_resolve_dispute(intent_id: int, outcome: str = "", apply: int = 0,
         intent.status = "proof_submitted"  # confirm() requires an open state
         db.commit()
         result = _als.confirm(db, intent.id, confirmed_by=user.id)
+    # Momentum feed: record the pack sale, credited to the member who earned it.
+    try:
+        _earner = db.query(User).filter(User.id == intent.earner_id).first() if intent.earner_id else None
+        if _earner:
+            record_activity(db, "sale", _earner, amount=float(intent.amount or 0))
+    except Exception:
+        pass
         return JSONResponse({"applied": True, **result})
     intent.status = "cancelled"
     intent.notes = ((intent.notes or "") + f" | admin-cancelled {datetime.utcnow().isoformat()}")[:2000]

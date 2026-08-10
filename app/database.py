@@ -1215,6 +1215,26 @@ class ShareView(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
 
 
+class ActivityEvent(Base):
+    """A single momentum-feed event — a join, trial start, pack sale,
+    daily qualification, showcase share, or milestone. Written the moment it
+    happens; read back by the live activity feed on the dashboard.
+
+    Actor name and location are stored as a SNAPSHOT at write time so the feed
+    renders fast (no per-row user join) and stays accurate even if the member
+    later changes their profile. Only ever records REAL events — nothing here
+    is fabricated."""
+    __tablename__ = "activity_events"
+    id          = Column(Integer, primary_key=True, index=True)
+    event_type  = Column(String(24), index=True)     # join|trial|sale|qualify|share|milestone
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    actor_name  = Column(String(80))                 # snapshot e.g. "Sarah M."
+    location    = Column(String(80), nullable=True)  # snapshot e.g. "London, UK"
+    amount      = Column(Float, nullable=True)       # for sales
+    detail      = Column(String(160), nullable=True) # pack name / milestone text
+    created_at  = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 class MembershipRenewal(Base):
     """Tracks monthly membership renewal status per member."""
     __tablename__ = "membership_renewals"
@@ -2484,6 +2504,8 @@ def run_migrations():
         # balance if available, this column simply makes that controllable.
         "ALTER TABLE membership_renewals ADD COLUMN IF NOT EXISTS auto_renew_from_balance BOOLEAN DEFAULT TRUE",
         "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS activity_events (id SERIAL PRIMARY KEY, event_type VARCHAR(24), user_id INTEGER REFERENCES users(id), actor_name VARCHAR(80), location VARCHAR(80), amount FLOAT, detail VARCHAR(160), created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS ix_activity_events_created_at ON activity_events (created_at DESC)",
         # SECURITY (4 Jun 2026, post-breach): append-only record that a
         # specific withdrawal was released by an admin via 2FA. The send path
         # (process_withdrawal) REFUSES to broadcast without a matching row, so
