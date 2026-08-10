@@ -1299,6 +1299,28 @@ def _al_start_trial(db, user, days=7):
     record_activity(db, "trial", user)
 
 
+def _al_join_free(db, user):
+    """Turn a fresh signup into a full-access FREE member — the AdvantageLife
+    model since the paid membership was retired. Free members get every tool
+    immediately (is_active=True, no expiry, no paywall). They do NOT get a pack:
+    the affiliate plan / earning starts only when they create a campaign and
+    select a package, exactly as the settlement flow requires. No trial, nothing
+    to pay, nothing that expires."""
+    user.is_active = True
+    user.access_level = "free"
+    user.membership_expires_at = None
+    try:
+        user.membership_tier = "free"
+    except Exception:
+        pass
+    try:
+        db.flush()  # ensure user.id exists before recording activity
+    except Exception:
+        pass
+    # Momentum feed: a new member joining is a real event.
+    record_activity(db, "join", user)
+
+
 def _safe_json(s):
     """Safely parse a JSON string column into a list. Returns [] if the
     column is null, empty, or contains malformed JSON.
@@ -7582,7 +7604,7 @@ def register_process(
     if signup_country_name:
         user.display_city = signup_country_name
 
-    _al_start_trial(db, user)   # 7-day full-access trial + starter pack
+    _al_join_free(db, user)   # free full-access member (no trial, no pack)
 
     # Assign pass-up sponsor for course commission chain
     if sponsor_id:
@@ -40614,7 +40636,7 @@ async def api_register(
         if signup_country_name:
             user.display_city = signup_country_name
 
-        _al_start_trial(db, user)   # 7-day full-access trial + starter pack
+        _al_join_free(db, user)   # free full-access member (no trial, no pack)
 
         # Assign pass-up sponsor for course commission chain
         if sponsor_id:
@@ -71034,7 +71056,7 @@ def al_grant_trial_claimed_free(request: Request, user: User = Depends(get_curre
     granted = []
     for u in targets:
         try:
-            _al_start_trial(db, u)
+            _al_join_free(db, u)
             granted.append(u)
         except Exception as e:
             logger.warning(f"grant-trial-claimed-free failed for {getattr(u, 'id', None)}: {e}")
