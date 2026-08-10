@@ -2125,7 +2125,6 @@ footer a{color:#b9c8ef}
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
   <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box"><video controls preload="metadata" playsinline src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4" style="color:#ff8090">Open it here.</a></video></div></div>
   <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
-  <div class="trust"><span class="ok">✓</span> Annual $50 or Lifetime $100 · pay by card or USDT · your sponsor earns nothing on your join</div>
   <div class="pills">
     <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
     <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
