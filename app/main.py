@@ -70642,6 +70642,69 @@ def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_curre
             "packs_granted": granted_total, "members": members[:120]}
 
 
+@app.get("/admin/api/al/views-audit")
+def al_views_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Real view-delivery audit: active campaigns, total/verified views, recent
+    watch activity, unique watchers, verify rate, and the per-campaign spread —
+    so we can see whether views are being generated at all and how they're
+    distributed. Admin session, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from datetime import timedelta as _td
+    now = datetime.utcnow()
+    wk = now - _td(days=7)
+    day = now - _td(days=1)
+
+    def c(q):
+        try:
+            return int(q.scalar() or 0)
+        except Exception:
+            return 0
+
+    active = db.query(VideoCampaign).filter(VideoCampaign.status == "active").all()
+    delivered = [int(x.views_delivered or 0) for x in active]
+    n = len(active)
+    total_delivered = sum(delivered)
+    zero = sum(1 for d in delivered if d == 0)
+
+    total_started = c(db.query(func.count(ShareView.id)))
+    total_verified = c(db.query(func.count(ShareView.id)).filter(ShareView.is_verified == True))  # noqa: E712
+    self_views = c(db.query(func.count(ShareView.id)).filter(ShareView.is_self == True))  # noqa: E712
+    verified_7d = c(db.query(func.count(ShareView.id)).filter(ShareView.is_verified == True, ShareView.created_at >= wk))  # noqa: E712
+    verified_24h = c(db.query(func.count(ShareView.id)).filter(ShareView.is_verified == True, ShareView.created_at >= day))  # noqa: E712
+    started_7d = c(db.query(func.count(ShareView.id)).filter(ShareView.created_at >= wk))
+    watchers_7d = c(db.query(func.count(func.distinct(ShareView.fingerprint))).filter(ShareView.is_verified == True, ShareView.created_at >= wk))  # noqa: E712
+
+    top = sorted(active, key=lambda x: -(x.views_delivered or 0))[:8]
+    top_list = [{"id": x.id, "title": (x.title or "(untitled)")[:40],
+                 "owner_id": x.user_id, "views": int(x.views_delivered or 0),
+                 "target": int(x.views_target or 0)} for x in top]
+
+    return {
+        "ok": True, "as_of": str(now)[:19],
+        "campaigns": {
+            "active": n,
+            "total_views_delivered": total_delivered,
+            "avg_views_per_campaign": round(total_delivered / n, 1) if n else 0,
+            "most_views_on_one": max(delivered) if delivered else 0,
+            "campaigns_with_zero_views": zero,
+        },
+        "real_views": {
+            "total_started": total_started,
+            "total_verified_30s": total_verified,
+            "self_views_excluded": self_views,
+            "verify_rate_pct": round(100.0 * total_verified / total_started, 1) if total_started else 0,
+            "verified_last_7d": verified_7d,
+            "verified_last_24h": verified_24h,
+            "started_last_7d": started_7d,
+            "unique_watchers_last_7d": watchers_7d,
+        },
+        "top_campaigns": top_list,
+    }
+
+
 @app.get("/admin/api/al/grant-audit")
 def al_grant_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Ground-truth audit: for each access level, how many members own which
