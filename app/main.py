@@ -19483,236 +19483,16 @@ def campaign_cta_click(campaign_id: int, db: Session = Depends(get_db)):
 
 @app.get("/pay-membership")
 def pay_membership_form(request: Request, user: User = Depends(get_current_user)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if user.is_active: return RedirectResponse(url="/dashboard")
-    return RedirectResponse(url="/upgrade", status_code=302)
+    # Paid membership is retired (free-join, Aug 2026). This URL only survives as
+    # a redirect target for a few legacy access gates — send people somewhere
+    # sensible instead of a paywall, never to the retired /upgrade page.
+    if not user:
+        return RedirectResponse(url="/?login=1", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_pay_membership_DISABLED_1(request=None):
     pass  # Old pay-membership form — replaced by Stripe checkout
 
-@app.post("/verify-membership")
-def verify_membership(
-    request: Request,
-    tx_hash: str = Form(default=""),
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
-):
-    # RETIRED 7 Jun 2026 — fails closed. This push-based endpoint had the
-    # client submit a tx_hash that we "verified" via verify_transaction(),
-    # which checked neither the emitting token contract nor the sender — a
-    # fake-token Transfer to the treasury minted real sponsor commission
-    # (consistent with the 3 Jun breach). Inbound USDT is now confirmed
-    # automatically by the BSC scanner; no client-submitted tx_hash is trusted.
-    return JSONResponse(
-        {"error": "This confirmation method is no longer supported. Membership "
-                  "payments are confirmed automatically once received."},
-        status_code=410,
-    )
-
-
-# ── Activate-from-balance (Option B membership offer) ──
-# When a free member's commission balance reaches $20, payment.py creates
-# a notification offering them the choice to activate Basic for free
-# (consuming their $20 balance) or keep their earnings. These two
-# endpoints power the consent flow at /upgrade-from-balance.
-@app.get("/api/membership/balance-offer")
-def api_membership_balance_offer(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Returns whether the current user qualifies for the balance-based offer."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    balance = float(user.balance or 0)
-    return {
-        "is_active": bool(user.is_active),
-        "balance": balance,
-        "membership_fee": float(MEMBERSHIP_FEE),
-        "qualifies": (not user.is_active) and balance >= float(MEMBERSHIP_FEE),
-    }
-
-
-@app.post("/api/membership/renew-from-balance")
-def api_membership_renew_from_balance(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Renew an EXISTING member's membership from their affiliate wallet balance,
-    on demand. Charges the member's LOCKED fee (Founder $15 / Partner $20), pays
-    the sponsor + records the company share via the shared engine, rolls the
-    renewal record forward and clears overdue/grace state.
-
-    Distinct from /activate-from-balance (which is free-user first-activation
-    only and hard-blocks active members): this is the RENEWAL path and works for
-    active / in-grace / overdue members. Reuses payment.apply_wallet_renewal —
-    the exact same code the auto-renew cron runs — so the on-demand and
-    automatic rails can never diverge, and the per-member-month idempotency key
-    means clicking this in a month the cron already renewed won't double-charge
-    the sponsor.
-    """
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    from .payment import apply_wallet_renewal
-    from .database import MembershipRenewal
-
-    renewal = (db.query(MembershipRenewal)
-                 .filter(MembershipRenewal.user_id == user.id).first())
-    if not renewal:
-        return JSONResponse(
-            {"error": "no_renewal_record",
-             "message": "No renewal record on this account yet — reload and try again."},
-            status_code=400)
-
-    # Money-in consent gate — same as the other balance/activation rails.
-    ok, err = require_fresh_consent(db, user.id, purpose="membership_renew_from_balance")
-    if not ok:
-        return JSONResponse({"error": err or "consent_required"}, status_code=403)
-
-    res = apply_wallet_renewal(db, user, renewal)
-    if not res.get("ok"):
-        db.rollback()
-        return JSONResponse({
-            "error": (f"You need ${res.get('fee', 0):.2f} to renew. Your wallet "
-                      f"balance is ${res.get('balance', 0):.2f} "
-                      f"(${res.get('shortfall', 0):.2f} short)."),
-            "code": "insufficient_balance",
-            "fee": res.get("fee"),
-            "balance": res.get("balance"),
-            "shortfall": res.get("shortfall"),
-        }, status_code=400)
-
-    db.commit()
-    return {
-        "success": True,
-        "fee": res["fee"],
-        "new_balance": res["new_balance"],
-        "next_renewal_date": res["next_renewal_date"],
-        "message": f"Membership renewed — ${res['fee']:.2f} paid from your wallet balance.",
-    }
-
-
-@app.post("/api/membership/activate-from-balance")
-def api_membership_activate_from_balance(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """
-    Activate Basic membership using $20 from the user's commission balance.
-    Only free members with balance >= MEMBERSHIP_FEE may call this.
-    """
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if user.is_active:
-        return JSONResponse({"error": "Membership is already active."}, status_code=400)
-
-    # Purchase consent gate — see app/purchase_consent.py
-    ok, err = require_fresh_consent(db, user.id, purpose="membership_activate_from_balance")
-    if not ok:
-        return JSONResponse({"error": err}, status_code=403)
-
-    # ── Founding partner spot allocation (15 May 2026) ─────────────────
-    # If founding spots remain, this user pays $15 and claims a spot.
-    # Atomic via pg_advisory_xact_lock — see _activate_membership for
-    # rationale. The lock key 7423957 must match across all activation
-    # rails so they all serialise against each other.
-    standard_fee = decimal.Decimal(str(MEMBERSHIP_FEE))
-    fee = standard_fee
-    founding_spot_claimed = None
-    try:
-        FOUNDING_LOCK_KEY = 7423957
-        db.execute(text("SELECT pg_advisory_xact_lock(:k)"),
-                   {"k": FOUNDING_LOCK_KEY})
-        founding_count_row = db.execute(text(
-            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
-        )).fetchone()
-        founding_count = founding_count_row.cnt if founding_count_row else 0
-        # Deadline check (added 27 May 2026) — see _founder_offer_still_open.
-        deadline_open = _founder_offer_still_open(db)
-        if founding_count < 100 and deadline_open and not _is_returning_member(db, user):
-            fee = decimal.Decimal("15.00")
-            founding_spot_claimed = founding_count + 1
-            logger.info(
-                f"Founding spot #{founding_spot_claimed} reserved for "
-                f"user {user.id} via balance activation"
-            )
-    except Exception as e:
-        logger.error(
-            f"Founding spot check failed for user {user.id} (balance "
-            f"activation): {e} — proceeding with standard pricing"
-        )
-
-    balance = decimal.Decimal(str(user.balance or 0))
-    if balance < fee:
-        return JSONResponse(
-            {"error": f"You need ${fee} to activate. Current balance: ${float(balance):.2f}."},
-            status_code=400,
-        )
-
-    # Deduct fee, activate as Partner (or Founding Partner). activated_at +
-    # membership_expires_at follow the same pattern as a regular paid activation.
-    user.balance = balance - fee
-    user.is_active = True
-    if founding_spot_claimed is not None:
-        user.is_founding_member = True
-        user.founding_spot_number = founding_spot_claimed
-        user.membership_price_locked = decimal.Decimal("15.00")
-        user.membership_tier = "founding"
-        # Auto-enrol the new Founder into the rotator queue. db.flush()
-        # would have been called by SQLAlchemy by now or will be on the
-        # eventual commit — _enrol_user_to_rotator's INSERT just needs
-        # user.id, which is already persisted.
-        _enrol_user_to_rotator(db, user.id)
-    else:
-        user.membership_tier = "partner"
-    user.activated_at = user.activated_at or datetime.utcnow()
-    user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
-
-    # Mark any pending membership_offer notification as read so it
-    # disappears from the user's inbox (they've acted on it).
-    from .database import Notification
-    pending_offers = (
-        db.query(Notification)
-        .filter(
-            Notification.user_id == user.id,
-            Notification.type == "membership_offer",
-            Notification.is_read == False,
-        )
-        .all()
-    )
-    for n in pending_offers:
-        n.is_read = True
-
-    # Record the activation as a payment for audit trail. Source
-    # 'balance_redemption' distinguishes it from crypto/stripe/coinbase.
-    db.add(Payment(
-        from_user_id=user.id,
-        to_user_id=None,
-        amount_usdt=fee,
-        payment_type="membership_balance",
-        tx_hash=f"bal_{user.id}_{int(datetime.utcnow().timestamp())}",
-        status="confirmed",
-    ))
-
-    # Initialise renewal record so the cron knows when to bill next.
-    try:
-        initialise_renewal_record(db, user.id, source="balance_redemption")
-    except Exception as exc:
-        logger.warning(f"Renewal record creation failed for user {user.id} after balance activation: {exc}")
-
-    db.commit()
-    logger.info(f"Member {user.username} activated as Partner via balance redemption (${MEMBERSHIP_FEE} consumed).")
-
-    return {
-        "success": True,
-        "tier": "partner",
-        "remaining_balance": float(user.balance),
-    }
-
-# Coinbase Commerce routes removed 20 May 2026.
-# /api/coinbase/create-charge and /api/webhook/coinbase deleted along
-# with app/coinbase_commerce.py. Platform now uses NOWPayments + direct
-# WalletConnect/BSC for all crypto payments.
 @app.get("/payment/success")
 def payment_success_page(request: Request):
     """Serve React SPA."""
@@ -20561,11 +20341,6 @@ STRICT RULES — you must follow these without exception:
 #  STRIPE PAYMENTS
 # ═══════════════════════════════════════════════════════════════
 
-@app.post("/api/stripe/create-membership-checkout")
-async def stripe_membership_checkout(request: Request, db: Session = Depends(get_db),
-                                      user: User = Depends(get_current_user)):
-    """DISABLED — use NOWPayments or direct crypto."""
-    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 @app.post("/api/stripe/create-grid-checkout")
 async def stripe_grid_checkout(request: Request, db: Session = Depends(get_db),
                                 user: User = Depends(get_current_user)):
@@ -22901,102 +22676,6 @@ async def stripe_status(user: User = Depends(get_current_user)):
         "payment_method": user.payment_method or "crypto",
         "refund_eligible_until": user.stripe_refund_eligible_until.isoformat() + "Z" if user.stripe_refund_eligible_until else None,
     }
-
-
-@app.post("/api/stripe/checkout/membership")
-async def stripe_checkout_membership(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Create a Stripe Checkout session for membership signup.
-
-    Body (JSON):
-      tier:    'partner' or 'founding' (default 'partner')
-               If 'founding' is requested but the 100-spot cap is full,
-               this endpoint falls back to 'partner' silently. The actual
-               founder assignment happens in _activate_membership() on
-               webhook receipt so the cap is enforced consistently across
-               crypto + Stripe.
-      billing: 'monthly' or 'annual' (default 'monthly')  -- added 27 May 2026
-               Annual maps to $150/yr Founder or $200/yr Partner. Stripe
-               Price IDs come from STRIPE_FOUNDER_ANNUAL_PRICE_ID and
-               STRIPE_PARTNER_ANNUAL_PRICE_ID env vars; if either is
-               missing, returns 400 with "no_price_for_tier".
-
-    Returns:
-      { checkout_url, session_id }
-    """
-    if not _stripe.is_configured():
-        return JSONResponse({"error": "stripe_not_configured"}, status_code=503)
-
-    body = await request.json()
-    tier = (body.get("tier") or "partner").lower()
-    billing = (body.get("billing") or "monthly").lower()
-    if billing not in ("monthly", "annual", "yearly", "year"):
-        billing = "monthly"
-
-    # Renewal/duplicate guard: a member who already holds a card subscription
-    # must not create a SECOND one — that would double-bill them. Their existing
-    # subscription already auto-renews via the invoice.paid webhook, so send a
-    # clear signal back and let the UI show "auto-renewal is on" instead of
-    # starting another checkout. (Crypto/balance members have no subscription
-    # id, so this never blocks a crypto member switching to card auto-renew.)
-    if getattr(user, "stripe_subscription_id", None) and user.is_active:
-        return JSONResponse({
-            "already_subscribed": True,
-            "detail": "Card auto-renewal is already active on this account.",
-        }, status_code=200)
-
-    # An EXISTING Founder renewing/subscribing keeps their locked $15 rate.
-    # They already hold a founder spot, so the 100-cap / deadline fallback
-    # (which exists to stop NEW members claiming founder pricing after the
-    # offer closes) must NOT downgrade them to $20. Force founding + skip cap.
-    existing_founder = bool(getattr(user, "is_founding_member", False))
-    if existing_founder:
-        tier = "founding"
-
-    if tier in ("founder", "founding") and not existing_founder:
-        # Check the founder cap before sending a NEW member to Stripe with a
-        # $15 price — if the cap is full, send them to the $20 Partner
-        # checkout instead and surface the change in metadata so the
-        # frontend can show a friendly notice.
-        current_founders = db.execute(text(
-            "SELECT COUNT(*) AS cnt FROM users WHERE is_founding_member = TRUE"
-        )).fetchone()
-        if current_founders and current_founders.cnt >= 100:
-            tier = "partner"
-        # ALSO check the deadline — if the Founder offer has closed by
-        # deadline (not just count), fall back to partner pricing the
-        # same way. Keeps the time cap consistent across crypto + Stripe.
-        elif not _founder_offer_still_open(db):
-            tier = "partner"
-
-    from .payment import membership_price_for_user
-    _expected_membership_price = membership_price_for_user(user, billing)
-    price_id = _stripe.get_price_id_for_tier(tier, billing=billing)
-    if not price_id:
-        return JSONResponse({
-            "error": "no_price_for_tier",
-            "tier": tier,
-            "billing": billing,
-            "detail": f"No Stripe Price configured for {tier} ({billing}). Check STRIPE_*_PRICE_ID env vars.",
-        }, status_code=400)
-
-    try:
-        result = _stripe.create_checkout_session(
-            user=user,
-            db_session=db,
-            product_kind="founder_signup" if tier in ("founder", "founding") else "membership_signup",
-            price_id=price_id,
-            success_path="/payment-success",
-            cancel_path="/partner-payment",
-            extra_metadata={"tier_requested": tier, "billing": billing, "expected_price_usd": str(_expected_membership_price)},
-        )
-        return result
-    except Exception as e:
-        logger.exception(f"stripe_checkout_membership failed for user {user.id}")
-        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)}, status_code=500)
 
 
 @app.get("/admin/api/stripe-config")
@@ -59021,9 +58700,9 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
                 "source, ad network, or get-rich-quick scheme. The tagline is "
                 "'Your effort. Your income. 100% yours.'\n\n"
                 "JOINING\n"
-                "- A ONE-TIME $100 lifetime membership. Not monthly. No subscription. "
-                "Never say '$20/month' or any recurring price \u2014 there is none.\n"
-                "- The $100 join unlocks the toolkit for life and your place in the network. "
+                "- Joining is FREE. No card, no fee, no subscription \u2014 ever. "
+                "Never quote a join price ('$100', '$20/month', etc.); there is none.\n"
+                "- A free account unlocks the toolkit and your place in the network. "
                 "Nobody earns a commission on the join itself.\n\n"
                 "HOW MEMBERS EARN (describe ONLY this)\n"
                 "- Income comes from selling Watch-to-Earn campaign packs, priced $10 to "
@@ -77562,99 +77241,6 @@ def _al_activate_annual(db, user_id: int, source: str, ref: str = None):
 
 
 from . import al_chain_verify as _alchain
-
-
-@app.get("/api/al/join/direct-info")
-def al_join_direct_info(user: User = Depends(_al_user)):
-    nets = _alchain.available_networks()
-    if not nets:
-        return JSONResponse({"error": "not_configured"}, status_code=503)
-    return {"networks": nets,
-            "amount": float(os.environ.get("AL_JOIN_PRICE_USD", "100"))}
-
-
-@app.post("/api/al/join/direct")
-async def al_join_direct(request: Request,
-                         user: User = Depends(_al_user),
-                         db: Session = Depends(get_db)):
-    """Crypto join via direct on-chain USDT (no processor): buyer pays the
-    treasury on their chosen network, submits the tx hash, we verify on-chain
-    and activate instantly. Same self-custody method as pack sales, pointed at
-    the company treasury. tier='lifetime' ($100) or 'annual' ($50)."""
-    if user.access_level == "lifetime":
-        return {"ok": True, "already": True}
-    body = await request.json()
-    tier = (body.get("tier") or "lifetime").lower().strip()
-    if tier not in ("lifetime", "annual"):
-        return JSONResponse({"error": "Unknown membership tier"}, status_code=400)
-    tx_hash = (body.get("tx_ref") or "").strip()
-    network = (body.get("network") or "bsc").strip()
-    norm = tx_hash.lower() if tx_hash.startswith("0x") else ("0x" + tx_hash.lower() if len(tx_hash) == 64 else tx_hash.lower())
-    dupe = db.query(DirectJoinPayment).filter(DirectJoinPayment.tx_hash == norm).first()
-    if dupe:
-        if dupe.user_id == user.id:
-            return {"ok": True, "already": True}
-        return JSONResponse({"error": "That transaction is already used"}, status_code=400)
-    expected = float(os.environ.get(
-        "AL_ANNUAL_PRICE_USD" if tier == "annual" else "AL_JOIN_PRICE_USD",
-        "50" if tier == "annual" else "100"))
-    try:
-        ok, err, retryable = _alchain.verify_join_tx(network, tx_hash, expected)
-    except Exception as e:
-        logger.exception(f"al join verify crashed: {network} {tx_hash}")
-        return JSONResponse({"error": "Verification error — try again shortly", "retryable": True}, status_code=202)
-    if not ok:
-        return JSONResponse({"error": err, "retryable": retryable}, status_code=202 if retryable else 400)
-    net = _alchain.NETWORKS[network]
-    db.add(DirectJoinPayment(user_id=user.id, tx_hash=norm,
-                             amount_usd=expected,
-                             to_address=os.environ.get(net["env"], ""),
-                             status="confirmed"))
-    db.commit()
-    if tier == "annual":
-        _al_activate_annual(db, user.id, source=f"direct_{network}", ref=norm)
-    else:
-        _al_activate_lifetime(db, user.id, source=f"direct_{network}", ref=norm)
-    return {"ok": True, "activated": True}
-
-
-@app.post("/api/al/join/checkout")
-async def al_join_checkout(tier: str = "lifetime", user: User = Depends(_al_user),
-                           db: Session = Depends(get_db)):
-    """Membership card checkout (one-time Stripe Checkout). tier='lifetime'
-    ($100, never expires) or tier='annual' ($50, one year). Crypto goes
-    through the NOWPayments rail with the matching product_key. The amount is
-    passed dynamically — no Stripe Price/Product objects needed, only the
-    secret key."""
-    if user.access_level == "lifetime":
-        return JSONResponse({"error": "You already have lifetime access"}, status_code=400)
-    tier = (tier or "lifetime").lower().strip()
-    if tier not in ("lifetime", "annual"):
-        return JSONResponse({"error": "Unknown membership tier"}, status_code=400)
-    from . import stripe_service as _stripe
-    if not _stripe.is_configured_for_payments():
-        return JSONResponse({"error": "Card payments aren't configured yet — use crypto below"}, status_code=503)
-
-    if tier == "annual":
-        price_usd = float(os.environ.get("AL_ANNUAL_PRICE_USD", "50"))
-        product_kind = "al_annual"
-    else:
-        price_usd = float(os.environ.get("AL_JOIN_PRICE_USD", "100"))
-        product_kind = "al_lifetime"
-    amount_cents = int(round(price_usd * 100))
-
-    try:
-        result = _stripe.create_checkout_session(
-            user=user, db_session=db,
-            product_kind=product_kind,
-            amount_cents=amount_cents,
-            success_path="/join?paid=1",
-            cancel_path="/join",
-        )
-        return result
-    except Exception as e:
-        logger.exception(f"al_join_checkout failed for user {user.id} tier={tier}")
-        return JSONResponse({"error": "checkout_create_failed", "detail": str(e)[:200]}, status_code=500)
 
 
 @app.get("/admin/api/al/domain-check")
