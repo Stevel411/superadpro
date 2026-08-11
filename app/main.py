@@ -2126,9 +2126,9 @@ footer a{color:#b9c8ef}
   <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box"><video controls preload="metadata" playsinline src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4" style="color:#ff8090">Open it here.</a></video></div></div>
   <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
   <div class="pills">
-    <span class="pill"><span class="i">🛡</span> One payment. Lifetime access</span>
-    <span class="pill"><span class="i">🔓</span> No monthly fees — ever</span>
-    <span class="pill"><span class="i">$</span> 100% member-to-member pack commissions</span>
+    <span class="pill"><span class="i">✓</span> Free to join — full access</span>
+    <span class="pill"><span class="i">▶️</span> Do your daily watch to stay qualified</span>
+    <span class="pill"><span class="i">$</span> Sell packs member-to-member</span>
   </div>
 </div>
 </div>
@@ -2150,13 +2150,13 @@ footer a{color:#b9c8ef}
   <div class="income">
     <div class="k">The Plan</div>
     <h2>From starting out to living free.</h2>
-    <div class="lead">Three steps. No guesswork, no monthly tool bills, and an income side that's 100% member-to-member when you're ready for it.</div>
+    <div class="lead">Three steps. No guesswork, no monthly tool bills, and an income side that pays you member-to-member when you're ready for it.</div>
     <div class="steps">
-      <div class="step"><div class="n">1</div><b>Join the platform</b><p>Start with Annual ($50/year) or Lifetime ($100 once) — either unlocks every tool. Your sponsor earns nothing on this; it's a platform payment.</p></div>
+      <div class="step"><div class="n">1</div><b>Join the platform</b><p>Joining is free — full access to every tool, no card needed. Your sponsor earns nothing when you join.</p></div>
       <div class="step"><div class="n">2</div><b>Own a pack &amp; do your daily watch</b><p>You earn at any pack level you own. Watching daily keeps you qualified — miss it and sales pass over you.</p></div>
       <div class="step"><div class="n">3</div><b>Sell &amp; get paid directly</b><p>Buyers pay your wallet, member to member — USDT or USDC, the moment they buy. Nothing to withdraw.</p></div>
     </div>
-    <div class="pass" id="income"><b>The income side, in one paragraph:</b> campaign packs ($10–$1,000) are bought member-to-member — the buyer pays the earning member <b>directly, wallet to wallet</b>. You keep your 1st, 2nd, 4th, 5th, 7th, 8th and every sale from your 10th on; your <span class="hl">3rd, 6th and 9th</span> pass up to the first qualified member above you — and everyone below you passes theirs up the same way, forever. AdvantageLife resolves who earns each sale and records the proof. <b>100% of every pack commission stays between members. Never to us.</b></div>
+    <div class="pass" id="income"><b>The income side, in one paragraph:</b> campaign packs ($10–$1,000) are bought member-to-member — the buyer pays the earning member <b>directly, wallet to wallet</b>. Across your first eleven sales you keep seven (your 1st, 2nd, 4th, 5th, 7th, 8th and 10th); your <span class="hl">6th, 9th and 11th</span> pass up to the first qualified member above you; and your 3rd is the platform's operational fee. From your 12th sale on you keep 100% — until your package's views are delivered and you renew for a fresh cycle. AdvantageLife resolves who earns each sale and records the proof.</div>
     <div class="w2erow">
       <div class="wbox"><b>Why the watching matters</b><p>Members watch campaign videos daily to stay earning-qualified — so every advertising pack is seen by real humans with a reason to pay attention. Real product, real deliverable, real views.</p></div>
       <div class="wbox"><b>Why there's nothing to withdraw</b><p>Pack commissions arrive in your own wallet the moment a buyer pays you — USDT or USDC, member to member. There's no platform balance to request. You already have it.</p></div>
@@ -2167,7 +2167,7 @@ footer a{color:#b9c8ef}
 <section class="final">
   <div class="k">Ready?</div>
   <h2>Never pay for the tools again.</h2>
-  <div class="price">$100, once — every tool, for life.</div>
+  <div class="price">Free to join — every tool, no card needed.</div>
   <a class="cta" href="/join">Join AdvantageLife →</a>
   <div class="disc">Income disclaimer: AdvantageLife sells advertising products and marketing tools with defined deliverables. Earnings described illustrate the compensation structure, not promises — results depend entirely on your own effort, consistency and sales. You can use every tool without referring anyone or earning at all.</div>
 </section>
