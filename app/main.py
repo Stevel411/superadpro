@@ -32361,8 +32361,8 @@ AL_LAUNCH_EMAILS = {
             "SuperAdPro is now <b>AdvantageLife</b> \u2014 rebuilt from the ground up "
             "on a fresh, secure platform. New name, new look, and a model that's "
             "simpler and fairer than anything we've run before: you sell advertising "
-            "packs member-to-member, and 100% of every pack price passes straight to "
-            "you. No company cut on the packs. Your effort, your income.\n\n"
+            "packs member-to-member, and the pack price passes straight to whoever "
+            "earns each sale — buyer to seller, wallet to wallet. Your effort, your income.\n\n"
             "And because you were here when it mattered, I've already put something "
             "in your account:\n\n"
             "<b>A $100 campaign pack \u2014 gifted, yours, waiting.</b>\n\n"
@@ -32597,8 +32597,8 @@ AL_LAUNCH_EMAILS = {
             "looks the way you want. Set it up and send it to one person today. "
             "(In My Marketing.)\n\n"
             "<b>3. Have a look at the packs.</b> When you're ready to earn, "
-            "campaign packs run from $10 to $1,000, and 100% of every pack "
-            "price passes straight to the member who sold it. No rush — just "
+            "campaign packs run from $10 to $1,000, and the pack price passes "
+            "straight to whoever earns each sale, member to member. No rush — just "
             "worth knowing what's there: https://www.advantagelife.club/packs\n\n"
             "That's it for this week. Reply to this email if you're stuck on "
             "anything — it reaches me.\n\n"
@@ -58707,10 +58707,13 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
                 "HOW MEMBERS EARN (describe ONLY this)\n"
                 "- Income comes from selling Watch-to-Earn campaign packs, priced $10 to "
                 "$1,000 across nine tiers.\n"
-                "- Packs are sold 100% PEER-TO-PEER. The price IS the commission. The buyer "
-                "pays the seller DIRECTLY. AdvantageLife never holds or pays out the money.\n"
-                "- A 3/6/9 pass-up: a member keeps sales 1,2,4,5,7,8,10+ and passes up their "
-                "3rd, 6th and 9th sale to the first qualified member above them.\n"
+                "- Each pack sale is paid DIRECTLY buyer-to-seller, member-to-member. The "
+                "pack price IS the commission; AdvantageLife never holds or pays out the money.\n"
+                "- The pass-up cycle runs ONCE per package (11 sales, then it resets when the "
+                "member renews). A member KEEPS sales 1,2,4,5,7,8,10; their 6th, 9th and 11th "
+                "PASS UP to the first qualified member above them; and their 3rd is the "
+                "platform's operational fee (the one company cut). From the 12th sale on they "
+                "keep 100% until the package's views are delivered and they renew.\n"
                 "- To earn on a sale a member must (1) own that pack level or higher, and "
                 "(2) be watch-qualified (kept up their daily watch, 48h grace), and "
                 "(3) have a receiving method saved so the buyer knows where to pay.\n"
@@ -58719,7 +58722,7 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
                 "mention them.\n\n"
                 "WHAT YOU MUST NEVER DO\n"
                 "- NEVER invent prices, percentages or income figures. The only prices are "
-                "the $100 join and the $10\u2013$1,000 pack tiers.\n"
+                "the $10\u2013$1,000 pack tiers; joining is free.\n"
                 "- NEVER say the company pays commissions or holds member money \u2014 it is "
                 "always buyer-to-seller, member-to-member.\n"
                 "- NEVER make income claims ('I'm earning $X', 'crushing it') \u2014 compliance "
@@ -75385,9 +75388,10 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
 .two .b{border:1.5px solid var(--line);border-radius:14px;padding:18px;background:#fbfcfe}
 .two .b b{display:block;font-weight:900;font-size:15px;letter-spacing:-.3px;margin-bottom:6px}
 .two .b p{font-size:13px;color:var(--dim);font-weight:600;line-height:1.55}
-.strip{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-bottom:11px}
+.strip{display:grid;grid-template-columns:repeat(11,1fr);gap:6px;margin-bottom:11px}
 .strip div{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;background:#eef2fa;color:var(--navy);border:1.5px solid #dde4f2}
 .strip div.up{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 8px 18px -8px rgba(200,16,46,.7)}
+.strip div.ops{background:var(--navy);color:#fff;border-color:var(--navy)}
 .strip div.ten{font-size:11px;letter-spacing:-.5px}
 .key{display:flex;gap:18px;font-size:11.5px;font-weight:700;color:var(--dim)}
 .key .d{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
@@ -75592,11 +75596,11 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
             <div>
               <div class="k">The pass-up</div>
               <h2>Three sales go up. <span class="r">Everyone's three come up to you.</span></h2>
-              <p>Your <b>3rd, 6th and 9th</b> sales pass up to the first qualified member above you. Every sale after your 9th is yours. In return, everyone in your team passes their three up the same way &mdash; and their teams pass theirs, forever.</p>
+              <p>Across your first eleven sales you keep seven; your <b>6th, 9th and 11th</b> pass up to the first qualified member above you, and your <b>3rd</b> is the platform's operational fee. From your 12th sale on you keep 100% &mdash; until your package's views are delivered and you renew for a fresh cycle. In return, everyone in your team passes theirs up the same way.</p>
             </div>
             <div>
               <div class="strip" id="strip"></div>
-              <div class="key"><span><span class="d a"></span>yours, in full</span><span><span class="d b"></span>passes up</span></div>
+              <div class="key"><span><span class="d a"></span>yours</span><span><span class="d b"></span>passes up</span><span><span class="d" style="background:var(--navy)"></span>operational fee</span></div>
             </div>
           </div>
         </div>
@@ -76192,10 +76196,10 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     document.body.appendChild(ov);
   }
 
-  (function(){var st=document.getElementById('strip');if(!st)return;var UP=[3,6,9];
-    for(var i=1;i<=10;i++){var d=document.createElement('div');
-      if(UP.indexOf(i)>-1)d.className='up';
-      if(i===10){d.className+=' ten';d.textContent='10+'}else d.textContent=i;
+  (function(){var st=document.getElementById('strip');if(!st)return;var UP=[6,9,11],OPS=[3];
+    for(var i=1;i<=11;i++){var d=document.createElement('div');
+      if(OPS.indexOf(i)>-1)d.className='ops';else if(UP.indexOf(i)>-1)d.className='up';
+      d.textContent=i;
       st.appendChild(d);}// ── Inline sale chat panel ──────────────────────────────────
   var CHAT_INTENT=null, CHAT_LAST=-1, CHAT_TIMER=null, CHAT_ROLE=null;
   function chEsc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

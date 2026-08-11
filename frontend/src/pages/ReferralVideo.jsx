@@ -76,10 +76,10 @@ export default function ReferralVideo() {
       <div className="rv-hero">
         <div className="rv-wrap">
           <div className="rv-eyebrow">A personal invitation</div>
-          <h1>Real ads. Real views.<br /><em>100% of every sale.</em></h1>
+          <h1>Real ads. Real views.<br /><em>Paid straight to you.</em></h1>
           <p className="rv-sub">
-            AdvantageLife members sell advertising that actually gets watched &mdash; and keep
-            the entire price of every pack they sell. One payment to join. Nothing monthly, ever.
+            AdvantageLife members sell advertising that actually gets watched &mdash; paid
+            directly, member to member. Free to join. Nothing monthly, ever.
           </p>
           <div className="rv-vidwrap"><VideoPlayer src={VIDEO_URL} /></div>
           <div className="rv-trust">
@@ -137,15 +137,17 @@ export default function ReferralVideo() {
           <div className="rv-eyebrow">How you get paid</div>
           <h2>The price is the commission.</h2>
           <p className="rv-lede">
-            A $200 sale pays you $200. There is no split and no company share &mdash; the buyer
-            pays you directly, member to member. The platform never holds the money.
+            Each sale&rsquo;s full price is paid directly, member to member &mdash; the buyer
+            pays you, and the platform never holds the money.
           </p>
           <div className="rv-big">
             <h3>You keep most of your sales. Three pass up to your team.</h3>
             <p>
-              Your 3rd, 6th and 9th sales go to a qualified member above you. Every other sale
-              is yours, and from your 10th onward nothing is passed up again. In return, each of
-              those three opens a chain that keeps paying you &mdash; from any depth, with no limit.
+              Across your first eleven sales you keep seven; your 6th, 9th and 11th pass up to a
+              qualified member above you, and your 3rd is the platform&rsquo;s operational fee.
+              From your 12th sale on you keep 100% &mdash; until your package&rsquo;s views are
+              delivered and you renew. Each pass-up opens a chain that keeps paying you &mdash;
+              from any depth, with no limit.
             </p>
             <div className="rv-strip">
               {SLOTS.map((n) => (

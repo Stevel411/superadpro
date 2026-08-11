@@ -112,11 +112,11 @@ function getTools(t) {
   ];
 }
 var STREAMS = [
-  { name:'Pack sales — person to person', rate:'100% to a member', rc:'#34d399',
-    desc:'Members buy VideoView packs, from $10 for 1,000 views up to $1,000. The full price goes wallet-to-wallet to another member. The company keeps none of it.',
+  { name:'Pack sales — person to person', rate:'Paid to a member', rc:'#34d399',
+    desc:'Members buy VideoView packs, from $10 for 1,000 views up to $1,000. The price goes wallet-to-wallet to whoever earns each sale — buyer to seller. The platform never holds the funds.',
     ac:'var(--sap-green-mid)' },
-  { name:'The 3/6/9 pass-up', rate:'From your 10th, all yours', rc:'#e8203f',
-    desc:'You keep your 1st and 2nd sales; your 3rd passes up to your sponsor. Same again at 6 and 9. From your 10th sale onward, every single sale is yours.',
+  { name:'The pass-up', rate:'Keep 7 of every 11', rc:'#e8203f',
+    desc:"Across your first eleven sales you keep seven; your 6th, 9th and 11th pass up to a qualified member above you, and your 3rd is the platform's operational fee. From your 12th sale on you keep everything, until your package renews.",
     ac:'#c8102e' },
   { name:'What it actually takes', rate:'Two conditions', rc:'#9db0e0',
     desc:"You only earn on a pack level you own yourself, and you have to watch your daily videos to stay qualified. No screenshots here — what you make depends entirely on what you do.",
