@@ -8,10 +8,12 @@ import { apiGet } from '../utils/api';
 // back" page and its explainer video.
 //
 // Model (verified against passup_engine.py, 10 Aug 2026):
-//   Recurring 11-sale cycle, repeating for as long as the member sells:
+//   Per-package 11-sale cycle (runs ONCE per package, does NOT wrap):
 //     positions 1,2,4,5,7,8,10  -> seller keeps          (7 per cycle)
 //     position 3                -> COMPANY operational fee (1 per cycle)
 //     positions 6,9,11          -> pass up to qualified upline (3 per cycle)
+//   From sale 12 the seller keeps 100% until the package expires (views
+//   delivered); renewing/activating a package resets the cycle to 0.
 //   Two earning gates: owned_level >= pack_level AND watch-qualified (48h grace).
 //   Pack prices are FETCHED from /api/al/packs (never hardcoded) so they can't
 //   drift from what the engine actually enforces.
@@ -91,12 +93,17 @@ export default function CompensationPlan() {
           <p>Sales are paid member-to-member, straight to your wallet. Here's exactly where every sale you make goes — nothing hidden.</p>
         </div>
 
-        {/* NEW ANIMATION SLOT — the recurring-cycle explainer video drops in here
-            once built in Claude Design (replaces the retired pass-up video). */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden', background: '#000' }}>
+          <video controls preload="metadata" playsInline
+            poster="/static/videos/advantagelife-plan-poster.jpg"
+            style={{ display: 'block', width: '100%', height: 'auto', aspectRatio: '16 / 9' }}>
+            <source src="/static/videos/advantagelife-plan.mp4" type="video/mp4" />
+          </video>
+        </div>
 
         <div className="card">
           <h2>Every 11 sales — the full cycle</h2>
-          <div className="sub">This pattern repeats for as long as you keep selling. You keep most; three pass up to your team; one funds the platform.</div>
+          <div className="sub">This is one full package cycle — your first eleven sales. You keep seven; three pass up to your team; one funds the platform.</div>
           <div className="cycle">
             {CYCLE.map((c) => (
               <div key={c.n} className={'chip ' + c.kind}>
@@ -126,8 +133,8 @@ export default function CompensationPlan() {
           <h2>How pass-ups work</h2>
           <div className="sub">Your 6th, 9th and 11th sales pass up to the first qualified member above you — someone who owns that pack level or higher and has done their daily watch. That's the team-building engine: as your team sells, their pass-ups flow up to you too.</div>
           <div className="repeat">
-            <span className="ic">🔁</span>
-            <span className="tx"><b>It repeats.</b> After the 11th, the cycle starts again at sale 1. Keep selling, and you keep earning — cycle after cycle.</span>
+            <span className="ic">💯</span>
+            <span className="tx"><b>After your 11th sale, you keep 100%.</b> Every further sale on that package is yours. When its views are delivered the package expires — renew, and a fresh 11-sale cycle begins.</span>
           </div>
         </div>
 

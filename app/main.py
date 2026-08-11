@@ -2263,12 +2263,18 @@ footer a{color:var(--dim)}
   <div class="k">The AdvantageLife Plan</div>
   <h1>Your effort.<br>Your income.</h1>
   <div class="hsub">Sales are paid member to member, straight to your wallet. Here's exactly where every sale you make goes — nothing hidden.</div>
+  <div class="hvid" style="max-width:760px;margin:28px auto 0;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.14);background:#000">
+    <video controls preload="metadata" playsinline poster="/static/videos/advantagelife-plan-poster.jpg" style="display:block;width:100%;height:auto;aspect-ratio:16/9">
+      <source src="/static/videos/advantagelife-plan.mp4" type="video/mp4">
+      Your browser can't play this video. <a href="/static/videos/advantagelife-plan.mp4" style="color:#ff8090">Open it here.</a>
+    </video>
+  </div>
 </div>
 
 <section>
   <div class="sk">The full cycle</div>
   <h2>Every 11 sales</h2>
-  <div class="lead">This pattern repeats for as long as you keep selling. You <b>keep most</b>, three pass up to your team, and one funds the platform.</div>
+  <div class="lead">This is one full package cycle — your first eleven sales. You <b>keep seven</b>, three pass up to your team, and one funds the platform.</div>
   <div class="cycle">
     <div class="chip keep"><div class="cn">1</div><div class="ct">You</div></div>
     <div class="chip keep"><div class="cn">2</div><div class="ct">You</div></div>
@@ -2308,7 +2314,7 @@ footer a{color:var(--dim)}
   <h2>How pass-ups work</h2>
   <div class="lead">Your <b>6th, 9th and 11th</b> sales pass up to the first qualified member above you — someone who owns that pack level or higher and has done their daily watch. That's the team-building engine: as your team sells, their pass-ups flow up to you too.</div>
   <div class="card">
-    <div class="repeat"><span class="ic">&#128257;</span><span class="tx"><b>It repeats.</b> After the 11th, the cycle starts again at sale 1. Keep selling, and you keep earning — cycle after cycle.</span></div>
+    <div class="repeat"><span class="ic">&#128175;</span><span class="tx"><b>After your 11th sale, you keep 100%.</b> Every further sale on that package is yours. When its views are delivered the package expires — renew, and a fresh 11-sale cycle begins. Every package works the same way.</span></div>
   </div>
 </section>
 
