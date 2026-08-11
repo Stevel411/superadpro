@@ -70429,6 +70429,105 @@ def _check_migration_secret(secret: str):
         raise HTTPException(status_code=403, detail="Invalid or missing migration secret")
 
 
+@app.get("/admin/api/al/comp-audit")
+def al_comp_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Read-only comp-plan wiring audit. Confirms the pass-up routes and that
+    company / top-of-tree money lands on the AdvantageLife house account
+    (AL_HOUSE_USER_ID). Optional ?seller_id=N&level=100 previews exactly where
+    that member's next / 3rd / 6th / 9th / 11th / 12th sale would route. Makes
+    NO writes — the preview mutates cycle_sale_count only in-session and rolls
+    back. Admin session, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    from . import al_engine as _ale, al_settlement as _als, passup_engine as _pe
+
+    def _uname(uid):
+        if uid is None or uid == _pe.COMPANY:
+            return None
+        u = db.query(User).filter(User.id == uid).first()
+        return u.username if u else None
+
+    # ---- house account readiness (where company / top-of-tree money lands) ----
+    house_id = _als.AL_HOUSE_USER_ID
+    house = db.query(User).filter(User.id == house_id).first()
+    methods = (db.query(PayoutMethod).filter(PayoutMethod.user_id == house_id)
+                 .order_by(PayoutMethod.is_default.desc(), PayoutMethod.id.asc()).all())
+    house_info = {
+        "user_id": house_id,
+        "exists": house is not None,
+        "username": (house.username if house else None),
+        "name": ((house.first_name or house.username) if house else None),
+        "access_level": (getattr(house, "access_level", None) if house else None),
+        "payout_methods": [{"type": m.method_type, "is_default": bool(m.is_default)} for m in methods],
+        "payout_method_count": len(methods),
+        "can_be_paid": len(methods) > 0,
+        "earning_level": _ale.earning_level(db, house_id),
+        "watch_qualified": _ale.watch_qualified(db, house_id),
+        "payable": _ale.payable(db, house_id),
+        "membership_active": _ale.membership_active(db, house_id),
+    }
+
+    wiring = {
+        "AL_HOUSE_USER_ID": house_id,
+        "cycle_length": _pe.CYCLE_LENGTH,
+        "operational_fee_position": _pe.COMPANY_POSITION,               # 3 -> house
+        "pass_up_positions": sorted(_pe.UPLINE_PASSUP_POSITIONS),       # 6,9,11 -> first qualified upline
+        "keep_positions": [p for p in range(1, _pe.CYCLE_LENGTH + 1) if p not in _pe.LEAVE_SELLER_POSITIONS],
+        "post_cycle": "sale 12+ -> seller keeps 100% until they activate a new package (resets the cycle)",
+        "company_routes_to": "AL_HOUSE_USER_ID (the admin / house account)",
+    }
+
+    # ---- resolve preview for one seller (read-only; rolled back at the end) ----
+    preview = None
+    seller_id = request.query_params.get("seller_id")
+    if seller_id:
+        try:
+            sid = int(seller_id)
+            level = int(request.query_params.get("level", "100"))
+            seller = db.query(User).filter(User.id == sid).first()
+            if seller is None:
+                preview = {"error": f"seller {sid} not found"}
+            else:
+                saved = seller.cycle_sale_count
+                rows = {}
+                for label, cyc in [("next_sale", saved or 0), ("sale_3_opsfee", 2),
+                                   ("sale_6_firstpassup", 5), ("sale_9_passup", 8),
+                                   ("sale_11_passup", 10), ("sale_12_postcycle", 11)]:
+                    seller.cycle_sale_count = cyc
+                    r = _ale.resolve_payee(db, sid, level)
+                    eid = r["earner_id"]
+                    routed = _als.AL_HOUSE_USER_ID if eid == _pe.COMPANY else eid
+                    rows[label] = {
+                        "cycle_position": _pe.cycle_position(cyc),
+                        "type": r["type"],
+                        "payee_user_id": routed,
+                        "payee_username": _uname(routed),
+                        "to_house_account": (routed == _als.AL_HOUSE_USER_ID),
+                        "pass_up_depth": r.get("pass_up_depth", 0),
+                    }
+                seller.cycle_sale_count = saved
+                preview = {"seller_id": sid, "seller_username": seller.username,
+                           "pack_level_previewed": level, "routes": rows}
+        except ValueError:
+            preview = {"error": "seller_id and level must be integers"}
+        finally:
+            db.rollback()   # discard the in-session cycle_sale_count changes — read-only
+
+    return {
+        "house_account": house_info,
+        "wiring": wiring,
+        "resolve_preview": preview,
+        "note": ("Read-only. The 3rd sale (operational fee) and any pass-up whose chain "
+                 "finds nobody qualified route to the house account; pass-ups (6/9/11) "
+                 "climb to the first qualified upline. If house_account.can_be_paid is false, "
+                 "add a receiving method to the house account or those sales lock a payee "
+                 "with no payout target."),
+    }
+
+
 @app.get("/admin/api/al/diag-showcase")
 def al_diag_showcase(secret: str, username: str = "", db: Session = Depends(get_db)):
     """Secret-gated: shows whether a member's campaign is eligible for the
