@@ -70216,6 +70216,95 @@ def al_comp_audit(request: Request, user: User = Depends(get_current_user), db: 
     }
 
 
+@app.get("/admin/api/al/member-support")
+def al_member_support(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Read-only support snapshot for 'my packs aren't active / I'm not getting
+    views'. Resolve a member by ?email= (or ?username= / ?user_id=) and dump
+    their pack purchases, campaigns, watch-rotation eligibility and a plain
+    diagnosis. No writes. Admin session, MIGRATION_SECRET or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    email = (request.query_params.get("email", "") or "").strip().lower()
+    uname = (request.query_params.get("username", "") or "").strip()
+    uid = (request.query_params.get("user_id", "") or "").strip()
+    if email:
+        t = db.query(User).filter(func.lower(User.email) == email).first()
+    elif uname:
+        t = db.query(User).filter(User.username == uname).first()
+    elif uid.isdigit():
+        t = db.query(User).filter(User.id == int(uid)).first()
+    else:
+        t = None
+    if not t:
+        return JSONResponse({"error": "member not found (pass ?email= / ?username= / ?user_id=)"}, status_code=404)
+
+    from . import al_engine as _ale
+
+    packs = (db.query(PackPurchase).filter(PackPurchase.user_id == t.id)
+               .order_by(PackPurchase.id.desc()).all())
+    pack_rows = [{
+        "purchase_id": p.id, "pack_level": p.pack_level, "status": p.status,
+        "source": p.source, "campaign_id": p.campaign_id,
+        "activated_at": str(p.activated_at) if p.activated_at else None,
+        "completed_at": str(p.completed_at) if p.completed_at else None,
+        "grace_expires_at": str(p.grace_expires_at) if p.grace_expires_at else None,
+        "expired_at": str(p.expired_at) if p.expired_at else None,
+    } for p in packs]
+
+    camps = db.query(VideoCampaign).filter(VideoCampaign.user_id == t.id).all()
+    pool = _rotate_share_campaigns(db)
+    pool_ids = [c.id for c in pool] if pool else []
+    camp_rows = []
+    for c in camps:
+        reasons = []
+        if c.status != "active":
+            reasons.append(f"status='{c.status}' (need 'active')")
+        if not getattr(c, "share_approved", False):
+            reasons.append("share_approved=False (needs approval to enter the pool)")
+        if c.is_completed:
+            reasons.append("is_completed=True (views target already reached)")
+        camp_rows.append({
+            "campaign_id": c.id, "title": c.title, "status": c.status,
+            "share_approved": bool(getattr(c, "share_approved", False)),
+            "is_completed": bool(c.is_completed),
+            "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
+            "in_live_rotation": c.id in pool_ids,
+            "blocking_reasons": reasons or ["none — eligible for views"],
+        })
+
+    diag = []
+    active_packs = [p for p in packs if p.status == "active"]
+    if not packs:
+        diag.append("No pack purchases at all — nothing to activate.")
+    elif not active_packs:
+        pend = [p.status for p in packs]
+        diag.append(f"Has {len(packs)} pack purchase(s) but NONE are status='active' (statuses: {pend}). "
+                    "A pack only activates when its sale is CONFIRMED — a stuck 'pending' means the "
+                    "buy/settlement never completed.")
+    active_camps = [c for c in camps if c.status == "active"
+                    and getattr(c, "share_approved", False) and not c.is_completed]
+    if not camps:
+        diag.append("No campaigns exist — a pack delivers views through a campaign; without one there are no views.")
+    elif not active_camps:
+        diag.append("Campaign(s) exist but none are rotation-eligible (see blocking_reasons) — that's why no views.")
+    elif not any(c.id in pool_ids for c in camps):
+        diag.append("An eligible campaign exists but isn't in the live pool this instant (rotation is weighted/random) — recheck.")
+
+    return {
+        "user": {"id": t.id, "username": t.username, "email": t.email,
+                 "is_active": bool(t.is_active), "access_level": getattr(t, "access_level", None),
+                 "membership_active": _ale.membership_active(db, t.id),
+                 "payable": _ale.payable(db, t.id),
+                 "earning_level": _ale.earning_level(db, t.id)},
+        "packs": pack_rows,
+        "campaigns": camp_rows,
+        "diagnosis": diag or ["Nothing obviously wrong — a pack is active and a campaign is rotation-eligible."],
+    }
+
+
 @app.get("/admin/api/al/diag-showcase")
 def al_diag_showcase(secret: str, username: str = "", db: Session = Depends(get_db)):
     """Secret-gated: shows whether a member's campaign is eligible for the
