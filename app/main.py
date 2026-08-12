@@ -70298,7 +70298,10 @@ def al_member_support(request: Request, user: User = Depends(get_current_user), 
                  "is_active": bool(t.is_active), "access_level": getattr(t, "access_level", None),
                  "membership_active": _ale.membership_active(db, t.id),
                  "payable": _ale.payable(db, t.id),
-                 "earning_level": _ale.earning_level(db, t.id)},
+                 "owned_level": _ale.owned_level(db, t.id),
+                 "earning_level": _ale.earning_level(db, t.id),
+                 "watch_qualified": _ale.watch_qualified(db, t.id),
+                 "share_qualified": _ale.share_qualified(db, t.id)},
         "packs": pack_rows,
         "campaigns": camp_rows,
         "diagnosis": diag or ["Nothing obviously wrong — a pack is active and a campaign is rotation-eligible."],
@@ -74027,9 +74030,8 @@ def _al_pack_state(db, user, pack):
 @app.get("/api/al/share-status")
 def al_share_status(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Weekly-share state for the member: are they share-qualified (shared within
-    the rolling 7 days), when's the next share due, and which packs are currently
-    paused for lack of a share. Drives the weekly-share button UI."""
-    _ale._apply_share_pause(db, user.id)  # make status current
+    the rolling 7 days) and when's the next share due. Drives the weekly-share
+    button UI. (Packs are never paused — the share requirement is an earn gate.)"""
     link = _get_or_create_share_link(db, user)
     qualified = _ale.share_qualified(db, user.id)
     next_due = None
@@ -74110,7 +74112,7 @@ def al_weekly_share(user: User = Depends(_al_user), db: Session = Depends(get_db
     gate. A member with a pack but no ad is told to create their ad first."""
     has_campaign = (db.query(VideoCampaign)
                       .filter(VideoCampaign.user_id == user.id,
-                              VideoCampaign.status == "active").first())
+                              VideoCampaign.status != "deleted").first())
     if not has_campaign:
         return JSONResponse({"error": "no_campaign",
                              "message": "Create your video ad first — there's "
@@ -74120,14 +74122,7 @@ def al_weekly_share(user: User = Depends(_al_user), db: Session = Depends(get_db
     link.last_shared_at = datetime.utcnow()
     link.share_count = (link.share_count or 0) + 1
     db.commit()
-    # resume paused packs now that they're share-qualified again
-    before = db.query(PackPurchase).filter(PackPurchase.user_id == user.id,
-                                           PackPurchase.status == "paused").count()
-    _ale._apply_share_pause(db, user.id)
-    after = db.query(PackPurchase).filter(PackPurchase.user_id == user.id,
-                                          PackPurchase.status == "paused").count()
     return {"ok": True, "share_url": f"/w/{link.token}",
-            "reactivated": max(0, before - after),
             "next_due": (datetime.utcnow() + timedelta(days=_ale.SHARE_WINDOW_DAYS)).isoformat()}
 
 

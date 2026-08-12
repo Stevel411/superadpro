@@ -40,47 +40,36 @@ SHARE_GRACE_DAYS     = 7   # a new advertiser is auto-qualified for this long af
 
 
 def share_qualified(db: Session, user_id: int) -> bool:
-    """Phase-2 share gate: a member keeps their packs ACTIVE by DRIVING REAL
-    TRAFFIC to their showcase, proven by VERIFIED views — not a self-reported
-    button press (which is trivially faked). Qualified if EITHER:
-
-      • GRACE   — their first campaign went live to the showcase within the last
-                  SHARE_GRACE_DAYS. A brand-new advertiser can't have views yet,
-                  so we never pause them before real traffic can realistically
-                  arrive (same fairness logic as the 48h watch grace), OR
-      • TRACTION — at least SHARE_VIEWS_REQUIRED verified, non-self views landed
-                  on their share link in the rolling SHARE_WINDOW_DAYS window.
-
-    A "verified view" = a real viewer who watched >=30 server-proven seconds,
-    deduped one-per-fingerprint-per-day, bot-filtered, and not the sharer's own
-    session (is_self). Admin bypasses. Drives package pause/resume — NOT a
-    withdrawal gate."""
+    """Weekly-share EARN gate: a member stays eligible to earn on their sales
+    and receive pass-ups by publicly sharing their showcase page to an external
+    platform (Facebook, X, etc.) at least once every SHARE_WINDOW_DAYS. The gate
+    is the SHARE ACTION itself — recorded as ShareLink.last_shared_at when they
+    hit Share — NOT verified views: we can't force anyone to watch, so we can't
+    require views. (We still record showcase views when a click lands, for
+    stats/proof — see ShareView — but they are not the gate.) A brand-new
+    advertiser gets a SHARE_GRACE_DAYS grace from when their first campaign went
+    live, so they're never blocked before they've had a chance to share. Admin
+    bypasses. This is an EARN gate only — it NEVER pauses packs or campaigns."""
     u = db.query(User).filter(User.id == user_id).first()
     if u is None:
         return False
     if u.is_admin:
         return True
-    link = db.query(ShareLink).filter(ShareLink.user_id == user_id).first()
-    if link is None:
-        return False
     now = datetime.utcnow()
-    # GRACE: earliest showcase-approval among this member's campaigns. share_approved_at
-    # is stamped when a sale confirms and the ad goes live — the moment they first
-    # have something to share and views can begin flowing.
+    # QUALIFIED: they hit Share within the rolling window.
+    link = db.query(ShareLink).filter(ShareLink.user_id == user_id).first()
+    if (link is not None and link.last_shared_at is not None
+            and link.last_shared_at >= now - timedelta(days=SHARE_WINDOW_DAYS)):
+        return True
+    # GRACE: a new advertiser whose first campaign went live within the grace
+    # window is qualified even before their first share.
     first_live = (db.query(func.min(VideoCampaign.share_approved_at))
                     .filter(VideoCampaign.user_id == user_id,
                             VideoCampaign.share_approved_at.isnot(None))
                     .scalar())
     if first_live is not None and first_live >= now - timedelta(days=SHARE_GRACE_DAYS):
         return True
-    # TRACTION: verified, non-self views on THIS member's share link in the window.
-    verified = (db.query(ShareView.id)
-                  .filter(ShareView.share_link_id == link.id,
-                          ShareView.is_verified.is_(True),
-                          ShareView.is_self.is_(False),
-                          ShareView.verified_at >= now - timedelta(days=SHARE_WINDOW_DAYS))
-                  .count())
-    return verified >= SHARE_VIEWS_REQUIRED
+    return False
 
 
 def _apply_share_pause(db: Session, user_id: int) -> None:
@@ -132,10 +121,10 @@ def owned_level(db: Session, user_id: int) -> int:
         return 0
     if u.is_admin:
         return _ADMIN_LEVEL
-    # Lazily expire past-grace packs and apply the weekly-share pause/resume, so
-    # the earn gate always reflects current reality without a scheduler.
+    # Lazily expire past-grace packs so the earn gate reflects reality without a
+    # scheduler. (Packs are NEVER auto-paused — the weekly-share requirement is
+    # an earn gate in _member, not a pause.)
     _expire_overdue_packs(db, user_id)
-    _apply_share_pause(db, user_id)
     top = db.query(func.max(PackPurchase.pack_level)).filter(
         PackPurchase.user_id == user_id,
         PackPurchase.status == "active",
@@ -162,11 +151,10 @@ def earning_level(db: Session, user_id: int) -> int:
     if u.is_admin:
         return _ADMIN_LEVEL
     _expire_overdue_packs(db, user_id)
-    _apply_share_pause(db, user_id)
     top = db.query(func.max(PackPurchase.pack_level)).filter(
         PackPurchase.user_id == user_id,
         PackPurchase.status == "active",
-        PackPurchase.campaign_id.isnot(None),   # has a running ad — needs_ad excluded
+        PackPurchase.campaign_id.isnot(None),   # has a campaign (created) — a PAUSED campaign counts
     ).scalar()
     return int(top or 0)
 
@@ -273,16 +261,16 @@ def _member(db: Session, user_id, cache: dict):
         sponsor_id=u.sponsor_id,
         pass_up_sponsor_id=u.pass_up_sponsor_id,
         cycle_sale_count=u.cycle_sale_count or 0,
-        # EARNING eligibility requires a RUNNING AD, not just ownership. A pack
-        # in 'needs_ad' (owned, no campaign submitted) does not count — the
-        # member must be running a real advertising campaign at that level to
-        # receive a commission there. earning_level enforces this.
+        # EARNING keys off OWNERSHIP + having created a campaign (earning_level:
+        # highest active pack with a campaign, PAUSED campaign counts). A member
+        # pausing their campaign never disqualifies them.
         owned_level=earning_level(db, user_id),
         # "watch_qualified" carries the full CAN-RECEIVE gate into the pure
-        # core: watch gate AND payability AND active membership. Semantically
-        # "eligible earner". An expired annual member fails here and is skipped
-        # in the pass-up climb, same as any other failed gate.
+        # core: daily watch AND weekly showcase share AND payability AND active
+        # membership. Semantically "eligible earner". Miss any and the member is
+        # skipped in the pass-up climb (nothing is paused).
         watch_qualified=(watch_qualified(db, user_id)
+                         and share_qualified(db, user_id)
                          and payable(db, user_id)
                          and membership_active(db, user_id)),
     )

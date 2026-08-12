@@ -4262,6 +4262,26 @@ try:
 except Exception as e:
     print(f"⚠️ AdvantageLife user-columns migration failed: {e}")
 
+# ── AdvantageLife: retire the share-PAUSE (Aug 2026) ──────────────────────────
+# The weekly-share requirement is now an EARN gate (miss it -> you don't earn),
+# NOT a pack/campaign pause. Un-freeze every pack the old gate paused and its
+# campaign. A pack was ONLY ever paused by that gate (which paused pack+campaign
+# together), so this can't touch a member's own campaign-pause (whose pack stays
+# active). Idempotent — 0 rows once done.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        # campaigns first, while the paused packs still identify them
+        conn.execute(text(
+            "UPDATE video_campaigns SET status='active' WHERE status='paused' "
+            "AND id IN (SELECT campaign_id FROM pack_purchases "
+            "WHERE status='paused' AND campaign_id IS NOT NULL)"))
+        conn.execute(text("UPDATE pack_purchases SET status='active' WHERE status='paused'"))
+        conn.commit()
+        print("✅ Retired share-pause: un-froze any share-paused packs/campaigns")
+except Exception as e:
+    print(f"⚠️ share-pause retirement migration failed: {e}")
+
 # ── AdvantageLife: campaign_packs columns + seed the 9 tiers from existing config ──
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
