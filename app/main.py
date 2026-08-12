@@ -54568,11 +54568,22 @@ def api_share_my_link(request: Request, user: User = Depends(get_current_user),
 @app.post("/api/share/mark-shared")
 def api_share_mark_shared(user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
-    """Member reports that they've posted their link. Recorded for analytics
-    ONLY — deliberately NOT proof of sharing, because a button click is
-    trivially faked. Qualification (Phase 2) reads verified public views."""
+    """Member reports they've posted their showcase link to an external platform.
+    This is the weekly-share earn gate — it stamps last_shared_at, which
+    share_qualified reads. It only counts if they actually have a showcase to
+    share: a live or paused campaign (which exists only once a pack activated
+    their ad). No campaign, nothing to showcase — so we don't stamp the share or
+    fire the feed event, and a brand-new member with no pack can't 'share'."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    has_showcase = (db.query(VideoCampaign.id)
+                      .filter(VideoCampaign.user_id == user.id,
+                              VideoCampaign.status.in_(["active", "paused"])).first())
+    if not has_showcase:
+        return JSONResponse({"error": "no_campaign",
+                             "message": "There's nothing to showcase yet — create your "
+                             "video ad and activate it with a pack first, then share."},
+                            status_code=400)
     link = _get_or_create_share_link(db, user)
     link.last_shared_at = datetime.utcnow()
     link.share_count = (link.share_count or 0) + 1
@@ -74112,7 +74123,7 @@ def al_weekly_share(user: User = Depends(_al_user), db: Session = Depends(get_db
     gate. A member with a pack but no ad is told to create their ad first."""
     has_campaign = (db.query(VideoCampaign)
                       .filter(VideoCampaign.user_id == user.id,
-                              VideoCampaign.status != "deleted").first())
+                              VideoCampaign.status.in_(["active", "paused"])).first())
     if not has_campaign:
         return JSONResponse({"error": "no_campaign",
                              "message": "Create your video ad first — there's "

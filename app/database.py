@@ -4282,6 +4282,23 @@ try:
 except Exception as e:
     print(f"⚠️ share-pause retirement migration failed: {e}")
 
+# ── AdvantageLife: clear illegitimate 'shared showcase' feed events (Aug 2026) ─
+# The old mark-shared endpoint fired a "shared their showcase" activity event
+# with no campaign check, so brand-new members with no pack/ad could light up the
+# feed. Both share endpoints now require a live/paused campaign; this clears the
+# events already recorded by members who never had a real showcase. Idempotent.
+try:
+    if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
+    with engine.connect() as conn:
+        conn.execute(text(
+            "DELETE FROM activity_events WHERE event_type='share' "
+            "AND user_id NOT IN (SELECT DISTINCT user_id FROM video_campaigns "
+            "WHERE status IN ('active','paused','completed'))"))
+        conn.commit()
+        print("✅ Cleared 'shared showcase' feed events from members with no campaign")
+except Exception as e:
+    print(f"⚠️ share-event cleanup migration failed: {e}")
+
 # ── AdvantageLife: campaign_packs columns + seed the 9 tiers from existing config ──
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
