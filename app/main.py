@@ -71642,6 +71642,20 @@ def play_game_member(game: str, user: User = Depends(get_current_user)):
     return HTMLResponse(html)
 
 
+@app.get("/leaderboards")
+def leaderboards_page(user: User = Depends(get_current_user)):
+    """The monthly prize-game leaderboards page (member-gated). Client-side JS
+    reads /api/games/leaderboard for each board and the caller's own rank."""
+    if not user:
+        return RedirectResponse("/login?next=/leaderboards", status_code=302)
+    try:
+        html = open(os.path.join(os.path.dirname(__file__), "al_leaderboards.html"),
+                    encoding="utf-8").read()
+    except Exception:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return HTMLResponse(html)
+
+
 def _al_expire_stale(db):
     """Lazy expiry: pending intents older than the TTL expire on touch.
     Deterministic, no background task needed; admin sweep endpoint exists

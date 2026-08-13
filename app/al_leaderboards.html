@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Leaderboards — AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--gold:#f0a52a;--coral:#ff6b45;--green:#1faf60;--ink:#0d1230;--dim:#61708f;--line:#e8edf6;}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#eef2fa;-webkit-font-smoothing:antialiased}
+.wrap{max-width:560px;margin:0 auto;min-height:100dvh;background:#f4f7fc;padding:16px 16px 48px}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--navy2);text-decoration:none;margin-bottom:4px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;letter-spacing:-.3px;color:var(--navy);margin-top:6px}
+.brand .mk{width:26px;height:26px;border-radius:8px;background:linear-gradient(160deg,#12388f,#0a1f52);display:grid;place-items:center;box-shadow:0 3px 9px rgba(10,31,82,.25)}
+.brand .life{color:var(--red)}
+.hero{margin-top:14px;border-radius:20px;padding:20px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#0a1f52,#12388f);box-shadow:0 18px 40px -20px rgba(10,31,82,.7)}
+.hero::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(240,165,42,.5),transparent 65%)}
+.hero .lbl{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ffd48a}
+.hero h1{font-weight:900;font-size:25px;line-height:1.1;letter-spacing:-.8px;margin-top:6px;position:relative}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:13px;font-weight:600;color:#cfe0ff;margin-top:8px;max-width:92%}
+.count{display:flex;gap:8px;margin-top:14px}
+.count .u{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 0;text-align:center;flex:1}
+.count .u b{display:block;font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.count .u span{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#bcd0ff}
+.tabs{display:flex;gap:7px;margin-top:16px}
+.tab{flex:1;border:2px solid var(--line);background:#fff;border-radius:13px;padding:10px 6px;font-family:inherit;font-weight:800;font-size:12.5px;color:var(--dim);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.15s}
+.tab .ic{font-size:16px}
+.tab.on{border-color:var(--navy);color:var(--navy);box-shadow:0 8px 18px -12px rgba(10,31,82,.5)}
+.board{margin-top:14px;min-height:120px}
+.prizebar{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#fff7ea,#fff);border:1px solid #ffe4c2;border-radius:14px;padding:11px 14px;margin-bottom:12px}
+.prizebar .medal{font-size:22px}
+.prizebar b{font-size:14px;color:var(--navy)}
+.prizebar span{font-size:12px;color:var(--dim);font-weight:600}
+.row{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:8px}
+.row .rk{width:30px;font-weight:900;font-size:15px;color:var(--dim);text-align:center;flex:none}
+.row .av{width:34px;height:34px;border-radius:50%;background:#eef2fb;display:grid;place-items:center;font-size:15px;flex:none}
+.row .nm{flex:1;min-width:0}
+.row .nm b{font-size:14px;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sc{font-weight:900;font-size:16px;color:var(--navy);font-variant-numeric:tabular-nums}
+.row.top1{border-color:#f3c969;background:linear-gradient(90deg,#fffaf0,#fff)}
+.row.top1 .rk,.row.top2 .rk,.row.top3 .rk{color:var(--navy)}
+.row.me{border-color:var(--green);background:#f0fbf5;box-shadow:0 10px 24px -14px rgba(31,175,96,.6)}
+.row.me .rk,.row.me .nm b{color:var(--green)}
+.empty{text-align:center;color:var(--dim);font-weight:600;font-size:13px;padding:24px 10px;background:#fff;border:1px dashed var(--line);border-radius:14px}
+.playbtn{display:block;width:100%;margin-top:8px;border:0;border-radius:14px;padding:15px;font-family:inherit;font-weight:900;font-size:15px;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--coral));box-shadow:0 14px 30px -14px rgba(255,107,69,.7);text-decoration:none;text-align:center}
+.rules{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+.rules h3{font-size:13px;font-weight:900;color:var(--navy)}
+.rules ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.rules li{font-size:12.5px;font-weight:600;color:#404d6f;line-height:1.5;padding-left:20px;position:relative}
+.rules li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:900}
+.rules li.warn::before{content:"⚠";color:var(--coral)}
+.rules li b{color:var(--navy)}
+.disc{font-size:10.5px;font-weight:600;color:#8a97b8;margin-top:14px;line-height:1.6;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/dashboard">← Dashboard</a>
+  <div class="brand"><span class="mk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span></div>
+
+  <div class="hero">
+    <div class="lbl">Monthly Prize Games</div>
+    <h1>Top score each month wins the <em>$400 Premium pack</em>.</h1>
+    <p>Three games, three winners — one free $400 advertising pack per game, every month. Free to enter with your account.</p>
+    <div class="count">
+      <div class="u"><b id="d">--</b><span>Days</span></div>
+      <div class="u"><b id="h">--</b><span>Hrs</span></div>
+      <div class="u"><b id="m">--</b><span>Min</span></div>
+      <div class="u"><b id="s">--</b><span>Sec</span></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-b="flight"><span class="ic">🕊️</span>Freedom Flight</button>
+    <button class="tab" data-b="run"><span class="ic">🛵</span>Coast Run</button>
+    <button class="tab" data-b="beach"><span class="ic">🏖️</span>Beach Bounce</button>
+  </div>
+
+  <div class="board" id="board"><div class="empty">Loading…</div></div>
+
+  <div class="rules">
+    <h3>📋 The rules</h3>
+    <ul>
+      <li><b>Free to enter.</b> A free AdvantageLife account is all you need — no purchase, ever.</li>
+      <li>Your <b>best score</b> in each game counts. Highest verified score at month-end wins that game's <b>$400 Premium pack</b> (a free advertising pack — real ad-views, not cash).</li>
+      <li>Boards <b>reset on the 1st</b> of each month. One prize per game, per month.</li>
+      <li class="warn"><b>We watch for bots and cheats.</b> Scores are checked automatically and by hand. Bots, scripts and manipulated scores are removed and repeat offenders banned. We know exactly what people try — don't waste your time.</li>
+      <li class="warn"><b>Winners are verified.</b> Every winning run is manually reviewed before the pack is granted. Positions here are provisional until confirmed.</li>
+    </ul>
+    <div class="disc">Skill-based prize game. No income is promised or guaranteed — the prize is a free advertising product with defined ad-view deliverables. Full terms &amp; conditions apply.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var UNIT={flight:"",run:"m",beach:"m"};
+  var boardEl=document.getElementById("board");
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function medal(i){return i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);}
+
+  function render(key,data){
+    var unit=UNIT[key]||"", h="";
+    h+='<div class="prizebar"><span class="medal">🏆</span><div><b>$400 Premium pack</b> <span>— to this month\'s #1</span></div></div>';
+    var top=(data&&data.top)||[];
+    if(!top.length){
+      h+='<div class="empty">No scores yet this month — be the first on the board!</div>';
+    } else {
+      top.forEach(function(r,i){
+        h+='<div class="row '+(i<3?"top"+(i+1):"")+'"><div class="rk">'+medal(i)+'</div>'+
+           '<div class="av">'+(i===0?"👑":"🎮")+'</div>'+
+           '<div class="nm"><b>@'+esc(r.username)+'</b></div>'+
+           '<div class="sc">'+Number(r.score).toLocaleString()+unit+'</div></div>';
+      });
+    }
+    var me=data&&data.me;
+    if(me){
+      if(me.rank){
+        h+='<div class="row me"><div class="rk">'+me.rank+'</div><div class="av">😎</div>'+
+           '<div class="nm"><b>You</b></div><div class="sc">'+Number(me.score).toLocaleString()+unit+'</div></div>';
+      } else {
+        h+='<div class="row me"><div class="rk">—</div><div class="av">😎</div>'+
+           '<div class="nm"><b>You — not on the board yet</b></div><div class="sc">play →</div></div>';
+      }
+    }
+    h+='<a class="playbtn" href="/games/'+key+'">Play to beat your score →</a>';
+    boardEl.innerHTML=h;
+  }
+
+  function load(key){
+    boardEl.innerHTML='<div class="empty">Loading…</div>';
+    fetch("/api/games/leaderboard?game="+key,{credentials:"same-origin"})
+      .then(function(r){return r.json();})
+      .then(function(d){ render(key,d); })
+      .catch(function(){ boardEl.innerHTML='<div class="empty">Couldn\'t load the board. Try again shortly.</div>'; });
+  }
+
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});
+      t.classList.add("on"); load(t.dataset.b);
+    });
+  });
+  load("flight");
+
+  function tick(){
+    var now=new Date(), end=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()+1,1,0,0,0));
+    var s=Math.max(0,Math.floor((end-now)/1000));
+    function p(n){return String(n).padStart(2,"0");}
+    document.getElementById("d").textContent=p(Math.floor(s/86400));
+    document.getElementById("h").textContent=p(Math.floor(s%86400/3600));
+    document.getElementById("m").textContent=p(Math.floor(s%3600/60));
+    document.getElementById("s").textContent=p(s%60);
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>
