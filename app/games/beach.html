@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Beach Bounce — AdvantageLife (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--gold:#f0a52a;--coral:#ff6b45;--green:#1faf60;--ink:#0d1230;--dim:#61708f;--line:#e6ebf5;}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#bfe9ff;overflow:hidden;touch-action:none;overscroll-behavior:none}
+#app{position:relative;height:100dvh;width:100%;max-width:520px;margin:0 auto;overflow:hidden;background:#bfe9ff}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+
+.brand{position:absolute;top:14px;left:16px;z-index:4;display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;letter-spacing:-.3px;color:var(--navy);text-shadow:0 1px 6px rgba(255,255,255,.6)}
+.brand .mk{width:26px;height:26px;border-radius:8px;background:linear-gradient(160deg,#12388f,#0a1f52);display:grid;place-items:center;box-shadow:0 3px 9px rgba(10,31,82,.25)}
+.brand .life{color:var(--red)}
+.tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--navy2);background:rgba(255,255,255,.7);padding:4px 9px;border-radius:20px}
+
+.scoreLive{position:absolute;top:60px;left:0;right:0;z-index:4;text-align:center;font-weight:900;font-size:52px;letter-spacing:-2px;color:var(--navy);text-shadow:0 2px 12px rgba(255,255,255,.6);font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity .2s}
+.scoreLive.on{opacity:1}.scoreLive small{font-size:18px;margin-left:2px}
+.bestLive{position:absolute;top:14px;right:16px;z-index:4;font-weight:800;font-size:12px;color:var(--navy);background:rgba(255,255,255,.7);padding:5px 10px;border-radius:14px}
+
+.card{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:center;padding:26px 22px;text-align:center;background:rgba(191,233,255,.9);backdrop-filter:blur(3px)}
+.card.hide{display:none}
+.k{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:12px}
+.card h1{font-weight:900;font-size:clamp(30px,8.5vw,44px);line-height:1.03;letter-spacing:-1.5px;color:var(--navy)}
+.card h1 em{font-style:normal;color:var(--gold)}
+.card p{font-size:14.5px;font-weight:600;color:#33406a;line-height:1.6;max-width:420px;margin:14px auto 0}
+.tapicon{width:64px;height:64px;margin:18px auto 0;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--coral));display:grid;place-items:center;box-shadow:0 12px 28px -10px rgba(255,107,69,.7);animation:bob 1.1s ease-in-out infinite;color:#fff;font-weight:900;font-size:11px;letter-spacing:.04em}
+@keyframes bob{50%{transform:translateY(-9px)}}
+.big{font-weight:900;font-size:clamp(46px,15vw,74px);letter-spacing:-2px;margin:2px 0;background:linear-gradient(90deg,var(--green),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub2{font-size:14px;font-weight:800;color:var(--navy);margin-top:2px}
+.rank{margin:12px auto 0;font-size:14px;font-weight:800;color:#16924f;background:#e7f7ee;border:1px solid #bfe9d1;border-radius:14px;padding:11px 14px;max-width:400px}
+.cta{display:block;width:100%;max-width:420px;margin:20px auto 0;border:0;border-radius:16px;padding:18px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--red),#ff2743);color:#fff;box-shadow:0 16px 36px -14px rgba(200,16,46,.7)}
+.ghost{display:block;width:100%;max-width:420px;margin:10px auto 0;border:2px solid rgba(10,31,82,.15);border-radius:16px;padding:14px;cursor:pointer;font-family:inherit;font-weight:900;font-size:14px;background:rgba(255,255,255,.8);color:var(--navy)}
+.disc{font-size:10.5px;font-weight:600;color:#5f7196;max-width:400px;margin:16px auto 0;line-height:1.6}
+.mockbadge{position:absolute;top:44px;right:16px;z-index:20;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);background:rgba(255,255,255,.85);padding:5px 10px;border-radius:20px}
+.steer{position:absolute;bottom:16px;left:0;right:0;z-index:4;text-align:center;font-size:12px;font-weight:700;color:var(--navy);opacity:.55;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.tapicon{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="cv"></canvas>
+  <div class="brand"><span class="mk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span> <span class="tag">Beach Bounce</span></div>
+  <div class="bestLive" id="bestLive">Best 0m</div>
+  <div class="scoreLive" id="scoreLive">0<small>m</small></div>
+  <div class="steer" id="steer">hold / drag left &amp; right to steer</div>
+  <div class="mockbadge">Concept mockup</div>
+
+  <div class="card" id="startCard">
+    <div class="k">Skill · steering · high score</div>
+    <h1>Beach <em>Bounce</em>.</h1>
+    <p>You bounce automatically — <b>hold or drag left and right</b> to steer onto the palm planks and beach rafts. Grab the rings, keep climbing toward the sun. Don't fall!</p>
+    <div class="tapicon">HOLD<br>to steer</div>
+    <button class="cta" id="startBtn">Start bouncing →</button>
+    <div class="disc">A game, for fun — not an earnings projection. Nothing here is a promise of income.</div>
+  </div>
+
+  <div class="card hide" id="endCard">
+    <div class="k">Splashdown</div>
+    <div class="big" id="finalScore">0m</div>
+    <div class="sub2" id="finalSub">climbed</div>
+    <div class="rank" id="rank">🏆 You'd rank #— this week</div>
+    <p style="margin-top:14px"><b>Every bounce took you higher.</b> AdvantageLife is the real climb toward the sunshine — free to join, and your first bounce is today.</p>
+    <button class="cta" id="claimBtn">Claim my spot — free →</button>
+    <button class="ghost" id="shareBtn">⚔️ Challenge your team</button>
+    <div class="disc">Mockup. Live, this signs you up free under the member whose link you played from. No income is promised or guaranteed.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var app=document.getElementById("app"),cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+  var scoreLive=document.getElementById("scoreLive"),bestLive=document.getElementById("bestLive");
+  var W=0,H=0,DPR=1;
+  var best=0; try{best=parseInt(localStorage.getItem("al_beach_best")||"0",10)||0;}catch(e){}
+  bestLive.textContent="Best "+best+"m";
+
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=app.clientWidth;H=app.clientHeight;
+    cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+"px";cv.style.height=H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener("resize",resize);resize();
+
+  var G=1500, BOUNCE=-780, MAXVX=430, PW=78, PH=16;
+  var state="ready", ball, plats, rings, highestY, scrolled, score, pointerX=null, keyDir=0, palms;
+
+  function newPlat(y){
+    var moving = score>250 && Math.random()<0.28;
+    return { x:Math.random()*(W-PW), y:y, w:PW, type:moving?"raft":"plank", vx:moving?(Math.random()<.5?-1:1)*(60+Math.random()*50):0 };
+  }
+  function reset(){
+    ball={x:W/2, y:H*0.7, vx:0, vy:0, r:17, rot:0};
+    plats=[]; rings=[]; scrolled=0; score=0; keyDir=0; pointerX=null;
+    // starting platform under the ball + a ladder upward
+    plats.push({x:ball.x-PW/2,y:H*0.7+ball.r+4,w:PW,type:"plank",vx:0});
+    var y=H*0.7+ball.r+4;
+    while(y>-40){ y-=70+Math.random()*55; plats.push(newPlat(y)); if(Math.random()<0.3)rings.push({x:Math.random()*(W-24)+12,y:y-34,got:false}); }
+    highestY=y;
+    scoreLive.innerHTML='0<small>m</small>';
+    // decorative background palms (fixed screen positions, gentle parallax)
+    palms=[]; for(var i=0;i<4;i++)palms.push({x:(i*0.31+0.06)*W, s:0.8+Math.random()*0.5});
+  }
+
+  function generateUp(){
+    while(highestY > -60){
+      highestY -= 70+Math.random()*55;
+      plats.push(newPlat(highestY));
+      if(Math.random()<0.28) rings.push({x:Math.random()*(W-24)+12,y:highestY-32,got:false});
+    }
+  }
+
+  function die(){
+    state="dead"; if(window.onGameOver)window.onGameOver(score);
+    if(score>best){best=score;bestLive.textContent="Best "+best+"m";try{localStorage.setItem("al_beach_best",best);}catch(e){}}
+    var rank=score>1200?1:score>600?4:score>220?12:26;
+    document.getElementById("finalScore").textContent=score+"m";
+    document.getElementById("finalSub").textContent="climbed"+(best===score&&score>0?"  ·  new best!":"");
+    document.getElementById("rank").textContent="🏆 You'd rank #"+rank+" this week";
+    setTimeout(function(){document.getElementById("endCard").classList.remove("hide");scoreLive.classList.remove("on");},560);
+  }
+
+  function step(dt){
+    if(state==="ready"){ ball.vy=BOUNCE; state="play"; scoreLive.classList.add("on"); }
+    if(state!=="play"){
+      if(state==="dead"){ ball.vy+=G*dt; ball.y+=ball.vy*dt; }
+      return;
+    }
+    // steer
+    if(pointerX!==null){ ball.vx = Math.max(-MAXVX,Math.min(MAXVX,(pointerX-ball.x)*7)); }
+    else if(keyDir!==0){ ball.vx += keyDir*1600*dt; ball.vx=Math.max(-MAXVX,Math.min(MAXVX,ball.vx)); }
+    else { ball.vx*=0.86; }
+    ball.x+=ball.vx*dt; ball.rot+=ball.vx*dt*0.02;
+    // wrap
+    if(ball.x<-ball.r)ball.x=W+ball.r; else if(ball.x>W+ball.r)ball.x=-ball.r;
+    // gravity
+    ball.vy+=G*dt; ball.y+=ball.vy*dt;
+    // move rafts
+    for(var i=0;i<plats.length;i++){ var p=plats[i]; if(p.vx){ p.x+=p.vx*dt; if(p.x<0){p.x=0;p.vx*=-1;} else if(p.x+p.w>W){p.x=W-p.w;p.vx*=-1;} } }
+    // bounce (only when falling)
+    if(ball.vy>0){
+      for(var j=0;j<plats.length;j++){ var pl=plats[j];
+        if(ball.x> pl.x-ball.r && ball.x< pl.x+pl.w+ball.r && ball.y+ball.r>=pl.y && ball.y+ball.r<=pl.y+PH+14){
+          ball.vy=BOUNCE; ball.y=pl.y-ball.r; break;
+        }
+      }
+    }
+    // rings
+    for(var r=rings.length-1;r>=0;r--){ var rr=rings[r];
+      if(Math.abs(rr.x-ball.x)<22 && Math.abs(rr.y-ball.y)<22){ score+=25; scoreLive.innerHTML=score+'<small>m</small>'; rings.splice(r,1); } }
+    // camera: scroll world down when ball climbs above 42%
+    var thr=H*0.42;
+    if(ball.y<thr){ var dy=thr-ball.y; ball.y=thr;
+      for(var a=0;a<plats.length;a++)plats[a].y+=dy;
+      for(var b=0;b<rings.length;b++)rings[b].y+=dy;
+      highestY+=dy; scrolled+=dy; score=Math.floor(scrolled/9); scoreLive.innerHTML=score+'<small>m</small>';
+    }
+    // cull below + generate above
+    plats=plats.filter(function(p){return p.y<H+40;});
+    rings=rings.filter(function(r){return r.y<H+40 && !r.got;});
+    generateUp();
+    // fall out
+    if(ball.y-ball.r>H) die();
+  }
+
+  function palmTree(x,baseY,s){
+    ctx.save(); ctx.translate(x,baseY); ctx.scale(s,s);
+    ctx.strokeStyle="#b07d46"; ctx.lineWidth=9; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(10,-40,-4,-78); ctx.stroke();
+    ctx.fillStyle="#2fa36a";
+    var tx=-4,ty=-78;
+    for(var a=0;a<6;a++){ var ang=Math.PI+a*(Math.PI/5)- .3;
+      ctx.beginPath(); ctx.moveTo(tx,ty);
+      ctx.quadraticCurveTo(tx+Math.cos(ang)*30,ty+Math.sin(ang)*30-8, tx+Math.cos(ang)*52,ty+Math.sin(ang)*52+10);
+      ctx.quadraticCurveTo(tx+Math.cos(ang)*30,ty+Math.sin(ang)*30+4, tx,ty); ctx.fill(); }
+    ctx.restore();
+  }
+  function drawPlat(p){
+    if(p.type==="raft"){
+      ctx.fillStyle="#37b7d6"; ctx.strokeStyle="#1f8fb0"; ctx.lineWidth=2;
+      roundRect(p.x,p.y,p.w,PH,7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,.5)"; for(var s=0;s<3;s++)ctx.fillRect(p.x+8+s*(p.w-16)/3,p.y+3,(p.w-24)/3,3);
+    } else {
+      ctx.fillStyle="#c89b5e"; ctx.strokeStyle="#9a7440"; ctx.lineWidth=2;
+      roundRect(p.x,p.y,p.w,PH,5); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle="rgba(0,0,0,.12)"; ctx.beginPath();
+      for(var g=1;g<3;g++){ctx.moveTo(p.x+p.w*g/3,p.y+3);ctx.lineTo(p.x+p.w*g/3,p.y+PH-3);} ctx.stroke();
+    }
+  }
+  function roundRect(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  function drawBall(){
+    ctx.save(); ctx.translate(ball.x,ball.y); ctx.rotate(ball.rot);
+    var cols=["#ff5a5f","#ffd23f","#1fb6c9","#ffffff","#ff8a3d","#5b8def"];
+    for(var i=0;i<6;i++){ ctx.fillStyle=cols[i]; ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.arc(0,0,ball.r,i*Math.PI/3,(i+1)*Math.PI/3); ctx.closePath(); ctx.fill(); }
+    ctx.strokeStyle="rgba(10,31,82,.25)"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(0,0,ball.r,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle="rgba(255,255,255,.55)"; ctx.beginPath(); ctx.arc(-ball.r*0.3,-ball.r*0.3,ball.r*0.28,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  function draw(){
+    var warm=Math.min(1,score/900);
+    var sky=ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,"hsl("+(200-warm*8)+","+(80+warm*15)+"%,"+(80+warm*8)+"%)");
+    sky.addColorStop(1,"#dff4ff");
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    // sun (bigger/brighter as you climb)
+    ctx.fillStyle="rgba(255,214,110,"+(0.5+warm*0.45)+")";ctx.beginPath();ctx.arc(W*0.78,H*0.15,40+warm*24,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="rgba(255,214,110,.2)";ctx.beginPath();ctx.arc(W*0.78,H*0.15,72+warm*30,0,Math.PI*2);ctx.fill();
+    // background palms low down, fade out as you climb
+    if(score<260 && palms){ ctx.globalAlpha=Math.max(0,1-score/260);
+      ctx.fillStyle="#f4e2b8"; ctx.fillRect(0,H-40,W,40);
+      for(var i=0;i<palms.length;i++)palmTree(palms[i].x, H-38, palms[i].s);
+      ctx.globalAlpha=1;
+    }
+    for(var p=0;p<plats.length;p++)drawPlat(plats[p]);
+    for(var r=0;r<rings.length;r++){ var rr=rings[r];
+      ctx.strokeStyle="#ff6b45"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(rr.x,rr.y,11,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle="#fff"; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(rr.x,rr.y,11,0.4,1.6); ctx.stroke(); }
+    drawBall();
+  }
+
+  var raf,last=0;
+  function loop(ts){ if(!last)last=ts; var dt=Math.min(0.033,(ts-last)/1000); last=ts; step(dt); draw(); raf=requestAnimationFrame(loop); }
+
+  function ptr(e){ if(state==="dead")return; var t=e.touches?e.touches[0]:e; if(!t)return;
+    if(e.target&&e.target.closest&&e.target.closest(".card"))return; if(e.cancelable)e.preventDefault();
+    var rect=cv.getBoundingClientRect(); pointerX=t.clientX-rect.left; }
+  app.addEventListener("touchstart",ptr,{passive:false});
+  app.addEventListener("touchmove",ptr,{passive:false});
+  app.addEventListener("touchend",function(){pointerX=null;});
+  app.addEventListener("mousedown",function(e){if(e.target.closest(".card"))return;ptr(e);});
+  app.addEventListener("mousemove",function(e){if(pointerX!==null)ptr(e);});
+  window.addEventListener("mouseup",function(){pointerX=null;});
+  document.addEventListener("keydown",function(e){ if(e.key==="ArrowLeft"){keyDir=-1;e.preventDefault();} else if(e.key==="ArrowRight"){keyDir=1;e.preventDefault();} });
+  document.addEventListener("keyup",function(e){ if((e.key==="ArrowLeft"&&keyDir<0)||(e.key==="ArrowRight"&&keyDir>0))keyDir=0; });
+
+  document.getElementById("startBtn").addEventListener("click",function(e){e.stopPropagation();document.getElementById("startCard").classList.add("hide");reset();state="ready";scoreLive.classList.add("on");});
+  document.getElementById("claimBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> free signup, dropped under the member whose game link you played from.");});
+  document.getElementById("shareBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> generates YOUR game link to challenge your network. Anyone who plays and joins lands under you.");});
+  document.getElementById("endCard").addEventListener("click",function(e){ if(e.target.closest(".cta")||e.target.closest(".ghost"))return; document.getElementById("endCard").classList.add("hide"); reset(); state="ready"; scoreLive.classList.add("on"); });
+
+  reset(); last=0; raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

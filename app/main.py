@@ -71594,6 +71594,54 @@ def games_leaderboard(request: Request, game: str = "flight", period: str = "",
             "players": q.count()}
 
 
+_GAMES_DIR = os.path.join(os.path.dirname(__file__), "games")
+_GAME_WRAPPER = """
+<script>
+(function(){
+  var cfg = window.GAME_CFG || {mode:"preview", game:""};
+  window.onGameOver = function(score){
+    score = Math.max(0, Math.floor(Number(score)||0));
+    window.__lastScore = score;
+    if(cfg.mode==="member" && cfg.submitUrl){
+      fetch(cfg.submitUrl,{method:"POST",headers:{"Content-Type":"application/json"},
+        credentials:"same-origin",body:JSON.stringify({game:cfg.game,score:score})}).catch(function(){});
+    }
+  };
+  function rebind(id,label,fn){ var b=document.getElementById(id); if(!b)return;
+    var n=b.cloneNode(true); if(label)n.textContent=label; b.parentNode.replaceChild(n,b);
+    n.addEventListener("click",function(e){ e.stopPropagation(); fn(); }); }
+  window.addEventListener("load",function(){
+    if(cfg.mode==="member"){
+      rebind("claimBtn","\\uD83C\\uDFC6 See the leaderboard \\u2192",function(){ location.href="/leaderboards"; });
+      rebind("shareBtn","\\u21BB Play again",function(){ location.reload(); });
+    } else if(cfg.mode==="play"){
+      rebind("claimBtn",null,function(){ location.href=cfg.claimUrl||"/register"; });
+      rebind("shareBtn",null,function(){ try{ if(navigator.share){navigator.share({title:"Beat my score on AdvantageLife",url:location.href});} else if(navigator.clipboard){ navigator.clipboard.writeText(location.href); } }catch(e){} });
+    }
+  });
+})();
+</script>
+"""
+
+@app.get("/games/{game}")
+def play_game_member(game: str, user: User = Depends(get_current_user)):
+    """Serve a prize game to a logged-in member (competition mode): the score
+    submits to their monthly board. Anonymous visitors are sent to log in."""
+    game = (game or "").strip().lower()
+    if game not in GAME_KEYS:
+        return RedirectResponse("/dashboard", status_code=302)
+    if not user:
+        return RedirectResponse("/login?next=/games/" + game, status_code=302)
+    try:
+        html = open(os.path.join(_GAMES_DIR, game + ".html"), encoding="utf-8").read()
+    except Exception:
+        return JSONResponse({"error": "game_not_found"}, status_code=404)
+    cfg = ('<script>window.GAME_CFG={mode:"member",game:"%s",'
+           'submitUrl:"/api/games/submit-score"};</script>' % game)
+    html = html.replace("</head>", cfg + _GAME_WRAPPER + "</head>", 1)
+    return HTMLResponse(html)
+
+
 def _al_expire_stale(db):
     """Lazy expiry: pending intents older than the TTL expire on touch.
     Deterministic, no background task needed; admin sweep endpoint exists

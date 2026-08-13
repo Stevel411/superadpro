@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Coast Run — AdvantageLife (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--gold:#f0a52a;--coral:#ff6b45;--green:#1faf60;--ink:#0d1230;--dim:#61708f;--line:#e6ebf5;}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#dff1ff;overflow:hidden;touch-action:none;overscroll-behavior:none}
+#app{position:relative;height:100dvh;width:100%;max-width:520px;margin:0 auto;overflow:hidden;background:#cfeaff}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+
+.brand{position:absolute;top:14px;left:16px;z-index:4;display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;letter-spacing:-.3px;color:var(--navy);text-shadow:0 1px 6px rgba(255,255,255,.6)}
+.brand .mk{width:26px;height:26px;border-radius:8px;background:linear-gradient(160deg,#12388f,#0a1f52);display:grid;place-items:center;box-shadow:0 3px 9px rgba(10,31,82,.25)}
+.brand .life{color:var(--red)}
+.tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--navy2);background:rgba(255,255,255,.7);padding:4px 9px;border-radius:20px}
+
+.hud{position:absolute;top:58px;left:0;right:0;z-index:4;display:flex;justify-content:center;gap:16px;align-items:baseline;pointer-events:none;opacity:0;transition:opacity .2s}
+.hud.on{opacity:1}
+.hud .dist{font-weight:900;font-size:46px;letter-spacing:-2px;color:#fff;text-shadow:0 3px 12px rgba(10,31,82,.45);font-variant-numeric:tabular-nums}
+.hud .dist small{font-size:16px;font-weight:800;letter-spacing:0;margin-left:2px}
+.hud .coins{font-weight:900;font-size:20px;color:#7a4d00;background:rgba(255,215,120,.92);padding:5px 12px;border-radius:16px;align-self:center;box-shadow:0 4px 12px -6px rgba(240,165,42,.7)}
+.bestLive{position:absolute;top:14px;right:16px;z-index:4;font-weight:800;font-size:12px;color:var(--navy);background:rgba(255,255,255,.7);padding:5px 10px;border-radius:14px}
+
+.card{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:center;padding:26px 22px;text-align:center;background:rgba(207,234,255,.88);backdrop-filter:blur(3px)}
+.card.hide{display:none}
+.k{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:12px}
+.card h1{font-weight:900;font-size:clamp(30px,8.5vw,44px);line-height:1.03;letter-spacing:-1.5px;color:var(--navy)}
+.card h1 em{font-style:normal;color:var(--gold)}
+.card p{font-size:14.5px;font-weight:600;color:#33406a;line-height:1.6;max-width:420px;margin:14px auto 0}
+.tapicon{width:64px;height:64px;margin:18px auto 0;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--coral));display:grid;place-items:center;box-shadow:0 12px 28px -10px rgba(255,107,69,.7);animation:bob 1.1s ease-in-out infinite;color:#fff;font-weight:900;font-size:13px;letter-spacing:.05em}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.big{font-weight:900;font-size:clamp(40px,13vw,64px);letter-spacing:-2px;margin:2px 0;background:linear-gradient(90deg,var(--green),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub2{font-size:14px;font-weight:800;color:var(--navy);margin-top:2px}
+.rank{margin:12px auto 0;font-size:14px;font-weight:800;color:#16924f;background:#e7f7ee;border:1px solid #bfe9d1;border-radius:14px;padding:11px 14px;max-width:400px}
+.cta{display:block;width:100%;max-width:420px;margin:20px auto 0;border:0;border-radius:16px;padding:18px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--red),#ff2743);color:#fff;box-shadow:0 16px 36px -14px rgba(200,16,46,.7)}
+.ghost{display:block;width:100%;max-width:420px;margin:10px auto 0;border:2px solid rgba(10,31,82,.15);border-radius:16px;padding:14px;cursor:pointer;font-family:inherit;font-weight:900;font-size:14px;background:rgba(255,255,255,.8);color:var(--navy)}
+.disc{font-size:10.5px;font-weight:600;color:#5f7196;max-width:400px;margin:16px auto 0;line-height:1.6}
+.mockbadge{position:absolute;top:44px;right:16px;z-index:20;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);background:rgba(255,255,255,.85);padding:5px 10px;border-radius:20px}
+@media (prefers-reduced-motion:reduce){.tapicon{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="cv"></canvas>
+  <div class="brand"><span class="mk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span> <span class="tag">Coast Run</span></div>
+  <div class="bestLive" id="bestLive">Best 0m</div>
+  <div class="hud" id="hud"><div class="dist" id="dist">0<small>m</small></div><div class="coins" id="coins">◎ 0</div></div>
+  <div class="mockbadge">Concept mockup</div>
+
+  <div class="card" id="startCard">
+    <div class="k">Skill · timing · high score</div>
+    <h1>Coast <em>Run</em>.</h1>
+    <p>Ride the coast road toward the villa. Tap to hop the rocks and crates, scoop the coins, and go as far as you can — it speeds up the further you get.</p>
+    <div class="tapicon">TAP<br>to hop</div>
+    <button class="cta" id="startBtn">Start the ride →</button>
+    <div class="disc">A game, for fun — not an earnings projection. Nothing here is a promise of income.</div>
+  </div>
+
+  <div class="card hide" id="endCard">
+    <div class="k">Wiped out</div>
+    <div class="big" id="finalDist">0m</div>
+    <div class="sub2" id="finalCoins">◎ 0 coins collected</div>
+    <div class="rank" id="rank">🏆 You'd rank #— this week</div>
+    <p style="margin-top:14px"><b>Every metre was you, moving.</b> AdvantageLife is the real road to the coast — free to join, and the first stretch starts today.</p>
+    <button class="cta" id="claimBtn">Claim my spot — free →</button>
+    <button class="ghost" id="shareBtn">⚔️ Challenge your team</button>
+    <div class="disc">Mockup. Live, this signs you up free under the member whose link you played from. No income is promised or guaranteed.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var app=document.getElementById("app"),cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var distEl=document.getElementById("dist"),coinsEl=document.getElementById("coins"),
+      bestLive=document.getElementById("bestLive"),hud=document.getElementById("hud");
+  var W=0,H=0,DPR=1,groundY=0,skyH=0;
+  var best=0; try{best=parseInt(localStorage.getItem("al_run_best")||"0",10)||0;}catch(e){}
+  bestLive.textContent="Best "+best+"m";
+
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=app.clientWidth;H=app.clientHeight;
+    cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+"px";cv.style.height=H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    groundY=H*0.82; // wheels touch here
+  }
+  window.addEventListener("resize",resize);resize();
+
+  var G=2600, JUMP=-980;
+  var state="ready", speed=280, dist=0, coins=0, worldX=0;
+  var rider, obs, coinArr, spawnT, coinT, shake;
+
+  function reset(){
+    speed=280;dist=0;coins=0;worldX=0;shake=0;
+    rider={x:W*0.24, y:groundY, vy:0, grounded:true, wheel:0, tilt:0};
+    obs=[]; coinArr=[]; spawnT=0.7; coinT=1.4;
+    distEl.innerHTML="0<small>m</small>"; coinsEl.textContent="◎ 0";
+  }
+  function jump(){
+    if(state==="ready"){state="play";hud.classList.add("on");}
+    if(state==="play" && rider.grounded){ rider.vy=JUMP; rider.grounded=false; }
+  }
+  function tap(e){ if(state==="dead")return; if(e&&e.target&&e.target.closest&&e.target.closest(".card"))return; if(e)e.preventDefault(); jump(); }
+  app.addEventListener("touchstart",tap,{passive:false});
+  app.addEventListener("mousedown",function(e){ if(e.target.closest(".card"))return; tap(e); });
+  document.addEventListener("keydown",function(e){ if(e.code==="Space"){ if(document.querySelector(".card:not(.hide)"))return; e.preventDefault(); jump(); } });
+
+  var OBW=42;
+  function addObs(){
+    var kinds=[{h:38,t:"rock"},{h:52,t:"crate"},{h:30,t:"cone"},{h:60,t:"barrel"}];
+    var k=kinds[Math.floor(Math.random()*kinds.length)];
+    obs.push({x:W+30,w:OBW,h:k.h,t:k.t});
+  }
+  function addCoins(){
+    var n=3+Math.floor(Math.random()*4), arc=Math.random()<0.6;
+    var baseY=arc?groundY-150:groundY-70;
+    for(var i=0;i<n;i++){
+      var y=arc? baseY + Math.abs(i-(n-1)/2)*22 : baseY;
+      coinArr.push({x:W+30+i*34, y:y, got:false});
+    }
+  }
+
+  function die(){
+    state="dead"; shake=16;
+    var d=Math.floor(dist);
+    if(d>best){best=d;bestLive.textContent="Best "+best+"m";try{localStorage.setItem("al_run_best",best);}catch(e){}}
+    var total=d+coins*5; if(window.onGameOver)window.onGameOver(total);
+    var rank=total>1600?1:total>800?4:total>300?11:25;
+    document.getElementById("finalDist").textContent=d+"m";
+    document.getElementById("finalCoins").textContent="◎ "+coins+" coins collected  ·  score "+total;
+    document.getElementById("rank").textContent="🏆 You'd rank #"+rank+" this week";
+    setTimeout(function(){document.getElementById("endCard").classList.remove("hide");hud.classList.remove("on");},560);
+  }
+
+  function step(dt){
+    if(state==="play"){
+      speed+=6*dt; // ramp
+      var dx=speed*dt; worldX+=dx; dist+=dx/34; rider.wheel+=dx/13;
+      distEl.innerHTML=Math.floor(dist)+"<small>m</small>";
+      // physics
+      rider.vy+=G*dt; rider.y+=rider.vy*dt;
+      if(rider.y>=groundY){ rider.y=groundY; rider.vy=0; rider.grounded=true; }
+      rider.tilt = rider.grounded?0:Math.max(-0.25,Math.min(0.35,rider.vy/1600));
+      // spawn obstacles with fair spacing
+      spawnT-=dt;
+      if(spawnT<=0){ addObs(); spawnT=(0.85+Math.random()*0.7)*(280/speed)+0.35; }
+      coinT-=dt; if(coinT<=0){ addCoins(); coinT=1.6+Math.random()*1.6; }
+      // move + collide
+      var rb={x:rider.x-16,y:rider.y-34,w:34,h:34}; // rider body box (above wheels)
+      for(var i=obs.length-1;i>=0;i--){ var o=obs[i]; o.x-=dx;
+        if(o.x+o.w<-20){obs.splice(i,1);continue;}
+        var ob={x:o.x,y:groundY-o.h,w:o.w,h:o.h};
+        if(rb.x<ob.x+ob.w && rb.x+rb.w>ob.x && rb.y+rb.h>ob.y && rb.y<ob.y+ob.h){ die(); return; }
+      }
+      for(var c=coinArr.length-1;c>=0;c--){ var cc=coinArr[c]; cc.x-=dx;
+        if(cc.x<-20){coinArr.splice(c,1);continue;}
+        if(!cc.got && Math.abs(cc.x-rider.x)<24 && Math.abs(cc.y-(rider.y-24))<30){ cc.got=true; coins++; coinsEl.textContent="◎ "+coins; coinArr.splice(c,1); }
+      }
+    } else if(state==="dead"){
+      if(shake>0)shake-=dt*30;
+      rider.vy+=G*dt; rider.y+=rider.vy*dt; rider.tilt+=dt*3;
+    }
+  }
+
+  function drawVespa(){
+    ctx.save();
+    var sx=(state==="dead"&&shake>0)?(Math.random()-.5)*shake:0;
+    ctx.translate(rider.x+sx, rider.y); ctx.rotate(rider.tilt);
+    // wheels
+    function wheel(wx){ ctx.fillStyle="#2a3350"; ctx.beginPath();ctx.arc(wx,-13,13,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#c9d3ea";ctx.beginPath();ctx.arc(wx,-13,6,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="#2a3350";ctx.lineWidth=2;ctx.beginPath();
+      ctx.moveTo(wx+Math.cos(rider.wheel)*11,-13+Math.sin(rider.wheel)*11);ctx.lineTo(wx-Math.cos(rider.wheel)*11,-13-Math.sin(rider.wheel)*11);ctx.stroke(); }
+    wheel(-15); wheel(16);
+    // body (scooter)
+    ctx.fillStyle="#c8102e"; ctx.strokeStyle="#8a0a1f"; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(-22,-16); ctx.quadraticCurveTo(-26,-30,-16,-30); ctx.lineTo(6,-30);
+    ctx.quadraticCurveTo(20,-30,22,-14); ctx.lineTo(22,-12);
+    ctx.quadraticCurveTo(10,-18,-6,-18); ctx.quadraticCurveTo(-16,-18,-22,-14); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // front shield
+    ctx.beginPath(); ctx.moveTo(20,-14); ctx.quadraticCurveTo(30,-16,29,-30); ctx.lineTo(24,-30); ctx.quadraticCurveTo(23,-20,16,-16); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // seat
+    ctx.fillStyle="#1c2540"; ctx.fillRect(-20,-33,16,5);
+    // rider
+    ctx.fillStyle="#0a1f52"; ctx.beginPath(); ctx.moveTo(-14,-33); ctx.quadraticCurveTo(-6,-50,6,-40); ctx.lineTo(2,-33); ctx.closePath(); ctx.fill();
+    ctx.fillStyle="#f0c9a0"; ctx.beginPath(); ctx.arc(2,-50,7,0,Math.PI*2); ctx.fill(); // head
+    ctx.fillStyle="#0a1f52"; ctx.beginPath(); ctx.arc(2,-53,8,Math.PI,0); ctx.fill(); // helmet/hair
+    ctx.restore();
+  }
+  function drawObs(o){
+    var x=o.x,y=groundY-o.h,w=o.w,h=o.h;
+    if(o.t==="crate"||o.t==="barrel"){
+      ctx.fillStyle=o.t==="crate"?"#c79a5e":"#7f8aa3"; ctx.strokeStyle="#6d5230"; if(o.t==="barrel")ctx.strokeStyle="#4a5470";
+      ctx.lineWidth=2; roundRect(x,y,w,h,5); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle="rgba(0,0,0,.18)"; ctx.beginPath(); ctx.moveTo(x,y+h*0.5);ctx.lineTo(x+w,y+h*0.5);ctx.stroke();
+    } else if(o.t==="cone"){
+      ctx.fillStyle="#ff7a45"; ctx.beginPath(); ctx.moveTo(x+w/2,y); ctx.lineTo(x+w,y+h); ctx.lineTo(x,y+h); ctx.closePath(); ctx.fill();
+      ctx.fillStyle="#fff"; ctx.fillRect(x+w*0.22,y+h*0.5,w*0.56,5);
+    } else { // rock
+      ctx.fillStyle="#9c8f7a"; ctx.strokeStyle="#7a6e5b"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x,y+h); ctx.quadraticCurveTo(x-2,y+h*0.3,x+w*0.4,y); ctx.quadraticCurveTo(x+w+2,y+h*0.2,x+w,y+h); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+  }
+  function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+  function draw(){
+    // sky
+    var sky=ctx.createLinearGradient(0,0,0,H*0.55);
+    sky.addColorStop(0,"#bfe6ff");sky.addColorStop(1,"#f2fbff");
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    // sun
+    ctx.fillStyle="rgba(245,200,90,.9)";ctx.beginPath();ctx.arc(W*0.82,H*0.15,30,0,Math.PI*2);ctx.fill();
+    // sea (slow parallax)
+    var seaTop=H*0.52;
+    var sea=ctx.createLinearGradient(0,seaTop,0,groundY-40);sea.addColorStop(0,"#37b8cf");sea.addColorStop(1,"#1f92b4");
+    ctx.fillStyle=sea;ctx.fillRect(0,seaTop,W,groundY-40-seaTop);
+    // coastal town silhouette (medium parallax)
+    var tx=-(worldX*0.25)%160;
+    ctx.fillStyle="#e9eef7";
+    for(var b=tx-160;b<W+40;b+=44){
+      var bh=24+((Math.floor((b+worldX*0.25)/44))%3)*14;
+      ctx.fillRect(b,seaTop-bh,34,bh);
+      ctx.fillStyle="#d9e1ee";ctx.fillRect(b,seaTop-bh,34,4);ctx.fillStyle="#e9eef7";
+    }
+    // beach
+    ctx.fillStyle="#f4e2b8";ctx.fillRect(0,groundY-40,W,40);
+    // road
+    ctx.fillStyle="#40495e";ctx.fillRect(0,groundY,W,H-groundY);
+    ctx.fillStyle="#586480";ctx.fillRect(0,groundY,W,4);
+    // road dashes (fast parallax)
+    ctx.fillStyle="rgba(255,255,255,.6)";
+    var dx2=-(worldX)%60;
+    for(var d=dx2;d<W;d+=60){ ctx.fillRect(d,groundY+(H-groundY)*0.5,30,5); }
+    // coins
+    for(var c=0;c<coinArr.length;c++){ var cc=coinArr[c];
+      ctx.fillStyle="#f5c020";ctx.strokeStyle="#c78a10";ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(cc.x,cc.y,11,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle="#8a5e00";ctx.font="900 12px Inter";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("$",cc.x,cc.y+1);
+    }
+    // obstacles
+    for(var i=0;i<obs.length;i++)drawObs(obs[i]);
+    drawVespa();
+  }
+
+  var raf,last=0;
+  function loop(ts){ if(!last)last=ts; var dt=Math.min(0.033,(ts-last)/1000); last=ts; step(dt); draw(); raf=requestAnimationFrame(loop); }
+
+  document.getElementById("startBtn").addEventListener("click",function(e){e.stopPropagation();document.getElementById("startCard").classList.add("hide");reset();state="ready";hud.classList.add("on");jump();});
+  document.getElementById("claimBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> free signup, dropped under the member whose game link you played from.");});
+  document.getElementById("shareBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> generates YOUR game link to challenge your network. Anyone who plays and joins lands under you.");});
+  document.getElementById("endCard").addEventListener("click",function(e){ if(e.target.closest(".cta")||e.target.closest(".ghost"))return; document.getElementById("endCard").classList.add("hide"); reset(); state="ready"; hud.classList.add("on"); jump(); });
+
+  reset(); last=0; raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

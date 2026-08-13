@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Freedom Flight — AdvantageLife (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--gold:#f0a52a;--coral:#ff6b45;--green:#1faf60;--ink:#0d1230;--dim:#61708f;--line:#e6ebf5;}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#eaf6ff;overflow:hidden;touch-action:none;overscroll-behavior:none}
+#app{position:relative;height:100dvh;width:100%;max-width:520px;margin:0 auto;overflow:hidden;background:#bfe6ff}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+
+.brand{position:absolute;top:14px;left:16px;z-index:4;display:flex;align-items:center;gap:8px;font-weight:900;font-size:15px;letter-spacing:-.3px;color:var(--navy);text-shadow:0 1px 6px rgba(255,255,255,.6)}
+.brand .mk{width:26px;height:26px;border-radius:8px;background:linear-gradient(160deg,#12388f,#0a1f52);display:grid;place-items:center;box-shadow:0 3px 9px rgba(10,31,82,.25)}
+.brand .life{color:var(--red)}
+.tag{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--navy2);background:rgba(255,255,255,.7);padding:4px 9px;border-radius:20px}
+
+.scoreLive{position:absolute;top:64px;left:0;right:0;z-index:4;text-align:center;font-weight:900;font-size:56px;letter-spacing:-2px;color:#fff;text-shadow:0 3px 14px rgba(10,31,82,.45);font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity .2s}
+.scoreLive.on{opacity:1}
+.bestLive{position:absolute;top:14px;right:16px;z-index:4;font-weight:800;font-size:12px;color:var(--navy);background:rgba(255,255,255,.7);padding:5px 10px;border-radius:14px}
+
+.card{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:center;padding:26px 22px;text-align:center;background:rgba(214,240,255,.86);backdrop-filter:blur(3px)}
+.card.hide{display:none}
+.k{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);margin-bottom:12px}
+.card h1{font-weight:900;font-size:clamp(30px,8.5vw,44px);line-height:1.03;letter-spacing:-1.5px;color:var(--navy)}
+.card h1 em{font-style:normal;color:var(--gold)}
+.card p{font-size:14.5px;font-weight:600;color:#33406a;line-height:1.6;max-width:420px;margin:14px auto 0}
+.tapicon{width:64px;height:64px;margin:18px auto 0;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--coral));display:grid;place-items:center;box-shadow:0 12px 28px -10px rgba(255,107,69,.7);animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.big{font-weight:900;font-size:clamp(44px,15vw,74px);letter-spacing:-2px;margin:2px 0;background:linear-gradient(90deg,var(--green),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rank{margin:12px auto 0;font-size:14px;font-weight:800;color:#16924f;background:#e7f7ee;border:1px solid #bfe9d1;border-radius:14px;padding:11px 14px;max-width:400px}
+.cta{display:block;width:100%;max-width:420px;margin:20px auto 0;border:0;border-radius:16px;padding:18px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--red),#ff2743);color:#fff;box-shadow:0 16px 36px -14px rgba(200,16,46,.7)}
+.ghost{display:block;width:100%;max-width:420px;margin:10px auto 0;border:2px solid rgba(10,31,82,.15);border-radius:16px;padding:14px;cursor:pointer;font-family:inherit;font-weight:900;font-size:14px;background:rgba(255,255,255,.8);color:var(--navy)}
+.disc{font-size:10.5px;font-weight:600;color:#5f7196;max-width:400px;margin:16px auto 0;line-height:1.6}
+.mockbadge{position:absolute;top:44px;right:16px;z-index:20;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);background:rgba(255,255,255,.85);padding:5px 10px;border-radius:20px}
+@media (prefers-reduced-motion:reduce){.tapicon{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="cv"></canvas>
+  <div class="brand"><span class="mk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Advantage<span class="life">Life</span> <span class="tag">Freedom Flight</span></div>
+  <div class="bestLive" id="bestLive">Best 0</div>
+  <div class="scoreLive" id="scoreLive">0</div>
+  <div class="mockbadge">Concept mockup</div>
+
+  <div class="card" id="startCard">
+    <div class="k">Skill · one tap · high score</div>
+    <h1>Freedom <em>Flight</em>.</h1>
+    <p>Tap to flap. Glide the coast and thread the gaps between the sea-stacks. Every gap you clear is a point — how far can you fly?</p>
+    <div class="tapicon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 20V9M12 9l-5 5M12 9l5 5" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <button class="cta" id="startBtn">Tap to start →</button>
+    <div class="disc">A game, for fun — not an earnings projection. Nothing here is a promise of income.</div>
+  </div>
+
+  <div class="card hide" id="endCard">
+    <div class="k">Down in the drink</div>
+    <div class="big" id="finalScore">0</div>
+    <p id="endMsg" style="margin-top:0"><b>0</b> gaps cleared.</p>
+    <div class="rank" id="rank">🏆 You'd rank #— this week</div>
+    <p style="margin-top:14px"><b>Fun to fly — better to build.</b> AdvantageLife is the real climb toward the coast: free to join, and your first move starts today.</p>
+    <button class="cta" id="claimBtn">Claim my spot — free →</button>
+    <button class="ghost" id="shareBtn">⚔️ Challenge your team</button>
+    <div class="disc">Mockup. Live, this signs you up free under the member whose link you played from. No income is promised or guaranteed.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var app=document.getElementById("app"), cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var scoreLive=document.getElementById("scoreLive"), bestLive=document.getElementById("bestLive");
+  var W=0,H=0,DPR=1,seaY=0;
+  var best=0; try{best=parseInt(localStorage.getItem("al_flight_best")||"0",10)||0;}catch(e){}
+  bestLive.textContent="Best "+best;
+
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=app.clientWidth; H=app.clientHeight;
+    cv.width=W*DPR; cv.height=H*DPR; cv.style.width=W+"px"; cv.style.height=H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    seaY=H-Math.max(70,H*0.13);
+  }
+  window.addEventListener("resize",resize); resize();
+
+  var G=2000, FLAP=-560, SPEED=170, GAPW=64;
+  var bird, obs, score, state="ready", t0=0, spawnX=0, gapH=0, shake=0, seaScroll=0;
+
+  function reset(){
+    gapH=Math.max(150, (seaY)*0.32);
+    bird={x:W*0.30, y:seaY*0.45, v:0, r:15, rot:0};
+    obs=[]; score=0; spawnX=W+120; shake=0;
+    scoreLive.textContent="0";
+    // pre-seed a couple so it isn't empty
+    addObs(W*0.95); addObs(W*0.95+(W*0.62));
+  }
+  function addObs(x){
+    var margin=60;
+    var gy=margin+Math.random()*(seaY-gapH-margin*2);
+    obs.push({x:x, gy:gy, scored:false, w:GAPW});
+  }
+  function flap(){
+    if(state==="ready"){ state="play"; scoreLive.classList.add("on"); }
+    if(state==="play"){ bird.v=FLAP; }
+  }
+
+  function tapHandler(e){ if(state==="dead")return; e.preventDefault(); flap(); }
+  app.addEventListener("touchstart",tapHandler,{passive:false});
+  app.addEventListener("mousedown",function(e){ if(e.target.closest(".card"))return; tapHandler(e); });
+  document.addEventListener("keydown",function(e){ if(e.code==="Space"){ if(document.querySelector(".card:not(.hide)"))return; e.preventDefault(); flap(); } });
+
+  function die(){
+    state="dead"; shake=14; if(window.onGameOver)window.onGameOver(score);
+    if(score>best){best=score;bestLive.textContent="Best "+best;try{localStorage.setItem("al_flight_best",best);}catch(e){}}
+    var rank=score>28?1:score>16?4:score>7?12:26;
+    document.getElementById("finalScore").textContent=score;
+    document.getElementById("endMsg").innerHTML="<b>"+score+"</b> gap"+(score===1?"":"s")+" cleared.";
+    document.getElementById("rank").textContent="🏆 You'd rank #"+rank+" this week";
+    setTimeout(function(){ document.getElementById("endCard").classList.remove("hide"); scoreLive.classList.remove("on"); },520);
+  }
+
+  function step(dt){
+    seaScroll=(seaScroll+SPEED*dt)% 40;
+    if(state==="play"){
+      bird.v+=G*dt; bird.y+=bird.v*dt;
+      bird.rot=Math.max(-0.5,Math.min(1.1, bird.v/700));
+      // move obstacles
+      for(var i=0;i<obs.length;i++){
+        obs[i].x-=SPEED*dt;
+        if(!obs[i].scored && obs[i].x+obs[i].w<bird.x){ obs[i].scored=true; score++; scoreLive.textContent=score; }
+      }
+      // recycle / spawn
+      while(obs.length && obs[0].x+obs[0].w< -10) obs.shift();
+      var lastX=obs.length?obs[obs.length-1].x:0;
+      if(lastX < W-(W*0.60)) addObs(W+40);
+      // collisions
+      if(bird.y+bird.r>seaY){ bird.y=seaY-bird.r; die(); }
+      if(bird.y-bird.r<0){ bird.y=bird.r; bird.v=0; }
+      for(var j=0;j<obs.length;j++){
+        var o=obs[j];
+        if(bird.x+bird.r>o.x && bird.x-bird.r<o.x+o.w){
+          if(bird.y-bird.r<o.gy || bird.y+bird.r>o.gy+gapH){ die(); break; }
+        }
+      }
+    } else if(state==="dead"){
+      if(bird.y+bird.r<seaY){ bird.v+=G*dt; bird.y+=bird.v*dt; bird.rot=Math.min(1.4,bird.rot+dt*2); }
+      if(shake>0)shake-=dt*30;
+    }
+  }
+
+  function drawBird(){
+    ctx.save();
+    var sx=(state==="dead"&&shake>0)?(Math.random()-.5)*shake:0;
+    ctx.translate(bird.x+sx, bird.y); ctx.rotate(bird.rot);
+    // body
+    ctx.fillStyle="#ffffff"; ctx.strokeStyle="#0a1f52"; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.ellipse(0,0,16,11,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // wing (flaps with velocity)
+    var wf=Math.max(-8,Math.min(8,-bird.v/60));
+    ctx.fillStyle="#dfe8fb";
+    ctx.beginPath(); ctx.moveTo(-2,-2); ctx.quadraticCurveTo(-14,-10+wf,-16,2); ctx.quadraticCurveTo(-8,2,-2,2); ctx.fill();
+    // beak
+    ctx.fillStyle="#f0a52a"; ctx.beginPath(); ctx.moveTo(14,-1); ctx.lineTo(23,2); ctx.lineTo(14,4); ctx.fill();
+    // eye
+    ctx.fillStyle="#0a1f52"; ctx.beginPath(); ctx.arc(9,-3,2,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  function rock(x,w,y0,y1,down){
+    // organic rounded rock column between y0 and y1
+    ctx.fillStyle="#caa87e"; ctx.strokeStyle="#9c7f56"; ctx.lineWidth=2.5;
+    var r=14;
+    ctx.beginPath();
+    ctx.moveTo(x, y0);
+    ctx.lineTo(x, y1-(down?0:r));
+    if(!down) ctx.arcTo(x, y1, x+r, y1, r);
+    ctx.lineTo(x+w-(down?0:r), y1);
+    if(!down) ctx.arcTo(x+w, y1, x+w, y1-r, r);
+    ctx.lineTo(x+w, y0+(down?r:0));
+    if(down) ctx.arcTo(x+w, y0, x+w-r, y0, r);
+    ctx.lineTo(x+r, y0);
+    if(down) ctx.arcTo(x, y0, x, y0+r, r);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // highlight
+    ctx.fillStyle="rgba(255,255,255,.18)"; ctx.fillRect(x+6,down?y0+8:y1-w*0.6,w*0.3,Math.min(60,Math.abs(y1-y0)*0.4));
+  }
+
+  function draw(){
+    // sky
+    var sky=ctx.createLinearGradient(0,0,0,seaY);
+    sky.addColorStop(0,"#bfe6ff"); sky.addColorStop(1,"#eaf7ff");
+    ctx.fillStyle=sky; ctx.fillRect(0,0,W,seaY);
+    // sun
+    ctx.fillStyle="rgba(245,200,90,.9)"; ctx.beginPath(); ctx.arc(W*0.80,H*0.16,34,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="rgba(245,200,90,.22)"; ctx.beginPath(); ctx.arc(W*0.80,H*0.16,58,0,Math.PI*2); ctx.fill();
+    // distant coast hills
+    ctx.fillStyle="#cfe0d2";
+    ctx.beginPath(); ctx.moveTo(0,seaY);
+    for(var hx=0;hx<=W;hx+=40){ ctx.lineTo(hx, seaY-24-18*Math.sin((hx+seaScroll*3)*0.01)); }
+    ctx.lineTo(W,seaY); ctx.closePath(); ctx.fill();
+    // obstacles
+    for(var i=0;i<obs.length;i++){ var o=obs[i];
+      rock(o.x,o.w, 0, o.gy, true);        // top rock hanging down
+      rock(o.x,o.w, o.gy+gapH, seaY, false); // bottom rock rising up
+    }
+    // sea
+    var sea=ctx.createLinearGradient(0,seaY,0,H);
+    sea.addColorStop(0,"#2bb6c9"); sea.addColorStop(1,"#1786a8");
+    ctx.fillStyle=sea; ctx.fillRect(0,seaY,W,H-seaY);
+    ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=2;
+    for(var wx=-40+ (40-seaScroll); wx<W; wx+=40){ ctx.beginPath(); ctx.moveTo(wx,seaY+8); ctx.quadraticCurveTo(wx+10,seaY+3,wx+20,seaY+8); ctx.stroke(); }
+    drawBird();
+  }
+
+  var raf, last=0;
+  function loop(ts){
+    if(!last)last=ts; var dt=Math.min(0.033,(ts-last)/1000); last=ts;
+    step(dt); draw(); raf=requestAnimationFrame(loop);
+  }
+
+  document.getElementById("startBtn").addEventListener("click",function(e){
+    e.stopPropagation();
+    document.getElementById("startCard").classList.add("hide");
+    reset(); state="ready"; scoreLive.classList.add("on"); flap();
+  });
+  document.getElementById("claimBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> free signup, dropped under the member whose game link you played from.");});
+  document.getElementById("shareBtn").addEventListener("click",function(){alert("MOCKUP:\n\nLive -> generates YOUR game link to challenge your network. Anyone who plays and joins lands under you.");});
+  // restart from end card by tapping Challenge? no — provide implicit: tapping the board after death does nothing; use New via reloading start
+  document.getElementById("endCard").addEventListener("click",function(e){
+    if(e.target.closest(".cta")||e.target.closest(".ghost"))return;
+    // tap elsewhere on end card = play again
+    document.getElementById("endCard").classList.add("hide"); reset(); state="ready"; flap();
+  });
+
+  reset(); last=0; raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
