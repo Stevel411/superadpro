@@ -34,6 +34,7 @@ from . import stripe_service
 from . import brand_config
 from .database import StripeCharge
 from .database import ShareLink, ShareView
+from .database import GameScore, PrizeWinner
 from .database import ActivityEvent
 from .database import GridPlanFeedback
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
@@ -71497,6 +71498,100 @@ AL_COMPANY_PAYOUT = {
     "method_type": "usdt_bsc",
     "details": os.environ.get("AL_COMPANY_USDT_ADDRESS", ""),
 }
+
+
+# ─────────────────────────── PRIZE GAMES ───────────────────────────
+# Three skill games feed three monthly leaderboards; top verified score per
+# game wins a $400 pack. Scores come from the browser, so: (1) plausibility
+# caps reject impossible values here, (2) we keep only each member's BEST per
+# game per month, and (3) the monthly winner is ALWAYS manually verified in
+# admin before any pack is minted. The caps are a filter, not the defence.
+GAME_KEYS = ("flight", "run", "beach")
+GAME_LABELS = {"flight": "Freedom Flight", "run": "Coast Run", "beach": "Beach Bounce"}
+# Ceilings set well above real human bests, low enough to reject 999999 junk.
+GAME_SCORE_CAP = {"flight": 500, "run": 40000, "beach": 40000}
+
+def _game_period(dt=None):
+    dt = dt or datetime.utcnow()
+    return f"{dt.year:04d}-{dt.month:02d}"
+
+
+@app.post("/api/games/submit-score")
+async def games_submit_score(request: Request, user: User = Depends(_al_user),
+                             db: Session = Depends(get_db)):
+    """A member submits a game score. Keeps their BEST per game for the current
+    (UTC) month. Plausibility-capped; the monthly winner is still verified by
+    hand before the prize is granted."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "bad_body"}, status_code=400)
+    game = str(body.get("game", "")).strip().lower()
+    if game not in GAME_KEYS:
+        return JSONResponse({"error": "unknown_game"}, status_code=400)
+    try:
+        score = int(body.get("score"))
+    except (TypeError, ValueError):
+        return JSONResponse({"error": "bad_score"}, status_code=400)
+    if score < 0 or score > GAME_SCORE_CAP[game]:
+        # Rejected as implausible — not stored. (Real cheats still get caught at
+        # verification; this just drops the obvious junk.)
+        return JSONResponse({"error": "score_rejected", "cap": GAME_SCORE_CAP[game]}, status_code=422)
+
+    period = _game_period()
+    row = (db.query(GameScore)
+             .filter(GameScore.user_id == user.id, GameScore.game == game,
+                     GameScore.period == period).first())
+    improved = False
+    if row is None:
+        row = GameScore(user_id=user.id, game=game, period=period,
+                        score=score, plays=1, best_at=datetime.utcnow())
+        db.add(row); improved = True
+    else:
+        row.plays = (row.plays or 0) + 1
+        if score > (row.score or 0):
+            row.score = score; row.best_at = datetime.utcnow(); improved = True
+    db.commit()
+    return {"ok": True, "game": game, "period": period,
+            "your_best": row.score, "improved": improved}
+
+
+@app.get("/api/games/leaderboard")
+def games_leaderboard(request: Request, game: str = "flight", period: str = "",
+                      user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Public read of one game's monthly board: top 20 + the caller's own rank.
+    'this month' is just WHERE period = current — so it resets itself on the 1st."""
+    game = (game or "").strip().lower()
+    if game not in GAME_KEYS:
+        return JSONResponse({"error": "unknown_game"}, status_code=400)
+    period = (period or "").strip() or _game_period()
+
+    q = (db.query(GameScore, User)
+           .join(User, User.id == GameScore.user_id)
+           .filter(GameScore.game == game, GameScore.period == period)
+           .order_by(GameScore.score.desc(), GameScore.best_at.asc()))
+    top = []
+    for i, (gs, u) in enumerate(q.limit(20).all()):
+        top.append({"rank": i + 1, "user_id": u.id,
+                    "username": u.username or f"member{u.id}",
+                    "score": gs.score})
+
+    me = None
+    if user:
+        mine = (db.query(GameScore)
+                  .filter(GameScore.user_id == user.id, GameScore.game == game,
+                          GameScore.period == period).first())
+        if mine:
+            ahead = (db.query(GameScore)
+                       .filter(GameScore.game == game, GameScore.period == period,
+                               GameScore.score > mine.score).count())
+            me = {"rank": ahead + 1, "score": mine.score, "plays": mine.plays or 0}
+        else:
+            me = {"rank": None, "score": 0, "plays": 0}
+
+    return {"game": game, "label": GAME_LABELS[game], "period": period,
+            "prize": "$400 Premium pack", "top": top, "me": me,
+            "players": q.count()}
 
 
 def _al_expire_stale(db):

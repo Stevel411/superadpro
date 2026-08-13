@@ -1216,6 +1216,46 @@ class ShareView(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
 
 
+class GameScore(Base):
+    """A member's BEST score in one acquisition game for one monthly period.
+    One row per (user, game, period): the leaderboard is just
+    `WHERE period = <current>` so it auto-resets each month with no cron and
+    last month's rows stay archived for the audit trail. game in
+    {flight, run, beach}; period is "YYYY-MM" (UTC)."""
+    __tablename__ = "game_scores"
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    game       = Column(String(16), index=True, nullable=False)
+    period     = Column(String(7), index=True, nullable=False)
+    score      = Column(Integer, default=0, nullable=False)     # member's best this period
+    plays      = Column(Integer, default=0)                     # submissions this period
+    best_at    = Column(DateTime, default=datetime.utcnow)      # when the best was set
+    created_at = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (UniqueConstraint("user_id", "game", "period",
+                                       name="uq_gamescore_user_game_period"),)
+
+
+class PrizeWinner(Base):
+    """The captured top score per game per period, awaiting the $400 prize.
+    NEVER auto-granted: status walks pending -> verified -> granted (or
+    rejected) under admin control, so a faked score can't mint a pack. One row
+    per (game, period)."""
+    __tablename__ = "prize_winners"
+    id               = Column(Integer, primary_key=True, index=True)
+    game             = Column(String(16), index=True, nullable=False)
+    period           = Column(String(7), index=True, nullable=False)
+    user_id          = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    score            = Column(Integer, nullable=False)
+    status           = Column(String(12), default="pending", index=True)  # pending|verified|granted|rejected
+    pack_level       = Column(Integer, default=400)            # prize pack tier
+    pack_purchase_id = Column(Integer, nullable=True)          # set once granted
+    note             = Column(String(300), nullable=True)      # admin note / reason
+    captured_at      = Column(DateTime, default=datetime.utcnow)
+    verified_at      = Column(DateTime, nullable=True)
+    granted_at       = Column(DateTime, nullable=True)
+    __table_args__ = (UniqueConstraint("game", "period", name="uq_prizewinner_game_period"),)
+
+
 class ActivityEvent(Base):
     """A single momentum-feed event — a join, trial start, pack sale,
     daily qualification, showcase share, or milestone. Written the moment it
@@ -4199,6 +4239,31 @@ try:
         conn.commit()
 except Exception as _e:
     print(f"al_username_audit migration skipped: {_e}")
+
+# ── AdvantageLife: prize-game score tables (Aug 2026) — UNCONDITIONAL ──
+# create_all is skipped on the live deploy, so create the game tables explicitly.
+# Idempotent CREATE TABLE IF NOT EXISTS — safe every boot.
+try:
+    with engine.connect() as conn:
+        conn.execute(text(
+            "CREATE TABLE IF NOT EXISTS game_scores ("
+            "id SERIAL PRIMARY KEY, user_id INTEGER, game VARCHAR(16), period VARCHAR(7), "
+            "score INTEGER DEFAULT 0, plays INTEGER DEFAULT 0, "
+            "best_at TIMESTAMP DEFAULT now(), created_at TIMESTAMP DEFAULT now(), "
+            "CONSTRAINT uq_gamescore_user_game_period UNIQUE (user_id, game, period))"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_game_scores_board ON game_scores (game, period, score)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_game_scores_user ON game_scores (user_id)"))
+        conn.execute(text(
+            "CREATE TABLE IF NOT EXISTS prize_winners ("
+            "id SERIAL PRIMARY KEY, game VARCHAR(16), period VARCHAR(7), user_id INTEGER, "
+            "score INTEGER, status VARCHAR(12) DEFAULT 'pending', pack_level INTEGER DEFAULT 400, "
+            "pack_purchase_id INTEGER, note VARCHAR(300), captured_at TIMESTAMP DEFAULT now(), "
+            "verified_at TIMESTAMP, granted_at TIMESTAMP, "
+            "CONSTRAINT uq_prizewinner_game_period UNIQUE (game, period))"))
+        conn.commit()
+        print("✅ game_scores + prize_winners tables verified")
+except Exception as _e:
+    print(f"prize-game tables migration skipped: {_e}")
 
 # ── AdvantageLife: support + transaction-chat tables (31 Jul / 1 Aug 2026) ──
 # These run UNCONDITIONALLY (not gated by SKIP_MIGRATIONS) because create_all is
