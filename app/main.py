@@ -71676,6 +71676,147 @@ def play_game_shared(game: str, ref: str, user: User = Depends(get_current_user)
     return HTMLResponse(html)
 
 
+def _games_admin_ok(request, user):
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    return is_admin(user) or (secret and secret in _secrets)
+
+def _prev_period():
+    n = datetime.utcnow()
+    return f"{n.year-1:04d}-12" if n.month == 1 else f"{n.year:04d}-{n.month-1:02d}"
+
+
+@app.get("/admin/api/games/capture-winners")
+def games_capture_winners(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Capture the top score per game for a period (default: last month) into
+    PrizeWinner as PENDING. Idempotent — never overwrites an existing capture."""
+    if not _games_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    period = (request.query_params.get("period") or _prev_period()).strip()
+    out = []
+    for game in GAME_KEYS:
+        top = (db.query(GameScore)
+                 .filter(GameScore.game == game, GameScore.period == period)
+                 .order_by(GameScore.score.desc(), GameScore.best_at.asc()).first())
+        existing = (db.query(PrizeWinner)
+                      .filter(PrizeWinner.game == game, PrizeWinner.period == period).first())
+        if top is None:
+            out.append({"game": game, "result": "no_scores"}); continue
+        if existing is not None:
+            out.append({"game": game, "result": "already_captured", "status": existing.status}); continue
+        db.add(PrizeWinner(game=game, period=period, user_id=top.user_id,
+                           score=top.score, status="pending", pack_level=400))
+        out.append({"game": game, "result": "captured", "user_id": top.user_id, "score": top.score})
+    db.commit()
+    return {"period": period, "captured": out}
+
+
+@app.get("/admin/api/games/winners")
+def games_winners_list(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    if not _games_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    rows = db.query(PrizeWinner).order_by(PrizeWinner.captured_at.desc()).limit(60).all()
+    ids = [r.user_id for r in rows] or [0]
+    umap = {u.id: u.username for u in db.query(User).filter(User.id.in_(ids)).all()}
+    return {"winners": [{"id": r.id, "game": r.game, "label": GAME_LABELS.get(r.game, r.game),
+                         "period": r.period, "user_id": r.user_id, "username": umap.get(r.user_id),
+                         "score": r.score, "status": r.status, "pack_level": r.pack_level,
+                         "note": r.note, "pack_purchase_id": r.pack_purchase_id,
+                         "captured_at": str(r.captured_at) if r.captured_at else None,
+                         "granted_at": str(r.granted_at) if r.granted_at else None} for r in rows]}
+
+
+@app.get("/admin/api/games/winner-action")
+def games_winner_action(request: Request, user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """verify | reject | grant a captured winner. GRANT mints the $400 pack
+    ($0, source='prize') — do it only after you've verified the run."""
+    if not _games_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        wid = int(request.query_params.get("id"))
+    except (TypeError, ValueError):
+        return JSONResponse({"error": "bad_id"}, status_code=400)
+    action = (request.query_params.get("action") or "").strip().lower()
+    pw = db.query(PrizeWinner).filter(PrizeWinner.id == wid).first()
+    if pw is None:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if action == "verify":
+        pw.status = "verified"; pw.verified_at = datetime.utcnow()
+    elif action == "reject":
+        pw.status = "rejected"; pw.note = (request.query_params.get("note") or "rejected")[:300]
+    elif action == "grant":
+        if pw.status == "granted":
+            return {"ok": True, "already": True, "pack_purchase_id": pw.pack_purchase_id}
+        pack = (db.query(CampaignPack)
+                  .filter(CampaignPack.level == pw.pack_level,
+                          CampaignPack.is_active == True).first())  # noqa: E712
+        if pack is None:
+            return JSONResponse({"error": "pack_tier_missing"}, status_code=500)
+        pp = PackPurchase(user_id=pw.user_id, pack_id=pack.id, pack_level=pack.level,
+                          amount=0.0, payment_method="prize", status="active",
+                          source="prize", activated_at=datetime.utcnow())
+        db.add(pp); db.flush()
+        pw.status = "granted"; pw.granted_at = datetime.utcnow(); pw.pack_purchase_id = pp.id
+    else:
+        return JSONResponse({"error": "bad_action"}, status_code=400)
+    db.commit()
+    return {"ok": True, "id": pw.id, "status": pw.status, "pack_purchase_id": pw.pack_purchase_id}
+
+
+@app.get("/admin/games-winners")
+def games_winners_admin_page(user: User = Depends(get_current_user)):
+    """Tappable admin page: capture month-end winners, then verify/grant/reject."""
+    if not is_admin(user):
+        return RedirectResponse("/login?next=/admin/games-winners", status_code=302)
+    return HTMLResponse(_GAMES_WINNERS_ADMIN_HTML)
+
+
+_GAMES_WINNERS_ADMIN_HTML = """<!DOCTYPE html><html><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Prize winners — admin</title>
+<style>body{font-family:system-ui,sans-serif;background:#0a1f52;color:#fff;margin:0;padding:16px}
+h1{font-size:19px;margin:0 0 4px}.sub{color:#aebbdc;font-size:12px;margin-bottom:14px}
+button{font-family:inherit;font-weight:800;border:0;border-radius:9px;padding:8px 12px;cursor:pointer}
+.cap{background:#f0a52a;color:#3a2400;margin-bottom:14px}
+.w{background:#12245a;border:1px solid #2a3f78;border-radius:12px;padding:12px;margin-bottom:10px}
+.w b{font-size:15px}.meta{color:#aebbdc;font-size:12px;margin:3px 0 9px}
+.st{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:10px;margin-left:6px}
+.pending{background:#5a4a1e;color:#ffd48a}.verified{background:#1e4a5a;color:#8fe4ff}.granted{background:#1e5a34;color:#8effc0}.rejected{background:#5a1e28;color:#ff9db0}
+.acts button{margin-right:6px}.v{background:#2f86a8;color:#fff}.g{background:#2ecc71;color:#062a17}.r{background:#c8102e;color:#fff}
+#msg{position:fixed;bottom:0;left:0;right:0;background:#0e1f4e;padding:10px 16px;font-size:12px;color:#8effc0}</style>
+</head><body>
+<h1>Prize winners</h1>
+<div class=sub>Capture month-end, verify the run, then grant the $400 pack. Grant mints a $0 source=prize pack.</div>
+<button class=cap onclick="cap()">Capture last month's winners</button>
+<div id=list>Loading…</div>
+<div id=msg></div>
+<script>
+function msg(t){document.getElementById('msg').textContent=t;setTimeout(function(){document.getElementById('msg').textContent='';},4000);}
+function cap(){fetch('/admin/api/games/capture-winners',{credentials:'same-origin'}).then(r=>r.json()).then(d=>{msg('Captured: '+JSON.stringify(d.captured));load();});}
+function act(id,a){if(a==='grant'&&!confirm('Grant the $400 pack to this member?'))return;
+ var u='/admin/api/games/winner-action?id='+id+'&action='+a;
+ if(a==='reject'){var n=prompt('Reason?');if(n===null)return;u+='&note='+encodeURIComponent(n);}
+ fetch(u,{credentials:'same-origin'}).then(r=>r.json()).then(d=>{msg(JSON.stringify(d));load();});}
+function load(){fetch('/admin/api/games/winners',{credentials:'same-origin'}).then(r=>r.json()).then(d=>{
+ var w=d.winners||[];if(!w.length){document.getElementById('list').innerHTML='<div class=sub>No captured winners yet.</div>';return;}
+ document.getElementById('list').innerHTML=w.map(function(r){
+  var acts=r.status==='granted'||r.status==='rejected'?'':
+   '<div class=acts style="margin-top:8px">'+
+   (r.status==='pending'?'<button class=v onclick="act('+r.id+',\\'verify\\')">Verify</button>':'')+
+   '<button class=g onclick="act('+r.id+',\\'grant\\')">Grant $400</button>'+
+   '<button class=r onclick="act('+r.id+',\\'reject\\')">Reject</button></div>';
+  return '<div class=w><b>'+r.label+' — '+r.period+'</b><span class="st '+r.status+'">'+r.status+'</span>'+
+   '<div class=meta>@'+(r.username||('user'+r.user_id))+' · score '+Number(r.score).toLocaleString()+
+   (r.pack_purchase_id?' · pack #'+r.pack_purchase_id:'')+(r.note?' · '+r.note:'')+'</div>'+acts+'</div>';
+ }).join('');
+});}
+load();
+</script></body></html>"""
+
+
 def _al_expire_stale(db):
     """Lazy expiry: pending intents older than the TTL expire on touch.
     Deterministic, no background task needed; admin sweep endpoint exists
