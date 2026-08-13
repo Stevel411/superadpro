@@ -71656,6 +71656,26 @@ def leaderboards_page(user: User = Depends(get_current_user)):
     return HTMLResponse(html)
 
 
+@app.get("/play/{game}/{ref}")
+def play_game_shared(game: str, ref: str, user: User = Depends(get_current_user)):
+    """Shared game link (acquisition mode): anyone plays instantly, and the
+    'Claim my spot' button routes to a FREE signup under the sharer (ref)."""
+    game = (game or "").strip().lower()
+    if game not in GAME_KEYS:
+        return RedirectResponse("/register", status_code=302)
+    try:
+        html = open(os.path.join(_GAMES_DIR, game + ".html"), encoding="utf-8").read()
+    except Exception:
+        return JSONResponse({"error": "game_not_found"}, status_code=404)
+    import json as _json
+    safe_ref = "".join(c for c in (ref or "") if c.isalnum() or c in "_-.")[:40]
+    claim = ("/ref/" + safe_ref) if safe_ref else "/register"
+    cfg = ('<script>window.GAME_CFG={mode:"play",game:%s,claimUrl:%s};</script>'
+           % (_json.dumps(game), _json.dumps(claim)))
+    html = html.replace("</head>", cfg + _GAME_WRAPPER + "</head>", 1)
+    return HTMLResponse(html)
+
+
 def _al_expire_stale(db):
     """Lazy expiry: pending intents older than the TTL expire on touch.
     Deterministic, no background task needed; admin sweep endpoint exists

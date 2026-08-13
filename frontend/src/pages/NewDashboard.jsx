@@ -517,6 +517,49 @@ export default function NewDashboard() {
     );
   }
 
+  // Prize-game share links — sits directly under the showcase share card.
+  function GameLinksCard() {
+    const uname = user?.username || '';
+    const games = [
+      { key: 'flight', ic: '🕊️', name: 'Freedom Flight' },
+      { key: 'run', ic: '🛵', name: 'Coast Run' },
+      { key: 'beach', ic: '🏖️', name: 'Beach Bounce' },
+    ];
+    const base = 'https://www.advantagelife.club/play/';
+    function copyLink(key, btn) {
+      const url = base + key + '/' + uname;
+      try { navigator.clipboard.writeText(url); } catch (e) {}
+      const el = btn.currentTarget; const t = el.textContent;
+      el.textContent = 'Copied ✓'; el.style.background = '#2ecc71';
+      setTimeout(function () { el.textContent = t; el.style.background = '#c8102e'; }, 1400);
+    }
+    return (
+      <div style={{ background: 'linear-gradient(160deg,#12245a,#0e1f4e)', border: '1px solid #2a3f78', borderRadius: 14, padding: 14, marginTop: 14, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 17 }}>🎮</span>
+          <b style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Your Game Links</b>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(240,165,42,.14)', border: '1px solid rgba(240,165,42,.35)', borderRadius: 10, padding: '8px 10px', marginTop: 10 }}>
+          <span style={{ fontWeight: 900, color: '#ffd48a', fontSize: 14 }}>$400</span>
+          <span style={{ fontSize: 10.5, color: '#e7d3ad', fontWeight: 700, lineHeight: 1.3 }}>pack to the top score in each game, every month</span>
+        </div>
+        {games.map(function (g) {
+          return (
+            <div key={g.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, background: '#0e1f4e', border: '1px solid #24386c', borderRadius: 11, padding: '9px 10px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, display: 'grid', placeItems: 'center', fontSize: 15, background: '#16295f', flex: 'none' }}>{g.ic}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <b style={{ display: 'block', fontSize: 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.name}</b>
+                <span style={{ fontSize: 10, color: '#93a3cd', fontWeight: 700 }}>advantagelife.club/play/{g.key}/{uname}</span>
+              </div>
+              <button onClick={function (e) { copyLink(g.key, e); }} style={{ border: 0, background: '#c8102e', color: '#fff', fontWeight: 800, fontSize: 11, padding: '7px 11px', borderRadius: 9, cursor: 'pointer', flex: 'none' }}>Share</button>
+            </div>
+          );
+        })}
+        <button onClick={function () { window.location.href = '/leaderboards'; }} style={{ display: 'block', width: '100%', marginTop: 12, background: 'linear-gradient(135deg,#f0a52a,#ff8a3d)', border: 0, borderRadius: 11, color: '#3a2400', fontWeight: 900, fontSize: 13, padding: 12, cursor: 'pointer' }}>🏆 Monthly Leaderboard →</button>
+      </div>
+    );
+  }
+
   const shareUrl = shareData
     ? (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url
     : '';
@@ -720,6 +763,7 @@ export default function NewDashboard() {
             <Link to="/collaborations">Vetted Extras</Link>
             <div className="sdv" />
             <ShareCard />
+            <GameLinksCard />
           </aside>
 
           <main>
@@ -752,7 +796,7 @@ export default function NewDashboard() {
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
-            <div className="shmob"><ShareCard /></div>
+            <div className="shmob"><ShareCard /><GameLinksCard /></div>
 
             {wis && (
               <div className="wis">
