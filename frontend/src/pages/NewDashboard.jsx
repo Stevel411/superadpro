@@ -124,6 +124,7 @@ const CSS = `
 @media(max-width:980px){
   .al .shmob{display:block;margin-top:16px;background:linear-gradient(120deg,#0e2a6e,#0a1f52);border-radius:18px;padding:6px;box-shadow:0 20px 44px -26px rgba(10,31,82,.6)}
   .al .shmob .shc{border:none;background:transparent;padding:14px}
+  .al .sidecards{display:none}
 }
 /* ── Share modal ───────────────────────────────────────────────────── */
 .al .shmodal{position:fixed;inset:0;background:rgba(10,31,82,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;animation:shfade .16s ease-out}
@@ -747,9 +748,11 @@ export default function NewDashboard() {
         <div className="cols">
           <aside className="side">
             <SideNav active="dashboard" />
-            <div className="sdv" />
-            <ShareCard />
-            <GameLinksCard />
+            <div className="sidecards">
+              <div className="sdv" />
+              <ShareCard />
+              <GameLinksCard />
+            </div>
           </aside>
 
           <main>
