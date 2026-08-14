@@ -71766,6 +71766,25 @@ def games_winner_action(request: Request, user: User = Depends(get_current_user)
     return {"ok": True, "id": pw.id, "status": pw.status, "pack_purchase_id": pw.pack_purchase_id}
 
 
+@app.get("/admin/api/games/debug")
+def games_debug(request: Request, user: User = Depends(get_current_user),
+                db: Session = Depends(get_db)):
+    """See raw scores: plays vs best per member per game this period, so we can
+    tell early-crashes (plays high, score 0) from a submit bug."""
+    if not _games_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    period = (request.query_params.get("period") or _game_period()).strip()
+    rows = (db.query(GameScore).filter(GameScore.period == period)
+              .order_by(GameScore.game, GameScore.score.desc()).all())
+    ids = [r.user_id for r in rows] or [0]
+    umap = {u.id: u.username for u in db.query(User).filter(User.id.in_(ids)).all()}
+    return {"period": period, "total_rows": len(rows),
+            "scores": [{"game": r.game, "username": umap.get(r.user_id), "user_id": r.user_id,
+                        "score": r.score, "plays": r.plays,
+                        "best_at": str(r.best_at) if r.best_at else None,
+                        "created_at": str(r.created_at) if r.created_at else None} for r in rows]}
+
+
 @app.get("/admin/games-winners")
 def games_winners_admin_page(user: User = Depends(get_current_user)):
     """Tappable admin page: capture month-end winners, then verify/grant/reject."""
