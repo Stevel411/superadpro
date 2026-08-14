@@ -80,9 +80,21 @@ export default function AlShell({ active, back, children }) {
   const [collapsed, setCollapsed] = useState(function () {
     try { return JSON.parse(localStorage.getItem('al_nav_collapsed') || '{}') || {}; } catch (e) { return {}; }
   });
+  // Which section contains the current page — it starts open by default.
+  const activeHeader = (function () {
+    for (var i = 0; i < NAV_GROUPS.length; i++) {
+      var g = NAV_GROUPS[i];
+      if (g.header && g.items.some(function (n) { return n.key === active; })) return g.header;
+    }
+    return null;
+  })();
+  function isCollapsed(h) {
+    if (!h) return false;
+    return (h in collapsed) ? !!collapsed[h] : (h !== activeHeader);
+  }
   function toggleGroup(h) {
     setCollapsed(function (prev) {
-      const next = Object.assign({}, prev); next[h] = !prev[h];
+      const next = Object.assign({}, prev); next[h] = !((h in prev) ? prev[h] : (h !== activeHeader));
       try { localStorage.setItem('al_nav_collapsed', JSON.stringify(next)); } catch (e) {}
       return next;
     });
@@ -121,7 +133,7 @@ export default function AlShell({ active, back, children }) {
         <div className="cols">
           <aside className="side">
             {NAV_GROUPS.map(function (g, gi) {
-              const isCol = g.header ? !!collapsed[g.header] : false;
+              const isCol = isCollapsed(g.header);
               function renderItem(n) {
                 const cls = n.key === active ? 'on' : undefined;
                 if (n.big) {
@@ -131,16 +143,21 @@ export default function AlShell({ active, back, children }) {
                   ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
                   : <a key={n.key} className={cls} href={n.to}>{n.label}</a>;
               }
+              if (!g.header) {
+                return <div key={'g' + gi}>{g.items.map(renderItem)}</div>;
+              }
               return (
-                <div key={'g' + gi}>
-                  {g.header && (
-                    <div className="alnavhdr" onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
-                      style={{ fontSize: 10, fontWeight: 800, letterSpacing: '1.2px', color: 'rgba(255,255,255,0.5)', padding: '14px 0 5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none' }}>
-                      <span>{g.header}</span>
-                      <span style={{ fontSize: 12, transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .15s', opacity: 0.7 }}>▾</span>
-                    </div>
-                  )}
-                  {!isCol && g.items.map(renderItem)}
+                <div key={'g' + gi} style={{ marginTop: 8 }}>
+                  <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '11px 13px', borderRadius: 11, background: isCol ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.10)', marginBottom: isCol ? 0 : 4 }}>
+                    <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)' }}>{g.header}</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
+                      <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div style={{ overflow: 'hidden', maxHeight: isCol ? 0 : 1000, transition: 'max-height .22s ease', paddingLeft: 4 }}>
+                    {g.items.map(renderItem)}
+                  </div>
                 </div>
               );
             })}
