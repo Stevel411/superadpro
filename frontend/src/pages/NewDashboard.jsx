@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
+import SideNav from '../components/layout/SideNav';
 import LiveActivityFeed from '../components/LiveActivityFeed';
 
 // AdvantageLife dashboard — rebuilt 11 Jul 2026 to Steve's approved modern
@@ -745,23 +746,7 @@ export default function NewDashboard() {
 
         <div className="cols">
           <aside className="side">
-            <a className="on" href="/dashboard">Dashboard</a>
-            <div className="navhdr">GET STARTED</div>
-            <a href="/start-here" style={{ color: '#2ecc71', fontWeight: 900, fontSize: 18 }}><span style={{ fontSize: 22 }}>⭐</span> Start Here</a>
-            <a href="/packs?new=1">Create Campaign</a>
-            <Link to="/campaigns">My Campaigns</Link>
-            <a href="/payout-methods">Payment Details</a>
-            <Link to="/watch">Daily Watch</Link>
-            <div className="navhdr">RUN YOUR BUSINESS</div>
-            <a href="/my-sales">Confirm a Sale</a>
-            <Link to="/my-team">My Team</Link>
-            <Link to="/leaderboard">Leaderboard</Link>
-            <Link to="/ai-tools">Marketing Tools</Link>
-            <Link to="/my-marketing">My Marketing</Link>
-            <Link to="/compensation-plan">Compensation Plan</Link>
-            <div className="navhdr">MORE</div>
-            <Link to="/wisdom">Daily Wisdom</Link>
-            <Link to="/collaborations">Vetted Extras</Link>
+            <SideNav active="dashboard" />
             <div className="sdv" />
             <ShareCard />
             <GameLinksCard />
