@@ -526,10 +526,11 @@ export default function NewDashboard() {
       { key: 'beach', ic: '🏖️', name: 'Beach Bounce' },
     ];
     const base = 'https://www.advantagelife.club/play/';
-    function copyLink(key, btn) {
+    function copyLink(key, e) {
+      e.stopPropagation();
       const url = base + key + '/' + uname;
-      try { navigator.clipboard.writeText(url); } catch (e) {}
-      const el = btn.currentTarget; const t = el.textContent;
+      try { navigator.clipboard.writeText(url); } catch (er) {}
+      const el = e.currentTarget; const t = el.textContent;
       el.textContent = 'Copied ✓'; el.style.background = '#2ecc71';
       setTimeout(function () { el.textContent = t; el.style.background = '#c8102e'; }, 1400);
     }
@@ -545,13 +546,13 @@ export default function NewDashboard() {
         </div>
         {games.map(function (g) {
           return (
-            <div key={g.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, background: '#0e1f4e', border: '1px solid #24386c', borderRadius: 11, padding: '9px 10px' }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, display: 'grid', placeItems: 'center', fontSize: 15, background: '#16295f', flex: 'none' }}>{g.ic}</div>
+            <div key={g.key} onClick={function () { window.location.href = '/games/' + g.key; }} role="button" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, background: '#0e1f4e', border: '1px solid #24386c', borderRadius: 11, padding: '10px', cursor: 'pointer' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, display: 'grid', placeItems: 'center', fontSize: 16, background: '#16295f', flex: 'none' }}>{g.ic}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <b style={{ display: 'block', fontSize: 12.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.name}</b>
-                <span style={{ fontSize: 10, color: '#93a3cd', fontWeight: 700 }}>advantagelife.club/play/{g.key}/{uname}</span>
+                <b style={{ display: 'block', fontSize: 13.5, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.name}</b>
+                <span style={{ fontSize: 11, color: '#8effc0', fontWeight: 700 }}>▶ Tap to play</span>
               </div>
-              <button onClick={function (e) { copyLink(g.key, e); }} style={{ border: 0, background: '#c8102e', color: '#fff', fontWeight: 800, fontSize: 11, padding: '7px 11px', borderRadius: 9, cursor: 'pointer', flex: 'none' }}>Share</button>
+              <button onClick={function (e) { copyLink(g.key, e); }} style={{ border: 0, background: '#c8102e', color: '#fff', fontWeight: 800, fontSize: 11.5, padding: '8px 13px', borderRadius: 9, cursor: 'pointer', flex: 'none' }}>Share</button>
             </div>
           );
         })}

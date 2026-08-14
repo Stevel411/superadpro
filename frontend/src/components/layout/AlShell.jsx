@@ -63,9 +63,30 @@ const NAV = [
   { key: 'extras', label: 'Vetted Extras', to: '/collaborations', link: true },
 ];
 
+// Group the flat NAV into collapsible sections keyed by their header.
+const NAV_GROUPS = (function () {
+  const groups = []; let cur = { header: null, items: [] };
+  NAV.forEach(function (n) {
+    if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, items: [] }; }
+    else cur.items.push(n);
+  });
+  if (cur.items.length || cur.header) groups.push(cur);
+  return groups;
+})();
+
 export default function AlShell({ active, back, children }) {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(function () {
+    try { return JSON.parse(localStorage.getItem('al_nav_collapsed') || '{}') || {}; } catch (e) { return {}; }
+  });
+  function toggleGroup(h) {
+    setCollapsed(function (prev) {
+      const next = Object.assign({}, prev); next[h] = !prev[h];
+      try { localStorage.setItem('al_nav_collapsed', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
+  }
   const name = user?.first_name || user?.username || 'there';
 
   return (
@@ -99,17 +120,29 @@ export default function AlShell({ active, back, children }) {
 
         <div className="cols">
           <aside className="side">
-            {NAV.map(function (n, i) {
-              if (n.header) {
-                return <div key={'h'+i} className="alnavhdr" style={{ fontSize: 10, fontWeight: 800, letterSpacing: '1.2px', color: 'rgba(255,255,255,0.45)', padding: '14px 0 5px', textTransform: 'uppercase' }}>{n.header}</div>;
+            {NAV_GROUPS.map(function (g, gi) {
+              const isCol = g.header ? !!collapsed[g.header] : false;
+              function renderItem(n) {
+                const cls = n.key === active ? 'on' : undefined;
+                if (n.big) {
+                  return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#2ecc71' }}><span style={{ fontSize: 20 }}>⭐</span> {n.label}</a>;
+                }
+                return n.link
+                  ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
+                  : <a key={n.key} className={cls} href={n.to}>{n.label}</a>;
               }
-              const cls = n.key === active ? 'on' : undefined;
-              if (n.big) {
-                return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#2ecc71' }}><span style={{ fontSize: 22 }}>{'\u2b50'}</span> {n.label}</a>;
-              }
-              return n.link
-                ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>
-                : <a key={n.key} className={cls} href={n.to}>{n.label}</a>;
+              return (
+                <div key={'g' + gi}>
+                  {g.header && (
+                    <div className="alnavhdr" onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
+                      style={{ fontSize: 10, fontWeight: 800, letterSpacing: '1.2px', color: 'rgba(255,255,255,0.5)', padding: '14px 0 5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none' }}>
+                      <span>{g.header}</span>
+                      <span style={{ fontSize: 12, transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .15s', opacity: 0.7 }}>▾</span>
+                    </div>
+                  )}
+                  {!isCol && g.items.map(renderItem)}
+                </div>
+              );
             })}
           </aside>
 
