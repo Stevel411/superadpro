@@ -138,6 +138,37 @@ Signups from house traffic rotate **round-robin: every eligible member gets an e
 - **Engine 2 — games flywheel: LIVE.** Three skill games (Freedom Flight, Coast Run, Beach Bounce) hosted in-app, per-member `/play/<game>/<username>` share links, free "Claim my spot" signup under the sharer, monthly `$400`-pack leaderboards, admin verify/grant. This is the first shipped piece of the traffic engine. (See `LAUNCH_LOG.md` for commit trail.)
 - Everything else in this roadmap is proposed / not yet built.
 
+## Competitor watch — W3M Amplify (added 2026-08-14)
+
+**What they are:** a done-for-you social automation platform for an affiliate/MLM base (travel/hotel-savings vertical). Not a "share your link" tool — the member connects their social accounts once and the platform's AI **generates and auto-posts content on their behalf** (3 posts/platform/day across ~7 networks), tracking the full funnel back to a personalised affiliate URL.
+
+**Their strengths (take seriously):**
+- **Auto-posting** to FB/IG/LinkedIn/YouTube/Pinterest (full), X (partial). Member effort ≈ zero after connecting.
+- **AI Content Hub** — platform generates the posts; members never create content.
+- **Personalised affiliate landing pages** with unique URLs (their attribution layer).
+- **Campaign selection** — pick an angle, AI configures pages + content + spokesperson.
+- **Full funnel analytics** — page views → registrations → leads → purchases, plus traffic-by-source. This is exactly our "Your Traffic" dashboard concept, already shipped by them.
+- **Network-wide optimisation** — "every post optimised on performance data across the whole network." Real compounding moat: more members → smarter content for everyone.
+
+**Their weaknesses (where we win):**
+- They generate **content (push/spam)**; we generate **demand (pull)**. 3 auto-posts/day/platform hits fatigue, throttling, and account-ban risk. A viral game doesn't.
+- **Automation is fragile** — their own slides show X already broke to manual ("save the image, then post"). One platform policy change and "fully automated" collapses.
+- **No novel hook** — no free-to-play skill games with a real prize. We have a live, differentiated acquisition mechanic they can't match.
+- **Pure individual attribution** — no house/rotation model, so the *company* can't generate and fairly distribute traffic. We can (the spine).
+
+### Strategic decision (locked with Steve 2026-08-14)
+- **Compete on quality now, automation later.** Do NOT chase post-for-post auto-posting yet (fragile, risky, their game). Beat them on pull content: games, prizes, and a superior content kit. Revisit automation as a later engine once the pull side is winning.
+- **Do NOT derail the games engine** to build the analytics dashboard now — but it IS table stakes, so it moves up right after the games/score-card work (not to the very end).
+
+### Counter-features (sequenced)
+1. **Better-than-AI-slop content** — the games flywheel + shareable score-cards + "post this today" kit give members *higher-engagement* things to post than auto-generated spam. Quality over their quantity. (In progress: score-card.)
+2. **"Share to my socials" one-tap** on every game card and content drop — capture ~80% of their "connect once" convenience with **none** of the auto-posting ban risk. Member taps, native share sheet, done. (Cheap; fold into the score-card + content-kit builds.)
+3. **"Your Traffic" funnel dashboard** — match/beat their analytics view: visits → plays → signups, plus how much traffic AL sent the member via rotation. **Moved up:** build right after the games/score-card engine, before the blog. (Was "on top"; now mid-sequence.)
+4. **Network-wide optimisation (later moat-match)** — once we have volume, surface which games/cards/drops convert best network-wide and steer members toward them. Their compounding moat; ours to match when data exists.
+5. **Selective automation (much later)** — only if pull content is winning and platform risk is manageable. Never full-auto posting that risks members' accounts; assisted/scheduled at most.
+
+**One-line positioning vs them:** *"They flood your feeds with AI posts nobody clicks. We give you games people actually play — and send you traffic on top."*
+
 ## Guardrails (so "free" traffic doesn't cost trust)
 
 - **"Free" still costs content + engineering time.** There is no zero-cost traffic — only unpaid, compounding traffic. Budget the time and sequence honestly.
