@@ -7285,6 +7285,8 @@ def referral_video_page(username: str, request: Request, db: Session = Depends(g
         max_age=60*60*24*30,
         httponly=False, samesite="lax",
     )
+    if not _traffic_is_bot(request):
+        _log_traffic(sponsor.id, "visit", "ref")
     return response
 
 # ── Referral link → personalised sales page ───────────────────
@@ -48602,6 +48604,8 @@ def react_pro_funnel_edit(request: Request, pageId: str):
 
 @app.get("/register/{ref}")
 def react_register_with_ref(request: Request, ref: str):
+    if not _traffic_is_bot(request):
+        _log_traffic(_traffic_member_id(ref), "visit", "ref")
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
