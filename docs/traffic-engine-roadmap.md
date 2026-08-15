@@ -74,7 +74,7 @@ Why it matters: it proves the "we send you traffic" promise, it is a powerful re
 
 ## Build sequence (by leverage-per-effort)
 
-1. **Shareable game score-card** — smallest lift, builds directly on what's already live. Auto-generated result image with the member's link, one-tap share.
+1. **Shareable game score-card** — ✅ SHIPPED 2026-08-14. Dynamic 1200×630 PNG (`GET /card/{game}/{username}?score=`) rendered per member/score/game; injected as og:image on `/play/{game}/{ref}`; member end-screen 'Share my score' native-shares the challenge link. Uses the member's PERSONAL link (never rotated).
 2. **Showcase-page SEO** — we own the pages; compounds forever. Indexability, schema, sitemap, unique metadata.
 3. **The content kit ("post this today")** — leverages audiences members already have; near-zero member effort.
 4. **The blog** — flagship long-term organic engine (sequenced after the new-design cutover per existing plan).
@@ -136,6 +136,8 @@ Signups from house traffic rotate **round-robin: every eligible member gets an e
 ## Current state (2026-08-14)
 
 - **Engine 2 — games flywheel: LIVE.** Three skill games (Freedom Flight, Coast Run, Beach Bounce) hosted in-app, per-member `/play/<game>/<username>` share links, free "Claim my spot" signup under the sharer, monthly `$400`-pack leaderboards, admin verify/grant. This is the first shipped piece of the traffic engine. (See `LAUNCH_LOG.md` for commit trail.)
+- **Engine 2 — score-card: LIVE (2026-08-14).** Server-rendered share cards match the approved split-card design (navy panel + gold score + taunt + $400 pill + per-game scene). Commit `1ccfcacd8`.
+- Next: one-tap 'share to my socials' polish, then the 'Your Traffic' funnel dashboard (moved up per competitor watch), then showcase-page SEO.
 - Everything else in this roadmap is proposed / not yet built.
 
 ## Competitor watch — W3M Amplify (added 2026-08-14)
