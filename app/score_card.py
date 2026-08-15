@@ -73,80 +73,24 @@ def _fmt_score(game, score):
 
 
 # ─────────────────────────── game scenes ───────────────────────────
+_SCENE_DIR = os.path.join(os.path.dirname(__file__), "game_scenes")
+_SCENE_CACHE = {}
+
+
 def _scene(game):
-    """Draw the right-panel game scene onto a 540x630 image."""
-    p = Image.new("RGB", (W - LEFT_W, H), (124, 201, 242))  # sky #7cc9f2
-    d = ImageDraw.Draw(p, "RGBA")
-    w = W - LEFT_W
-
-    def sun(cx, cy, r):
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(255, 255, 255, 130))
-
-    if game == "flight":
-        sun(410, 130, 62)
-        d.rectangle([0, 430, w, H], fill=(23, 169, 162))       # sea #17a9a2
-        d.rectangle([0, 430, w, 456], fill=(15, 143, 140))     # sea top edge
-        # rock sea-stacks (tan columns, rounded tops), leaving a centre gap
-        for x, top in ((60, 300), (396, 232)):
-            d.rounded_rectangle([x, top, x + 72, 430], radius=36, fill=(216, 177, 131))
-            d.rectangle([x, top + 36, x + 72, 430], fill=(216, 177, 131))
-            d.rectangle([x + 36, top + 40, x + 72, 430], fill=(191, 148, 100))
-        # foam dashes
-        for fx, fy in ((230, 472), (150, 524), (330, 560)):
-            d.rounded_rectangle([fx, fy, fx + 100, fy + 9], radius=4, fill=(255, 255, 255, 150))
-        # gull
-        gx, gy = 250, 250
-        d.ellipse([gx, gy, gx + 76, gy + 48], fill=WHITE, outline=NAVY, width=5)
-        d.polygon([(gx + 70, gy + 18), (gx + 96, gy + 24), (gx + 70, gy + 30)], fill=GOLD)
-        d.ellipse([gx + 48, gy + 12, gx + 60, gy + 24], fill=NAVY)
-
-    elif game == "run":
-        sun(430, 120, 54)
-        d.rectangle([0, 470, w, 528], fill=(244, 226, 184))    # sandy verge
-        d.rectangle([0, 528, w, H], fill=(64, 73, 94))         # road
-        for dx in range(30, w, 130):
-            d.rounded_rectangle([dx, 588, dx + 46, 597], radius=4, fill=(255, 255, 255, 190))
-        # vespa
-        vx, vy = 150, 470
-        d.ellipse([vx + 24, vy + 24, vx + 74, vy + 74], fill=(42, 51, 80))
-        d.ellipse([vx + 38, vy + 38, vx + 60, vy + 60], fill=(201, 211, 234))
-        d.ellipse([vx + 98, vy + 24, vx + 148, vy + 74], fill=(42, 51, 80))
-        d.ellipse([vx + 112, vy + 38, vx + 134, vy + 60], fill=(201, 211, 234))
-        d.rounded_rectangle([vx + 26, vy, vx + 138, vy + 40], radius=18, fill=RED)
-        d.polygon([(vx + 118, vy + 4), (vx + 150, vy + 2), (vx + 138, vy + 40)], fill=RED)
-        d.ellipse([vx + 64, vy - 30, vx + 94, vy], fill=(240, 201, 160))  # rider head
-        d.pieslice([vx + 62, vy - 34, vx + 96, vy], 180, 360, fill=NAVY)  # helmet
-
-    else:  # beach
-        sun(430, 120, 54)
-        d.rectangle([0, 470, w, 526], fill=(43, 182, 201))     # sea band
-        d.rectangle([0, 526, w, H], fill=(244, 226, 184))      # sand
-        # palm
-        d.rectangle([w - 130, 300, w - 115, 526], fill=(176, 125, 70))
-        for ang in (0, 62, -62):
-            import math
-            ax, ay = w - 122, 300
-            rad = math.radians(ang)
-            ex = ax + int(104 * math.sin(rad)) if ang else ax + 104
-            d.polygon([(ax, ay), (ax + 104, ay - 20 if not ang else ay + int(-34 * math.cos(rad))),
-                       (ax + 20, ay + 28)], fill=(47, 163, 106))
-        # simpler fronds: three green blobs
-        d.ellipse([w - 150, 250, w - 40, 300], fill=(47, 163, 106))
-        d.ellipse([w - 210, 268, w - 110, 312], fill=(47, 163, 106))
-        d.ellipse([w - 90, 268, w + 10, 312], fill=(47, 163, 106))
-        # platforms
-        for px, py, raft in ((60, 250, False), (250, 360, True), (120, 460, False)):
-            col = (55, 183, 214) if raft else (200, 155, 94)
-            d.rounded_rectangle([px, py, px + 110, py + 20], radius=7, fill=col)
-        # beach ball
-        bx, by, r = 110, 288, 26
-        import math
-        cols = [(255, 90, 95), (255, 210, 63), (31, 182, 201), (255, 255, 255), (255, 138, 61), (91, 141, 239)]
-        for i, c in enumerate(cols):
-            d.pieslice([bx - r, by - r, bx + r, by + r], i * 60, (i + 1) * 60, fill=c)
-        d.ellipse([bx - r, by - r, bx + r, by + r], outline=NAVY, width=2)
-
-    return p
+    """Return the right-panel game scene (540x630) — Steve's exact Claude Design
+    art, pre-rendered to PNG from the approved SVGs. Falls back to a flat sky."""
+    if game in _SCENE_CACHE:
+        return _SCENE_CACHE[game]
+    path = os.path.join(_SCENE_DIR, "%s.png" % game)
+    try:
+        img = Image.open(path).convert("RGB")
+        if img.size != (W - LEFT_W, H):
+            img = img.resize((W - LEFT_W, H))
+    except Exception:
+        img = Image.new("RGB", (W - LEFT_W, H), (124, 201, 242))
+    _SCENE_CACHE[game] = img
+    return img
 
 
 # ─────────────────────────── card render ───────────────────────────
