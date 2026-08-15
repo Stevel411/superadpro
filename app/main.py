@@ -2185,7 +2185,7 @@ _AL_PLAN = r"""<!DOCTYPE html>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The AdvantageLife Plan — Your effort. Your income.</title>
 <meta name="description" content="Sales are paid member to member, straight to your wallet. Here's exactly where every sale you make goes — the full 11-sale cycle, nothing hidden.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="canonical" href="https://www.advantagelife.club/plan"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--grn:#2ecc71;--grn2:#1f9d57;--ink:#0d1230;--dim:#4c5878;--line:#e3e8f4}
@@ -38844,7 +38844,7 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     base_url = brand_config.BASE_URL
 
     if brand_config.IS_ADVANTAGELIFE:
-        static_paths = ["/", "/join", "/plan", "/explore", "/terms", "/refund-policy", "/privacy-policy"]
+        static_paths = ["/", "/join", "/plan", "/terms", "/refund-policy", "/privacy-policy"]
         tool_paths = []
     else:
         static_paths = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]
@@ -38867,7 +38867,7 @@ def robots_txt():
     from . import brand_config
 
     if brand_config.IS_ADVANTAGELIFE:
-        allow = ["/", "/join", "/plan", "/explore", "/terms", "/refund-policy", "/privacy-policy"]
+        allow = ["/", "/join", "/plan", "/terms", "/refund-policy", "/privacy-policy"]
     else:
         allow = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq",
                  "/legal", "/wallet-guide", "/free/", "/free/meme-generator",
