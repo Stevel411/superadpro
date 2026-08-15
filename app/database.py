@@ -1256,6 +1256,21 @@ class PrizeWinner(Base):
     __table_args__ = (UniqueConstraint("game", "period", name="uq_prizewinner_game_period"),)
 
 
+class TrafficEvent(Base):
+    """One attributed traffic touch for the 'Your Traffic' dashboard. Every
+    landing on a member's shared link (game/ref), every play those visits
+    generate, and every signup under them is logged here — so a member can see
+    exactly how much traffic AdvantageLife + their sharing produced. Bot hits
+    (og:image crawlers etc.) are filtered before logging. member_id = who gets
+    the credit; event_type in {visit, play, signup}; source = game key / 'ref'."""
+    __tablename__ = "traffic_events"
+    id         = Column(Integer, primary_key=True, index=True)
+    member_id  = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    event_type = Column(String(12), index=True, nullable=False)   # visit | play | signup
+    source     = Column(String(24), index=True, nullable=True)    # game key, 'ref', etc.
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 class ActivityEvent(Base):
     """A single momentum-feed event — a join, trial start, pack sale,
     daily qualification, showcase share, or milestone. Written the moment it
@@ -4264,6 +4279,20 @@ try:
         print("✅ game_scores + prize_winners tables verified")
 except Exception as _e:
     print(f"prize-game tables migration skipped: {_e}")
+
+# ── AdvantageLife: traffic-attribution events (14 Aug 2026) — "Your Traffic" ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text(
+            "CREATE TABLE IF NOT EXISTS traffic_events ("
+            "id SERIAL PRIMARY KEY, member_id INTEGER, event_type VARCHAR(12), "
+            "source VARCHAR(24), created_at TIMESTAMP DEFAULT now())"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_traffic_member ON traffic_events (member_id, event_type)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_traffic_when ON traffic_events (created_at)"))
+        conn.commit()
+        print("✅ traffic_events table verified")
+except Exception as _e:
+    print(f"traffic_events migration skipped: {_e}")
 
 # ── AdvantageLife: support + transaction-chat tables (31 Jul / 1 Aug 2026) ──
 # These run UNCONDITIONALLY (not gated by SKIP_MIGRATIONS) because create_all is

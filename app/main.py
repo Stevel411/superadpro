@@ -35,6 +35,7 @@ from . import brand_config
 from .database import StripeCharge
 from .database import ShareLink, ShareView
 from .database import GameScore, PrizeWinner
+from .database import TrafficEvent
 from .database import ActivityEvent
 from .database import GridPlanFeedback
 from .database import CREDIT_PACKS  # 23 May 2026: needed at module level for Stripe Nexus checkout route
@@ -7310,6 +7311,8 @@ def referral_link(username: str, request: Request, db: Session = Depends(get_db)
         resp = RedirectResponse(url=f"/register?ref={ref}", status_code=302)
     resp.set_cookie(key="ref", value=ref, max_age=60*60*24*30,
                     httponly=False, samesite="lax")
+    if not _traffic_is_bot(request):
+        _log_traffic(sponsor.id, "visit", "ref")
     return resp
 @app.get("/join/{username}")
 def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
@@ -7686,6 +7689,16 @@ def register_process(
         assign_passup_sponsor(db, user, sponsor_obj)
 
     db.commit()
+
+    # Traffic dashboard: credit the signup to the sharing member (only a real
+    # referral, never the company fallback).
+    try:
+        if ref:
+            _sp = db.query(User).filter(User.username == ref).first()
+            if _sp:
+                _log_traffic(_sp.id, "signup", "ref")
+    except Exception:
+        pass
 
     # ── Post-registration notifications ──
 
@@ -71507,6 +71520,55 @@ AL_COMPANY_PAYOUT = {
 # game per month, and (3) the monthly winner is ALWAYS manually verified in
 # admin before any pack is minted. The caps are a filter, not the defence.
 GAME_KEYS = ("flight", "run", "beach")
+
+# ── Traffic attribution ("Your Traffic" dashboard) ──────────────────────────
+_TRAFFIC_BOT_UA = (
+    "bot", "crawler", "spider", "facebookexternalhit", "facebot", "twitterbot",
+    "slackbot", "whatsapp", "telegrambot", "linkedinbot", "pinterest", "embedly",
+    "discordbot", "preview", "curl", "wget", "python-requests", "headless",
+    "lighthouse", "chrome-lighthouse", "google", "bingbot", "yandex",
+)
+
+
+def _traffic_is_bot(request):
+    """True for crawler/preview user-agents (og:image fetches, link unfurlers)
+    so automated hits never inflate a member's traffic numbers."""
+    try:
+        ua = (request.headers.get("user-agent") or "").lower()
+    except Exception:
+        return True
+    return (not ua) or any(b in ua for b in _TRAFFIC_BOT_UA)
+
+
+def _log_traffic(member_id, event_type, source=None):
+    """Record one attributed traffic event. Best-effort: never breaks the page."""
+    if not member_id:
+        return
+    try:
+        db = SessionLocal()
+        try:
+            db.add(TrafficEvent(member_id=int(member_id), event_type=event_type,
+                                source=(source or "")[:24]))
+            db.commit()
+        finally:
+            db.close()
+    except Exception:
+        pass
+
+
+def _traffic_member_id(username):
+    """Resolve a username (from a shared link) to the member id to credit."""
+    if not username:
+        return None
+    try:
+        db = SessionLocal()
+        try:
+            u = db.query(User).filter(User.username == username).first()
+            return u.id if u else None
+        finally:
+            db.close()
+    except Exception:
+        return None
 GAME_LABELS = {"flight": "Freedom Flight", "run": "Coast Run", "beach": "Beach Bounce"}
 # Ceilings set well above real human bests, low enough to reject 999999 junk.
 GAME_SCORE_CAP = {"flight": 500, "run": 40000, "beach": 40000}
@@ -71606,6 +71668,10 @@ _GAME_WRAPPER = """
       fetch(cfg.submitUrl,{method:"POST",headers:{"Content-Type":"application/json"},
         credentials:"same-origin",body:JSON.stringify({game:cfg.game,score:score})}).catch(function(){});
     }
+    if(cfg.mode==="play" && cfg.ref){
+      fetch("/api/traffic/play",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({game:cfg.game,ref:cfg.ref})}).catch(function(){});
+    }
   };
   function rebind(id,label,fn){ var b=document.getElementById(id); if(!b)return;
     var n=b.cloneNode(true); if(label)n.textContent=label; b.parentNode.replaceChild(n,b);
@@ -71677,8 +71743,8 @@ def play_game_shared(game: str, ref: str, request: Request, user: User = Depends
     import json as _json
     safe_ref = "".join(c for c in (ref or "") if c.isalnum() or c in "_-.")[:40]
     claim = ("/ref/" + safe_ref) if safe_ref else "/register"
-    cfg = ('<script>window.GAME_CFG={mode:"play",game:%s,claimUrl:%s};</script>'
-           % (_json.dumps(game), _json.dumps(claim)))
+    cfg = ('<script>window.GAME_CFG={mode:"play",game:%s,claimUrl:%s,ref:%s};</script>'
+           % (_json.dumps(game), _json.dumps(claim), _json.dumps(safe_ref)))
     # Social preview: og:image = the dynamic score card (uses ?score=)
     try:
         og_score = int(request.query_params.get("score", "0"))
@@ -71696,6 +71762,9 @@ def play_game_shared(game: str, ref: str, request: Request, user: User = Depends
           + '<meta name="twitter:card" content="summary_large_image">'
           + '<meta name="twitter:image" content="%s">' % card)
     html = html.replace("</head>", cfg + og + _GAME_WRAPPER + "</head>", 1)
+    # attribute a real (non-bot) visit to the sharing member
+    if not _traffic_is_bot(request):
+        _log_traffic(_traffic_member_id(safe_ref), "visit", game)
     return HTMLResponse(html)
 
 
@@ -71719,6 +71788,91 @@ def score_card_image(game: str, username: str, request: Request):
         return JSONResponse({"error": "render_failed", "detail": str(e)[:200]}, status_code=500)
     return _Resp(content=png, media_type="image/png",
                  headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.post("/api/traffic/play")
+async def traffic_play_ping(request: Request):
+    """Public: a shared-link visitor started/finished a game. Attributes a
+    'play' to the sharing member for the funnel. Best-effort, bot-filtered."""
+    if _traffic_is_bot(request):
+        return JSONResponse({"ok": True})
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    ref = (body.get("ref") or "").strip()[:40]
+    game = (body.get("game") or "").strip().lower()
+    if game not in GAME_KEYS:
+        game = None
+    _log_traffic(_traffic_member_id(ref), "play", game or "play")
+    return JSONResponse({"ok": True})
+
+
+def _traffic_summary(db, member_id):
+    """Aggregate a member's attributed traffic: totals + last-30-day + by-source."""
+    from sqlalchemy import func as _f
+    from datetime import timedelta as _td
+    now = datetime.utcnow()
+    since30 = now - _td(days=30)
+    out = {"visits": 0, "plays": 0, "signups": 0,
+           "visits_30d": 0, "plays_30d": 0, "signups_30d": 0,
+           "by_source": {}, "team_total": 0}
+    try:
+        for et, c in (db.query(TrafficEvent.event_type, _f.count(TrafficEvent.id))
+                        .filter(TrafficEvent.member_id == member_id)
+                        .group_by(TrafficEvent.event_type).all()):
+            if et == "visit": out["visits"] = int(c)
+            elif et == "play": out["plays"] = int(c)
+            elif et == "signup": out["signups"] = int(c)
+        for et, c in (db.query(TrafficEvent.event_type, _f.count(TrafficEvent.id))
+                        .filter(TrafficEvent.member_id == member_id,
+                                TrafficEvent.created_at >= since30)
+                        .group_by(TrafficEvent.event_type).all()):
+            if et == "visit": out["visits_30d"] = int(c)
+            elif et == "play": out["plays_30d"] = int(c)
+            elif et == "signup": out["signups_30d"] = int(c)
+        src = (db.query(TrafficEvent.source, _f.count(TrafficEvent.id))
+                 .filter(TrafficEvent.member_id == member_id,
+                         TrafficEvent.event_type == "visit")
+                 .group_by(TrafficEvent.source).all())
+        out["by_source"] = {(s or "other"): int(c) for s, c in src}
+    except Exception:
+        pass
+    try:
+        out["team_total"] = db.query(User).filter(User.sponsor_id == member_id).count()
+    except Exception:
+        pass
+    return out
+
+
+@app.get("/api/traffic/summary")
+def traffic_summary_me(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The signed-in member's own traffic summary (powers the dashboard)."""
+    if not user:
+        return JSONResponse({"error": "auth"}, status_code=401)
+    return JSONResponse(_traffic_summary(db, user.id))
+
+
+@app.get("/admin/api/al/traffic")
+def admin_traffic(user_id: int = 0, secret: str = "",
+                  user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Diagnostic: any member's traffic (admin session OR MIGRATION_SECRET)."""
+    ok = bool(user and is_admin(user))
+    if not ok and secret and secret == os.getenv("MIGRATION_SECRET", ""):
+        ok = True
+    if not ok:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if not user_id:
+        return JSONResponse({"error": "user_id required"}, status_code=400)
+    recent = []
+    try:
+        for e in (db.query(TrafficEvent).filter(TrafficEvent.member_id == user_id)
+                    .order_by(TrafficEvent.id.desc()).limit(20).all()):
+            recent.append({"type": e.event_type, "source": e.source,
+                           "at": e.created_at.isoformat() if e.created_at else None})
+    except Exception:
+        pass
+    return JSONResponse({"user_id": user_id, "summary": _traffic_summary(db, user_id), "recent": recent})
 
 
 def _games_admin_ok(request, user):
