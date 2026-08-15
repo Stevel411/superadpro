@@ -40,7 +40,7 @@ A visitor who can neither convert nor re-share is a dead end. No public surface 
 The compounding core. The company creates attention centrally; attribution + rotation hand it to members.
 
 - **Showcase-page SEO.** Every member's public page is already a live URL. Make them properly indexable — unique titles/descriptions, real crawlable content, schema markup, sitemap. Thousands of long-tail pages ranking in Google, each funnelling signups to *that* member, forever. We already own the pages; this is largely a technical unlock, not new content.
-- **The blog (flagship).** Publish what network marketers actually search for — "how to get leads without paying for ads," honest tool comparisons, practical how-tos. Each post carries a "start free" CTA that **rotates** the signup to a member. Write once, pull traffic for years.
+- **The blog (flagship — the real long-tail SEO engine).** Publish what network marketers actually search for — "how to get leads without paying for ads," honest tool comparisons, practical how-tos. Each unique post is a page that CAN rank (unlike duplicate member pages) and carries a "start free" CTA that **rotates** the signup to a member. Write once, pull traffic for years. **Steve's steer (2026-08-14): the blog is a genuine winner, but ONLY if the editor is easy & usable for members — that's the make-or-break. Sequenced later; come back to it properly (data models + gating + media-first member-usable editor + themes).**
 - **Programmatic / landing pages at scale** — later, and only if each page is genuinely useful. Thin/spam pages get penalised and burn trust; do not ship these to game the index.
 - **PR / earned media.** "Free + Watch-to-Earn + skill games" is genuinely novel. One feature in a marketing/MLM outlet, podcast, or YouTube channel is a spike at zero ad cost, rotated to members.
 
@@ -75,7 +75,7 @@ Why it matters: it proves the "we send you traffic" promise, it is a powerful re
 ## Build sequence (by leverage-per-effort)
 
 1. **Shareable game score-card** — ✅ SHIPPED 2026-08-14. Dynamic 1200×630 PNG (`GET /card/{game}/{username}?score=`) rendered per member/score/game; injected as og:image on `/play/{game}/{ref}`; member end-screen 'Share my score' native-shares the challenge link. Uses the member's PERSONAL link (never rotated).
-2. **Showcase-page SEO** — we own the pages; compounds forever. Indexability, schema, sitemap, unique metadata.
+2. **Showcase-page SEO** — ✅ FOUNDATION SHIPPED 2026-08-14 (Path B). Decided NOT to index ~600 near-duplicate member pages (Google clusters/drops duplicates, wastes crawl budget, risks site-wide helpful-content demotion — violates our own no-spam guardrail). Instead: Organization+WebSite JSON-LD + self-canonical on the server-rendered homepage & /plan; member /ref pages made properly-formed (name-personalised title, meta description, self-canonical) — clean & shareable, kept OUT of the sitemap; dropped /explore (302) from sitemap+robots. **The real long-tail engine is the BLOG (unique content), not member pages.**
 3. **The content kit ("post this today")** — leverages audiences members already have; near-zero member effort.
 4. **The blog** — flagship long-term organic engine (sequenced after the new-design cutover per existing plan).
 5. **The rotation / attribution layer for inbound visitors** — the formal machinery that distributes company-generated traffic to members. This is the actual "traffic solution" engine; everything else feeds it.
