@@ -71612,8 +71612,13 @@ _GAME_WRAPPER = """
     n.addEventListener("click",function(e){ e.stopPropagation(); fn(); }); }
   window.addEventListener("load",function(){
     if(cfg.mode==="member"){
-      rebind("claimBtn","\\uD83C\\uDFC6 See the leaderboard \\u2192",function(){ location.href="/leaderboards"; });
-      rebind("shareBtn","\\u21BB Play again",function(){ location.reload(); });
+      rebind("claimBtn","\\uD83D\\uDCE3 Share my score",function(){
+        var s = window.__lastScore||0;
+        var url = (cfg.shareBase||location.origin) + "/play/" + cfg.game + "/" + encodeURIComponent(cfg.username||"") + "?score=" + s;
+        try{ if(navigator.share){ navigator.share({title:"Beat my AdvantageLife score", text:"I scored "+s+" \\u2014 beat me!", url:url}); }
+             else if(navigator.clipboard){ navigator.clipboard.writeText(url); var b=document.getElementById("claimBtn"); if(b){b.textContent="Link copied \\u2713";} } }catch(e){}
+      });
+      rebind("shareBtn","\\uD83C\\uDFC6 Leaderboard",function(){ location.href="/leaderboards"; });
     } else if(cfg.mode==="play"){
       rebind("claimBtn",null,function(){ location.href=cfg.claimUrl||"/register"; });
       rebind("shareBtn",null,function(){ try{ if(navigator.share){navigator.share({title:"Beat my score on AdvantageLife",url:location.href});} else if(navigator.clipboard){ navigator.clipboard.writeText(location.href); } }catch(e){} });
@@ -71637,7 +71642,9 @@ def play_game_member(game: str, user: User = Depends(get_current_user)):
     except Exception:
         return JSONResponse({"error": "game_not_found"}, status_code=404)
     cfg = ('<script>window.GAME_CFG={mode:"member",game:"%s",'
-           'submitUrl:"/api/games/submit-score"};</script>' % game)
+           'submitUrl:"/api/games/submit-score",username:%s,shareBase:%s};</script>'
+           % (game, __import__("json").dumps(user.username or ""),
+              __import__("json").dumps(os.getenv("BASE_URL", "https://www.advantagelife.club"))))
     html = html.replace("</head>", cfg + _GAME_WRAPPER + "</head>", 1)
     return HTMLResponse(html)
 
@@ -71657,7 +71664,7 @@ def leaderboards_page(user: User = Depends(get_current_user)):
 
 
 @app.get("/play/{game}/{ref}")
-def play_game_shared(game: str, ref: str, user: User = Depends(get_current_user)):
+def play_game_shared(game: str, ref: str, request: Request, user: User = Depends(get_current_user)):
     """Shared game link (acquisition mode): anyone plays instantly, and the
     'Claim my spot' button routes to a FREE signup under the sharer (ref)."""
     game = (game or "").strip().lower()
@@ -71672,8 +71679,46 @@ def play_game_shared(game: str, ref: str, user: User = Depends(get_current_user)
     claim = ("/ref/" + safe_ref) if safe_ref else "/register"
     cfg = ('<script>window.GAME_CFG={mode:"play",game:%s,claimUrl:%s};</script>'
            % (_json.dumps(game), _json.dumps(claim)))
-    html = html.replace("</head>", cfg + _GAME_WRAPPER + "</head>", 1)
+    # Social preview: og:image = the dynamic score card (uses ?score=)
+    try:
+        og_score = int(request.query_params.get("score", "0"))
+    except (TypeError, ValueError):
+        og_score = 0
+    base = os.getenv("BASE_URL", "https://www.advantagelife.club").rstrip("/")
+    lbl = GAME_LABELS.get(game, "AdvantageLife")
+    card = "%s/card/%s/%s?score=%d" % (base, game, safe_ref or "player", max(0, og_score))
+    og = ('<meta property="og:type" content="website">'
+          '<meta property="og:title" content="%s challenge \\u2014 beat my score">' % lbl
+          + '<meta property="og:description" content="Free to play. Top score this month wins the $400 pack.">'
+          + '<meta property="og:image" content="%s">' % card
+          + '<meta property="og:image:width" content="1200">'
+          + '<meta property="og:image:height" content="630">'
+          + '<meta name="twitter:card" content="summary_large_image">'
+          + '<meta name="twitter:image" content="%s">' % card)
+    html = html.replace("</head>", cfg + og + _GAME_WRAPPER + "</head>", 1)
     return HTMLResponse(html)
+
+
+@app.get("/card/{game}/{username}")
+def score_card_image(game: str, username: str, request: Request):
+    """Dynamic social share card (1200x630 PNG) for a member's game score.
+    Public (social crawlers fetch it). Score is cosmetic and clamped."""
+    from .score_card import render as _render_card
+    from starlette.responses import Response as _Resp
+    g = (game or "").strip().lower()
+    if g not in GAME_KEYS:
+        g = "flight"
+    try:
+        score = int(request.query_params.get("score", "0"))
+    except (TypeError, ValueError):
+        score = 0
+    score = max(0, min(score, GAME_SCORE_CAP.get(g, 40000)))
+    try:
+        png = _render_card(g, username, score)
+    except Exception as e:
+        return JSONResponse({"error": "render_failed", "detail": str(e)[:200]}, status_code=500)
+    return _Resp(content=png, media_type="image/png",
+                 headers={"Cache-Control": "public, max-age=86400"})
 
 
 def _games_admin_ok(request, user):
