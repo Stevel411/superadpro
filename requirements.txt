@@ -88,3 +88,4 @@ dnspython>=2.6.0
 # explicitly here so a future pptx upgrade can't accidentally drop it.
 # Added 21 May 2026 alongside the auto-optimise feature.
 Pillow>=10.0.0
+numpy>=1.24.0
