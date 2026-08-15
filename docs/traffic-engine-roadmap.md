@@ -85,11 +85,51 @@ Sequencing discipline: **do one engine well before starting the next.** Eight ha
 
 ---
 
-## Attribution model (how a visitor becomes a member's signup)
+## Attribution model (the spine — every engine plugs into this)
 
-- **Direct member links** (e.g. `/play/<game>/<username>`, showcase pages): attributed to that member via the existing referral tree — sponsor is explicit.
-- **Company-generated traffic** (blog, PR, programmatic, company email): no explicit sponsor, so it is **rotated** to a member using the same fair-equity logic that drives watch rotation. This is the piece to formalise (sequence item 5).
-- Rotation must be **fair and legible** — a member should be able to see why they received a given visitor, mirroring the transparency of the watch-equity model.
+_Locked 2026-08-14. This is the foundation; build it correctly before any engine that produces company traffic ships._
+
+### Two link types, decided by one rule
+
+**Attribution is decided by whether a link carries a member or not.**
+
+- **Personal link** (carries a username, e.g. `/play/<game>/<username>`, a member's showcase page): attributed 100% to that member, **always. Never rotated.** This is a member — including Steve — promoting as themselves. Steve's existing affiliate link (`user_id 1`, "AdvantageLife") is a personal link and is unchanged.
+- **House link** (no username, e.g. `/go/<game>`, `/join`, blog/PR CTAs, company email): owned by a dedicated **house system account**. Because no member is attached, the **round-robin rotation engine** assigns each visitor to a member.
+
+Link with a member → that member, no rotation, ever. Link without one → the house, rotated. Clean separation, nothing to remember.
+
+### The house system account
+
+A dedicated system user, **structurally distinct from Steve's personal affiliate account** (`user_id 1`). "AdvantageLife the company" and "Steve the affiliate" are now two different things in the data, not a convention.
+
+- Owns all company/arbitrary-traffic links.
+- Has no upline, does not earn, is not a normal member in the tree.
+- **The house is a _router_, not a _beneficiary_.**
+
+### The "house routes but never keeps" rule (critical)
+
+When a company visitor lands on a house link and signs up:
+
+1. The round-robin engine picks the **receiving member** (next member in fair rotation order).
+2. The new member is placed **under that receiving member** in the tree — **not under the house.**
+3. All resulting pass-ups flow to real members as normal.
+
+The house **never** accumulates a downline. If it does, the "we distribute traffic to members" promise silently breaks. This is the single most important invariant in the whole traffic engine.
+
+### Round-robin fairness (the rotation knob)
+
+Signups from house traffic rotate **round-robin: every eligible member gets an equal turn, in order** — the fairest, most legible rule, matching the transparency of the watch-equity model.
+
+- Persist a rotation cursor so turns are genuinely sequential across visits (not random each time).
+- Eligibility for the rotation still respects the normal earning gates (a member must be in a state where they can legitimately receive/keep a signup); ineligible members are skipped, not given a dead turn.
+- A member should be able to **see** that a signup came to them via house rotation (feeds the "Your Traffic" dashboard and keeps rotation legible).
+
+### Original per-engine attribution summary
+
+- **Direct member links** (`/play/<game>/<username>`, showcase pages): the referral tree, sponsor explicit.
+- **Company-generated traffic** (blog, PR, programmatic, company email, arbitrary landings): house link → round-robin to a member, placed under that member.
+- Rotation must be fair and legible — a member can see why they received a given visitor, mirroring watch-equity transparency.
+
 
 ---
 
