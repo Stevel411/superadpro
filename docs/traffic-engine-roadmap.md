@@ -76,7 +76,7 @@ Why it matters: it proves the "we send you traffic" promise, it is a powerful re
 
 1. **Shareable game score-card** — ✅ SHIPPED 2026-08-14. Dynamic 1200×630 PNG (`GET /card/{game}/{username}?score=`) rendered per member/score/game; injected as og:image on `/play/{game}/{ref}`; member end-screen 'Share my score' native-shares the challenge link. Uses the member's PERSONAL link (never rotated).
 2. **Showcase-page SEO** — ✅ FOUNDATION SHIPPED 2026-08-14 (Path B). Decided NOT to index ~600 near-duplicate member pages (Google clusters/drops duplicates, wastes crawl budget, risks site-wide helpful-content demotion — violates our own no-spam guardrail). Instead: Organization+WebSite JSON-LD + self-canonical on the server-rendered homepage & /plan; member /ref pages made properly-formed (name-personalised title, meta description, self-canonical) — clean & shareable, kept OUT of the sitemap; dropped /explore (302) from sitemap+robots. **The real long-tail engine is the BLOG (unique content), not member pages.**
-3. **The content kit ("post this today")** — leverages audiences members already have; near-zero member effort.
+3. **The content kit ("post this today")** — ✅ SHIPPED 2026-08-14 (`/content-kit`). 6 dynamic branded graphics (1080×1080, member handle baked in, flat AL colours), 8 personalised swipe captions (honest, no income promises), game shares, daily "post this today" rotation. Renderer `app/content_graphics.py`, data `/api/kit`, images `/kit/graphic/{key}/{user}`. Direct counter to W3M auto-posting.
 4. **The blog** — flagship long-term organic engine (sequenced after the new-design cutover per existing plan).
 5. **The rotation / attribution layer for inbound visitors** — the formal machinery that distributes company-generated traffic to members. This is the actual "traffic solution" engine; everything else feeds it.
 6. **PR / earned media**, **programmatic pages**, and the **"Your Traffic" dashboard** on top.
@@ -138,7 +138,7 @@ Signups from house traffic rotate **round-robin: every eligible member gets an e
 - **Engine 2 — games flywheel: LIVE.** Three skill games (Freedom Flight, Coast Run, Beach Bounce) hosted in-app, per-member `/play/<game>/<username>` share links, free "Claim my spot" signup under the sharer, monthly `$400`-pack leaderboards, admin verify/grant. This is the first shipped piece of the traffic engine. (See `LAUNCH_LOG.md` for commit trail.)
 - **Engine 2 — score-card: LIVE (2026-08-14).** Server-rendered share cards match the approved split-card design (navy panel + gold score + taunt + $400 pill + per-game scene). Commit `1ccfcacd8`.
 - **Your Traffic dashboard: LIVE (2026-08-14)** — `/my-traffic`, commit `ac42eefd9`, on live `traffic_events` data. Competitor-parity funnel view.
-- Next: showcase-page SEO → content kit → blog → the house/round-robin rotation layer (which unlocks the 'traffic AL sent you' card).
+- **SEO foundation + Content Kit: LIVE (2026-08-14).** Next: the house/round-robin rotation layer (unlocks 'traffic AL sent you'), then the blog (done right, member-usable editor).
 - Everything else in this roadmap is proposed / not yet built.
 
 ## Competitor watch — W3M Amplify (added 2026-08-14)
