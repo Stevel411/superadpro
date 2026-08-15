@@ -6,6 +6,21 @@
 
 > **For Steve:** Update the curated sections below at the end of each session. The auto-snapshot block at the top of the daily-briefing email is generated fresh from the database — you don't update that.
 
+
+---
+
+## 📈 NEW FOCUS 2026-08-14 — TRAFFIC ENGINE (AdvantageLife as a traffic solution for members)
+
+**Strategic direction locked with Steve:** AdvantageLife is not just a toolset — the differentiated promise is **"we send you traffic."** Full roadmap lives in its own doc:
+
+> **➡️ [`docs/traffic-engine-roadmap.md`](docs/traffic-engine-roadmap.md)** — the living roadmap: the thesis, the four engines (company-organic, member-amplified, network-pooled, owned-email), the attribution/rotation model, the "Your Traffic" dashboard, build sequence, and guardrails.
+
+**Core principle:** every visitor the company generates must be *attributable* and *distributable* to a member (same tree + rotation machinery already proven for watch-equity).
+
+**First engine already LIVE:** the prize-games flywheel (Engine 2) — 3 in-app skill games, per-member `/play/<game>/<username>` links, free signup-under-sponsor, monthly $400-pack leaderboards, admin verify/grant. Commit trail this session: score layer `003a8b269` → games hosted `f3a06c815` → leaderboards `89e9e506f` → share links + sidebar card `d8e57d3f9` → admin verify/grant `e7771abe2`, plus Flight difficulty ease, badge removal, and the shared-`SideNav` collapsible-dropdown nav fix.
+
+**Next by leverage-per-effort:** shareable game score-card → showcase-page SEO → content kit → blog → the inbound rotation/attribution layer. Do one engine well before the next.
+
 ---
 
 ## Status as of 2026-07-24 — PUBLIC SURFACE REBRANDED + COMP PLAN PAGE + THREE TERMS CONTRADICTIONS CLOSED
