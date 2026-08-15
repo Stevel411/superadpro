@@ -2036,6 +2036,8 @@ _AL_HOME = r"""<!DOCTYPE html>
 <meta name="description" content="The AI marketing tools, the daily habit, and a step-by-step compensation plan. Free to start — the tools work whether or not you ever refer anyone.">
 <meta property="og:title" content="AdvantageLife — Financial freedom isn't luck. It's a plan.">
 <meta property="og:description" content="Free to start. Every tool from day one. A step-by-step plan when you want the income side.">
+<link rel="canonical" href="https://www.advantagelife.club/">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.advantagelife.club/#organization","name":"AdvantageLife","url":"https://www.advantagelife.club/","logo":"https://www.advantagelife.club/static/icons/icon-192.png","description":"Watch-to-Earn video advertising watched by real people, plus a full marketing toolkit for members."},{"@type":"WebSite","@id":"https://www.advantagelife.club/#website","url":"https://www.advantagelife.club/","name":"AdvantageLife","publisher":{"@id":"https://www.advantagelife.club/#organization"}}]}</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
