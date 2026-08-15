@@ -71832,7 +71832,7 @@ def _kit_payload(username):
     u = (username or "").lstrip("@")
     ref = "%s/ref/%s" % (base, u)
     flight = "%s/play/flight/%s" % (base, u)
-    graphics = [{"key": k, "label": _GL.get(k, k), "url": "%s/kit/graphic/%s/%s" % (base, k, u)}
+    graphics = [{"key": k, "label": _GL.get(k, k), "url": "%s/kit/graphic/%s/%s?v=2" % (base, k, u)}
                 for k in _GK]
     swipe = [{"angle": it["angle"], "tone": it["tone"],
               "text": it["text"].replace("{ref}", ref).replace("{flight}", flight)}
