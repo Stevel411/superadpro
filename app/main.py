@@ -4343,6 +4343,14 @@ def my_traffic_page(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/content-kit")
+def content_kit_page(request: Request):
+    """Serve React SPA (Content Kit)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login", status_code=302)
@@ -71780,6 +71788,71 @@ def play_game_shared(game: str, ref: str, request: Request, user: User = Depends
     if not _traffic_is_bot(request):
         _log_traffic(_traffic_member_id(safe_ref), "visit", game)
     return HTMLResponse(html)
+
+
+@app.get("/kit/graphic/{key}/{username}")
+def kit_graphic_image(key: str, username: str):
+    """Content-kit share graphic (1080x1080 PNG) rendered with member handle."""
+    from .content_graphics import render as _render_g, GRAPHIC_KEYS as _GK
+    from starlette.responses import Response as _Resp
+    k = (key or "").strip().lower()
+    if k not in _GK:
+        k = "join"
+    try:
+        png = _render_g(k, username)
+    except Exception as e:
+        return JSONResponse({"error": "render_failed", "detail": str(e)[:200]}, status_code=500)
+    return _Resp(content=png, media_type="image/png",
+                 headers={"Cache-Control": "public, max-age=86400"})
+
+
+_KIT_SWIPE = [
+    {"angle": "Short \u00b7 any platform", "tone": "a",
+     "text": "Tired of paying for ads that go nowhere? I found a platform where real people actually watch \u2014 and it's free to start with every tool from day one. Take a look \u2192 {ref}"},
+    {"angle": "Story \u00b7 casual", "tone": "b",
+     "text": "Been quietly building something on the side. No cold DMs, no chasing friends \u2014 just sharing a free tool people actually want. Happy to show anyone who's curious \U0001F447 {ref}"},
+    {"angle": "Game \u00b7 fun", "tone": "d",
+     "text": "Okay this is harder than it looks \U0001F605 I scored 24 \u2014 think you can beat me? Free to play, and the top score this month wins $400. Go on then \u2192 {flight}"},
+    {"angle": "Question \u00b7 curiosity", "tone": "c",
+     "text": "What if your ads were watched by real people instead of disappearing into a feed? That's the whole idea here. Free to join, tools included. Worth a look \u2192 {ref}"},
+    {"angle": "Short \u00b7 bold", "tone": "a",
+     "text": "Your effort. Your income. 100% yours. That's not a slogan here \u2014 it's how the plan actually works. See for yourself, free \u2192 {ref}"},
+    {"angle": "Story \u00b7 honest", "tone": "b",
+     "text": "I was sceptical too. But it's genuinely free to start, the tools are real, and nobody's pushing me to buy anything. If you've been looking for a side project without the hype, have a look \u2192 {ref}"},
+    {"angle": "Value \u00b7 tools", "tone": "c",
+     "text": "Every marketing tool, free from day one \u2014 whether or not you ever refer a single person. Hard to argue with free tools \u2192 {ref}"},
+    {"angle": "Game \u00b7 challenge", "tone": "d",
+     "text": "Threw down a score on this little game \u2014 bet nobody beats it this month \U0001F3C6 Free to play, $400 to the top score. Prove me wrong \u2192 {flight}"},
+]
+
+
+def _kit_payload(username):
+    from .content_graphics import GRAPHIC_KEYS as _GK, GRAPHIC_LABELS as _GL
+    base = os.getenv("BASE_URL", "https://www.advantagelife.club").rstrip("/")
+    u = (username or "").lstrip("@")
+    ref = "%s/ref/%s" % (base, u)
+    flight = "%s/play/flight/%s" % (base, u)
+    graphics = [{"key": k, "label": _GL.get(k, k), "url": "%s/kit/graphic/%s/%s" % (base, k, u)}
+                for k in _GK]
+    swipe = [{"angle": it["angle"], "tone": it["tone"],
+              "text": it["text"].replace("{ref}", ref).replace("{flight}", flight)}
+             for it in _KIT_SWIPE]
+    games = [{"key": g, "label": GAME_LABELS.get(g, g),
+              "share": "%s/play/%s/%s" % (base, g, u)} for g in GAME_KEYS]
+    import datetime as _dt
+    doy = _dt.date.today().timetuple().tm_yday
+    pool = ["graphic:" + k for k in _GK] + ["game:" + g for g in GAME_KEYS]
+    today = pool[doy % len(pool)]
+    return {"username": u, "ref": ref, "graphics": graphics, "swipe": swipe,
+            "games": games, "today": today}
+
+
+@app.get("/api/kit")
+def content_kit_data(user: User = Depends(get_current_user)):
+    """Personalised content-kit payload for the signed-in member."""
+    if not user:
+        return JSONResponse({"error": "auth"}, status_code=401)
+    return JSONResponse(_kit_payload(user.username or ""))
 
 
 @app.get("/card/{game}/{username}")
