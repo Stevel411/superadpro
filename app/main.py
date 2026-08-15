@@ -4333,6 +4333,14 @@ def leaderboard_page(request: Request):
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/my-traffic")
+def my_traffic_page(request: Request):
+    """Serve React SPA (Your Traffic dashboard)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login", status_code=302)

@@ -18,6 +18,7 @@ export const NAV = [
   { key: 'leaderboard', label: 'Leaderboard', to: '/leaderboard', link: true },
   { key: 'ai-tools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
+  { key: 'traffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'comp', label: 'Compensation Plan', to: '/compensation-plan', link: true },
   { header: 'MORE' },
   { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },
