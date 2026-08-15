@@ -137,7 +137,8 @@ Signups from house traffic rotate **round-robin: every eligible member gets an e
 
 - **Engine 2 — games flywheel: LIVE.** Three skill games (Freedom Flight, Coast Run, Beach Bounce) hosted in-app, per-member `/play/<game>/<username>` share links, free "Claim my spot" signup under the sharer, monthly `$400`-pack leaderboards, admin verify/grant. This is the first shipped piece of the traffic engine. (See `LAUNCH_LOG.md` for commit trail.)
 - **Engine 2 — score-card: LIVE (2026-08-14).** Server-rendered share cards match the approved split-card design (navy panel + gold score + taunt + $400 pill + per-game scene). Commit `1ccfcacd8`.
-- Next: one-tap 'share to my socials' polish, then the 'Your Traffic' funnel dashboard (moved up per competitor watch), then showcase-page SEO.
+- **Your Traffic dashboard: LIVE (2026-08-14)** — `/my-traffic`, commit `ac42eefd9`, on live `traffic_events` data. Competitor-parity funnel view.
+- Next: showcase-page SEO → content kit → blog → the house/round-robin rotation layer (which unlocks the 'traffic AL sent you' card).
 - Everything else in this roadmap is proposed / not yet built.
 
 ## Competitor watch — W3M Amplify (added 2026-08-14)
@@ -165,7 +166,7 @@ Signups from house traffic rotate **round-robin: every eligible member gets an e
 ### Counter-features (sequenced)
 1. **Better-than-AI-slop content** — the games flywheel + shareable score-cards + "post this today" kit give members *higher-engagement* things to post than auto-generated spam. Quality over their quantity. (In progress: score-card.)
 2. **"Share to my socials" one-tap** on every game card and content drop — capture ~80% of their "connect once" convenience with **none** of the auto-posting ban risk. Member taps, native share sheet, done. (Cheap; fold into the score-card + content-kit builds.)
-3. **"Your Traffic" funnel dashboard** — match/beat their analytics view: visits → plays → signups, plus how much traffic AL sent the member via rotation. **Moved up:** build right after the games/score-card engine, before the blog. (Was "on top"; now mid-sequence.)
+3. **"Your Traffic" funnel dashboard** — ✅ SHIPPED 2026-08-14. `/my-traffic` page: hero visits + 30d delta, visits→plays→signups funnel w/ conversion %, last-30-day snapshot, by-source breakdown, share CTA. Backed by `traffic_events` (bot-filtered visit/play/signup logging on shared links) + `/api/traffic/summary`. v1 shows the member's OWN generated traffic; the 'traffic AL SENT you' rotation card is added once the house/round-robin engine ships.
 4. **Network-wide optimisation (later moat-match)** — once we have volume, surface which games/cards/drops convert best network-wide and steer members toward them. Their compounding moat; ours to match when data exists.
 5. **Selective automation (much later)** — only if pull content is winning and platform risk is manageable. Never full-auto posting that risks members' accounts; assisted/scheduled at most.
 
