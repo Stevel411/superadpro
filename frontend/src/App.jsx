@@ -284,6 +284,7 @@ function AppRoutes() {
           instead of hitting the catch-all and bouncing to the homepage. */}
       <Route path="/join" element={<HardRedirect to="/join" />} />
       <Route path="/packs" element={<HardRedirect to="/packs" />} />
+      <Route path="/packs/checkout" element={<HardRedirect to="/packs/checkout" />} />
       <Route path="/my-sales" element={<HardRedirect to="/my-sales" />} />
       <Route path="/payout-methods" element={<HardRedirect to="/payout-methods" />} />
       <Route path="/plan" element={<HardRedirect to="/plan" />} />

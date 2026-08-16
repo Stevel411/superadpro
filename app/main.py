@@ -75668,7 +75668,7 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
   </div>
 
   <div id="flowContinue" style="display:none;max-width:920px;margin:0 auto 4px;padding:0 20px">
-    <a id="flowContinueBtn" href="/packs" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#0b7a3e;color:#fff;font-weight:900;font-size:15px;padding:15px;border-radius:13px;text-decoration:none;box-shadow:0 12px 26px -12px rgba(11,122,62,.55)">✓ Receiving method saved — continue to choose your package →</a>
+    <a id="flowContinueBtn" href="/packs/checkout" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#0b7a3e;color:#fff;font-weight:900;font-size:15px;padding:15px;border-radius:13px;text-decoration:none;box-shadow:0 12px 26px -12px rgba(11,122,62,.55)">✓ Receiving method saved — continue to choose your package →</a>
   </div>
 
   <div class="hero">
@@ -76026,7 +76026,7 @@ body{font-family:'Inter',sans-serif;background:#eef1f8;color:var(--ink);padding:
 @media(max-width:560px){.twothings{grid-template-columns:1fr}}
 </style></head><body>
 <div class="wrap">
-  <a href="/packs" class="back">← Back to packs</a>
+  <a href="/packs/checkout" class="back">← Back to packs</a>
 
   <div class="hero">
     <h1>How campaign packs <span class="r">work</span></h1>
@@ -76101,7 +76101,7 @@ body{font-family:'Inter',sans-serif;background:#eef1f8;color:var(--ink);padding:
   </div>
 
   <div class="cta">
-    <a href="/packs" class="btn red">I'm ready — buy a pack →</a>
+    <a href="/packs/checkout" class="btn red">I'm ready — buy a pack →</a>
     <a href="/watch" class="btn ghost">Go to my daily watch</a>
   </div>
 </div>
@@ -76495,7 +76495,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="sub" style="margin-bottom:6px">Step 2 of 4 — add where your sales are paid to.</div>
       <div class="whybox">When you sell a package to your team, the buyer pays <b>you</b> directly — AdvantageLife never holds it. Add at least one receiving method so your sales can reach you. Set this up before you transact.</div>
       <div id="payoutBox" style="margin:16px 0">
-        <a href="/payout-methods?next=/packs" class="btn red" style="text-decoration:none;display:block">Add / manage receiving methods →</a>
+        <a href="/payout-methods?next=/packs/checkout" class="btn red" style="text-decoration:none;display:block">Add / manage receiving methods →</a>
       </div>
       <div class="whybox" style="background:#eafaf0;border-color:#b7e6c9;color:#0b7a3e">Once you've saved a method, come back here and you'll continue to choosing your package.</div>
       <button class="btncancel" onclick="show('sAd')">← Back to my ad</button>
@@ -76547,7 +76547,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <h1 class="ctr">Your pack is <span class="r">live</span></h1>
       <div class="sub ctr" id="doneSub">Views start with the next rotation — and you now earn at this level on your own sales.</div>
       <a class="btn red" href="/dashboard">Go to your dashboard →</a>
-      <a class="btn ghost" href="/packs">Buy another pack</a>
+      <a class="btn ghost" href="/packs/checkout">Buy another pack</a>
     </div>
 
   <div class="foot">Member-to-member payments can't be reversed by AdvantageLife &mdash; always double-check the chain and address.</div>
@@ -76832,9 +76832,9 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
         fetch('/api/al/packs').then(function(r){return r.json()}).then(function(j){
           if(j){renderPicker(j);} show('sPick');
           if(btn){btn.disabled=false;btn.textContent="Cancel — choose a different pack";}
-        }).catch(function(){ location.href='/packs'; });
+        }).catch(function(){ location.href='/packs/checkout'; });
       })
-      .catch(function(){ location.href='/packs'; });
+      .catch(function(){ location.href='/packs/checkout'; });
   }
   // Add-ad for an already-active pack that still needs its creative (needs_ad).
   function openAdForPurchase(pid,pk){
@@ -76877,8 +76877,8 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
       intent=null;
       fetch('/api/al/packs').then(function(r){return r.json()}).then(function(j){
         if(j){renderPicker(j);} show('sPick');
-      }).catch(function(){location.href='/packs';});
-    }).catch(function(){location.href='/packs';});
+      }).catch(function(){location.href='/packs/checkout';});
+    }).catch(function(){location.href='/packs/checkout';});
   };
   fetch('/api/al/packs').then(function(r){if(r.status===401){location.href='/login?next=/packs';return null}return r.json()}).then(function(j){
     if(!j)return;
@@ -77549,7 +77549,111 @@ def _al_gate_page(user, shared_route: bool = False):
     return None
 
 
+
+_AL_PACKS_CATALOG_HEAD = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Packs — AdvantageLife</title>
+<meta name="description" content="Browse AdvantageLife campaign packs — video-ad views delivered by real, logged-in members. Pick your reach; build your ad before you pay.">
+<link rel="canonical" href="https://www.advantagelife.club/packs">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#ff2743;--gold:#f0a52a;--green:#22c26b;--ink:#0d1230;--muted:#5a6584;--line:#e6ecf5}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink)}
+.bar{display:flex;align-items:center;gap:16px;background:var(--navy);padding:14px 22px}
+.bar .wm{font-weight:900;font-size:18px;color:#fff}.bar .life{color:var(--red2)}
+.bar .sp{flex:1}
+.bar a{color:#aebcf0;font-size:13px;font-weight:700;text-decoration:none}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+.hero{text-align:center;padding:44px 0 22px}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.hero h1{font-size:clamp(32px,6vw,46px);font-weight:900;letter-spacing:-1.4px;line-height:1.03;margin:12px 0}
+.hero p{font-size:16.5px;color:var(--muted);font-weight:500;max-width:600px;margin:0 auto;line-height:1.55}
+.hero .real{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(34,194,107,.12);color:#159a52;font-weight:800;font-size:13.5px;padding:8px 16px;border-radius:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin:26px 0 12px}
+.pk{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;box-shadow:0 14px 34px -26px rgba(10,31,82,.5);position:relative}
+.pk.pop{border:2.5px solid var(--red)}
+.pk .pop-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border-radius:20px}
+.pk .nm{font-size:15px;font-weight:800;color:var(--navy2);text-transform:uppercase;letter-spacing:.03em}
+.pk .pr{font-size:40px;font-weight:900;letter-spacing:-1.6px;color:var(--navy);margin:6px 0 2px}
+.pk .vw{font-size:14px;font-weight:800;color:var(--red)}
+.pk .vw span{color:var(--muted);font-weight:600}
+.pk .ds{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5;margin:12px 0 16px;flex:1}
+.pk .buy{display:block;text-align:center;background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;font-weight:900;font-size:15px;padding:13px;border-radius:11px;text-decoration:none}
+.flow{background:var(--navy);border-radius:24px;padding:36px 30px;margin:36px 0 50px;color:#fff}
+.flow .fk{text-align:center;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9fb4e6}
+.flow h2{text-align:center;font-size:28px;font-weight:900;letter-spacing:-.6px;margin:8px 0 6px}
+.flow .fsub{text-align:center;color:#cdd8f4;font-weight:500;font-size:14.5px;max-width:540px;margin:0 auto 28px;line-height:1.5}
+.fsteps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.fstep{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:20px 16px;text-align:center;position:relative}
+.fstep .n{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;font-weight:900;font-size:15px;display:grid;place-items:center;margin:0 auto 12px}
+.fstep .ic{font-size:26px;margin-bottom:8px}
+.fstep h4{font-size:15px;font-weight:900;margin-bottom:5px}
+.fstep p{font-size:12.5px;color:#b9c7ec;font-weight:500;line-height:1.45}
+.fstep .arrow{position:absolute;right:-11px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:18px;font-weight:900}
+.fstep:last-child .arrow{display:none}
+.flow .fnote{text-align:center;margin-top:22px;font-size:12.5px;color:#9fb4e6;font-weight:600;line-height:1.5}
+@media(max-width:720px){.fsteps{grid-template-columns:1fr 1fr}.fstep .arrow{display:none}}
+</style>
+</head>
+<body>
+<div class="bar"><span class="wm">Advantage<span class="life">Life</span></span><span class="sp"></span><a href="/dashboard">Dashboard</a></div>
+<div class="wrap">
+  <div class="hero">
+    <div class="k">Campaign Packs</div>
+    <h1>Pick your reach.<br>Real people watch.</h1>
+    <p>Every pack is video-ad views delivered by real, logged-in members &mdash; 30 seconds or more each, not bots. Browse anytime; buy when you're ready.</p>
+    <div class="real">&check; Verified human views &middot; delivered until your target is hit</div>
+  </div>
+  <div class="grid">"""
+
+_AL_PACKS_CATALOG_TAIL = r"""</div>
+  <div class="flow" id="flow">
+    <div class="fk">When you hit buy</div>
+    <h2>Your ad comes first.</h2>
+    <div class="fsub">You build your ad before you pay &mdash; so the moment your pack activates, your views start being delivered to a campaign that's ready to go.</div>
+    <div class="fsteps">
+      <div class="fstep"><div class="n">1</div><div class="ic">&#127916;</div><h4>Create your ad</h4><p>Add your video and campaign details first.</p><span class="arrow">&rarr;</span></div>
+      <div class="fstep"><div class="n">2</div><div class="ic">&#128179;</div><h4>Add receiving method</h4><p>Set how you'll get paid when your own sales come in.</p><span class="arrow">&rarr;</span></div>
+      <div class="fstep"><div class="n">3</div><div class="ic">&#128230;</div><h4>Confirm your pack</h4><p>The pack you picked, ready to activate.</p><span class="arrow">&rarr;</span></div>
+      <div class="fstep"><div class="n">4</div><div class="ic">&#128640;</div><h4>Buy &amp; activate</h4><p>Pay wallet-to-wallet. Your pack activates and your ad goes live.</p></div>
+    </div>
+    <div class="fnote">Browsing packs is open to everyone. Buying starts the ad-first flow above &mdash; you're never charged until step 4.</div>
+  </div>
+</div>
+</body></html>"""
+
+
 @app.get("/packs")
+def al_packs_catalog(db: Session = Depends(get_db)):
+    """Public, always-viewable campaign-pack catalogue. Renders live from
+    campaign_packs so prices/views can't drift. Buy -> the create-ad page
+    (ad-first): the ad is built before any payment is taken."""
+    packs = (db.query(CampaignPack)
+               .filter(CampaignPack.is_active == True)  # noqa: E712
+               .order_by(CampaignPack.level).all())
+    cards = []
+    for p in packs:
+        price = int(float(p.price))
+        views = f"{int(p.views_target or 0):,}"
+        pop = p.level == 100
+        cls = "pk pop" if pop else "pk"
+        tag = '<div class="pop-tag">Most popular</div>' if pop else ''
+        desc = (p.description or "").strip() or f"{views} verified human views delivered to your ad."
+        cards.append(
+            f'<div class="{cls}">{tag}<div class="nm">{p.name}</div>'
+            f'<div class="pr">${price:,}</div>'
+            f'<div class="vw">{views} <span>views</span></div>'
+            f'<div class="ds">{desc}</div>'
+            f'<a class="buy" href="/create-campaign">Buy this pack &rarr;</a></div>')
+    html = _AL_PACKS_CATALOG_HEAD + "".join(cards) + _AL_PACKS_CATALOG_TAIL
+    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/packs/checkout")
 def al_packs_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Buyer flow (approved mockup screens 1-4): pack picker -> pay-the-payee
     intent page (chain badge, address, QR, countdown, proof) -> pending ->

@@ -94,7 +94,7 @@ export default function CreateCampaign() {
         <p style={{fontSize:14.5,color:'#5a6584',lineHeight:1.65,maxWidth:400,margin:'0 auto 28px',fontWeight:600}}>
           {t('createCampaign.lockedDesc', {defaultValue: 'Buy a VideoView pack to create your own video campaigns. Your pack\u2019s views are delivered to the campaigns you make \u2014 watched by real members for 30 seconds or more.'})}
         </p>
-        <Link to="/packs" style={{
+        <Link to="/packs/checkout" style={{
           display:'inline-flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,
           background:'linear-gradient(120deg,#c8102e,#e8203f)',color:'#fff',
           fontWeight:900,fontSize:14,fontFamily:'inherit',
