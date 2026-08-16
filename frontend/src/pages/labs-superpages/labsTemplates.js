@@ -93,7 +93,7 @@ const AL_REVEAL = {
       s: { fontFamily: 'Inter,sans-serif', fontWeight: '900', fontSize: '46px', color: '#ffffff', textAlign: 'center', letterSpacing: '-0.5px' } },
     { id: tid('alr', 3), type: 'text', x: 240, y: 210, w: 620, h: 70, txt: 'Video advertising watched by real people, plus the full marketing toolkit. Watch the 2-minute overview, then claim your free account.',
       s: { fontFamily: 'Inter,sans-serif', fontSize: '17px', color: '#c8d6f5', textAlign: 'center', lineHeight: '1.55', fontWeight: '500' } },
-    { id: tid('alr', 4), type: 'image', x: 270, y: 305, w: 560, h: 300, txt: '', url: '',
+    { id: tid('alr', 4), type: 'video', x: 270, y: 305, w: 560, h: 300, txt: 'https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/3d4fe9c5fc5289700d21a3c2401e2e39/iframe?primaryColor=%23c8102e', url: '',
       s: { background: 'rgba(255,255,255,0.05)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)' } },
     { id: tid('alr', 5), type: 'button', x: 370, y: 630, w: 360, h: 58, txt: 'Claim my free account &#8594;', url: '/register',
       s: { background: 'linear-gradient(180deg,#ff2743,#c8102e)', color: '#fff', fontFamily: 'Inter,sans-serif', fontWeight: '900', fontSize: '18px', textAlign: 'center', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },

@@ -2127,7 +2127,7 @@ footer a{color:#b9c8ef}
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
-  <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box"><video controls preload="metadata" playsinline src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4">Your browser can't play this video. <a href="https://pub-00339c2939d54d488708a19799130b10.r2.dev/What%20is%20AdvantageLife.mp4" style="color:#ff8090">Open it here.</a></video></div></div>
+  <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box" style="position:relative;aspect-ratio:16/9"><iframe src="https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/3d4fe9c5fc5289700d21a3c2401e2e39/iframe?primaryColor=%23c8102e" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true" title="AdvantageLife overview"></iframe></div></div>
   <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
   <div class="pills">
     <span class="pill"><span class="i">✓</span> Free to join — full access</span>
