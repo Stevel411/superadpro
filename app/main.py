@@ -38519,6 +38519,7 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
         "owner_name": owner_name,
         "owner_username": owner.username if owner else username,
         "owner_ref_link": owner_ref_link,
+        "page_body_html": (page.gjs_html or "").replace("__OWNER_REF__", owner_ref_link),
     })
     # Auto-cookie visitor to page owner's referral (only if no existing ref cookie)
     if not request.cookies.get("ref"):
