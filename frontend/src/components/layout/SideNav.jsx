@@ -8,7 +8,7 @@ export const NAV = [
   { key: 'dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { header: 'GET STARTED' },
   { key: 'start', label: 'Start Here', to: '/start-here', link: false, big: true },
-  { key: 'packs', label: 'Create Campaign', to: '/packs', link: false },
+  { key: 'packs', label: 'Campaign Packs', to: '/packs', link: false },
   { key: 'campaigns', label: 'My Campaigns', to: '/campaigns', link: true },
   { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
   { key: 'watch', label: 'Daily Watch', to: '/watch', link: true },
