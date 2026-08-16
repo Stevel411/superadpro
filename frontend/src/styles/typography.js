@@ -32,7 +32,7 @@ export const TYPE = {
   },
 
   // Card titles — the main heading inside a bordered card
-  // e.g. "Direct Course Sales", "Recent Commissions"
+  // e.g. "Direct Commissions", "Recent Activity"
   cardTitle: {
     fontSize: 18,
     fontWeight: 700,
