@@ -77670,8 +77670,11 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
                .order_by(CampaignPack.level).all())
     # Per-member status by tier (public page: empty when logged out).
     owned = {}
+    is_owner = False
     uid = _optional_user_id(request)
     if uid:
+        _u = db.query(User).filter(User.id == uid).first()
+        is_owner = bool(_u and is_admin(_u))
         for pp in db.query(PackPurchase).filter(PackPurchase.user_id == uid).all():
             d = owned.setdefault(int(pp.pack_level or 0), {"active": 0, "pending": 0})
             if pp.status == "active":
@@ -77689,7 +77692,14 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
         badge = ''
         buy = 'Buy this pack'
         extra_cls = ''
-        if st and st["active"]:
+        if is_owner:
+            # The company owner / master affiliate holds every tier.
+            n = (st or {}).get("active", 0)
+            badge = (f'<div class="pkstat active">&#9679; {n} active</div>' if n > 1
+                     else '<div class="pkstat active">&#9679; Owned</div>')
+            buy = 'Buy another'
+            extra_cls = ' owned'
+        elif st and st["active"]:
             n = st["active"]
             badge = (f'<div class="pkstat active">&#9679; {n} active</div>' if n > 1
                      else '<div class="pkstat active">&#9679; Active</div>')
