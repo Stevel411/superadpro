@@ -77577,6 +77577,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 .pk{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;box-shadow:0 14px 34px -26px rgba(10,31,82,.5);position:relative}
 .pk.pop{border:2.5px solid var(--red)}
 .pk .pop-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border-radius:20px}
+.pk .pkstat{position:absolute;top:12px;right:12px;font-size:10px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border-radius:20px}
+.pk .pkstat.active{background:rgba(34,194,107,.15);color:#159a52}
+.pk .pkstat.pending{background:rgba(240,165,42,.2);color:#a86a09}
+.pk.owned{border-color:rgba(34,194,107,.5)}
 .pk .nm{font-size:15px;font-weight:800;color:var(--navy2);text-transform:uppercase;letter-spacing:.03em}
 .pk .pr{font-size:40px;font-weight:900;letter-spacing:-1.6px;color:var(--navy);margin:6px 0 2px}
 .pk .vw{font-size:14px;font-weight:800;color:var(--red)}
@@ -77628,27 +77632,52 @@ _AL_PACKS_CATALOG_TAIL = r"""</div>
 
 
 @app.get("/packs")
-def al_packs_catalog(db: Session = Depends(get_db)):
+def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
     """Public, always-viewable campaign-pack catalogue. Renders live from
     campaign_packs so prices/views can't drift. Buy -> the create-ad page
-    (ad-first): the ad is built before any payment is taken."""
+    (ad-first): the ad is built before any payment is taken. For a logged-in
+    member, each tier is tagged with what they already own / have active."""
     packs = (db.query(CampaignPack)
                .filter(CampaignPack.is_active == True)  # noqa: E712
                .order_by(CampaignPack.level).all())
+    # Per-member status by tier (public page: empty when logged out).
+    owned = {}
+    uid = _optional_user_id(request)
+    if uid:
+        for pp in db.query(PackPurchase).filter(PackPurchase.user_id == uid).all():
+            d = owned.setdefault(int(pp.pack_level or 0), {"active": 0, "pending": 0})
+            if pp.status == "active":
+                d["active"] += 1
+            elif pp.status == "pending":
+                d["pending"] += 1
     cards = []
     for p in packs:
         price = int(float(p.price))
         views = f"{int(p.views_target or 0):,}"
         pop = p.level == 100
-        cls = "pk pop" if pop else "pk"
         tag = '<div class="pop-tag">Most popular</div>' if pop else ''
         desc = (p.description or "").strip() or f"{views} verified human views delivered to your ad."
+        st = owned.get(int(p.level or 0))
+        badge = ''
+        buy = 'Buy this pack'
+        extra_cls = ''
+        if st and st["active"]:
+            n = st["active"]
+            badge = (f'<div class="pkstat active">&#9679; {n} active</div>' if n > 1
+                     else '<div class="pkstat active">&#9679; Active</div>')
+            buy = 'Buy another'
+            extra_cls = ' owned'
+        elif st and st["pending"]:
+            badge = '<div class="pkstat pending">&#9203; Awaiting your ad</div>'
+            buy = 'Add your ad'
+            extra_cls = ' owned'
+        cls = ("pk pop" if pop else "pk") + extra_cls
         cards.append(
-            f'<div class="{cls}">{tag}<div class="nm">{p.name}</div>'
+            f'<div class="{cls}">{tag}{badge}<div class="nm">{p.name}</div>'
             f'<div class="pr">${price:,}</div>'
             f'<div class="vw">{views} <span>views</span></div>'
             f'<div class="ds">{desc}</div>'
-            f'<a class="buy" href="/create-campaign">Buy this pack &rarr;</a></div>')
+            f'<a class="buy" href="/create-campaign">{buy} &rarr;</a></div>')
     html = _AL_PACKS_CATALOG_HEAD + "".join(cards) + _AL_PACKS_CATALOG_TAIL
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
