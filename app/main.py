@@ -2116,7 +2116,7 @@ footer a{color:#b9c8ef}
 <div class="nav">
   <a class="logo" href="/"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wm">Advantage<span class="life">Life</span></span></a>
   <a class="lnk" href="/plan">The plan</a>
-  <a class="lnk" href="#tools">Tools</a>
+  <a class="lnk" href="/tools">Tools</a>
   <a class="lnk" href="/plan">Income</a>
   <span class="sp"></span>
   <a class="nb white" href="/login">Log in</a>
@@ -2136,37 +2136,6 @@ footer a{color:#b9c8ef}
   </div>
 </div>
 </div>
-
-<section id="tools" class="__CARDS_MODE__">
-  <div class="k">The Toolkit</div>
-  <h2>The tools that do the work</h2>
-  <div class="lead">Real marketing software you'd pay for on its own — all of it unlocked by your membership.</div>
-  <div class="grid">
-    <a class="tool" href="/join" style="--img:url('/static/images/tools/page-builder.webp')"><div class="img"></div><div class="bd"><div class="ic">🏗️</div><b>Page Builder</b><p>Landing pages and funnels that convert — no designer, no code.</p></div></a>
-    <a class="tool" href="/join" style="--img:url('/static/images/tools/linkhub.webp')"><div class="img"></div><div class="bd"><div class="ic">🔗</div><b>LinkHub</b><p>One smart link for everything you share — trackable and branded.</p></div></a>
-    <a class="tool" href="/join" style="--img:url('/static/images/tools/email.webp')"><div class="img"></div><div class="bd"><div class="ic">✉️</div><b>Email Marketing</b><p>Your list, your automated sequences, your broadcasts — deliverability done right.</p></div></a>
-    <a class="tool" href="/join" style="--img:url('/static/images/tools/video-campaigns.webp')"><div class="img"></div><div class="bd"><div class="ic">📣</div><b>Video Campaigns</b><p>Your ad in front of real, logged-in members — verified attention, not bot views.</p></div></a>
-    <a class="tool" href="/join" style="--img:url('/static/images/tools/watch-to-earn.webp')"><div class="img"></div><div class="bd"><div class="ic">▶️</div><b>Watch-to-Earn</b><p>Your daily watch keeps you earning-qualified — and makes you someone's real audience.</p></div></a>
-  </div>
-</section>
-
-<section id="plan" style="padding-top:20px">
-  <div class="income">
-    <div class="k">The Plan</div>
-    <h2>From starting out to living free.</h2>
-    <div class="lead">Three steps. No guesswork, no monthly tool bills, and an income side that pays you member-to-member when you're ready for it.</div>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><b>Join the platform</b><p>Joining is free — full access to every tool, no card needed. Your sponsor earns nothing when you join.</p></div>
-      <div class="step"><div class="n">2</div><b>Own a pack &amp; do your daily watch</b><p>You earn at any pack level you own. Watching daily keeps you qualified — miss it and sales pass over you.</p></div>
-      <div class="step"><div class="n">3</div><b>Sell &amp; get paid directly</b><p>Buyers pay your wallet, member to member — USDT or USDC, the moment they buy. Nothing to withdraw.</p></div>
-    </div>
-    <div class="pass" id="income"><b>The income side, in one paragraph:</b> campaign packs ($10–$1,000) are bought member-to-member — the buyer pays the earning member <b>directly, wallet to wallet</b>. Across your first eleven sales you keep seven (your 1st, 2nd, 4th, 5th, 7th, 8th and 10th); your <span class="hl">6th, 9th and 11th</span> pass up to the first qualified member above you; and your 3rd is the platform's operational fee. From your 12th sale on you keep 100% — until your package's views are delivered and you renew for a fresh cycle. AdvantageLife resolves who earns each sale and records the proof.</div>
-    <div class="w2erow">
-      <div class="wbox"><b>Why the watching matters</b><p>Members watch campaign videos daily to stay earning-qualified — so every advertising pack is seen by real humans with a reason to pay attention. Real product, real deliverable, real views.</p></div>
-      <div class="wbox"><b>Why there's nothing to withdraw</b><p>Pack commissions arrive in your own wallet the moment a buyer pays you — USDT or USDC, member to member. There's no platform balance to request. You already have it.</p></div>
-    </div>
-  </div>
-</section>
 
 <section class="final">
   <div class="k">Ready?</div>
@@ -2361,6 +2330,141 @@ footer a{color:var(--dim)}
 
 <footer>&copy; AdvantageLife &middot; advantagelife.club &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy-policy">Privacy</a> &middot; <a href="/refund-policy">Refunds</a></footer>
 </body></html>"""
+
+
+_AL_TOOLS = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Tools &mdash; AdvantageLife</title>
+<meta name="description" content="Your free AdvantageLife membership unlocks the full marketing toolkit &mdash; page builder, autoresponder, content kit and more. Free from day one, no card needed.">
+<link rel="canonical" href="https://www.advantagelife.club/tools">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AdvantageLife">
+<meta property="og:title" content="Free Tools &mdash; AdvantageLife">
+<meta property="og:description" content="Every marketing tool, free with your membership. No card, no monthly bill.">
+<meta property="og:url" content="https://www.advantagelife.club/tools">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#ff2743;--gold:#f0a52a;--green:#22c26b;--ink:#0d1230;--muted:#5a6584;--line:#e6ecf5}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink)}
+.bar{display:flex;align-items:center;gap:16px;background:var(--navy);padding:14px 22px}
+.bar .logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.bar .logo .ic{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.08);display:grid;place-items:center}
+.bar .wm{font-weight:900;font-size:18px;color:#fff}.bar .life{color:var(--red2)}
+.bar .sp{flex:1}
+.bar .back{color:#9fb4e6;font-size:14px;font-weight:700;text-decoration:none}
+.bar .nb{background:var(--red);color:#fff;font-weight:800;font-size:14px;padding:9px 18px;border-radius:10px;text-decoration:none}
+.page{max-width:1100px;margin:0 auto;padding:0 22px}
+.hero{text-align:center;padding:46px 0 26px}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.hero h1{font-size:50px;font-weight:900;letter-spacing:-1.5px;line-height:1.02;margin:12px 0}
+.hero h1 .hl{color:var(--red)}
+.hero .lead{font-size:17px;color:var(--muted);font-weight:500;max-width:620px;margin:0 auto;line-height:1.55}
+.freepill{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:rgba(34,194,107,.12);color:#159a52;font-weight:800;font-size:14px;padding:9px 18px;border-radius:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;margin:32px 0}
+.tool{background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 0 22px;box-shadow:0 14px 34px -24px rgba(10,31,82,.4);overflow:hidden}
+.stage{height:150px;background:linear-gradient(160deg,#0a1f52,#12388f);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.tool .bd{padding:18px 22px 0}
+.tool h3{font-size:20px;font-weight:900;color:var(--navy)}
+.tool p{font-size:14px;color:var(--muted);line-height:1.55;font-weight:500;margin-top:7px}
+.tool .free{display:inline-block;margin-top:13px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#159a52;background:rgba(34,194,107,.1);padding:5px 11px;border-radius:20px}
+.value{background:var(--navy);border-radius:22px;padding:34px;color:#fff;text-align:center;margin:12px 0 24px}
+.value h2{font-size:27px;font-weight:900;letter-spacing:-.5px}
+.value p{color:#cfe0ff;font-weight:500;margin:10px auto 0;font-size:15px;max-width:600px;line-height:1.55}
+.value .cta{display:inline-block;margin-top:20px;background:var(--red);color:#fff;font-weight:900;font-size:17px;padding:15px 32px;border-radius:12px;text-decoration:none}
+.value .sub{margin-top:12px;font-size:12.5px;color:#9fb4e6;font-weight:600}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:26px 22px;font-weight:600}
+footer a{color:var(--muted)}
+.pb{width:150px}
+.pb .win{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:7px}
+.pb .b{border-radius:5px;opacity:0;transform:translateY(8px);animation:pbIn 3.6s ease-in-out infinite}
+.pb .b1{height:9px;width:60%;background:var(--gold)}
+.pb .b2{height:26px;background:rgba(255,255,255,.22);animation-delay:.5s}
+.pb .b3{height:11px;width:48%;background:var(--red2);border-radius:20px;animation-delay:1s}
+@keyframes pbIn{0%{opacity:0;transform:translateY(8px)}12%,72%{opacity:1;transform:none}90%,100%{opacity:0;transform:translateY(-4px)}}
+.lh{width:120px;display:flex;flex-direction:column;align-items:center;gap:7px}
+.lh .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--red2));margin-bottom:3px}
+.lh .lk{width:110px;height:20px;border-radius:20px;background:rgba(255,255,255,.16);opacity:0;transform:translateY(6px);animation:lhIn 3.6s ease-in-out infinite}
+.lh .lk:nth-child(3){animation-delay:.35s}.lh .lk:nth-child(4){animation-delay:.7s}
+@keyframes lhIn{0%{opacity:0;transform:translateY(6px)}15%,78%{opacity:1;transform:none}92%,100%{opacity:0}}
+.em{width:170px;height:90px;position:relative}
+.em .env{position:absolute;left:6px;top:32px;width:34px;height:26px;background:var(--gold);border-radius:5px}
+.em .env:after{content:"";position:absolute;inset:0;border-top:13px solid rgba(0,0,0,.15);border-left:17px solid transparent;border-right:17px solid transparent}
+.em .dot{position:absolute;left:44px;top:44px;width:9px;height:9px;border-radius:50%;background:var(--red2);animation:emFly 2.4s ease-in infinite}
+.em .d2{animation-delay:.3s;--ty:44px}.em .d3{animation-delay:.6s;--ty:70px}
+@keyframes emFly{0%{left:44px;top:44px;opacity:0}10%{opacity:1}100%{left:150px;top:var(--ty,18px);opacity:0}}
+.em .rc{position:absolute;right:6px;width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.16)}
+.em .rc1{top:12px}.em .rc2{top:38px}.em .rc3{top:64px}
+.ck{width:130px;position:relative}
+.ck .card{background:linear-gradient(150deg,#0a1f52,#c8102e);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,.14)}
+.ck .l{height:7px;border-radius:4px;background:rgba(255,255,255,.5);margin-bottom:6px}
+.ck .l1{width:80%}.ck .l2{width:55%}
+.ck .lnk{height:7px;width:70%;border-radius:4px;background:var(--gold);margin-top:9px}
+.ck .toast{position:absolute;right:-6px;top:-6px;background:var(--green);color:#062;font-size:9px;font-weight:900;padding:3px 8px;border-radius:20px;opacity:0;animation:ckToast 3s ease-in-out infinite}
+@keyframes ckToast{0%,40%{opacity:0;transform:scale(.8)}50%,80%{opacity:1;transform:scale(1)}100%{opacity:0}}
+.vc{width:150px}
+.vc .scr{height:78px;background:#000a1f;border:1px solid rgba(255,255,255,.18);border-radius:10px;position:relative;overflow:hidden;display:grid;place-items:center}
+.vc .play{width:0;height:0;border-left:18px solid var(--red2);border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:4px;animation:vcPulse 2s ease-in-out infinite}
+.vc .prog{position:absolute;left:0;bottom:0;height:4px;background:var(--red2);animation:vcProg 3.2s linear infinite}
+.vc .eyes{display:flex;gap:7px;justify-content:center;margin-top:9px}
+.vc .eye{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.2);animation:vcEye 3.2s ease-in-out infinite}
+.vc .eye:nth-child(2){animation-delay:.4s}.vc .eye:nth-child(3){animation-delay:.8s}
+@keyframes vcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes vcProg{0%{width:0}100%{width:100%}}
+@keyframes vcEye{0%,30%{background:rgba(255,255,255,.2)}45%,100%{background:var(--green)}}
+.we{width:100px;height:100px;position:relative;display:grid;place-items:center}
+.we svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.we circle{fill:none;stroke-width:7}
+.we .track{stroke:rgba(255,255,255,.14)}
+.we .fill{stroke:var(--green);stroke-linecap:round;stroke-dasharray:245;stroke-dashoffset:245;animation:weRing 3.4s ease-in-out infinite}
+.we .play{width:0;height:0;border-left:16px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px;animation:weHide 3.4s ease-in-out infinite}
+.we .tick{position:absolute;font-size:30px;color:var(--green);opacity:0;animation:weTick 3.4s ease-in-out infinite}
+@keyframes weRing{0%{stroke-dashoffset:245}70%,100%{stroke-dashoffset:0}}
+@keyframes weHide{0%,60%{opacity:1}72%,100%{opacity:0}}
+@keyframes weTick{0%,64%{opacity:0;transform:scale(.6)}78%,100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="logo" href="/"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10l4 4 8-9" stroke="#ff2743" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5h6v6" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wm">Advantage<span class="life">Life</span></span></a>
+  <span class="sp"></span>
+  <a class="back" href="/">&larr; Back to site</a>
+  <a class="nb" href="/join">Join</a>
+</div>
+<div class="page">
+  <div class="hero">
+    <div class="k">Your free membership</div>
+    <h1>Every tool you need.<br><span class="hl">Free. From day one.</span></h1>
+    <div class="lead">Real marketing software you'd normally pay monthly for &mdash; all unlocked the moment you join. No card, no trial clock.</div>
+    <div class="freepill">&check; Included free &middot; no credit card &middot; yours to keep</div>
+  </div>
+  <div class="grid">
+    <div class="tool"><div class="stage"><div class="pb"><div class="win"><div class="b b1"></div><div class="b b2"></div><div class="b b3"></div></div></div></div><div class="bd"><h3>Page Builder</h3><p>Landing pages, funnels and opt-ins that convert &mdash; drag-and-drop, no code.</p><span class="free">Free with membership</span></div></div>
+    <div class="tool"><div class="stage"><div class="lh"><div class="av"></div><div class="lk"></div><div class="lk"></div><div class="lk"></div></div></div><div class="bd"><h3>LinkHub</h3><p>One smart, branded link for everything you share &mdash; trackable and tidy.</p><span class="free">Free with membership</span></div></div>
+    <div class="tool"><div class="stage"><div class="em"><div class="env"></div><div class="dot"></div><div class="dot d2"></div><div class="dot d3"></div><div class="rc rc1"></div><div class="rc rc2"></div><div class="rc rc3"></div></div></div><div class="bd"><h3>Email Marketing</h3><p>Build your list, automate sequences, send broadcasts &mdash; deliverability handled.</p><span class="free">Free with membership</span></div></div>
+    <div class="tool"><div class="stage"><div class="ck"><div class="card"><div class="l l1"></div><div class="l l2"></div><div class="lnk"></div></div><div class="toast">&check; Copied</div></div></div><div class="bd"><h3>Content Kit</h3><p>Ready-made graphics and captions with your link already in them. Post in one tap.</p><span class="free">Free with membership</span></div></div>
+    <div class="tool"><div class="stage"><div class="vc"><div class="scr"><div class="play"></div><div class="prog"></div></div><div class="eyes"><div class="eye"></div><div class="eye"></div><div class="eye"></div></div></div></div><div class="bd"><h3>Video Campaigns</h3><p>Put your ad in front of real, logged-in members &mdash; verified human attention, not bots.</p><span class="free">Free to build</span></div></div>
+    <div class="tool"><div class="stage"><div class="we"><svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="39"/><circle class="fill" cx="50" cy="50" r="39"/></svg><div class="play"></div><div class="tick">&check;</div></div></div><div class="bd"><h3>Watch-to-Earn</h3><p>Your daily watch keeps you earning-qualified &mdash; and makes you a real audience.</p><span class="free">Free with membership</span></div></div>
+  </div>
+  <div class="value">
+    <h2>Software others charge hundreds a month for.</h2>
+    <p>A page builder, an autoresponder, a content library, campaign tools &mdash; bundled and free with your membership. The tools work whether or not you ever refer a single person.</p>
+    <a class="cta" href="/join">Join free &mdash; unlock every tool &rarr;</a>
+    <div class="sub">Free forever &middot; No card needed &middot; Full access from day one</div>
+  </div>
+</div>
+<footer>&copy; AdvantageLife &middot; advantagelife.club &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy-policy">Privacy</a> &middot; <a href="/refund-policy">Refunds</a></footer>
+</body></html>"""
+
+
+@app.get("/tools")
+def al_tools_page():
+    """Public Free Tools page — the free toolkit as the hook of free membership."""
+    return HTMLResponse(_AL_TOOLS)
 
 
 @app.get("/plan")
@@ -38852,7 +38956,7 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     base_url = brand_config.BASE_URL
 
     if brand_config.IS_ADVANTAGELIFE:
-        static_paths = ["/", "/join", "/plan", "/terms", "/refund-policy", "/privacy-policy"]
+        static_paths = ["/", "/join", "/plan", "/tools", "/terms", "/refund-policy", "/privacy-policy"]
         tool_paths = []
     else:
         static_paths = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]
@@ -38875,7 +38979,7 @@ def robots_txt():
     from . import brand_config
 
     if brand_config.IS_ADVANTAGELIFE:
-        allow = ["/", "/join", "/plan", "/terms", "/refund-policy", "/privacy-policy"]
+        allow = ["/", "/join", "/plan", "/tools", "/terms", "/refund-policy", "/privacy-policy"]
     else:
         allow = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq",
                  "/legal", "/wallet-guide", "/free/", "/free/meme-generator",
