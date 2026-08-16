@@ -77249,13 +77249,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
   <h1>Incoming <span class="r">sales</span></h1>
   <div class="sub">Buyers pay you directly, wallet to wallet. Check your wallet &mdash; confirm only once the money has actually arrived.</div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 18px">
-    <button id="watchBtn" onclick="var v=document.getElementById('vidBox');var s=v.style.display==='none';v.style.display=s?'block':'none';this.textContent=s?'✕ Hide walkthrough':'▶ Watch the 1-minute walkthrough';" style="display:inline-flex;align-items:center;gap:7px;background:#c8102e;color:#fff;font-weight:800;font-size:13.5px;border:0;cursor:pointer;padding:11px 16px;border-radius:10px">▶ Watch the 1-minute walkthrough</button>
-    <a href="/sale-approval-guide" style="display:inline-flex;align-items:center;gap:7px;background:#eef3ff;color:#0a1f52;font-weight:800;font-size:13.5px;text-decoration:none;padding:10px 15px;border-radius:10px;border:1px solid #d3ddf5">Step-by-step guide</a>
-  </div>
-  <div id="vidBox" style="display:none;max-width:640px;margin:0 0 20px;border-radius:14px;overflow:hidden;box-shadow:0 16px 40px -20px rgba(10,31,82,.5)">
-    <video controls preload="metadata" playsinline style="width:100%;display:block;background:#0a1f52">
-      <source src="https://pub-00339c2939d54d488708a19799130b10.r2.dev/Confirm.mp4" type="video/mp4">
-    </video>
+    <a href="/sale-approval-guide" style="display:inline-flex;align-items:center;gap:7px;background:#c8102e;color:#fff;font-weight:800;font-size:13.5px;text-decoration:none;padding:11px 16px;border-radius:10px">▶ How incoming sales work — step-by-step</a>
   </div>
   <div class="sum" id="sum" style="display:none">
     <div class="s hot"><div class="n" id="sumAction">0</div><div class="l">Needs your confirmation</div></div>
