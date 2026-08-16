@@ -37226,6 +37226,34 @@ def admin_migrate_canvas_bg(request: Request, user: User = Depends(get_current_u
     })
 
 
+@app.get("/admin/api/al/pack-purchases")
+def diag_pack_purchases(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Diagnostic: a user's pack_purchases grouped by tier + status, so the
+    catalogue's owned/active badges can be reconciled against real rows.
+    Admin session or MIGRATION_SECRET/CRON_SECRET (?secret=)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        uid = int(request.query_params.get("user_id", user.id if user else 1))
+    except (TypeError, ValueError):
+        uid = user.id if user else 1
+    rows = db.query(PackPurchase).filter(PackPurchase.user_id == uid).all()
+    by_level = {}
+    for pp in rows:
+        lvl = str(int(pp.pack_level or 0))
+        st = pp.status or "?"
+        by_level.setdefault(lvl, {})
+        by_level[lvl][st] = by_level[lvl].get(st, 0) + 1
+    return JSONResponse({
+        "user_id": uid,
+        "total_pack_purchases": len(rows),
+        "distinct_statuses": sorted({(pp.status or "?") for pp in rows}),
+        "by_level_and_status": {k: by_level[k] for k in sorted(by_level, key=lambda z: int(z))},
+    })
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
