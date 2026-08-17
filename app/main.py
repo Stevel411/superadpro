@@ -537,24 +537,6 @@ async def startup_event():
     except Exception as e:
         print(f"⚠️ Migrations skipped: {e}")
 
-    # One-time targeted unblock: convert test account 21 (an expired trial stuck
-    # is_active=False) into a proper free member so trial-expiry can't re-flip it.
-    # Idempotent — a no-op once it is free+active. Remove once the trial-vs-free
-    # membership model is settled (see the systemic trial/paywall conflict).
-    try:
-        from .database import SessionLocal as _SL21
-        _s21 = _SL21()
-        try:
-            _u21 = _s21.query(User).filter(User.id == 21).first()
-            if _u21 is not None and not (_u21.is_active and getattr(_u21, "access_level", "") == "free"):
-                _al_join_free(_s21, _u21)
-                _s21.commit()
-                print("✅ account 21 activated as free member")
-        finally:
-            _s21.close()
-    except Exception as e:
-        print(f"⚠️ account 21 activation skipped: {e}")
-
     # Broadcast auto-resume (phase 2, 3 Jul 2026): continues daily-capped and
     # deploy-interrupted member broadcasts with zero member action.
     try:
