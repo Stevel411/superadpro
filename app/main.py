@@ -10348,15 +10348,28 @@ def api_delete_campaign(campaign_id: int, request: Request,
                         user: User = Depends(get_current_user)):
     """Delete (soft) a video campaign. JSON API for React frontend."""
     if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+        logger.warning(f"[DELETE-DIAG] campaign={campaign_id} rejected: no session/user")
+        return JSONResponse({"error": "You're not logged in (no session detected). "
+                             "Make sure you're on https://www.advantagelife.club (with www)."},
+                            status_code=401)
     campaign = db.query(VideoCampaign).filter(
         VideoCampaign.id == campaign_id,
         VideoCampaign.user_id == user.id,
     ).first()
     if not campaign:
-        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+        _exists = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
+        _owner = _exists.user_id if _exists else None
+        logger.warning(f"[DELETE-DIAG] campaign={campaign_id} not owned by user={user.id} "
+                       f"(actual owner={_owner}, exists={_exists is not None})")
+        if _owner is not None and _owner != user.id:
+            return JSONResponse({"error": f"This campaign belongs to another account "
+                                 f"(user {_owner}); you're logged in as user {user.id}. "
+                                 f"Log in as the account that created it to delete it."},
+                                status_code=404)
+        return JSONResponse({"error": "Campaign not found."}, status_code=404)
     campaign.status = "deleted"
     db.commit()
+    logger.info(f"[DELETE-DIAG] campaign={campaign_id} deleted by user={user.id}")
     return {"success": True, "message": "Campaign deleted"}
 
 
