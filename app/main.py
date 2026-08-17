@@ -72251,6 +72251,37 @@ def games_winner_action(request: Request, user: User = Depends(get_current_user)
     return {"ok": True, "id": pw.id, "status": pw.status, "pack_purchase_id": pw.pack_purchase_id}
 
 
+@app.get("/admin/api/al/activate-free")
+def al_activate_free_member(request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Confirm + fix a stuck member: report is_active before/after and run the
+    free full-access activation (_al_join_free). Admin or MIGRATION_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        uid = int(request.query_params.get("user_id"))
+    except (TypeError, ValueError):
+        return JSONResponse({"error": "user_id required"}, status_code=400)
+    target = db.query(User).filter(User.id == uid).first()
+    if target is None:
+        return JSONResponse({"error": "user_not_found"}, status_code=404)
+    was_active = bool(target.is_active)
+    stuck_total = db.query(User).filter(User.is_active == False).count()  # noqa: E712
+    apply = request.query_params.get("apply", "1") != "0"
+    if apply and not was_active:
+        _al_join_free(db, target)
+        db.commit()
+    return JSONResponse({
+        "user_id": uid, "username": target.username,
+        "was_active": was_active, "now_active": bool(target.is_active),
+        "access_level": target.access_level,
+        "applied": bool(apply and not was_active),
+        "members_stuck_inactive_total": stuck_total,
+    })
+
+
 @app.get("/games/certificate/{period}/{game}")
 def games_certificate(period: str, game: str, request: Request,
                       user: User = Depends(get_current_user), db: Session = Depends(get_db)):
