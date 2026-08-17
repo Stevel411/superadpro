@@ -77735,16 +77735,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 
 _AL_PACKS_CATALOG_TAIL = r"""</div>
   <div class="flow" id="flow">
-    <div class="fk">When you hit buy</div>
-    <h2>Your ad comes first.</h2>
-    <div class="fsub">You build your ad before you pay &mdash; so the moment your pack activates, your views start being delivered to a campaign that's ready to go.</div>
+    <div class="fk">How it works</div>
+    <h2>Pick a pack. Pay. Then build your ad.</h2>
+    <div class="fsub">Choose your reach, set how you'll get paid, and activate your pack &mdash; then build the ad it delivers to real, logged-in members.</div>
     <div class="fsteps">
-      <div class="fstep"><div class="n">1</div><div class="ic">&#127916;</div><h4>Create your ad</h4><p>Add your video and campaign details first.</p><span class="arrow">&rarr;</span></div>
+      <div class="fstep"><div class="n">1</div><div class="ic">&#128230;</div><h4>Choose your pack</h4><p>Pick the reach you want from the tiers above.</p><span class="arrow">&rarr;</span></div>
       <div class="fstep"><div class="n">2</div><div class="ic">&#128179;</div><h4>Add receiving method</h4><p>Set how you'll get paid when your own sales come in.</p><span class="arrow">&rarr;</span></div>
-      <div class="fstep"><div class="n">3</div><div class="ic">&#128230;</div><h4>Confirm your pack</h4><p>The pack you picked, ready to activate.</p><span class="arrow">&rarr;</span></div>
-      <div class="fstep"><div class="n">4</div><div class="ic">&#128640;</div><h4>Buy &amp; activate</h4><p>Pay wallet-to-wallet. Your pack activates and your ad goes live.</p></div>
+      <div class="fstep"><div class="n">3</div><div class="ic">&#128640;</div><h4>Pay &amp; activate</h4><p>Pay wallet-to-wallet. Your pack activates instantly.</p><span class="arrow">&rarr;</span></div>
+      <div class="fstep"><div class="n">4</div><div class="ic">&#127916;</div><h4>Build your ad</h4><p>Create the video ad your pack delivers &mdash; it goes live.</p></div>
     </div>
-    <div class="fnote">Browsing packs is open to everyone. Buying starts the ad-first flow above &mdash; you're never charged until step 4.</div>
+    <div class="fnote">Browsing packs is open to everyone. You buy the pack first, then create the ad it delivers.</div>
   </div>
 </div>
 </body></html>"""
@@ -77806,7 +77806,7 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
             f'<div class="pr">${price:,}</div>'
             f'<div class="vw">{views} <span>views</span></div>'
             f'<div class="ds">{desc}</div>'
-            f'<a class="buy" href="/create-campaign">{buy} &rarr;</a></div>')
+            f'<a class="buy" href="/packs/checkout">{buy} &rarr;</a></div>')
     html = _AL_PACKS_CATALOG_HEAD + "".join(cards) + _AL_PACKS_CATALOG_TAIL
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
