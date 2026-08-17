@@ -75206,16 +75206,11 @@ async def al_create_draft_ad(request: Request,
         )
         db.add(campaign)
     db.commit()
-    # If the member already owns a pack with a FREE video slot, activate this ad
-    # against it now — no purchase needed (own-a-pack-with-a-free-slot path). Only
-    # when there's no free slot do they continue to the payout + buy steps.
-    _activated = _al_activate_pending_drafts(db, user.id, only_draft_id=campaign.id)
-    if _activated:
-        _a = _activated[0]
-        return {"ok": True, "activated": True, "campaign_id": campaign.id,
-                "pack_purchase_id": _a["pack_purchase_id"], "level": _a["level"],
-                "views_target": _a["views_target"],
-                "message": "Your ad is live — it's delivering views against a pack you own."}
+    # Ad-first, one-package-one-campaign model: creating an ad NEVER auto-consumes
+    # an existing pack. Every ad proceeds to Choose Pack -> Pay so the member can
+    # buy whichever tier they want (each a separate campaign, all tiers below it
+    # activate for commissions via owned_level). Prize/granted packs are attached
+    # via the grant flow, or offered explicitly at Choose Pack — never auto-grabbed.
     return {"ok": True, "campaign_id": campaign.id, "status": "draft",
             "message": "Ad saved. Next, add how you'll get paid, then choose your package."}
 
