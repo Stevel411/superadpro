@@ -249,13 +249,10 @@ function RequireTier({ tier, children }) {
   // Admin always passes
   if (user.is_admin) return children;
 
-  const isActive = !!user.is_active;
-
-  // Under flat pricing every is_active member sees every gated feature.
-  // The `tier` parameter is preserved for backward compatibility but no
-  // longer differentiates access. Inactive users redirect to /upgrade
-  // (the activation page), regardless of which tier was originally requested.
-  if (!isActive) return <HardRedirect to="/join" />;
+  // Membership is FREE (Aug 2026): every logged-in member has full access.
+  // The old is_active / trial / paid-tier gate is retired — no member is
+  // ever bounced to /join. The `tier` param is kept only for call-site
+  // compatibility and no longer differentiates access.
   return children;
 }
 

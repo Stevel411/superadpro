@@ -1274,49 +1274,13 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         # Verify HMAC signature and check max age (30 days)
         user_id = session_serializer.loads(token, max_age=60 * 60 * 24 * 30)
         u = db.query(User).filter(User.id == int(user_id)).first()
-        # Enforce the 7-day trial lazily: an expired trial loses access
-        # (is_active False) and the existing gates route it to the pay-membership
-        # wall. One-time write — after the flip it stays inactive.
-        if u is not None and u.is_active and getattr(u, "access_level", "") == "trial":
-            _exp = getattr(u, "membership_expires_at", None)
-            if _exp is not None and _exp <= datetime.utcnow():
-                u.is_active = False
-                try: db.commit()
-                except Exception: db.rollback()
+        # Membership is FREE (Aug 2026): no trial expiry, no paywall. Every
+        # logged-in member keeps full access.
         return u
     except (BadSignature, SignatureExpired, ValueError, TypeError):
         return None
 
 def is_admin(user): return user is not None and getattr(user, "is_admin", False)
-
-
-def _al_start_trial(db, user, days=7):
-    """Turn a fresh signup into a 7-day full-access trial: live access + a
-    starter pack to create ads with. A trial member is simply an UNQUALIFIED
-    member on a timer — no new earning logic (P2P sales already climb past an
-    unqualified seller to the first paid upline). They pay to KEEP access AND to
-    COLLECT any sale they make."""
-    from datetime import timedelta as _td
-    user.is_active = True
-    user.access_level = "trial"
-    user.membership_expires_at = datetime.utcnow() + _td(days=days)
-    try:
-        db.flush()  # ensure user.id exists for the pack grant
-        already = db.query(PackPurchase).filter(
-            PackPurchase.user_id == user.id, PackPurchase.source == "trial").first()
-        pack = (db.query(CampaignPack)
-                  .filter(CampaignPack.level == 10, CampaignPack.is_active == True)  # noqa: E712
-                  .first())
-        if pack and not already:
-            db.add(PackPurchase(
-                user_id=user.id, pack_id=pack.id, pack_level=pack.level,
-                amount=0.0, payment_method="trial", status="active",
-                source="trial", activated_at=datetime.utcnow(),
-                created_at=datetime.utcnow()))
-    except Exception as e:
-        logger.warning(f"trial pack grant failed for user {getattr(user, 'id', None)}: {e}")
-    # Momentum feed: a new member starting their free trial is a real join.
-    record_activity(db, "trial", user)
 
 
 def _al_join_free(db, user):
@@ -77666,24 +77630,12 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 
 
 def _al_membership_active(user) -> bool:
-    """True if the member currently holds ACTIVE membership — either lifetime
-    (never expires) or annual whose membership_expires_at is still in the
-    future. Admins bypass. This is the single access chokepoint: an expired
-    annual member returns False here and is therefore treated exactly like a
-    free member everywhere — locked out of tools and unable to sell until they
-    renew, with their tree and past earnings untouched (those are historical
-    rows, not access)."""
-    if user is None:
-        return False
-    if getattr(user, "is_admin", False):
-        return True
-    lvl = getattr(user, "access_level", "free")
-    if lvl == "lifetime":
-        return True
-    if lvl == "annual":
-        exp = getattr(user, "membership_expires_at", None)
-        return exp is not None and exp > datetime.utcnow()
-    return False
+    """Membership is FREE (Aug 2026): every logged-in member has full access.
+    The old paid tiers (annual $50 / lifetime $100) and the 'free -> locked out
+    until you upgrade' rule are retired, so this is now simply 'is there a
+    logged-in member'. Kept as the single chokepoint that 15+ call sites and a
+    template flag reference by name."""
+    return user is not None
 
 
 def _al_is_lifetime(user) -> bool:
