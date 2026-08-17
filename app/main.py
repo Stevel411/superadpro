@@ -37233,12 +37233,13 @@ def diag_pack_purchases(request: Request, user: User = Depends(get_current_user)
     Admin session or MIGRATION_SECRET/CRON_SECRET (?secret=)."""
     secret = request.query_params.get("secret", "")
     _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
-    if not (is_admin(user) or (secret and secret in _secrets)):
-        return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
         uid = int(request.query_params.get("user_id", user.id if user else 1))
     except (TypeError, ValueError):
         uid = user.id if user else 1
+    # Admin/secret can inspect anyone; a member can always inspect their own row.
+    if not (is_admin(user) or (secret and secret in _secrets) or (user and user.id == uid)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     rows = db.query(PackPurchase).filter(PackPurchase.user_id == uid).all()
     by_level = {}
     for pp in rows:
