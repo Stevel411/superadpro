@@ -71486,11 +71486,15 @@ def admin_api_gift_packs_to_lifetime(
     return {"ok": True, "plan": plan}
 
 
-def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None):
+def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None, granted_only=False):
     """Link and activate a member's draft ad(s) against their owned active pack(s)
     with a free video slot. This is the activation a PURCHASE's settlement confirm
     performs, but which a GIFTED pack bypasses (grant-pack writes the pack row
-    directly). Highest packs first, oldest drafts first. Returns activated list."""
+    directly). Highest packs first, oldest drafts first. Returns activated list.
+
+    granted_only=True restricts the target packs to prize/granted packs (source
+    'prize') — used by the create-ad flow so a winner's ad attaches to their free
+    prize pack, WITHOUT consuming a slot on a pack they actually bought."""
     from .database import videos_allowed_for_level
     _dq = (db.query(VideoCampaign)
              .filter(VideoCampaign.user_id == user_id,
@@ -71501,10 +71505,12 @@ def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None):
     drafts = _dq.order_by(VideoCampaign.id.asc()).all()
     if not drafts:
         return []
-    packs = (db.query(PackPurchase)
-               .filter(PackPurchase.user_id == user_id,
-                       PackPurchase.status == "active")
-               .order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all())
+    _pq = (db.query(PackPurchase)
+             .filter(PackPurchase.user_id == user_id,
+                     PackPurchase.status == "active"))
+    if granted_only:
+        _pq = _pq.filter(PackPurchase.source == "prize")
+    packs = _pq.order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all()
     if not packs:
         return []
     totals = {p.level: (p.views_target or 0) for p in db.query(CampaignPack)
@@ -72216,10 +72222,19 @@ def games_winner_action(request: Request, user: User = Depends(get_current_user)
             db.add(Notification(
                 user_id=pw.user_id, type="account", icon="🏆",
                 title="You won the %s competition!" % _lbl,
-                message=("Congratulations — you're the %s champion for %s. Your $400 pack "
-                         "is now active, and your winner's certificate is ready to download."
+                message=("Congratulations — you're the %s champion for %s. "
+                         "Your winner's certificate is ready to download."
                          % (_lbl, _pl)),
                 link="/games/certificate/%s/%s" % (pw.period, pw.game)))
+            # The prize pack delivers nothing until the winner adds a video ad.
+            # Prompt them straight into the create-ad flow — creating an ad there
+            # attaches it to this prize pack (source='prize') with no payment step.
+            db.add(Notification(
+                user_id=pw.user_id, type="account", icon="🎬",
+                title="Activate your $400 prize pack",
+                message=("Your $400 pack is yours — add your video ad now to "
+                         "start it delivering views to your team."),
+                link="/packs/checkout?new=1"))
         except Exception:
             pass
     else:
@@ -75147,7 +75162,7 @@ async def al_create_draft_ad(request: Request,
     package is bought and the sale confirms (Option A). One open draft per member
     is reused so re-submitting edits the same draft rather than piling up rows."""
     if not _al_is_lifetime(user):
-        return JSONResponse({"error": "Campaign packs are for lifetime members. Join for $100 (one time) to unlock.",
+        return JSONResponse({"error": "Please sign in to create a campaign ad.",
                              "action": "join", "join_url": "/join"}, status_code=403)
     body = await request.json()
     title = (body.get("title") or "").strip()
@@ -75202,10 +75217,14 @@ async def al_create_draft_ad(request: Request,
         db.add(campaign)
     db.commit()
     # Ad-first, one-package-one-campaign model: creating an ad NEVER auto-consumes
-    # an existing pack. Every ad proceeds to Choose Pack -> Pay so the member can
-    # buy whichever tier they want (each a separate campaign, all tiers below it
-    # activate for commissions via owned_level). Prize/granted packs are attached
-    # via the grant flow, or offered explicitly at Choose Pack — never auto-grabbed.
+    # a BOUGHT pack. But a PRIZE pack (games winner, source='prize') has no payment
+    # step, so a winner adding their ad here attaches it straight to that prize
+    # pack and it goes live immediately. Bought packs still go Choose Pack -> Pay.
+    _granted = _al_activate_pending_drafts(db, user.id, only_draft_id=campaign.id, granted_only=True)
+    if _granted:
+        db.commit()
+        return {"ok": True, "campaign_id": campaign.id, "status": "active", "activated": True,
+                "message": "Your video is live on your prize pack — it's now delivering views."}
     return {"ok": True, "campaign_id": campaign.id, "status": "draft",
             "message": "Ad saved. Next, add how you'll get paid, then choose your package."}
 
