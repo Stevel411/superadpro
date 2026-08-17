@@ -77632,7 +77632,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 </style>
 </head>
 <body>
-<div class="bar"><span class="wm">Advantage<span class="life">Life</span></span><span class="sp"></span><a href="/dashboard">Dashboard</a></div>
+<div class="bar"><span class="wm">Advantage<span class="life">Life</span></span><a href="/dashboard">&larr; Dashboard</a><span class="sp"></span></div>
 <div class="wrap">
   <div class="hero">
     <div class="k">Campaign Packs</div>
