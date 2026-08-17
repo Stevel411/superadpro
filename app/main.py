@@ -77066,15 +77066,8 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     fetch('/api/al/share-status').then(function(r){return r.ok?r.json():null}).then(function(s){
       if(!s||!s.ok)return;
       var el=document.getElementById('shareBanner');if(!el)return;
-      // Membership lapsed: an expired annual member can't earn regardless of
-      // sharing — sales route past them. Never show 'active/eligible' here.
-      if(s.membership_active===false){
-        el.innerHTML='<div class="sb warn"><div class="sbrow"><span class="sbic">\u23F0</span>'
-          +'<div><div class="sbh">Your membership has lapsed</div>'
-          +'<div class="sbp">Renew your membership to earn again. While it\'s lapsed you can\'t receive payments from your team\'s sales \u2014 they pass to the next qualified member.</div></div></div>'
-          +'<a class="sbbtn warn" href="/join">Renew membership \u2192</a></div>';
-        return;
-      }
+      // Membership is FREE (Aug 2026) — nothing lapses, so the old
+      // 'membership has lapsed / renew' banner is retired.
       // If the member owns no pack, there's nothing to be 'active' — show a
       // get-started prompt instead of the share/active banner.
       if(window._ownsPack===false){
