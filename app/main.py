@@ -37246,8 +37246,27 @@ def diag_pack_purchases(request: Request, user: User = Depends(get_current_user)
         st = pp.status or "?"
         by_level.setdefault(lvl, {})
         by_level[lvl][st] = by_level[lvl].get(st, 0) + 1
+    _u = db.query(User).filter(User.id == uid).first()
+    try:
+        _tier = get_user_highest_tier(_u, db) if _u else None
+    except Exception:
+        _tier = "err"
+    member = None
+    if _u:
+        member = {
+            "username": _u.username,
+            "is_active": bool(getattr(_u, "is_active", False)),
+            "is_admin": bool(is_admin(_u)),
+            "highest_tier": _tier,
+            "can_create_ad": bool(is_admin(_u) or (getattr(_u, "is_active", False) and (_tier or 0) > 0)),
+            "buy_redirects_because": (
+                "ok — can reach create-ad" if (is_admin(_u) or (getattr(_u, "is_active", False) and (_tier or 0) > 0))
+                else "NOT active -> RequireTier sends to /join (then dashboard)" if not getattr(_u, "is_active", False)
+                else "active but NO pack -> create-ad shows the pack-lock screen"),
+        }
     return JSONResponse({
         "user_id": uid,
+        "member": member,
         "total_pack_purchases": len(rows),
         "distinct_statuses": sorted({(pp.status or "?") for pp in rows}),
         "by_level_and_status": {k: by_level[k] for k in sorted(by_level, key=lambda z: int(z))},
