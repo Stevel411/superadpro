@@ -76252,7 +76252,7 @@ _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campaign packs — AdvantageLife</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Sora:wght@600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0}
@@ -76271,18 +76271,18 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .howlink:hover{color:var(--red)}
 .hero{display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:center;margin-bottom:26px}
 .rule{background:#f6f8fd;border:1.5px solid var(--line);border-left:4px solid var(--red);border-radius:14px;padding:16px 18px}
-.rule .eq{font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:var(--navy);letter-spacing:-.6px;margin-bottom:6px}
+.rule .eq{font-family:'Inter',sans-serif;font-weight:800;font-size:20px;color:var(--navy);letter-spacing:-.6px;margin-bottom:6px}
 .rule .eq em{font-style:normal;color:var(--red)}
 .rule p{font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5}.rule p b{color:var(--ink)}
 .packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
 .pk{position:relative;border-radius:16px;padding:24px 18px 20px;text-align:center;cursor:pointer;background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border:2px solid transparent;box-shadow:0 12px 30px -14px rgba(10,31,82,.55);transition:transform .14s,box-shadow .14s,border-color .14s}
 .pk:hover{transform:translateY(-3px);box-shadow:0 20px 44px -16px rgba(10,31,82,.7)}
-.pk .pay{font-family:'Sora',sans-serif;font-weight:800;font-size:34px;letter-spacing:-1.5px;line-height:1;color:#fff}
+.pk .pay{font-family:'Inter',sans-serif;font-weight:800;font-size:34px;letter-spacing:-1.5px;line-height:1;color:#fff}
 .pk .reach{font-size:12px;font-weight:700;color:#a9bbf0;margin:7px 0 14px}
 .pk .rbar{height:4px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden;margin-bottom:16px}
 .pk .rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5b86ff,var(--red-lt))}
 .pk .earn{border-top:1px solid rgba(255,255,255,.16);padding-top:13px}
-.pk .earn b{display:block;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--red-lt);letter-spacing:-.6px;line-height:1}
+.pk .earn b{display:block;font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:var(--red-lt);letter-spacing:-.6px;line-height:1}
 .pk .earn span{display:block;font-size:9px;font-weight:800;color:#a9bbf0;letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
 .pk.sel{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d;box-shadow:0 20px 46px -14px rgba(200,16,46,.75);transform:translateY(-3px)}
 .pk.sel .reach{color:#ffe0e5}.pk.sel .earn b{color:#fff}.pk.sel .earn span{color:#ffe0e5}
@@ -76308,7 +76308,7 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .pk.selectable{cursor:pointer}
 .pk:not(.selectable){cursor:default}
 .rbar.real{background:rgba(255,255,255,.25)}.rbar.real i{background:#fff}
-.prog-lbl{font-size:11px;font-weight:800;color:#fff;opacity:.9;margin-top:5px;font-family:'Sora',sans-serif}
+.prog-lbl{font-size:11px;font-weight:800;color:#fff;opacity:.9;margin-top:5px;font-family:'Inter',sans-serif}
 .pkbtn{width:100%;border:0;border-radius:9px;padding:10px;font-family:'Inter',sans-serif;font-weight:800;font-size:12.5px;cursor:pointer;margin-top:11px}
 .pkbtn.gold{background:#fff;color:#b56a00}
 .pkbtn.ghost{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);cursor:not-allowed}
@@ -76330,7 +76330,7 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .sbplist{background:#fff;border:1px solid #f5c2c2;border-radius:9px;padding:10px 12px;margin-top:11px}
 .sbpt{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--red);margin-bottom:7px}
 .sbpk{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;padding:3px 0;color:var(--ink)}
-.sbpk .m{font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px}
+.sbpk .m{font-family:'Inter',sans-serif;font-weight:700;font-size:11.5px}
 .sbbtn{width:100%;border:0;border-radius:11px;padding:13px;font-family:'Inter',sans-serif;font-weight:800;font-size:14px;cursor:pointer;color:#fff;margin-top:15px}
 .sbbtn.ok{background:linear-gradient(135deg,#0a6836,#0d8a4a)}
 .sbbtn.warn{background:linear-gradient(135deg,var(--red),#e8203f)}
@@ -77151,7 +77151,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     ov.style.cssText='position:fixed;inset:0;background:rgba(10,20,56,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
     ov.innerHTML=
       '<div style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(10,20,56,.3)" onclick="event.stopPropagation()">'
-      +'<div style="font-family:\'Sora\',sans-serif;font-weight:800;font-size:17px;color:#0a1f52;margin-bottom:6px">Share your showcase</div>'
+      +'<div style="font-family:\'Inter\',sans-serif;font-weight:800;font-size:17px;color:#0a1f52;margin-bottom:6px">Share your showcase</div>'
       +'<div style="font-size:13px;color:#5a6584;line-height:1.5;margin-bottom:16px">Link copied. Pick where to post — everyone who clicks it lands on your showcase.</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
       +'<a href="https://twitter.com/intent/tweet?text='+txt+'&url='+enc+'" target="_blank" rel="noopener" style="text-align:center;padding:12px;border-radius:10px;background:#0a1f52;color:#fff;text-decoration:none;font-weight:700;font-size:13.5px">Post to X</a>'
