@@ -76257,7 +76257,7 @@ _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
-body{font-family:'Inter',sans-serif;background:#fff;color:var(--ink);min-height:100vh;padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',sans-serif;background:#eef2fa;color:var(--ink);min-height:100vh;padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1120px;margin:0 auto}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
 .backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);text-decoration:none;font-size:13px;font-weight:700}
@@ -76275,44 +76275,34 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .rule .eq em{font-style:normal;color:var(--red)}
 .rule p{font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5}.rule p b{color:var(--ink)}
 .packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-.pk{position:relative;border-radius:16px;padding:24px 18px 20px;text-align:center;cursor:pointer;background:linear-gradient(150deg,var(--navy),var(--navy2));color:#fff;border:2px solid transparent;box-shadow:0 12px 30px -14px rgba(10,31,82,.55);transition:transform .14s,box-shadow .14s,border-color .14s}
-.pk:hover{transform:translateY(-3px);box-shadow:0 20px 44px -16px rgba(10,31,82,.7)}
-.pk .pay{font-family:'Inter',sans-serif;font-weight:800;font-size:34px;letter-spacing:-1.5px;line-height:1;color:#fff}
-.pk .reach{font-size:12px;font-weight:700;color:#a9bbf0;margin:7px 0 14px}
-.pk .rbar{height:4px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden;margin-bottom:16px}
-.pk .rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#5b86ff,var(--red-lt))}
-.pk .earn{border-top:1px solid rgba(255,255,255,.16);padding-top:13px}
-.pk .earn b{display:block;font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:var(--red-lt);letter-spacing:-.6px;line-height:1}
-.pk .earn span{display:block;font-size:9px;font-weight:800;color:#a9bbf0;letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
-.pk.sel{background:linear-gradient(150deg,var(--red),#e8253f);border-color:#7c0b1d;box-shadow:0 20px 46px -14px rgba(200,16,46,.75);transform:translateY(-3px)}
-.pk.sel .reach{color:#ffe0e5}.pk.sel .earn b{color:#fff}.pk.sel .earn span{color:#ffe0e5}
-.pk.sel .rbar{background:rgba(255,255,255,.28)}.pk.sel .rbar i{background:#fff}
-.pk.owned{background:linear-gradient(150deg,#08381f,#0b7a3e)}
-.pk.covered{background:linear-gradient(155deg,#123a25,#0e5233);border-color:#1f7d4d}
-.pk.covered .price,.pk.covered .amt{color:#eafff2}
-.pk.covered .views,.pk.covered .paysl,.pk.covered .reach{color:#a9e6c4}
-.pk.covered .pays{color:#8affbe}
-.pk.covered .rbar,.pk.covered .bar{background:rgba(255,255,255,.14)}
-.pk.covered .rbar i,.pk.covered .bar i{background:#4fd98a}
-.pk.covered .covnote{font-size:11px;font-weight:800;color:#8affbe;margin-top:12px;line-height:1.4}
-.flag.cov{background:rgba(46,204,113,.25);color:#c8ffde;border:1px solid rgba(46,204,113,.5)}
-.pk.owned .reach{color:#a9e3c2}.pk.owned .earn b{color:#7dffb0}.pk.owned .earn span{color:#a9e3c2}
-.pk.owned .rbar i{background:linear-gradient(90deg,#2fd07a,#7dffb0)}
-.flag{display:inline-block;margin:0 auto 12px;font-size:8.5px;font-weight:900;letter-spacing:.1em;padding:5px 12px;border-radius:99px;text-transform:uppercase;white-space:nowrap;border:2px solid #fff}
-.flag.own{background:var(--grn);color:#fff}.flag.now{background:var(--red);color:#fff}
-.flag.needs{background:#e08e00;color:#fff}.flag.run{background:#0d8a4a;color:#fff}
-.flag.grace{background:var(--red);color:#fff}.flag.paused{background:#94651a;color:#fff}
-.pk.running{background:linear-gradient(150deg,#0a6836,#0d8a4a);color:#fff}
-.pk.needs{background:linear-gradient(150deg,#0a6836,#0d8a4a)}
-.pk.paused{background:linear-gradient(150deg,#5a4a1a,#7a6320);opacity:.92}
-.pk.selectable{cursor:pointer}
-.pk:not(.selectable){cursor:default}
-.rbar.real{background:rgba(255,255,255,.25)}.rbar.real i{background:#fff}
-.prog-lbl{font-size:11px;font-weight:800;color:#fff;opacity:.9;margin-top:5px;font-family:'Inter',sans-serif}
-.pkbtn{width:100%;border:0;border-radius:9px;padding:10px;font-family:'Inter',sans-serif;font-weight:800;font-size:12.5px;cursor:pointer;margin-top:11px}
-.pkbtn.gold{background:#fff;color:#b56a00}
-.pkbtn.ghost{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);cursor:not-allowed}
-.pknote{font-size:10.5px;font-weight:700;color:#fff;opacity:.85;text-align:center;margin-top:7px;line-height:1.4}
+.pk{position:relative;border-radius:18px;padding:22px 20px 20px;text-align:center;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 14px 34px -26px rgba(10,31,82,.5);transition:transform .14s,box-shadow .14s,border-color .14s;display:flex;flex-direction:column}
+.pk:hover{transform:translateY(-3px);box-shadow:0 20px 44px -24px rgba(10,31,82,.55)}
+.pk .pay{font-family:'Inter',sans-serif;font-weight:900;font-size:38px;letter-spacing:-1.8px;line-height:1;color:var(--navy)}
+.pk .reach{font-size:13px;font-weight:800;color:var(--red);margin:6px 0 14px}
+.pk .rbar{height:5px;border-radius:99px;background:#e9eefa;overflow:hidden;margin-bottom:6px}
+.pk .rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--navy2),var(--red))}
+.pk .earn{border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
+.pk .earn b{display:block;font-family:'Inter',sans-serif;font-weight:900;font-size:23px;color:var(--red);letter-spacing:-.6px;line-height:1}
+.pk .earn span{display:block;font-size:9.5px;font-weight:800;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+.pk.sel{border-color:var(--red);box-shadow:0 18px 40px -20px rgba(200,16,46,.5);transform:translateY(-3px)}
+.pk.sel .pay{color:var(--red)}
+.pk.owned,.pk.covered,.pk.running,.pk.needs{border-color:rgba(34,194,107,.55)}
+.pk.paused{border-color:rgba(240,165,42,.55)}
+.pk.covered .covnote{font-size:11.5px;font-weight:800;color:#159a52;margin-top:12px;line-height:1.4}
+.pk.running .rbar i{background:linear-gradient(90deg,#2fd07a,#159a52)}
+.flag{position:absolute;top:13px;right:13px;font-size:9.5px;font-weight:900;letter-spacing:.05em;padding:5px 11px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.flag.own,.flag.run,.flag.cov{background:rgba(34,194,107,.15);color:#159a52}
+.flag.now{background:rgba(200,16,46,.12);color:var(--red)}
+.flag.grace{background:rgba(200,16,46,.12);color:var(--red)}
+.flag.needs,.flag.paused{background:rgba(240,165,42,.2);color:#a86a09}
+.pk.selectable{cursor:pointer}.pk:not(.selectable){cursor:default}
+.rbar.real{background:#e9eefa}.rbar.real i{background:linear-gradient(90deg,#2fd07a,#159a52)}
+.prog-lbl{font-size:11px;font-weight:800;color:var(--dim);margin-top:5px;margin-bottom:8px}
+.pkbtn{width:100%;border:0;border-radius:11px;padding:13px;font-family:'Inter',sans-serif;font-weight:900;font-size:14px;cursor:pointer;margin-top:14px}
+.pkbtn.buy{background:linear-gradient(135deg,#ff2743,var(--red));color:#fff}
+.pkbtn.gold{background:linear-gradient(135deg,#f0a52a,#d98e12);color:#3a2a05}
+.pkbtn.ghost{background:#eef2fa;color:#9aa6c4;border:0;cursor:not-allowed}
+.pknote{font-size:10.5px;font-weight:700;color:var(--dim);text-align:center;margin-top:8px;line-height:1.4}
 .sb{border-radius:14px;padding:18px;margin-bottom:22px;box-shadow:0 10px 26px -20px rgba(10,31,82,.4)}
 .sb.ok{background:#fff;border:1.5px solid #b7e4c7}
 .sb.warn{background:#fff5f6;border:1.5px solid #f5c2c2}
@@ -76848,7 +76838,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
       d.dataset.state=st;
       // badge per state
       var badge='';
-      if(st==='needs_ad') badge='<span class="flag needs">Needs your ad</span>';
+      if(st==='needs_ad') badge='<span class="flag own">Owned</span>';
       else if(st==='running') badge='<span class="flag run">Running</span>';
       else if(st==='in_grace') badge='<span class="flag grace">Finishing</span>';
       else if(st==='paused') badge='<span class="flag paused">Paused</span>';
@@ -76864,12 +76854,12 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
       }
       // footer per state
       var foot;
-      if(st==='needs_ad') foot='<button class="pkbtn gold" data-act="ad" data-pid="'+pk.purchase_id+'">Add your video ad →</button><div class="pknote">Delivers no views until your ad is live.</div>';
+      if(st==='needs_ad') foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
       else if(st==='running') foot='<button class="pkbtn ghost" disabled>Running — can\'t re-buy yet</button>';
       else if(st==='in_grace') foot='<button class="pkbtn ghost" disabled>Finishing — re-buy soon</button>';
       else if(st==='paused') foot='<button class="pkbtn ghost" disabled>Paused — share to resume</button>';
       else if(st==='covered') foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div><div class="covnote">\u2713 You already earn on '+_p+' sales<br>via your $'+Number(pk.covered_by).toLocaleString()+' pack</div>';
-      else foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div>';
+      else foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div><button class="pkbtn buy">Buy this pack →</button>';
       d.innerHTML=badge
         +'<div class="pay">'+_p+'</div><div class="reach">'+_v+'</div>'
         +barHtml+foot;
