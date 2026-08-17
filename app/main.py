@@ -76955,7 +76955,10 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
   // NEW FLOW Step 2: receiving method. We send the member to the payout-methods
   // surface, then bring them back to /packs which resumes at the package step.
   function gotoPayoutStep(){
-    if(window._hasPayout){ show('sPick'); scrollTop(); return; }
+    if(window._hasPayout){
+      if(window._preLevel){ startPurchase({level:window._preLevel}); return; }
+      show('sPick'); scrollTop(); return;
+    }
     show('sPayout'); scrollTop();
   }
   function scrollTop(){try{window.scrollTo(0,0);}catch(e){}}
@@ -77024,6 +77027,16 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     renderPicker(j);                 // always build the pack grid (used at Step 3)
     window._hasPayout=!!j.has_payout_method;
     window._hasDraftAd=!!j.has_draft_ad;
+    // Pre-chosen pack from the catalogue (?level=N): drive the flow straight to
+    // THAT pack (create ad -> receiving method -> pay) and never show the grid.
+    // The receiving-method step redirects out to /payout-methods, so we preserve
+    // ?level through that round-trip on its return link.
+    var _pl=new URLSearchParams(location.search).get('level');
+    window._preLevel=(_pl&&/^[0-9]+$/.test(_pl))?parseInt(_pl,10):null;
+    if(window._preLevel){
+      var _pm=document.querySelector('#sPayout a[href^="/payout-methods"]');
+      if(_pm){_pm.href='/payout-methods?next='+encodeURIComponent('/packs/checkout?level='+window._preLevel);}
+    }
     loadShareBanner();
     // Route to the right step of the NEW flow: open purchase resumes at payment;
     // otherwise ad first, then receiving method, then package.
@@ -77032,6 +77045,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     // because a draft already exists. Only an OPEN paid intent still resumes.
     var forceNew = new URLSearchParams(location.search).get('new') === '1';
     if(j.open_intent){ handleExisting(j.open_intent); }
+    else if(window._preLevel){ startPurchase({level:window._preLevel}); }
     else if(forceNew){ show('sAd'); }
     else if(!j.has_draft_ad){ show('sAd'); }
     else if(!j.has_payout_method){ show('sPayout'); }
@@ -77807,7 +77821,7 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
             f'<div class="pr">${price:,}</div>'
             f'<div class="vw">{views} <span>views</span></div>'
             f'<div class="ds">{desc}</div>'
-            f'<a class="buy" href="/packs/checkout">{buy} &rarr;</a></div>')
+            f'<a class="buy" href="/packs/checkout?level={int(p.level or 0)}">{buy} &rarr;</a></div>')
     html = _AL_PACKS_CATALOG_HEAD + "".join(cards) + _AL_PACKS_CATALOG_TAIL
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
