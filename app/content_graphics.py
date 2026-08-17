@@ -140,3 +140,79 @@ def render(key, username):
     img.save(out, format="PNG")
     out.seek(0)
     return out.getvalue()
+
+
+# ── Winner's certificate (Watch-to-Earn Games) ──────────────────────────────
+import calendar as _calendar
+import math as _math
+
+
+def _period_label(period):
+    try:
+        y, m = str(period).split("-")
+        return "%s %s" % (_calendar.month_name[int(m)], y)
+    except Exception:
+        return str(period)
+
+
+def _ctext(d, cx, y, text, font, fill):
+    w = d.textbbox((0, 0), text, font=font)[2]
+    d.text((cx - w / 2, y), text, font=font, fill=fill)
+
+
+def _star(d, cx, cy, r_out, r_in, fill):
+    pts = []
+    for i in range(10):
+        ang = -_math.pi / 2 + i * _math.pi / 5
+        r = r_out if i % 2 == 0 else r_in
+        pts.append((cx + r * _math.cos(ang), cy + r * _math.sin(ang)))
+    d.polygon(pts, fill=fill)
+
+
+def render_certificate(name, game_label, period, score):
+    """A4-landscape branded winner's certificate (PNG bytes)."""
+    W, H = 1600, 1130
+    img = Image.new("RGB", (W, H), (236, 240, 249))
+    d = ImageDraw.Draw(img)
+    m = 46
+    d.rounded_rectangle([m, m, W - m, H - m], radius=30, fill=WHITE)
+    for off, wdt in ((80, 5), (94, 2)):
+        d.rounded_rectangle([off, off, W - off, H - off], radius=18, outline=GOLD, width=wdt)
+    cx = W // 2
+    # logo: navy tile + red tick + wordmark, centred
+    tile = 56
+    lx = cx - 150
+    ly = 128
+    d.rounded_rectangle([lx, ly, lx + tile, ly + tile], radius=15, fill=NAVY)
+    d.line([(lx + 13, ly + 43), (lx + 24, ly + 29), (lx + 31, ly + 37), (lx + 44, ly + 18)],
+           fill=RED, width=6, joint="curve")
+    fb = _font("Black", 38)
+    wt = lx + tile + 16
+    wy = ly + (tile - 38) // 2 - 2
+    d.text((wt, wy), "Advantage", font=fb, fill=NAVY)
+    aw = d.textbbox((0, 0), "Advantage", font=fb)[2]
+    d.text((wt + aw, wy), "Life", font=fb, fill=RED)
+    # eyebrow
+    d.text((cx - d.textbbox((0, 0), "C E R T I F I C A T E   O F   A C H I E V E M E N T", font=_font("Bold", 26))[2] / 2, 244),
+           "C E R T I F I C A T E   O F   A C H I E V E M E N T", font=_font("Bold", 26), fill=GOLD)
+    # title
+    _ctext(d, cx, 292, "%s Champion" % game_label, _font("Black", 82), NAVY)
+    d.line([(cx - 110, 418), (cx + 110, 418)], fill=GOLD, width=4)
+    # presented to
+    _ctext(d, cx, 452, "This certificate is proudly presented to", _font("Medium", 32), (92, 103, 134))
+    _ctext(d, cx, 506, (name or "Member")[:34], _font("Black", 92), NAVY)
+    # achievement
+    _ctext(d, cx, 648, "for achieving the top score of", _font("Medium", 32), (92, 103, 134))
+    _ctext(d, cx, 694, "{:,}".format(int(score or 0)), _font("Black", 70), RED)
+    _ctext(d, cx, 800, _period_label(period), _font("Bold", 38), NAVY2)
+    # gold seal + star
+    sx, sy = cx, 936
+    d.ellipse([sx - 52, sy - 52, sx + 52, sy + 52], fill=GOLD)
+    d.ellipse([sx - 44, sy - 44, sx + 44, sy + 44], outline=WHITE, width=3)
+    _star(d, sx, sy, 26, 11, WHITE)
+    # footer
+    _ctext(d, cx, H - 118, "AdvantageLife  ·  Watch-to-Earn Games  ·  $400 Prize",
+           _font("SemiBold", 25), (120, 134, 166))
+    out = BytesIO()
+    img.save(out, "PNG")
+    return out.getvalue()

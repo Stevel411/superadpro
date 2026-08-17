@@ -72105,6 +72105,17 @@ def _prev_period():
     return f"{n.year-1:04d}-12" if n.month == 1 else f"{n.year:04d}-{n.month-1:02d}"
 
 
+# Months a member can't win the SAME game again after winning it.
+GAMES_WIN_COOLDOWN = 3
+
+
+def _period_minus(period, n):
+    """'YYYY-MM' minus n months -> 'YYYY-MM'."""
+    y, mo = (int(x) for x in period.split("-"))
+    idx = y * 12 + (mo - 1) - n
+    return "%04d-%02d" % (idx // 12, idx % 12 + 1)
+
+
 @app.get("/admin/api/games/capture-winners")
 def games_capture_winners(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -72113,20 +72124,36 @@ def games_capture_winners(request: Request, user: User = Depends(get_current_use
     if not _games_admin_ok(request, user):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     period = (request.query_params.get("period") or _prev_period()).strip()
+    # Cooldown: a member who won the SAME game in the last GAMES_WIN_COOLDOWN
+    # periods is skipped, and the prize rolls to the next eligible top scorer.
+    cooldown_periods = [_period_minus(period, i) for i in range(1, GAMES_WIN_COOLDOWN + 1)]
     out = []
     for game in GAME_KEYS:
-        top = (db.query(GameScore)
-                 .filter(GameScore.game == game, GameScore.period == period)
-                 .order_by(GameScore.score.desc(), GameScore.best_at.asc()).first())
         existing = (db.query(PrizeWinner)
                       .filter(PrizeWinner.game == game, PrizeWinner.period == period).first())
-        if top is None:
-            out.append({"game": game, "result": "no_scores"}); continue
         if existing is not None:
-            out.append({"game": game, "result": "already_captured", "status": existing.status}); continue
+            out.append({"game": game, "result": "already_captured", "status": existing.status})
+            continue
+        recent = {pw.user_id for pw in db.query(PrizeWinner)
+                  .filter(PrizeWinner.game == game,
+                          PrizeWinner.period.in_(cooldown_periods),
+                          PrizeWinner.status != "rejected").all()}
+        scores = (db.query(GameScore)
+                    .filter(GameScore.game == game, GameScore.period == period)
+                    .order_by(GameScore.score.desc(), GameScore.best_at.asc()).all())
+        if not scores:
+            out.append({"game": game, "result": "no_scores"})
+            continue
+        top = next((s for s in scores if s.user_id not in recent), None)
+        if top is None:
+            out.append({"game": game, "result": "all_top_scorers_in_cooldown",
+                        "in_cooldown": len(recent)})
+            continue
         db.add(PrizeWinner(game=game, period=period, user_id=top.user_id,
                            score=top.score, status="pending", pack_level=400))
-        out.append({"game": game, "result": "captured", "user_id": top.user_id, "score": top.score})
+        skipped = sum(1 for s in scores if s.user_id in recent and s.score > top.score)
+        out.append({"game": game, "result": "captured", "user_id": top.user_id,
+                    "score": top.score, "skipped_for_cooldown": skipped})
     db.commit()
     return {"period": period, "captured": out}
 
@@ -72179,10 +72206,53 @@ def games_winner_action(request: Request, user: User = Depends(get_current_user)
                           source="prize", activated_at=datetime.utcnow())
         db.add(pp); db.flush()
         pw.status = "granted"; pw.granted_at = datetime.utcnow(); pw.pack_purchase_id = pp.id
+        # Contact the winner + hand them their downloadable certificate.
+        try:
+            _pl = pw.period
+            try:
+                import calendar as _cal
+                _y, _mo = pw.period.split("-")
+                _pl = "%s %s" % (_cal.month_name[int(_mo)], _y)
+            except Exception:
+                pass
+            _lbl = GAME_LABELS.get(pw.game, "the")
+            db.add(Notification(
+                user_id=pw.user_id, type="account", icon="🏆",
+                title="You won the %s competition!" % _lbl,
+                message=("Congratulations — you're the %s champion for %s. Your $400 pack "
+                         "is now active, and your winner's certificate is ready to download."
+                         % (_lbl, _pl)),
+                link="/games/certificate/%s/%s" % (pw.period, pw.game)))
+        except Exception:
+            pass
     else:
         return JSONResponse({"error": "bad_action"}, status_code=400)
     db.commit()
     return {"ok": True, "id": pw.id, "status": pw.status, "pack_purchase_id": pw.pack_purchase_id}
+
+
+@app.get("/games/certificate/{period}/{game}")
+def games_certificate(period: str, game: str, request: Request,
+                      user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Downloadable winner's certificate (PNG). The winner themselves or an admin."""
+    game = (game or "").replace(".png", "").strip().lower()
+    period = (period or "").strip()
+    pw = (db.query(PrizeWinner)
+            .filter(PrizeWinner.game == game, PrizeWinner.period == period).first())
+    if pw is None:
+        return JSONResponse({"error": "no_winner"}, status_code=404)
+    if not (is_admin(user) or (user and user.id == pw.user_id)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    winner = db.query(User).filter(User.id == pw.user_id).first()
+    nm = "Member"
+    if winner:
+        nm = (("%s %s" % (winner.first_name or "", winner.last_name or "")).strip()
+              or winner.first_name or winner.username or "Member")
+    from .content_graphics import render_certificate
+    png = render_certificate(nm, GAME_LABELS.get(game, "AdvantageLife"), period, pw.score)
+    fname = "advantagelife-%s-champion-%s.png" % (game, period)
+    return Response(content=png, media_type="image/png",
+                    headers={"Content-Disposition": 'attachment; filename="%s"' % fname})
 
 
 @app.get("/admin/api/games/debug")
@@ -72223,7 +72293,7 @@ button{font-family:inherit;font-weight:800;border:0;border-radius:9px;padding:8p
 .w b{font-size:15px}.meta{color:#aebbdc;font-size:12px;margin:3px 0 9px}
 .st{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:10px;margin-left:6px}
 .pending{background:#5a4a1e;color:#ffd48a}.verified{background:#1e4a5a;color:#8fe4ff}.granted{background:#1e5a34;color:#8effc0}.rejected{background:#5a1e28;color:#ff9db0}
-.acts button{margin-right:6px}.v{background:#2f86a8;color:#fff}.g{background:#2ecc71;color:#062a17}.r{background:#c8102e;color:#fff}
+.acts button{margin-right:6px}.cert{display:inline-block;margin:2px 0 8px;color:#8fe4ff;font-weight:800;font-size:13px;text-decoration:none}.v{background:#2f86a8;color:#fff}.g{background:#2ecc71;color:#062a17}.r{background:#c8102e;color:#fff}
 #msg{position:fixed;bottom:0;left:0;right:0;background:#0e1f4e;padding:10px 16px;font-size:12px;color:#8effc0}</style>
 </head><body>
 <h1>Prize winners</h1>
@@ -72248,7 +72318,7 @@ function load(){fetch('/admin/api/games/winners',{credentials:'same-origin'}).th
    '<button class=r onclick="act('+r.id+',\\'reject\\')">Reject</button></div>';
   return '<div class=w><b>'+r.label+' — '+r.period+'</b><span class="st '+r.status+'">'+r.status+'</span>'+
    '<div class=meta>@'+(r.username||('user'+r.user_id))+' · score '+Number(r.score).toLocaleString()+
-   (r.pack_purchase_id?' · pack #'+r.pack_purchase_id:'')+(r.note?' · '+r.note:'')+'</div>'+acts+'</div>';
+   (r.pack_purchase_id?' · pack #'+r.pack_purchase_id:'')+(r.note?' · '+r.note:'')+'</div>'+'<a class=cert href="/games/certificate/'+r.period+'/'+r.game+'" target=_blank>\u2b07 Download certificate</a>'+acts+'</div>';
  }).join('');
 });}
 load();
