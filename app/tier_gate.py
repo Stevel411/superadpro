@@ -141,6 +141,16 @@ class TierGateMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         path = request.url.path
 
+        # AdvantageLife has FREE membership — this paid-tier gate is a
+        # SuperAdPro-only concept and must never run here (it was returning
+        # "requires an active Partner membership" on free-member API calls).
+        try:
+            from . import brand_config as _bc
+            if getattr(_bc, "IS_ADVANTAGELIFE", False):
+                return await call_next(request)
+        except Exception:
+            pass
+
         # Only API endpoints are gated here. Page navigation is handled
         # by React route guards. (Direct URL navigation to a React-served
         # path still loads the React app, which then route-guards.)
