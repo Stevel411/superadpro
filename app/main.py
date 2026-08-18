@@ -37333,6 +37333,44 @@ def diag_user_campaigns(request: Request, user: User = Depends(get_current_user)
     })
 
 
+@app.get("/admin/api/al/backfill-granted-drafts")
+def backfill_granted_drafts(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Backfill: attach every member's stuck draft ad to their unused GRANTED
+    (free) pack — prize/grandfather/gift. Fixes ads that couldn't auto-attach
+    before the grandfather/gift fix. Admin or MIGRATION_SECRET/CRON_SECRET.
+    ?dry=1 previews without changing anything."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dry") == "1"
+    # Users who have BOTH a stuck draft (ad ready, no pack) AND an unused granted pack
+    draft_uids = {r[0] for r in db.query(VideoCampaign.user_id)
+                  .filter(VideoCampaign.status == "draft", VideoCampaign.embed_url != "").all()}
+    granted_uids = {r[0] for r in db.query(PackPurchase.user_id)
+                    .filter(PackPurchase.source.in_(["prize", "grandfather", "gift"]),
+                            PackPurchase.status == "active",
+                            PackPurchase.campaign_id.is_(None)).all()}
+    affected = sorted(draft_uids & granted_uids)
+    results, total = [], 0
+    for uid in affected:
+        if dry:
+            nd = (db.query(VideoCampaign).filter(VideoCampaign.user_id == uid,
+                  VideoCampaign.status == "draft", VideoCampaign.embed_url != "").count())
+            ng = (db.query(PackPurchase).filter(PackPurchase.user_id == uid,
+                  PackPurchase.source.in_(["prize", "grandfather", "gift"]),
+                  PackPurchase.status == "active", PackPurchase.campaign_id.is_(None)).count())
+            results.append({"user_id": uid, "stuck_drafts": nd, "free_packs_available": ng})
+        else:
+            activated = _al_activate_pending_drafts(db, uid, granted_only=True)
+            if activated:
+                db.commit()
+                total += len(activated)
+                results.append({"user_id": uid, "activated": len(activated)})
+    return JSONResponse({"dry_run": dry, "affected_users": len(affected),
+                         "total_activated": total, "results": results})
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
@@ -71591,7 +71629,10 @@ def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None, gra
              .filter(PackPurchase.user_id == user_id,
                      PackPurchase.status == "active"))
     if granted_only:
-        _pq = _pq.filter(PackPurchase.source == "prize")
+        # Granted-for-free packs (no payment step): games prize, grandfathered
+        # members, and company gifts. A new ad attaches to these directly. BOUGHT
+        # packs (source 'purchase') are NOT here — they go Choose Pack -> Pay.
+        _pq = _pq.filter(PackPurchase.source.in_(["prize", "grandfather", "gift"]))
     packs = _pq.order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all()
     if not packs:
         return []
