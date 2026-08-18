@@ -37424,25 +37424,45 @@ def scan_page_videos(request: Request, user: User = Depends(get_current_user), d
     CURRENT = {"3d4fe9c5fc5289700d21a3c2401e2e39",   # overview
                "5cb16684acce6a8d833314099b59cd7d"}   # comp-plan
     import re
-    uid_re = re.compile(r"cloudflarestream\.com/([a-f0-9]{32})")
+    # Catch every video platform, not just Cloudflare
+    pats = [
+        re.compile(r"cloudflarestream\.com/([a-f0-9]{32})"),
+        re.compile(r"(?:youtube\.com/(?:watch\?v=|embed/)|youtu\.be/)([\w-]{6,})"),
+        re.compile(r"(?:player\.)?vimeo\.com/(?:video/)?(\d+)"),
+        re.compile(r"wistia\.(?:com|net)/(?:medias|embed)/(\w+)"),
+    ]
     rows = db.query(FunnelPage).all()
-    found = {}
+    found = {}          # video-ref -> [pages]
+    pages_with_video = 0
     for p in rows:
         blob = " ".join(str(x or "") for x in
                         [getattr(p, "video_url", ""), getattr(p, "sections_json", ""),
                          getattr(p, "gjs_html", ""), getattr(p, "body_copy", ""),
                          getattr(p, "custom_css", "")])
-        for uid in set(uid_re.findall(blob)):
-            found.setdefault(uid, []).append(
+        hits = set()
+        for rx in pats:
+            for m in rx.finditer(blob):
+                # label with platform for clarity
+                host = "cloudflare" if "cloudflarestream" in m.group(0) else \
+                       "youtube" if ("youtu" in m.group(0)) else \
+                       "vimeo" if "vimeo" in m.group(0) else "wistia"
+                hits.add("%s:%s" % (host, m.group(1)))
+        if hits:
+            pages_with_video += 1
+        for ref in hits:
+            found.setdefault(ref, []).append(
                 {"page_id": p.id, "user_id": p.user_id, "slug": p.slug, "status": p.status})
-    summary = {uid: {"count": len(pg), "is_current": uid in CURRENT, "pages": pg[:25]}
-               for uid, pg in found.items()}
-    wrong = sorted([uid for uid in found if uid not in CURRENT])
+    def _is_current(ref):
+        return ref.startswith("cloudflare:") and ref.split(":", 1)[1] in CURRENT
+    summary = {ref: {"count": len(pg), "is_current_official": _is_current(ref), "pages": pg[:25]}
+               for ref, pg in found.items()}
+    wrong = sorted([ref for ref in found if not _is_current(ref)])
     return JSONResponse({
         "total_pages_scanned": len(rows),
-        "current_uids": sorted(CURRENT),
-        "distinct_uids_found": sorted(found.keys()),
-        "outdated_or_wrong_uids": wrong,
+        "pages_with_any_video": pages_with_video,
+        "current_official_uids": sorted(CURRENT),
+        "all_videos_found": sorted(found.keys()),
+        "not_the_official_two": wrong,
         "detail": summary,
     })
 
