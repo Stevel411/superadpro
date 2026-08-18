@@ -1321,6 +1321,15 @@ def is_pro(user):
         return False
     if getattr(user, "is_admin", False):
         return True
+    # AdvantageLife: membership is FREE — every logged-in member has full
+    # ("Pro") access to the tools (SuperPages, Creative Studio, Lead Finder,
+    # etc.). The is_active paid-tier check below is SuperAdPro-only.
+    try:
+        from . import brand_config as _bc
+        if getattr(_bc, "IS_ADVANTAGELIFE", False):
+            return True
+    except Exception:
+        pass
     return bool(getattr(user, "is_active", False))
 
 
