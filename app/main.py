@@ -37278,8 +37278,14 @@ def diag_user_campaigns(request: Request, user: User = Depends(get_current_user)
             uid0 = user.id if user else 1
         _u = db.query(User).filter(User.id == uid0).first()
     if not _u:
+        _hint = []
+        if uname:
+            for cand in (db.query(User).filter(User.username.ilike("%" + uname + "%"))
+                         .order_by(User.id.asc()).limit(12).all()):
+                _hint.append({"id": cand.id, "username": cand.username})
         return JSONResponse({"error": "user not found",
-                             "looked_up": uname or request.query_params.get("user_id")}, status_code=404)
+                             "looked_up": uname or request.query_params.get("user_id"),
+                             "did_you_mean": _hint}, status_code=404)
     uid = _u.id
     if not (is_admin(user) or (secret and secret in _secrets) or (user and user.id == uid)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
