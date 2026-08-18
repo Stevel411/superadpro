@@ -37260,6 +37260,65 @@ def diag_pack_purchases(request: Request, user: User = Depends(get_current_user)
     })
 
 
+@app.get("/admin/api/al/user-campaigns")
+def diag_user_campaigns(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Diagnostic: a user's video campaigns + statuses, to see why drafts aren't
+    displaying. Only status='active' campaigns enter the watch rotation; a 'draft'
+    is an ad with no bought/linked pack yet. Look up by ?u=<username> or ?user_id=N.
+    Admin session or MIGRATION_SECRET/CRON_SECRET (?secret=)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    uname = (request.query_params.get("u", "") or "").strip()
+    if uname:
+        _u = db.query(User).filter(User.username.ilike(uname)).first()
+    else:
+        try:
+            uid0 = int(request.query_params.get("user_id", user.id if user else 1))
+        except (TypeError, ValueError):
+            uid0 = user.id if user else 1
+        _u = db.query(User).filter(User.id == uid0).first()
+    if not _u:
+        return JSONResponse({"error": "user not found",
+                             "looked_up": uname or request.query_params.get("user_id")}, status_code=404)
+    uid = _u.id
+    if not (is_admin(user) or (secret and secret in _secrets) or (user and user.id == uid)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    camps = (db.query(VideoCampaign).filter(VideoCampaign.user_id == uid)
+             .order_by(VideoCampaign.id.desc()).all())
+    by_status, rows = {}, []
+    for c in camps:
+        st = c.status or "?"
+        by_status[st] = by_status.get(st, 0) + 1
+        rows.append({
+            "id": c.id,
+            "title": (c.title or "")[:48],
+            "status": st,
+            "has_embed": bool((c.embed_url or "").strip()),
+            "platform": c.platform,
+            "views": "%d/%d" % (c.views_delivered or 0, c.views_target or 0),
+            "created": str(getattr(c, "created_at", ""))[:19],
+        })
+    packs = db.query(PackPurchase).filter(PackPurchase.user_id == uid).all()
+    pack_summary = {}
+    for pp in packs:
+        k = "L%s:%s" % (int(pp.pack_level or 0), pp.status or "?")
+        pack_summary[k] = pack_summary.get(k, 0) + 1
+    return JSONResponse({
+        "user_id": uid,
+        "username": _u.username,
+        "is_active": bool(getattr(_u, "is_active", False)),
+        "total_campaigns": len(camps),
+        "by_status": by_status,
+        "displaying_in_rotation": by_status.get("active", 0),
+        "not_displaying_drafts": by_status.get("draft", 0),
+        "campaigns": rows,
+        "pack_purchases": pack_summary or "none",
+        "note": ("Only status='active' campaigns enter the watch rotation. A 'draft' "
+                 "is an ad created but not yet backed by a bought/linked pack — that's "
+                 "why it shows 0/0 views and doesn't display."),
+    })
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
