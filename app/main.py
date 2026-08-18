@@ -37371,6 +37371,47 @@ def backfill_granted_drafts(request: Request, user: User = Depends(get_current_u
                          "total_activated": total, "results": results})
 
 
+@app.get("/admin/api/al/normalize-campaign-views")
+def normalize_campaign_views(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Set each ACTIVE campaign's views_target UP to its owner's HIGHEST owned
+    pack's target (the model: highest package = views per campaign). Only bumps
+    UP (never reduces anyone's views), so it corrects the granted-draft backfill
+    (which used the attached pack) without side effects. Admin/secret. ?dry=1 to
+    preview. ?user_id=N to scope to one member."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dry") == "1"
+    totals = {p.level: (p.views_target or 0) for p in db.query(CampaignPack)
+              .filter(CampaignPack.is_active == True).all()}  # noqa: E712
+    q = db.query(VideoCampaign).filter(VideoCampaign.status == "active")
+    uid_filter = request.query_params.get("user_id")
+    if uid_filter:
+        try:
+            q = q.filter(VideoCampaign.user_id == int(uid_filter))
+        except (TypeError, ValueError):
+            pass
+    camps = q.all()
+    top_cache, changes = {}, []
+    for c in camps:
+        if c.user_id not in top_cache:
+            lvls = [int(r[0] or 0) for r in db.query(PackPurchase.pack_level)
+                    .filter(PackPurchase.user_id == c.user_id,
+                            PackPurchase.status == "active").all()]
+            top_cache[c.user_id] = int(totals.get(max(lvls), 0) or 0) if lvls else 0
+        correct = top_cache[c.user_id]
+        if correct and (c.views_target or 0) < correct:
+            changes.append({"campaign_id": c.id, "user_id": c.user_id,
+                            "from": c.views_target or 0, "to": correct})
+            if not dry:
+                c.views_target = correct
+    if not dry:
+        db.commit()
+    return JSONResponse({"dry_run": dry, "campaigns_bumped": len(changes),
+                         "detail": changes[:60]})
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
@@ -71638,6 +71679,13 @@ def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None, gra
         return []
     totals = {p.level: (p.views_target or 0) for p in db.query(CampaignPack)
               .filter(CampaignPack.is_active == True).all()}  # noqa: E712
+    # Views per campaign = the member's HIGHEST owned pack's target. A $100 pack
+    # gives 8,000 views on EVERY campaign it allows — NOT the lower pack this ad
+    # happens to attach to for slot accounting. Matches the upload path.
+    _lvls = [int(r[0] or 0) for r in db.query(PackPurchase.pack_level)
+             .filter(PackPurchase.user_id == user_id,
+                     PackPurchase.status == "active").all()]
+    _top_views = int(totals.get(max(_lvls), 0) or 0) if _lvls else 0
     activated = []
     for draft in drafts:
         if limit is not None and len(activated) >= limit:
@@ -71662,7 +71710,7 @@ def _al_activate_pending_drafts(db, user_id, limit=None, only_draft_id=None, gra
         draft.status = "active"
         draft.share_approved = True
         draft.share_approved_at = datetime.utcnow()
-        draft.views_target = int(totals.get(target_pack.pack_level, 0) or 0)
+        draft.views_target = _top_views
         draft.campaign_tier = target_pack.pack_level
         db.flush()  # so the next slot-count sees this newly-active ad
         activated.append({"campaign_id": draft.id, "title": draft.title,
