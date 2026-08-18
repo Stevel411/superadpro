@@ -45,7 +45,11 @@
   --labs-accent-start: #c8102e;
   --labs-accent-end: #e8203f;
   --labs-accent-grad: linear-gradient(135deg, #c8102e, #e8203f);
-  --labs-brand-deep: #0a1438;
+  --labs-brand-deep: #0a1f52;
+  /* Accent used by inspector/blocks active states + links. Defining it here
+     (it was previously undefined, so 4 usages fell through to SuperAdPro cyan
+     #c8102e) locks every accent to AL red. */
+  --sap-accent: #c8102e;
   --labs-text-primary: #0f172a;
   --labs-text-secondary: #475569;
   --labs-text-muted: #64748b;
@@ -113,8 +117,8 @@
 
 .labs-chrome .sp-editor-topbar .btn-primary {
   background: linear-gradient(135deg, #e8203f, #c8102e);
-  color: #0a1438;
-  box-shadow: 0 4px 12px rgba(34,211,238,0.35);
+  color: #0a1f52;
+  box-shadow: 0 4px 12px rgba(200,16,46,0.35);
   font-family: 'Manrope', sans-serif;
   font-weight: 800;
   border: none;
@@ -148,7 +152,7 @@
 
 .labs-chrome .sp-editor-topbar .device-toggle button.on,
 .labs-chrome .sp-editor-topbar .device-toggle button.active {
-  background: rgba(34,211,238,0.22);
+  background: rgba(200,16,46,0.22);
   color: #e8203f;
   font-weight: 800;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
@@ -527,7 +531,7 @@
   font-family: 'Sora', sans-serif;
   font-size: 10px;
   font-weight: 900;
-  color: #0284c7;
+  color: #c8102e;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -574,7 +578,7 @@
   font-family: 'Sora', sans-serif;
   font-size: 10px;
   font-weight: 900;
-  color: #0284c7;
+  color: #c8102e;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

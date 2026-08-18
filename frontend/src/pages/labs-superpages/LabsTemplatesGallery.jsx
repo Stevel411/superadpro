@@ -164,12 +164,12 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               gap: 8,
               padding: '5px 12px',
               borderRadius: 99,
-              background: 'linear-gradient(135deg, rgba(200,16,46,0.12), rgba(34,211,238,0.10))',
+              background: 'linear-gradient(135deg, rgba(200,16,46,0.12), rgba(200,16,46,0.10))',
               border: '1px solid rgba(200,16,46,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10,
               fontWeight: 900,
-              color: '#0284c7',
+              color: '#c8102e',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: 10,
@@ -224,7 +224,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               borderRadius: 10,
               border: '1px solid rgba(200,16,46,0.3)',
               background: 'linear-gradient(135deg, rgba(200,16,46,0.08), rgba(200,16,46,0.06))',
-              color: '#0284c7',
+              color: '#c8102e',
               fontFamily: 'Manrope, sans-serif',
               fontWeight: 800,
               fontSize: 12,
@@ -314,7 +314,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button onClick={handleImport} style={{
                   padding: '10px 18px', borderRadius: 9, border: 'none',
-                  background: '#0a1438', color: '#fff',
+                  background: '#0a1f52', color: '#fff',
                   fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
                   cursor: 'pointer', boxShadow: '0 4px 12px rgba(10,20,56,0.18)',
                 }}>Import</button>
@@ -367,7 +367,7 @@ export default function LabsTemplatesGallery({ open, onClose, onApply, hasConten
                 }
               }} style={{
                 marginTop: 8, padding: '8px 16px', borderRadius: 9, border: 'none',
-                background: '#0a1438', color: '#fff',
+                background: '#0a1f52', color: '#fff',
                 fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: 12,
                 cursor: 'pointer', boxShadow: '0 4px 12px rgba(10,20,56,0.18)',
               }}>📋 Copy code</button>

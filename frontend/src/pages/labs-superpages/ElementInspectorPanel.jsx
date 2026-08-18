@@ -570,7 +570,7 @@ function StylePresetTile({ preset, active, onClick }) {
       </div>
       <span style={{
         fontSize: 9, fontWeight: 700,
-        color: active ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-primary, #0f172a)',
+        color: active ? 'var(--sap-accent, #c8102e)' : 'var(--sap-text-primary, #0f172a)',
         whiteSpace: 'nowrap',
       }}>{preset.label}</span>
     </button>
@@ -752,7 +752,7 @@ function ButtonProperties({ el, updateElement, updateElementStyle, markDirty }) 
           value={url}
           onChange={e => commitUrl(e.target.value)}
           placeholder="https://…"
-          style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, color: url ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-muted, #64748b)' }}
+          style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, color: url ? 'var(--sap-accent, #c8102e)' : 'var(--sap-text-muted, #64748b)' }}
         />
       </div>
 
@@ -2617,7 +2617,7 @@ function LogostripProperties({ el, updateElement, updateElementStyle, markDirty 
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#0284c7' : '#4d648c',
+                  color: active ? '#c8102e' : '#5a6584',
                   borderRadius: 5,
                   cursor: 'pointer',
                   textTransform: 'capitalize',
@@ -2908,7 +2908,7 @@ function FaqProperties({ el, updateElement, updateElementStyle, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#0284c7' : '#4d648c',
+                  color: active ? '#c8102e' : '#5a6584',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -3628,7 +3628,7 @@ function DividerProperties({ el, updateElement, updateElementStyle, markDirty })
     fontWeight: 600,
     border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
     background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
-    color: active ? '#0284c7' : '#4d648c',
+    color: active ? '#c8102e' : '#5a6584',
     borderRadius: 5,
     cursor: 'pointer',
   });
@@ -3860,7 +3860,7 @@ function CountdownProperties({ el, updateElement, markDirty }) {
                   fontWeight: 600,
                   border: '1px solid ' + (active ? '#c8102e' : 'rgba(255,255,255,0.15)'),
                   background: active ? 'rgba(200,16,46,0.12)' : 'rgba(255,255,255,0.04)',
-                  color: active ? '#0284c7' : '#4d648c',
+                  color: active ? '#c8102e' : '#5a6584',
                   borderRadius: 5,
                   cursor: 'pointer',
                 }}>
@@ -4337,7 +4337,7 @@ function BannerProperties({ el, updateElement, updateElementStyle, markDirty }) 
           value={url}
           onChange={e => commitUrl(e.target.value)}
           placeholder="https://… (optional — banner becomes clickable)"
-          style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, color: url ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-muted, #64748b)' }}
+          style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, color: url ? 'var(--sap-accent, #c8102e)' : 'var(--sap-text-muted, #64748b)' }}
         />
       </div>
 
@@ -5748,7 +5748,7 @@ function FormProperties({ el, updateElement, updateElementStyle, markDirty }) {
           value={redirectUrl}
           onChange={e => commitRedirect(e.target.value)}
           placeholder="https://…/thank-you (optional)"
-          style={{ ...inputStyle, marginBottom: 6, fontFamily: 'monospace', fontSize: 11, color: redirectUrl ? 'var(--sap-accent, #0284c7)' : 'var(--sap-text-muted, #64748b)' }}
+          style={{ ...inputStyle, marginBottom: 6, fontFamily: 'monospace', fontSize: 11, color: redirectUrl ? 'var(--sap-accent, #c8102e)' : 'var(--sap-text-muted, #64748b)' }}
         />
         {!redirectUrl && (
           <>
@@ -5844,7 +5844,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
     const psInputStyle = {
       width: '100%',
       padding: '9px 11px',
-      border: '1px solid #0a1438',
+      border: '1px solid #b3c4e0',
       borderRadius: 8,
       fontSize: 13,
       color: '#0f172a',
@@ -5857,10 +5857,10 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
       width: '100%',
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '8px 10px',
-      background: '#f3f8fd',
-      border: '1px solid #c5d7ef',
+      background: '#f6f8fd',
+      border: '1px solid #dde5f1',
       borderRadius: 6,
-      color: '#6b80a8',
+      color: '#8a97b8',
       fontSize: 12, fontWeight: 600,
       textAlign: 'left',
       cursor: 'not-allowed',
@@ -5890,14 +5890,14 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         fontFamily: 'inherit',
       }}>
         {/* Header */}
-        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #c5d7ef' }}>
+        <div style={{ marginBottom: 4, paddingBottom: 10, borderBottom: '1px solid #dde5f1' }}>
           <div style={{
             fontSize: 10, fontWeight: 800,
             color: '#9db0e0',
             letterSpacing: '0.12em', textTransform: 'uppercase',
             marginBottom: 4,
           }}>Page settings</div>
-          <div style={{ fontSize: 12, color: '#4d648c', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: '#5a6584', lineHeight: 1.5 }}>
             No element selected. Click any block on the canvas to edit it, or adjust page-wide settings below.
           </div>
         </div>
@@ -5915,8 +5915,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               cursor: 'pointer',
               fontFamily: 'inherit',
               border: '2px solid ' + (!isPublished ? '#c8102e' : '#abc5e5'),
-              background: !isPublished ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
-              color: !isPublished ? '#0284c7' : '#4d648c',
+              background: !isPublished ? 'rgba(200,16,46,0.16)' : '#f6f8fd',
+              color: !isPublished ? '#c8102e' : '#5a6584',
             }}>
             Draft
           </button>
@@ -5930,8 +5930,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               cursor: 'pointer',
               fontFamily: 'inherit',
               border: '2px solid ' + (isPublished ? '#c8102e' : '#abc5e5'),
-              background: isPublished ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
-              color: isPublished ? '#0284c7' : '#4d648c',
+              background: isPublished ? 'rgba(200,16,46,0.16)' : '#f6f8fd',
+              color: isPublished ? '#c8102e' : '#5a6584',
             }}>
             Published
           </button>
@@ -5957,7 +5957,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="my-page"
           style={{ ...psInputStyle, fontFamily: 'monospace' }}
         />
-        <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: '#8a97b8', marginTop: 4, lineHeight: 1.4 }}>
           /p/your-username/{slugFragment || 'my-page'}
         </div>
 
@@ -5979,7 +5979,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
           placeholder="https://..."
           style={psInputStyle}
         />
-        <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: '#8a97b8', marginTop: 4, lineHeight: 1.4 }}>
           Shown when your page is shared on Facebook, LinkedIn, etc.
         </div>
 
@@ -5994,9 +5994,9 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
         <div style={sectionLabelStyle}>Typography</div>
         <div style={{
           padding: 10,
-          border: '1px solid #c5d7ef',
+          border: '1px solid #dde5f1',
           borderRadius: 8,
-          background: '#f3f8fd',
+          background: '#f6f8fd',
         }}>
           <FontPicker
             label="Heading font"
@@ -6067,8 +6067,8 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
                     padding: '6px 8px',
                     fontSize: 11, fontWeight: 700,
                     border: '2px solid ' + (active ? '#c8102e' : '#abc5e5'),
-                    background: active ? 'rgba(200,16,46,0.16)' : '#f3f8fd',
-                    color: active ? '#0284c7' : '#4d648c',
+                    background: active ? 'rgba(200,16,46,0.16)' : '#f6f8fd',
+                    color: active ? '#c8102e' : '#5a6584',
                     borderRadius: 5,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
@@ -6078,7 +6078,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
               );
             })}
           </div>
-          <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 6, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 12, color: '#8a97b8', marginTop: 6, lineHeight: 1.4 }}>
             Bumps all heading sizes proportionally.
           </div>
         </div>
@@ -6101,7 +6101,7 @@ export default function ElementInspectorPanel({ el, updateElement, updateElement
             scripts moved out of this group above). */}
         <div style={sectionLabelStyle}>Advanced</div>
         <div style={comingSoonBtnStyle} title="Coming soon">
-          <span style={{ color: '#0369a1', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
+          <span style={{ color: '#c8102e', fontSize: 14, display: 'inline-flex', alignItems: 'center' }}>↗</span>
           <span>Custom domain</span>
           {comingSoonNote}
         </div>

@@ -215,7 +215,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
       {label && (
         <div style={{
           fontSize: 10, fontWeight: 800,
-          color: '#4d648c',
+          color: '#5a6584',
           letterSpacing: '0.08em', textTransform: 'uppercase',
           marginBottom: 6,
         }}>{label}</div>
@@ -230,7 +230,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           gap: 8,
           padding: '8px 12px',
           background: '#ffffff',
-          border: '1px solid #0a1438',
+          border: '1.5px solid #b3c4e0',
           borderRadius: 6,
           color: '#0f172a',
           cursor: 'pointer',
@@ -259,7 +259,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           right: 0,
           minWidth: 260,
           background: '#ffffff',
-          border: '1px solid #0a1438',
+          border: '1.5px solid #b3c4e0',
           borderRadius: 8,
           boxShadow: '0 12px 32px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.25)',
           zIndex: 50,
@@ -269,7 +269,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           overflow: 'hidden',
         }}>
           {/* Search */}
-          <div style={{ padding: 8, borderBottom: '1px solid #c5d7ef', flexShrink: 0 }}>
+          <div style={{ padding: 8, borderBottom: '1px solid #dde5f1', flexShrink: 0 }}>
             <input
               ref={searchInputRef}
               type="text"
@@ -307,7 +307,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
                       letterSpacing: '0.04em', textTransform: 'uppercase',
                       border: '1px solid ' + (active ? '#c8102e' : '#e2e8f0'),
                       background: active ? 'rgba(200,16,46,0.1)' : '#ffffff',
-                      color: active ? '#0284c7' : '#64748b',
+                      color: active ? '#c8102e' : '#64748b',
                       borderRadius: 4,
                       cursor: 'pointer',
                       fontFamily: 'inherit',
@@ -342,7 +342,7 @@ export default function FontPicker({ value, onChange, label, defaultCategory }) 
           {/* Footer */}
           <div style={{
             padding: '6px 12px',
-            borderTop: '1px solid #c5d7ef',
+            borderTop: '1px solid #dde5f1',
             fontSize: 10, color: '#94a3b8',
             flexShrink: 0,
             display: 'flex', justifyContent: 'space-between',

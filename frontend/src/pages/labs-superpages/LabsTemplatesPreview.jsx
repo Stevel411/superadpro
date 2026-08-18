@@ -69,7 +69,7 @@ export default function LabsTemplatesPreview() {
               border: '1px solid rgba(200,16,46,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10, fontWeight: 900,
-              color: '#0284c7',
+              color: '#c8102e',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: 6,

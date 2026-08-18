@@ -510,7 +510,7 @@ export default function TiptapText({
           }}
           onMouseDown={e => e.stopPropagation()}
         >
-          <LinkIcon size={14} style={{color: '#0284c7', flexShrink: 0, marginLeft: 4}}/>
+          <LinkIcon size={14} style={{color: '#c8102e', flexShrink: 0, marginLeft: 4}}/>
           <input
             ref={linkInputRef}
             type="text"
@@ -622,7 +622,7 @@ export default function TiptapText({
           transform: none !important; filter: none !important;
         }
         .sp-tt-btn.sp-tt-active {
-          background: rgba(200,16,46,0.12); color: #0284c7;
+          background: rgba(200,16,46,0.12); color: #c8102e;
         }
         .sp-tt-select {
           display: inline-flex; align-items: center;
@@ -648,7 +648,7 @@ export default function TiptapText({
           font-weight: 600 !important;
         }
         .sp-tt-ai:hover:not(:disabled) {
-          background: linear-gradient(135deg, #0284c7, #7c3aed) !important;
+          background: linear-gradient(135deg, #c8102e, #7c3aed) !important;
           color: #fff !important;
         }
         .sp-tt-divider { width: 1px; height: 16px; background: #e2e8f0; margin: 0 3px; }
@@ -747,7 +747,7 @@ function FontSelect({ editor, currentFont }) {
                 padding: '8px 10px', fontSize: 14, cursor: 'pointer',
                 borderRadius: 4, fontFamily: f.value,
                 background: currentFont === f.value ? 'rgba(200,16,46,0.12)' : 'transparent',
-                color: currentFont === f.value ? '#0284c7' : '#0f172a',
+                color: currentFont === f.value ? '#c8102e' : '#0f172a',
               }}
               onMouseEnter={e => { if (currentFont !== f.value) e.currentTarget.style.background = '#f1f5f9'; }}
               onMouseLeave={e => { if (currentFont !== f.value) e.currentTarget.style.background = 'transparent'; }}
@@ -835,7 +835,7 @@ function SizeInput({ editor, currentSize }) {
                 padding: '6px 10px', fontSize: 12, cursor: 'pointer',
                 borderRadius: 4, textAlign: 'center',
                 background: currentSize === size ? 'rgba(200,16,46,0.12)' : 'transparent',
-                color: currentSize === size ? '#0284c7' : '#475569',
+                color: currentSize === size ? '#c8102e' : '#475569',
               }}
               onMouseEnter={e => { if (currentSize !== size) e.currentTarget.style.background = '#f1f5f9'; }}
               onMouseLeave={e => { if (currentSize !== size) e.currentTarget.style.background = 'transparent'; }}

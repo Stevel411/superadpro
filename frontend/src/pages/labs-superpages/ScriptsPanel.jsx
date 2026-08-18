@@ -81,7 +81,7 @@ const PROVIDERS = [
 
 const labelStyle = {
   fontSize: 10, fontWeight: 800,
-  color: '#4d648c',
+  color: '#5a6584',
   letterSpacing: '0.06em', textTransform: 'uppercase',
   marginBottom: 4,
 };
@@ -89,7 +89,7 @@ const labelStyle = {
 const inputStyle = {
   width: '100%',
   padding: '7px 10px',
-  border: '1px solid #0a1438',
+  border: '1.5px solid #b3c4e0',
   borderRadius: 6,
   fontSize: 12,
   color: '#0f172a',
@@ -110,8 +110,8 @@ function ProviderRow({ provider, value, onChange }) {
   return (
     <div style={{
       padding: 10,
-      background: '#f3f8fd',
-      border: '1px solid #c5d7ef',
+      background: '#f6f8fd',
+      border: '1px solid #dde5f1',
       borderRadius: 8,
       marginBottom: 8,
     }}>
@@ -120,8 +120,8 @@ function ProviderRow({ provider, value, onChange }) {
           <span style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 18, height: 18,
-            background: hasValue ? '#22d3ee' : '#c5d7ef',
-            color: hasValue ? '#0a1438' : '#6b80a8',
+            background: hasValue ? '#22c26b' : '#eef2fa',
+            color: hasValue ? '#ffffff' : '#8a97b8',
             borderRadius: 4,
             fontSize: 11, fontWeight: 700,
           }}>{provider.icon}</span>
@@ -146,17 +146,17 @@ function ProviderRow({ provider, value, onChange }) {
         placeholder={provider.placeholder}
         style={{
           ...inputStyle,
-          borderColor: hasValue && !formatValid ? '#f59e0b' : '#0a1438',
+          borderColor: hasValue && !formatValid ? '#f59e0b' : '#b3c4e0',
         }}
       />
       {hasValue && !formatValid && (
         <div style={{ fontSize: 10, color: '#fbbf24', marginTop: 4 }}>
-          Format looks off — expected like <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #c5d7ef',color:'#1e293b'}}>{provider.placeholder}</code>
+          Format looks off — expected like <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #dde5f1',color:'#1e293b'}}>{provider.placeholder}</code>
         </div>
       )}
       <a href={provider.docsUrl} target="_blank" rel="noopener noreferrer" style={{
         display: 'inline-block',
-        fontSize: 10, color: '#0369a1', fontWeight: 600,
+        fontSize: 10, color: '#c8102e', fontWeight: 600,
         marginTop: 4,
         textDecoration: 'none',
       }}>
@@ -183,11 +183,11 @@ export default function ScriptsPanel({ scripts, onChange }) {
       {activeCount > 0 && (
         <div style={{
           fontSize: 11,
-          color: '#4d648c',
+          color: '#5a6584',
           marginBottom: 8,
           padding: '6px 10px',
-          background: 'rgba(34,211,238,0.08)',
-          border: '1px solid rgba(34,211,238,0.2)',
+          background: 'rgba(18,56,143,0.06)',
+          border: '1px solid rgba(18,56,143,0.18)',
           borderRadius: 6,
         }}>
           {activeCount} tracker{activeCount === 1 ? '' : 's'} active on this page
@@ -208,8 +208,8 @@ export default function ScriptsPanel({ scripts, onChange }) {
       <div style={{
         marginTop: 14,
         padding: 10,
-        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : '#c5d7ef'),
-        background: advancedEnabled ? 'rgba(245,158,11,0.05)' : '#f3f8fd',
+        border: '1px solid ' + (advancedEnabled ? 'rgba(245,158,11,0.4)' : '#dde5f1'),
+        background: advancedEnabled ? 'rgba(245,158,11,0.05)' : '#f6f8fd',
         borderRadius: 8,
       }}>
         <label style={{
@@ -227,8 +227,8 @@ export default function ScriptsPanel({ scripts, onChange }) {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 2 }}>
               Advanced — raw script tags
             </div>
-            <div style={{ fontSize: 12, color: '#4d648c', lineHeight: 1.5 }}>
-              Paste any HTML or <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #c5d7ef',color:'#1e293b'}}>&lt;script&gt;</code> tags directly into your page.
+            <div style={{ fontSize: 12, color: '#5a6584', lineHeight: 1.5 }}>
+              Paste any HTML or <code style={{background:'#fff',padding:'1px 5px',borderRadius:4,border:'1px solid #dde5f1',color:'#1e293b'}}>&lt;script&gt;</code> tags directly into your page.
               Use this only if you know what you're doing — code here runs on every visitor's browser
               and isn't checked for safety.
             </div>
@@ -250,7 +250,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
                   fontFamily: 'monospace', fontSize: 11, lineHeight: 1.5,
                 }}
               />
-              <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#8a97b8', marginTop: 4, lineHeight: 1.4 }}>
                 Runs first, before page renders. Best for analytics, fonts, meta tags.
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
                   fontFamily: 'monospace', fontSize: 11, lineHeight: 1.5,
                 }}
               />
-              <div style={{ fontSize: 12, color: '#6b80a8', marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#8a97b8', marginTop: 4, lineHeight: 1.4 }}>
                 Runs after page loads. Best for chat widgets, lazy-loaded scripts.
               </div>
             </div>

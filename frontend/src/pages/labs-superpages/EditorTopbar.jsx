@@ -332,7 +332,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             display:'inline-flex', alignItems:'center', gap:5,
             padding:'5px 10px', borderRadius:6,
             background:'rgba(200,16,46,0.12)', border:'1px solid rgba(200,16,46,0.35)',
-            color:'#0369a1', fontSize:12, fontWeight:700,
+            color:'#c8102e', fontSize:12, fontWeight:700,
             fontFamily:'JetBrains Mono, ui-monospace, monospace',
             flexShrink: 0,
           }}>
@@ -418,7 +418,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           )}
 
           <button onClick={onShowHelp} className="sp-tb-pill" style={pillS_accent}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,211,238,0.22)'; e.currentTarget.style.borderColor = '#c8102e'; }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,16,46,0.22)'; e.currentTarget.style.borderColor = '#c8102e'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
             title={t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}>
             <HelpCircle size={14}/>
@@ -468,7 +468,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
                     background: item.active ? 'rgba(200,16,46,0.12)' : 'transparent',
                     border:'1px solid ' + (item.active ? 'rgba(200,16,46,0.3)' : 'transparent'),
                     borderRadius:6,
-                    color: item.danger ? '#dc2626' : (item.active ? '#0369a1' : (item.accent || '#1e3a8a')),
+                    color: item.danger ? '#dc2626' : (item.active ? '#c8102e' : (item.accent || '#1e3a8a')),
                     fontSize:13, fontWeight:600,
                     fontFamily:'DM Sans,sans-serif',
                     cursor:'pointer',
@@ -602,14 +602,14 @@ const pillM = {
 const pillM_accent = {
   ...pillBase,
   background: 'rgba(200,16,46,0.12)',
-  color: '#0369a1',
+  color: '#c8102e',
   border: '1px solid rgba(200,16,46,0.4)',
 };
 
 const pillM_active = {
   ...pillBase,
   background: 'rgba(200,16,46,0.12)',
-  color: '#0369a1',
+  color: '#c8102e',
   border: '1px solid rgba(200,16,46,0.5)',
 };
 
@@ -624,7 +624,7 @@ const pillM_previewActive = {
 const pillM_publishedActive = {
   ...pillBase,
   background: 'rgba(200,16,46,0.14)',
-  color: '#0369a1',
+  color: '#c8102e',
   border: '1px solid #c8102e',
 };
 
@@ -647,7 +647,7 @@ const pillS_accent = {
 const pillS_active = {
   ...pillS,
   background: 'rgba(200,16,46,0.12)',
-  color: '#0369a1',
+  color: '#c8102e',
   border: '1px solid rgba(200,16,46,0.5)',
 };
 

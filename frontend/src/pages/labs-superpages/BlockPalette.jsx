@@ -226,7 +226,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 <button key={key} onClick={() => setBgType(key)} style={{
                   flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(200,16,46,0.3)':'1px solid rgba(255,255,255,0.14)',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
                   background:bgType===key?'rgba(200,16,46,0.08)':'#ffffff',
-                  color:bgType===key?'#0284c7':'#c7d3f2',
+                  color:bgType===key?'#c8102e':'#c7d3f2',
                   transition:'all .15s',
                 }}>{label}</button>
               ))}
@@ -283,7 +283,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             {/* Image */}
             {bgType === 'image' && (
               <div>
-                <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'12px',borderRadius:8,border:'1px dashed #adc2de',cursor:'pointer',background:'#f3f8fd',marginBottom:8}}>
+                <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'12px',borderRadius:8,border:'1px dashed #adc2de',cursor:'pointer',background:'#f6f8fd',marginBottom:8}}>
                   <span style={{fontSize:13,color:'#c7d3f2',fontWeight:600}}>{t('superPagesEditor.uploadBgImage')}</span>
                   <input type="file" accept="image/*" style={{display:'none'}} onChange={async e => {
                     const f = e.target.files?.[0]; if (!f) return;
@@ -371,7 +371,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 No blocks match <strong style={{color:'#0f172a'}}>"{search}"</strong>
                 <div style={{marginTop:8}}>
                   <button onClick={() => setSearch('')}
-                    style={{padding:'5px 12px',borderRadius:6,border:'1px solid rgba(200,16,46,0.3)',background:'rgba(200,16,46,0.08)',color:'#0284c7',cursor:'pointer',fontSize:11,fontWeight:800}}>
+                    style={{padding:'5px 12px',borderRadius:6,border:'1px solid rgba(200,16,46,0.3)',background:'rgba(200,16,46,0.08)',color:'#c8102e',cursor:'pointer',fontSize:11,fontWeight:800}}>
                     Clear search
                   </button>
                 </div>
@@ -517,7 +517,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
           </div>
           {chatOpen && (
             <div style={{display:'flex',flexDirection:'column',maxHeight:220,overflow:'hidden'}}>
-              <div ref={chatRef} style={{flex:1,overflowY:'auto',padding:'8px 12px',display:'flex',flexDirection:'column',gap:5,background:'#f3f8fd',minHeight:0,borderTop:'1px solid rgba(255,255,255,0.12)'}}>
+              <div ref={chatRef} style={{flex:1,overflowY:'auto',padding:'8px 12px',display:'flex',flexDirection:'column',gap:5,background:'#f6f8fd',minHeight:0,borderTop:'1px solid rgba(255,255,255,0.12)'}}>
                 {chatHistory.map((m,i) => (
                   <div key={i} style={{
                     maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',

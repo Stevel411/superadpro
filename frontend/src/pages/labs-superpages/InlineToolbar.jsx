@@ -36,7 +36,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
 
   const TB = ({children, onClick, title, active, onMouseDown}) => (
     <button onMouseDown={onMouseDown || noFocus} onClick={onClick} title={title} style={{
-      width:30,height:30,border:'none',borderRadius:6,background:active?'rgba(14,165,233,.15)':'transparent',
+      width:30,height:30,border:'none',borderRadius:6,background:active?'rgba(200,16,46,.15)':'transparent',
       color:active?'var(--sap-accent)':'#5a6070',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.12s',position:'relative',
     }}>{children}</button>
   );

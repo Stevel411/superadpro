@@ -109,7 +109,7 @@ export default function LabsSandboxList() {
               border: '1px solid rgba(200,16,46,0.25)',
               fontFamily: 'Sora, sans-serif',
               fontSize: 10, fontWeight: 900,
-              color: '#0284c7',
+              color: '#c8102e',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: 8,
@@ -275,7 +275,7 @@ export default function LabsSandboxList() {
                   background: 'linear-gradient(135deg, rgba(200,16,46,0.1), rgba(18,56,143,0.1))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
-                  color: '#0284c7',
+                  color: '#c8102e',
                 }}>
                   <FileText size={18} strokeWidth={2.2}/>
                 </div>
@@ -314,7 +314,7 @@ export default function LabsSandboxList() {
                     cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(200,16,46,0.08)'; e.currentTarget.style.color = '#0284c7'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(200,16,46,0.08)'; e.currentTarget.style.color = '#c8102e'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                 >
                   <Copy size={14}/>

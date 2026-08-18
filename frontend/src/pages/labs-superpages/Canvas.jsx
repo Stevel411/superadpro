@@ -883,7 +883,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             }}>
               <div style={{
                 width: 0, height: 0,
-                borderLeft: '24px solid #0a1438',
+                borderLeft: '24px solid #0a1f52',
                 borderTop: '15px solid transparent',
                 borderBottom: '15px solid transparent',
                 marginLeft: 6,
@@ -1638,7 +1638,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                       background: deviceView === 'tablet' ? 'rgba(18,56,143,0.12)' : 'rgba(236,72,153,0.12)',
                       border: 'none', borderRadius: 5, cursor: 'pointer',
                       fontSize: 10, fontWeight: 900,
-                      color: deviceView === 'tablet' ? '#c8102e' : '#0a1438',
+                      color: deviceView === 'tablet' ? '#c8102e' : '#0a1f52',
                       letterSpacing: '0.06em', textTransform: 'uppercase',
                     }}
                     title={`This element has a ${deviceView} override. Click to reset to ${deviceView === 'mobile' ? 'tablet/desktop' : 'desktop'}.`}>
