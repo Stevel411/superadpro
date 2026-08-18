@@ -5059,9 +5059,9 @@ def api_custom_domains_create(payload: dict = Body(...), user: User = Depends(ge
     affiliates building their brand."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active:
+    if not is_pro(user):
         return JSONResponse({
-            "error": "Custom domains are available for active members. Activate your membership to claim a domain.",
+            "error": "Custom domains are available to members.",
             "upgrade_required": True,
         }, status_code=403)
 
@@ -5291,9 +5291,9 @@ def api_sending_domains_create(payload: dict = Body(...), user: User = Depends(g
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active:
+    if not is_pro(user):
         return JSONResponse({
-            "error": "Sending domains are available for active members. Activate your membership to send from your own brand.",
+            "error": "Sending domains are available to members.",
             "upgrade_required": True,
         }, status_code=403)
 
@@ -20312,7 +20312,7 @@ async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
     """Get today's Co-Pilot briefing. Generates once per day, cached after that."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active and not user.is_admin:
+    if not is_pro(user):
         return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     today = datetime.utcnow().strftime("%Y-%m-%d")
@@ -20359,7 +20359,7 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
     """Force-regenerate the Co-Pilot briefing on demand."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active and not user.is_admin:
+    if not is_pro(user):
         return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     import json as _json
@@ -20396,7 +20396,7 @@ async def copilot_ask(request: Request, db: Session = Depends(get_db),
     """Ask the Co-Pilot a business-focused question about your account. Haiku-powered, 10/day limit."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active and not user.is_admin:
+    if not is_pro(user):
         return JSONResponse({"error": "Active membership required"}, status_code=403)
 
     body = await request.json()
@@ -38576,7 +38576,7 @@ def track_click(page_id: int, db: Session = Depends(get_db)):
 def link_tools_page(request: Request, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
+    if not is_pro(user): return RedirectResponse(url="/pay-membership")
     links = db.query(ShortLink).filter(ShortLink.user_id == user.id, ShortLink.is_rotator == False).order_by(ShortLink.created_at.desc()).all()
     rotators = db.query(LinkRotator).filter(LinkRotator.user_id == user.id).order_by(LinkRotator.created_at.desc()).all()
     ctx = get_dashboard_context(request, user, db)
