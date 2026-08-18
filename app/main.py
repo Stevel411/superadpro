@@ -37412,6 +37412,41 @@ def normalize_campaign_views(request: Request, user: User = Depends(get_current_
                          "detail": changes[:60]})
 
 
+@app.get("/admin/api/al/scan-page-videos")
+def scan_page_videos(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Scan saved member pages (FunnelPage) for embedded Cloudflare Stream video
+    UIDs and flag any that AREN'T the current overview/comp-plan pair — i.e. pages
+    holding an old/wrong video. Admin/secret. Read-only."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    CURRENT = {"3d4fe9c5fc5289700d21a3c2401e2e39",   # overview
+               "5cb16684acce6a8d833314099b59cd7d"}   # comp-plan
+    import re
+    uid_re = re.compile(r"cloudflarestream\.com/([a-f0-9]{32})")
+    rows = db.query(FunnelPage).all()
+    found = {}
+    for p in rows:
+        blob = " ".join(str(x or "") for x in
+                        [getattr(p, "video_url", ""), getattr(p, "sections_json", ""),
+                         getattr(p, "gjs_html", ""), getattr(p, "body_copy", ""),
+                         getattr(p, "custom_css", "")])
+        for uid in set(uid_re.findall(blob)):
+            found.setdefault(uid, []).append(
+                {"page_id": p.id, "user_id": p.user_id, "slug": p.slug, "status": p.status})
+    summary = {uid: {"count": len(pg), "is_current": uid in CURRENT, "pages": pg[:25]}
+               for uid, pg in found.items()}
+    wrong = sorted([uid for uid in found if uid not in CURRENT])
+    return JSONResponse({
+        "total_pages_scanned": len(rows),
+        "current_uids": sorted(CURRENT),
+        "distinct_uids_found": sorted(found.keys()),
+        "outdated_or_wrong_uids": wrong,
+        "detail": summary,
+    })
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
