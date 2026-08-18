@@ -37304,11 +37304,18 @@ def diag_user_campaigns(request: Request, user: User = Depends(get_current_user)
             "views": "%d/%d" % (c.views_delivered or 0, c.views_target or 0),
             "created": str(getattr(c, "created_at", ""))[:19],
         })
-    packs = db.query(PackPurchase).filter(PackPurchase.user_id == uid).all()
-    pack_summary = {}
-    for pp in packs:
-        k = "L%s:%s" % (int(pp.pack_level or 0), pp.status or "?")
-        pack_summary[k] = pack_summary.get(k, 0) + 1
+    packs = (db.query(PackPurchase).filter(PackPurchase.user_id == uid)
+             .order_by(PackPurchase.id.desc()).all())
+    pack_rows = [{"id": pp.id, "level": int(pp.pack_level or 0), "status": pp.status,
+                  "source": pp.source, "campaign_id": pp.campaign_id} for pp in packs]
+    _camp_status = {c.id: (c.status or "?") for c in camps}
+    # Reconcile: an ACTIVE pack whose linked campaign is NOT active is a stuck ad
+    # (the pack confirmed but the campaign never flipped to active) — a real bug.
+    stuck = [{"pack_id": pp.id, "level": int(pp.pack_level or 0), "campaign_id": pp.campaign_id,
+              "campaign_status": _camp_status.get(pp.campaign_id, "MISSING/other-user")}
+             for pp in packs
+             if pp.status == "active" and pp.campaign_id and _camp_status.get(pp.campaign_id) != "active"]
+    orphan_active_packs = [pp.id for pp in packs if pp.status == "active" and not pp.campaign_id]
     return JSONResponse({
         "user_id": uid,
         "username": _u.username,
@@ -37318,10 +37325,11 @@ def diag_user_campaigns(request: Request, user: User = Depends(get_current_user)
         "displaying_in_rotation": by_status.get("active", 0),
         "not_displaying_drafts": by_status.get("draft", 0),
         "campaigns": rows,
-        "pack_purchases": pack_summary or "none",
-        "note": ("Only status='active' campaigns enter the watch rotation. A 'draft' "
-                 "is an ad created but not yet backed by a bought/linked pack — that's "
-                 "why it shows 0/0 views and doesn't display."),
+        "pack_purchases": pack_rows,
+        "stuck_active_pack_with_inactive_campaign": stuck or "none",
+        "orphan_active_packs_no_campaign": orphan_active_packs or "none",
+        "note": ("Only status='active' campaigns display. If 'stuck_...' or "
+                 "'orphan_...' is non-empty, a paid pack didn't activate its ad — a bug."),
     })
 
 
