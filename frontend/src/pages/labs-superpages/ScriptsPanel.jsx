@@ -178,7 +178,7 @@ export default function ScriptsPanel({ scripts, onChange }) {
   const advancedHasContent = !!(s.customHead || s.customBody);
 
   return (
-    <div>
+    <div className="sap-scripts">
       {/* Summary */}
       {activeCount > 0 && (
         <div style={{

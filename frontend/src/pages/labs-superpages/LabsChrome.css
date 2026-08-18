@@ -262,6 +262,30 @@
   box-shadow: 0 0 0 2px rgba(200,16,46,0.25) !important;
 }
 
+/* ScriptsPanel is a LIGHT card sub-panel nested inside .ins-cobalt. Its inputs
+   sit on WHITE cards, so the navy dark-input rules above (white text +
+   translucent bg + faint-white border) render them invisible until hover.
+   Higher specificity (.sap-scripts) restores proper light-panel inputs:
+   white bg, dark text, a visible steel-blue outline, red on hover/focus. */
+.labs-chrome .ins-cobalt .sap-scripts input[type="text"],
+.labs-chrome .ins-cobalt .sap-scripts input[type="url"],
+.labs-chrome .ins-cobalt .sap-scripts input[type="number"],
+.labs-chrome .ins-cobalt .sap-scripts input:not([type]),
+.labs-chrome .ins-cobalt .sap-scripts textarea {
+  background: #ffffff !important;
+  border: 1.5px solid #b3c4e0 !important;
+  color: #0d1230 !important;
+}
+.labs-chrome .ins-cobalt .sap-scripts input:hover,
+.labs-chrome .ins-cobalt .sap-scripts input:focus,
+.labs-chrome .ins-cobalt .sap-scripts textarea:focus {
+  border-color: #c8102e !important;
+  box-shadow: 0 0 0 2px rgba(200,16,46,0.15) !important;
+}
+.labs-chrome .ins-cobalt .sap-scripts input::placeholder,
+.labs-chrome .ins-cobalt .sap-scripts textarea::placeholder {
+  color: #9aa6c4 !important;
+}
 /* Generic text inside the inspector defaults to white-translucent
    so labels become readable. Element-specific overrides below
    keep important colours (active states, swatches, etc.). */
