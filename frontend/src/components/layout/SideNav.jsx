@@ -9,7 +9,11 @@ export const NAV = [
   { header: 'GET STARTED' },
   { key: 'start', label: 'Start Here', to: '/start-here', link: false, big: true },
   { key: 'packs', label: 'Campaign Packs', to: '/packs', link: false },
-  { key: 'campaigns', label: 'My Campaigns', to: '/campaigns', link: true },
+  { key: 'campaigns', label: 'My Campaigns', to: '/campaigns', link: true, children: [
+    { label: 'View campaigns', to: '/campaigns' },
+    { label: 'Create Campaign', to: '/create-campaign' },
+    { label: 'Performance', to: '/campaign-analytics' },
+  ] },
   { key: 'wallet', label: 'Payment Details', to: '/payout-methods', link: false },
   { key: 'watch', label: 'Daily Watch', to: '/watch', link: true },
   { header: 'RUN YOUR BUSINESS' },
@@ -41,6 +45,8 @@ export default function SideNav({ active }) {
   const [collapsed, setCollapsed] = useState(function () {
     try { return JSON.parse(localStorage.getItem('al_nav_collapsed') || '{}') || {}; } catch (e) { return {}; }
   });
+  const [subOpen, setSubOpen] = useState({});
+  const curPath = (typeof window !== 'undefined' && window.location) ? window.location.pathname : '';
   const activeHeader = (function () {
     for (var i = 0; i < NAV_GROUPS.length; i++) {
       var g = NAV_GROUPS[i];
@@ -64,6 +70,41 @@ export default function SideNav({ active }) {
     const cls = n.key === active ? 'on' : undefined;
     if (n.big) {
       return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#2ecc71' }}><span style={{ fontSize: 20 }}>⭐</span> {n.label}</a>;
+    }
+    if (n.children) {
+      const childActive = n.children.some(function (c) { return curPath === c.to; });
+      const open = (n.key in subOpen) ? subOpen[n.key] : (n.key === active || childActive);
+      return (
+        <div key={n.key}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Link className={n.key === active ? 'on' : undefined} to={n.to} style={{ flex: 1 }}>{n.label}</Link>
+            <span role="button" aria-expanded={open} onClick={function (e) { e.preventDefault(); e.stopPropagation(); setSubOpen(function (p) { const nx = Object.assign({}, p); nx[n.key] = !open; return nx; }); }}
+              style={{ cursor: 'pointer', padding: '6px 12px', display: 'inline-flex', alignItems: 'center' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .18s ease' }}>
+                <path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,0.6)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </div>
+          <div style={{ overflow: 'hidden', maxHeight: open ? 400 : 0, transition: 'max-height .22s ease' }}>
+            <div style={{ marginLeft: 16, borderLeft: '2px solid rgba(255,255,255,0.12)', paddingLeft: 6, margin: '2px 0 4px 16px' }}>
+              {n.children.map(function (c) {
+                const on = curPath === c.to;
+                return (
+                  <Link key={c.to} to={c.to} style={{
+                    display: 'flex', alignItems: 'center', gap: 9, padding: '9px 13px', borderRadius: 9,
+                    fontSize: 13.5, fontWeight: on ? 800 : 600, textDecoration: 'none',
+                    color: on ? '#fff' : 'rgba(201,214,240,0.92)',
+                    background: on ? 'rgba(200,16,46,0.18)' : 'transparent',
+                  }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: on ? '#ff2743' : 'rgba(127,143,184,0.9)', flex: 'none' }} />
+                    {c.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
     }
     return n.link
       ? <Link key={n.key} className={cls} to={n.to}>{n.label}</Link>

@@ -8,11 +8,13 @@ import { Film, Eye, Play, CheckCircle, Clock, AlertCircle, Trash2, Plus } from '
 export default function VideoLibrary() {
   var { t } = useTranslation();
   var [data, setData] = useState(null);
+  var [packs, setPacks] = useState([]);
   var [loading, setLoading] = useState(true);
   var [deleting, setDeleting] = useState(null);
 
   function load() {
     apiGet('/api/video-library').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
+    apiGet('/api/al/pack-performance').then(function(r) { setPacks((r && r.packs) || []); }).catch(function() {});
   }
   useEffect(function() { load(); }, []);
 
@@ -90,6 +92,36 @@ export default function VideoLibrary() {
           );
         })}
       </div>
+
+      {/* Campaigns per package */}
+      {packs.length > 0 && (
+      <div style={{background:'#fff',border:'2px solid #e3e8f4',borderRadius:18,padding:'18px 22px',marginBottom:22,boxShadow:'0 20px 50px -34px rgba(10,31,82,.3)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+          <Film size={16} color="#c8102e"/>
+          <div style={{fontSize:14,fontWeight:800,color:'#0a1f52'}}>{t('videos.campaignsPerPackage', { defaultValue: 'Campaigns per package' })}</div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:12}}>
+          {packs.map(function(p, i) {
+            var used = p.slots_used||0, total = p.slots_total||0, free = Math.max(0, total-used);
+            var pct = total ? Math.round(used*100/total) : 0;
+            return (
+              <div key={i} style={{border:'1.5px solid #e6ecf5',borderRadius:12,padding:'13px 15px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:8}}>
+                  <div style={{fontSize:14,fontWeight:800,color:'#0a1f52'}}>{p.name}</div>
+                  <div style={{fontSize:12.5,fontWeight:800,color:'#5a6584',whiteSpace:'nowrap'}}>{used}/{total}</div>
+                </div>
+                <div style={{height:6,background:'#eef2fa',borderRadius:99,marginTop:9,overflow:'hidden'}}>
+                  <div style={{height:'100%',width:pct+'%',background:'linear-gradient(90deg,#12388f,#c8102e)',borderRadius:99}}/>
+                </div>
+                <div style={{fontSize:11.5,fontWeight:600,color:'#5a6584',marginTop:8}}>
+                  {total} campaign{total!==1?'s':''} · {free} {t('videos.slotsAvailable', { defaultValue: 'available' })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      )}
 
       {/* Campaign list */}
       <div style={{background:'#fff',border:'2px solid #e3e8f4',borderRadius:18,overflow:'hidden',boxShadow:'0 20px 50px -30px rgba(10,31,82,.35)'}}>

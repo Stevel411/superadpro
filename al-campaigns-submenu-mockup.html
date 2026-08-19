@@ -1,0 +1,73 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Campaigns submenu — mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#eef2f9;font-family:Inter,system-ui,sans-serif;padding:28px;color:#0d1230}
+  .wrap{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+  .side{width:288px;background:linear-gradient(180deg,#0a1f52,#0a1a44);border-radius:18px;padding:16px 12px;box-shadow:0 30px 60px -30px rgba(10,31,82,.6)}
+  .grp{margin-bottom:6px}
+  .ghead{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:10px;background:rgba(255,255,255,.06);color:#c9d6f0;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  .ghead .cv{opacity:.6;font-size:12px}
+  .item{display:flex;align-items:center;gap:11px;padding:12px 15px;border-radius:10px;color:#e7edfa;font-size:14.5px;font-weight:600;cursor:pointer;margin-top:3px}
+  .item:hover{background:rgba(255,255,255,.05)}
+  .item.star{font-weight:800;color:#fff}
+  .item.star .ic{color:#f0a52a}
+  .item .ic{width:18px;text-align:center;opacity:.85}
+  .parent{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-radius:10px;color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:3px;background:rgba(255,255,255,.05)}
+  .parent .chev{transition:transform .18s;opacity:.75;font-size:12px}
+  .parent.open .chev{transform:rotate(90deg)}
+  .sub{margin:2px 0 4px 0;padding-left:8px;border-left:2px solid rgba(255,255,255,.12);margin-left:18px}
+  .subitem{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;color:#c9d6f0;font-size:13.5px;font-weight:600;cursor:pointer}
+  .subitem:hover{background:rgba(255,255,255,.06);color:#fff}
+  .subitem.active{background:rgba(200,16,46,.16);color:#fff;font-weight:800}
+  .subitem.active .dot{background:#ff2743}
+  .dot{width:6px;height:6px;border-radius:50%;background:#7f8fb8;flex:none}
+  .subitem .plus{margin-left:auto;font-size:12px;opacity:.5}
+  .note{max-width:420px}
+  .note h2{font-size:20px;font-weight:900;color:#0a1f52;margin-bottom:8px;letter-spacing:-.4px}
+  .note p{font-size:14px;line-height:1.6;color:#3a4766;margin-bottom:12px}
+  .note li{font-size:13.5px;line-height:1.7;color:#3a4766;margin-left:18px}
+  .tag{display:inline-block;background:#0a1f52;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:.05em;margin-bottom:14px}
+  .b{color:#c8102e;font-weight:800}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="side">
+    <div class="item"><span class="ic">▦</span> Dashboard</div>
+    <div class="grp">
+      <div class="ghead">Get Started <span class="cv">▾</span></div>
+      <div class="item star"><span class="ic">★</span> Start Here</div>
+      <div class="item"><span class="ic">◱</span> Campaign Packs</div>
+
+      <!-- the new expandable menu -->
+      <div class="parent open"><span><span class="ic" style="margin-right:11px">▤</span>My Campaigns</span> <span class="chev">›</span></div>
+      <div class="sub">
+        <div class="subitem"><span class="dot"></span> View campaigns</div>
+        <div class="subitem active"><span class="dot"></span> Create Campaign <span class="plus">＋</span></div>
+        <div class="subitem"><span class="dot"></span> Performance</div>
+      </div>
+
+      <div class="item"><span class="ic">▭</span> Payment Details</div>
+      <div class="item"><span class="ic">▶</span> Daily Watch</div>
+    </div>
+    <div class="grp">
+      <div class="ghead">Run Your Business <span class="cv">›</span></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="tag">MOCKUP · sidebar</span>
+    <h2>“My Campaigns” becomes a menu</h2>
+    <p>Tapping <b class="b">My Campaigns</b> expands a little sub-menu instead of just opening one page — so a brand-new member (like aron) sees <b class="b">Create Campaign</b> right there, no hunting through a tab row.</p>
+    <p>Proposed sub-items:</p>
+    <ul>
+      <li><b>View campaigns</b> → the list of their running ads (/campaigns)</li>
+      <li><b>Create Campaign</b> → the create form (/create-campaign)</li>
+      <li><b>Performance</b> → their campaign stats (/campaign-analytics)</li>
+    </ul>
+    <p style="margin-top:12px">The parent still opens the list on tap; the chevron expands the menu. Active sub-item gets the red highlight. Same navy/red AL styling as the rest of the sidebar.</p>
+    <p>Happy with this, or want it trimmed to just <b>Create Campaign</b> under it?</p>
+  </div>
+</div>
+</body></html>
