@@ -37676,6 +37676,13 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
           ("Show Up Daily", 1, "Achieve your most ambitious goals", "The power of tiny, consistent steps", "Stephen Duneier (TEDx)", "TQMbvJNRpLE", "", 2),
           ("Show Up Daily", 1, "Mindset and success", "How belief shapes your results", "Eduardo Briceno (TEDx)", "pN34FNbOKXc", "", 3),
           ("Find Your Why", 2, "How great leaders inspire action", "Start with why", "Simon Sinek (TED)", "qp0HIF3SfI4", "", 4)]),
+        ("short-form-video", "Short-Form Video & Reels", "Social Media", "Beginner",
+         "#c8102e", "#ff2743",
+         "Make scroll-stopping Reels, TikToks and Shorts — the format with the most organic reach. Hooks, ideas and the exact workflow from top creators.",
+         [("Make Your First Video", 0, "Create trending Reels, Shorts & TikToks", "The full step-by-step workflow", "byMaximize", "OoayDYJKkUs", "", 0),
+          ("Make Your First Video", 0, "Create viral short videos with AI", "Speed up the whole process", "Brock Johnson", "EiCiZvC3UJg", "", 1),
+          ("Get Views", 1, "Create hooks that actually get views", "Win the first three seconds", "Brock Johnson", "2WHJv3Xo28Y", "", 2),
+          ("Get Views", 1, "Make viral shorts & reels", "Find winning ideas with data", "Top creators", "c4yl0mrw5DU", "", 3)]),
     ]
     made_c, made_l = 0, 0
     for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
