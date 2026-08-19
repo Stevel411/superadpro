@@ -72167,14 +72167,13 @@ def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_
         if not packs:
             continue
         pack_cids = {p.campaign_id for p in packs if p.campaign_id}
-        orphans = (db.query(VideoCampaign)
-                     .filter(VideoCampaign.user_id == uid,
-                             VideoCampaign.status == "active",
-                             VideoCampaign.pack_purchase_id.is_(None))
-                     .order_by(VideoCampaign.id.asc()).all())
-        orphans = [o for o in orphans if o.id not in pack_cids]
+        orphan_rows = db.execute(text(
+            "SELECT id, title, views_delivered FROM video_campaigns "
+            "WHERE user_id = :uid AND status='active' AND pack_purchase_id IS NULL "
+            "ORDER BY id ASC"), {"uid": uid}).fetchall()
+        orphans = [(r[0], r[1], int(r[2] or 0)) for r in orphan_rows if r[0] not in pack_cids]
         linked = []
-        for o in orphans:
+        for (oid, otitle, oviews) in orphans:
             target = None
             for p in packs:
                 used = db.execute(text("SELECT COUNT(*) FROM video_campaigns "
@@ -72187,14 +72186,14 @@ def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_
                     break
             if target is None:
                 break  # no free slot left across owned packs
-            linked.append({"campaign_id": o.id, "title": o.title,
-                           "views": int(o.views_delivered or 0),
+            linked.append({"campaign_id": oid, "title": otitle, "views": oviews,
                            "attach_to_pack_id": target.id, "pack_level": target.pack_level})
             if apply:
-                o.pack_purchase_id = target.id
-                o.campaign_tier = target.pack_level
+                db.execute(text("UPDATE video_campaigns SET pack_purchase_id = :pid, "
+                                "campaign_tier = :lvl WHERE id = :cid"),
+                           {"pid": target.id, "lvl": target.pack_level, "cid": oid})
                 if not target.campaign_id:
-                    target.campaign_id = o.id
+                    target.campaign_id = oid
                 db.flush()
         if linked:
             results.append({"user_id": uid, "linked": linked})
