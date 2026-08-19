@@ -80694,14 +80694,16 @@ def al_admin_resolve_dispute(intent_id: int, outcome: str = "", apply: int = 0,
         intent.status = "proof_submitted"  # confirm() requires an open state
         db.commit()
         result = _als.confirm(db, intent.id, confirmed_by=user.id)
-    # Momentum feed: record the pack sale, credited to the member who earned it.
-    try:
-        _earner = db.query(User).filter(User.id == intent.earner_id).first() if intent.earner_id else None
-        if _earner:
-            record_activity(db, "sale", _earner, amount=float(intent.amount or 0))
-    except Exception:
-        pass
+        # Momentum feed: record the pack sale, credited to the earner. Only on a
+        # real confirm — a cancel is not a sale and must never post to the feed.
+        try:
+            _earner = db.query(User).filter(User.id == intent.earner_id).first() if intent.earner_id else None
+            if _earner:
+                record_activity(db, "sale", _earner, amount=float(intent.amount or 0))
+        except Exception:
+            pass
         return JSONResponse({"applied": True, **result})
+    # outcome == "cancel": void the intent. No pack, no commission, no feed post.
     intent.status = "cancelled"
     intent.notes = ((intent.notes or "") + f" | admin-cancelled {datetime.utcnow().isoformat()}")[:2000]
     db.commit()
