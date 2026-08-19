@@ -37637,14 +37637,14 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
          "#0a1f52", "#12388f",
          "Start here. How affiliate income actually works, how to pick your angle, and how to get your first promotion live — from the best free teachers on the planet.",
          [("The Fundamentals", 0, "The complete beginner walkthrough", "The whole model start to finish", "Buildapreneur", "RrLYI0I-YCk", "", 0),
-          ("The Fundamentals", 0, "Full 2025 course: AI, TikTok, YouTube", "A modern, end-to-end approach", "Adam Enfroy", "TVFj1Dzl294", "", 1)]),
+          ("The Fundamentals", 0, "Beginner tutorial, step by step", "A clear start-to-finish walkthrough", "Santrel Media", "itgmO78eK5I", "", 1)]),
         ("facebook-instagram-ads", "Facebook & Instagram Ads", "Paid Ads", "Intermediate",
          "#1e3a8a", "#2563eb",
          "Run profitable Meta ads from scratch — Ads Manager, targeting, creative and scaling, taught by the top free channels.",
          [("Getting Set Up", 0, "The best beginner Facebook Ads guide", "Full walkthrough from zero", "Top YouTube", "zqHH39utmoI", "", 0),
           ("Getting Set Up", 0, "Step-by-step for 2025 beginners", "Build your first campaign", "Top YouTube", "Gz_oCWqVoks", "", 1),
           ("Going Deeper", 1, "Full beginner walkthrough 2026", "Targeting, creative, budgets", "Top YouTube", "dAJyqo6wnq4", "", 2),
-          ("Going Deeper", 1, "Ultimate Meta ads walkthrough", "The complete picture", "Top YouTube", "TtJbgsG8yB0", "", 3)]),
+          ("Going Deeper", 1, "The only Facebook ads tutorial you need", "From a media buyer who's spent $1B+", "Top YouTube", "mZWJCjhZanQ", "", 3)]),
     ]
     made_c, made_l = 0, 0
     for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
@@ -37665,6 +37665,80 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
                    duration=dur, sort_order=order)); made_l += 1
         db.commit()
     return {"courses_created": made_c, "lessons_created": made_l}
+
+
+@app.get("/admin/api/al/academy/verify-videos")
+def academy_verify_videos(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Health-check every Academy lesson's video via YouTube oEmbed. Flags any
+    that are 404 (removed) or 401 (embedding disabled) so we can swap them.
+    Admin/secret. Read-only."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    import urllib.request, urllib.error
+    broken, ok = [], 0
+    for l in db.query(AcademyLesson).all():
+        vid = l.video_id
+        if not vid or (l.platform or "youtube") != "youtube":
+            continue
+        url = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=%s&format=json" % vid
+        try:
+            urllib.request.urlopen(url, timeout=6)
+            ok += 1
+        except urllib.error.HTTPError as e:
+            broken.append({"lesson_id": l.id, "title": l.title, "video_id": vid, "http": e.code})
+        except Exception:
+            broken.append({"lesson_id": l.id, "title": l.title, "video_id": vid, "http": "error"})
+    return JSONResponse({"checked": ok + len(broken), "ok": ok,
+                         "broken": broken or "none — all videos play"})
+
+
+@app.get("/admin/api/al/academy/set-lesson-video")
+def academy_set_lesson_video(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Swap a lesson's video. Params: lesson_id, url (+ optional title, takeaway,
+    source). Re-parses the embed. Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    q = request.query_params
+    try:
+        l = db.query(AcademyLesson).filter(AcademyLesson.id == int(q.get("lesson_id"))).first()
+    except (TypeError, ValueError):
+        l = None
+    if not l:
+        return JSONResponse({"error": "lesson not found"}, status_code=404)
+    parsed = parse_video_url((q.get("url") or "").strip())
+    if not parsed:
+        return JSONResponse({"error": "unrecognised video URL"}, status_code=400)
+    l.video_url = q.get("url"); l.embed_url = parsed["embed_url"]
+    l.video_id = parsed.get("video_id"); l.platform = parsed["platform"]
+    if q.get("title"): l.title = q.get("title")
+    if q.get("takeaway"): l.takeaway = q.get("takeaway")
+    if q.get("source"): l.source_creator = q.get("source")
+    db.commit()
+    return {"updated": True, "lesson_id": l.id, "embed_url": l.embed_url}
+
+
+@app.get("/admin/api/al/academy/fix-broken")
+def academy_fix_broken(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """One-tap: swap the two known-broken seed videos for verified replacements
+    (idempotent — only touches lessons still on the broken IDs). Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    REPL = {
+        "TVFj1Dzl294": ("itgmO78eK5I", "Beginner tutorial, step by step",
+                        "A clear start-to-finish walkthrough", "Santrel Media"),
+        "TtJbgsG8yB0": ("mZWJCjhZanQ", "The only Facebook ads tutorial you need",
+                        "From a media buyer who's spent $1B+", "Top YouTube"),
+    }
+    fixed = []
+    for old, (new, title, takeaway, source) in REPL.items():
+        for l in db.query(AcademyLesson).filter(AcademyLesson.video_id == old).all():
+            url = "https://www.youtube.com/watch?v=%s" % new
+            parsed = parse_video_url(url) or {}
+            l.video_url = url; l.embed_url = parsed.get("embed_url"); l.video_id = new
+            l.title = title; l.takeaway = takeaway; l.source_creator = source
+            fixed.append({"lesson_id": l.id, "new_video": new})
+    db.commit()
+    return {"fixed": fixed or "nothing to fix (already replaced)"}
 
 
 @app.get("/api/diag/r2-test")
