@@ -33,6 +33,7 @@ const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Academy = React.lazy(() => import('./pages/Academy'));
 const AcademyCourse = React.lazy(() => import('./pages/AcademyCourse'));
+const AcademyAdmin = React.lazy(() => import('./pages/AcademyAdmin'));
 const SharePage = React.lazy(() => import('./pages/SharePage'));
 const AdminAL = React.lazy(() => import('./pages/AdminAL'));
 const Affiliate = React.lazy(() => import('./pages/Affiliate'));
@@ -274,6 +275,7 @@ function AppRoutes() {
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/academy" element={<ProtectedRoute><Academy /></ProtectedRoute>} />
+      <Route path="/academy-admin" element={<ProtectedRoute><AcademyAdmin /></ProtectedRoute>} />
       <Route path="/academy/:slug" element={<ProtectedRoute><AcademyCourse /></ProtectedRoute>} />
       <Route path="/wisdom" element={<ProtectedRoute><Wisdom /></ProtectedRoute>} />
       <Route path="/collaborations" element={<ProtectedRoute><Collaborations /></ProtectedRoute>} />

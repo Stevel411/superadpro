@@ -8167,6 +8167,14 @@ def academy_course_page(request: Request, slug: str):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/academy-admin")
+def academy_admin_page(request: Request):
+    """Academy admin authoring (React; admin-gated by the API)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 # ── Free tools (public, unauthenticated) ──────────────────────────
 # Each React route needs an explicit FastAPI handler so direct URL
 # access + refresh work — without these the server returns 404.
@@ -37637,7 +37645,8 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
          "#0a1f52", "#12388f",
          "Start here. How affiliate income actually works, how to pick your angle, and how to get your first promotion live — from the best free teachers on the planet.",
          [("The Fundamentals", 0, "The complete beginner walkthrough", "The whole model start to finish", "Buildapreneur", "RrLYI0I-YCk", "", 0),
-          ("The Fundamentals", 0, "Beginner tutorial, step by step", "A clear start-to-finish walkthrough", "Santrel Media", "itgmO78eK5I", "", 1)]),
+          ("The Fundamentals", 0, "Beginner tutorial, step by step", "A clear start-to-finish walkthrough", "Santrel Media", "itgmO78eK5I", "", 1),
+          ("Go Further", 1, "Complete ClickBank tutorial", "The biggest beginner affiliate network", "H-Educate", "Kmzd3mq5nNk", "", 2)]),
         ("facebook-instagram-ads", "Facebook & Instagram Ads", "Paid Ads", "Intermediate",
          "#1e3a8a", "#2563eb",
          "Run profitable Meta ads from scratch — Ads Manager, targeting, creative and scaling, taught by the top free channels.",
@@ -37645,6 +37654,20 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
           ("Getting Set Up", 0, "Step-by-step for 2025 beginners", "Build your first campaign", "Top YouTube", "Gz_oCWqVoks", "", 1),
           ("Going Deeper", 1, "Full beginner walkthrough 2026", "Targeting, creative, budgets", "Top YouTube", "dAJyqo6wnq4", "", 2),
           ("Going Deeper", 1, "The only Facebook ads tutorial you need", "From a media buyer who's spent $1B+", "Top YouTube", "mZWJCjhZanQ", "", 3)]),
+        ("free-traffic-mastery", "Free Traffic Mastery", "Free Traffic", "All levels",
+         "#159a52", "#22c26b",
+         "Bring real visitors without paying for ads — SEO, content and organic search, taught by the most trusted free SEO teacher on YouTube.",
+         [("SEO Foundations", 0, "Complete SEO course for beginners", "Rank #1 in Google, step by step", "Ahrefs (Sam Oh)", "xsVTqzratPs", "", 0),
+          ("SEO Foundations", 0, "Ahrefs made simple", "Understand how sites get found", "Ahrefs", "p94KlhF3dYA", "", 1),
+          ("Getting Traffic", 1, "Official Ahrefs SEO tutorial", "Grow your organic traffic", "Ahrefs", "x5hH_lt8Guw", "", 2),
+          ("Getting Traffic", 1, "Use SEO tools for free", "The 2025 free-tools walkthrough", "Ahrefs", "JyoSFw45cSc", "", 3)]),
+        ("email-list-building", "Email & List Building", "Email", "Intermediate",
+         "#7c3aed", "#a855f7",
+         "Build a list you own and turn subscribers into buyers — the essentials of email marketing, start to finish.",
+         [("The Basics", 0, "Email marketing for beginners", "Lists, newsletters and signups", "Top YouTube", "J0CEiuOfON0", "", 0),
+          ("The Basics", 0, "The ultimate beginner guide", "Everything, step by step", "Top YouTube", "TnlFzjtILcE", "", 1),
+          ("Growing Your List", 1, "Your complete 2025 tutorial", "The most effective methods", "Top YouTube", "5htEg5ZVPRs", "", 2),
+          ("Growing Your List", 1, "Start your profitable list today", "From zero to first subscribers", "Top YouTube", "bM6Oq8UAaz0", "", 3)]),
     ]
     made_c, made_l = 0, 0
     for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
