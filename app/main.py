@@ -26,6 +26,7 @@ from .database import (
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
+from .database import AcademyCourse, AcademyLesson, AcademyProgress
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
 # Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
 # for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
@@ -8149,6 +8150,22 @@ def dashboard(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/academy")
+def academy_hub_page(request: Request):
+    """AdvantageLife Academy hub (React)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/academy/{slug}")
+def academy_course_page(request: Request, slug: str):
+    """A single Academy course (React)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
 
 # ── Free tools (public, unauthenticated) ──────────────────────────
 # Each React route needs an explicit FastAPI handler so direct URL
@@ -37465,6 +37482,189 @@ def scan_page_videos(request: Request, user: User = Depends(get_current_user), d
         "not_the_official_two": wrong,
         "detail": summary,
     })
+
+
+# ══════════════════════════════════════════════════════════════════════
+# ADVANTAGELIFE ACADEMY — curated course library (embed-only, free to all)
+# ══════════════════════════════════════════════════════════════════════
+
+def _academy_admin_ok(request, user):
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    return bool(is_admin(user) or (secret and secret in _secrets))
+
+
+def _course_public(c, lesson_counts, done_map=None):
+    total = lesson_counts.get(c.id, 0)
+    done = (done_map or {}).get(c.id, 0)
+    return {
+        "slug": c.slug, "title": c.title, "category": c.category, "level": c.level,
+        "cover_color": c.cover_color, "cover_color2": c.cover_color2,
+        "description": c.description, "lessons": total,
+        "progress_pct": int(round(done * 100 / total)) if total else 0,
+    }
+
+
+@app.get("/api/al/academy")
+def academy_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Published courses for the hub, with this member's progress % on each."""
+    courses = (db.query(AcademyCourse).filter(AcademyCourse.is_published == True)  # noqa: E712
+               .order_by(AcademyCourse.sort_order.asc(), AcademyCourse.id.asc()).all())
+    lids_by_course, counts = {}, {}
+    for l in (db.query(AcademyLesson).filter(AcademyLesson.is_published == True).all()):  # noqa: E712
+        lids_by_course.setdefault(l.course_id, []).append(l.id)
+        counts[l.course_id] = counts.get(l.course_id, 0) + 1
+    done_map = {}
+    if user:
+        done_ids = {r[0] for r in db.query(AcademyProgress.lesson_id)
+                    .filter(AcademyProgress.user_id == user.id).all()}
+        for cid, lids in lids_by_course.items():
+            done_map[cid] = sum(1 for lid in lids if lid in done_ids)
+    cats = []
+    for c in courses:
+        if c.category not in cats:
+            cats.append(c.category)
+    return {"categories": cats,
+            "courses": [_course_public(c, counts, done_map) for c in courses]}
+
+
+@app.get("/api/al/academy/course/{slug}")
+def academy_course(slug: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """One course: modules + lessons in order, with this member's completion."""
+    c = db.query(AcademyCourse).filter(AcademyCourse.slug == slug).first()
+    if not c:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    lessons = (db.query(AcademyLesson)
+               .filter(AcademyLesson.course_id == c.id, AcademyLesson.is_published == True)  # noqa: E712
+               .order_by(AcademyLesson.module_order.asc(), AcademyLesson.sort_order.asc(),
+                         AcademyLesson.id.asc()).all())
+    done_ids = set()
+    if user:
+        done_ids = {r[0] for r in db.query(AcademyProgress.lesson_id)
+                    .filter(AcademyProgress.user_id == user.id).all()}
+    modules, order = {}, []
+    for l in lessons:
+        m = l.module_title or "Lessons"
+        if m not in modules:
+            modules[m] = []
+            order.append(m)
+        modules[m].append({
+            "id": l.id, "title": l.title, "takeaway": l.takeaway,
+            "source_creator": l.source_creator, "embed_url": l.embed_url,
+            "duration": l.duration, "done": l.id in done_ids,
+        })
+    total = len(lessons)
+    done = sum(1 for l in lessons if l.id in done_ids)
+    return {
+        "slug": c.slug, "title": c.title, "category": c.category, "level": c.level,
+        "cover_color": c.cover_color, "cover_color2": c.cover_color2,
+        "description": c.description, "total_lessons": total, "completed": done,
+        "progress_pct": int(round(done * 100 / total)) if total else 0,
+        "modules": [{"title": m, "lessons": modules[m]} for m in order],
+    }
+
+
+@app.post("/api/al/academy/lesson/{lesson_id}/complete")
+def academy_complete(lesson_id: int, request: Request,
+                     user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Toggle a lesson complete/incomplete for the current member."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    existing = (db.query(AcademyProgress)
+                .filter(AcademyProgress.user_id == user.id,
+                        AcademyProgress.lesson_id == lesson_id).first())
+    if existing:
+        db.delete(existing); db.commit()
+        return {"lesson_id": lesson_id, "done": False}
+    db.add(AcademyProgress(user_id=user.id, lesson_id=lesson_id)); db.commit()
+    return {"lesson_id": lesson_id, "done": True}
+
+
+@app.get("/admin/api/al/academy/add-course")
+def academy_add_course(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a course. Params: slug, title, category, level, cover_color,
+    cover_color2, description, sort_order. Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    q = request.query_params
+    slug = (q.get("slug") or "").strip()
+    if not slug or not q.get("title"):
+        return JSONResponse({"error": "slug and title required"}, status_code=400)
+    if db.query(AcademyCourse).filter(AcademyCourse.slug == slug).first():
+        return JSONResponse({"error": "slug exists"}, status_code=409)
+    c = AcademyCourse(
+        slug=slug, title=q.get("title"), category=q.get("category", "Getting Started"),
+        level=q.get("level", "Beginner"), cover_color=q.get("cover_color", "#0a1f52"),
+        cover_color2=q.get("cover_color2", "#12388f"), description=q.get("description", ""),
+        sort_order=int(q.get("sort_order", 0) or 0))
+    db.add(c); db.commit()
+    return {"created": True, "course_id": c.id, "slug": c.slug}
+
+
+@app.get("/admin/api/al/academy/add-lesson")
+def academy_add_lesson(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Add a lesson to a course by pasting a video URL. Params: course_slug, url,
+    title, takeaway, source, module, module_order, duration, sort_order. Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    q = request.query_params
+    c = db.query(AcademyCourse).filter(AcademyCourse.slug == (q.get("course_slug") or "")).first()
+    if not c:
+        return JSONResponse({"error": "course not found"}, status_code=404)
+    url = (q.get("url") or "").strip()
+    parsed = parse_video_url(url)
+    if not parsed:
+        return JSONResponse({"error": "unrecognised/blocked video URL", "url": url}, status_code=400)
+    l = AcademyLesson(
+        course_id=c.id, module_title=q.get("module", "Lessons"),
+        module_order=int(q.get("module_order", 0) or 0), title=q.get("title", "Lesson"),
+        takeaway=q.get("takeaway", ""), source_creator=q.get("source", ""),
+        video_url=url, embed_url=parsed["embed_url"], video_id=parsed.get("video_id"),
+        platform=parsed["platform"], duration=q.get("duration", ""),
+        sort_order=int(q.get("sort_order", 0) or 0))
+    db.add(l); db.commit()
+    return {"created": True, "lesson_id": l.id, "course": c.slug, "embed_url": l.embed_url}
+
+
+@app.get("/admin/api/al/academy/seed")
+def academy_seed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """One-time seed of the starter curated library (idempotent by slug). Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    # course spec: (slug, title, category, level, c1, c2, desc, [ (module, morder, title, takeaway, source, yt_id, dur, order) ])
+    SEED = [
+        ("affiliate-foundations", "Affiliate Marketing Foundations", "Getting Started", "Beginner",
+         "#0a1f52", "#12388f",
+         "Start here. How affiliate income actually works, how to pick your angle, and how to get your first promotion live — from the best free teachers on the planet.",
+         [("The Fundamentals", 0, "The complete beginner walkthrough", "The whole model start to finish", "Buildapreneur", "RrLYI0I-YCk", "", 0),
+          ("The Fundamentals", 0, "Full 2025 course: AI, TikTok, YouTube", "A modern, end-to-end approach", "Adam Enfroy", "TVFj1Dzl294", "", 1)]),
+        ("facebook-instagram-ads", "Facebook & Instagram Ads", "Paid Ads", "Intermediate",
+         "#1e3a8a", "#2563eb",
+         "Run profitable Meta ads from scratch — Ads Manager, targeting, creative and scaling, taught by the top free channels.",
+         [("Getting Set Up", 0, "The best beginner Facebook Ads guide", "Full walkthrough from zero", "Top YouTube", "zqHH39utmoI", "", 0),
+          ("Getting Set Up", 0, "Step-by-step for 2025 beginners", "Build your first campaign", "Top YouTube", "Gz_oCWqVoks", "", 1),
+          ("Going Deeper", 1, "Full beginner walkthrough 2026", "Targeting, creative, budgets", "Top YouTube", "dAJyqo6wnq4", "", 2),
+          ("Going Deeper", 1, "Ultimate Meta ads walkthrough", "The complete picture", "Top YouTube", "TtJbgsG8yB0", "", 3)]),
+    ]
+    made_c, made_l = 0, 0
+    for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
+        c = db.query(AcademyCourse).filter(AcademyCourse.slug == slug).first()
+        if not c:
+            c = AcademyCourse(slug=slug, title=title, category=cat, level=lvl,
+                              cover_color=c1, cover_color2=c2, description=desc, sort_order=so)
+            db.add(c); db.commit(); made_c += 1
+        for (mod, morder, ltitle, takeaway, source, yt, dur, order) in lessons:
+            url = "https://www.youtube.com/watch?v=%s" % yt
+            if db.query(AcademyLesson).filter(AcademyLesson.course_id == c.id,
+                                              AcademyLesson.video_id == yt).first():
+                continue
+            parsed = parse_video_url(url) or {}
+            db.add(AcademyLesson(course_id=c.id, module_title=mod, module_order=morder,
+                   title=ltitle, takeaway=takeaway, source_creator=source, video_url=url,
+                   embed_url=parsed.get("embed_url"), video_id=yt, platform="youtube",
+                   duration=dur, sort_order=order)); made_l += 1
+        db.commit()
+    return {"courses_created": made_c, "lessons_created": made_l}
 
 
 @app.get("/api/diag/r2-test")

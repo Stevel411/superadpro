@@ -20,6 +20,7 @@ export const NAV = [
   { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'traffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'kit', label: 'Content Kit', to: '/content-kit', link: true },
+  { key: 'academy', label: 'Academy', to: '/academy', link: true },
   { key: 'comp', label: 'Compensation Plan', to: '/compensation-plan', link: true },
   { header: 'MORE' },
   { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },

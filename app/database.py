@@ -2477,6 +2477,52 @@ class NowPaymentsOrder(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class AcademyCourse(Base):
+    """A curated course in AdvantageLife Academy. Admin-curated; lessons are
+    embedded (never hosted) 3rd-party videos put in the right order."""
+    __tablename__ = "academy_courses"
+    id           = Column(Integer, primary_key=True, index=True)
+    slug         = Column(String, unique=True, index=True)   # url slug
+    title        = Column(String, nullable=False)
+    category     = Column(String, default="Getting Started") # filter chip
+    level        = Column(String, default="Beginner")        # Beginner/Intermediate/All levels
+    cover_color  = Column(String, default="#0a1f52")          # cover gradient start
+    cover_color2 = Column(String, default="#12388f")          # cover gradient end
+    description  = Column(Text, nullable=True)
+    sort_order   = Column(Integer, default=0)
+    is_published = Column(Boolean, default=True)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class AcademyLesson(Base):
+    """One lesson = one embedded video, in a module within a course."""
+    __tablename__ = "academy_lessons"
+    id             = Column(Integer, primary_key=True, index=True)
+    course_id      = Column(Integer, ForeignKey("academy_courses.id"), index=True)
+    module_title   = Column(String, default="Lessons")        # groups lessons in the course
+    module_order   = Column(Integer, default=0)
+    title          = Column(String, nullable=False)
+    takeaway       = Column(String, nullable=True)            # one-line takeaway
+    source_creator = Column(String, nullable=True)            # attribution
+    video_url      = Column(String, nullable=False)           # the pasted URL
+    embed_url      = Column(String, nullable=True)            # normalised embed URL
+    video_id       = Column(String, nullable=True)
+    platform       = Column(String, default="youtube")
+    duration       = Column(String, nullable=True)            # display string e.g. "9:12"
+    sort_order     = Column(Integer, default=0)
+    is_published   = Column(Boolean, default=True)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+
+class AcademyProgress(Base):
+    """Per-member lesson completion."""
+    __tablename__ = "academy_progress"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), index=True)
+    lesson_id    = Column(Integer, ForeignKey("academy_lessons.id"), index=True)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+
+
 try:
     if SKIP_MIGRATIONS: raise RuntimeError('SKIP_MIGRATIONS=true')
     Base.metadata.create_all(bind=engine)
@@ -2552,6 +2598,10 @@ def run_migrations():
         "ALTER TABLE p2p_transfers ALTER COLUMN amount_usdt TYPE NUMERIC(18,6) USING COALESCE(amount_usdt,0)::NUMERIC(18,6)",
         # ── End Numeric migration ──
         "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        # AdvantageLife Academy — curated course library (embed-only)
+        "CREATE TABLE IF NOT EXISTS academy_courses (id SERIAL PRIMARY KEY, slug VARCHAR UNIQUE, title VARCHAR NOT NULL, category VARCHAR DEFAULT 'Getting Started', level VARCHAR DEFAULT 'Beginner', cover_color VARCHAR DEFAULT '#0a1f52', cover_color2 VARCHAR DEFAULT '#12388f', description TEXT, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS academy_lessons (id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES academy_courses(id), module_title VARCHAR DEFAULT 'Lessons', module_order INTEGER DEFAULT 0, title VARCHAR NOT NULL, takeaway VARCHAR, source_creator VARCHAR, video_url VARCHAR NOT NULL, embed_url VARCHAR, video_id VARCHAR, platform VARCHAR DEFAULT 'youtube', duration VARCHAR, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS academy_progress (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), lesson_id INTEGER REFERENCES academy_lessons(id), completed_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS membership_renewals (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, activated_at TIMESTAMP, next_renewal_date TIMESTAMP, last_renewed_at TIMESTAMP, renewal_source VARCHAR DEFAULT 'wallet', grace_period_start TIMESTAMP, in_grace_period BOOLEAN DEFAULT FALSE, total_renewals INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         # Auto-renew opt-in column (added 9 May 2026 with new checkout flow).
