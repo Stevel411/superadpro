@@ -37690,6 +37690,13 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
           ("Get Started with AI", 0, "The ultimate ChatGPT crash course", "Everything a beginner needs", "Top YouTube", "g5oEAoKdrdw", "", 1),
           ("Create With AI", 1, "Write AI content that converts", "Short-form and long-form, step by step", "Top YouTube", "kIbpwoksCmo", "", 2),
           ("Create With AI", 1, "The complete ChatGPT course", "Go deep on prompts and workflows", "Simplilearn", "fnO0E-0IOfk", "", 3)]),
+        ("attraction-marketing", "Attraction Marketing", "Attraction", "All levels",
+         "#be185d", "#ec4899",
+         "Stop chasing, start attracting. Build a personal brand and content that pulls the right people to you — so prospects come to you, ready to buy.",
+         [("Become the Brand", 0, "Start your personal brand (full course)", "People join people, not companies", "Caleb Ralston", "uJ8Pg6t_iho", "", 0),
+          ("Become the Brand", 0, "Build a personal brand from scratch", "The 2026 step-by-step blueprint", "Top YouTube", "pPuvE7pi4QY", "", 1),
+          ("Attract, Don't Chase", 1, "Build a brand that makes money", "Turn attention into income", "Top YouTube", "jlKEz-GMSZI", "", 2),
+          ("Attract, Don't Chase", 1, "4 steps to start from scratch", "A simple path to begin today", "Top YouTube", "TY9OrhsUsjM", "", 3)]),
     ]
     made_c, made_l = 0, 0
     for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
