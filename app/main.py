@@ -37668,6 +37668,14 @@ def academy_seed(request: Request, user: User = Depends(get_current_user), db: S
           ("The Basics", 0, "The ultimate beginner guide", "Everything, step by step", "Top YouTube", "TnlFzjtILcE", "", 1),
           ("Growing Your List", 1, "Your complete 2025 tutorial", "The most effective methods", "Top YouTube", "5htEg5ZVPRs", "", 2),
           ("Growing Your List", 1, "Start your profitable list today", "From zero to first subscribers", "Top YouTube", "bM6Oq8UAaz0", "", 3)]),
+        ("mindset-mastery", "Mindset Mastery", "Mindset", "All levels",
+         "#d97706", "#f0a52a",
+         "The inner game behind every successful marketer — belief, grit, and the discipline to show up daily. Timeless talks from the very best.",
+         [("Believe You Can Grow", 0, "The power of believing you can improve", "Why a growth mindset changes everything", "Carol Dweck (TED)", "_X0mgOOSpLU", "", 0),
+          ("Believe You Can Grow", 0, "Grit: passion and perseverance", "The real predictor of success", "Angela Duckworth (TED)", "H14bBuluwB8", "", 1),
+          ("Show Up Daily", 1, "Achieve your most ambitious goals", "The power of tiny, consistent steps", "Stephen Duneier (TEDx)", "TQMbvJNRpLE", "", 2),
+          ("Show Up Daily", 1, "Mindset and success", "How belief shapes your results", "Eduardo Briceno (TEDx)", "pN34FNbOKXc", "", 3),
+          ("Find Your Why", 2, "How great leaders inspire action", "Start with why", "Simon Sinek (TED)", "qp0HIF3SfI4", "", 4)]),
     ]
     made_c, made_l = 0, 0
     for so, (slug, title, cat, lvl, c1, c2, desc, lessons) in enumerate(SEED):
