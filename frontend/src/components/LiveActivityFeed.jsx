@@ -32,7 +32,7 @@ var LAF_CSS = `
 .laf-tag{font-size:9px;font-weight:800;color:#1f7a44;background:rgba(46,204,113,.16);padding:3px 7px;border-radius:20px;letter-spacing:.4px}
 .laf-empty{padding:26px 22px;text-align:center;color:#8a97b5;font-size:13px;font-weight:500;line-height:1.5}
 .laf-ft{padding:14px 22px 18px}
-.laf-ft a{display:block;text-align:center;background:#0a1f52;color:#fff;font-weight:800;font-size:14px;padding:13px;border-radius:12px;text-decoration:none}
+.laf-ft a{display:block;text-align:center;background:#0a1f52;color:#fff !important;font-weight:800;font-size:14px;padding:13px;border-radius:12px;text-decoration:none}
 `;
 
 var EMOJI = { join: '🎉', trial: '🚀', sale: '💰', qualify: '✅', share: '📢', milestone: '📈', misc: '•' };
