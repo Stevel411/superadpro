@@ -107,10 +107,10 @@ export default function CampaignAnalytics() {
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                   <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--sap-text-primary)' }}>${p.level} {p.name} pack</div>
                   <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)' }}>{(p.aggregate || 0).toLocaleString()} of {(p.total || 0).toLocaleString()} views · {p.slots_used}/{p.slots_total} videos</div>
-                  <div style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--sap-accent)' }}>{p.pct}%</div>
+                  <div style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--sap-accent)' }}>{(p.aggregate > 0 && p.pct === 0) ? '<1%' : p.pct + '%'}</div>
                 </div>
                 <div style={{ height: 10, background: '#eef1f8', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: (p.pct > 0 ? Math.max(2, p.pct) : 0) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
+                  <div style={{ height: '100%', width: (p.aggregate > 0 ? Math.max(2, p.pct) : 0) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
                 </div>
               </div>
             );

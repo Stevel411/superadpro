@@ -72138,6 +72138,73 @@ def admin_api_al_activate_drafts(username: str = "", sweep: int = 0, dryrun: int
     return {"ok": True, "dryrun": bool(dryrun), "members": len(results), "results": results}
 
 
+@app.get("/admin/api/al/link-orphan-campaigns")
+def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Attach ACTIVE campaigns that aren't linked to any pack (orphans) to the
+    owner's highest active pack with a free slot, so their delivered views roll
+    into pack progress. Mirrors the draft-activation slot rules, but for ads that
+    are already live. Dry-run default; ?apply=1 to execute. Defaults to the
+    caller's own account; ?user_id=N or ?sweep=1 to target others. Admin/secret."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import videos_allowed_for_level
+    q = request.query_params
+    apply = q.get("apply") == "1"
+    if q.get("sweep") == "1":
+        rows = db.execute(text("SELECT DISTINCT user_id FROM video_campaigns "
+                               "WHERE status='active' AND pack_purchase_id IS NULL")).fetchall()
+        uids = [r[0] for r in rows]
+    else:
+        try:
+            uids = [int(q.get("user_id", user.id if user else 0))]
+        except (TypeError, ValueError):
+            return JSONResponse({"error": "pass ?user_id=N or ?sweep=1"}, status_code=400)
+    results = []
+    for uid in uids:
+        packs = (db.query(PackPurchase)
+                   .filter(PackPurchase.user_id == uid, PackPurchase.status == "active")
+                   .order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all())
+        if not packs:
+            continue
+        pack_cids = {p.campaign_id for p in packs if p.campaign_id}
+        orphans = (db.query(VideoCampaign)
+                     .filter(VideoCampaign.user_id == uid,
+                             VideoCampaign.status == "active",
+                             VideoCampaign.pack_purchase_id.is_(None))
+                     .order_by(VideoCampaign.id.asc()).all())
+        orphans = [o for o in orphans if o.id not in pack_cids]
+        linked = []
+        for o in orphans:
+            target = None
+            for p in packs:
+                used = db.execute(text("SELECT COUNT(*) FROM video_campaigns "
+                                       "WHERE pack_purchase_id = :pid AND status='active'"),
+                                  {"pid": p.id}).scalar() or 0
+                if p.campaign_id and used == 0:
+                    used = 1  # legacy pack: its one ad is linked via campaign_id
+                if used < videos_allowed_for_level(p.pack_level):
+                    target = p
+                    break
+            if target is None:
+                break  # no free slot left across owned packs
+            linked.append({"campaign_id": o.id, "title": o.title,
+                           "views": int(o.views_delivered or 0),
+                           "attach_to_pack_id": target.id, "pack_level": target.pack_level})
+            if apply:
+                o.pack_purchase_id = target.id
+                o.campaign_tier = target.pack_level
+                if not target.campaign_id:
+                    target.campaign_id = o.id
+                db.flush()
+        if linked:
+            results.append({"user_id": uid, "linked": linked})
+    if apply:
+        db.commit()
+    return {"applied": apply, "users_touched": len(results), "results": results,
+            "note": ("dry-run — re-tap with &apply=1 to link"
+                     if not apply else "linked; those views now roll into pack progress")}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
