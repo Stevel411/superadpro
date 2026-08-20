@@ -38037,6 +38037,125 @@ async def banner_report(banner_id: int, request: Request, user: User = Depends(g
     return {"ok": True, "reports": open_ct}
 
 
+def _slugify(s: str) -> str:
+    import re as _re
+    s = _re.sub(r"[^a-z0-9]+", "-", (s or "").lower().strip()).strip("-")
+    return s[:80] or "banner"
+
+
+def _banner_media_html(b, maxw=300):
+    """Rendered banner media (image or sandboxed HTML), scaled to fit maxw."""
+    import html as _h
+    bw = b.width or 300; bh = b.height or 250
+    mw = min(bw, maxw); scale = mw / float(bw); hh = int(round(bh * scale))
+    if b.mode == "html" and b.html_code:
+        media = ('<div style="width:%dpx;height:%dpx;overflow:hidden"><iframe sandbox="allow-scripts allow-popups" '
+                 'srcdoc="%s" style="width:%dpx;height:%dpx;border:0;transform:scale(%s);transform-origin:top left"></iframe></div>'
+                 % (mw, hh, _h.escape(b.html_code, quote=True), bw, bh, scale))
+    else:
+        media = ('<img src="%s" alt="%s" loading="lazy" style="width:%dpx;height:%dpx;object-fit:cover;display:block">'
+                 % (_h.escape(b.image_url or "", quote=True), _h.escape(b.title or ""), mw, hh))
+    return media, mw, hh
+
+
+def _discover_shell(title, desc, canonical, og_image, jsonld, brand, inner_html):
+    """Wrap discover sub-pages in the shared SEO shell."""
+    import html as _h
+    og_img = ('<meta property="og:image" content="%s">' % _h.escape(og_image, quote=True)) if og_image else ""
+    return (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<title>' + title + '</title><meta name="description" content="' + desc + '">'
+        '<link rel="canonical" href="' + canonical + '">'
+        '<meta property="og:title" content="' + title + '"><meta property="og:description" content="' + desc + '">'
+        '<meta property="og:type" content="website"><meta property="og:url" content="' + canonical + '">'
+        '<meta property="og:site_name" content="' + brand + '">' + og_img +
+        '<meta name="twitter:card" content="summary_large_image">'
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">'
+        '<script type="application/ld+json">' + jsonld + '</script>'
+        '<style>' + _DISCOVER_CSS + _DISCOVER_LISTING_CSS + '</style></head><body><div class="wrap">'
+        + inner_html +
+        '</div><script>' + _DISCOVER_JS + '</script></body></html>'
+    )
+
+
+@app.get("/discover/category/{catslug}")
+def public_banner_category(catslug: str, db: Session = Depends(get_db)):
+    """Category hub — a clean, indexable URL per category (SEO landing page)."""
+    import html as _h
+    base = brand_config.BASE_URL; brand = brand_config.BRAND_NAME
+    cats = [r[0] for r in db.query(BannerAd.category).filter(BannerAd.status == "active").distinct().all() if r[0]]
+    match = next((c for c in cats if _slugify(c) == catslug), None)
+    if not match:
+        return RedirectResponse("/discover", status_code=302)
+    banners = (db.query(BannerAd).filter(BannerAd.status == "active", BannerAd.category == match)
+               .order_by(BannerAd.created_at.desc()).limit(200).all())
+    title = _h.escape(match) + " Ads & Offers — " + brand + " Discover"
+    desc = "Browse " + _h.escape(match.lower()) + " banners, tools and offers shared by " + brand + " members. Updated continuously."
+    canonical = base + "/discover/category/" + catslug
+    tiles = ""
+    for b in banners:
+        media, mw, hh = _banner_media_html(b, 300)
+        t = _h.escape(b.title or "")
+        tiles += ('<a class="tile" href="/discover/%d-%s" data-bid="%d" style="width:%dpx">%s'
+                  '<div class="lab"><div class="t">%s</div><div class="m">%s impressions</div></div></a>'
+                  % (b.id, _slugify(b.title or ""), b.id, mw, media, t, (b.impressions or 0)))
+    body = tiles if banners else '<div class="empty">No banners in this category yet.</div>'
+    inner = ('<div class="top"><div class="brand"><a href="/discover" style="color:#a9bce0;text-decoration:none">' + brand + ' · Discover</a></div>'
+             '<h1>' + _h.escape(match) + '</h1><p>Offers, tools and banners in ' + _h.escape(match) + ' from ' + brand + ' members.</p></div>'
+             '<div class="grid">' + body + '</div>'
+             '<div class="foot"><a href="/discover">← All categories</a> · <a href="/banners/create">Create your own banner →</a></div>')
+    jsonld = '{"@context":"https://schema.org","@type":"CollectionPage","name":"%s","url":"%s"}' % (_h.escape(match).replace('"', "'"), canonical)
+    return HTMLResponse(_discover_shell(title, desc, canonical, "", jsonld, brand, inner))
+
+
+@app.get("/discover/{idslug}")
+def public_banner_listing(idslug: str, db: Session = Depends(get_db)):
+    """Per-banner listing page — its own indexable URL with unique content. This
+    is the SEO landing page a search visitor arrives on, then clicks through."""
+    import html as _h
+    try:
+        bid = int(idslug.split("-", 1)[0])
+    except (ValueError, IndexError):
+        return RedirectResponse("/discover", status_code=302)
+    b = db.query(BannerAd).filter(BannerAd.id == bid, BannerAd.status == "active").first()
+    if not b:
+        return RedirectResponse("/discover", status_code=302)
+    base = brand_config.BASE_URL; brand = brand_config.BRAND_NAME
+    t = _h.escape(b.title or "Featured offer"); cat = _h.escape(b.category or "General")
+    catslug = _slugify(b.category or "General")
+    desc = _h.escape((b.description or (b.title or "")))[:300] or ("A featured offer from a " + brand + " member.")
+    canonical = base + "/discover/" + str(b.id) + "-" + _slugify(b.title or "")
+    media, mw, hh = _banner_media_html(b, 728)
+    dest = b.destination_url or ("/discover/category/" + catslug)
+    related = (db.query(BannerAd).filter(BannerAd.status == "active", BannerAd.category == b.category, BannerAd.id != b.id)
+               .order_by(BannerAd.created_at.desc()).limit(4).all())
+    rel_html = ""
+    for r in related:
+        rm, rmw, rhh = _banner_media_html(r, 220)
+        rel_html += ('<a class="tile" href="/discover/%d-%s" style="width:%dpx">%s'
+                     '<div class="lab"><div class="t">%s</div></div></a>'
+                     % (r.id, _slugify(r.title or ""), rmw, rm, _h.escape(r.title or "")))
+    inner = (
+        '<div class="crumb"><a href="/discover">Discover</a> › <a href="/discover/category/' + catslug + '">' + cat + '</a> › ' + t + '</div>'
+        '<div class="listing">'
+        '<div class="lmedia" data-bid="' + str(b.id) + '">' + media + '</div>'
+        '<div class="lbody"><span class="lcat"><a href="/discover/category/' + catslug + '">' + cat + '</a></span>'
+        '<h1>' + t + '</h1>'
+        + ('<p class="ldesc">' + _h.escape(b.description) + '</p>' if b.description else '') +
+        '<a class="visit" href="/api/al/banner/' + str(b.id) + '/click" target="_blank" rel="nofollow noopener">Visit this offer →</a>'
+        '<div class="lmeta">' + str(b.impressions or 0) + ' impressions · seen by real ' + brand + ' members</div>'
+        '</div></div>'
+        + (('<div class="related"><h2>More in ' + cat + '</h2><div class="grid">' + rel_html + '</div></div>') if rel_html else '')
+        + '<div class="foot"><a href="/discover">← Back to Discover</a> · <a href="/banners/create">Create your own banner →</a></div>'
+    )
+    jsonld = ('{"@context":"https://schema.org","@type":"WebPage","name":"%s","description":"%s","url":"%s"}'
+              % ((b.title or "").replace('"', "'")[:120], (b.description or (b.title or "")).replace('"', "'")[:200], canonical))
+    og_img = b.image_url if (b.mode != "html" and b.image_url) else ""
+    return HTMLResponse(_discover_shell(t + " — " + cat + " | " + brand, desc, canonical, og_img, jsonld, brand, inner))
+
+
 @app.get("/api/diag/banner-check")
 def diag_banner_check(db: Session = Depends(get_db)):
     out = {}
@@ -38091,6 +38210,22 @@ document.querySelectorAll('.tile[data-bid]').forEach(function(el){
 function copyDiscover(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById('cpy');if(b){b.textContent='Link copied ✓';setTimeout(function(){b.textContent='Copy link';},1800);}});}
 """
 
+_DISCOVER_LISTING_CSS = """
+.crumb{font-size:12.5px;font-weight:700;color:#7a869e;margin:4px 0 16px}
+.crumb a{color:#12388f;text-decoration:none}
+.listing{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;background:#fff;border:1px solid #e3e8f4;border-radius:18px;padding:24px;box-shadow:0 24px 50px -34px rgba(10,31,82,.35)}
+.lmedia{border-radius:12px;overflow:hidden;box-shadow:0 16px 34px -24px rgba(10,31,82,.5);background:#0a1a3a;flex:none}
+.lbody{flex:1;min-width:260px}
+.lcat a{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#c8102e;background:rgba(200,16,46,.08);padding:4px 11px;border-radius:7px;text-decoration:none}
+.lbody h1{font-size:26px;font-weight:900;letter-spacing:-.5px;color:#0a1f52;margin:12px 0 0;line-height:1.15}
+.ldesc{font-size:15px;color:#3a4766;font-weight:500;line-height:1.6;margin:12px 0 0}
+.visit{display:inline-block;margin-top:18px;background:#c8102e;color:#fff;font-weight:900;font-size:15px;padding:13px 26px;border-radius:11px;text-decoration:none}
+.lmeta{font-size:12px;color:#8a97b8;font-weight:600;margin-top:12px}
+.related{margin-top:30px}
+.related h2{font-size:17px;font-weight:900;color:#0a1f52;margin-bottom:14px}
+.tile{text-decoration:none;color:inherit}
+"""
+
 
 @app.get("/discover")
 def public_banner_directory(request: Request, db: Session = Depends(get_db)):
@@ -38115,7 +38250,7 @@ def public_banner_directory(request: Request, db: Session = Depends(get_db)):
 
     chips = '<a href="/discover" class="chip' + ('' if cat else ' on') + '">All</a>'
     for c in cats:
-        chips += '<a href="/discover?category=' + _h.escape(c, quote=True) + '" class="chip' + (' on' if c == cat else '') + '">' + _h.escape(c) + '</a>'
+        chips += '<a href="/discover/category/' + _slugify(c) + '" class="chip' + (' on' if c == cat else '') + '">' + _h.escape(c) + '</a>'
 
     tiles, items = "", []
     for i, b in enumerate(banners):
@@ -38128,9 +38263,11 @@ def public_banner_directory(request: Request, db: Session = Depends(get_db)):
             lo = lc = ""
         else:
             media = '<img src="%s" alt="%s" loading="lazy" style="width:%dpx;height:%dpx;object-fit:cover">' % (_h.escape(b.image_url or "", quote=True), t, maxw, hh)
-            lo = '<a href="/api/al/banner/%d/click" target="_blank" rel="nofollow noopener">' % b.id; lc = "</a>"
+            lo = lc = ""
         lab = ('<div class="lab"><div class="t">%s</div><div class="m">%s · %s impressions</div></div>' % (t, cc, (b.impressions or 0))) if (t or cc) else ""
-        tiles += '<div class="tile" data-bid="%d" style="width:%dpx">%s%s%s%s</div>' % (b.id, maxw, lo, media, lc, lab)
+        # Tile links to the banner's own listing page (indexable, internal SEO link)
+        href = "/discover/%d-%s" % (b.id, _slugify(b.title or ""))
+        tiles += '<a class="tile" href="%s" data-bid="%d" style="width:%dpx;text-decoration:none;color:inherit">%s%s</a>' % (href, b.id, maxw, media, lab)
         if t:
             items.append('{"@type":"ListItem","position":%d,"name":"%s"}' % (i + 1, (b.title or "").replace('"', "'")[:120]))
     jsonld = '{"@context":"https://schema.org","@type":"ItemList","itemListElement":[%s]}' % ",".join(items)
@@ -39893,7 +40030,7 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     base_url = brand_config.BASE_URL
 
     if brand_config.IS_ADVANTAGELIFE:
-        static_paths = ["/", "/join", "/plan", "/tools", "/terms", "/refund-policy", "/privacy-policy"]
+        static_paths = ["/", "/join", "/plan", "/tools", "/terms", "/refund-policy", "/privacy-policy", "/discover"]
         tool_paths = []
     else:
         static_paths = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]
@@ -39906,6 +40043,17 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     for path in tool_paths:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>')
 
+    # Banner discovery: category hubs + every live banner's listing page (the SEO depth)
+    if brand_config.IS_ADVANTAGELIFE:
+        try:
+            cats = {r[0] for r in db.query(BannerAd.category).filter(BannerAd.status == "active").distinct().all() if r[0]}
+            for c in sorted(cats):
+                urls.append(f'<url><loc>{base_url}/discover/category/{_slugify(c)}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
+            for b in db.query(BannerAd).filter(BannerAd.status == "active").order_by(BannerAd.created_at.desc()).limit(2000).all():
+                urls.append(f'<url><loc>{base_url}/discover/{b.id}-{_slugify(b.title or "")}</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>')
+        except Exception:
+            pass
+
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
     return Response(content=xml, media_type="application/xml")
 @app.get("/robots.txt")
@@ -39916,7 +40064,7 @@ def robots_txt():
     from . import brand_config
 
     if brand_config.IS_ADVANTAGELIFE:
-        allow = ["/", "/join", "/plan", "/tools", "/terms", "/refund-policy", "/privacy-policy"]
+        allow = ["/", "/join", "/plan", "/tools", "/discover", "/terms", "/refund-policy", "/privacy-policy"]
     else:
         allow = ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq",
                  "/legal", "/wallet-guide", "/free/", "/free/meme-generator",
