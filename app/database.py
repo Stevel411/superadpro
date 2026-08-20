@@ -2527,7 +2527,7 @@ class BannerAd(Base):
     """A member banner ad, bundled with a campaign pack (fills a banner slot,
     count mirrors videos_allowed_for_level). Runs on the internal showcase and
     the public discovery page. Either an uploaded image or sandboxed HTML embed."""
-    __tablename__ = "banner_ads"
+    __tablename__ = "al_banner_ads"
     id              = Column(Integer, primary_key=True, index=True)
     user_id         = Column(Integer, ForeignKey("users.id"), index=True)
     pack_purchase_id = Column(Integer, index=True)     # slot this banner fills
@@ -2551,9 +2551,9 @@ class BannerAd(Base):
 
 class BannerReport(Base):
     """A member report against a banner — the removal path (auto-approve + report)."""
-    __tablename__ = "banner_reports"
+    __tablename__ = "al_banner_reports"
     id               = Column(Integer, primary_key=True, index=True)
-    banner_id        = Column(Integer, ForeignKey("banner_ads.id"), index=True)
+    banner_id        = Column(Integer, ForeignKey("al_banner_ads.id"), index=True)
     reporter_user_id = Column(Integer, nullable=True)
     reason           = Column(String, nullable=True)
     status           = Column(String, default="open")  # open | actioned | dismissed
@@ -2645,8 +2645,8 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS academy_lessons (id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES academy_courses(id), module_title VARCHAR DEFAULT 'Lessons', module_order INTEGER DEFAULT 0, title VARCHAR NOT NULL, takeaway VARCHAR, source_creator VARCHAR, video_url VARCHAR NOT NULL, embed_url VARCHAR, video_id VARCHAR, platform VARCHAR DEFAULT 'youtube', duration VARCHAR, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS academy_progress (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), lesson_id INTEGER REFERENCES academy_lessons(id), completed_at TIMESTAMP DEFAULT NOW())",
         # Banner ads — bundled with campaign packs (image or sandboxed HTML embed)
-        "CREATE TABLE IF NOT EXISTS banner_ads (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_purchase_id INTEGER, size VARCHAR DEFAULT '728x90', width INTEGER DEFAULT 728, height INTEGER DEFAULT 90, mode VARCHAR DEFAULT 'image', image_url VARCHAR, html_code TEXT, destination_url VARCHAR, title VARCHAR, description TEXT, category VARCHAR DEFAULT 'General', status VARCHAR DEFAULT 'active', impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, flash_flagged BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
-        "CREATE TABLE IF NOT EXISTS banner_reports (id SERIAL PRIMARY KEY, banner_id INTEGER REFERENCES banner_ads(id), reporter_user_id INTEGER, reason VARCHAR, status VARCHAR DEFAULT 'open', created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS al_banner_ads (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_purchase_id INTEGER, size VARCHAR DEFAULT '728x90', width INTEGER DEFAULT 728, height INTEGER DEFAULT 90, mode VARCHAR DEFAULT 'image', image_url VARCHAR, html_code TEXT, destination_url VARCHAR, title VARCHAR, description TEXT, category VARCHAR DEFAULT 'General', status VARCHAR DEFAULT 'active', impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, flash_flagged BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS al_banner_reports (id SERIAL PRIMARY KEY, banner_id INTEGER REFERENCES al_banner_ads(id), reporter_user_id INTEGER, reason VARCHAR, status VARCHAR DEFAULT 'open', created_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS membership_renewals (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, activated_at TIMESTAMP, next_renewal_date TIMESTAMP, last_renewed_at TIMESTAMP, renewal_source VARCHAR DEFAULT 'wallet', grace_period_start TIMESTAMP, in_grace_period BOOLEAN DEFAULT FALSE, total_renewals INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         # Auto-renew opt-in column (added 9 May 2026 with new checkout flow).

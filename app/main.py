@@ -37998,7 +37998,7 @@ def banners_mine(user: User = Depends(get_current_user), db: Session = Depends(g
 def banner_impression(banner_id: int, db: Session = Depends(get_db)):
     """Fire when a banner is ≥50% visible for ~1s on the showcase. Denormalised
     counter — cheap, high-volume."""
-    db.execute(text("UPDATE banner_ads SET impressions = COALESCE(impressions,0) + 1 "
+    db.execute(text("UPDATE al_banner_ads SET impressions = COALESCE(impressions,0) + 1 "
                     "WHERE id = :bid AND status = 'active'"), {"bid": banner_id})
     db.commit()
     return {"ok": True}
@@ -38010,7 +38010,7 @@ def banner_click(banner_id: int, db: Session = Depends(get_db)):
     b = db.query(BannerAd).filter(BannerAd.id == banner_id).first()
     if not b:
         return JSONResponse({"error": "not found"}, status_code=404)
-    db.execute(text("UPDATE banner_ads SET clicks = COALESCE(clicks,0) + 1 WHERE id = :bid"), {"bid": banner_id})
+    db.execute(text("UPDATE al_banner_ads SET clicks = COALESCE(clicks,0) + 1 WHERE id = :bid"), {"bid": banner_id})
     db.commit()
     dest = b.destination_url or "/"
     if not dest.startswith(("http://", "https://", "/")):
@@ -38033,7 +38033,7 @@ async def banner_report(banner_id: int, request: Request, user: User = Depends(g
     open_ct = db.query(BannerReport).filter(BannerReport.banner_id == banner_id,
                                             BannerReport.status == "open").count()
     if open_ct >= 3:
-        db.execute(text("UPDATE banner_ads SET status='flagged' WHERE id=:bid AND status='active'"),
+        db.execute(text("UPDATE al_banner_ads SET status='flagged' WHERE id=:bid AND status='active'"),
                    {"bid": banner_id})
         db.commit()
     return {"ok": True, "reports": open_ct}
@@ -38043,7 +38043,7 @@ async def banner_report(banner_id: int, request: Request, user: User = Depends(g
 def diag_banner_check(db: Session = Depends(get_db)):
     out = {}
     try:
-        out["raw_count"] = db.execute(text("SELECT COUNT(*) FROM banner_ads")).scalar()
+        out["raw_count"] = db.execute(text("SELECT COUNT(*) FROM al_banner_ads")).scalar()
     except Exception as e:
         out["raw_error"] = f"{type(e).__name__}: {str(e)[:200]}"
     try:
