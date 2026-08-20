@@ -9,6 +9,22 @@
 
 ---
 
+## 🗓️ 2026-08-19 — Academy launch + campaign-flow overhaul + integrity fixes
+
+**AdvantageLife Academy shipped** — curated, embed-only course library, free to all members. 8 courses / 32 lessons, every video oEmbed-verified. Hub `/academy`, detail `/academy/:slug`, forms-based authoring `/academy-admin`. Health-check endpoint (`/admin/api/al/academy/verify-videos`) catches dead embeds (404 removed / 401 embed-disabled) — verify every third-party video before seeding. Courses: Affiliate Foundations, Facebook & Instagram Ads, Free Traffic Mastery, Email & List Building, Mindset Mastery, Short-Form Video, AI for Marketers, Attraction Marketing. (`aa2af96c3`→`c6cf417bd`)
+
+**Campaign flow overhaul.** (a) `My Campaigns` sidebar is now an expandable submenu (View / Create / Performance) — new members couldn't find where to create a campaign. (b) New "Campaigns per package" card on `/campaigns` (slot usage from `videos_allowed_for_level`: <$100=2, $100–$400=4, $600+=6). (c) Pack-progress on `/campaign-analytics` redesigned from oversized bars to a **balanced 3×3 grid of all 9 tiers** — owned show progress, unowned show locked + Buy chip; admin sees all owned via the sentinel; delivered views never render as a dead 0% ("<1%" + min sliver). (`48daf1351`, `557aa2b9e`, `9079020f5`)
+
+**Two data-integrity fixes.** (1) *Orphaned active campaigns* — active campaigns with `pack_purchase_id=NULL` deliver views that roll into no pack's aggregate (invisible on Pack-progress). New `/admin/api/al/link-orphan-campaigns` (dry-run/`apply`/`user_id`/`sweep`) attaches them to the owner's highest pack with a free slot. Fixed on user 1 (85 orphaned views → $1000 pack). NOTE: `pack_purchase_id` is raw-SQL-only, NOT on the `VideoCampaign` ORM model. (`0fbfd98c1`, `9b428c667`) (2) *`resolve-dispute` control flow* — success return was mis-indented inside the `except`, so a confirm minted pack+commission then fell through to `status='cancelled'`; cancel also posted a spurious feed sale. Confirm/cancel now cleanly separated. Normal payee-confirm path was unaffected. (`2767ed0c9`)
+
+**Member ops:** gifted aron (user 891) a $10 Launchpad (`gift-member-pack`); cancelled his stray pending purchase intent #56 via the fixed resolve-dispute.
+
+**Earlier same session:** free-AL paid-gate fixes (`is_pro` on AL), page-builder editor AL rebrand finished + ScriptsPanel input fix, the Ren thread (grandfather/gift draft auto-attach + views-model fix + diagnostics), marketing-page video audit (clean), leaderboard button contrast fix.
+
+Full detail + commit log: `handover-2026-08-19.md`.
+
+---
+
 ## 📈 NEW FOCUS 2026-08-14 — TRAFFIC ENGINE (AdvantageLife as a traffic solution for members)
 
 **Strategic direction locked with Steve:** AdvantageLife is not just a toolset — the differentiated promise is **"we send you traffic."** Full roadmap lives in its own doc:
@@ -1537,3 +1553,7 @@ When you finish a session that introduced something noteworthy, update the "Rece
 14. **A colour inversion is not finished until the leftover-token count reads zero.** Six `rgba(255,255,255,x)` values were about to ship as white-on-white; the diff looked correct.
 15. **`str_replace` refusing an edit as ambiguous is a feature.** `class="backlink" href="/dashboard"` lives in four templates sharing markup. Edit by exact line index with an assertion on the line content first.
 16. **Legacy octal escapes (`\2713`) are rejected inside JS template literals.** Use the real character. The mandatory `npm run build` catches it; skipping that step ships a stale bundle silently.
+17. **oEmbed is the video-embeddability gate.** `https://www.youtube.com/oembed?url=…&format=json` → 200 OK / 404 removed / 401 embed-disabled. Verify EVERY third-party video before seeding it anywhere member-facing; embeds die silently over time.
+18. **`pack_purchase_id` on `video_campaigns` is raw-SQL-only** — added via startup `ALTER`, NOT on the `VideoCampaign` ORM model. Filtering/updating it via ORM attributes throws (500). Use raw SQL, like `_al_activate_pending_drafts` does.
+19. **Admin owns every tier via the `_ADMIN_LEVEL` sentinel** (`al_engine.owned_level`) — virtual, no `PackPurchase` rows. Any UI that reads real pack rows must special-case `is_admin` if it should reflect all-ownership (e.g. the pack-progress grid).
+20. **Campaigns attach to the highest owned pack with a free slot.** A member with many packs but few videos shows most packs empty — correct, not a bug. Views roll into a pack only via `pack_purchase_id` (or the pack's `campaign_id`); an unlinked active campaign is an orphan whose views show nowhere.
