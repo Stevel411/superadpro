@@ -24,7 +24,7 @@ export const NAV = [
   { key: 'leaderboard', label: 'Leaderboard', to: '/leaderboard', link: true },
   { key: 'ai-tools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', label: 'My Marketing', to: '/my-marketing', link: true },
-  { key: 'banner-showcase', label: 'Banner Showcase', to: '/banners', link: true },
+  { key: 'banner-showcase', label: 'Banner Showcase', to: '/discover', link: false },
   { key: 'traffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'kit', label: 'Content Kit', to: '/content-kit', link: true },
   { key: 'academy', label: 'Academy', to: '/academy', link: true },

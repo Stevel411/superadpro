@@ -8178,10 +8178,8 @@ def academy_admin_page(request: Request):
 
 @app.get("/banners")
 def banners_showcase_page(request: Request):
-    """Banner Showcase (React)."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+    """Old internal showcase — now redirects to the public /discover directory."""
+    return RedirectResponse("/discover", status_code=302)
 
 
 @app.get("/banners/create")
@@ -38051,6 +38049,117 @@ def diag_banner_check(db: Session = Depends(get_db)):
     except Exception as e:
         out["orm_error"] = f"{type(e).__name__}: {str(e)[:200]}"
     return out
+
+
+_DISCOVER_CSS = """
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,sans-serif;background:#eef2f9;color:#0d1230}
+.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+.top{background:linear-gradient(135deg,#0a1f52,#12388f);border-radius:22px;padding:30px 32px;color:#fff;position:relative;overflow:hidden;margin-bottom:14px}
+.top:after{content:"";position:absolute;right:-30px;top:-30px;width:200px;height:200px;border-radius:50%;background:rgba(240,165,42,.16)}
+.brand{font-size:13px;font-weight:800;color:#a9bce0;letter-spacing:.04em}
+.top h1{font-size:30px;font-weight:900;letter-spacing:-1px;margin:6px 0 0}
+.top h1 b{color:#f0a52a}
+.top p{font-size:14px;color:#c9d6f0;font-weight:500;margin-top:10px;max-width:560px}
+.share{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.share button,.share a{font-size:12.5px;font-weight:800;padding:9px 15px;border-radius:10px;border:0;cursor:pointer;text-decoration:none;background:rgba(255,255,255,.14);color:#fff}
+.share .cta{background:#c8102e}
+.chips{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.chip{font-size:12.5px;font-weight:800;padding:8px 15px;border-radius:99px;border:1.5px solid #e6ecf5;background:#fff;color:#5a6584;text-decoration:none}
+.chip.on{background:#0a1f52;color:#fff;border-color:#0a1f52}
+.grid{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+.tile{border-radius:12px;overflow:hidden;box-shadow:0 16px 34px -24px rgba(10,31,82,.5);background:#0a1a3a;position:relative}
+.tile img{display:block}
+.tile .lab{position:absolute;left:0;right:0;bottom:0;background:rgba(6,12,32,.62);padding:7px 10px}
+.tile .lab .t{font-size:11.5px;font-weight:800;color:#fff}
+.tile .lab .m{font-size:10px;font-weight:700;color:#b9c6e6;margin-top:1px}
+.empty{background:#fff;border:1px solid #e6ecf5;border-radius:16px;padding:40px;text-align:center;color:#5a6584;font-weight:600}
+.foot{margin-top:30px;text-align:center;font-size:12px;color:#8a97b8;font-weight:600}
+.foot a{color:#c8102e;text-decoration:none;font-weight:800}
+"""
+
+_DISCOVER_JS = """
+document.querySelectorAll('.tile[data-bid]').forEach(function(el){
+  var bid=el.getAttribute('data-bid'), t=null, done=false;
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting&&e.intersectionRatio>=0.5){ if(!t&&!done){ t=setTimeout(function(){ done=true;
+      fetch('/api/al/banner/'+bid+'/impression',{method:'POST',credentials:'include'}).catch(function(){}); obs.disconnect();
+    },1000);} } else if(t){clearTimeout(t);t=null;}
+  });},{threshold:[0,0.5,1]});
+  obs.observe(el);
+});
+function copyDiscover(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById('cpy');if(b){b.textContent='Link copied ✓';setTimeout(function(){b.textContent='Copy link';},1800);}});}
+"""
+
+
+@app.get("/discover")
+def public_banner_directory(request: Request, db: Session = Depends(get_db)):
+    """Public, shareable, SEO-built banner directory. Server-rendered HTML so it's
+    crawlable. No auth — anyone can view and share."""
+    import html as _h
+    base = brand_config.BASE_URL
+    brand = brand_config.BRAND_NAME
+    cat = (request.query_params.get("category") or "").strip()
+    q = db.query(BannerAd).filter(BannerAd.status == "active")
+    if cat and cat.lower() != "all":
+        q = q.filter(BannerAd.category == cat)
+    banners = q.order_by(BannerAd.created_at.desc()).limit(200).all()
+    cats = sorted([r[0] for r in db.query(BannerAd.category)
+                   .filter(BannerAd.status == "active").distinct().all() if r[0]])
+
+    title = ((_h.escape(cat) + " Ads & Offers — " + brand + " Discover") if cat
+             else ("Discover — Ads, Tools & Offers from " + brand + " Members"))
+    desc = (("Browse " + _h.escape(cat.lower()) + " banners, offers and tools shared by " + brand + " members.") if cat
+            else ("A live directory of ads, tools and offers from " + brand + " members — real banners, updated continuously."))
+    canonical = base + "/discover" + ("?category=" + _h.escape(cat, quote=True) if cat else "")
+
+    chips = '<a href="/discover" class="chip' + ('' if cat else ' on') + '">All</a>'
+    for c in cats:
+        chips += '<a href="/discover?category=' + _h.escape(c, quote=True) + '" class="chip' + (' on' if c == cat else '') + '">' + _h.escape(c) + '</a>'
+
+    tiles, items = "", []
+    for i, b in enumerate(banners):
+        t = _h.escape(b.title or ""); cc = _h.escape(b.category or "")
+        bw = b.width or 300; bh = b.height or 250
+        maxw = min(bw, 300); scale = maxw / float(bw); hh = int(round(bh * scale))
+        if b.mode == "html" and b.html_code:
+            media = ('<div style="width:%dpx;height:%dpx;overflow:hidden"><iframe sandbox="allow-scripts allow-popups" srcdoc="%s" style="width:%dpx;height:%dpx;border:0;transform:scale(%s);transform-origin:top left"></iframe></div>'
+                     % (maxw, hh, _h.escape(b.html_code, quote=True), bw, bh, scale))
+            lo = lc = ""
+        else:
+            media = '<img src="%s" alt="%s" loading="lazy" style="width:%dpx;height:%dpx;object-fit:cover">' % (_h.escape(b.image_url or "", quote=True), t, maxw, hh)
+            lo = '<a href="/api/al/banner/%d/click" target="_blank" rel="nofollow noopener">' % b.id; lc = "</a>"
+        lab = ('<div class="lab"><div class="t">%s</div><div class="m">%s · %s impressions</div></div>' % (t, cc, (b.impressions or 0))) if (t or cc) else ""
+        tiles += '<div class="tile" data-bid="%d" style="width:%dpx">%s%s%s%s</div>' % (b.id, maxw, lo, media, lc, lab)
+        if t:
+            items.append('{"@type":"ListItem","position":%d,"name":"%s"}' % (i + 1, (b.title or "").replace('"', "'")[:120]))
+    jsonld = '{"@context":"https://schema.org","@type":"ItemList","itemListElement":[%s]}' % ",".join(items)
+
+    body = tiles if banners else '<div class="empty">No banners here yet — check back soon.</div>'
+    page = (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<title>' + title + '</title>'
+        '<meta name="description" content="' + desc + '">'
+        '<link rel="canonical" href="' + canonical + '">'
+        '<meta property="og:title" content="' + title + '"><meta property="og:description" content="' + desc + '">'
+        '<meta property="og:type" content="website"><meta property="og:url" content="' + canonical + '">'
+        '<meta property="og:site_name" content="' + brand + '"><meta name="twitter:card" content="summary_large_image">'
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">'
+        '<script type="application/ld+json">' + jsonld + '</script>'
+        '<style>' + _DISCOVER_CSS + '</style></head><body><div class="wrap">'
+        '<div class="top"><div class="brand">' + brand + ' · Discover</div>'
+        '<h1>Ads, tools &amp; <b>offers</b> from our members</h1>'
+        '<p>A live directory of real banners placed by ' + brand + ' members. Browse by category — new ones added all the time.</p>'
+        '<div class="share"><button id="cpy" class="cta" onclick="copyDiscover()">Copy link</button>'
+        '<a class="" href="https://twitter.com/intent/tweet?url=' + _h.escape(canonical, quote=True) + '" target="_blank" rel="noopener">Share on X</a></div></div>'
+        '<div class="chips">' + chips + '</div>'
+        '<div class="grid">' + body + '</div>'
+        '<div class="foot">Want your own banner here? <a href="/banners/create">Create one free with your pack →</a></div>'
+        '</div><script>' + _DISCOVER_JS + '</script></body></html>'
+    )
+    return HTMLResponse(page)
 
 
 @app.get("/api/diag/r2-test")
