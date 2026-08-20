@@ -37917,6 +37917,103 @@ async def banner_create(request: Request, user: User = Depends(get_current_user)
                          "flagged": b.flash_flagged})
 
 
+@app.get("/api/al/banners/showcase")
+def banners_showcase(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Live banners for the showcase / public discovery page. Excludes flagged,
+    paused and removed. Optional ?category= filter."""
+    q = db.query(BannerAd).filter(BannerAd.status == "active")
+    cat = request.query_params.get("category")
+    if cat and cat.lower() != "all":
+        q = q.filter(BannerAd.category == cat)
+    rows = q.order_by(BannerAd.created_at.desc()).limit(300).all()
+    cats = [r[0] for r in db.query(BannerAd.category).filter(BannerAd.status == "active").distinct().all() if r[0]]
+    return {"categories": sorted(cats), "banners": [{
+        "id": b.id, "size": b.size, "width": b.width, "height": b.height, "mode": b.mode,
+        "image_url": b.image_url, "html_code": b.html_code, "destination_url": b.destination_url,
+        "title": b.title, "description": b.description, "category": b.category,
+        "impressions": b.impressions or 0, "clicks": b.clicks or 0,
+    } for b in rows]}
+
+
+@app.get("/api/al/banners/mine")
+def banners_mine(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The member's own banners + slot usage per pack."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import banner_slots_for_level
+    rows = (db.query(BannerAd).filter(BannerAd.user_id == user.id, BannerAd.status != "removed")
+              .order_by(BannerAd.created_at.desc()).all())
+    packs = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == user.id, PackPurchase.status == "active")
+               .order_by(PackPurchase.pack_level.desc()).all())
+    meta = {p.level: p for p in db.query(CampaignPack).filter(CampaignPack.is_active == True).all()}  # noqa: E712
+    slots = []
+    for p in packs:
+        used = sum(1 for b in rows if b.pack_purchase_id == p.id and b.status in ("active", "paused", "flagged"))
+        nm = (meta[p.pack_level].name if p.pack_level in meta and meta[p.pack_level].name else ("$" + str(p.pack_level)))
+        slots.append({"pack_id": p.id, "level": p.pack_level, "name": nm,
+                      "used": used, "total": banner_slots_for_level(p.pack_level)})
+    tot_impr = sum(b.impressions or 0 for b in rows)
+    tot_clk = sum(b.clicks or 0 for b in rows)
+    return {
+        "totals": {"impressions": tot_impr, "clicks": tot_clk,
+                   "ctr": round(100.0 * tot_clk / tot_impr, 1) if tot_impr else 0.0,
+                   "live": sum(1 for b in rows if b.status == "active")},
+        "slots": slots,
+        "banners": [{
+            "id": b.id, "title": b.title, "size": b.size, "category": b.category, "mode": b.mode,
+            "image_url": b.image_url, "status": b.status,
+            "impressions": b.impressions or 0, "clicks": b.clicks or 0,
+            "ctr": round(100.0 * (b.clicks or 0) / (b.impressions or 1), 1) if b.impressions else 0.0,
+        } for b in rows],
+    }
+
+
+@app.post("/api/al/banner/{banner_id}/impression")
+def banner_impression(banner_id: int, db: Session = Depends(get_db)):
+    """Fire when a banner is ≥50% visible for ~1s on the showcase. Denormalised
+    counter — cheap, high-volume."""
+    db.execute(text("UPDATE banner_ads SET impressions = COALESCE(impressions,0) + 1 "
+                    "WHERE id = :bid AND status = 'active'"), {"bid": banner_id})
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/api/al/banner/{banner_id}/click")
+def banner_click(banner_id: int, db: Session = Depends(get_db)):
+    """Count a click and redirect to the banner's destination."""
+    b = db.query(BannerAd).filter(BannerAd.id == banner_id).first()
+    if not b:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    db.execute(text("UPDATE banner_ads SET clicks = COALESCE(clicks,0) + 1 WHERE id = :bid"), {"bid": banner_id})
+    db.commit()
+    dest = b.destination_url or "/"
+    if not dest.startswith(("http://", "https://", "/")):
+        dest = "https://" + dest
+    return RedirectResponse(dest, status_code=302)
+
+
+@app.post("/api/al/banner/{banner_id}/report")
+async def banner_report(banner_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Report a banner (the removal path). 3+ open reports auto-hides pending review."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    db.add(BannerReport(banner_id=banner_id, reporter_user_id=user.id,
+                        reason=(body.get("reason") or "")[:200]))
+    db.commit()
+    open_ct = db.query(BannerReport).filter(BannerReport.banner_id == banner_id,
+                                            BannerReport.status == "open").count()
+    if open_ct >= 3:
+        db.execute(text("UPDATE banner_ads SET status='flagged' WHERE id=:bid AND status='active'"),
+                   {"bid": banner_id})
+        db.commit()
+    return {"ok": True, "reports": open_ct}
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
