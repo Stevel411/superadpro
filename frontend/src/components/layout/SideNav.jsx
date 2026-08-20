@@ -25,6 +25,8 @@ export const NAV = [
   { key: 'traffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'kit', label: 'Content Kit', to: '/content-kit', link: true },
   { key: 'academy', label: 'Academy', to: '/academy', link: true },
+  { key: 'banners', label: 'Banner Showcase', to: '/banners', link: true },
+  { key: 'mybanners', label: 'My Banners', to: '/my-banners', link: true },
   { key: 'comp', label: 'Compensation Plan', to: '/compensation-plan', link: true },
   { header: 'MORE' },
   { key: 'wisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },

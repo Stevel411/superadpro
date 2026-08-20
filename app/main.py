@@ -8175,6 +8175,30 @@ def academy_admin_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/banners")
+def banners_showcase_page(request: Request):
+    """Banner Showcase (React)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/banners/create")
+def banners_create_page(request: Request):
+    """Create a banner (React)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/my-banners")
+def my_banners_page(request: Request):
+    """My Banners (React)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 # ── Free tools (public, unauthenticated) ──────────────────────────
 # Each React route needs an explicit FastAPI handler so direct URL
 # access + refresh work — without these the server returns 404.
