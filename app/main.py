@@ -70074,6 +70074,7 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
         b["aggregate"] += pk["aggregate"]
         b["slots_used"] += pk["slots_used"]
     tiers = []
+    _is_admin = bool(user and getattr(user, "is_admin", False))
     for lv in sorted(meta.keys()):
         m = meta[lv]
         target = int((m.views_target or 0))
@@ -70085,8 +70086,10 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
                           "slots_total": st, "slots_used": by_level[lv]["slots_used"],
                           "owned": True, "aggregate": agg, "pct": pct})
         else:
+            # Master account owns every tier via the admin sentinel — show it owned
+            # (at 0% until it has a running ad), not locked.
             tiers.append({"level": lv, "name": m.name or ("$" + str(lv)), "target": target,
-                          "slots_total": st, "slots_used": 0, "owned": False,
+                          "slots_total": st, "slots_used": 0, "owned": _is_admin,
                           "aggregate": 0, "pct": 0})
     return {"success": True, "packs": out, "orphans": orphans, "tiers": tiers}
 
