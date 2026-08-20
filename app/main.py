@@ -37793,6 +37793,130 @@ def academy_fix_broken(request: Request, user: User = Depends(get_current_user),
     return {"fixed": fixed or "nothing to fix (already replaced)"}
 
 
+# ══════════════════════════════════════════════════════════════════════
+# BANNER ADS — bundled with campaign packs (image or sandboxed HTML)
+# ══════════════════════════════════════════════════════════════════════
+
+def _gif_strobes(contents: bytes) -> bool:
+    """WCAG-aligned strobe check for animated GIFs: counts large frame-to-frame
+    brightness swings and flags if they exceed ~3 general flashes/sec. Best-effort;
+    HTML embeds can't be checked this way and rely on the report path."""
+    try:
+        from PIL import Image, ImageSequence
+        import io as _io
+        im = Image.open(_io.BytesIO(contents))
+        if not getattr(im, "is_animated", False):
+            return False
+        brights, durs = [], []
+        for fr in ImageSequence.Iterator(im):
+            g = fr.convert("L").resize((16, 16))
+            data = list(g.getdata())
+            brights.append(sum(data) / float(len(data) or 1))
+            durs.append(fr.info.get("duration", 100) or 100)
+        flashes = sum(1 for i in range(1, len(brights)) if abs(brights[i] - brights[i - 1]) > 40)
+        total_ms = sum(durs) or 1
+        return (flashes * 1000.0 / total_ms) > 3.0
+    except Exception:
+        return False
+
+
+def _banner_slot_for_user(db: Session, uid: int):
+    """Highest active pack with a free banner slot, or None. Mirrors the video
+    slot rule (banner_slots_for_level == videos_allowed_for_level)."""
+    from .database import banner_slots_for_level
+    packs = (db.query(PackPurchase)
+               .filter(PackPurchase.user_id == uid, PackPurchase.status == "active")
+               .order_by(PackPurchase.pack_level.desc(), PackPurchase.id.asc()).all())
+    for p in packs:
+        used = (db.query(BannerAd)
+                  .filter(BannerAd.pack_purchase_id == p.id,
+                          BannerAd.status.in_(["active", "paused", "flagged"])).count())
+        if used < banner_slots_for_level(p.pack_level):
+            return p
+    return None
+
+
+@app.post("/api/al/banner/upload-image")
+async def banner_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    """Upload a banner image (or animated GIF) to R2. Returns the URL and whether
+    it tripped the strobe check."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    allowed = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+    if file.content_type not in allowed:
+        return JSONResponse({"error": "Use JPEG, PNG, GIF or WebP."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large (max 5MB)."}, status_code=400)
+    import os as _os
+    ext = _os.path.splitext(file.filename or "banner.jpg")[1].lower().lstrip(".") or "jpg"
+    if ext not in {"jpg", "jpeg", "png", "gif", "webp"}:
+        ext = "jpg"
+    strobes = _gif_strobes(contents) if ext == "gif" else False
+    # Keep GIFs untouched (animation); optimise the rest best-effort.
+    ctype = file.content_type
+    if ext != "gif":
+        try:
+            from app.image_optimise import optimise_image
+            contents, ext, ctype = optimise_image(contents, ext)
+        except Exception:
+            pass
+    from app.r2_storage import r2_available, upload_image
+    if not r2_available():
+        return JSONResponse({"error": "Image storage unavailable — try again shortly."}, status_code=503)
+    try:
+        url = upload_image(contents, "banner-images", ext, ctype)
+    except Exception as e:
+        logger.error(f"R2 upload failed (banner-images): {type(e).__name__}: {e}")
+        return JSONResponse({"error": "Image storage temporarily unavailable."}, status_code=503)
+    return JSONResponse({"success": True, "url": url, "flash_flagged": strobes})
+
+
+@app.post("/api/al/banner/create")
+async def banner_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a banner against a free pack slot. JSON body: mode (image|html),
+    size, width, height, title, description, category, and either
+    {image_url, destination_url, flash_flagged} or {html_code}."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    pack = _banner_slot_for_user(db, user.id)
+    if pack is None:
+        return JSONResponse({"error": "No free banner slots — every pack you own is at its banner limit."}, status_code=409)
+    mode = (body.get("mode") or "image").strip()
+    size = (body.get("size") or "728x90").strip()
+    try:
+        w, h = int(body.get("width") or size.split("x")[0]), int(body.get("height") or size.split("x")[1])
+    except Exception:
+        w, h = 728, 90
+    b = BannerAd(
+        user_id=user.id, pack_purchase_id=pack.id, size=size, width=w, height=h, mode=mode,
+        title=(body.get("title") or "").strip()[:200],
+        description=(body.get("description") or "").strip()[:600],
+        category=(body.get("category") or "General").strip()[:80],
+        status="active",
+    )
+    if mode == "html":
+        code = (body.get("html_code") or "").strip()
+        if not code:
+            return JSONResponse({"error": "Paste your HTML/embed code."}, status_code=400)
+        b.html_code = code[:20000]
+    else:
+        if not (body.get("image_url") or "").strip():
+            return JSONResponse({"error": "Upload a banner image first."}, status_code=400)
+        b.image_url = body.get("image_url").strip()
+        b.destination_url = (body.get("destination_url") or "").strip()
+        b.flash_flagged = bool(body.get("flash_flagged"))
+    if b.flash_flagged:
+        b.status = "flagged"  # held out of the public page until reviewed
+    db.add(b); db.commit()
+    return JSONResponse({"success": True, "banner_id": b.id, "pack_level": pack.pack_level,
+                         "flagged": b.flash_flagged})
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
