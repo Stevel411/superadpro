@@ -38039,6 +38039,20 @@ async def banner_report(banner_id: int, request: Request, user: User = Depends(g
     return {"ok": True, "reports": open_ct}
 
 
+@app.get("/api/diag/banner-check")
+def diag_banner_check(db: Session = Depends(get_db)):
+    out = {}
+    try:
+        out["raw_count"] = db.execute(text("SELECT COUNT(*) FROM banner_ads")).scalar()
+    except Exception as e:
+        out["raw_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+    try:
+        out["orm_count"] = db.query(BannerAd).count()
+    except Exception as e:
+        out["orm_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+    return out
+
+
 @app.get("/api/diag/r2-test")
 def diag_r2_test(request: Request, user: User = Depends(get_current_user)):
     """Diagnostic: does R2 actually work on this deploy? Attempts a tiny upload
