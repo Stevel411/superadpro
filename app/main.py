@@ -27,6 +27,7 @@ from .database import (
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .database import AcademyCourse, AcademyLesson, AcademyProgress
+from .database import BannerAd, BannerReport
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
 # Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
 # for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
