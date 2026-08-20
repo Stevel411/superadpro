@@ -70299,6 +70299,15 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
                   for r in rows]
         aggregate = sum(v["views"] for v in videos)
         slots_used = sum(1 for v in videos if v["status"] == "active")
+        # Banners are bundled with the pack — their impressions count toward the
+        # pack's delivery total alongside video views (Steve, 20 Aug).
+        banner_impr = db.execute(text(
+            "SELECT COALESCE(SUM(impressions),0), COUNT(*) FROM al_banner_ads "
+            "WHERE pack_purchase_id = :pid AND status = 'active'"),
+            {"pid": pk.id}).fetchone()
+        banner_views = int((banner_impr[0] if banner_impr else 0) or 0)
+        banner_count = int((banner_impr[1] if banner_impr else 0) or 0)
+        aggregate = aggregate + banner_views
         pct = int(min(100, round(100 * aggregate / pack_total))) if pack_total else 0
         if pk.status == "expired":
             label = "completed"
@@ -70311,6 +70320,7 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
             "pack_id": pk.id, "level": pk.pack_level, "name": pack_name, "status": label,
             "aggregate": aggregate, "total": pack_total, "pct": pct,
             "slots_total": slots_total, "slots_used": slots_used,
+            "banner_views": banner_views, "banner_count": banner_count,
             "started": started.isoformat() if started else None,
             "videos": videos,
         })
