@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pack progress — compact redesign</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f0f3f9;font-family:Inter,system-ui,sans-serif;color:#0d1230;padding:30px}
+  .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+  .card{background:#fff;border:1px solid #e3e8f4;border-radius:18px;padding:22px 26px;box-shadow:0 24px 50px -34px rgba(10,31,82,.35)}
+  .h{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+  .h .t{font-size:16px;font-weight:900;color:#0a1f52;letter-spacing:-.3px}
+  .sub{font-size:12.5px;color:#7a869e;font-weight:500;margin-bottom:16px}
+  .lbl{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#c8102e;background:rgba(200,16,46,.08);padding:3px 9px;border-radius:6px;margin-bottom:12px}
+
+  /* Option A — clean rows, % only */
+  .rowA{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #eef1f8}
+  .rowA:last-child{border-bottom:0}
+  .nm{font-size:14px;font-weight:800;color:#0a1f52}
+  .mt{font-size:12px;color:#7a869e;font-weight:500;margin-top:2px}
+  .pct{font-size:15px;font-weight:900;flex:none;min-width:52px;text-align:right}
+  .z{color:#aeb7cc}    /* 0% muted */
+  .g{color:#159a52}    /* has progress */
+
+  /* Option B — rows + small inline bar */
+  .rowB{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #eef1f8}
+  .rowB:last-child{border-bottom:0}
+  .rowB .left{flex:1;min-width:0}
+  .mini{width:90px;height:6px;background:#eef1f8;border-radius:99px;overflow:hidden;flex:none}
+  .mini i{display:block;height:100%;background:linear-gradient(90deg,#12388f,#3b82f6);border-radius:99px}
+</style></head>
+<body>
+<div class="wrap">
+
+  <!-- OPTION A -->
+  <div class="card">
+    <span class="lbl">Option A · just the %</span>
+    <div class="h"><span>🎯</span><span class="t">Pack progress</span></div>
+    <div class="sub">Each pack delivers its full view target across its videos.</div>
+    <div class="rowA"><div><div class="nm">$50 Builder pack</div><div class="mt">0 of 4,000 views · 0/2 videos</div></div><div class="pct z">0%</div></div>
+    <div class="rowA"><div><div class="nm">$20 Starter pack</div><div class="mt">0 of 2,000 views · 0/2 videos</div></div><div class="pct z">0%</div></div>
+    <div class="rowA"><div><div class="nm">$10 Launchpad pack</div><div class="mt">0 of 1,000 views · 0/2 videos</div></div><div class="pct z">0%</div></div>
+    <div class="rowA"><div><div class="nm">$1000 Champion pack</div><div class="mt">98 of 120,000 views · 2/6 videos</div></div><div class="pct g">&lt;1%</div></div>
+    <div class="rowA"><div><div class="nm">$100 Pro pack</div><div class="mt">0 of 8,000 views · 0/4 videos</div></div><div class="pct z">0%</div></div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card">
+    <span class="lbl">Option B · % + small bar</span>
+    <div class="h"><span>🎯</span><span class="t">Pack progress</span></div>
+    <div class="sub">Each pack delivers its full view target across its videos.</div>
+    <div class="rowB"><div class="left"><div class="nm">$50 Builder pack</div><div class="mt">0 of 4,000 views · 0/2 videos</div></div><div class="mini"><i style="width:0%"></i></div><div class="pct z">0%</div></div>
+    <div class="rowB"><div class="left"><div class="nm">$20 Starter pack</div><div class="mt">0 of 2,000 views · 0/2 videos</div></div><div class="mini"><i style="width:0%"></i></div><div class="pct z">0%</div></div>
+    <div class="rowB"><div class="left"><div class="nm">$10 Launchpad pack</div><div class="mt">0 of 1,000 views · 0/2 videos</div></div><div class="mini"><i style="width:0%"></i></div><div class="pct z">0%</div></div>
+    <div class="rowB"><div class="left"><div class="nm">$1000 Champion pack</div><div class="mt">98 of 120,000 views · 2/6 videos</div></div><div class="mini"><i style="width:4%"></i></div><div class="pct g">&lt;1%</div></div>
+    <div class="rowB"><div class="left"><div class="nm">$100 Pro pack</div><div class="mt">0 of 8,000 views · 0/4 videos</div></div><div class="mini"><i style="width:0%"></i></div><div class="pct z">0%</div></div>
+  </div>
+
+</div>
+</body></html>

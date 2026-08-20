@@ -70064,7 +70064,31 @@ async def api_al_pack_performance(user: User = Depends(get_current_user), db: Se
     orphans = [{"id": r[0], "title": r[1] or "(untitled)", "platform": r[2] or "",
                 "category": r[3] or "", "views": int(r[4] or 0), "target": int(r[5] or 0)}
                for r in all_active if r[0] not in shown_ids]
-    return {"success": True, "packs": out, "orphans": orphans}
+    # Full 9-tier ladder for a balanced grid: owned tiers carry their progress,
+    # the rest are 'locked'. Aggregated by level so a member owning two packs at
+    # one tier still shows one cell.
+    by_level = {}
+    for pk in out:
+        lv = pk["level"]
+        b = by_level.setdefault(lv, {"aggregate": 0, "slots_used": 0})
+        b["aggregate"] += pk["aggregate"]
+        b["slots_used"] += pk["slots_used"]
+    tiers = []
+    for lv in sorted(meta.keys()):
+        m = meta[lv]
+        target = int((m.views_target or 0))
+        st = videos_allowed_for_level(lv)
+        if lv in by_level:
+            agg = by_level[lv]["aggregate"]
+            pct = int(min(100, round(100 * agg / target))) if target else 0
+            tiers.append({"level": lv, "name": m.name or ("$" + str(lv)), "target": target,
+                          "slots_total": st, "slots_used": by_level[lv]["slots_used"],
+                          "owned": True, "aggregate": agg, "pct": pct})
+        else:
+            tiers.append({"level": lv, "name": m.name or ("$" + str(lv)), "target": target,
+                          "slots_total": st, "slots_used": 0, "owned": False,
+                          "aggregate": 0, "pct": 0})
+    return {"success": True, "packs": out, "orphans": orphans, "tiers": tiers}
 
 
 @app.get("/api/campaign-analytics/overview")

@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pack progress — 3×3 all tiers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f0f3f9;font-family:Inter,system-ui,sans-serif;color:#0d1230;padding:30px}
+  .card{max-width:940px;margin:0 auto;background:#fff;border:1px solid #e3e8f4;border-radius:20px;padding:24px 28px;box-shadow:0 24px 50px -34px rgba(10,31,82,.35)}
+  .h{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+  .h .t{font-size:17px;font-weight:900;color:#0a1f52;letter-spacing:-.3px}
+  .sub{font-size:12.5px;color:#7a869e;font-weight:500;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.grid{grid-template-columns:1fr}}
+
+  .cell{border:1.5px solid #e6ecf5;border-radius:14px;padding:15px 16px;display:flex;flex-direction:column;gap:0;min-height:104px}
+  .cell.owned{background:#fff}
+  .cell .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .cell .nm{font-size:14px;font-weight:800;color:#0a1f52;letter-spacing:-.2px}
+  .cell .tier{font-size:11px;font-weight:700;color:#8a97b8}
+  .cell .mt{font-size:11.5px;color:#7a869e;font-weight:500;margin-top:5px}
+  .cell .barrow{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:12px}
+  .cell .mini{flex:1;height:6px;background:#eef1f8;border-radius:99px;overflow:hidden}
+  .cell .mini i{display:block;height:100%;background:linear-gradient(90deg,#12388f,#3b82f6);border-radius:99px}
+  .cell .pct{font-size:13px;font-weight:900;flex:none;min-width:34px;text-align:right}
+  .z{color:#aeb7cc}
+  .g{color:#159a52}
+
+  /* locked / not owned */
+  .cell.locked{background:#f6f8fc;border-style:dashed;border-color:#dbe3f1}
+  .cell.locked .nm{color:#9aa6c0}
+  .cell.locked .mt{color:#a7b2c8}
+  .cell.locked .lockrow{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px}
+  .cell.locked .notowned{font-size:11px;font-weight:800;color:#9aa6c0;letter-spacing:.02em}
+  .cell.locked .buy{font-size:11px;font-weight:800;color:#c8102e;background:rgba(200,16,46,.08);padding:4px 10px;border-radius:7px;cursor:pointer}
+</style></head>
+<body>
+<div class="card">
+  <div class="h"><span>🎯</span><span class="t">Pack progress</span></div>
+  <div class="sub">Each pack delivers its full view target across its videos.</div>
+  <div class="grid">
+
+    <!-- Row 1 -->
+    <div class="cell owned"><div class="top"><span class="nm">Launchpad</span><span class="tier">$10</span></div><div class="mt">0 of 1,000 views · 0/2 videos</div><div class="barrow"><div class="mini"><i style="width:0%"></i></div><span class="pct z">0%</span></div></div>
+    <div class="cell owned"><div class="top"><span class="nm">Starter</span><span class="tier">$20</span></div><div class="mt">0 of 2,000 views · 0/2 videos</div><div class="barrow"><div class="mini"><i style="width:0%"></i></div><span class="pct z">0%</span></div></div>
+    <div class="cell owned"><div class="top"><span class="nm">Builder</span><span class="tier">$50</span></div><div class="mt">0 of 4,000 views · 0/2 videos</div><div class="barrow"><div class="mini"><i style="width:0%"></i></div><span class="pct z">0%</span></div></div>
+
+    <!-- Row 2 -->
+    <div class="cell owned"><div class="top"><span class="nm">Pro</span><span class="tier">$100</span></div><div class="mt">0 of 8,000 views · 0/4 videos</div><div class="barrow"><div class="mini"><i style="width:0%"></i></div><span class="pct z">0%</span></div></div>
+    <div class="cell locked"><div class="top"><span class="nm">Advanced</span><span class="tier">$200</span></div><div class="mt">15,000 views · up to 4 videos</div><div class="lockrow"><span class="notowned">🔒 Not owned</span><span class="buy">Buy</span></div></div>
+    <div class="cell locked"><div class="top"><span class="nm">Premium</span><span class="tier">$400</span></div><div class="mt">30,000 views · up to 4 videos</div><div class="lockrow"><span class="notowned">🔒 Not owned</span><span class="buy">Buy</span></div></div>
+
+    <!-- Row 3 -->
+    <div class="cell locked"><div class="top"><span class="nm">Elite</span><span class="tier">$600</span></div><div class="mt">50,000 views · up to 6 videos</div><div class="lockrow"><span class="notowned">🔒 Not owned</span><span class="buy">Buy</span></div></div>
+    <div class="cell locked"><div class="top"><span class="nm">Master</span><span class="tier">$800</span></div><div class="mt">80,000 views · up to 6 videos</div><div class="lockrow"><span class="notowned">🔒 Not owned</span><span class="buy">Buy</span></div></div>
+    <div class="cell owned"><div class="top"><span class="nm">Champion</span><span class="tier">$1000</span></div><div class="mt">98 of 120,000 views · 2/6 videos</div><div class="barrow"><div class="mini"><i style="width:4%"></i></div><span class="pct g">&lt;1%</span></div></div>
+
+  </div>
+</div>
+</body></html>

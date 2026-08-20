@@ -93,28 +93,56 @@ export default function CampaignAnalytics() {
         </div>
       </div>
 
-      {/* Pack progress — aggregate across each pack's videos (completion driver) */}
-      {packData && packData.packs && packData.packs.length > 0 && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '18px 22px', marginBottom: 20 }}>
+      {/* Pack progress — all 9 tiers in a balanced grid; owned show progress, rest locked */}
+      {packData && packData.tiers && packData.tiers.length > 0 && (
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <Target size={18} color="var(--sap-accent)" />
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('campaignAnalytics.packProgress', { defaultValue: 'Pack progress' })}</div>
           </div>
-          <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)', marginBottom: 16 }}>{t('campaignAnalytics.packProgressDesc', { defaultValue: 'Each pack delivers its full view target across its videos — this is the pack overall.' })}</div>
-          {packData.packs.map(function(p) {
-            return (
-              <div key={p.pack_id} style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--sap-text-primary)' }}>${p.level} {p.name} pack</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)' }}>{(p.aggregate || 0).toLocaleString()} of {(p.total || 0).toLocaleString()} views · {p.slots_used}/{p.slots_total} videos</div>
-                  <div style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--sap-accent)' }}>{(p.aggregate > 0 && p.pct === 0) ? '<1%' : p.pct + '%'}</div>
+          <div style={{ fontSize: 12.5, color: 'var(--sap-text-faint)', marginBottom: 18 }}>{t('campaignAnalytics.packProgressDesc', { defaultValue: 'Each pack delivers its full view target across its videos.' })}</div>
+          <style>{`@media(max-width:720px){.al-pack-grid{grid-template-columns:1fr 1fr !important}}@media(max-width:480px){.al-pack-grid{grid-template-columns:1fr !important}}`}</style>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }} className="al-pack-grid">
+            {packData.tiers.map(function(p) {
+              var owned = p.owned;
+              var lowlabel = (p.aggregate > 0 && p.pct === 0) ? '<1%' : p.pct + '%';
+              return (
+                <div key={p.level} style={{
+                  border: owned ? '1.5px solid #e6ecf5' : '1.5px dashed #dbe3f1',
+                  background: owned ? '#fff' : '#f6f8fc',
+                  borderRadius: 14, padding: '15px 16px', display: 'flex', flexDirection: 'column', minHeight: 104,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: '-.2px', color: owned ? 'var(--sap-text-primary)' : '#9aa6c0' }}>{p.name}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#8a97b8' }}>${p.level}</span>
+                  </div>
+                  {owned ? (
+                    <>
+                      <div style={{ fontSize: 11.5, color: 'var(--sap-text-faint)', fontWeight: 500, marginTop: 5 }}>
+                        {(p.aggregate || 0).toLocaleString()} of {(p.target || 0).toLocaleString()} views · {p.slots_used}/{p.slots_total} videos
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 'auto', paddingTop: 12 }}>
+                        <div style={{ flex: 1, height: 6, background: '#eef1f8', borderRadius: 99, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: (p.aggregate > 0 ? Math.max(4, p.pct) : 0) + '%', background: 'linear-gradient(90deg,#12388f,#3b82f6)', borderRadius: 99 }} />
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 900, minWidth: 34, textAlign: 'right', color: p.aggregate > 0 ? '#159a52' : '#aeb7cc' }}>{lowlabel}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 11.5, color: '#a7b2c8', fontWeight: 500, marginTop: 5 }}>
+                        {(p.target || 0).toLocaleString()} views · up to {p.slots_total} videos
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 12 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: '#9aa6c0' }}>🔒 Not owned</span>
+                        <span onClick={function(){ window.location.href='/packs'; }} style={{ fontSize: 11, fontWeight: 800, color: 'var(--sap-accent)', background: 'rgba(200,16,46,0.08)', padding: '4px 10px', borderRadius: 7, cursor: 'pointer' }}>Buy</span>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div style={{ height: 10, background: '#eef1f8', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: (p.aggregate > 0 ? Math.max(2, p.pct) : 0) + '%', background: 'linear-gradient(90deg,#1e3a8a,#3b82f6)', borderRadius: 6 }} />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
