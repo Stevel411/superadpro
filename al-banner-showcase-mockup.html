@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Banner Showcase — mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#eef2f9;font-family:Inter,system-ui,sans-serif;color:#0d1230;padding:24px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .tag{display:inline-block;background:#0a1f52;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:.05em;margin-bottom:14px}
+  .hero{background:linear-gradient(135deg,#0a1f52,#12388f);border-radius:22px;padding:34px 36px;color:#fff;position:relative;overflow:hidden;margin-bottom:16px}
+  .hero:after{content:"";position:absolute;right:-30px;top:-30px;width:200px;height:200px;border-radius:50%;background:rgba(240,165,42,.16)}
+  .hero h1{font-size:32px;font-weight:900;letter-spacing:-1px}
+  .hero h1 b{color:#f0a52a}
+  .hero p{font-size:14.5px;color:#c9d6f0;font-weight:500;margin-top:10px;max-width:560px}
+  .hero .meta{margin-top:16px;font-size:12px;font-weight:700;color:#a9bce0}
+  .filters{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+  .chip{font-size:12.5px;font-weight:800;padding:8px 15px;border-radius:99px;border:1.5px solid #e6ecf5;background:#fff;color:#5a6584;cursor:pointer}
+  .chip.on{background:#0a1f52;color:#fff;border-color:#0a1f52}
+
+  .lead{width:100%;height:90px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:14px;box-shadow:0 16px 34px -22px rgba(10,31,82,.5);cursor:pointer;position:relative;overflow:hidden}
+  .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start}
+  @media(max-width:760px){.cols{grid-template-columns:1fr 1fr}}
+  @media(max-width:500px){.cols{grid-template-columns:1fr}}
+  .col{display:flex;flex-direction:column;gap:14px}
+  .b{border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;text-align:center;padding:12px;box-shadow:0 16px 34px -24px rgba(10,31,82,.5);cursor:pointer;position:relative;overflow:hidden}
+  .b .lab{position:absolute;left:0;right:0;bottom:0;background:rgba(6,12,32,.62);backdrop-filter:blur(2px);padding:7px 10px;text-align:left}
+  .b .lab .t{font-size:11.5px;font-weight:800;color:#fff}
+  .b .lab .m{font-size:10px;font-weight:700;color:#b9c6e6;margin-top:1px}
+  .rect{height:250px}
+  .rect2{height:280px}
+  .sky{height:600px}
+  .half{height:360px}
+  .sq{height:250px}
+  .g1{background:linear-gradient(135deg,#c8102e,#ff5a3c)}
+  .g2{background:linear-gradient(135deg,#12388f,#3b82f6)}
+  .g3{background:linear-gradient(135deg,#159a52,#22c26b)}
+  .g4{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+  .g5{background:linear-gradient(135deg,#d97706,#f0a52a)}
+  .g6{background:linear-gradient(135deg,#0891b2,#06b6d4)}
+  .g7{background:linear-gradient(135deg,#be185d,#ec4899)}
+</style></head>
+<body>
+<div class="wrap">
+  <span class="tag">MOCKUP · banner showcase (public + internal)</span>
+  <div class="hero">
+    <h1>Banner <b>Showcase</b></h1>
+    <p>Real offers, tools and opportunities from AdvantageLife members. Every banner here is placed by a member running an active campaign pack.</p>
+    <div class="meta">🔥 214 live banners · 1.2M impressions this month · updated continuously</div>
+  </div>
+
+  <div class="filters">
+    <span class="chip on">All</span><span class="chip">Crypto &amp; Finance</span><span class="chip">Business Tools</span>
+    <span class="chip">Health</span><span class="chip">Marketing</span><span class="chip">Make Money</span><span class="chip">Software</span>
+  </div>
+
+  <!-- leaderboards across the top -->
+  <div class="lead g2" style="cursor:pointer">SCALE YOUR AFFILIATE INCOME — FREE MASTERCLASS<div class="lab" style="position:absolute;background:rgba(6,12,32,.55);left:0;right:0;bottom:0;padding:6px 12px"><span style="font-size:10.5px;font-weight:700;color:#b9c6e6">Marketing · 12,480 impressions</span></div></div>
+
+  <div class="cols">
+    <div class="col">
+      <div class="b rect g1">SECURE YOUR CRYPTO<div class="lab"><div class="t">The New Rules of Cold Wallets</div><div class="m">Crypto &amp; Finance · 9,120 impressions · 3.1% CTR</div></div></div>
+      <div class="b sq g3">HEALTHY IN 30 DAYS<div class="lab"><div class="t">The 30-Day Reset</div><div class="m">Health · 5,600 impressions</div></div></div>
+      <div class="b rect2 g5">RANK #1 ON GOOGLE<div class="lab"><div class="t">SEO Toolkit 2026</div><div class="m">Software · 7,340 impressions</div></div></div>
+    </div>
+    <div class="col">
+      <div class="b sky g4">BUILD YOUR<br>PERSONAL BRAND<div class="lab"><div class="t">Brand Accelerator</div><div class="m">Marketing · 11,900 impressions · 2.7% CTR</div></div></div>
+      <div class="b sq g6">AI THAT WRITES<br>FOR YOU<div class="lab"><div class="t">CopyGenie AI</div><div class="m">Software · 8,050 impressions</div></div></div>
+    </div>
+    <div class="col">
+      <div class="b rect g7">TURN VIEWS<br>INTO INCOME<div class="lab"><div class="t">Watch-to-Earn Explained</div><div class="m">Make Money · 14,200 impressions</div></div></div>
+      <div class="b half g2">THE COMPLETE<br>FOREX COURSE<div class="lab"><div class="t">Forex From Scratch</div><div class="m">Business Tools · 6,780 impressions</div></div></div>
+    </div>
+  </div>
+</div>
+</body></html>

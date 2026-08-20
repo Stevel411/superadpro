@@ -1,0 +1,111 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create a Banner — mockup v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#eef2f9;font-family:Inter,system-ui,sans-serif;color:#0d1230;padding:26px}
+  .wrap{max-width:940px;margin:0 auto}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+  h1{font-size:27px;font-weight:900;letter-spacing:-.6px;color:#0a1f52}
+  .sub{font-size:13.5px;color:#5a6584;font-weight:500;margin-top:4px;max-width:520px}
+  .slot{background:#0a1f52;color:#fff;border-radius:12px;padding:10px 16px;font-size:12.5px;font-weight:800;white-space:nowrap}
+  .slot b{color:#f0a52a}
+  .card{background:#fff;border:1px solid #e3e8f4;border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:0 20px 44px -34px rgba(10,31,82,.35)}
+  .step{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#c8102e;margin-bottom:3px}
+  .ct{font-size:16px;font-weight:800;color:#0a1f52;margin-bottom:4px}
+  .anim{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.1);padding:5px 11px;border-radius:8px;margin-bottom:14px}
+
+  .grp{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#8a97b8;margin:16px 0 9px}
+  .grp:first-of-type{margin-top:8px}
+  .sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:760px){.sizes{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:480px){.sizes{grid-template-columns:1fr 1fr}}
+  .size{border:1.5px solid #e6ecf5;border-radius:11px;padding:12px 8px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;min-height:110px}
+  .size.on{border-color:#c8102e;box-shadow:0 0 0 1px #c8102e;background:#fff5f6}
+  .demo{background:linear-gradient(135deg,#12388f,#3b82f6);border-radius:3px;flex:none}
+  .size .nm{font-size:11px;font-weight:800;color:#0a1f52;line-height:1.15}
+  .size .dim{font-size:10px;font-weight:700;color:#8a97b8}
+  .dbox{height:70px;display:flex;align-items:center;justify-content:center}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{font-size:13px;font-weight:800;padding:9px 16px;border-radius:10px;border:1.5px solid #e6ecf5;background:#fff;color:#5a6584;cursor:pointer}
+  .tab.on{background:#0a1f52;color:#fff;border-color:#0a1f52}
+  .drop{border:2px dashed #c3d0e8;border-radius:12px;padding:24px;text-align:center;color:#5a6584;font-weight:600;font-size:13px;background:#f8fafd}
+  .drop b{color:#0a1f52}
+  label{font-size:11px;font-weight:800;color:#5a6584;text-transform:uppercase;letter-spacing:.05em;display:block;margin:14px 0 5px}
+  input{width:100%;padding:10px 12px;border:1.5px solid #cdd8ec;border-radius:9px;font-size:13px;font-family:inherit;color:#0d1230}
+  .note{font-size:12px;font-weight:600;color:#8a5a00;background:#fff8e8;border:1px solid #f3e2b8;border-radius:9px;padding:10px 12px;margin-top:12px}
+  .note b{color:#7a4a00}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .go{background:#c8102e;color:#fff;border:0;border-radius:11px;padding:13px 26px;font-size:14.5px;font-weight:900;cursor:pointer;width:100%}
+  .tag{display:inline-block;background:#0a1f52;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:.05em;margin-bottom:14px}
+</style></head>
+<body>
+<div class="wrap">
+  <span class="tag">MOCKUP · banner creation v2 · all sizes</span>
+  <div class="head">
+    <div><h1>Create a Banner Ad</h1><div class="sub">Runs across the AdvantageLife Banner Showcase and public discovery page — extra reach on top of your video campaign.</div></div>
+    <div class="slot">Banner <b>1 of 4</b> · $100 Pro pack</div>
+  </div>
+
+  <div class="card">
+    <div class="step">Step 1</div><div class="ct">Choose a size</div>
+    <div class="anim">✨ Every size supports animation — GIF &amp; HTML5</div>
+
+    <div class="grp">Horizontal</div>
+    <div class="sizes">
+      <div class="size on"><div class="dbox"><span class="demo" style="width:80px;height:10px"></span></div><div class="nm">Leaderboard</div><div class="dim">728×90</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:80px;height:21px"></span></div><div class="nm">Billboard</div><div class="dim">970×250</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:80px;height:7px"></span></div><div class="nm">Super Leader</div><div class="dim">970×90</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:64px;height:8px"></span></div><div class="nm">Full Banner</div><div class="dim">468×60</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:42px;height:11px"></span></div><div class="nm">Half Banner</div><div class="dim">234×60</div></div>
+    </div>
+
+    <div class="grp">Rectangle &amp; Square</div>
+    <div class="sizes">
+      <div class="size"><div class="dbox"><span class="demo" style="width:50px;height:42px"></span></div><div class="nm">Med. Rectangle</div><div class="dim">300×250</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:53px;height:44px"></span></div><div class="nm">Lg. Rectangle</div><div class="dim">336×280</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:44px;height:44px"></span></div><div class="nm">Square</div><div class="dim">250×250</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:36px;height:36px"></span></div><div class="nm">Small Square</div><div class="dim">200×200</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:28px;height:28px"></span></div><div class="nm">Button</div><div class="dim">125×125</div></div>
+    </div>
+
+    <div class="grp">Vertical</div>
+    <div class="sizes">
+      <div class="size"><div class="dbox"><span class="demo" style="width:34px;height:68px"></span></div><div class="nm">Half Page</div><div class="dim">300×600</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:18px;height:68px"></span></div><div class="nm">Wide Skyscraper</div><div class="dim">160×600</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:14px;height:68px"></span></div><div class="nm">Skyscraper</div><div class="dim">120×600</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:19px;height:68px"></span></div><div class="nm">Portrait</div><div class="dim">300×1050</div></div>
+    </div>
+
+    <div class="grp">Mobile</div>
+    <div class="sizes">
+      <div class="size"><div class="dbox"><span class="demo" style="width:72px;height:11px"></span></div><div class="nm">Mobile Leader</div><div class="dim">320×50</div></div>
+      <div class="size"><div class="dbox"><span class="demo" style="width:66px;height:20px"></span></div><div class="nm">Large Mobile</div><div class="dim">320×100</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="step">Step 2</div><div class="ct">Add your banner</div>
+    <div class="anim">✨ Animated GIF &amp; HTML5 welcome — moving, blinking banners get more clicks</div>
+    <div class="tabs"><span class="tab on">🖼️ Upload image</span><span class="tab">&lt;/&gt; Paste HTML / embed code</span></div>
+    <div class="drop">Drop an image or animated GIF here, or <b>browse</b> — JPG, PNG, GIF · sized <b>728×90</b></div>
+    <label>Destination URL (where clicks go)</label>
+    <input value="https://yoursite.com/offer" />
+    <div class="note">⚡ <b>Animation &amp; blinking are fine</b> — but please avoid rapid strobing (faster than 3 flashes per second). It's an accessibility/seizure risk on a public page, so anything above that is auto-flagged for review before it goes live. Pasted HTML runs sandboxed in an isolated frame.</div>
+  </div>
+
+  <div class="card">
+    <div class="step">Step 3</div><div class="ct">Details for the showcase &amp; discovery page</div>
+    <div class="grid2">
+      <div><label>Title</label><input value="The New Rules of Cold Wallets" /></div>
+      <div><label>Category</label><input value="Crypto & Finance" /></div>
+    </div>
+    <label>Short description (helps it get found)</label>
+    <input value="A plain-English guide to keeping your crypto safe in self-custody." />
+  </div>
+
+  <div class="card"><button class="go">Launch Banner →</button></div>
+</div>
+</body></html>
