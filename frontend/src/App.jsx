@@ -65,7 +65,6 @@ const HelpSendingDomain = React.lazy(() => import('./pages/HelpSendingDomain'));
 const LabsSuperPagesEditor = React.lazy(() => import('./pages/labs-superpages/SuperPagesEditor'));
 const LabsTemplatesPreview = React.lazy(() => import('./pages/labs-superpages/LabsTemplatesPreview'));
 const LabsSandboxList = React.lazy(() => import('./pages/labs-superpages/LabsSandboxList'));
-const UpgradeCheckout = React.lazy(() => import('./pages/UpgradeCheckout'));
 const IncomeDisclaimer = React.lazy(() => import('./pages/IncomeDisclaimer'));
 const AiTool = React.lazy(() => import('./pages/AiTool'));
 const ToolsPage = React.lazy(() => import('./pages/ToolsPage'));
@@ -109,7 +108,6 @@ const BrandPosterHistory = React.lazy(() => import('./pages/brand-posters/BrandP
 // ── Heavy/rare pages (already lazy from before) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
-const StudioShell = React.lazy(() => import('./pages/studio/StudioShell'));
 
 // ── Background-preload all lazy chunks after first paint ──────────────────
 // Without this, every route navigation triggers a fresh network fetch for
@@ -127,7 +125,6 @@ const PRELOAD_IMPORTS = [
   () => import('./pages/Watch'),
   () => import('./pages/Support'),
   () => import('./pages/VideoLibrary'),
-  () => import('./pages/UpgradeCheckout'),
   () => import('./pages/IncomeDisclaimer'),
   () => import('./pages/AiTool'),
   () => import('./pages/ToolsPage'),
@@ -363,13 +360,12 @@ function AppRoutes() {
       {/* /upgrade serves the new Partner Payment window (Sprint 2d, 15 May 2026).
           Legacy Upgrade.jsx kept in codebase as dead code; will be removed in a
           future cleanup once we're confident the new page handles every case.
-          /upgrade/checkout still routes to legacy UpgradeCheckout for any in-flight
-          checkout sessions that haven't completed yet — that page now short-circuits
-          the deprecated pro-upgrade path with a clear message. */}
+          /upgrade/checkout now HardRedirects to /join on AL (backend also 301s);
+          UpgradeCheckout.jsx kept as dead code, live only on SuperAdPro (main). */}
       {/* /upgrade retired — PartnerPayment sold the SuperAdPro $15/$20-a-month
           membership. AL has no monthly tier; the $100 lifetime join lives at /join. */}
       <Route path="/upgrade" element={<HardRedirect to="/join" />} />
-      <Route path="/upgrade/checkout" element={<ProtectedRoute><UpgradeCheckout /></ProtectedRoute>} />
+      <Route path="/upgrade/checkout" element={<HardRedirect to="/join" />} />
 
       {/* Complex tools — full React pages */}
       <Route path="/linkhub" element={<ProtectedRoute><RequireTier tier="basic"><LinkHubPage /></RequireTier></ProtectedRoute>} />
@@ -414,7 +410,8 @@ function AppRoutes() {
       <Route path="/credit-nexus" element={<HardRedirect to="/tools" />} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><RequireTier tier="basic"><CampaignAnalytics /></RequireTier></ProtectedRoute>} />
       <Route path="/creative-studio" element={<HardRedirect to="/tools" />} />
-      <Route path="/studio" element={<ProtectedRoute><RequireTier tier="basic"><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#081034',color:'#2ad4ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Studio…'}</div>}><StudioShell /></React.Suspense></RequireTier></ProtectedRoute>} />
+      {/* /studio retired with Creative Studio — HardRedirect on AL; backend also 301s to /tools. Live only on SuperAdPro (main). */}
+      <Route path="/studio" element={<HardRedirect to="/tools" />} />
       <Route path="/pro/leads" element={<ProtectedRoute><RequireTier tier="pro"><MyLeads /></RequireTier></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><RequireTier tier="basic"><LinkTools /></RequireTier></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<Navigate to="/campaign-tiers" replace />} />

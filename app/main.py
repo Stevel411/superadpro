@@ -49796,8 +49796,12 @@ def upgrade_page(request: Request):
 def upgrade_checkout_page(request: Request):
     """Serve React SPA (Step 2 of new upgrade flow, added 9 May 2026).
 
-    Accepts ?plan=basic or ?plan=pro query param. Reads on the React side.
+    RETIRED ON ADVANTAGELIFE — AL has no monthly tier; the $100 lifetime join
+    lives at /join. Kept live on SuperAdPro (main). Accepts ?plan= on SAP.
     """
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/join", status_code=301)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
