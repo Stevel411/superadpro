@@ -29,8 +29,9 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.campaignTierPricing')}>
             <p>{t("incomeDisclaimer.campaignTierAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'100%', label:t('incomeDisclaimer.campaignTier.memberLabel'), desc:t('incomeDisclaimer.campaignTier.memberDesc') },
-              { pct:'0%', label:t('incomeDisclaimer.campaignTier.companyLabel'), desc:t('incomeDisclaimer.campaignTier.companyDesc') },
+              { pct:'7', label:t('incomeDisclaimer.campaignTier.keepLabel'), desc:t('incomeDisclaimer.campaignTier.keepDesc') },
+              { pct:'3', label:t('incomeDisclaimer.campaignTier.passupLabel'), desc:t('incomeDisclaimer.campaignTier.passupDesc') },
+              { pct:'1', label:t('incomeDisclaimer.campaignTier.feeLabel'), desc:t('incomeDisclaimer.campaignTier.feeDesc') },
             ]}/>
             <p>{t('incomeDisclaimer.body_L47')}</p>
           </Section>
