@@ -2627,10 +2627,10 @@
     "buildReal": "Tunay na buuin",
     "watchYour": "Watch Your",
     "marketing": {
-      "aiContent": "Generate social posts, email sequences, and ad copy with AI",
-      "autoFollowup": "Automated follow-up sequences that convert while you sleep",
+      "aiContent": "Gumawa ng social posts, email sequences, at ad copy gamit ang AI",
+      "autoFollowup": "Automated na follow-up sequences na kumo-convert habang natutulog ka",
       "smartLinks": "Smart links, QR codes, click tracking, retargeting pixels",
-      "readyMade": "Ready-made posts, stories, swipe copy for every platform"
+      "readyMade": "Handa nang posts, stories, at swipe copy para sa bawat platform"
     }
   },
   "publicPages": {
@@ -2709,7 +2709,27 @@
     "fastSetup": "Mabilis na setup",
     "fastSetupDesc": "Isumite ang iyong video, itakda ang iyong budget, at mag-live sa loob ng 24 na oras.",
     "createAdvertiserAccount": "Gumawa ng Advertiser Account →",
-    "contactQuestion": "Mga tanong tungkol sa aming legal na mga tuntunin?"
+    "contactQuestion": "Mga tanong tungkol sa aming legal na mga tuntunin?",
+    "faqQ1": "Libre bang sumali sa AdvantageLife?",
+    "faqA1": "Hindi. Ang AdvantageLife ay $100, isang beses lang. Binibili nito ang panghabambuhay na access sa platform at sa lahat ng tool dito — walang buwanang membership, subscription o renewal, at walang inuulit. Kung hindi ito para sa’yo, humiling sa loob ng 7 araw at ibabalik ang buong $100 nang walang bawas. Walang kumikita ng komisyon sa pagsali mo, kaya walang dahilan na pilitin ka.",
+    "faqQ2": "Ano ba talaga ang binebenta ko?",
+    "faqA2": "Watch-to-Earn campaign packs — siyam sila, mula sa $10 Launchpad hanggang $1,000 Champion. Bawat isa ay tunay na advertising product: bumibili ito ng takdang bilang ng video views, na hatid ng totoong mga miyembrong nanonood. Ang $200 Advanced pack ay naghahatid ng 15,000 views; ang $1,000 Champion ay 120,000.",
+    "faqQ3": "Magkano ang komisyon ko sa isang benta?",
+    "faqA3": "100% ng presyo ng pack. Ang $200 na benta ay nagbabayad sa’yo ng $200. Walang hatian at walang parte ang kompanya — direktang nagbabayad sa’yo ang mamimili, miyembro sa miyembro. Hindi kailanman hinahawakan ng platform ang pera; tinutukoy nito kung sino ang dapat bayaran at itinatala ang patunay.",
+    "faqQ4": "Ano ang 3/6/9 pass-up?",
+    "faqA4": "Ang iyong ika-3, ika-6, at ika-9 na benta ay napupunta sa isang qualified na miyembro sa itaas mo sa halip na sa’yo. Lahat ng iba pang benta ay sa’yo, at mula sa ika-10 pataas ay wala nang ipinapasa-taas. Ang kapalit: tatlong chain — lahat ng ipinasa-taas sa’yo ay ipinapasa rin ang kanilang ika-3, ika-6, at ika-9 sa’yo — at gayundin ang mga ipinasa-taas nila, sa anumang lalim, nang walang limitasyon.",
+    "faqQ5": "Ano ang kailangan kong gawin para kumita?",
+    "faqA5": "Tatlong bagay, lahat totoo sa araw na dumating ang benta. Magmay-ari ng pack level na iyon o mas mataas. Kumpletuhin ang iyong daily watch. May naka-save na payout method. Makaligtaan ang alinman at lalampas sa’yo ang benta, at wala sa mga ito ang retroactive.",
+    "faqQ6": "Gaano karaming panonood ang kailangan?",
+    "faqA6": "Sa pagitan ng 1 at 5 video kada araw, batay sa pinakamalaki mong aktibong pack — 1 sa Launchpad at Starter, 2 sa Builder at Pro, 3 sa Advanced at Premium, 4 sa Elite at Master, 5 sa Champion. Kapag naabot mo ang quota, mananatili kang qualified sa loob ng 48 oras, kaya hindi ka malalampasan ng mamimili sa ibang time zone dahil lang hindi ka pa nanonood ngayon. Ang panonood din ang nagbubukas ng withdrawals.",
+    "faqQ7": "Bakit ako malalampasan ng isang benta?",
+    "faqA7": "Kadalasan ay ang sarili mong pack level. Pinipili ng mamimili kung aling pack ang gusto nila, at makakakita ka lang sa mga level na katumbas o mas mababa sa hawak mo. Kung may bumili ng $1,000 Champion at ikaw ay may $200 Advanced, napupunta sa kompanya ang benta — hindi ito umaakyat sa iyong upline. Ang sarili mong level ang hangganan ng maaari mong makuha. Ganoon din kung hindi mo nagawa ang daily watch mo, o walang naka-save na payout method.",
+    "faqQ8": "Nagiging qualified ba ako habang-buhay kapag bumili ng pack?",
+    "faqA8": "Hindi — nagiging qualified ka habang tumatakbo ito. Nananatiling aktibo ang pack hanggang maihatid nito ang views, tapos may maikling grace window bago ito mag-expire. Sinusunod ng earning level mo ang pinakamataas mong aktibong pack, kaya kapag nag-expire ang isa, babalik ka sa susunod na tumatakbo pa.",
+    "faqQ9": "Paano ako babayaran?",
+    "faqA9": "Direkta mula sa mamimili, sa anumang pinili mong tanggapin. Maaari kang maglista ng USDT o USDC sa BNB Smart Chain, TRON, Polygon o Ethereum, at Cash App, PayPal, Wise o Zelle. Ikaw ang nagtatakda kung anong mga paraan ang tatanggapin mo, pipili ang mamimili ng isa mula sa listahan mo, at direktang mapupunta sa’yo ang pera. Walang unang dumadaan sa account ng kompanya.",
+    "faqQ10": "Paano ako makakakuha ng suporta?",
+    "faqA10": "Sa pamamagitan ng support page, o ng help system sa loob ng platform kapag naka-sign in ka na."
   },
   "proSeller": {
     "title": "ProSeller",

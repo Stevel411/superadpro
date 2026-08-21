@@ -58,3 +58,19 @@ These render retired-model concepts; translating them entrenches the wrong model
 - **58 keys NOT yet proven reachable** (publicPages, incomeDisclaimer, cryptoGuide, platformTour, socialShare, superLink, training, learn) — do NOT translate until each page is individually confirmed to render on AL.
 
 **Net:** Filipino on the confirmed-live member pages is essentially complete (the bulk was already translated; the rest is correctly-English tech terms). Remaining real work is small and gated on per-page reachability checks + the de-stale decisions on retired-model strings.
+
+
+## Live public content translated + income-disclaimer flagged (2026-08-21)
+Curl-verified these public pages render on AL (no auth confound): income-disclaimer, crypto-guide, tour, training, social-share, learn/assets, /ref/:username (superLink), faq.
+- ✅ **Public FAQ translated** (`publicPages.faq*`, 20 keys) — correct current-AL content ($100 once / Watch-to-Earn packs / 100% commission / 3/6/9 pass-up / own-level-or-higher / daily watch / 48h grace / direct P2P pay). Highest-value content for the incoming Filipino community.
+- ✅ **superLink marketing blurbs** (3) translated.
+- Kept English (tech): cryptoGuide BEP-20/TRC-20, socialShare/platformTour/training titles, smartLinks.
+
+## ⚠️ /income-disclaimer — LIVE page with RETIRED-model content — DE-STALE, do NOT translate
+`/income-disclaimer` renders on AL but its body still lists the retired comp model:
+- `incomeDisclaimer.campaignTier.unilevelLabel/unilevelDesc` — "Uni-level Commissions", "6.25% × 8 levels deep" (retired)
+- `incomeDisclaimer.campaignTier.completionLabel` — "Completion Bonus Pool" (retired grid)
+- `incomeDisclaimer.creditPack.*` — Auto-Place/spillover/Completion/Direct Referral (retired credit-pack matrix)
+- `incomeDisclaimer.membership.sponsorLabel/sponsorDesc` — "Paid ... every month they remain active" (retired monthly membership)
+- (`incomeDisclaimer.body_L64` IS correct current AL — member-to-member, level-or-higher, daily watch, 48h grace.)
+**This is a live public legal page showing the wrong model.** Needs a de-stale pass (fix/remove the retired sections) — Steve's call on wording — BEFORE translating. Translating it as-is would publish the retired model in Filipino.
