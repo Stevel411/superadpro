@@ -4400,13 +4400,6 @@ def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_c
         return templates.TemplateResponse("compensation-plan-internal.html", ctx)
     return templates.TemplateResponse("compensation-plan.html", ctx)
 
-@app.get("/onboarding")
-def onboarding_page(request: Request):
-    """Serve React SPA for onboarding wizard."""
-    if _react_index.exists():
-        return _spa_shell()
-    return RedirectResponse(url="/dashboard", status_code=302)
-
 @app.get("/leaderboard")
 def leaderboard_page(request: Request):
     """Serve React SPA."""
@@ -8212,13 +8205,6 @@ def internal_tools_pages(request: Request):
 # Command Centre — business management cockpit page (Apr 2026).
 # Reached from the "Command Centre" door on /dashboard. Required so
 # direct URL access and refresh work via React Router (CLAUDE.md rule).
-@app.get("/command-centre")
-def command_centre(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
 # My Team — member-facing downline view (20 May 2026).
 # Restores the archived MyNetwork.jsx.bak page as a modernised /my-team
 # route showing direct referrals + earnings breakdown + commission
@@ -9271,24 +9257,6 @@ def api_command_centre_nexus_team(
 # so direct URL access and refresh work.
 
 
-@app.get("/command-centre/directs/active")
-@app.get("/command-centre/directs/lapsed")
-@app.get("/command-centre/directs/never-paid")
-@app.get("/command-centre/nexus-team")
-def command_centre_drilldown_pages(request: Request):
-    """Serve React SPA for any Command Centre Layer 2 drill-down page."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
-
-
-
-@app.get("/analytics")
-def analytics_page(request: Request):
-    """Serve React SPA for analytics."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/api/dashboard/new-members")
 def api_new_members(request: Request, since: str = None,
                     user: User = Depends(get_current_user),
@@ -19680,7 +19648,13 @@ def payment_cancelled_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/payment-success")
 def payment_success_dash(request: Request):
-    """Stripe redirects here after payment — serve React SPA."""
+    """Former payment-success landing. The AL $100 join lands on /dashboard;
+    the retired-content React page (PaymentSuccess.jsx) was deleted. On AL we
+    redirect any stray hit (old bookmark / the retired partner-payment flow) to
+    /dashboard rather than 404 a payment URL. Kept serving SPA on SuperAdPro."""
+    from . import brand_config
+    if brand_config.IS_ADVANTAGELIFE:
+        return RedirectResponse(url="/dashboard", status_code=302)
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")

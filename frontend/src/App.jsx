@@ -24,11 +24,7 @@ const Wisdom = React.lazy(() => import('./pages/Wisdom'));
 const Collaborations = React.lazy(() => import('./pages/Collaborations'));
 const AdminCollaborations = React.lazy(() => import('./pages/AdminCollaborations'));
 const AdminWisdom = React.lazy(() => import('./pages/AdminWisdom'));
-const CommandCentre = React.lazy(() => import('./pages/CommandCentre'));
-const BucketList = React.lazy(() => import('./pages/BucketList'));
 const MyTeam = React.lazy(() => import('./pages/MyTeam'));
-const OnboardingWizard = React.lazy(() => import('./pages/OnboardingWizard'));
-const AnalyticsPage = React.lazy(() => import('./pages/Analytics'));
 const CreateCampaign = React.lazy(() => import('./pages/CreateCampaign'));
 const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
 const Academy = React.lazy(() => import('./pages/Academy'));
@@ -51,7 +47,6 @@ const MarketingMaterials = React.lazy(() => import('./pages/MarketingMaterials')
 const LeadMagnetDetail = React.lazy(() => import('./pages/LeadMagnetDetail'));
 const LeadFinder = React.lazy(() => import('./pages/LeadFinder'));
 const Watch = React.lazy(() => import('./pages/Watch'));
-const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Support = React.lazy(() => import('./pages/Support'));
 const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
 const Videos = React.lazy(() => import('./pages/Videos'));
@@ -73,7 +68,6 @@ const EducationPage = React.lazy(() => import('./pages/EducationPage'));
 const AssetsPage = React.lazy(() => import('./pages/AssetsPage'));
 const MyLeads = React.lazy(() => import('./pages/MyLeads'));
 const LinkTools = React.lazy(() => import('./pages/LinkTools'));
-const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 const ProSeller = React.lazy(() => import('./pages/ProSeller'));
 const MySite = React.lazy(() => import('./pages/MySite'));
 const BlogEditor = React.lazy(() => import('./pages/BlogEditor'));
@@ -115,9 +109,6 @@ const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 // silently in the background once the user is on the dashboard, so subsequent
 // navigations resolve Suspense instantly. Staggered to avoid network thrash;
 const PRELOAD_IMPORTS = [
-  () => import('./pages/CommandCentre'),
-  () => import('./pages/BucketList'),
-  () => import('./pages/Analytics'),
   () => import('./pages/CreateCampaign'),
   () => import('./pages/Leaderboard'),
   () => import('./pages/Affiliate'),
@@ -272,7 +263,6 @@ function AppRoutes() {
     <Suspense fallback={<div style={{minHeight:'60vh',display:'flex',alignItems:'center',justifyContent:'center'}}><Spinner/></div>}>
     <Routes>
       {/* Fully migrated pages */}
-      <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><NewDashboard /></ProtectedRoute>} />
       <Route path="/academy" element={<ProtectedRoute><Academy /></ProtectedRoute>} />
       <Route path="/academy-admin" element={<ProtectedRoute><AcademyAdmin /></ProtectedRoute>} />
@@ -300,11 +290,6 @@ function AppRoutes() {
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
-      <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
-      <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
-      <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />
-      <Route path="/command-centre/directs/never-paid" element={<ProtectedRoute><BucketList bucketKey="directs-never-paid" /></ProtectedRoute>} />
-      <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<WalletRoute />} />
       <Route path="/w/:token" element={<SharePage />} />
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
@@ -334,7 +319,6 @@ function AppRoutes() {
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><RequireTier tier="basic"><Watch /></RequireTier></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><RequireTier tier="basic"><AnalyticsPage /></RequireTier></ProtectedRoute>} />
       <Route path="/video-library" element={<HardRedirect to="/campaigns" />} />
       <Route path="/upload" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
       <Route path="/create-campaign" element={<ProtectedRoute><RequireTier tier="basic"><CreateCampaign /></RequireTier></ProtectedRoute>} />
@@ -471,7 +455,6 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Catch-all */}
-      <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     </Suspense>
