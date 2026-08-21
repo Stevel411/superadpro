@@ -67,16 +67,18 @@ Audited all **156 routes** against live code (script: route→component→palett
 ### A. Redirect stubs — **51 routes** → KEEP
 Already `HardRedirect`/`Navigate` to live AL pages. Load-bearing for inbound links.
 
-### B. Retired-model CONTENT still rendering (member-facing) — **5 pages** → FIX
-Verified with context (12 raw grep hits → 7 were false positives: comments documenting the *retired* grid, `56.25%` aspect ratios, `<HourlyHeatmap matrix=>` props, and an AI prompt that says "never say per month"). The 5 genuine ones:
+### B. Retired-model orphans — **DELETED** (`743995c`, verified live)
+Verified with context (12 raw grep hits → 7 false positives). The genuine ones were then **traced for live reachability** — none were in the live `SideNav`; every inbound link came from dead/unrouted pages (`Dashboard.jsx` imported-but-never-routed, `TeamPage`/`BucketList`, and `BusinessHubTabs` which only renders on the `AppLayout` "🚧 migrating" stub, never a live route). So none were reachable by a member navigating AL. Steve's call: delete outright rather than leave landmines for future sessions.
 
-| Route | Component | Problem (verified line) | Kind |
-|---|---|---|---|
-| `/onboarding` | OnboardingWizard | "You earn **$10/month for every active member — recurring**" (L196) — false income claim, shown to new members | CONTENT — fix now |
-| `/marketing-materials` | MarketingMaterials | Member deck sells the fully retired 3-stream model: "Membership Referrals, Campaign Grid, Creator Credits" (L28, L144) | CONTENT — needs Steve's replacement |
-| `/analytics` | AnalyticsPage | Renders retired income labels: Direct 30% / Grid Bonus / Membership / Nexus (L12, L58) | DECISION — redirect to `/campaign-analytics` vs re-skin |
-| `/payment-success` | PaymentSuccess | Stale `superscene` + "/credit-nexus for credit packs" copy after the $100 join (L50, L325) | CONTENT + palette |
-| `/command-centre` | CommandCentre | "Creator Credits" tile + `/nexus-team` link (L13, L119, L124) | CONTENT + palette |
+| Route | Was | Now |
+|---|---|---|
+| `/onboarding` | "$10/month recurring" false income claim | route + import + shell + `OnboardingWizard.jsx` deleted → 404 |
+| `/analytics` | retired income labels (Direct 30%/Grid/Membership/Nexus) | deleted (+ dead 2nd `Analytics` alias) → 404 |
+| `/command-centre` (+4 sub-routes) | Creator Credits tile + nexus-team | routes + `CommandCentre.jsx`/`BucketList.jsx` deleted → 404 |
+| `/payment-success` | superscene + credit-pack copy | `PaymentSuccess.jsx` deleted; backend → `IS_ADVANTAGELIFE` 302→/dashboard (former payment URL, money-safe, not a 404) |
+| `/marketing-materials` | retired 3-stream deck | already 302→/my-marketing (no action) |
+
+**Follow-up:** the `api_command_centre_*` endpoints (`_directs`, `_grid_team`, `_nexus_team`, `_nudge_lapsed`) are now uncalled — queued for a later API-cleanup pass (left in place to keep the deletion commit focused). Related orphans `TeamPage`(`/team`) and `BusinessHubTabs`/`AppLayout` stubs also surfaced — candidates for the next pass.
 
 ### C. True palette re-skin — **7 pages** (raw SAP hex, renders regardless of token remap) → RE-SKIN
 `--sap-accent`/`--sap-cyan` **tokens are remapped to AL red** on AL (`design-tokens.css:168`), so token-using pages already render AL colours — the July log's "~31 markers" was inflated by those. Only these use raw hex: `payment-success` (4), `command-centre` (2), `my-site` (2), `custom-domain` (2), `explore` (1), `admin/collaborations` (1), `help/sending-domain` (1). Surgical — a badge/gradient each, not whole SAP pages.
@@ -96,3 +98,5 @@ The July log noted "~31 member-facing React routes still carry SuperAdPro marker
 ## Decisions log
 - _2026-08-21_ — Register opened. Redirect stubs confirmed load-bearing → keep. `proseller`/`wisdom` confirmed live → keep.
 - _2026-08-21_ — Steve approved both survivors. Shipped `ac8fb67`: `/studio`→/tools and `/upgrade/checkout`→/join (backend AL-gate added on the latter; both React routes → HardRedirect; StudioShell + UpgradeCheckout chunks no longer shipped; components kept as dead code for SAP `main`). Verified live: `/studio`→301→/tools; `/upgrade/checkout`→301→/join→/register(200). Two of two Finding-1 survivors closed.
+
+- _2026-08-21_ — Deleted 4 orphaned retired-model pages (`743995c`): /onboarding, /analytics, /command-centre(+4 sub-routes) removed outright (→404); /payment-success content deleted, backend →302 /dashboard (money-safe). Verified live: deleted routes 404, payment-success redirects, /dashboard //my-team //campaign-analytics //packs all 200. Reachability was fully traced first — all four were orphans (no live SideNav path). Now-uncalled `api_command_centre_*` endpoints + TeamPage/BusinessHubTabs orphans queued for next pass.

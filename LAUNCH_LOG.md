@@ -15,6 +15,8 @@
 
 **Opened the stale-SAP page-removal register** → `docs/stale-sap-removal.md` (living, evidence-based, 5-check methodology). Audited against live code, not the July log's claims — and the naive "delete old SAP routes" was wrong three ways: (1) **13 suspect routes are already redirect stubs and are LOAD-BEARING for old inbound links** — deleting them would 404 live URLs → keep; (2) `/proseller` and `/wisdom` look SAP but are **live AL** (wisdom just needs a re-skin) → keep; (3) the real targets were two orphaned survivors still rendering the retired model.
 
+**Then deleted 4 orphaned retired-model pages** (`743995c`, verified live) after full reachability tracing proved none were reachable from the live nav (inbound links came only from dead/unrouted pages): `/onboarding` (false "$10/mo recurring" claim), `/analytics` (retired income labels), `/command-centre`+4 sub-routes (Creator Credits/nexus) — routes+imports+shells+components deleted → 404; `/payment-success` content deleted, backend →302 /dashboard (former payment URL, money-safe). Key lesson reinforced: a page in the codebase ≠ live — trace reachability from the nav root before calling anything a fire. 
+
 **Removed both survivors** (`ac8fb67`, verified live): `/studio` → 301 /tools (retired Creative Studio shell in SAP cyan; backend already gated, cleaned the React route + dropped the StudioShell chunk) and `/upgrade/checkout` → 301 /join (retired subscription checkout; backend was serving the SPA unconditionally on AL, added the `IS_ADVANTAGELIFE` gate; dropped the UpgradeCheckout chunk). Both components kept as dead code for SuperAdPro (`main`). Next pass: full `IS_ADVANTAGELIFE`-gate-vs-155-route inventory to flush the rest the July log flagged.
 
 ---
