@@ -2,7 +2,7 @@
 
 > **For future-Claude reading this in a new session:** This file is the curated narrative of where the platform is right now. Read top-to-bottom for full context on recent decisions, currently-watched concerns, and pending work. The daily-briefing email Steve receives includes these sections too. Whoever you are, you're caught up after reading this.
 >
-> **Note on history:** AdvantageLife is the rebrand-and-relaunch of SuperAdPro (fork-and-migrate, fresh DB, branch `advantagelife-passup`). Entries dated before ~2026-07-09 describe SuperAdPro-era work and are kept for context — but the live model is now AdvantageLife: $100 lifetime join + 100% P2P campaign packs with 3/6/9 pass-up. Profit Grid, monthly membership, Nexus/matrix, and the 20% credit affiliate plan are all RETIRED. When a pre-09-Jul entry conflicts with the AL model, the AL model wins.
+> **Note on history:** AdvantageLife is the rebrand-and-relaunch of SuperAdPro (fork-and-migrate, fresh DB, branch `advantagelife-passup`). Entries dated before ~2026-07-09 describe SuperAdPro-era work and are kept for context — but the live model is now AdvantageLife: $100 lifetime join + 100% P2P campaign packs (pass-up: 3rd=company fee, 6/9/11=upline — see ENGINEERING_STANDARDS). Profit Grid, monthly membership, Nexus/matrix, and the 20% credit affiliate plan are all RETIRED. When a pre-09-Jul entry conflicts with the AL model, the AL model wins.
 
 > **For Steve:** Update the curated sections below at the end of each session. The auto-snapshot block at the top of the daily-briefing email is generated fresh from the database — you don't update that.
 
@@ -97,7 +97,7 @@ All fixed and verified live.
 **Corrections to the record — these were wrong in this file and in the project instructions**
 - **`docs/commission-spec.md` is SuperAdPro's spec** (membership tiers, 30/50/20 grid, Creator Credits, last confirmed 14 Jun). For AdvantageLife it is actively wrong. Use `passup_engine.py`, `al_engine.py`, `database.py`, `/api/al/packs`.
 - **The nine daily-watch numbers are seeded, not outstanding** — `DAILY_WATCH_BY_TIER` = 1,1,2,2,3,3,4,4,5, backfilled into `campaign_packs`, verified live.
-- **The pass-up is infinite in depth.** `PASSUP_POSITIONS = {3,6,9}` describes only what a member *gives*. `assign_pass_up_sponsor` makes a passed-up member inherit the sponsor's `pass_up_sponsor_id`, so each chain pays at any depth. Proven by executing the engine four levels deep.
+- **The pass-up is infinite in depth.** (Engine-verified: `COMPANY_POSITION=3`, `UPLINE_PASSUP_POSITIONS={6,9,11}` — the '3/6/9' here is STALE; see ENGINEERING_STANDARDS canonical model.) The pass-up positions describe only what a member *gives*. `assign_pass_up_sponsor` makes a passed-up member inherit the sponsor's `pass_up_sponsor_id`, so each chain pays at any depth. Proven by executing the engine four levels deep.
 - **There is a THIRD earning gate.** `al_engine.py:190` folds `payable()` into the qualification check — a member with no payout method saved has sales routed past them. Undocumented member-facing until today.
 
 **Currently watching**

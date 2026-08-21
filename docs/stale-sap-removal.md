@@ -9,7 +9,7 @@ _Opened 2026-08-21. Living document. Governed by `docs/ENGINEERING_STANDARDS.md`
 1. **What does it render?** — the exact `<Route>` element in `App.jsx` (real component vs `HardRedirect`/`Navigate`).
 2. **Is it reachable?** — grepped for internal links in nav/sidebar/pages, and whether a backend `@app.get` shell exists (direct-URL reachable).
 3. **Is the component shared?** — grep every reference; a component used by a live route is not removable.
-4. **AL-model relevance** — does it belong to AL's locked model ($100 lifetime + P2P packs + 3/6/9), or the retired one?
+4. **AL-model relevance** — does it belong to AL's locked model ($100 lifetime + P2P packs + 6/9/11-pass-up), or the retired one?
 5. **Inbound-link risk** — could old emails/bookmarks/shares hit this URL? If yes, **redirect, never delete.**
 
 Status values: `KEEP` · `REDIRECT (recommended)` · `DECISION NEEDED (Steve)` · `DONE`.

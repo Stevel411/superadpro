@@ -63,3 +63,18 @@ Any member-facing or public page needs an approved mockup **before** code. No ex
 ---
 
 _When this doc and live code disagree, live code wins — and this doc gets corrected in the same session._
+
+---
+
+## Canonical comp model — engine-verified (added 2026-08-21 after an assumption error)
+
+**Money/comp facts come from the engine (`app/passup_engine.py`, `app/al_engine.py`) — never from these docs, the project instructions, memory, or a page's existing copy.** This bit us hard: the docs and project instructions say "3/6/9", so I "corrected" a live legal page's pass-up to 3/6/9 — which was WRONG. The engine is the source of truth for where money goes.
+
+**The pass-up (per `passup_engine.py`, `CYCLE_LENGTH = 11`):**
+- **3rd sale → the COMPANY** — operational fee, always, no climb (`COMPANY_POSITION = 3`).
+- **6th, 9th, 11th → pass up** to the first qualified upline (`UPLINE_PASSUP_POSITIONS = {6, 9, 11}`); COMPANY only if the whole chain fails.
+- **Keep 1, 2, 4, 5, 7, 8, 10**, and **100% of every sale from the 12th on**, until the package delivers its views / a renewal resets the cycle.
+- One cycle = company 1, upline 3, seller 7.
+- Direct sale + unqualified sponsor → COMPANY (no climb).
+
+**"3/6/9" anywhere (docs, project instructions, FAQ, swipes, comments) is STALE shorthand** — the model moved to 6/9/11 + 3rd-fee and the docs were never updated. Fix the content to the engine, not the engine to the content. Before writing ANY comp-plan or commission claim, read the engine constants first.

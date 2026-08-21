@@ -44,7 +44,7 @@ _Opened 2026-08-21. Filipino first (big community incoming), then all 20 languag
 
 ## ⚠️ Retired-model strings — DE-STALE, do NOT translate (Steve decision)
 These render retired-model concepts; translating them entrenches the wrong model in 20 languages. Fix the English (or remove) first, then translate:
-- `wallet.gridBonus` (Grid Bonus), `wallet.incomeGrid` (Income Grid), `wallet.uniLevel` (Uni-Level) — retired commission types (AL is 3/6/9 pass-up). If shown as historical commission labels, decide replacement wording.
+- `wallet.gridBonus` (Grid Bonus), `wallet.incomeGrid` (Income Grid), `wallet.uniLevel` (Uni-Level) — retired commission types (AL pass-up: 3rd=company fee, 6/9/11=upline). If shown as historical commission labels, decide replacement wording.
 - `wallet.creativeStudioComm` (Creative Studio) — retired product.
 - `compHub.streams.gridName/gridTag/gridNum` (The Grid / Recurring Income), `compHub.streams.membershipName/membershipNum` (Membership) — retired 2-stream comp model.
 - `membershipStream.*` (14) — lives in the un-routed `MembershipStreamPage` orphan → skip entirely.
@@ -62,7 +62,7 @@ These render retired-model concepts; translating them entrenches the wrong model
 
 ## Live public content translated + income-disclaimer flagged (2026-08-21)
 Curl-verified these public pages render on AL (no auth confound): income-disclaimer, crypto-guide, tour, training, social-share, learn/assets, /ref/:username (superLink), faq.
-- ✅ **Public FAQ translated** (`publicPages.faq*`, 20 keys) — correct current-AL content ($100 once / Watch-to-Earn packs / 100% commission / 3/6/9 pass-up / own-level-or-higher / daily watch / 48h grace / direct P2P pay). Highest-value content for the incoming Filipino community.
+- ✅ **Public FAQ translated** (`publicPages.faq*`, 20 keys) — correct current-AL content ($100 once / Watch-to-Earn packs / 100% commission / pass-up (6/9/11 + 3rd fee) / own-level-or-higher / daily watch / 48h grace / direct P2P pay). Highest-value content for the incoming Filipino community.
 - ✅ **superLink marketing blurbs** (3) translated.
 - Kept English (tech): cryptoGuide BEP-20/TRC-20, socialShare/platformTour/training titles, smartLinks.
 
