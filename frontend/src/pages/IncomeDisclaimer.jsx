@@ -26,31 +26,13 @@ export default function IncomeDisclaimer() {
             <p>{t("incomeDisclaimer.effortDependent")}</p>
           </Section>
 
-          <Section title={t('incomeDisclaimer.creditPricing')}>
-            <p>{t("incomeDisclaimer.creditPackAlloc")}</p>
-            <CostBreakdown items={[
-              { pct:'15%', label:t('incomeDisclaimer.creditPack.directLabel'), desc:t('incomeDisclaimer.creditPack.directDesc') },
-              { pct:'10%', label:t('incomeDisclaimer.creditPack.autoLabel'), desc:t('incomeDisclaimer.creditPack.autoDesc') },
-              { pct:'10%', label:t('incomeDisclaimer.creditPack.completionLabel'), desc:t('incomeDisclaimer.creditPack.completionDesc') },
-            ]}/>
-            <p>{t("incomeDisclaimer.creditPackNote")}</p>
-          </Section>
-
           <Section title={t('incomeDisclaimer.campaignTierPricing')}>
             <p>{t("incomeDisclaimer.campaignTierAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'40%', label:t('incomeDisclaimer.campaignTier.directLabel'), desc:t('incomeDisclaimer.campaignTier.directDesc') },
-              { pct:'50%', label:t('incomeDisclaimer.campaignTier.unilevelLabel'), desc:t('incomeDisclaimer.campaignTier.unilevelDesc') },
-              { pct:'5%', label:t('incomeDisclaimer.campaignTier.completionLabel'), desc:t('incomeDisclaimer.campaignTier.completionDesc') },
+              { pct:'100%', label:t('incomeDisclaimer.campaignTier.memberLabel'), desc:t('incomeDisclaimer.campaignTier.memberDesc') },
+              { pct:'0%', label:t('incomeDisclaimer.campaignTier.companyLabel'), desc:t('incomeDisclaimer.campaignTier.companyDesc') },
             ]}/>
             <p>{t('incomeDisclaimer.body_L47')}</p>
-          </Section>
-
-          <Section title={t('incomeDisclaimer.membershipPricing')}>
-            <p>{t("incomeDisclaimer.membershipAlloc")}</p>
-            <CostBreakdown items={[
-              { pct:'50%', label:t('incomeDisclaimer.membership.sponsorLabel'), desc:t('incomeDisclaimer.membership.sponsorDesc') },
-            ]}/>
           </Section>
 
           <Section title={t('incomeDisclaimer.commStructure')}>
