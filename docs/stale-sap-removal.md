@@ -100,3 +100,20 @@ The July log noted "~31 member-facing React routes still carry SuperAdPro marker
 - _2026-08-21_ — Steve approved both survivors. Shipped `ac8fb67`: `/studio`→/tools and `/upgrade/checkout`→/join (backend AL-gate added on the latter; both React routes → HardRedirect; StudioShell + UpgradeCheckout chunks no longer shipped; components kept as dead code for SAP `main`). Verified live: `/studio`→301→/tools; `/upgrade/checkout`→301→/join→/register(200). Two of two Finding-1 survivors closed.
 
 - _2026-08-21_ — Deleted 4 orphaned retired-model pages (`743995c`): /onboarding, /analytics, /command-centre(+4 sub-routes) removed outright (→404); /payment-success content deleted, backend →302 /dashboard (money-safe). Verified live: deleted routes 404, payment-success redirects, /dashboard //my-team //campaign-analytics //packs all 200. Reachability was fully traced first — all four were orphans (no live SideNav path). Now-uncalled `api_command_centre_*` endpoints + TeamPage/BusinessHubTabs orphans queued for next pass.
+
+## Pass 3 — orphan sweep (2026-08-21)
+
+Cleared the follow-ups from Pass 2. All verified live.
+
+**Frontend (`0dfbcea`):**
+- `/team` + `TeamPage.jsx` — orphan (not in SideNav, no importers, no live links). Route + import + backend shell + component deleted → 404.
+- `PlaceholderPage` (App.jsx "🚧 migrating" stub) — defined but never rendered. Deleted; its `AppLayout` import removed from App.jsx.
+- `BusinessHubTabs.jsx` — never rendered (family routes `/command-centre`+`/analytics` deleted; `/my-team` isn't `AppLayout`-wrapped). Removed from `AppLayout` (import + inert render + 5 always-true `!isBusinessHubFamilyRoute` guards = provably-safe no-op) + file deleted.
+- **`AppLayout` KEPT** — it is core, used by ~65 live pages. The Pass-2 note calling it "stub infra" was wrong (grepped App.jsx only); corrected here.
+
+**Backend (`466fd4d`):**
+- 4 dead `command_centre` API endpoints (`/directs`, `/grid-team`, `/nexus-team`, `/nudge-lapsed`, 193 lines, zero callers) + the now-uncalled `_direct_member_payload` helper (18 lines) + a stale comment. compileall clean, no behaviour change.
+
+**Verified live:** `/team`→404, `/api/command-centre/directs`→404; all `AppLayout` pages (`/tools`, `/campaign-analytics`, `/support`, `/my-marketing`, `/learn`, `/account`) 200 — no regression from the `AppLayout` edit.
+
+- _2026-08-21_ — Pass 3 orphan sweep complete (`0dfbcea` frontend, `466fd4d` backend). /team, PlaceholderPage, BusinessHubTabs, and 4 dead command_centre APIs + helper removed. AppLayout confirmed core and kept. All verified live, no regression.
