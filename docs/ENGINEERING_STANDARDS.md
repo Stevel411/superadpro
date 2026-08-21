@@ -1,0 +1,65 @@
+# AdvantageLife — Engineering Standards
+
+_The non-negotiable way we build. Locked with Steve, 2026-08-21. Applies to every change on `advantagelife-passup`._
+
+This is not aspirational. It is the bar. If a change does not clear it, it does not ship. Steve reads commits and spots corner-cutting; the platform is **live with paying members and real money flows**, so a broken deploy is a broken business, not a broken build.
+
+---
+
+## 1. The bar: commercial-grade, from first principles
+
+Members pay hard-earned money. Every surface competes with Webflow, Leadpages, ConvertKit. Before shipping anything member-facing, the test is: **would one of those products ship this?** If no, neither do we.
+
+- No vibe coding. No "good enough for now." No quick-fix patches over a root cause.
+- No "new content only" carve-outs or trade-offs that leave a worse experience behind.
+- Every affected surface is considered, not just the one in front of you.
+
+## 2. Check the code first. Never assume.
+
+**Ground truth is the live code and the running platform — not memory, not a handover, not this doc, not `LAUNCH_LOG.md`.** Every one of those can be stale or wrong, and this repo has a *documented history* of features logged as "removed" that were still live.
+
+- **"Done" anywhere is a claim to verify, not a fact.** Grep the canonical source before asserting any behaviour, number, route, or state.
+- Before you classify, delete, or change a page: read what it actually renders, whether it's reachable, whether its component is shared, and whether the backend still serves it. Assumptions about any of these have each been wrong here before.
+- AL numbers come from the engines + `/api/al/packs` — **never** from `docs/commission-spec.md` (that is SuperAdPro's spec, actively wrong for AL).
+
+## 3. Root cause before code
+
+When a bug appears, trace it to its origin before touching anything. Build a diagnostic endpoint to confirm server-side state if needed. Symptom-patching is not a fix — it hides the next failure.
+
+## 4. Trace the complete money flow end-to-end
+
+For anything touching packs, commissions, pass-up, join, or payout: the test is not "does it run" — it's **"does the money reach the right person."** If pass-up/settlement logic already exists in a module (`passup_engine`, `al_engine`, `al_settlement`), **call it** — never reimplement it in a handler.
+
+## 5. Never break the live platform
+
+The deploy is instant and unattended (~160s auto-deploy on push). A bad push is live before anyone looks. So:
+
+- **Pre-push checklist is mandatory, every push:**
+  1. `python3 -m compileall -q app/` — no syntax errors ship.
+  2. **Any `frontend/src/*` edit** → `cd frontend && npm install --legacy-peer-deps && npm run build`, then commit `static/app/`. Railway compiles Python only; a source-only push ships a **stale bundle silently**.
+  3. Re-view a file after every `str_replace` (earlier view output is stale).
+  4. **Never** blind global find-replace on `main.py` — it over-reaches (this bit us). Assert `s.count(old) == 1`, or edit by an anchored, unique segment / exact line index.
+- **Redirect, don't hard-delete, anything with possible inbound links.** Old emails, bookmarks, and member share links point at retired URLs. A live redirect is graceful; a deleted route 404s. Deleting a redirect stub is a regression, not a cleanup.
+- **Additive, reversible, one concern per commit.** Especially for schema and money paths. `SKIP_MIGRATIONS=true` means once a table exists nothing adds a column to it again — new model fields silently 500 until `schema-check --columns` backfills them.
+
+## 6. "Shipped" means verified live
+
+Not "it compiled." Not "it should work." Push → wait for deploy → curl the live URL / hit the admin GET endpoint / verify the bundle hash matches local `static/app/index.html`. Only then is it done. No silent `.catch` swallowing errors.
+
+## 7. Product calls vs technical calls
+
+- **Technical call** (does this break, what's the tradeoff, which approach): surface the tradeoff, recommend one, proceed. Don't re-ask a settled "do it."
+- **Product/brand/strategy call** (should this surface exist, what does AL want members to see): Steve's call. Ask when it's genuinely ambiguous — one clean checkpoint before mutating a live money-adjacent surface is discipline, not narration.
+- Push back when technical reality contradicts the ask or a spec would cost money/trust. Explain concretely, recommend the better path, build what Steve picks.
+
+## 8. Own mistakes plainly
+
+"I shipped a bug, here's the root cause, here's the fix." No corporate hedging, no burying it. Honesty is what earns the latitude to move fast.
+
+## 9. Mockup-first
+
+Any member-facing or public page needs an approved mockup **before** code. No exceptions.
+
+---
+
+_When this doc and live code disagree, live code wins — and this doc gets corrected in the same session._
