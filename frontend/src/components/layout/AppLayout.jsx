@@ -6,7 +6,6 @@ import IncomeTabs, { isIncomeFamilyRoute } from './IncomeTabs';
 import ToolsTabs, { isToolsFamilyRoute } from './ToolsTabs';
 import LearnTabs, { isLearnFamilyRoute } from './LearnTabs';
 import MyMarketingTabs, { isMyMarketingFamilyRoute } from './MyMarketingTabs';
-import BusinessHubTabs, { isBusinessHubFamilyRoute } from './BusinessHubTabs';
 import CampaignVideosTabs, { isCampaignVideosFamilyRoute } from './CampaignVideosTabs';
 import InstallPrompt from '../InstallPrompt';
 import CategoryTopBar from '../CategoryTopBar';
@@ -171,15 +170,14 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
             → Tools → Learn. Campaign Videos claims /watch, /create-campaign,
             /video-library and /campaign-analytics (previously Income-family).
             /campaign-tiers stays in the Business family on purpose. */}
-        {!catMode && isBusinessHubFamilyRoute(location.pathname) && <BusinessHubTabs />}
-        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && isCampaignVideosFamilyRoute(location.pathname) && <CampaignVideosTabs />}
-        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && isMyMarketingFamilyRoute(location.pathname) && <MyMarketingTabs />}
+        {!catMode && isCampaignVideosFamilyRoute(location.pathname) && <CampaignVideosTabs />}
+        {!catMode && !isCampaignVideosFamilyRoute(location.pathname) && isMyMarketingFamilyRoute(location.pathname) && <MyMarketingTabs />}
         {/* Persistent Income tabs strip — Wallet, Comp Plan, Membership etc. */}
-        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
+        {!catMode && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
         {/* Persistent Tools tabs strip. */}
-        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
+        {!catMode && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
         {/* Persistent Learn tabs strip. */}
-        {!catMode && !isBusinessHubFamilyRoute(location.pathname) && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
+        {!catMode && !isCampaignVideosFamilyRoute(location.pathname) && !isMyMarketingFamilyRoute(location.pathname) && isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background: catMode ? '#FFFFFF' : '#f0f3f9', padding: isMobile ? '16px' : '24px'},
           // Tab-bar pages (Watch / Dashboard / Wallet / home): leave space

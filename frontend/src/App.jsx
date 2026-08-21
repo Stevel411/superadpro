@@ -3,7 +3,6 @@ if (typeof window !== 'undefined') { window.__SAP_BUILD__ = '2026-06-01a'; }
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';
-import AppLayout from './components/layout/AppLayout';
 import './i18n';
 import { Component, Suspense } from 'react';
 
@@ -13,7 +12,6 @@ import { Component, Suspense } from 'react';
 import Dashboard from './pages/Dashboard';
 import NewDashboard from './pages/NewDashboard';
 import AIToolsHub from './pages/AIToolsHub';
-import TeamPage from './pages/TeamPage';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 
@@ -289,7 +287,6 @@ function AppRoutes() {
       <Route path="/home-preview" element={<Navigate to="/dashboard" replace />} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
-      <Route path="/team" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
       <Route path="/wallet" element={<WalletRoute />} />
       <Route path="/w/:token" element={<SharePage />} />
       <Route path="/my-team" element={<ProtectedRoute><MyTeam /></ProtectedRoute>} />
@@ -461,17 +458,6 @@ function AppRoutes() {
   );
 }
 
-function PlaceholderPage({ title }) {
-  return (
-    <AppLayout title={title} subtitle={'Migrating to React — coming shortly'}>
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="text-5xl mb-4">🚧</div>
-        <h2 className="font-display text-xl font-extrabold text-slate-800 mb-2">{title}</h2>
-        <p className="text-sm text-slate-500">{'This page is being migrated to the new interface.'}</p>
-      </div>
-    </AppLayout>
-  );
-}
 
 // Strip /app prefix so both /dashboard and /app/dashboard work
 function AppPrefixRedirect() {
