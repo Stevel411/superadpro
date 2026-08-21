@@ -39,7 +39,7 @@ export const NAV = [
 const NAV_GROUPS = (function () {
   const groups = []; let cur = { header: null, items: [] };
   NAV.forEach(function (n) {
-    if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, items: [] }; }
+    if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, tk: n.tk, items: [] }; }
     else cur.items.push(n);
   });
   if (cur.items.length || cur.header) groups.push(cur);
@@ -125,7 +125,7 @@ export default function SideNav({ active }) {
           <div key={'g' + gi} style={{ marginTop: 8 }}>
             <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '11px 13px', borderRadius: 11, background: isCol ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.10)', marginBottom: isCol ? 0 : 4 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)' }}>{t(g.tk, { defaultValue: g.header })}</span>
+              <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)' }}>{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
                 <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
