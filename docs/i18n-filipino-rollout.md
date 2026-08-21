@@ -29,7 +29,7 @@ _Opened 2026-08-21. Filipino first (big community incoming), then all 20 languag
 - ✅ **Language selector surfaced** to members (sidebar footer) — `d95a9b7`
 - ✅ **Sidebar nav** wired + Filipino (22 nav keys; 14 translated, 4 kept Taglish) — `0a06d58`, header-blank bug fixed `1d345f4`
 - 🟡 **Dashboard hero** wired + Filipino (7 static strings: earnings/badges/affiliate/copy) — `23e45b4`. **Remaining on NewDashboard:** dynamic concatenated strings (Welcome-back line, cycle pill — need interpolation), left-column cards (banner card, Verified views, Game Links), notifications menu, quote area, section headers (~30 more strings).
-- ⬜ Watch (wired — translate-only)
+- ✅ **Watch** (wired) — Tagalog mostly pre-existed and was decent; fixed 8 machine-era errors (progressSaved 'nakakatipid'→'naka-save', dismiss 'Pagsahin'→'I-dismiss', stale checkBackSoon/noActiveCampaigns messages, etc.). **Follow-up:** 17 Watch keys use inline English `defaultValue` (not in locale files) → render English until extracted to en.json.
 - ⬜ Everything else per priority order
 
 ## Notes / gotchas
