@@ -9,6 +9,18 @@
 
 ---
 
+## 🗓️ 2026-08-20/21 — Banner Ads product + SuperAdPro decommission
+
+**Built a whole new Banner Ads product**, bundled with campaign packs (slots = videos_allowed_for_level 2/4/6; impressions/clicks roll into pack totals). Image upload (R2) or sandboxed HTML embed, 16 IAB sizes, GIF strobe auto-flag (WCAG), auto-approve + report→removal moderation. Pages: Create (`/banners/create`), My Banners (`/my-banners`). Public SEO engine (server-rendered, crawlable): `/discover` directory + per-banner listing pages `/discover/{id}-{slug}` (unique title/meta/OG-image/JSON-LD) + category hubs `/discover/category/{slug}` + per-member shareable page `/discover/u/{username}` (their banners featured, then wider directory) + sitemap/robots. Dashboard: new red BannerShareCard → 'View my banner page'; Game Links collapsed. Menu: Create Banner + My Banners in My Campaigns dropdown; Banner Showcase → `/discover`. (`62ce94a71`→`c518d69cd`)
+
+**GOTCHAS this build:** (1) Table-name collision — SAP already had `banner_ads`, so CREATE TABLE IF NOT EXISTS silently no-op'd → renamed AL's tables to `al_banner_ads`/`al_banner_reports`. (2) New models must be imported into main.py or NameError→500. (3) Public SEO pages = server-render, not React SPA. (4) Railway 'deploys paused (upstream issue)' incident stalled deploys ~15 min mid-session — queue, don't re-push.
+
+**SuperAdPro decommissioned.** Deleted both SAP Railway projects (`elegant-happiness` + `superb-youthfulness`); kept AL (`resilient-determination`). Backups confirmed first: SAP auto-backs-up to Cloudflare R2 (`superadpro-media/backups/`, survives Railway deletion) — Steve downloaded 31 Jul + 02 Aug dumps (624 members, full financials, 108 tables). The '664 MB' DB was mostly a `bsc_scan_failed_chunks` junk log (~290k rows), not members. Stripe subs already cancelled. Verified in code that AL doesn't depend on superadpro-mcp/renderer. R2 bucket `superadpro-media` KEPT (media + backups — do not bulk-delete; preserve `backups/`). superadpro-mcp deleted → SAP Monitoring MCP tools now dead. Sandbox egress blocks Postgres ports, so R2 backups (not direct DB) was the working route.
+
+Full detail + commit log: `docs/handover-2026-08-21.md`.
+
+---
+
 ## 🗓️ 2026-08-19 — Academy launch + campaign-flow overhaul + integrity fixes
 
 **AdvantageLife Academy shipped** — curated, embed-only course library, free to all members. 8 courses / 32 lessons, every video oEmbed-verified. Hub `/academy`, detail `/academy/:slug`, forms-based authoring `/academy-admin`. Health-check endpoint (`/admin/api/al/academy/verify-videos`) catches dead embeds (404 removed / 401 embed-disabled) — verify every third-party video before seeding. Courses: Affiliate Foundations, Facebook & Instagram Ads, Free Traffic Mastery, Email & List Building, Mindset Mastery, Short-Form Video, AI for Marketers, Attraction Marketing. (`aa2af96c3`→`c6cf417bd`)
@@ -1557,3 +1569,7 @@ When you finish a session that introduced something noteworthy, update the "Rece
 18. **`pack_purchase_id` on `video_campaigns` is raw-SQL-only** — added via startup `ALTER`, NOT on the `VideoCampaign` ORM model. Filtering/updating it via ORM attributes throws (500). Use raw SQL, like `_al_activate_pending_drafts` does.
 19. **Admin owns every tier via the `_ADMIN_LEVEL` sentinel** (`al_engine.owned_level`) — virtual, no `PackPurchase` rows. Any UI that reads real pack rows must special-case `is_admin` if it should reflect all-ownership (e.g. the pack-progress grid).
 20. **Campaigns attach to the highest owned pack with a free slot.** A member with many packs but few videos shows most packs empty — correct, not a bug. Views roll into a pack only via `pack_purchase_id` (or the pack's `campaign_id`); an unlinked active campaign is an orphan whose views show nowhere.
+21. **Table-name collisions with SAP's shared codebase are real.** `CREATE TABLE IF NOT EXISTS` silently no-ops against an existing table, so your new columns never apply → ORM 500s. Prefix AL-only tables with `al_` and check for an existing name first.
+22. **New ORM models MUST be imported into main.py** or every query throws NameError→500.
+23. **Public SEO pages = server-rendered HTML, not React SPA** — crawlers need content in the HTML. Use the `_discover_shell` pattern (title/meta/OG/JSON-LD + inline tracking JS).
+24. **Sandbox egress is HTTP(S) 443/80 only — cannot reach Postgres ports.** For a decommissioned/offline app's data, use the app's own R2 backup system (Cloudflare, survives Railway deletion), not a direct DB connection. And Railway 'deploys paused (upstream issue)' is a real incident — queue, don't re-push.
