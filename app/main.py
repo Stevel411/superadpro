@@ -55931,12 +55931,36 @@ def api_my_team(user: User = Depends(get_current_user), db: Session = Depends(ge
                          .group_by(PackPurchase.user_id).all()):
             bought[uid] = int(cnt or 0)
 
+    # Readiness gates, batched (coaching view — still no earnings/email exposed).
+    watch_ok, has_pay = {}, set()
+    if direct_ids:
+        _today = datetime.utcnow().strftime("%Y-%m-%d")
+        _grace = (datetime.utcnow() - timedelta(hours=48)).date()
+        for q in db.query(WatchQuota).filter(WatchQuota.user_id.in_(direct_ids)).all():
+            ok = False
+            if not q.commissions_paused:
+                if q.today_date == _today and (q.today_watched or 0) >= (q.daily_required or 1):
+                    ok = True
+                elif q.last_quota_met:
+                    try:
+                        if datetime.strptime(str(q.last_quota_met)[:10], "%Y-%m-%d").date() >= _grace:
+                            ok = True
+                    except Exception:
+                        pass
+            watch_ok[q.user_id] = ok
+        for (uid,) in (db.query(PayoutMethod.user_id)
+                       .filter(PayoutMethod.user_id.in_(direct_ids)).distinct().all()):
+            has_pay.add(uid)
+
     members = [{
         "username": d.username,
         "pack_level": owned.get(d.id, 0),
         "joined": d.created_at.isoformat() if d.created_at else None,
         "sold": int(d.pack_sale_count or 0),
         "is_active": bool(d.is_active),
+        "watch_qualified": bool(d.is_admin or watch_ok.get(d.id, False)),
+        "has_payout": (d.id in has_pay),
+        "packs_bought": bought.get(d.id, 0),
     } for d in directs]
 
     # Earnings this member has received. Split so the label can be honest:
