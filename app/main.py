@@ -75040,12 +75040,19 @@ def al_test_new_flow(user_id: int, pack_level: int = 10,
 
 
 @app.get("/admin/api/al/simulate-buy")
-def al_simulate_buy(user_id: int, pack_level: int = 100,
+def al_simulate_buy(user_id: int = None, username: str = None, pack_level: int = 100,
                     user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """ADMIN: replay exactly what happens when a member tries to buy a pack, so
     we can see WHY the buy flow fails for them — without needing server logs.
-    Read-only: rolls back any intent it creates."""
+    Accepts ?username=cryptogaz or ?user_id=N. Read-only: rolls back any intent."""
     _require_admin(user)
+    if user_id is None and username:
+        _u = db.query(User).filter(func.lower(User.username) == username.strip().lstrip("@").lower()).first()
+        if _u is None:
+            return JSONResponse({"error": f"username {username!r} not found"}, status_code=404)
+        user_id = _u.id
+    if user_id is None:
+        return JSONResponse({"error": "pass ?user_id=N or ?username=name"}, status_code=400)
     out = {"user_id": user_id, "pack_level": pack_level, "steps": []}
     buyer = db.query(User).filter(User.id == user_id).first()
     if not buyer:
