@@ -49,7 +49,7 @@
     "loading": "Nag-load…",
     "notFound": "Hindi nahanap",
     "disclaimerLink": "Disclaimer",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Malapit na"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -139,7 +139,10 @@
     "compensationPlan": "Plano ng Kompensasyon",
     "grpMore": "IBA PA",
     "dailyWisdom": "Araw-araw na Karunungan",
-    "vettedExtras": "Mga Piling Extra"
+    "vettedExtras": "Mga Piling Extra",
+    "toolsLeads": "Leads at Pagbebenta",
+    "toolsLinks": "Pages at Links",
+    "toolsStartHere": "Magsimula Dito"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -489,7 +492,18 @@
     "sent": "Naipadala",
     "received": "Natanggap",
     "userIdPlaceholder": "hal. SAP-00042",
-    "creditNexus": "Credit Nexus"
+    "creditNexus": "Credit Nexus",
+    "cancel": "Kanselahin",
+    "change": "Palitan",
+    "confirmFirstSub": "Ipinapakita namin ito nang isang beses para matiyak na tama ang destinasyon mo. Ang crypto na maipadala sa maling network ay hindi na mababawi.",
+    "confirmFirstTitle": "Kumpirmahin ang iyong unang withdrawal",
+    "confirmWithdrawal": "Kumpirmahin ang Withdrawal",
+    "destinationAddress": "Address ng destinasyon",
+    "networkUnknown": "Hindi alam",
+    "networkWarningBody": "Ang pondong maipadala sa address sa ibang network ay maaaring permanenteng mawala. I-tap ang Palitan sa itaas kung kailangan mong baguhin ang destinasyon.",
+    "networkWarningTitle": "Siguraduhing sinusuportahan ng wallet mo ang network na ito.",
+    "processing": "Pinoproseso…",
+    "sendingTo": "Ipinapadala sa"
   },
   "watch": {
     "title": "Manood para Mag-qualify",
@@ -1151,13 +1165,13 @@
     "liveAnalytics": "Live na Analytics",
     "liveAnalyticsDesc": "Subaybayan ang mga inihatid na view, rate ng pagkumpleto, at pag-unlad ng campaign sa real-time sa iyong dashboard.",
     "previewLabel": "preview",
-    "ctaUrl": "Call-to-action URL",
+    "ctaUrl": "URL ng call-to-action",
     "ctaUrlHelp": "Opsyonal. Kung saan napupunta ang mga manonood kapag nag-click sila ng 'Bisitahin ang Website' pagkatapos manood.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
     "errCtaUrl": "Mangyaring magpasok ng valid na URL na nagsisimula sa https://",
-    "lockedTitle": "Campaign creation is locked",
-    "lockedDesc": "Activate a Campaign Tier to create your own video campaigns and reach the Watch-to-Earn network.",
-    "lockedCta": "View Campaign Tiers"
+    "lockedTitle": "Naka-lock ang paggawa ng campaign",
+    "lockedDesc": "Mag-activate ng Campaign Tier para makagawa ng sarili mong video campaigns at maabot ang Watch-to-Earn network.",
+    "lockedCta": "Tingnan ang Campaign Tiers"
   },
   "campaignAnalytics": {
     "title": "Campaign Analytics",
@@ -1198,11 +1212,11 @@
     "viewsPerDay": "Mga views bawat araw",
     "whenViewersWatch": "Kailan nanonood ang mga manonood",
     "whenWatched": "Kailan napanood",
-    "totalViews": "Total Views",
-    "viewsToday": "Views Today",
-    "thisWeek": "This Week",
-    "uniqueViewers": "Unique Viewers",
-    "avgDuration": "Avg Duration"
+    "totalViews": "Kabuuang Views",
+    "viewsToday": "Views Ngayon",
+    "thisWeek": "Ngayong Linggo",
+    "uniqueViewers": "Unique na Viewers",
+    "avgDuration": "Avg na Tagal"
   },
   "contentCreator": {
     "title": "Tagapaglikha ng Nilalaman",
@@ -1242,13 +1256,13 @@
     "qrCode": "QR Code",
     "aiSalesChat": "AI Sales Chat",
     "tab": {
-      "posts": "Create scroll-stopping posts tailored to each platform.",
-      "scripts": "Write compelling scripts for any video format.",
-      "emails": "Write high-converting email sequences and swipes.",
-      "ads": "Create compelling ad headlines, copy, and CTAs.",
-      "niche": "Research profitable niches with audience insights and monetisation strategies.",
-      "qr": "Generate QR codes for your referral links and landing pages.",
-      "salesAgent": "Your AI sales assistant for pitches, objections, and closing."
+      "posts": "Gumawa ng scroll-stopping na posts na akma sa bawat platform.",
+      "scripts": "Sumulat ng nakakaengganyong scripts para sa anumang video format.",
+      "emails": "Sumulat ng high-converting na email sequences at swipes.",
+      "ads": "Gumawa ng nakakaengganyong ad headlines, copy, at CTA.",
+      "niche": "Mag-research ng kumikitang niche na may audience insights at monetisation strategies.",
+      "qr": "Gumawa ng QR codes para sa iyong referral links at landing pages.",
+      "salesAgent": "Ang iyong AI sales assistant para sa pitches, objections, at closing."
     }
   },
   "creativeStudio": {
@@ -3642,7 +3656,7 @@
     "toolSuperPagesBody": "Drag-and-drop na landing pages na may built-in templates.",
     "toolsBasicBadge": "Basic",
     "toolsBasicLabel": "Basic plan",
-    "toolsEyebrow": "Marketing tools",
+    "toolsEyebrow": "Mga marketing tool",
     "toolsProBadge": "Pro",
     "toolsProLabel": "Pro plan",
     "toolsSub": "Free, Basic, at Pro tools upang bigyan ng kapangyarihan ang iyong mga kampanya.",
@@ -3803,7 +3817,7 @@
     "bannerCreator": "Banners",
     "commandCentre": "Centre",
     "emailSwipes": "Swipes",
-    "income": "Income",
+    "income": "Kita",
     "learn": "Learn",
     "memeGenerator": "Memes",
     "nicheFinder": "Mga Niches",
@@ -4357,7 +4371,7 @@
     "assets": {
       "pageTitle": "Promotional Assets",
       "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "section": "Promotional Assets · 3 paraan para ibahagi at palaguin",
       "materials": {
         "name": "Marketing Materials",
         "desc": "Mga banner, graphics, at social posts na handa nang i-download at i-share."

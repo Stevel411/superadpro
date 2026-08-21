@@ -36,3 +36,15 @@ _Opened 2026-08-21. Filipino first (big community incoming), then all 20 languag
 - Adding keys: use `object_pairs_hook=OrderedDict` + `json.dump(indent=2, ensure_ascii=False)` — keeps file order and readable Tagalog, small diff.
 - `t(undefined, {defaultValue})` renders BLANK, not the default — guard any t() where the key could be undefined (bit us on the sidebar group headers, `1d345f4`).
 - When reusing an existing key, check its current value doesn't already differ from what you intend (e.g. `dashboard.copied` pre-existed as "Copied!" not "Copied ✓").
+
+## Progress log (batches)
+- Gap sized 2026-08-21: Filipino **~78% done** (1,471/1,882 used keys already translated). Real gap **~392** keys (39 missing + 353 tl==en), minus ~14 orphaned `membershipStream` → **~378** to fill.
+- Batch: sidebar nav (22) ✅ · dashboard hero (7) ✅ · Watch error-fixes (8) ✅ · high-traffic member batch (39: wallet withdrawal flow, campaign analytics, create-campaign locked state, contentCreator tool blurbs, nav/learn extras) ✅ — `pending commit`.
+- **~330 keys remaining** across: publicPages(35), linkTools(25), superPagesEditor(24), qrTool(17), videoCreator(17), memeTool(15), incomeDisclaimer(14), tools(12), editor(12), myLeads(10), linkHub(9), etc.
+
+## ⚠️ Retired-model strings — DE-STALE, do NOT translate (Steve decision)
+These render retired-model concepts; translating them entrenches the wrong model in 20 languages. Fix the English (or remove) first, then translate:
+- `wallet.gridBonus` (Grid Bonus), `wallet.incomeGrid` (Income Grid), `wallet.uniLevel` (Uni-Level) — retired commission types (AL is 3/6/9 pass-up). If shown as historical commission labels, decide replacement wording.
+- `wallet.creativeStudioComm` (Creative Studio) — retired product.
+- `compHub.streams.gridName/gridTag/gridNum` (The Grid / Recurring Income), `compHub.streams.membershipName/membershipNum` (Membership) — retired 2-stream comp model.
+- `membershipStream.*` (14) — lives in the un-routed `MembershipStreamPage` orphan → skip entirely.
