@@ -76939,8 +76939,8 @@ _AL_WALLETS_PAGE = r"""<!DOCTYPE html>
         +'</div>'
         +'<div class="macts">'
           +'<button class="sm" data-edit="'+m.id+'" data-mt="'+m.method_type+'">Edit</button>'
-          +(m.is_default?'<span class="badge">DEFAULT</span>':'<button class="sm" data-def="'+m.id+'">Make default</button>'
-          +'<button class="sm danger" data-del="'+m.id+'">Remove</button>')+'</div>';
+          +(m.is_default?'<span class="badge">DEFAULT</span>':'<button class="sm" data-def="'+m.id+'">Make default</button>')
+          +'<button class="sm danger" data-del="'+m.id+'">Remove</button>'+'</div>';
       L.appendChild(d);
     });
     document.getElementById('warn').style.display=(j.methods&&j.methods.length)?'none':'block';
