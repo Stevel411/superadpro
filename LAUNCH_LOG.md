@@ -9,6 +9,16 @@
 
 ---
 
+## 🗓️ 2026-08-21 — Engineering standards locked + stale-SAP removal (pass 1)
+
+**Locked the commercial-grade doctrine as the only way forward** → `docs/ENGINEERING_STANDARDS.md` (check live code first / "done" is a claim to verify / root-cause before code / trace the whole money flow / mandatory pre-push checklist / redirect-never-delete anything with inbound links / "shipped" = verified live). Point future-Claude at it. (`764be81`)
+
+**Opened the stale-SAP page-removal register** → `docs/stale-sap-removal.md` (living, evidence-based, 5-check methodology). Audited against live code, not the July log's claims — and the naive "delete old SAP routes" was wrong three ways: (1) **13 suspect routes are already redirect stubs and are LOAD-BEARING for old inbound links** — deleting them would 404 live URLs → keep; (2) `/proseller` and `/wisdom` look SAP but are **live AL** (wisdom just needs a re-skin) → keep; (3) the real targets were two orphaned survivors still rendering the retired model.
+
+**Removed both survivors** (`ac8fb67`, verified live): `/studio` → 301 /tools (retired Creative Studio shell in SAP cyan; backend already gated, cleaned the React route + dropped the StudioShell chunk) and `/upgrade/checkout` → 301 /join (retired subscription checkout; backend was serving the SPA unconditionally on AL, added the `IS_ADVANTAGELIFE` gate; dropped the UpgradeCheckout chunk). Both components kept as dead code for SuperAdPro (`main`). Next pass: full `IS_ADVANTAGELIFE`-gate-vs-155-route inventory to flush the rest the July log flagged.
+
+---
+
 ## 🗓️ 2026-08-20/21 — Banner Ads product + SuperAdPro decommission
 
 **Built a whole new Banner Ads product**, bundled with campaign packs (slots = videos_allowed_for_level 2/4/6; impressions/clicks roll into pack totals). Image upload (R2) or sandboxed HTML embed, 16 IAB sizes, GIF strobe auto-flag (WCAG), auto-approve + report→removal moderation. Pages: Create (`/banners/create`), My Banners (`/my-banners`). Public SEO engine (server-rendered, crawlable): `/discover` directory + per-banner listing pages `/discover/{id}-{slug}` (unique title/meta/OG-image/JSON-LD) + category hubs `/discover/category/{slug}` + per-member shareable page `/discover/u/{username}` (their banners featured, then wider directory) + sitemap/robots. Dashboard: new red BannerShareCard → 'View my banner page'; Game Links collapsed. Menu: Create Banner + My Banners in My Campaigns dropdown; Banner Showcase → `/discover`. (`62ce94a71`→`c518d69cd`)

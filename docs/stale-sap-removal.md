@@ -38,7 +38,7 @@ These suspect-looking routes are **already** `HardRedirect`/`Navigate` stubs poi
 
 ## Finding 1 — genuine survivors (still render retired-model content)
 
-### `/studio` → `StudioShell` — **REDIRECT (recommended)**
+### `/studio` → `StudioShell` — **DONE** (`ac8fb67`, verified live 301→/tools)
 Retired Creative Studio's surviving shell. Renders `StudioShell` behind a `RequireTier tier="basic"` gate, in **SuperAdPro cyan** (`#2ad4ee`) / DM Sans — SAP branding on a retired product.
 - **Not linked** anywhere in nav/source. Only reachable by direct URL (backend shell exists at `main.py:61370`).
 - `StudioShell` is referenced **only** by this route (lazy import + route line) — **not shared.** Safe to drop.
@@ -46,7 +46,7 @@ Retired Creative Studio's surviving shell. Renders `StudioShell` behind a `Requi
 - **Recommendation:** convert to `HardRedirect to="/tools"`, drop the lazy import, drop the backend shell. Pattern-consistent, reversible, zero inbound-link loss.
 - **Note:** the Creative Studio *backend* (SuperScene tables/routes) stays — it holds credit balances Steve is refunding. This is a **route/page** removal only.
 
-### `/upgrade/checkout` → `UpgradeCheckout` — **DECISION NEEDED (Steve)**
+### `/upgrade/checkout` → `UpgradeCheckout` — **DONE** (`ac8fb67`, verified live 301→/join→/register)
 Retired subscription-upgrade checkout. AL has no subscription; SAP subs were all cancelled weeks ago (per the decommission).
 - **Not linked** anywhere; direct-URL only (backend shell at `main.py:49795`).
 - Carries a **deliberate** comment in `App.jsx:366`: _"/upgrade/checkout still routes to legacy UpgradeCheckout for any in-flight"_ — someone kept it on purpose for in-flight upgrades.
@@ -68,4 +68,5 @@ The July log noted "~31 member-facing React routes still carry SuperAdPro marker
 - Backend `@app.get` shells with no live React route → orphaned server pages.
 
 ## Decisions log
-- _2026-08-21_ — Register opened. `/studio` recommended for redirect; `/upgrade/checkout` awaiting Steve's go (money page). Redirect stubs confirmed load-bearing → keep. `proseller`/`wisdom` confirmed live → keep.
+- _2026-08-21_ — Register opened. Redirect stubs confirmed load-bearing → keep. `proseller`/`wisdom` confirmed live → keep.
+- _2026-08-21_ — Steve approved both survivors. Shipped `ac8fb67`: `/studio`→/tools and `/upgrade/checkout`→/join (backend AL-gate added on the latter; both React routes → HardRedirect; StudioShell + UpgradeCheckout chunks no longer shipped; components kept as dead code for SAP `main`). Verified live: `/studio`→301→/tools; `/upgrade/checkout`→301→/join→/register(200). Two of two Finding-1 survivors closed.
