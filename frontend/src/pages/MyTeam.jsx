@@ -74,8 +74,8 @@ export default function MyTeam() {
 
         {/* Team table — coaching view: readiness gates per member, tap to expand */}
         <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 10px 30px -18px rgba(10,31,82,.25)', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 62px', gap: 8, padding: '12px 18px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: MUTED, borderBottom: '1.5px solid ' + LINE }}>
-            <span>Member</span><span style={{ textAlign: 'center' }}>Ready to earn</span><span style={{ textAlign: 'right' }}>Sold</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: MUTED, borderBottom: '1.5px solid ' + LINE }}>
+            <span>Member · ready to earn</span><span>Sold</span>
           </div>
           {(data.members || []).length === 0 && <div style={{ padding: 40, textAlign: 'center', color: MUTED, fontWeight: 600 }}>No referrals yet — share your link above to start building your team.</div>}
           {(data.members || []).map((m, i) => {
@@ -84,18 +84,14 @@ export default function MyTeam() {
             const h = hint(m);
             return (
               <div key={m.username + i} style={{ borderBottom: '1px solid #f1f4fa' }}>
-                <div onClick={() => setOpen(o => ({ ...o, [i]: !o[i] }))} style={{ display: 'grid', gridTemplateColumns: '1fr auto 62px', gap: 8, padding: '13px 18px', alignItems: 'center', cursor: 'pointer', background: isOpen ? '#f4f7fd' : 'transparent' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', minWidth: 0 }}>
-                    <span style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#12388f,#0a1f52)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, marginRight: 11, flexShrink: 0 }}>{initials(m.username)}</span>
-                    <span style={{ minWidth: 0 }}>
-                      <span style={{ display: 'block', fontWeight: 800, color: NAVY, fontSize: 14.5, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{m.username}</span>
-                      <span style={{ display: 'block', fontSize: 11.5, color: MUTED, fontWeight: 600 }}>Joined {fmtDate(m.joined)}{m.is_active ? '' : ' · inactive'}</span>
-                    </span>
-                  </span>
-                  <span style={{ display: 'flex', gap: 5, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {chip(p, p ? '$' + m.pack_level : 'Pack')}{chip(w, 'Watch')}{chip(pay, 'Pay')}
-                  </span>
-                  <span style={{ textAlign: 'right', fontWeight: 900, color: RED, fontVariantNumeric: 'tabular-nums' }}>{m.sold || 0} <span style={{ color: MUTED, fontSize: 11, fontWeight: 700 }}>{isOpen ? '▴' : '▾'}</span></span>
+                <div onClick={() => setOpen(o => ({ ...o, [i]: !o[i] }))} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '13px 16px', cursor: 'pointer', background: isOpen ? '#f4f7fd' : 'transparent' }}>
+                  <span style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#12388f,#0a1f52)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>{initials(m.username)}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 800, color: NAVY, fontSize: 14.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>@{m.username}</div>
+                    <div style={{ fontSize: 11.5, color: MUTED, fontWeight: 600, marginTop: 1 }}>Joined {fmtDate(m.joined)}{m.is_active ? '' : ' · inactive'}</div>
+                    <div style={{ display: 'flex', gap: 5, marginTop: 7, flexWrap: 'wrap' }}>{chip(p, p ? '$' + m.pack_level : 'Pack')}{chip(w, 'Watch')}{chip(pay, 'Pay')}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0, fontWeight: 900, color: RED, fontVariantNumeric: 'tabular-nums' }}>{m.sold || 0} <span style={{ color: MUTED, fontSize: 11, fontWeight: 700 }}>{isOpen ? '▴' : '▾'}</span></div>
                 </div>
                 {isOpen && (
                   <div style={{ padding: '0 18px 16px', background: '#f4f7fd' }}>
