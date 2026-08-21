@@ -9,6 +9,14 @@
 
 ---
 
+## 🗓️ 2026-08-21 — i18n: language selector surfaced to members + Filipino scope
+
+**Step 1 shipped (`d95a9b7`, live):** the existing 20-language `LanguageSelector` (react-i18next, lazy-loaded locale chunks, localStorage persist, EN fallback) was only reachable on public pages via `Topbar` — logged-in members had **no** way to switch language. Added it to the member `SideNav` footer (openUp, full-width), rendered by both AlShell and NewDashboard via the shared SideNav. Recoloured active state SAP-cyan→AL-red. Mockup approved: `al-language-selector-mockup.html`.
+
+**Step 2 scoped (Filipino/`tl` first, then all 20; AI-quality re-translation per Steve):** of 4045 en.json keys, only **1,872 actually render** (2,173 orphaned — mostly deleted-SAP-page leftovers — skip). Only ~16 used keys carry stale SAP English, and most are in the **un-routed** `MembershipStreamPage` orphan; the true rendering-stale set is a handful (`incomeDisclaimer` monthly-membership wording, `wallet.creditNexus`="Creator Credits", 2 tour tips). Plus **248 keys use inline English `defaultValue`s** not in the locale files (separate coverage gap — must be extracted to en.json to be translatable). So the Tagalog job = de-stale the handful → AI-translate ~1,872 rendered keys → verify. `tl.json` today is machine-era SAP content (57 "Basic", "$35", 8 "Profit Grid") and must be re-done, not patched.
+
+---
+
 ## 🗓️ 2026-08-21 — Engineering standards locked + stale-SAP removal (pass 1)
 
 **Locked the commercial-grade doctrine as the only way forward** → `docs/ENGINEERING_STANDARDS.md` (check live code first / "done" is a claim to verify / root-cause before code / trace the whole money flow / mandatory pre-push checklist / redirect-never-delete anything with inbound links / "shipped" = verified live). Point future-Claude at it. (`764be81`)

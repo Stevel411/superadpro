@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AL — Member Language Selector (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{ --navy:#0a1f52; --navy2:#12388f; --red:#c8102e; --red2:#ff2743; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e1730;font-family:'Inter',system-ui,sans-serif;color:#fff;padding:28px 16px;min-height:100vh}
+  h1{font-size:18px;font-weight:900;letter-spacing:-.01em;margin:0 0 4px}
+  .sub{color:rgba(255,255,255,.5);font-size:13px;margin:0 0 24px}
+  .row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+  .col{flex:1;min-width:280px}
+  .label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 10px}
+  /* sidebar shell in AL brand */
+  .sidebar{width:264px;background:linear-gradient(180deg,var(--navy) 0%,#081a45 100%);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px 12px;display:flex;flex-direction:column;min-height:520px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+  .brand{display:flex;align-items:center;gap:9px;padding:6px 8px 16px;font-weight:900;font-size:16px;letter-spacing:-.02em}
+  .brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--red),var(--red2));display:flex;align-items:center;justify-content:center;font-size:14px}
+  .nav{display:flex;flex-direction:column;gap:3px;flex:1}
+  .item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.62);cursor:default}
+  .item .ic{width:6px;height:6px;border-radius:50%;background:rgba(127,143,184,.9);flex:none}
+  .item.on{background:rgba(200,16,46,.18);color:#fff;font-weight:800}
+  .item.on .ic{background:var(--red2)}
+  .divider{height:1px;background:rgba(255,255,255,.08);margin:12px 4px 12px}
+  /* the language pill (footer) */
+  .langwrap{position:relative;margin-top:auto;padding-top:10px}
+  .pill{display:flex;align-items:center;gap:8px;width:100%;padding:10px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.72);font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer}
+  .pill .globe{opacity:.75}
+  .pill .flag{font-size:15px}
+  .pill .chev{margin-left:auto;opacity:.5;font-size:11px}
+  /* open dropdown (opens upward) */
+  .dropdown{position:absolute;left:0;right:0;bottom:100%;margin-bottom:8px;background:#0c245c;border:1px solid rgba(255,255,255,.12);border-radius:12px;box-shadow:0 -12px 44px rgba(0,0,0,.5);padding:5px;max-height:320px;overflow:auto}
+  .opt{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.6);font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;text-align:left}
+  .opt .flag{font-size:16px}
+  .opt:hover{background:rgba(255,255,255,.05)}
+  .opt.active{background:rgba(200,16,46,.16);color:#fff;font-weight:800}   /* AL RED active, not SAP cyan */
+  .opt.active .check{margin-left:auto;color:var(--red2);font-size:11px}
+  .note{margin-top:18px;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6;max-width:560px}
+  .note b{color:#fff}
+  .tag{display:inline-block;background:rgba(200,16,46,.2);color:#ff5a72;font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.04em;vertical-align:middle;margin-left:6px}
+  /* mobile mock */
+  .phone{width:230px;border:8px solid #05102b;border-radius:26px;overflow:hidden;background:linear-gradient(180deg,var(--navy),#081a45);padding:14px 10px 10px}
+  .mtop{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 12px;font-weight:900}
+  .mpill{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);font-size:11px;font-weight:700;color:rgba(255,255,255,.75)}
+</style>
+</head>
+<body>
+  <h1>Member language selector <span class="tag">MOCKUP</span></h1>
+  <p class="sub">Existing <code style="color:#9fb4e8">LanguageSelector</code> component, placed in the AL member sidebar footer · active state re-coloured SAP-cyan → AL-red · Filipino shown selected</p>
+
+  <div class="row">
+    <div class="col" style="flex:none">
+      <p class="label">Desktop sidebar — closed</p>
+      <div class="sidebar">
+        <div class="brand"><span class="dot">A</span> AdvantageLife</div>
+        <div class="nav">
+          <div class="item on"><span class="ic"></span> Dashboard</div>
+          <div class="item"><span class="ic"></span> Watch to Earn</div>
+          <div class="item"><span class="ic"></span> My Campaigns</div>
+          <div class="item"><span class="ic"></span> Packs</div>
+          <div class="item"><span class="ic"></span> My Team</div>
+          <div class="item"><span class="ic"></span> Academy</div>
+        </div>
+        <div class="divider"></div>
+        <div class="langwrap">
+          <button class="pill"><span class="globe">🌐</span><span class="flag">🇵🇭</span><span>Filipino</span><span class="chev">▾</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" style="flex:none">
+      <p class="label">Desktop sidebar — open (opens upward)</p>
+      <div class="sidebar">
+        <div class="brand"><span class="dot">A</span> AdvantageLife</div>
+        <div class="nav">
+          <div class="item on"><span class="ic"></span> Dashboard</div>
+          <div class="item"><span class="ic"></span> Watch to Earn</div>
+          <div class="item"><span class="ic"></span> My Campaigns</div>
+        </div>
+        <div class="divider"></div>
+        <div class="langwrap">
+          <div class="dropdown">
+            <button class="opt active"><span class="flag">🇵🇭</span><span>Filipino</span><span class="check">✓</span></button>
+            <button class="opt"><span class="flag">🇬🇧</span><span>English</span></button>
+            <button class="opt"><span class="flag">🇪🇸</span><span>Español</span></button>
+            <button class="opt"><span class="flag">🇧🇷</span><span>Português</span></button>
+            <button class="opt"><span class="flag">🇩🇪</span><span>Deutsch</span></button>
+            <button class="opt"><span class="flag">🇫🇷</span><span>Français</span></button>
+          </div>
+          <button class="pill"><span class="globe">🌐</span><span class="flag">🇵🇭</span><span>Filipino</span><span class="chev">▴</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" style="flex:none">
+      <p class="label">Mobile — top bar</p>
+      <div class="phone">
+        <div class="mtop"><span style="font-size:14px">☰ AdvantageLife</span>
+          <span class="mpill">🌐 🇵🇭</span>
+        </div>
+        <div style="padding:0 4px">
+          <div class="item on" style="font-size:12.5px"><span class="ic"></span> Dashboard</div>
+          <div class="item" style="font-size:12.5px"><span class="ic"></span> Watch to Earn</div>
+          <div class="item" style="font-size:12.5px"><span class="ic"></span> My Campaigns</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>Placement:</b> sidebar footer on desktop (opens upward so the list isn't clipped); a compact 🌐+flag pill in the mobile top bar.
+    <b>Behaviour:</b> reuses the proven <code style="color:#9fb4e8">changeLanguage()</code> — persists to localStorage, lazy-loads the locale chunk, swaps instantly.
+    <b>Only change to the component:</b> active-language highlight recoloured from SAP cyan <code style="color:#9fb4e8">#38bdf8</code> to AL red <code style="color:#9fb4e8">#c8102e</code> so it matches the sidebar.
+    All 20 languages appear; <b>Filipino</b> is real today (the <code style="color:#9fb4e8">tl</code> locale exists) — it just needs the clean AI re-translation (Step 2).
+  </p>
+</body>
+</html>
