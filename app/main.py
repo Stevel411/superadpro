@@ -1625,7 +1625,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         # Three-bucket breakdown of direct referrals so members can see who's
         # actually paying, who lapsed (re-activation candidates), and who
         # never paid (cold leads). All use sponsor_id = user.id.
-        # See /command-centre on the frontend.
+        # (the /command-centre frontend page was removed 2026-08-21).
         #
         # NOTE: "lapsed" is computed by looking at confirmed Payment rows
         # for membership* payment_types. A direct who has a confirmed
@@ -8285,87 +8285,6 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
 # members behind those counts so members can see who to follow up with.
 # Layer 3 will add per-member actions (message, re-activate email).
 
-def _direct_member_payload(u, last_paid_at):
-    """Build a member row dict — privacy-conscious. No earnings, no email,
-    no balance. Used by /api/command-centre/directs and grid/nexus too."""
-    return {
-        "id": u.id,
-        "username": u.username,
-        "display_name": u.first_name or u.username,
-        "avatar_url": u.avatar_url or None,
-        "country": u.country or None,
-        "membership_tier": u.membership_tier or "free",
-        "is_founding_member": bool(getattr(u, "is_founding_member", False)),
-        "founding_spot_number": getattr(u, "founding_spot_number", None),
-        "is_active": bool(u.is_active),
-        "signed_up_at": u.created_at.isoformat() if u.created_at else None,
-        "last_paid_at": last_paid_at.isoformat() if last_paid_at else None,
-    }
-
-
-@app.get("/api/command-centre/directs")
-def api_command_centre_directs(
-    request: Request,
-    bucket: str = "active",
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """List of direct referrals filtered by bucket (active/lapsed/never_paid).
-
-    Returns ONLY public profile fields + signup/last-paid dates.
-    Never exposes earnings, balances, email addresses, or anything else
-    that would let a sponsor see another member's financial activity.
-    """
-    from sqlalchemy import func
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if bucket not in ("active", "lapsed", "never_paid"):
-        return JSONResponse({"error": "Invalid bucket"}, status_code=400)
-
-    # Base query: all direct referrals
-    base = db.query(User).filter(User.sponsor_id == user.id)
-
-    if bucket == "active":
-        members = base.filter(User.is_active == True).order_by(User.created_at.desc()).all()
-    else:
-        # Both lapsed and never_paid are is_active=False; difference is
-        # whether they have a confirmed membership Payment row.
-        ever_paid_subq = db.query(Payment.from_user_id).filter(
-            Payment.payment_type.like("membership%"),
-            Payment.status.in_(["confirmed", "paid"]),
-        )
-        if bucket == "lapsed":
-            members = base.filter(
-                User.is_active == False,
-                User.id.in_(ever_paid_subq),
-            ).order_by(User.created_at.desc()).all()
-        else:  # never_paid
-            members = base.filter(
-                User.is_active == False,
-                ~User.id.in_(ever_paid_subq),
-            ).order_by(User.created_at.desc()).all()
-
-    # Look up last membership payment date per member (single query, then map)
-    member_ids = [m.id for m in members]
-    last_paid_map = {}
-    if member_ids:
-        rows = db.query(
-            Payment.from_user_id,
-            func.max(Payment.created_at),
-        ).filter(
-            Payment.from_user_id.in_(member_ids),
-            Payment.payment_type.like("membership%"),
-            Payment.status.in_(["confirmed", "paid"]),
-        ).group_by(Payment.from_user_id).all()
-        last_paid_map = {row[0]: row[1] for row in rows}
-
-    return {
-        "bucket": bucket,
-        "count": len(members),
-        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
-    }
-
-
 @app.get("/admin/api/user-downline")
 def admin_api_user_downline(
     user_id: int,
@@ -9162,86 +9081,6 @@ def admin_api_sponsor_residual_nulls(
                  "sponsor manually, use /admin/api/set-sponsor (2FA)."),
         "users": out,
     })
-
-
-@app.get("/api/command-centre/grid-team")
-def api_command_centre_grid_team(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Distinct members occupying positions in any of THIS user's grids.
-    Privacy-conscious — public profile fields only, no earnings."""
-    from sqlalchemy import func
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    # Distinct user IDs filling positions in this user's grids
-    member_ids = [row[0] for row in db.query(GridPosition.member_id).join(
-        Grid, GridPosition.grid_id == Grid.id
-    ).filter(Grid.owner_id == user.id).distinct().all() if row[0]]
-
-    if not member_ids:
-        return {"count": 0, "members": []}
-
-    members = db.query(User).filter(User.id.in_(member_ids)).order_by(User.created_at.desc()).all()
-
-    # Last membership payment date per member
-    last_paid_map = {}
-    rows = db.query(
-        Payment.from_user_id, func.max(Payment.created_at),
-    ).filter(
-        Payment.from_user_id.in_(member_ids),
-        Payment.payment_type.like("membership%"),
-        Payment.status.in_(["confirmed", "paid"]),
-    ).group_by(Payment.from_user_id).all()
-    last_paid_map = {row[0]: row[1] for row in rows}
-
-    return {
-        "count": len(members),
-        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
-    }
-
-
-@app.get("/api/command-centre/nexus-team")
-def api_command_centre_nexus_team(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Distinct members in THIS user's credit matrix positions, excluding
-    the owner themselves. Privacy-conscious — same shape as grid-team."""
-    from sqlalchemy import func
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    # Distinct user IDs in this user's matrices, excluding the owner
-    member_ids = [row[0] for row in db.query(CreditMatrixPosition.user_id).join(
-        CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
-    ).filter(
-        CreditMatrix.owner_id == user.id,
-        CreditMatrixPosition.user_id != user.id,
-    ).distinct().all() if row[0]]
-
-    if not member_ids:
-        return {"count": 0, "members": []}
-
-    members = db.query(User).filter(User.id.in_(member_ids)).order_by(User.created_at.desc()).all()
-
-    last_paid_map = {}
-    rows = db.query(
-        Payment.from_user_id, func.max(Payment.created_at),
-    ).filter(
-        Payment.from_user_id.in_(member_ids),
-        Payment.payment_type.like("membership%"),
-        Payment.status.in_(["confirmed", "paid"]),
-    ).group_by(Payment.from_user_id).all()
-    last_paid_map = {row[0]: row[1] for row in rows}
-
-    return {
-        "count": len(members),
-        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
-    }
 
 
 # ── Command Centre Layer 2: SPA route handlers ─────────────────
@@ -45413,56 +45252,6 @@ async def cron_stuck_lapsed_alert(
         import traceback
         logger.error(f"[stuck-lapsed-alert] FAILED: {traceback.format_exc()}")
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-
-
-@app.post("/api/command-centre/nudge-lapsed")
-async def api_command_centre_nudge_lapsed(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Sponsor manual trigger: send a re-engagement notification to a
-    specific lapsed direct. Body: { "member_id": <int> }. The member
-    must be a direct referral of the requesting user AND currently
-    lapsed (is_active=False with confirmed payment history)."""
-    from fastapi.responses import JSONResponse
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    try:
-        body = await request.json()
-    except Exception:
-        return JSONResponse({"error": "Invalid request body"}, status_code=400)
-    member_id = body.get("member_id")
-    if not isinstance(member_id, int):
-        return JSONResponse({"error": "member_id required"}, status_code=400)
-
-    # Validate: target must be a direct referral of requesting user
-    target = db.query(User).filter(User.id == member_id, User.sponsor_id == user.id).first()
-    if not target:
-        # Privacy-safe error — don't tell sponsors whether the user exists at all,
-        # only whether they're allowed to nudge them.
-        return JSONResponse({"error": "Not your direct referral"}, status_code=403)
-
-    # Validate: target must be currently lapsed
-    if target.is_active:
-        return JSONResponse({"error": "This member is currently active — no nudge needed"}, status_code=400)
-    has_paid = db.query(Payment).filter(
-        Payment.from_user_id == target.id,
-        Payment.payment_type.like("membership%"),
-        Payment.status.in_(["confirmed", "paid"]),
-    ).first() is not None
-    if not has_paid:
-        # Never-paid users are a different bucket, different copy probably needed.
-        # For now, decline rather than send the wrong message.
-        return JSONResponse({"error": "This member has never paid — re-engagement notification only applies to lapsed members"}, status_code=400)
-
-    created = _create_reengagement_notification(db, target.id)
-    db.commit()
-    return {
-        "ok": True,
-        "created": created,
-        "already_pending": not created,
-    }
 
 
 # ═══════════════════════════════════════════════════════════════
