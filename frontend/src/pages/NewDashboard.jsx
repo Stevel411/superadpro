@@ -5,6 +5,7 @@ import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import SideNav from '../components/layout/SideNav';
 import LiveActivityFeed from '../components/LiveActivityFeed';
+import { useTranslation } from 'react-i18next';
 
 // AdvantageLife dashboard — rebuilt 11 Jul 2026 to Steve's approved modern
 // light mockup: white page, floating navy sidebar, earnings hero with REAL
@@ -306,6 +307,7 @@ function WisdomShare({ quote, onClose }) {
 }
 
 export default function NewDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [dash, setDash] = useState(null);
   const [watch, setWatch] = useState(null);
@@ -789,27 +791,27 @@ export default function NewDashboard() {
             <div className="hero">
               <div className="hl">
                 {memTier && memTier.is_lifetime && (
-                  <span className="tierbadge lifetime"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>LIFETIME MEMBER</span>
+                  <span className="tierbadge lifetime"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.lifetimeMember')}</span>
                 )}
                 {memTier && !memTier.is_lifetime && memTier.is_annual && (
-                  <span className="tierbadge silver"><svg width="15" height="15" viewBox="0 0 24 24" fill="#23293a"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>ANNUAL MEMBER</span>
+                  <span className="tierbadge silver"><svg width="15" height="15" viewBox="0 0 24 24" fill="#23293a"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.annualMember')}</span>
                 )}
-                <div className="k">Your earnings</div>
-                <div className="lbl">Total earned — member to member</div>
+                <div className="k">{t('dashboard.yourEarnings')}</div>
+                <div className="lbl">{t('dashboard.totalEarned')}</div>
                 <div className="big">{formatMoney(earnedTotal)}</div>
                 <div className="cap">Welcome back, {name} — {ownedPack ? ('earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : 'no pack yet'}</div>
                 <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
-                <div className="note"><i>ⓘ</i> Your own live figures — paid wallet-to-wallet, not a projection</div>
+                <div className="note"><i>ⓘ</i> {t('dashboard.liveFiguresNote')}</div>
               </div>
               <div className="img"><span className="tag">FREEDOM HORIZON · ADVANTAGELIFE</span></div>
             </div>
 
             <div className="share">
               <div>
-                <div className="lbl">Your affiliate link — share to grow your team</div>
+                <div className="lbl">{t('dashboard.affiliateLink')}</div>
                 <div className="lk">{refLink}</div>
               </div>
-              <button className="copy" onClick={copyLink}>{copied ? 'Copied ✓' : 'Copy link'}</button>
+              <button className="copy" onClick={copyLink}>{copied ? t('dashboard.copied') : t('dashboard.copyLink')}</button>
             </div>
 
 

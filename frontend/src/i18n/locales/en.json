@@ -294,7 +294,14 @@
     "onboardingBannerDismissAria": "Dismiss setup banner",
     "doorBusiness": "My Business",
     "doorMarketing": "My Marketing",
-    "doorCampaignVideos": "My Campaign Videos"
+    "doorCampaignVideos": "My Campaign Videos",
+    "lifetimeMember": "LIFETIME MEMBER",
+    "annualMember": "ANNUAL MEMBER",
+    "yourEarnings": "Your earnings",
+    "totalEarned": "Total earned — member to member",
+    "liveFiguresNote": "Your own live figures — paid wallet-to-wallet, not a projection",
+    "affiliateLink": "Your affiliate link — share to grow your team",
+    "copyLink": "Copy link"
   },
   "compPlan": {
     "title": "Compensation Plan",

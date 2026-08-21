@@ -286,7 +286,14 @@
     "onboardingBannerStep4": "Gumawa ng unang AI content",
     "onboardingBannerCTA": "Simulan ang Setup →",
     "onboardingBannerSkip": "Sa ibang pagkakataon",
-    "onboardingBannerDismissAria": "Isara ang setup banner"
+    "onboardingBannerDismissAria": "Isara ang setup banner",
+    "lifetimeMember": "PANGHABAMBUHAY NA MIYEMBRO",
+    "annualMember": "TAUNANG MIYEMBRO",
+    "yourEarnings": "Ang Iyong Kita",
+    "totalEarned": "Kabuuang kita — miyembro sa miyembro",
+    "liveFiguresNote": "Ang iyong sariling live na datos — bayad wallet-to-wallet, hindi projection",
+    "affiliateLink": "Ang iyong affiliate link — ibahagi para palaguin ang team mo",
+    "copyLink": "Kopyahin ang link"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",
