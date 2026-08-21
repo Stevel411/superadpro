@@ -73466,6 +73466,7 @@ def _al_intent_json(db, intent, viewer_id=None):
     pack = db.query(CampaignPack).filter(CampaignPack.id == intent.pack_id).first()
     return {
         "intent_id": intent.id,
+        "campaign_id": intent.campaign_id,
         "status": intent.status,
         "pack": {"level": intent.pack_level, "name": pack.name if pack else None,
                  "views": pack.views_target if pack else None},
