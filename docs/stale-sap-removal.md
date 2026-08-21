@@ -60,6 +60,32 @@ Retired subscription-upgrade checkout. AL has no subscription; SAP subs were all
 
 ---
 
+## Pass 2 — full route inventory (2026-08-21)
+
+Audited all **156 routes** against live code (script: route→component→palette→nav→retired-content). Result buckets:
+
+### A. Redirect stubs — **51 routes** → KEEP
+Already `HardRedirect`/`Navigate` to live AL pages. Load-bearing for inbound links.
+
+### B. Retired-model CONTENT still rendering (member-facing) — **5 pages** → FIX
+Verified with context (12 raw grep hits → 7 were false positives: comments documenting the *retired* grid, `56.25%` aspect ratios, `<HourlyHeatmap matrix=>` props, and an AI prompt that says "never say per month"). The 5 genuine ones:
+
+| Route | Component | Problem (verified line) | Kind |
+|---|---|---|---|
+| `/onboarding` | OnboardingWizard | "You earn **$10/month for every active member — recurring**" (L196) — false income claim, shown to new members | CONTENT — fix now |
+| `/marketing-materials` | MarketingMaterials | Member deck sells the fully retired 3-stream model: "Membership Referrals, Campaign Grid, Creator Credits" (L28, L144) | CONTENT — needs Steve's replacement |
+| `/analytics` | AnalyticsPage | Renders retired income labels: Direct 30% / Grid Bonus / Membership / Nexus (L12, L58) | DECISION — redirect to `/campaign-analytics` vs re-skin |
+| `/payment-success` | PaymentSuccess | Stale `superscene` + "/credit-nexus for credit packs" copy after the $100 join (L50, L325) | CONTENT + palette |
+| `/command-centre` | CommandCentre | "Creator Credits" tile + `/nexus-team` link (L13, L119, L124) | CONTENT + palette |
+
+### C. True palette re-skin — **7 pages** (raw SAP hex, renders regardless of token remap) → RE-SKIN
+`--sap-accent`/`--sap-cyan` **tokens are remapped to AL red** on AL (`design-tokens.css:168`), so token-using pages already render AL colours — the July log's "~31 markers" was inflated by those. Only these use raw hex: `payment-success` (4), `command-centre` (2), `my-site` (2), `custom-domain` (2), `explore` (1), `admin/collaborations` (1), `help/sending-domain` (1). Surgical — a badge/gradient each, not whole SAP pages.
+
+### D. Stale gating semantics — non-urgent
+`RequireTier tier="pro"/"basic"` gates persist (ProSeller, `/pro/*`, labs) — AL has no pro/basic subscription tiers. The tools are live; the gate *concept* is retired-model. Cleanup, not removal.
+
+---
+
 ## Not yet audited (next passes)
 
 The July log noted "~31 member-facing React routes still carry SuperAdPro markers." This register has cleared the highest-suspicion cluster (Creative Studio / credits / subscriptions / grid). Remaining passes, each done to the 5-check methodology above:
