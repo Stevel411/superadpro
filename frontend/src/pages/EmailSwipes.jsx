@@ -76,9 +76,9 @@ You asked how the earning side of AdvantageLife works. Here it is plainly, inclu
 
 First, the honest bit: joining is free, and it earns me nothing. Nobody makes money from you joining.
 
-The earning happens on the advertising side. Members buy VideoView packs ($10 up to $1,000) and those sales are person-to-person — 100% of the pack price goes to a member. The company keeps none of it.
+The earning happens on the advertising side. Members buy VideoView packs ($10 up to $1,000) and those sales are person-to-person — 100% of the pack price goes straight to a member, with no cut taken out of a sale.
 
-There's a pass-up: you keep your 1st and 2nd sales, your 3rd passes to your sponsor. Same at 6 and 9. From your 10th sale on, every sale is yours.
+There's a pass-up that runs in cycles of eleven: you keep your 1st, 2nd, 4th, 5th, 7th, 8th and 10th sales; your 6th, 9th and 11th pass up to a qualified member above you; and your 3rd funds the platform. From your 12th sale on, every sale is yours until the pack finishes.
 
 Two conditions, so you know upfront: you only earn on a pack level you own yourself, and you have to watch your daily videos to stay qualified.
 
