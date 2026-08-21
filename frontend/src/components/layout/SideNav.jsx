@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import LanguageSelector from './LanguageSelector';
 
 // Single source of truth for the member sidebar nav. Rendered by both the
 // AlShell (most pages) and NewDashboard (which has its own shell copy), so the
@@ -133,6 +134,9 @@ export default function SideNav({ active }) {
           </div>
         );
       })}
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+        <LanguageSelector openUp full />
+      </div>
     </>
   );
 }

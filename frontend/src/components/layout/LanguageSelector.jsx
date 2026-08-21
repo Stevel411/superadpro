@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { changeLanguage, LANGUAGES } from '../../i18n';
 import { Globe } from 'lucide-react';
 
-export default function LanguageSelector({ compact, openUp }) {
+export default function LanguageSelector({ compact, openUp, full }) {
   var { i18n } = useTranslation();
   var [open, setOpen] = useState(false);
   var ref = useRef(null);
@@ -24,7 +24,7 @@ export default function LanguageSelector({ compact, openUp }) {
   return (
     <div ref={ref} style={{position:'relative'}}>
       <button onClick={function() { setOpen(!open); }}
-        style={{display:'flex',alignItems:'center',gap:6,padding:compact?'6px 10px':'8px 14px',borderRadius:8,
+        style={{display:'flex',width:full?'100%':undefined,alignItems:'center',gap:6,padding:compact?'6px 10px':'8px 14px',borderRadius:8,
           border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.05)',cursor:'pointer',
           color:'rgba(255,255,255,.6)',fontSize:compact?11:12,fontWeight:700,fontFamily:'inherit',transition:'all .15s'}}>
         <Globe size={compact?12:14}/>
@@ -47,11 +47,11 @@ export default function LanguageSelector({ compact, openUp }) {
               <button key={lang.code} onClick={function() { select(lang.code); }}
                 style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'8px 12px',borderRadius:6,
                   border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:isActive?800:500,
-                  background:isActive?'rgba(14,165,233,.12)':'transparent',
-                  color:isActive?'#38bdf8':'rgba(255,255,255,.6)',transition:'all .1s',textAlign:'left'}}>
+                  background:isActive?'rgba(200,16,46,.18)':'transparent',
+                  color:isActive?'#fff':'rgba(255,255,255,.6)',transition:'all .1s',textAlign:'left'}}>
                 <span style={{fontSize:16}}>{lang.flag}</span>
                 <span>{lang.name}</span>
-                {isActive && <span style={{marginLeft:'auto',fontSize:10,color:'#38bdf8'}}>✓</span>}
+                {isActive && <span style={{marginLeft:'auto',fontSize:10,color:'#ff2743'}}>✓</span>}
               </button>
             );
           })}
