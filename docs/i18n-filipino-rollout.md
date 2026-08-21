@@ -48,3 +48,13 @@ These render retired-model concepts; translating them entrenches the wrong model
 - `wallet.creativeStudioComm` (Creative Studio) — retired product.
 - `compHub.streams.gridName/gridTag/gridNum` (The Grid / Recurring Income), `compHub.streams.membershipName/membershipNum` (Membership) — retired 2-stream comp model.
 - `membershipStream.*` (14) — lives in the un-routed `MembershipStreamPage` orphan → skip entirely.
+
+
+## Re-baseline 2026-08-21 (live-pages-only, after token-waste correction)
+**Rule (Steve): translate ONLY pages that render live on AdvantageLife. Verify reachability before translating.**
+- **Corrected method:** a key is translatable only if used by a page reachable from the live SideNav (BFS over `to=`/`to:`/`href`/`path:` links + auth/public funnel roots). "Referenced by t() in code" is NOT enough — orphaned/AL-redirected components (e.g. `Wallet.jsx` via `WalletRoute`→/payout-methods) count as used but never render.
+- **Reverted 27 dead-page keys** I wrongly translated (all `wallet.*`, contentCreator tool blurbs, tools-nav extras, explore/learn nav) — they never render on AL.
+- **Verified live gap: 69 keys** on nav-reachable pages. Of those, ~57 are tech terms/placeholders/numbers correctly kept English (QR, UTM, Base URL, px sizes, https://…, 2FA, Sponsor). **11 genuine phrases translated** (myLeads lists, support getting-started, videoLibrary gate, linkHub colour labels).
+- **58 keys NOT yet proven reachable** (publicPages, incomeDisclaimer, cryptoGuide, platformTour, socialShare, superLink, training, learn) — do NOT translate until each page is individually confirmed to render on AL.
+
+**Net:** Filipino on the confirmed-live member pages is essentially complete (the bulk was already translated; the rest is correctly-English tech terms). Remaining real work is small and gated on per-page reachability checks + the de-stale decisions on retired-model strings.

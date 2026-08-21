@@ -139,10 +139,7 @@
     "compensationPlan": "Plano ng Kompensasyon",
     "grpMore": "IBA PA",
     "dailyWisdom": "Araw-araw na Karunungan",
-    "vettedExtras": "Mga Piling Extra",
-    "toolsLeads": "Leads at Pagbebenta",
-    "toolsLinks": "Pages at Links",
-    "toolsStartHere": "Magsimula Dito"
+    "vettedExtras": "Mga Piling Extra"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -423,7 +420,6 @@
     "unableToLoad": "Hindi ma-load ang wallet",
     "affiliate": "Affiliate",
     "campaign": "Kampanya",
-    "affiliateWallet": "Affiliate Wallet",
     "campaignWallet": "Kampanya Wallet",
     "totalEarned": "Kabuuang Kita",
     "totalWithdrawn": "Kabuuang Na-withdraw",
@@ -452,7 +448,6 @@
     "status": "Katayuan",
     "date": "Petsa",
     "directSponsor": "Direktang Sponsor",
-    "uniLevel": "Uni-Level",
     "gridBonus": "Grid Bonus",
     "membershipComm": "Miyembro",
     "renewal": "Pag-renew",
@@ -492,18 +487,7 @@
     "sent": "Naipadala",
     "received": "Natanggap",
     "userIdPlaceholder": "hal. SAP-00042",
-    "creditNexus": "Credit Nexus",
-    "cancel": "Kanselahin",
-    "change": "Palitan",
-    "confirmFirstSub": "Ipinapakita namin ito nang isang beses para matiyak na tama ang destinasyon mo. Ang crypto na maipadala sa maling network ay hindi na mababawi.",
-    "confirmFirstTitle": "Kumpirmahin ang iyong unang withdrawal",
-    "confirmWithdrawal": "Kumpirmahin ang Withdrawal",
-    "destinationAddress": "Address ng destinasyon",
-    "networkUnknown": "Hindi alam",
-    "networkWarningBody": "Ang pondong maipadala sa address sa ibang network ay maaaring permanenteng mawala. I-tap ang Palitan sa itaas kung kailangan mong baguhin ang destinasyon.",
-    "networkWarningTitle": "Siguraduhing sinusuportahan ng wallet mo ang network na ito.",
-    "processing": "Pinoproseso…",
-    "sendingTo": "Ipinapadala sa"
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Manood para Mag-qualify",
@@ -587,7 +571,7 @@
     "orPasteUrl": "o mag-paste ng URL...",
     "yourName": "Pangalan Mo",
     "bioPlaceholder": "Ipakilala ang sarili mo...",
-    "displayName": "Display Name",
+    "displayName": "Pangalang Ipapakita",
     "avatarUrl": "Avatar URL (o gamitin ang upload sa itaas)",
     "poweredBy": "Pinapagana ng AdvantageLife LinkHub",
     "clickCategory": "I-click ang isang kategorya para palawakin",
@@ -610,11 +594,11 @@
     "copiedLabel": "Nakopya!",
     "copyUrlBtn": "Kopyahin ang URL",
     "color": {
-      "background": "Background Color",
-      "button": "Button Color",
-      "buttonText": "Button Text Color",
-      "name": "Name Color",
-      "bioText": "Bio Text Color"
+      "background": "Kulay ng Background",
+      "button": "Kulay ng Button",
+      "buttonText": "Kulay ng Button Text",
+      "name": "Kulay ng Pangalan",
+      "bioText": "Kulay ng Bio Text"
     },
     "section": {
       "socialMedia": "Social Media"
@@ -792,7 +776,9 @@
     "ticketSubmitted": "Na-submit ang Ticket",
     "wellGetBack": "Sasagutin namin sa loob ng 24 oras sa email.",
     "emailDirectly": "Mag-email sa amin:",
-    "responseTime": "Oras ng sagot: 24 oras"
+    "responseTime": "Oras ng sagot: 24 oras",
+    "startHereDesc": "Ang step-by-step na gabay sa pag-setup",
+    "startHereTitle": "Pagsisimula"
   },
   "account": {
     "title": "Ang Account Ko",
@@ -1255,15 +1241,7 @@
     "nicheFinder": "Niche Finder",
     "qrCode": "QR Code",
     "aiSalesChat": "AI Sales Chat",
-    "tab": {
-      "posts": "Gumawa ng scroll-stopping na posts na akma sa bawat platform.",
-      "scripts": "Sumulat ng nakakaengganyong scripts para sa anumang video format.",
-      "emails": "Sumulat ng high-converting na email sequences at swipes.",
-      "ads": "Gumawa ng nakakaengganyong ad headlines, copy, at CTA.",
-      "niche": "Mag-research ng kumikitang niche na may audience insights at monetisation strategies.",
-      "qr": "Gumawa ng QR codes para sa iyong referral links at landing pages.",
-      "salesAgent": "Ang iyong AI sales assistant para sa pitches, objections, at closing."
-    }
+    "tab": {}
   },
   "creativeStudio": {
     "subtitle": "Gumawa ng video, larawan, musika at voiceover gamit ang AI",
@@ -2427,9 +2405,9 @@
     "tabImport": "Mag-import",
     "tabBoost": "Boost",
     "statusUnsubscribed": "Nag-unsubscribe",
-    "allLists": "All lists",
+    "allLists": "Lahat ng lista",
     "nurturing": "Nurturing",
-    "noSequence": "No sequence",
+    "noSequence": "Walang sequence",
     "boost": {
       "targeted": "Perfect for a targeted campaign",
       "multiple": "Run multiple sequences",
@@ -3594,7 +3572,6 @@
     "copied": "Nakopya na!"
   },
   "explore": {
-    "navHome": "Home",
     "navIncome": "Kita",
     "navTools": "Mga Gamit",
     "navSignin": "Mag-sign in",
@@ -3656,7 +3633,6 @@
     "toolSuperPagesBody": "Drag-and-drop na landing pages na may built-in templates.",
     "toolsBasicBadge": "Basic",
     "toolsBasicLabel": "Basic plan",
-    "toolsEyebrow": "Mga marketing tool",
     "toolsProBadge": "Pro",
     "toolsProLabel": "Pro plan",
     "toolsSub": "Free, Basic, at Pro tools upang bigyan ng kapangyarihan ang iyong mga kampanya.",
@@ -3817,7 +3793,6 @@
     "bannerCreator": "Banners",
     "commandCentre": "Centre",
     "emailSwipes": "Swipes",
-    "income": "Kita",
     "learn": "Learn",
     "memeGenerator": "Memes",
     "nicheFinder": "Mga Niches",
@@ -4324,7 +4299,6 @@
     "tabs": {
       "overview": "Pangkalahatang-kalagayan",
       "education": "Edukasyon",
-      "assets": "Promotional Assets",
       "community": "Komunidad"
     },
     "door": {
@@ -4574,7 +4548,7 @@
     "spilloverLabel": "Spillover"
   },
   "videoLibrary": {
-    "needActiveCampaign": "Your campaign needs an active Campaign Tier."
+    "needActiveCampaign": "Kailangan ng aktibong Campaign Tier ang iyong campaign."
   },
   "cryptoCheckout": {
     "continueBtn": "Continue"
