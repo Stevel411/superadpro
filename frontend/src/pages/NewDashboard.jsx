@@ -118,6 +118,11 @@ const CSS = `
 .al .shc.done .b{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);box-shadow:none}
 .al .shc .v{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700;color:#9aabd6}
 .al .shc .v b{color:#4ade80;font-size:14px;font-variant-numeric:tabular-nums}
+.al .shc.bnr{border-color:rgba(255,39,67,.35);background:rgba(200,16,46,.12)}
+.al .shc.bnr .k{color:#ff8a9c}
+.al .shc.bnr .dot{background:#ff2743;box-shadow:0 0 0 3px rgba(255,39,67,.25)}
+.al .shc.bnr .b{background:linear-gradient(120deg,#c8102e,#e8203f);border:none;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
+.al .shc.bnr .v b{color:#ff8a9c}
 /* the sidebar holds it on desktop; the main-column copy only shows once the
    sidebar is gone (matches the existing 980px sidebar breakpoint) */
 .al .shmob{display:none}
@@ -382,6 +387,7 @@ export default function NewDashboard() {
   }
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState(null);
+  const [bannerStats, setBannerStats] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
@@ -461,6 +467,7 @@ export default function NewDashboard() {
       apiGet('/api/dashboard'), apiGet('/api/watch'),
       apiGet('/api/al/packs'), apiGet('/api/al/my-sales'),
       apiGet('/api/al/featured-video'), apiGet('/api/share/my-link'),
+      apiGet('/api/al/banners/mine'),
     ]).then(function (res) {
       if (res[0].status === 'fulfilled') setDash(res[0].value || {});
       if (res[1].status === 'fulfilled') setWatch(res[1].value || {});
@@ -468,6 +475,7 @@ export default function NewDashboard() {
       if (res[3].status === 'fulfilled') setAlSales(res[3].value || {});
       if (res[4].status === 'fulfilled') setFeat((res[4].value || {}).video || null);
       if (res[5].status === 'fulfilled') setShareData(res[5].value || null);
+      if (res[6].status === 'fulfilled') setBannerStats(res[6].value || null);
       setLoading(false);
     });
     function loadBoard() { apiGet('/api/al/leaderboard').then(setBoard).catch(function () {}); }
@@ -519,9 +527,27 @@ export default function NewDashboard() {
     );
   }
 
+  // Banner share card — mirrors ShareCard, links to the member's public banner page.
+  function BannerShareCard() {
+    const uname = user?.username || '';
+    if (!uname) return null;
+    const impr = (bannerStats && bannerStats.totals && bannerStats.totals.impressions) || 0;
+    const url = 'https://www.advantagelife.club/discover/u/' + uname;
+    return (
+      <div className="shc done bnr">
+        <div className="k"><span className="dot" /> Your banner page ✓</div>
+        <div className="h">Your banners, one shareable link</div>
+        <div className="s">Post it anywhere — every view counts toward your pack.</div>
+        <button className="b" onClick={function () { window.open(url, '_blank'); }}>View my banner page</button>
+        <div className="v"><span>Banner impressions</span><b>{impr}</b></div>
+      </div>
+    );
+  }
+
   // Prize-game share links — sits directly under the showcase share card.
   function GameLinksCard() {
     const uname = user?.username || '';
+    const [gopen, setGopen] = useState(false);
     const games = [
       { key: 'flight', ic: '🕊️', name: 'Freedom Flight' },
       { key: 'run', ic: '🛵', name: 'Coast Run' },
@@ -538,10 +564,12 @@ export default function NewDashboard() {
     }
     return (
       <div style={{ background: 'linear-gradient(160deg,#12245a,#0e1f4e)', border: '1px solid #2a3f78', borderRadius: 14, padding: 14, marginTop: 14, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div onClick={function () { setGopen(!gopen); }} role="button" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
           <span style={{ fontSize: 17 }}>🎮</span>
-          <b style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Your Game Links</b>
+          <b style={{ fontSize: 14, fontWeight: 900, color: '#fff', flex: 1 }}>Your Game Links</b>
+          <span style={{ color: '#8aa0d0', fontWeight: 900, fontSize: 16, transform: gopen ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}>›</span>
         </div>
+        {gopen && (<>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(240,165,42,.14)', border: '1px solid rgba(240,165,42,.35)', borderRadius: 10, padding: '8px 10px', marginTop: 10 }}>
           <span style={{ fontWeight: 900, color: '#ffd48a', fontSize: 14 }}>$400</span>
           <span style={{ fontSize: 10.5, color: '#e7d3ad', fontWeight: 700, lineHeight: 1.3 }}>pack to the top score in each game, every month</span>
@@ -558,6 +586,7 @@ export default function NewDashboard() {
             </div>
           );
         })}
+        </>)}
         <button onClick={function () { window.location.href = '/leaderboards'; }} style={{ display: 'block', width: '100%', marginTop: 12, background: 'linear-gradient(135deg,#f0a52a,#ff8a3d)', border: 0, borderRadius: 11, color: '#3a2400', fontWeight: 900, fontSize: 13, padding: 12, cursor: 'pointer' }}>🏆 Monthly Leaderboard →</button>
       </div>
     );
@@ -751,6 +780,7 @@ export default function NewDashboard() {
             <div className="sidecards">
               <div className="sdv" />
               <ShareCard />
+              <BannerShareCard />
               <GameLinksCard />
             </div>
           </aside>
@@ -785,7 +815,7 @@ export default function NewDashboard() {
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
-            <div className="shmob"><ShareCard /><GameLinksCard /></div>
+            <div className="shmob"><ShareCard /><BannerShareCard /><GameLinksCard /></div>
 
             {wis && (
               <div className="wis">

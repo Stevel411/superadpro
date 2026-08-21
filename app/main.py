@@ -38110,6 +38110,59 @@ def public_banner_category(catslug: str, db: Session = Depends(get_db)):
     return HTMLResponse(_discover_shell(title, desc, canonical, "", jsonld, brand, inner))
 
 
+@app.get("/discover/u/{username}")
+def public_member_banners(username: str, db: Session = Depends(get_db)):
+    """A member's public, shareable banner page — their banners featured, then the
+    wider directory below so it's never sparse. Server-rendered, SEO-friendly."""
+    import html as _h
+    base = brand_config.BASE_URL; brand = brand_config.BRAND_NAME
+    u = db.query(User).filter(User.username.ilike(username)).first()
+    if not u:
+        return RedirectResponse("/discover", status_code=302)
+    disp = u.username or username
+    mine = (db.query(BannerAd).filter(BannerAd.user_id == u.id, BannerAd.status == "active")
+            .order_by(BannerAd.created_at.desc()).limit(50).all())
+    mine_ids = [b.id for b in mine]
+    more_q = db.query(BannerAd).filter(BannerAd.status == "active")
+    if mine_ids:
+        more_q = more_q.filter(~BannerAd.id.in_(mine_ids))
+    more = more_q.order_by(BannerAd.created_at.desc()).limit(24).all()
+
+    def _tile(b):
+        media, mw, hh = _banner_media_html(b, 300)
+        return ('<a class="tile" href="/discover/%d-%s" data-bid="%d" style="width:%dpx;text-decoration:none;color:inherit">%s'
+                '<div class="lab"><div class="t">%s</div><div class="m">%s · %s impressions</div></div></a>'
+                % (b.id, _slugify(b.title or ""), b.id, mw, media, _h.escape(b.title or ""),
+                   _h.escape(b.category or ""), (b.impressions or 0)))
+
+    initial = (disp[:1] or "A").upper()
+    title = _h.escape(disp) + "'s picks — " + brand + " Discover"
+    desc = "Offers, tools and banners recommended by " + _h.escape(disp) + ", a " + brand + " member."
+    canonical = base + "/discover/u/" + _h.escape(disp, quote=True)
+
+    featured = ""
+    if mine:
+        featured = ('<div class="seclbl">★ ' + _h.escape(disp) + "'s banners <span class=\"line\"></span></div>"
+                    '<div class="grid">' + "".join(_tile(b) for b in mine) + '</div>')
+    more_html = ""
+    if more:
+        more_html = ('<div class="seclbl muted">More from ' + brand + ' <span class="line"></span></div>'
+                     '<div class="grid">' + "".join(_tile(b) for b in more) + '</div>')
+
+    inner = (
+        '<div class="top"><div class="who"><div class="av">' + _h.escape(initial) + '</div>'
+        '<div class="n">Shared by<b>' + _h.escape(disp) + ' · ' + brand + ' member</b></div></div>'
+        '<h1>' + _h.escape(disp) + "'s <b style=\"color:#f0a52a\">picks</b></h1>"
+        '<p>Hand-picked offers, tools and opportunities. Every banner placed by a real ' + brand + ' member.</p>'
+        '<div class="share"><button id="cpy" class="cta" onclick="copyDiscover()">Copy my link</button>'
+        '<a href="https://twitter.com/intent/tweet?url=' + _h.escape(canonical, quote=True) + '" target="_blank" rel="noopener">Share on X</a></div></div>'
+        + featured + more_html +
+        '<div class="foot"><a href="/discover">Explore all banners →</a> · <a href="/banners/create">Create your own →</a></div>'
+    )
+    jsonld = '{"@context":"https://schema.org","@type":"ProfilePage","name":"%s","url":"%s"}' % (_h.escape(disp).replace('"', "'"), canonical)
+    return HTMLResponse(_discover_shell(title, desc, canonical, "", jsonld, brand, inner))
+
+
 @app.get("/discover/{idslug}")
 def public_banner_listing(idslug: str, db: Session = Depends(get_db)):
     """Per-banner listing page — its own indexable URL with unique content. This
@@ -38224,6 +38277,13 @@ _DISCOVER_LISTING_CSS = """
 .related{margin-top:30px}
 .related h2{font-size:17px;font-weight:900;color:#0a1f52;margin-bottom:14px}
 .tile{text-decoration:none;color:inherit}
+.who{display:flex;align-items:center;gap:12px}
+.av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#c8102e,#ff5a3c);display:grid;place-items:center;font-weight:900;color:#fff;font-size:18px;flex:none}
+.who .n{font-size:13px;font-weight:700;color:#a9bce0}
+.who .n b{color:#fff;font-size:15px;display:block}
+.seclbl{font-size:12px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#c8102e;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.seclbl.muted{color:#8a97b8}
+.seclbl .line{flex:1;height:1px;background:#e0e7f3}
 """
 
 
