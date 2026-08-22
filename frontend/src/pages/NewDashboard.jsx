@@ -495,6 +495,7 @@ export default function NewDashboard() {
   const ownedLevel = Number(ap.owned_level || 0);
   const ownedPack = packList.find(function (p) { return p.level === ownedLevel; }) || null;
   const cycleCount = Number(ap.cycle_sale_count || 0);
+  const isAdmin = !!(alSales && alSales.is_admin);   // company/root account — no member tier/cycle
   const nextPos = cycleCount >= 11 ? 0 : cycleCount + 1;   // 0 = cycle complete, all yours
   const nextIsOps = nextPos === 3;
   const nextPassesUp = nextPos === 6 || nextPos === 9 || nextPos === 11;
@@ -790,17 +791,19 @@ export default function NewDashboard() {
           <main>
             <div className="hero">
               <div className="hl">
-                {memTier && memTier.is_lifetime && (
+                {!isAdmin && memTier && memTier.is_lifetime && (
                   <span className="tierbadge lifetime"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.lifetimeMember')}</span>
                 )}
-                {memTier && !memTier.is_lifetime && memTier.is_annual && (
+                {!isAdmin && memTier && !memTier.is_lifetime && memTier.is_annual && (
                   <span className="tierbadge silver"><svg width="15" height="15" viewBox="0 0 24 24" fill="#23293a"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.annualMember')}</span>
                 )}
                 <div className="k">{t('dashboard.yourEarnings')}</div>
                 <div className="lbl">{t('dashboard.totalEarned')}</div>
                 <div className="big">{formatMoney(earnedTotal)}</div>
-                <div className="cap">Welcome back, {name} — {ownedPack ? ('earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : 'no pack yet'}</div>
-                <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
+                <div className="cap">Welcome back, {name}{isAdmin ? '' : (ownedPack ? (' — earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : ' — no pack yet')}</div>
+                {!isAdmin && (
+                  <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
+                )}
                 <div className="note"><i>ⓘ</i> {t('dashboard.liveFiguresNote')}</div>
               </div>
               <div className="img"><span className="tag">FREEDOM HORIZON · ADVANTAGELIFE</span></div>
