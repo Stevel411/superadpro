@@ -72634,6 +72634,28 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
             "manual_review": review}
 
 
+@app.get("/admin/api/al/payment-types")
+def admin_api_al_payment_types(secret: str = "", db: Session = Depends(get_db)):
+    """Every Payment row grouped by payment_type + status: count, total, and the
+    distinct amounts seen — so we can see exactly what money-in exists and which
+    types are genuine lifetime joins vs tests/grants/other. Read-only."""
+    _check_migration_secret(secret)
+    from .database import Payment
+    from sqlalchemy import func as _f
+    rows = (db.query(Payment.payment_type, Payment.status,
+                     _f.count(Payment.id), _f.coalesce(_f.sum(Payment.amount_usdt), 0))
+              .group_by(Payment.payment_type, Payment.status)
+              .order_by(Payment.payment_type).all())
+    out = []
+    for pt, st, n, amt in rows:
+        amounts = sorted({round(float(a[0] or 0), 2) for a in
+                          db.query(Payment.amount_usdt).filter(
+                              Payment.payment_type == pt, Payment.status == st).distinct().all()})
+        out.append({"payment_type": pt, "status": st, "count": int(n or 0),
+                    "total": round(float(amt or 0), 2), "distinct_amounts": amounts[:12]})
+    return {"ok": True, "rows": out}
+
+
 @app.get("/admin/api/al/company-income")
 def admin_api_al_company_income(secret: str = "", db: Session = Depends(get_db)):
     """Full income breakdown for the admin/company account, which is BOTH the master
@@ -72683,7 +72705,7 @@ def admin_api_al_company_income(secret: str = "", db: Session = Depends(get_db))
         if since is not None:
             mq = mq.filter(Payment.created_at >= since)
         mn, mamt = mq.one()
-        membership = {"label": "Membership / lifetime joins ($100)",
+        membership = {"label": "Membership / lifetime joins",
                       "count": int(mn or 0), "total": round(float(mamt or 0), 2)}
         pack_total = round(aff["total"] + plat["total"], 2)
         return {"affiliate_income": aff, "platform_income": plat,
