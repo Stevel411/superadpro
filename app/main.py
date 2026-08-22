@@ -72578,7 +72578,32 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
         row = {"commission_id": c.id, "buyer": buyer.username, "amount": float(c.amount or 0),
                "pack_level": c.pack_level, "type": c.commission_type, "status": c.status}
         if c.commission_type == "pass_up_company":
-            review.append(row)          # chain skip — payee needs manual determination
+            # Walk the pass-up chain from the buyer's sponsor upward. The intended
+            # payee is the first NON-admin upline now earning-qualified for this
+            # level (would have received it if their ad hadn't been bug-stuck). If
+            # the chain only reaches the company/admin, it was legitimately company.
+            seller = (db.query(User).filter(User.id == buyer.sponsor_id).first()
+                      if buyer.sponsor_id else None)
+            payee, depth = None, 0
+            node_id = seller.pass_up_sponsor_id if seller else None
+            while node_id and depth < 64:
+                nd = db.query(User).filter(User.id == node_id).first()
+                if nd is None:
+                    break
+                if (not nd.is_admin
+                        and _ale.earning_level(db, nd.id) >= (c.pack_level or 0)
+                        and _ale.watch_qualified(db, nd.id) and _ale.payable(db, nd.id)):
+                    payee = nd
+                    break
+                node_id = nd.pass_up_sponsor_id
+                depth += 1
+            if payee is not None:
+                row.update({"should_have_paid": payee.username, "sponsor_id": payee.id,
+                            "pass_up_depth": depth, "payout": _payout(payee.id)})
+                reimburse.append(row)
+            else:
+                row["note"] = "no now-qualified upline in chain — legitimately company"
+                review.append(row)
             continue
         sp = (db.query(User).filter(User.id == buyer.sponsor_id).first()
               if buyer.sponsor_id else None)
