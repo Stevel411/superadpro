@@ -78,3 +78,15 @@ _When this doc and live code disagree, live code wins — and this doc gets corr
 - Direct sale + unqualified sponsor → COMPANY (no climb).
 
 **"3/6/9" anywhere (docs, project instructions, FAQ, swipes, comments) is STALE shorthand** — the model moved to 6/9/11 + 3rd-fee and the docs were never updated. Fix the content to the engine, not the engine to the content. Before writing ANY comp-plan or commission claim, read the engine constants first.
+
+## AdvantageLife membership is FREE (Aug 2026) — no fees, no paid tiers
+
+**AL charges nothing for access.** `_al_membership_active(user)` returns `user is not None` — every logged-in member has full access. Members register (free) at `/register` and become a **free member**. There are **no membership fees and no paid tiers.**
+
+The old `$50 annual` / `$100 lifetime` paid model is **fully retired and its code excised** (Aug 2026): the paid-join page body, the `_AL_JOIN_PAGE` template, `_al_activate_lifetime` / `_al_activate_annual`, and the Stripe/NOWPayments `al_lifetime`/`al_annual` webhook branches are all gone. `/join` now just redirects (logged-in → `/dashboard`, anon → `/register`).
+
+Any `al_annual` / `al_lifetime` / `membership` / `onchain_membership` **Payment records are stale/test data — NOT revenue.** Do not surface "membership income" anywhere.
+
+**AL revenue = P2P pack sales only.** The platform never holds funds; buyers pay sellers wallet-to-wallet. Company income = pack-commission fees (operational_fee on the 3rd sale; direct_company / pass_up_company absorb) plus the admin/company account's own direct affiliate sales.
+
+**The shared codebase carries SuperAdPro concepts (membership tiers, Profit Grid, credits/SuperScene, Creative Studio, blog, trials) that DO NOT apply to AL. Always check the live AL gate/engine — never assume SAP behaviour transfers.**
