@@ -23,6 +23,8 @@ const CSS = `
 .al .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:21px;letter-spacing:-.4px;color:#0d1230}
 .al .logo .mk{width:38px;height:38px;border-radius:11px;background:linear-gradient(160deg,#12388f,#0a1f52);display:flex;align-items:center;justify-content:center;flex:none}
 .al .logo .life{color:#c8102e}
+.al .sharebtn-short{display:none}
+@media(max-width:600px){.al .sharebtn-full{display:none}.al .sharebtn-short{display:inline}.al .sharebtn{padding:0 13px !important}}
 .al .nav{display:flex;gap:22px;align-items:center}
 .al .nav a{font-weight:800;font-size:15.5px;color:#3c4770;padding:8px 2px;position:relative}
 .al .nav a.on{color:#0d1230}
@@ -701,6 +703,12 @@ export default function NewDashboard() {
             <span>Advantage<span className="life">Life</span></span>
           </span>
           <span className="sp"></span>
+          <button className="sharebtn" onClick={openShare} aria-label="Share your link"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 42, padding: '0 15px', marginRight: 10, background: 'linear-gradient(120deg,#c8102e,#ff2743)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 14, cursor: 'pointer', boxShadow: '0 8px 18px -8px rgba(200,16,46,.55)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span className="sharebtn-full">Share your link</span>
+            <span className="sharebtn-short">Share</span>
+          </button>
           <div className="bell-wrap" ref={bellRef} style={{ position: 'relative', marginRight: 10 }}>
             <button className="bell-btn" onClick={toggleBell} aria-label="Notifications"
               style={{ position: 'relative', width: 42, height: 42, borderRadius: 12, background: '#f1f4fa', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
