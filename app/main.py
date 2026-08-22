@@ -72632,6 +72632,57 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
             "manual_review": review}
 
 
+@app.get("/admin/api/al/cancel-pending")
+def admin_api_al_cancel_pending(intent_id: int = 0, username: str = "", sweep: int = 0,
+                                older_than_hours: int = 48, dryrun: int = 1,
+                                secret: str = "", db: Session = Depends(get_db)):
+    """Cancel abandoned PENDING purchases. Safe: only ever touches status='pending'
+    (unpaid, no proof submitted) — never proof_submitted/confirmed, so a paid sale
+    can't be cancelled. Also discards any linked legacy 'pending' campaign (leaves
+    'draft' ads alone so the member keeps their ad to buy again).
+      ?intent_id=N          one specific pending intent
+      ?username=X           that member's pending intent(s)
+      ?sweep=1              all pending older than older_than_hours (default 48h = the TTL)
+      &older_than_hours=N   tune the sweep age window (0 = all pending)
+      &dryrun=0             actually cancel (default is a preview)."""
+    _check_migration_secret(secret)
+    from .database import P2PIntent
+    q = db.query(P2PIntent).filter(P2PIntent.status == "pending")
+    if intent_id:
+        q = q.filter(P2PIntent.id == intent_id)
+    elif username:
+        u = db.query(User).filter(func.lower(User.username) == username.strip().lstrip("@").lower()).first()
+        if u is None:
+            return JSONResponse({"error": "member not found"}, status_code=404)
+        q = q.filter(P2PIntent.buyer_id == u.id)
+    elif sweep:
+        q = q.filter(P2PIntent.created_at < (datetime.utcnow() - timedelta(hours=older_than_hours)))
+    else:
+        return JSONResponse({"error": "pass ?intent_id=N, ?username=X, or ?sweep=1"}, status_code=400)
+
+    def _un(uid):
+        r = db.query(User.username).filter(User.id == uid).first()
+        return r[0] if r else ("?#%s" % uid)
+
+    rows = q.order_by(P2PIntent.id).all()
+    items = [{"intent_id": i.id, "buyer": _un(i.buyer_id), "pack_level": i.pack_level,
+              "age_hours": (round((datetime.utcnow() - i.created_at).total_seconds() / 3600, 1)
+                            if i.created_at else None),
+              "campaign_id": i.campaign_id} for i in rows]
+    if dryrun:
+        return {"ok": True, "dryrun": True, "would_cancel": len(rows), "items": items}
+    n = 0
+    for i in rows:
+        i.status = "cancelled"
+        if i.campaign_id:
+            camp = db.query(VideoCampaign).filter(VideoCampaign.id == i.campaign_id).first()
+            if camp is not None and camp.status == "pending":
+                camp.status = "discarded"
+        n += 1
+    db.commit()
+    return {"ok": True, "dryrun": False, "cancelled": n, "items": items}
+
+
 @app.get("/admin/api/al/cycle-check")
 def admin_api_al_cycle_check(username: str = "", secret: str = "", db: Session = Depends(get_db)):
     """Spot-check the dashboard cycle tracker against the real counter: raw
