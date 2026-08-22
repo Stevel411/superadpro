@@ -398,8 +398,6 @@ export default function NewDashboard() {
   const [shareOpen, setShareOpen] = useState(false);
   const [saleAlert, setSaleAlert] = useState(null);   // {buyer, amount, level} for the pop-up
   const [wis, setWis] = useState(null);              // today's quote — same for every member
-  const [memExpiry, setMemExpiry] = useState(null);  // annual member nearing renewal
-  const [memTier, setMemTier] = useState(null);      // {is_lifetime,is_annual} for the tier badge
   const [wisShare, setWisShare] = useState(false);
   const [tryCopied, setTryCopied] = useState(false);   // Test Drive link copied
   const seenSalesRef = useRef(null);            // ids we've already alerted on
@@ -429,14 +427,6 @@ export default function NewDashboard() {
     let alive = true;
     apiGet('/api/al/wisdom/today')
       .then(function (j) { if (alive && j && j.quote) setWis(j.quote); })
-      .catch(function () {});
-    return function () { alive = false; };
-  }, []);
-
-  useEffect(function () {
-    let alive = true;
-    apiGet('/api/al/membership-status')
-      .then(function (j) { if (!alive) return; setMemTier(j); if (j && j.renew_soon) setMemExpiry(j); })
       .catch(function () {});
     return function () { alive = false; };
   }, []);
@@ -673,16 +663,6 @@ export default function NewDashboard() {
   return (
     <div className="al" onClick={function () { if (menuOpen) setMenuOpen(false); }}>
       <style>{CSS}</style>
-      {memExpiry && (
-        <div style={{ background: '#fff7ed', border: '1px solid #fcd9a8', borderLeft: '4px solid #f59e0b', borderRadius: 10, padding: '12px 16px', margin: '0 0 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: '#8a5a1a', lineHeight: 1.45 }}>
-            {memExpiry.days_until_expiry <= 0
-              ? <span>Your annual membership has <b>expired</b>. Renew to keep selling and earning — your network is safe.</span>
-              : <span>Your annual membership renews in <b>{memExpiry.days_until_expiry} day{memExpiry.days_until_expiry === 1 ? '' : 's'}</b>. Renew now so you don't miss a sale.</span>}
-          </div>
-          <a href="/join" style={{ background: '#c8102e', color: '#fff', fontWeight: 800, fontSize: 13, padding: '9px 16px', borderRadius: 9, textDecoration: 'none', flexShrink: 0 }}>Renew — ${memExpiry.annual_price}</a>
-        </div>
-      )}
       {saleAlert && (
         <div className="saleToast" onClick={function (e) { e.stopPropagation(); }}>
           <div className="stIcon">💰</div>
@@ -801,12 +781,6 @@ export default function NewDashboard() {
           <main>
             <div className="hero">
               <div className="hl">
-                {!isAdmin && memTier && memTier.is_lifetime && (
-                  <span className="tierbadge lifetime"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.lifetimeMember')}</span>
-                )}
-                {!isAdmin && memTier && !memTier.is_lifetime && memTier.is_annual && (
-                  <span className="tierbadge silver"><svg width="15" height="15" viewBox="0 0 24 24" fill="#23293a"><path d="M3 7.5l4.5 3.2L12 3l4.5 7.7L21 7.5 18.7 19H5.3L3 7.5z"/></svg>{t('dashboard.annualMember')}</span>
-                )}
                 <div className="k">{t('dashboard.yourEarnings')}</div>
                 <div className="lbl">{t('dashboard.totalEarned')}</div>
                 <div className="big">{formatMoney(earnedTotal)}</div>
