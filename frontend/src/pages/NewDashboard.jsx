@@ -88,7 +88,9 @@ const CSS = `
 /* ── hero ── */
 .al .hero{background:#0a1f52;border-radius:24px;color:#fff;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;box-shadow:0 30px 60px -28px rgba(10,31,82,.55);margin-bottom:20px;min-height:350px}
 @media(max-width:820px){.al .hero{grid-template-columns:1fr}.al .hero .img{min-height:160px}}
-.al .hero .hl{padding:clamp(22px,3.5vw,38px)}
+.al .hero .hl{padding:clamp(22px,3.5vw,38px);display:flex;flex-direction:column;justify-content:center}
+.al .hero .heroshare{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;margin-top:22px;background:#fff;color:#0a1f52;border:none;border-radius:13px;padding:13px 20px;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 14px 30px -14px rgba(0,0,0,.5)}
+.al .hero .heroshare:hover{transform:translateY(-1px)}
 .al .hero .k{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ff8fa0;margin-bottom:16px}
 .al .hero .k::before{content:'';width:26px;height:3px;background:#c8102e;border-radius:2px}
 .al .hero .lbl{font-size:15.5px;font-weight:700;color:#aebcf0;margin-bottom:2px}
@@ -813,16 +815,12 @@ export default function NewDashboard() {
                   <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
                 )}
                 <div className="note"><i>ⓘ</i> {t('dashboard.liveFiguresNote')}</div>
+                <button className="heroshare" onClick={openShare}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4" stroke="#0a1f52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Share your link to grow your team →
+                </button>
               </div>
               <div className="img"><span className="tag">FREEDOM HORIZON · ADVANTAGELIFE</span></div>
-            </div>
-
-            <div className="share">
-              <div>
-                <div className="lbl">{t('dashboard.affiliateLink')}</div>
-                <div className="lk">{refLink}</div>
-              </div>
-              <button className="copy" onClick={copyLink}>{copied ? t('dashboard.copied') : t('dashboard.copyLink')}</button>
             </div>
 
 
