@@ -55832,7 +55832,7 @@ def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session =
 
     Rewritten 25 Jul 2026. The previous version ranked by PackPurchase rows
     made by a seller's DIRECT referrals, over a Mon-Sun week. Both were wrong
-    for AL: on the 3/6/9 pass-up a sale you earn on may come from someone who
+    for AL: on the pass-up a sale you earn on may come from someone who
     is NOT your direct referral, so counting referrals' purchases misses
     pass-up earnings entirely; and a weekly window silently hid every sale
     older than Monday. It reads the same settled source as the dashboard
@@ -55856,8 +55856,10 @@ def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session =
                 P2PIntent.earner_id.label("seller_id"),
                 func.count(P2PIntent.id).label("sold"),
                 func.coalesce(func.sum(P2PIntent.amount), 0).label("revenue"))
+            .join(User, User.id == P2PIntent.earner_id)
             .filter(P2PIntent.status == "confirmed",
                     P2PIntent.earner_id.isnot(None),
+                    User.is_admin == False,
                     func.coalesce(P2PIntent.confirmed_at, P2PIntent.created_at) >= period_start)
             .group_by(P2PIntent.earner_id)
             .all())
@@ -55887,7 +55889,7 @@ def api_leaderboard_weekly(user: User = Depends(get_current_user), db: Session =
         m["rank"] = i + 1
 
     you = None
-    if user:
+    if user and not user.is_admin:
         you = next((m for m in board if m["user_id"] == user.id), None)
         if you is None:
             my_owned = (db.query(func.max(PackPurchase.pack_level))
@@ -72630,6 +72632,46 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
             "reimburse": reimburse,
             "manual_review_count": len(review),
             "manual_review": review}
+
+
+@app.get("/admin/api/al/company-income")
+def admin_api_al_company_income(secret: str = "", db: Session = Depends(get_db)):
+    """Company income breakdown — the platform sits at the top of the tree and
+    doesn't run a member cycle, so this is what actually flows to it. Groups pack
+    commissions routed to the company by type: operational_fee (every 3rd sale in
+    a cycle), direct_company (a direct sale to an unqualified sponsor), and
+    pass_up_company (a pass-up whose whole chain was unqualified). This month and
+    all-time. Read-only. (Membership/join income is separate — not P2P pack flow.)"""
+    _check_migration_secret(secret)
+    from .database import PackCommission
+    from sqlalchemy import func as _f
+    month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    TYPES = ["operational_fee", "direct_company", "pass_up_company"]
+    LABEL = {"operational_fee": "Operational fee (every 3rd sale)",
+             "direct_company": "Direct sale to an unqualified sponsor",
+             "pass_up_company": "Pass-up with no qualified upline"}
+
+    def agg(since=None):
+        q = (db.query(PackCommission.commission_type,
+                      _f.count(PackCommission.id),
+                      _f.coalesce(_f.sum(PackCommission.amount), 0))
+               .filter(PackCommission.commission_type.in_(TYPES),
+                       PackCommission.status == "paid"))
+        if since is not None:
+            q = q.filter(PackCommission.created_at >= since)
+        out = {t: {"label": LABEL[t], "count": 0, "total": 0.0} for t in TYPES}
+        for ct, n, amt in q.group_by(PackCommission.commission_type).all():
+            out[ct] = {"label": LABEL.get(ct, ct), "count": int(n or 0), "total": round(float(amt or 0), 2)}
+        return out
+
+    mt, at = agg(month_start), agg()
+    return {"ok": True, "month": month_start.strftime("%B %Y"),
+            "this_month": {"by_type": mt,
+                           "total": round(sum(v["total"] for v in mt.values()), 2),
+                           "count": sum(v["count"] for v in mt.values())},
+            "all_time": {"by_type": at,
+                         "total": round(sum(v["total"] for v in at.values()), 2),
+                         "count": sum(v["count"] for v in at.values())}}
 
 
 @app.get("/admin/api/al/cancel-pending")
