@@ -72772,6 +72772,60 @@ def admin_api_al_voice_sample(voice: str = "Joanna", secret: str = "", text: str
                             status_code=502)
 
 
+@app.get("/admin/al/voice-tts-demo")
+def admin_al_voice_tts_demo(secret: str = ""):
+    """Client-side browser text-to-speech demo (Option B) so a voice can be heard
+    with no AWS. Uses the device's own voices via the Web Speech API — what a member
+    on this device would hear. Reads our real onboarding script."""
+    _check_migration_secret(secret)
+    html = """<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Voice demo (browser TTS)</title>
+<style>body{font-family:system-ui,sans-serif;background:#eef2fb;color:#0d1230;margin:0;padding:22px}
+.w{max-width:520px;margin:0 auto}h1{font-size:19px;margin:0 0 3px}p.s{color:#5a6584;font-size:13px;margin:0 0 18px;line-height:1.5}
+.card{background:#fff;border:1px solid #e6ecf5;border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 12px 30px -22px rgba(10,31,82,.4)}
+label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#5a6584;margin:0 0 6px}
+select,textarea{width:100%;border:1px solid #dbe3f4;border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit;background:#f8fafd;color:#0d1230}
+textarea{min-height:120px;line-height:1.5;resize:vertical}
+.row{display:flex;gap:10px;margin-top:12px}
+button{flex:1;border:none;border-radius:11px;padding:13px;font-weight:900;font-size:15px;cursor:pointer}
+.play{background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff}
+.stop{background:#0a1f52;color:#fff}
+.note{font-size:12px;color:#5a6584;line-height:1.55;margin-top:14px}
+.chip{display:inline-block;background:#eef2fb;border:1px solid #dbe3f4;border-radius:8px;padding:3px 9px;font-size:11.5px;font-weight:700;margin:3px 4px 0 0;cursor:pointer;color:#0a1f52}</style></head>
+<body><div class="w">
+<h1>Hear the browser voice</h1>
+<p class="s">This uses <b>your device's own voice</b> (Option B — free, no AWS). It's what a member on this device would hear. Pick a voice, press Play. On a Mac/iPhone the quality is usually good; on some Android phones it's more robotic.</p>
+<div class="card">
+<label>Voice</label>
+<select id="voice"></select>
+<label style="margin-top:14px">Script (edit to test any wording)</label>
+<textarea id="txt">Welcome to AdvantageLife. This is the most powerful thing you'll do here. You share your Showcase page once a week, and because your videos refresh on every visit, one post keeps working all week, sending real viewers to your offer. There are no guarantees, but the more you share, the more it works.</textarea>
+<div style="margin-top:10px">
+  <span class="chip" data-t="Welcome to AdvantageLife. Here's how it works, in plain terms. It's free to join, and real people watch each other's video ads.">Overview</span>
+  <span class="chip" data-t="First, add your receiving method. This is simply where any money you earn gets sent — your USDT wallet.">Receiving method</span>
+  <span class="chip" data-t="Next, create your ad. This is the video you want people to watch — your offer, your message.">Create ad</span>
+  <span class="chip" data-t="Now purchase your package. This activates your ad as a real campaign, with views to deliver.">Purchase</span>
+</div>
+<div class="row"><button class="play" id="play">▶ Play</button><button class="stop" id="stop">■ Stop</button></div>
+</div>
+<p class="note">If it sounds good enough, we can ship this now and swap in the higher-quality Amazon Polly voice later once your AWS login is recovered — the buttons and scripts stay the same.</p>
+<script>
+var sel=document.getElementById('voice'),loaded=false;
+function load(){var vs=speechSynthesis.getVoices().filter(function(v){return /en(-|_)/i.test(v.lang)});
+  if(!vs.length){return;} loaded=true; sel.innerHTML='';
+  vs.forEach(function(v,i){var o=document.createElement('option');o.value=i;o._v=v;o.textContent=v.name+' ('+v.lang+')';sel.appendChild(o);});}
+speechSynthesis.onvoiceschanged=load; load(); setTimeout(load,300);
+document.getElementById('play').onclick=function(){speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(document.getElementById('txt').value);
+  var vs=speechSynthesis.getVoices().filter(function(v){return /en(-|_)/i.test(v.lang)});
+  if(vs[sel.value])u.voice=vs[sel.value]; u.rate=1; u.pitch=1; speechSynthesis.speak(u);};
+document.getElementById('stop').onclick=function(){speechSynthesis.cancel();};
+document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){document.getElementById('txt').value=c.getAttribute('data-t');};});
+</script></div></body></html>"""
+    return HTMLResponse(html)
+
+
 @app.get("/admin/al/voice-compare")
 def admin_al_voice_compare(secret: str = ""):
     """Tap-to-play page comparing the four candidate female voices in our real script.
