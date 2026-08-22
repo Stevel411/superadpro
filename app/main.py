@@ -72667,12 +72667,11 @@ def admin_api_al_company_income(secret: str = "", db: Session = Depends(get_db))
     account actually received. This month + all-time. Read-only. (Membership/join
     income is a separate rail, not included.)"""
     _check_migration_secret(secret)
-    from .database import PackCommission, Payment
+    from .database import PackCommission
     from sqlalchemy import func as _f
     month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     AFFILIATE = ["direct", "pass_up"]
     PLATFORM = ["operational_fee", "direct_company", "pass_up_company"]
-    JOIN_TYPES = ["membership", "onchain_membership", "al_lifetime", "al_annual"]  # lifetime + annual memberships
     LABEL = {"direct": "Direct sales (as sponsor)",
              "pass_up": "Pass-ups received (as upline)",
              "operational_fee": "Operational fee (every 3rd sale)",
@@ -72697,22 +72696,10 @@ def admin_api_al_company_income(secret: str = "", db: Session = Depends(get_db))
                     "total": round(sum(v["total"] for v in b.values()), 2),
                     "count": sum(v["count"] for v in b.values())}
         aff, plat = bucket(AFFILIATE), bucket(PLATFORM)
-        # membership / join income (separate rail — Payment rows, not pack commissions)
-        mq = (db.query(_f.count(Payment.id), _f.coalesce(_f.sum(Payment.amount_usdt), 0))
-                .filter(Payment.payment_type.in_(JOIN_TYPES),
-                        Payment.status.in_(["confirmed", "paid"]),
-                        Payment.amount_usdt > 0))
-        if since is not None:
-            mq = mq.filter(Payment.created_at >= since)
-        mn, mamt = mq.one()
-        membership = {"label": "Membership income (lifetime + annual)",
-                      "count": int(mn or 0), "total": round(float(mamt or 0), 2)}
         pack_total = round(aff["total"] + plat["total"], 2)
         return {"affiliate_income": aff, "platform_income": plat,
-                "membership_income": membership,
-                "pack_total": pack_total,
-                "grand_total": round(pack_total + membership["total"], 2),
-                "grand_count": aff["count"] + plat["count"] + membership["count"]}
+                "grand_total": pack_total,
+                "grand_count": aff["count"] + plat["count"]}
 
     return {"ok": True, "month": month_start.strftime("%B %Y"),
             "this_month": agg(month_start), "all_time": agg()}
