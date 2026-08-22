@@ -76724,7 +76724,12 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
                   "next_passes_up": pos in _pe.UPLINE_PASSUP_POSITIONS,
                   "sales_until_passup": (leaves_ahead[0] - pos) if leaves_ahead else None,
                   "all_direct": False}
-    return {"sales": out, "passup": passup}
+    from . import al_engine as _ale_es
+    _own = _ale_es.owned_level(db, user.id)
+    _earn = _ale_es.earning_level(db, user.id)
+    return {"sales": out, "passup": passup,
+            "needs_ad_setup": bool(_own > 0 and _earn == 0),
+            "owned_level": _own, "earning_level": _earn}
 
 
 # ── Payout method registry: the five stablecoin rails members can receive

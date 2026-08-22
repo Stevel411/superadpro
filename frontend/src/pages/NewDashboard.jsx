@@ -850,6 +850,60 @@ export default function NewDashboard() {
 
             {wisShare && wis && <WisdomShare quote={wis} onClose={function () { setWisShare(false); }} />}
 
+            {/* Earn notice — owns a pack but hasn't created an ad (can't earn on referrals yet) */}
+            {alSales && alSales.needs_ad_setup && (
+              <div style={{display:'flex',gap:14,alignItems:'flex-start',background:'#fff',border:'1.5px solid #dbe3f4',borderLeft:'5px solid #c8102e',borderRadius:16,padding:'16px 17px',marginBottom:16,boxShadow:'0 12px 30px -20px rgba(10,31,82,.35)'}}>
+                <div style={{width:58,height:58,borderRadius:14,background:'#0a1f52',display:'flex',alignItems:'center',justifyContent:'center',flex:'none'}}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="4" width="20" height="14" rx="2.5" stroke="#ffffff" strokeWidth="2"/>
+                    <path d="M10 8.3v5.4l4.3-2.7L10 8.3z" fill="#ff2743"/>
+                    <path d="M8 21h8M12 18v3" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div style={{minWidth:0}}>
+                  <h3 style={{margin:'0 0 4px',fontSize:15,fontWeight:900,color:'#0a1f52'}}>Set up your ad to earn on referrals</h3>
+                  <p style={{margin:'0 0 11px',fontSize:13,lineHeight:1.5,fontWeight:600,color:'#4a5578'}}>You own a pack, but you haven&rsquo;t created your video ad yet &mdash; so referral sales won&rsquo;t pay you until you do. It only takes a minute.</p>
+                  <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:7,borderRadius:11,padding:'11px 16px',fontWeight:900,fontSize:13.5,color:'#fff',textDecoration:'none',background:'linear-gradient(120deg,#c8102e,#ff2743)',boxShadow:'0 10px 22px -10px rgba(200,16,46,.55)'}}>Set up my ad &rarr;</Link>
+                </div>
+              </div>
+            )}
+
+            {/* Pass-up cycle tracker — so members know which sales pay them */}
+            {alSales && alSales.passup && (alSales.owned_level > 0) && !alSales.needs_ad_setup && (function () {
+              var ps = alSales.passup;
+              var KIND = {1:'keep',2:'keep',3:'fee',4:'keep',5:'keep',6:'pass',7:'keep',8:'keep',9:'pass',10:'keep',11:'pass'};
+              var COL = {keep:['rgba(46,204,113,.16)','#0b7a3e'],pass:['rgba(18,56,143,.13)','#12388f'],fee:['rgba(200,16,46,.12)','#c8102e']};
+              var done = ps.count || 0, next = ps.next_position;
+              var line;
+              if (ps.all_direct) line = 'You\u2019ve completed this cycle \u2014 every further sale is 100% yours until you activate a new package.';
+              else if (ps.next_type === 'operational_fee') line = 'Your next sale (#' + next + ') is the platform fee \u2014 you won\u2019t be paid on that one.';
+              else if (ps.next_type === 'pass_up') line = 'Your next sale (#' + next + ') passes up to your sponsor \u2014 you won\u2019t be paid on that one.';
+              else line = 'Your next sale (#' + next + ') is yours \u2014 you keep 100%.';
+              return (
+                <div style={{background:'#fff',border:'1px solid #e6ecf5',borderRadius:16,padding:18,marginBottom:16,boxShadow:'0 12px 30px -20px rgba(10,31,82,.4)'}}>
+                  <h3 style={{margin:'0 0 3px',fontSize:15,fontWeight:900,color:'#0a1f52'}}>Your sale cycle</h3>
+                  <p style={{margin:'0 0 15px',fontSize:12.5,color:'#5a6584',fontWeight:600}}>Each package runs an 11-sale cycle. Here&rsquo;s what happens on each sale so you always know what to expect.</p>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:7,marginBottom:14}}>
+                    {[1,2,3,4,5,6,7,8,9,10,11].map(function (n) {
+                      var k = KIND[n], c = COL[k], isNext = (n === next), isDone = (n <= done);
+                      return (
+                        <div key={n} style={{width:38,height:44,borderRadius:10,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:14,background:c[0],color:c[1],opacity:isDone?0.4:1,outline:isNext?'3px solid #0a1f52':'none',outlineOffset:'2px'}}>
+                          {n}<small style={{fontSize:8,fontWeight:800,marginTop:1,textTransform:'uppercase'}}>{k==='keep'?'keep':k==='pass'?'up':'fee'}</small>
+                        </div>
+                      );
+                    })}
+                    <div style={{width:52,height:44,borderRadius:10,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:13,background:'rgba(46,204,113,.28)',color:'#0b7a3e'}}>12+<small style={{fontSize:8,fontWeight:800,marginTop:1,textTransform:'uppercase'}}>yours</small></div>
+                  </div>
+                  <div style={{display:'flex',gap:14,flexWrap:'wrap',fontSize:11.5,fontWeight:700,color:'#5a6584',marginBottom:14}}>
+                    <span><i style={{display:'inline-block',width:11,height:11,borderRadius:3,marginRight:5,verticalAlign:'-1px',background:'rgba(46,204,113,.6)'}}></i>You keep it</span>
+                    <span><i style={{display:'inline-block',width:11,height:11,borderRadius:3,marginRight:5,verticalAlign:'-1px',background:'rgba(18,56,143,.6)'}}></i>Passes up to your sponsor</span>
+                    <span><i style={{display:'inline-block',width:11,height:11,borderRadius:3,marginRight:5,verticalAlign:'-1px',background:'rgba(200,16,46,.55)'}}></i>Platform fee</span>
+                  </div>
+                  <div style={{background:'#f4f7fd',border:'1px solid #e6ecf5',borderRadius:11,padding:'12px 14px',fontSize:13,fontWeight:700,lineHeight:1.5,color:'#0d1230'}}>{line}</div>
+                </div>
+              );
+            })()}
+
             <div className="row">
 
               <div className="card cwatch">
