@@ -72536,6 +72536,23 @@ def admin_api_al_activate_drafts(username: str = "", sweep: int = 0, dryrun: int
     return {"ok": True, "dryrun": bool(dryrun), "members": len(results), "results": results}
 
 
+@app.get("/admin/api/al/discard-draft")
+def admin_api_al_discard_draft(campaign_id: int = 0, secret: str = "", db: Session = Depends(get_db)):
+    """Discard an orphaned DRAFT ad (e.g. one left behind by the pre-fix stuck-intent
+    resume path). Guard: only ever touches status='draft' — refuses active/live
+    campaigns so it can't take down a running ad. Secret-gated."""
+    _check_migration_secret(secret)
+    c = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
+    if c is None:
+        return JSONResponse({"error": "campaign not found"}, status_code=404)
+    if c.status != "draft":
+        return JSONResponse({"error": f"refusing — campaign {campaign_id} is '{c.status}', not a draft",
+                             "status": c.status}, status_code=409)
+    c.status = "discarded"
+    db.commit()
+    return {"ok": True, "campaign_id": campaign_id, "discarded": True, "title": c.title}
+
+
 @app.get("/admin/api/al/link-orphan-campaigns")
 def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Attach ACTIVE campaigns that aren't linked to any pack (orphans) to the

@@ -220,6 +220,26 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
         pending_campaign.share_approved = True
         if getattr(pending_campaign, "share_approved_at", None) is None:
             pending_campaign.share_approved_at = datetime.utcnow()
+    elif pending_campaign is None:
+        # Belt-and-braces: a paid, confirmed sale must NEVER leave the buyer with an
+        # active pack but a stuck 'draft' ad (this stranded 3 members via the pre-fix
+        # resume path — pack active, campaign never flipped). If the intent had no
+        # linked campaign, activate the buyer's oldest ready draft against this pack.
+        try:
+            fallback = (db.query(VideoCampaign)
+                        .filter(VideoCampaign.user_id == intent.buyer_id,
+                                VideoCampaign.status == "draft",
+                                VideoCampaign.embed_url != "")
+                        .order_by(VideoCampaign.id.asc()).first())
+            if fallback is not None:
+                fallback.status = "active"
+                fallback.share_approved = True
+                if getattr(fallback, "share_approved_at", None) is None:
+                    fallback.share_approved_at = datetime.utcnow()
+                if purchase.campaign_id is None:
+                    purchase.campaign_id = fallback.id
+        except Exception:
+            pass
 
     # honour the payee LOCKED at intent (the buyer already paid them)
     locked = {
