@@ -76819,6 +76819,7 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
         passup = {"count": count, "next_position": pos, "next_type": next_type,
                   "next_passes_up": pos in _pe.UPLINE_PASSUP_POSITIONS,
                   "sales_until_passup": (leaves_ahead[0] - pos) if leaves_ahead else None,
+                  "next_passup_position": (leaves_ahead[0] if leaves_ahead else None),
                   "all_direct": False}
     from . import al_engine as _ale_es
     _own = _ale_es.owned_level(db, user.id)
@@ -78824,9 +78825,12 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
       var pu=j.passup||{};var tile=document.getElementById('sumPassup');
       var nEl=document.getElementById('sumNext'),lEl=document.getElementById('sumNextLbl');
       tile.classList.remove('up','keep');
-      if(pu.all_direct){nEl.textContent='All yours';lEl.textContent='Past the 9th \u2014 every sale is direct';tile.classList.add('keep')}
-      else if(pu.next_passes_up){nEl.textContent='Passes up';lEl.textContent='Your next sale is a pass-up (#'+pu.next_slot+')';tile.classList.add('up')}
-      else{var n=pu.sales_until_passup;nEl.textContent=n+(n===1?' sale':' sales');lEl.textContent='Until your next pass-up (#'+((pu.count||0)+n)+')';tile.classList.add('keep')}
+      if(j.is_admin){tile.style.display='none';}
+      else{tile.style.display='';
+        if(pu.all_direct){nEl.textContent='All yours';lEl.textContent='Past the 11th \u2014 every sale is 100% yours';tile.classList.add('keep')}
+        else if(pu.next_passes_up){nEl.textContent='Passes up';lEl.textContent='Your next sale is a pass-up (#'+pu.next_position+')';tile.classList.add('up')}
+        else{var n=pu.sales_until_passup;nEl.textContent=n+(n===1?' sale':' sales');lEl.textContent='Until your next pass-up (#'+pu.next_passup_position+')';tile.classList.add('keep')}
+      }
       document.querySelector('.sum .s.hot').style.opacity=actions.length?'1':'.5';
       var aw=document.getElementById('actionWrap'),al=document.getElementById('actionList');
       al.innerHTML='';aw.style.display=actions.length?'block':'none';
