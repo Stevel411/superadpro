@@ -72536,6 +72536,77 @@ def admin_api_al_activate_drafts(username: str = "", sweep: int = 0, dryrun: int
     return {"ok": True, "dryrun": bool(dryrun), "members": len(results), "results": results}
 
 
+@app.get("/admin/api/al/commission-leaks")
+def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
+                                  db: Session = Depends(get_db)):
+    """Find pack commissions that leaked to the COMPANY because the sponsor was
+    EARNING-unqualified at intent-lock — i.e. 'direct_company' sales where the
+    buyer's sponsor NOW owns an active pack + running ad (earning_level ok) +
+    watch + payout. Those are the bug-caused skips (sponsor's ad was stuck in
+    draft) to review for reimbursement. Read-only — reports only, moves nothing.
+    'pass_up_company' rows are listed separately as manual-review (chain skip)."""
+    _check_migration_secret(secret)
+    from . import al_engine as _ale
+    from .database import PackCommission, PayoutMethod
+    import json as _json
+
+    def _payout(uid):
+        pm = (db.query(PayoutMethod)
+              .filter(PayoutMethod.user_id == uid)
+              .order_by(PayoutMethod.is_default.desc(), PayoutMethod.id.asc()).first())
+        if pm is None:
+            return {"type": None, "address": None}
+        addr = None
+        try:
+            d = _json.loads(pm.details or "{}")
+            addr = d.get("address") or d.get("handle") or d.get("account")
+        except Exception:
+            addr = None
+        return {"type": pm.method_type, "address": addr}
+
+    statuses = ["paid"] if not include_pending else ["paid", "pending"]
+    comms = (db.query(PackCommission)
+             .filter(PackCommission.commission_type.in_(["direct_company", "pass_up_company"]),
+                     PackCommission.status.in_(statuses))
+             .order_by(PackCommission.id).all())
+
+    reimburse, review = [], []
+    for c in comms:
+        buyer = db.query(User).filter(User.id == c.buyer_id).first()
+        if buyer is None:
+            continue
+        row = {"commission_id": c.id, "buyer": buyer.username, "amount": float(c.amount or 0),
+               "pack_level": c.pack_level, "type": c.commission_type, "status": c.status}
+        if c.commission_type == "pass_up_company":
+            review.append(row)          # chain skip — payee needs manual determination
+            continue
+        sp = (db.query(User).filter(User.id == buyer.sponsor_id).first()
+              if buyer.sponsor_id else None)
+        if sp is None:
+            row["note"] = "buyer has no sponsor"
+            review.append(row)
+            continue
+        el = _ale.earning_level(db, sp.id)
+        wq = _ale.watch_qualified(db, sp.id)
+        pay = _ale.payable(db, sp.id)
+        row.update({"should_have_paid": sp.username, "sponsor_id": sp.id,
+                    "sponsor_earning_level_now": el, "sponsor_watch_ok_now": wq,
+                    "sponsor_payable_now": pay})
+        if el >= (c.pack_level or 0) and wq and pay:
+            row["payout"] = _payout(sp.id)      # qualified now -> bug-caused skip -> reimburse
+            reimburse.append(row)
+        else:
+            row["note"] = "sponsor still not earning-qualified — not a clear bug skip"
+            review.append(row)
+
+    return {"ok": True,
+            "reimburse_count": len(reimburse),
+            "reimburse_total": round(sum(r["amount"] for r in reimburse), 2),
+            "reimburse": reimburse,
+            "manual_review_count": len(review),
+            "manual_review": review}
+
+
 @app.get("/admin/api/al/discard-draft")
 def admin_api_al_discard_draft(campaign_id: int = 0, secret: str = "", db: Session = Depends(get_db)):
     """Discard an orphaned DRAFT ad (e.g. one left behind by the pre-fix stuck-intent
