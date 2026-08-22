@@ -882,7 +882,7 @@ export default function NewDashboard() {
               return (
                 <div style={{background:'#fff',border:'1px solid #e6ecf5',borderRadius:16,padding:18,marginBottom:16,boxShadow:'0 12px 30px -20px rgba(10,31,82,.4)'}}>
                   <h3 style={{margin:'0 0 3px',fontSize:15,fontWeight:900,color:'#0a1f52'}}>Your sale cycle</h3>
-                  <p style={{margin:'0 0 15px',fontSize:12.5,color:'#5a6584',fontWeight:600}}>Each package runs an 11-sale cycle. Here&rsquo;s what happens on each sale so you always know what to expect.</p>
+                  <p style={{margin:'0 0 15px',fontSize:12.5,color:'#5a6584',fontWeight:600}}>On a package, only the first 11 sales include the pass-ups and platform fee. From your 12th sale on, every sale is 100% yours &mdash; and stays that way until you activate a new package.</p>
                   <div style={{display:'flex',flexWrap:'wrap',gap:7,marginBottom:14}}>
                     {[1,2,3,4,5,6,7,8,9,10,11].map(function (n) {
                       var k = KIND[n], c = COL[k], isNext = (n === next), isDone = (n <= done);
