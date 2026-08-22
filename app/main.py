@@ -72742,6 +72742,65 @@ def admin_api_al_cancel_pending(intent_id: int = 0, username: str = "", sweep: i
     return {"ok": True, "dryrun": False, "cancelled": n, "items": items}
 
 
+@app.get("/admin/api/al/voice-sample")
+def admin_api_al_voice_sample(voice: str = "Joanna", secret: str = "", text: str = ""):
+    """Synthesize a short Amazon Polly neural sample so a voice can be chosen without
+    AWS console access. Returns an MP3, or JSON if Polly isn't permitted on the keys."""
+    _check_migration_secret(secret)
+    ALLOWED = {"Joanna", "Danielle", "Amy", "Emma", "Matthew", "Brian"}
+    if voice not in ALLOWED:
+        return JSONResponse({"error": "voice must be one of %s" % sorted(ALLOWED)}, status_code=400)
+    sample = text or ("Welcome to AdvantageLife. This is the most powerful thing you'll do here. "
+                      "You share your Showcase page once a week, and because your videos refresh "
+                      "on every visit, one post keeps working all week, sending real viewers to "
+                      "your offer. There are no guarantees, but the more you share, the more it works.")
+    try:
+        import boto3
+        from fastapi import Response
+        region = os.getenv("AWS_SES_REGION") or os.getenv("AWS_REGION") or "eu-west-1"
+        polly = boto3.client("polly", region_name=region,
+                             aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", ""),
+                             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", ""))
+        resp = polly.synthesize_speech(Text=sample, VoiceId=voice, Engine="neural", OutputFormat="mp3")
+        audio = resp["AudioStream"].read()
+        return Response(content=audio, media_type="audio/mpeg",
+                        headers={"Cache-Control": "no-store"})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": "Polly synth failed", "voice": voice,
+                             "detail": str(e)[:400],
+                             "hint": "If this mentions AccessDenied, the AWS keys don't have Polly permission yet."},
+                            status_code=502)
+
+
+@app.get("/admin/al/voice-compare")
+def admin_al_voice_compare(secret: str = ""):
+    """Tap-to-play page comparing the four candidate female voices in our real script.
+    Reads the secret from the URL so the audio players can call voice-sample."""
+    _check_migration_secret(secret)
+    html = """<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Voice compare</title>
+<style>body{font-family:system-ui,sans-serif;background:#eef2fb;color:#0d1230;margin:0;padding:24px}
+.w{max-width:520px;margin:0 auto}h1{font-size:18px;margin:0 0 4px}p.s{color:#5a6584;font-size:13px;margin:0 0 20px}
+.card{background:#fff;border:1px solid #e6ecf5;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 12px 30px -22px rgba(10,31,82,.4)}
+.card b{font-size:15px}.card span{display:block;color:#5a6584;font-size:12.5px;margin:1px 0 10px}
+audio{width:100%}.err{background:#fff1f2;border:1px solid #f4b8c0;color:#a4122a;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:6px;display:none}</style></head>
+<body><div class="w">
+<h1>Pick your voice</h1><p class="s">Same real script in four voices. Tap play on each. Tell me the winner.</p>
+<div class="card"><b>Joanna</b><span>US &middot; female &middot; warm</span><audio controls preload="none" data-v="Joanna"></audio><div class="err"></div></div>
+<div class="card"><b>Danielle</b><span>US &middot; female &middot; newer, natural</span><audio controls preload="none" data-v="Danielle"></audio><div class="err"></div></div>
+<div class="card"><b>Amy</b><span>British &middot; female &middot; warm</span><audio controls preload="none" data-v="Amy"></audio><div class="err"></div></div>
+<div class="card"><b>Emma</b><span>British &middot; female &middot; brighter</span><audio controls preload="none" data-v="Emma"></audio><div class="err"></div></div>
+<script>
+var sec=new URLSearchParams(location.search).get('secret')||'';
+document.querySelectorAll('audio').forEach(function(a){
+  a.src='/admin/api/al/voice-sample?voice='+a.getAttribute('data-v')+'&secret='+encodeURIComponent(sec);
+  a.addEventListener('error',function(){var e=a.parentNode.querySelector('.err');e.style.display='block';e.textContent='Could not load this voice — Polly may not be permitted on the AWS keys. Tap the voice-sample URL directly to see the exact error.';});
+});
+</script></div></body></html>"""
+    return HTMLResponse(html)
+
+
 @app.get("/admin/api/al/cycle-check")
 def admin_api_al_cycle_check(username: str = "", secret: str = "", db: Session = Depends(get_db)):
     """Spot-check the dashboard cycle tracker against the real counter: raw
