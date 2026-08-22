@@ -72632,6 +72632,51 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
             "manual_review": review}
 
 
+@app.get("/admin/api/al/cycle-check")
+def admin_api_al_cycle_check(username: str = "", secret: str = "", db: Session = Depends(get_db)):
+    """Spot-check the dashboard cycle tracker against the real counter: raw
+    cycle_sale_count, the computed next slot/type it drives, whether the account
+    is admin (the company doesn't meaningfully 'cycle'), the member's OWN pack
+    activations (each resets the counter to 0), and the confirmed pack purchases
+    by their DIRECT referrals (the events that increment it). Read-only."""
+    _check_migration_secret(secret)
+    from . import passup_engine as _pe
+    from .database import PackPurchase
+    u = db.query(User).filter(func.lower(User.username) == username.strip().lstrip("@").lower()).first()
+    if u is None:
+        return JSONResponse({"error": "member not found"}, status_code=404)
+
+    def _un(uid):
+        r = db.query(User.username).filter(User.id == uid).first()
+        return r[0] if r else ("?#%s" % uid)
+
+    count = u.cycle_sale_count or 0
+    pos = _pe.cycle_position(count)
+    ntype = ("operational_fee" if pos == _pe.COMPANY_POSITION else
+             "pass_up" if pos in _pe.UPLINE_PASSUP_POSITIONS else
+             "direct" if pos else "all_direct(cycle complete)")
+    own = [{"level": p.pack_level, "status": p.status,
+            "activated_at": p.activated_at.isoformat() if p.activated_at else None}
+           for p in db.query(PackPurchase).filter(PackPurchase.user_id == u.id)
+                       .order_by(PackPurchase.id).all()]
+    direct_ids = [r[0] for r in db.query(User.id).filter(User.sponsor_id == u.id).all()]
+    dsales = []
+    if direct_ids:
+        dsales = [{"buyer": _un(p.user_id), "level": p.pack_level, "status": p.status,
+                   "activated_at": p.activated_at.isoformat() if p.activated_at else None}
+                  for p in db.query(PackPurchase)
+                              .filter(PackPurchase.user_id.in_(direct_ids), PackPurchase.status == "active")
+                              .order_by(PackPurchase.id).all()]
+    return {"username": u.username, "user_id": u.id, "is_admin": bool(u.is_admin),
+            "cycle_sale_count": count, "dashboard_shows_next_slot": pos, "next_type": ntype,
+            "own_pack_activations": own,
+            "direct_referral_active_pack_sales": dsales,
+            "direct_referral_active_pack_sales_count": len(dsales),
+            "note": ("cycle_sale_count should roughly match direct-referral pack sales since this "
+                     "member's most recent OWN pack activation (which resets it to 0). If is_admin "
+                     "is true, this is the company account and the member cycle tracker shouldn't apply.")}
+
+
 @app.get("/admin/api/al/reattribute-commission")
 def admin_api_al_reattribute_commission(commission_id: int = 0, to_username: str = "",
                                         secret: str = "", dryrun: int = 1,
