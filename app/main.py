@@ -72632,6 +72632,54 @@ def admin_api_al_commission_leaks(secret: str = "", include_pending: int = 0,
             "manual_review": review}
 
 
+@app.get("/admin/api/al/reattribute-commission")
+def admin_api_al_reattribute_commission(commission_id: int = 0, to_username: str = "",
+                                        secret: str = "", dryrun: int = 1,
+                                        db: Session = Depends(get_db)):
+    """Reattribute a company-routed pack commission to the member who should have
+    earned it — for sales that leaked to the company via the fixed stuck-ad bug
+    and have since been reimbursed off-platform. Updates BOTH the PackCommission
+    (feeds earnings/analytics) AND the matching confirmed P2PIntent (feeds the
+    leaderboard) so every view agrees. dryrun=1 by default: shows before/after and
+    commits nothing. Secret-gated. Reports only which records it would touch."""
+    _check_migration_secret(secret)
+    from .database import PackCommission, P2PIntent
+    c = db.query(PackCommission).filter(PackCommission.id == commission_id).first()
+    if c is None:
+        return JSONResponse({"error": "commission not found"}, status_code=404)
+    to = db.query(User).filter(func.lower(User.username) == to_username.strip().lstrip("@").lower()).first()
+    if to is None:
+        return JSONResponse({"error": f"member {to_username!r} not found"}, status_code=404)
+    intents = (db.query(P2PIntent)
+               .filter(P2PIntent.buyer_id == c.buyer_id,
+                       P2PIntent.pack_level == c.pack_level,
+                       P2PIntent.status == "confirmed").all())
+    intent = intents[0] if len(intents) == 1 else None
+    new_type = {"direct_company": "direct", "pass_up_company": "pass_up"}.get(c.commission_type, c.commission_type)
+    before = {
+        "commission": {"id": c.id, "earner_id": c.earner_id, "type": c.commission_type, "amount": float(c.amount or 0)},
+        "intent": ({"id": intent.id, "earner_id": intent.earner_id, "type": intent.commission_type} if intent else None),
+        "matched_confirmed_intents": len(intents),
+    }
+    if len(intents) != 1:
+        before["warning"] = f"{len(intents)} confirmed intents matched buyer+level — intent NOT auto-updated; commission only"
+    if dryrun:
+        return {"ok": True, "dryrun": True, "commission_id": c.id,
+                "would_set_earner": to.username, "would_set_type": new_type, "before": before}
+    _stamp = datetime.utcnow().isoformat()
+    c.earner_id = to.id
+    c.commission_type = new_type
+    c.notes = ((c.notes or "") + f" | reattributed to {to.username}: bug-caused company skip, reimbursed off-platform {_stamp}").strip()
+    if intent is not None:
+        intent.earner_id = to.id
+        intent.commission_type = new_type
+    db.commit()
+    return {"ok": True, "dryrun": False, "commission_id": c.id,
+            "earner_now": to.username, "type_now": new_type,
+            "intent_updated": (intent.id if intent else None),
+            "matched_confirmed_intents": len(intents), "before": before}
+
+
 @app.get("/admin/api/al/discard-draft")
 def admin_api_al_discard_draft(campaign_id: int = 0, secret: str = "", db: Session = Depends(get_db)):
     """Discard an orphaned DRAFT ad (e.g. one left behind by the pre-fix stuck-intent
@@ -80850,8 +80898,10 @@ def al_leaderboard(user: User = Depends(_al_user), db: Session = Depends(get_db)
     rows = (db.query(P2PIntent.earner_id,
                      _f.sum(P2PIntent.amount).label("earned"),
                      _f.count(P2PIntent.id).label("sales"))
+              .join(User, User.id == P2PIntent.earner_id)
               .filter(P2PIntent.status == "confirmed",
                       P2PIntent.earner_id.isnot(None),
+                      User.is_admin == False,
                       _f.coalesce(P2PIntent.confirmed_at, P2PIntent.created_at) >= month_start)
               .group_by(P2PIntent.earner_id)
               .order_by(_f.sum(P2PIntent.amount).desc())
