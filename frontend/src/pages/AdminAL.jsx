@@ -19,7 +19,6 @@ const TABS = [
   { key: 'finances', label: 'Finances', Icon: Wallet },
   { key: 'settlements', label: 'Settlements', Icon: Handshake },
   { key: 'members', label: 'Members', Icon: Users },
-  { key: 'trials', label: 'Trials', Icon: Clock },
   { key: 'sharing', label: 'Sharing', Icon: Share2 },
   { key: 'health', label: 'Health', Icon: Activity },
 ];
@@ -685,7 +684,6 @@ export default function AdminAL() {
         {tab === 'finances' && <Finances />}
         {tab === 'settlements' && <Settlements />}
         {tab === 'members' && <Members />}
-        {tab === 'trials' && <Trials />}
         {tab === 'sharing' && <Sharing />}
         {tab === 'health' && <Health />}
       </div>
