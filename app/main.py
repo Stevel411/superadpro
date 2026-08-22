@@ -76773,6 +76773,7 @@ def al_my_sales(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     _own = _ale_es.owned_level(db, user.id)
     _earn = _ale_es.earning_level(db, user.id)
     return {"sales": out, "passup": passup,
+            "is_admin": bool(user.is_admin),
             "needs_ad_setup": bool(_own > 0 and _earn == 0),
             "owned_level": _own, "earning_level": _earn}
 

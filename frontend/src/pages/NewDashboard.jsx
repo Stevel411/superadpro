@@ -869,7 +869,7 @@ export default function NewDashboard() {
             )}
 
             {/* Pass-up cycle tracker — so members know which sales pay them */}
-            {alSales && alSales.passup && (alSales.owned_level > 0) && !alSales.needs_ad_setup && (function () {
+            {alSales && alSales.passup && (alSales.owned_level > 0) && !alSales.needs_ad_setup && !alSales.is_admin && (function () {
               var ps = alSales.passup;
               var KIND = {1:'keep',2:'keep',3:'fee',4:'keep',5:'keep',6:'pass',7:'keep',8:'keep',9:'pass',10:'keep',11:'pass'};
               var COL = {keep:['rgba(46,204,113,.16)','#0b7a3e'],pass:['rgba(18,56,143,.13)','#12388f'],fee:['rgba(200,16,46,.12)','#c8102e']};
