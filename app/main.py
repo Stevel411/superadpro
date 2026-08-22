@@ -75698,11 +75698,12 @@ def al_login_audit_install(user: User = Depends(_al_user), db: Session = Depends
 
 
 @app.get("/admin/api/al/pack-trace")
-def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(get_db)):
+def al_admin_pack_trace(buyer: str = "", user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Follow every pack purchase through all its tables at once, so a sale
     that shows in one admin view but not another can be diagnosed in a single
     read. Shows the mismatch between P2PIntent rows (the settlement attempts)
-    and PackPurchase rows (the confirmed sales) directly."""
+    and PackPurchase rows (the confirmed sales) directly.
+    ?buyer=username narrows to one buyer's purchases/intents/commissions."""
     _require_admin(user)
     from .database import PackPurchase, PackCommission, P2PIntent
 
@@ -75712,9 +75713,20 @@ def al_admin_pack_trace(user: User = Depends(_al_user), db: Session = Depends(ge
         r = db.query(User.username).filter(User.id == uid).first()
         return r[0] if r else "?#%s" % uid
 
-    purchases = db.query(PackPurchase).order_by(PackPurchase.id).all()
-    intents = db.query(P2PIntent).order_by(P2PIntent.id).all()
-    commissions = db.query(PackCommission).order_by(PackCommission.id).all()
+    _bid = None
+    if buyer:
+        _bu = db.query(User).filter(func.lower(User.username) == buyer.strip().lstrip("@").lower()).first()
+        if _bu is None:
+            return JSONResponse({"error": f"buyer {buyer!r} not found"}, status_code=404)
+        _bid = _bu.id
+    _pq, _iq, _cq = db.query(PackPurchase), db.query(P2PIntent), db.query(PackCommission)
+    if _bid is not None:
+        _pq = _pq.filter(PackPurchase.user_id == _bid)
+        _iq = _iq.filter(P2PIntent.buyer_id == _bid)
+        _cq = _cq.filter(PackCommission.buyer_id == _bid)
+    purchases = _pq.order_by(PackPurchase.id).all()
+    intents = _iq.order_by(P2PIntent.id).all()
+    commissions = _cq.order_by(PackCommission.id).all()
 
     return JSONResponse({
         "summary": {
