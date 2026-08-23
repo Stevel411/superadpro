@@ -20,7 +20,8 @@ const CSS = `
 @media(max-width:640px){.gs-step{flex-wrap:wrap}.gs-actions{width:100%;justify-content:flex-start;margin-top:4px}}
 .gs-listen{display:inline-flex;align-items:center;gap:7px;background:#eef2fb;border:1px solid #dbe3f4;border-radius:10px;padding:10px 15px;font-size:13.5px;font-weight:800;color:#0a1f52;cursor:pointer}
 .gs-listen.on{background:#0a1f52;color:#fff;border-color:#0a1f52}
-.gs-do{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff;border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:900;text-decoration:none;box-shadow:0 8px 18px -8px rgba(200,16,46,.5)}
+.gs-do{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,#c8102e,#ff2743);border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:900;text-decoration:none;box-shadow:0 8px 18px -8px rgba(200,16,46,.5)}
+.al a.gs-do,.al a.gs-do:hover{color:#fff}
 .gs-power{display:inline-flex;align-items:center;gap:4px;background:#c8102e;color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:6px}
 .gs-step.power{border:2px solid #c8102e;background:linear-gradient(180deg,#fff,#fff6f7)}
 .gs-step.power .gs-num{background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff}
@@ -37,7 +38,7 @@ const CSS = `
 const STEPS = [
   { key: 'receiving', num: 1, title: 'Add your receiving method', desc: 'Choose how you\u2019d like to get paid \u2014 there are several ways, from crypto to popular payment apps.', link: '/payout-methods', cta: 'Add method' },
   { key: 'ad', num: 2, title: 'Create your ad', desc: 'Add the video you want people to watch \u2014 this becomes your advert on the platform.', link: '/create-campaign', cta: 'Create ad' },
-  { key: 'package', num: 3, title: 'Purchase your package', desc: 'This turns your ad into a live campaign and qualifies you to start earning.', link: '/packs', cta: 'Choose package' },
+  { key: 'package', num: 3, title: 'Purchase your package', desc: 'This turns your ad into a live campaign and qualifies you to start earning.', link: '/packs', cta: 'Package' },
   { key: 'watch', num: 4, title: 'Do your daily Watch to Earn', desc: 'Watch your videos each day to stay qualified to earn and withdraw.', link: '/watch', cta: 'Watch now' },
   { key: 'share', num: 5, title: 'Share your Showcase & Banner pages', desc: 'The weekly engine. Share publicly \u2014 your videos rotate so one post stays fresh all week, sending real viewers to your offer.', link: '/dashboard', cta: 'Share now', power: true },
 ];
@@ -109,7 +110,7 @@ export default function GetStarted() {
           );
         })}
 
-        <p className="gs-foot">There are no guarantees and no income is promised \u2014 what you get depends on the work you put in.</p>
+        <p className="gs-foot">There are no guarantees and no income is promised — what you get depends on the work you put in.</p>
       </div>
     </AlShell>
   );

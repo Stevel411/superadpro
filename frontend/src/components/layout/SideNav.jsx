@@ -75,7 +75,7 @@ export default function SideNav({ active }) {
   function renderItem(n) {
     const cls = n.key === active ? 'on' : undefined;
     if (n.big) {
-      return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 18, fontWeight: 900, color: '#2ecc71' }}><span style={{ fontSize: 20 }}>⭐</span> {t(n.tk, { defaultValue: n.label })}</a>;
+      return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 15, fontWeight: 900, color: '#2ecc71', margin: '10px 0' }}><span style={{ fontSize: 15 }}>⭐</span> {t(n.tk, { defaultValue: n.label })}</a>;
     }
     if (n.children) {
       const childActive = n.children.some(function (c) { return curPath === c.to; });
