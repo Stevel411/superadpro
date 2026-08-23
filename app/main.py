@@ -37857,13 +37857,55 @@ def al_network_ads(req: str = "728x90:1,300x250:4,300x600:2", owner: str = "",
     return {"slots": slots, "advertise_url": "/my-banners"}
 
 
+_IMPR_TABLE_READY = False
+
+
+def _ensure_impr_table(db):
+    global _IMPR_TABLE_READY
+    if _IMPR_TABLE_READY:
+        return True
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS al_banner_impr_day ("
+                        "banner_id INTEGER NOT NULL, vkey VARCHAR(40) NOT NULL, "
+                        "ymd VARCHAR(10) NOT NULL, PRIMARY KEY (banner_id, vkey, ymd))"))
+        db.commit()
+        _IMPR_TABLE_READY = True
+        return True
+    except Exception:
+        db.rollback()
+        return False
+
+
 @app.post("/api/al/banner/{banner_id}/impression")
-def banner_impression(banner_id: int, db: Session = Depends(get_db)):
-    """Fire when a banner is ≥50% visible for ~1s on the showcase. Denormalised
-    counter — cheap, high-volume."""
-    db.execute(text("UPDATE al_banner_ads SET impressions = COALESCE(impressions,0) + 1 "
-                    "WHERE id = :bid AND status = 'active'"), {"bid": banner_id})
-    db.commit()
+def banner_impression(banner_id: int, request: Request, db: Session = Depends(get_db)):
+    """Fire when a banner is ≥50% visible for ~1s. Deduped per visitor/day
+    (IP+UA hash) so reloads and revisits within a day don't inflate the count.
+    Falls back to a raw increment if the dedup table is unavailable."""
+    import hashlib
+    counted = True
+    if _ensure_impr_table(db):
+        try:
+            ip = (request.headers.get("cf-connecting-ip")
+                  or request.headers.get("x-forwarded-for", "").split(",")[0]
+                  or (request.client.host if request.client else "")).strip()
+            ua = request.headers.get("user-agent", "")
+            vkey = hashlib.sha256((ip + "|" + ua).encode("utf-8")).hexdigest()[:40]
+            ymd = datetime.utcnow().strftime("%Y-%m-%d")
+            res = db.execute(text("INSERT INTO al_banner_impr_day (banner_id, vkey, ymd) "
+                                  "VALUES (:b,:v,:d) ON CONFLICT DO NOTHING"),
+                             {"b": banner_id, "v": vkey, "d": ymd})
+            counted = bool(res.rowcount and res.rowcount > 0)
+            db.commit()
+        except Exception:
+            db.rollback()
+            counted = True
+    if counted:
+        try:
+            db.execute(text("UPDATE al_banner_ads SET impressions = COALESCE(impressions,0) + 1 "
+                            "WHERE id = :bid AND status = 'active'"), {"bid": banner_id})
+            db.commit()
+        except Exception:
+            db.rollback()
     return {"ok": True}
 
 
@@ -37900,6 +37942,71 @@ async def banner_report(banner_id: int, request: Request, user: User = Depends(g
                    {"bid": banner_id})
         db.commit()
     return {"ok": True, "reports": open_ct}
+
+
+@app.get("/admin/api/al/banner-reports")
+def admin_al_banner_reports(request: Request, db: Session = Depends(get_db)):
+    """Complaint queue — banners with open reports or auto-flagged (3+ reports).
+    Secret-gated for the mobile workflow: each row carries tap-to-action URLs."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    reported = (db.query(BannerReport.banner_id, func.count(BannerReport.id))
+                  .filter(BannerReport.status == "open")
+                  .group_by(BannerReport.banner_id).all())
+    rep_map = {bid: ct for bid, ct in reported}
+    flagged = db.query(BannerAd).filter(BannerAd.status == "flagged").all()
+    ids = set(rep_map.keys()) | {b.id for b in flagged}
+    out = []
+    for bid in ids:
+        b = db.query(BannerAd).filter(BannerAd.id == bid).first()
+        if not b:
+            continue
+        owner = db.query(User).filter(User.id == b.user_id).first()
+        reasons = [r.reason for r in db.query(BannerReport)
+                   .filter(BannerReport.banner_id == bid, BannerReport.status == "open")
+                   .limit(10).all() if r.reason]
+        out.append({
+            "banner_id": b.id, "title": b.title, "size": b.size, "status": b.status,
+            "owner": owner.username if owner else None, "owner_id": b.user_id,
+            "image_url": b.image_url, "destination_url": b.destination_url, "mode": b.mode,
+            "reports": rep_map.get(bid, 0), "auto_flagged": b.status == "flagged",
+            "reasons": reasons, "impressions": b.impressions or 0, "clicks": b.clicks or 0,
+            "REMOVE": "/admin/api/al/banner-action?secret=%s&banner_id=%d&action=remove" % (secret, b.id),
+            "KEEP": "/admin/api/al/banner-action?secret=%s&banner_id=%d&action=keep" % (secret, b.id),
+        })
+    out.sort(key=lambda x: (-x["reports"], -x["banner_id"]))
+    return {"queue_size": len(out), "reports": out}
+
+
+@app.get("/admin/api/al/banner-action")
+def admin_al_banner_action(request: Request, db: Session = Depends(get_db)):
+    """Remove (pull from every slot) or keep (dismiss reports) a banner. Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        bid = int(request.query_params.get("banner_id", "0"))
+    except (TypeError, ValueError):
+        bid = 0
+    action = (request.query_params.get("action", "") or "").strip().lower()
+    b = db.query(BannerAd).filter(BannerAd.id == bid).first()
+    if not b:
+        return JSONResponse({"error": "banner not found"}, status_code=404)
+    if action == "remove":
+        b.status = "removed"
+        db.query(BannerReport).filter(BannerReport.banner_id == bid, BannerReport.status == "open").update({"status": "actioned"})
+        db.commit()
+        return {"ok": True, "banner_id": bid, "new_status": "removed", "message": "Pulled from every slot network-wide."}
+    if action == "keep":
+        if b.status == "flagged":
+            b.status = "active"
+        db.query(BannerReport).filter(BannerReport.banner_id == bid, BannerReport.status == "open").update({"status": "dismissed"})
+        db.commit()
+        return {"ok": True, "banner_id": bid, "new_status": b.status, "message": "Reports dismissed; banner kept live."}
+    return JSONResponse({"error": "action must be remove or keep"}, status_code=400)
 
 
 def _slugify(s: str) -> str:
