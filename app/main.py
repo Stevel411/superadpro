@@ -79845,14 +79845,14 @@ def al_support_admin_page(user: User = Depends(get_current_user)):
 
 @app.get("/start-here")
 def start_here_page(user: User = Depends(get_current_user)):
-    """Start Here — tabbed: 'Watch' (narrated video) first, 'Step-by-step'
-    (the animated interactive guide, in an iframe) second. Gated to members."""
+    """Get Started — the voice-guided onboarding page (ara narration per step,
+    cached in R2). Replaces the old tabbed guide. Gated to members."""
     _gate = _al_gate_page(user, shared_route=True)
     if _gate:
         return _gate
     try:
         import os as _os
-        _p = _os.path.join(_os.path.dirname(__file__), "al_start_here_tabs.html")
+        _p = _os.path.join(_os.path.dirname(__file__), "al_get_started.html")
         with open(_p, "r", encoding="utf-8") as _f:
             return HTMLResponse(_f.read())
     except Exception:
