@@ -72809,6 +72809,48 @@ _AL_VOICE_SCRIPTS = {
 }
 _AL_VOICE_STEPS = ["overview", "receiving", "ad", "package", "watch", "share"]
 
+# Spanish translation (reviewed for the "no guarantees" disclaimer). Feature
+# names Showcase/Banner kept as product names, matching the localized UI.
+_AL_VOICE_SCRIPTS_ES = {
+    "overview": ("Bienvenido a AdvantageLife. Así funciona, y por qué es diferente. Este es un lugar "
+                 "donde personas reales ven los anuncios en vídeo de los demás, así que tu oferta la "
+                 "ven espectadores reales, no bots. Unirse es gratis. Ahora, la parte más potente: "
+                 "obtienes tu propia página Showcase y tu página Banner. Cada semana compartes tu página "
+                 "Showcase de forma pública, en redes sociales, en grupos, donde esté tu público. Y como "
+                 "tus vídeos cambian en cada visita, una sola publicación se mantiene fresca toda la "
+                 "semana, enviando un flujo constante de espectadores reales a tu oferta. Tu página "
+                 "Banner difunde tus anuncios de la misma forma. Cuanto más compartes, más tráfico real "
+                 "consigues. Y funciona en ambos sentidos: al ver los anuncios de otros y construir tu "
+                 "equipo, puedes ganar, pagado directamente de miembro a miembro. No hay garantías, y no "
+                 "se promete ningún ingreso. Lo que consigas depende del trabajo que pongas. Pero el "
+                 "tráfico es real, las herramientas son reales, y cuanto más compartes, más funciona."),
+    "receiving": ("Empecemos por añadir tu método de cobro, donde llega tu dinero. Hay varias formas de "
+                  "cobrar, desde criptomonedas hasta aplicaciones de pago populares, así que puedes elegir "
+                  "la que mejor te convenga. Aquí los pagos van directamente de un miembro a otro, por eso "
+                  "lo configuramos primero, antes que nada. Añade tu método preferido una vez, y ya estás "
+                  "listo para recibir."),
+    "ad": ("A continuación, crea tu anuncio. Este es el vídeo que quieres que la gente vea: tu oferta, tu "
+           "producto, tu mensaje. Añádelo aquí y se convierte en tu anuncio en la plataforma, listo para "
+           "que lo vean miembros reales. Esto es lo que estás promocionando, así que elige un vídeo que te "
+           "represente bien. Una vez dentro, estás en el mapa."),
+    "package": ("Ahora, compra tu paquete. Esto convierte tu anuncio en una campaña real y activa, le da a "
+                "tu vídeo un número determinado de visualizaciones que entregar, y te habilita para empezar "
+                "a ganar. Elige el paquete que se ajuste a tus objetivos; siempre puedes añadir más "
+                "adelante. Este es el paso que lo enciende todo."),
+    "watch": ("Cada día, haz tu Watch to Earn. Mira tus vídeos para mantenerte cualificado. Esto te "
+              "mantiene apto para ganar y para retirar. Importa por otra razón también: es lo que hace que "
+              "la publicidad sea genuina, porque los miembros realmente están viendo los anuncios de los "
+              "demás. Solo toma unos minutos al día. Conviértelo en un hábito, y seguirás en el juego."),
+    "share": ("Ya estás listo, y esta es la parte que haces cada semana, porque es lo que realmente impulsa "
+              "tus resultados. Comparte tu página Showcase de forma pública: redes sociales, grupos, "
+              "mensajes, donde esté tu público. Como tus vídeos cambian en cada visita, una sola "
+              "publicación sigue funcionando toda la semana, enviando espectadores reales a tu oferta. "
+              "Luego comparte tu página Banner de la misma forma, para difundir tus anuncios aún más. Este "
+              "es el motor. Cuanto más compartes, mejor funciona todo lo demás."),
+}
+
+_AL_VOICE_I18N = {"en": _AL_VOICE_SCRIPTS, "es": _AL_VOICE_SCRIPTS_ES}
+
 
 @app.get("/admin/api/al/voice-generate")
 def admin_api_al_voice_generate(secret: str = "", lang: str = "en", voice: str = "ara", step: str = ""):
@@ -72822,10 +72864,11 @@ def admin_api_al_voice_generate(secret: str = "", lang: str = "en", voice: str =
     if not key_x:
         return JSONResponse({"error": "XAI_API_KEY not set"}, status_code=502)
     steps = [step] if step else _AL_VOICE_STEPS
+    scripts = _AL_VOICE_I18N.get(lang, _AL_VOICE_SCRIPTS)
     client = r2_storage._get_client()
     out = {}
     for s in steps:
-        txt = _AL_VOICE_SCRIPTS.get(s)
+        txt = scripts.get(s)
         if not txt:
             out[s] = {"error": "unknown step"}
             continue

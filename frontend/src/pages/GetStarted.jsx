@@ -61,7 +61,9 @@ export default function GetStarted() {
   }, []);
 
   useEffect(() => {
-    const lang = (new URLSearchParams(window.location.search).get('lang')) || 'en';
+    let lang = 'en';
+    try { lang = localStorage.getItem('superadpro-lang') || 'en'; } catch (e) { }
+    lang = (new URLSearchParams(window.location.search).get('lang')) || lang;
     fetch('/api/al/voice-manifest?lang=' + encodeURIComponent(lang))
       .then(function (r) { return r.json(); })
       .then(function (j) { setManifest((j && j.voices) || {}); })
