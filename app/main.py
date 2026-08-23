@@ -72793,7 +72793,7 @@ def admin_api_al_grok_voice_sample(voice: str = "ara", secret: str = "", text: s
         from fastapi import Response
         r = _rq.post("https://api.x.ai/v1/tts",
                      headers={"Authorization": "Bearer %s" % key, "Content-Type": "application/json"},
-                     json={"text": sample, "voice_id": voice, "language": "en", "output_format": "mp3"},
+                     json={"text": sample, "voice_id": voice, "language": "en"},
                      timeout=60)
         if r.status_code != 200:
             return JSONResponse({"ok": False, "error": "Grok TTS failed", "status": r.status_code,
