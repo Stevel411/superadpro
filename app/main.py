@@ -32708,6 +32708,33 @@ def _al_send_to_targets(db: Session, campaign: dict, targets, actor_label: str):
     return stats
 
 
+@app.get("/admin/api/al/broadcast-counts")
+def admin_al_broadcast_counts(request: Request, db: Session = Depends(get_db)):
+    """Read-only: eligible recipient count per campaign (not-yet-sent, idempotent
+    via broadcast_log). Secret-gated. No send path at all — counts only."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        _ensure_broadcast_log_table(db)
+    except Exception:
+        pass
+    out = {}
+    for key, campaign in AL_LAUNCH_EMAILS.items():
+        try:
+            out[key] = {"audience": campaign.get("audience"),
+                        "subject": campaign.get("subject"),
+                        "eligible_not_yet_sent": len(_al_launch_recipients(db, campaign))}
+        except Exception as e:
+            out[key] = {"audience": campaign.get("audience"), "error": str(e)[:80]}
+    total_email = db.query(User).filter(User.email.isnot(None), User.email != "").count()
+    unclaimed = db.query(User).filter(User.email.isnot(None), User.email != "",
+                                      (User.password.is_(None)) | (User.password == "")).count()
+    return {"total_members_with_email": total_email, "unclaimed_no_password": unclaimed,
+            "campaigns": out}
+
+
 def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
