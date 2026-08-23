@@ -25301,10 +25301,13 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     al_tier = None
     if al_level and al_level != _ale._ADMIN_LEVEL:
         # map pack price ($ level) -> tier index (0-8), then to the watch ramp
-        for _ti, _price in GRID_PACKAGES.items():
-            if int(_price) == int(al_level):
-                al_tier = _ti
-                break
+        if int(al_level) == 5:
+            al_tier = 0   # $5 test pack shares Launchpad's daily watch (1/day)
+        else:
+            for _ti, _price in GRID_PACKAGES.items():
+                if int(_price) == int(al_level):
+                    al_tier = _ti
+                    break
     if al_tier is not None:
         tier     = al_tier
         required = DAILY_WATCH_BY_TIER.get(al_tier, 1)
@@ -38007,6 +38010,42 @@ def admin_al_banner_action(request: Request, db: Session = Depends(get_db)):
         db.commit()
         return {"ok": True, "banner_id": bid, "new_status": b.status, "message": "Reports dismissed; banner kept live."}
     return JSONResponse({"error": "action must be remove or keep"}, status_code=400)
+
+
+@app.get("/admin/api/al/add-test-pack")
+def admin_al_add_test_pack(request: Request, db: Session = Depends(get_db)):
+    """Create (or deactivate) the $5 test package. Idempotent. Secret-gated.
+    ?remove=1 deactivates it. It renders live on /packs like any other pack."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    existing = db.query(CampaignPack).filter(CampaignPack.level == 5).first()
+    if request.query_params.get("remove"):
+        if existing:
+            existing.is_active = False
+            db.commit()
+            return {"ok": True, "message": "$5 test pack deactivated (hidden from /packs)."}
+        return {"ok": True, "message": "No $5 test pack to remove."}
+    if existing:
+        existing.is_active = True
+        existing.name = "$5 Test Pack"
+        existing.price = 5
+        existing.views_target = 500
+        db.commit()
+        return {"ok": True, "message": "$5 test pack already existed — re-activated.", "level": 5, "id": existing.id}
+    pack = CampaignPack(
+        name="$5 Test Pack", slug="test-pack-5",
+        description="A low-cost package to test the full buy → create ad → promote → earn loop. "
+                    "Delivers 500 campaign views. Same mechanics as every pack, at a $5 entry.",
+        price=5, level=5, views_target=500, daily_watch_required=1,
+        is_active=True, sort_order=-1,
+    )
+    db.add(pack)
+    db.commit()
+    return {"ok": True, "message": "$5 test pack created — live on /packs now.",
+            "level": 5, "id": pack.id, "views_target": 500,
+            "remove_url": "/admin/api/al/add-test-pack?secret=%s&remove=1" % secret}
 
 
 @app.get("/admin/api/al/ad-pool-status")
