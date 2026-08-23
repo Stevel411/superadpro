@@ -32808,6 +32808,29 @@ def admin_al_broadcast_counts(request: Request, db: Session = Depends(get_db)):
             "campaigns": out}
 
 
+@app.get("/admin/api/al/broadcast-summary")
+def admin_al_broadcast_summary(request: Request, db: Session = Depends(get_db)):
+    """Read-only: broadcast_log status counts per key (send-side: sent/failed/
+    sending/skipped = whether SES accepted each email). Downstream bounces and
+    spam complaints are NOT here — they live in the AWS SES console. Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        rows = db.execute(text("SELECT broadcast_key, status, COUNT(*) AS n "
+                               "FROM broadcast_log GROUP BY broadcast_key, status "
+                               "ORDER BY broadcast_key")).mappings().all()
+    except Exception as e:
+        return JSONResponse({"error": str(e)[:120]}, status_code=500)
+    out = {}
+    for r in rows:
+        out.setdefault(r["broadcast_key"], {})[r["status"] or "?"] = r["n"]
+    return {"note": "Send-side counts (whether SES accepted each email). "
+                    "Bounces/complaints/inbox-vs-spam are in the AWS SES console.",
+            "by_key": out}
+
+
 @app.get("/admin/api/al/email-preview")
 def admin_al_email_preview(request: Request, db: Session = Depends(get_db)):
     """Read-only: render a campaign's email HTML exactly as it sends. Secret-gated."""
