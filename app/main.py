@@ -72747,7 +72747,8 @@ def admin_api_al_voice_sample(voice: str = "Joanna", secret: str = "", text: str
     """Synthesize a short Amazon Polly neural sample so a voice can be chosen without
     AWS console access. Returns an MP3, or JSON if Polly isn't permitted on the keys."""
     _check_migration_secret(secret)
-    ALLOWED = {"Joanna", "Danielle", "Amy", "Emma", "Matthew", "Brian"}
+    ALLOWED = {"Joanna", "Danielle", "Amy", "Emma",
+               "Arthur", "Brian", "Stephen", "Matthew", "Gregory", "Russell"}
     if voice not in ALLOWED:
         return JSONResponse({"error": "voice must be one of %s" % sorted(ALLOWED)}, status_code=400)
     sample = text or ("Welcome to AdvantageLife. This is the most powerful thing you'll do here. "
@@ -72840,11 +72841,15 @@ def admin_al_voice_compare(secret: str = ""):
 .card b{font-size:15px}.card span{display:block;color:#5a6584;font-size:12.5px;margin:1px 0 10px}
 audio{width:100%}.err{background:#fff1f2;border:1px solid #f4b8c0;color:#a4122a;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:6px;display:none}</style></head>
 <body><div class="w">
-<h1>Pick your voice</h1><p class="s">Same real script in four voices. Tap play on each. Tell me the winner.</p>
-<div class="card"><b>Joanna</b><span>US &middot; female &middot; warm</span><audio controls preload="none" data-v="Joanna"></audio><div class="err"></div></div>
-<div class="card"><b>Danielle</b><span>US &middot; female &middot; newer, natural</span><audio controls preload="none" data-v="Danielle"></audio><div class="err"></div></div>
+<h1>Pick your voice</h1><p class="s">Same real script in eight voices — female and male, British and US. Tap play on each. Tell me the winner.</p>
 <div class="card"><b>Amy</b><span>British &middot; female &middot; warm</span><audio controls preload="none" data-v="Amy"></audio><div class="err"></div></div>
 <div class="card"><b>Emma</b><span>British &middot; female &middot; brighter</span><audio controls preload="none" data-v="Emma"></audio><div class="err"></div></div>
+<div class="card"><b>Arthur</b><span>British &middot; male &middot; warm, natural</span><audio controls preload="none" data-v="Arthur"></audio><div class="err"></div></div>
+<div class="card"><b>Brian</b><span>British &middot; male &middot; older</span><audio controls preload="none" data-v="Brian"></audio><div class="err"></div></div>
+<div class="card"><b>Joanna</b><span>US &middot; female &middot; warm</span><audio controls preload="none" data-v="Joanna"></audio><div class="err"></div></div>
+<div class="card"><b>Danielle</b><span>US &middot; female &middot; newer, natural</span><audio controls preload="none" data-v="Danielle"></audio><div class="err"></div></div>
+<div class="card"><b>Stephen</b><span>US &middot; male &middot; very natural</span><audio controls preload="none" data-v="Stephen"></audio><div class="err"></div></div>
+<div class="card"><b>Matthew</b><span>US &middot; male &middot; classic</span><audio controls preload="none" data-v="Matthew"></audio><div class="err"></div></div>
 <script>
 var sec=new URLSearchParams(location.search).get('secret')||'';
 document.querySelectorAll('audio').forEach(function(a){
