@@ -38009,6 +38009,81 @@ def admin_al_banner_action(request: Request, db: Session = Depends(get_db)):
     return JSONResponse({"error": "action must be remove or keep"}, status_code=400)
 
 
+@app.get("/admin/api/al/ad-pool-status")
+def admin_al_ad_pool_status(request: Request, db: Session = Depends(get_db)):
+    """Diagnostic: active-banner count vs qualified pool, by size. Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from collections import Counter
+    active = db.query(BannerAd).filter(BannerAd.status == "active").count()
+    pool = _al_build_ad_pool(db)
+    by_size = Counter(b["size"] for b in pool)
+    sample = [{"id": b["id"], "size": b["size"], "weight": b["weight"], "user_id": b["user_id"]} for b in pool[:10]]
+    return {"active_banners": active, "qualified_pool": len(pool), "by_size": dict(by_size), "sample": sample}
+
+
+@app.get("/admin/api/al/seed-test-banner")
+def admin_al_seed_test_banner(request: Request, db: Session = Depends(get_db)):
+    """Seed (or clean up) a clearly-marked TEST banner so the full loop can be
+    watched live: create -> rotate -> report -> queue -> remove. Secret-gated.
+    Auto-picks a watch-qualified member with a free banner slot unless ?username=."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    global _AL_ADPOOL_CACHE
+    if request.query_params.get("cleanup"):
+        n = db.query(BannerAd).filter(BannerAd.category == "__TEST__").update({"status": "removed"})
+        db.query(BannerReport).filter(BannerReport.status == "open",
+                                      BannerReport.banner_id.in_(
+                                          db.query(BannerAd.id).filter(BannerAd.category == "__TEST__"))).update({"status": "dismissed"}, synchronize_session=False)
+        db.commit()
+        _AL_ADPOOL_CACHE["ts"] = 0.0
+        return {"ok": True, "removed_test_banners": n}
+    from . import al_engine as _ale
+    size = (request.query_params.get("size") or "300x250").strip()
+    try:
+        w, h = int(size.split("x")[0]), int(size.split("x")[1])
+    except Exception:
+        w, h = 300, 250
+    uname = (request.query_params.get("username") or "").strip()
+    owner = None
+    if uname:
+        owner = db.query(User).filter(User.username.ilike(uname)).first()
+    if owner is None:
+        for (uid,) in db.query(PackPurchase.user_id).filter(PackPurchase.status == "active").distinct().all():
+            if _banner_slot_for_user(db, uid) and _ale.watch_qualified(db, uid):
+                owner = db.query(User).filter(User.id == uid).first()
+                break
+    if owner is None:
+        return {"ok": False, "message": "No watch-qualified member with a free banner slot was found. Pass ?username=SOMEONE, or create a banner through the real member flow."}
+    pack = _banner_slot_for_user(db, owner.id)
+    if pack is None:
+        return {"ok": False, "message": "%s has no free banner slot (all packs at their banner limit)." % owner.username}
+    qualified = _ale.watch_qualified(db, owner.id)
+    html = ('<div style="width:100%%;height:100%%;background:linear-gradient(135deg,#ff2743,#7c3aed);'
+            'display:flex;align-items:center;justify-content:center;color:#fff;'
+            'font-family:Inter,system-ui,sans-serif;font-weight:900;font-size:15px;text-align:center">'
+            '&#129514; TEST BANNER &middot; %s</div>' % size)
+    b = BannerAd(user_id=owner.id, pack_purchase_id=pack.id, size=size, width=w, height=h,
+                 mode="html", html_code=html, title="Test Banner " + size,
+                 category="__TEST__", status="active")
+    db.add(b)
+    db.commit()
+    _AL_ADPOOL_CACHE["ts"] = 0.0  # force the pool to rebuild on next serve
+    return {
+        "ok": True, "banner_id": b.id, "owner": owner.username, "size": size,
+        "in_pool_now": qualified,
+        "note": ("Rotating on shared pages within a few seconds — open a showcase page and look for the pink/purple TEST banner."
+                 if qualified else "Owner is NOT watch-qualified, so it will NOT show — that's the gate working correctly."),
+        "report_it": "/api/al/banner/%d/report (or tap the tiny report control on the banner)" % b.id,
+        "see_queue": "/admin/api/al/banner-reports?secret=%s" % secret,
+        "cleanup_when_done": "/admin/api/al/seed-test-banner?secret=%s&cleanup=1" % secret,
+    }
+
+
 def _slugify(s: str) -> str:
     import re as _re
     s = _re.sub(r"[^a-z0-9]+", "-", (s or "").lower().strip()).strip("-")
