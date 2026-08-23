@@ -12,6 +12,12 @@ const SIZE_GROUPS = [
   { group: 'Mobile', sizes: [['Mobile Leaderboard', 320, 50], ['Large Mobile', 320, 100]] },
 ];
 
+const NETWORK_SIZES = [
+  { name: 'Leaderboard', w: 728, h: 90, where: 'Top of every shared page + mobile' },
+  { name: 'Medium Rectangle', w: 300, h: 250, where: 'Corners & gutters of shared pages' },
+  { name: 'Half Page', w: 300, h: 600, where: 'Sticky side rails of shared pages' },
+];
+
 function demoDims(w, h) { // proportional mini-preview, capped
   const maxW = 80, maxH = 70; let dw = w, dh = h;
   const s = Math.min(maxW / w, maxH / h); dw = Math.max(6, Math.round(w * s)); dh = Math.max(5, Math.round(h * s));
@@ -66,13 +72,36 @@ export default function BannerCreate() {
     <AlShell>
       <div style={{ maxWidth: 940, margin: '0 auto', padding: '6px 4px 50px', fontFamily: 'Inter,system-ui,sans-serif', color: '#0d1230' }}>
         <h1 style={{ fontSize: 27, fontWeight: 900, letterSpacing: '-.6px', color: NAVY, margin: '4px 0 4px' }}>Create a Banner Ad</h1>
-        <p style={{ fontSize: 13.5, color: MUTED, fontWeight: 500, marginBottom: 18, maxWidth: 540 }}>Runs across the AdvantageLife Banner Showcase and public discovery page — extra reach on top of your video campaign.</p>
+        <p style={{ fontSize: 13.5, color: MUTED, fontWeight: 500, marginBottom: 18, maxWidth: 540 }}>Runs across the AdvantageLife banner network — the top, corners and side rails of every shared page (showcase, sales, games) — real reach on top of your video campaign.</p>
 
         {/* Step 1 — size */}
         <div style={card}>
           <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.06em', textTransform: 'uppercase', color: RED }}>Step 1</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: NAVY, marginBottom: 3 }}>Choose a size</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11.5, fontWeight: 800, color: '#7c3aed', background: 'rgba(124,58,237,.1)', padding: '5px 11px', borderRadius: 8, marginBottom: 12 }}>✨ Every size supports animation — GIF &amp; HTML5</div>
+          <div style={{ background: 'linear-gradient(135deg,#0a1f52,#12388f)', borderRadius: 14, padding: '16px 18px', marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase', color: '#9fb8ff', marginBottom: 3 }}>⚡ Network sizes — recommended</div>
+            <div style={{ fontSize: 13, color: '#c3cff0', fontWeight: 600, marginBottom: 14 }}>These three rotate across every shared page. Pick one of these for maximum reach — other sizes only show on the Banner Showcase.</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }} className="al-bnet">
+              {NETWORK_SIZES.map(function (s) {
+                const on = sel[0] === s.name && sel[1] === s.w && sel[2] === s.h;
+                return (
+                  <div key={s.name} onClick={function () { setSel([s.name, s.w, s.h]); }} style={{
+                    border: on ? '2px solid #ff2743' : '2px solid rgba(255,255,255,.14)', background: on ? 'rgba(255,39,67,.16)' : 'rgba(255,255,255,.06)',
+                    borderRadius: 11, padding: '14px 10px', cursor: 'pointer', textAlign: 'center', color: '#fff',
+                  }}>
+                    <div style={{ height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={Object.assign({ background: 'linear-gradient(135deg,#ff2743,#c8102e)', borderRadius: 3, display: 'block' }, demoDims(s.w, s.h))} />
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 900 }}>{s.name}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#9fb8ff', margin: '2px 0 5px' }}>{s.w}×{s.h}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 600, color: '#c3cff0', lineHeight: 1.3 }}>{s.where}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase', color: '#8a97b8', margin: '4px 0 2px' }}>Other sizes — Banner Showcase &amp; discovery only</div>
           {SIZE_GROUPS.map(function (grp) {
             return (
               <div key={grp.group}>
