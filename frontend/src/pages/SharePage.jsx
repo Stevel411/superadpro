@@ -183,7 +183,7 @@ export default function SharePage() {
         <div className="al-stage">
           <div className="al-rail">
             <NetBanner slot={slot('300x250', 2)} w={300} h={250} advertiseUrl={joinUrl} />
-            <NetBanner slot={slot('300x600', 0)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 0)} w={300} h={600} advertiseUrl={joinUrl} />
             <NetBanner slot={slot('300x250', 4)} w={300} h={250} advertiseUrl={joinUrl} />
           </div>
           <div>
@@ -197,7 +197,7 @@ export default function SharePage() {
           </div>
           <div className="al-rail">
             <NetBanner slot={slot('300x250', 3)} w={300} h={250} advertiseUrl={joinUrl} />
-            <NetBanner slot={slot('300x600', 1)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 1)} w={300} h={600} advertiseUrl={joinUrl} />
             <NetBanner slot={slot('300x250', 5)} w={300} h={250} advertiseUrl={joinUrl} />
           </div>
         </div>
