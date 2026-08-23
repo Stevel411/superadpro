@@ -2262,7 +2262,7 @@ footer a{color:var(--dim)}
   <h2>How pass-ups work</h2>
   <div class="lead">Your <b>6th, 9th and 11th</b> sales pass up to the first qualified member above you — someone who owns that pack level or higher and has done their daily watch. That's the team-building engine: as your team sells, their pass-ups flow up to you too.</div>
   <div class="card">
-    <div class="repeat"><span class="ic">&#128175;</span><span class="tx"><b>After your 11th sale, you keep 100%.</b> Every further sale on that package is yours. When its views are delivered the package expires — renew, and a fresh 11-sale cycle begins. Every package works the same way.</span></div>
+    <div class="repeat"><span class="ic">&#128175;</span><span class="tx"><b>After your 11th sale, you keep 100%</b> on that package until its views are delivered and it expires. Each new package you activate starts fresh the same way.</span></div>
   </div>
 </section>
 
