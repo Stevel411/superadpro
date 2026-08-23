@@ -79848,7 +79848,50 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
             elif pp.status == "pending":
                 d["pending"] += 1
     cards = []
+    feat5_html = ""
     for p in packs:
+        if int(p.level or 0) == 5:
+            _v5 = int(p.views_target or 0)
+            feat5_html = (
+                '<style>'
+                '.feat5{grid-column:1/-1;background:#fff;border-radius:20px;overflow:hidden;'
+                'box-shadow:0 30px 64px -40px rgba(10,31,82,.45),0 0 0 1px #e6ecf5;display:flex}'
+                '.feat5 .f5l{width:158px;flex:none;background:linear-gradient(165deg,#0a1f52,#12388f);'
+                'color:#fff;padding:24px 16px;display:flex;flex-direction:column;align-items:center;'
+                'justify-content:center;text-align:center}'
+                '.feat5 .f5b{background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.5);'
+                'color:#9af5c0;border-radius:20px;padding:4px 10px;font-size:9.5px;font-weight:900;'
+                'letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}'
+                '.feat5 .f5a{font-size:78px;font-weight:900;letter-spacing:-.05em;line-height:.82;color:#fff}'
+                '.feat5 .f5a em{font-style:normal;font-size:30px;vertical-align:top;color:#2ecc71;position:relative;top:9px}'
+                '.feat5 .f5p{font-size:11px;font-weight:800;color:#9fb8ff;margin-top:6px;line-height:1.3}'
+                '.feat5 .f5r{flex:1;padding:22px 24px}'
+                '.feat5 .f5r h3{margin:0 0 5px;font-size:19px;font-weight:900;color:#0a1f52;line-height:1.15}'
+                '.feat5 .f5r p{margin:0 0 14px;font-size:13px;color:#5a6584;font-weight:600;line-height:1.45}'
+                '.feat5 .f5f{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#28324e;margin-bottom:9px}'
+                '.feat5 .f5f b{color:#0d1230;font-weight:900}'
+                '.feat5 .f5f .i{width:22px;height:22px;border-radius:6px;background:#17a34a;color:#fff;'
+                'display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:none}'
+                '.feat5 .f5c{margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:8px;'
+                'width:100%;background:linear-gradient(120deg,#17a34a,#2ecc71);color:#fff;border-radius:13px;'
+                'padding:14px;font-size:15.5px;font-weight:900;text-decoration:none;box-shadow:0 16px 32px -14px rgba(23,163,74,.6)}'
+                '@media(max-width:560px){.feat5{flex-direction:column}.feat5 .f5l{width:100%;padding:20px}.feat5 .f5a{font-size:66px}}'
+                '</style>'
+                '<div class="feat5">'
+                '<div class="f5l"><span class="f5b">Start here</span>'
+                '<div class="f5a"><em>$</em>5</div>'
+                '<div class="f5p">Test Pack<br>activates instantly</div></div>'
+                '<div class="f5r">'
+                '<h3>See the whole platform work</h3>'
+                '<p>Put a real ad live and watch real members view it &mdash; the full experience, for the price of a coffee.</p>'
+                '<div class="f5f"><span class="i">&#9654;</span> Your own <b>video ad, live</b></div>'
+                f'<div class="f5f"><span class="i">&#10003;</span> <b>{_v5:,} real views</b> from real people</div>'
+                '<div class="f5f"><span class="i">&#9670;</span> <b>Promoted everywhere</b></div>'
+                '<div class="f5f"><span class="i">&#8593;</span> <b>Same earning engine</b> as every pack</div>'
+                '<a class="f5c" href="/packs/checkout?level=5">Start for $5 &rarr;</a>'
+                '</div></div>'
+            )
+            continue
         price = int(float(p.price))
         views = f"{int(p.views_target or 0):,}"
         pop = p.level == 100
@@ -79882,7 +79925,7 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
             f'<div class="vw">{views} <span>views</span></div>'
             f'<div class="ds">{desc}</div>'
             f'<a class="buy" href="/packs/checkout?level={int(p.level or 0)}">{buy} &rarr;</a></div>')
-    html = _AL_PACKS_CATALOG_HEAD + "".join(cards) + _AL_PACKS_CATALOG_TAIL
+    html = _AL_PACKS_CATALOG_HEAD + feat5_html + "".join(cards) + _AL_PACKS_CATALOG_TAIL
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
 
