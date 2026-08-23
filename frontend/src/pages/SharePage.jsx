@@ -138,7 +138,7 @@ export default function SharePage() {
   useEffect(() => {
     const owner = data && data.sharer && data.sharer.username;
     const q = (owner && owner !== 'a member') ? '&owner=' + encodeURIComponent(owner) : '';
-    fetch('/api/al/network-ads?req=728x90:1,300x250:4,300x600:2' + q)
+    fetch('/api/al/network-ads?req=728x90:1,300x250:6,300x600:2' + q)
       .then(r => r.json()).then(setAds).catch(() => {});
   }, [data]);
 
@@ -163,22 +163,28 @@ export default function SharePage() {
 
       <style>{`.al-stage{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;gap:20px;align-items:start}.al-rail{display:flex;flex-direction:column;gap:16px}@media(max-width:1120px){.al-stage{grid-template-columns:1fr}.al-rail{display:none}}`}</style>
       <div style={{ maxWidth: 1640, margin: '0 auto', padding: '22px clamp(14px,4vw,32px) 60px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-          <NetBanner slot={slot('728x90', 0)} w={728} h={90} advertiseUrl={joinUrl} />
-        </div>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <h1 style={{ fontSize: 'clamp(24px,3.4vw,33px)', fontWeight: 900, letterSpacing: -1 }}>This week’s <span style={{ color: RED }}>video showcase</span></h1>
-          <p style={{ color: MUTED, fontWeight: 600, fontSize: 15, marginTop: 7 }}>Videos from independent creators and businesses. Watch whatever interests you.</p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 12, background: '#fff', border: '1.5px solid ' + LINE, borderRadius: 30, padding: '7px 15px', fontSize: 12.5, fontWeight: 800, color: '#12388f' }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 0 4px rgba(22,163,74,.15)' }} /> Updated continuously — new videos every visit
+        <div className="al-stage" style={{ marginBottom: 8, alignItems: 'start' }}>
+          <div className="al-rail"><NetBanner slot={slot('300x250', 0)} w={300} h={250} advertiseUrl={joinUrl} /></div>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <NetBanner slot={slot('728x90', 0)} w={728} h={90} advertiseUrl={joinUrl} />
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: 8 }}>
+              <h1 style={{ fontSize: 'clamp(24px,3.4vw,33px)', fontWeight: 900, letterSpacing: -1 }}>This week’s <span style={{ color: RED }}>video showcase</span></h1>
+              <p style={{ color: MUTED, fontWeight: 600, fontSize: 15, marginTop: 7 }}>Videos from independent creators and businesses. Watch whatever interests you.</p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 12, background: '#fff', border: '1.5px solid ' + LINE, borderRadius: 30, padding: '7px 15px', fontSize: 12.5, fontWeight: 800, color: '#12388f' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 0 4px rgba(22,163,74,.15)' }} /> Updated continuously — new videos every visit
+              </div>
+            </div>
           </div>
+          <div className="al-rail"><NetBanner slot={slot('300x250', 1)} w={300} h={250} advertiseUrl={joinUrl} /></div>
         </div>
 
         <div className="al-stage">
           <div className="al-rail">
-            <NetBanner slot={slot('300x250', 0)} w={300} h={250} advertiseUrl={joinUrl} />
-            <NetBanner slot={slot('300x600', 0)} w={300} h={600} sticky advertiseUrl={joinUrl} />
             <NetBanner slot={slot('300x250', 2)} w={300} h={250} advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 0)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x250', 4)} w={300} h={250} advertiseUrl={joinUrl} />
           </div>
           <div>
             {videos.length === 0 ? (
@@ -190,9 +196,9 @@ export default function SharePage() {
             )}
           </div>
           <div className="al-rail">
-            <NetBanner slot={slot('300x250', 1)} w={300} h={250} advertiseUrl={joinUrl} />
-            <NetBanner slot={slot('300x600', 1)} w={300} h={600} sticky advertiseUrl={joinUrl} />
             <NetBanner slot={slot('300x250', 3)} w={300} h={250} advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 1)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x250', 5)} w={300} h={250} advertiseUrl={joinUrl} />
           </div>
         </div>
 
