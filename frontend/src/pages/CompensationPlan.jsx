@@ -31,10 +31,10 @@ const CYCLE = [
 const CSS = `
 .cp{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--green:#2ecc71;--line:#e3e9f5;--mute:#7c89a8;max-width:900px;margin:0 auto;padding:8px 0 60px}
 .cp *{box-sizing:border-box}
-.cp .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:22px;padding:36px 30px;color:#fff;text-align:center}
-.cp .hero .eb{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8fb0ff}
-.cp .hero h1{font-size:clamp(30px,7vw,44px);font-weight:900;letter-spacing:-.02em;margin-top:10px;line-height:1.04}
-.cp .hero p{font-size:15px;color:#c3cff0;margin-top:14px;font-weight:500;line-height:1.55;max-width:44ch;margin-left:auto;margin-right:auto}
+.cp .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:22px;padding:48px 32px;color:#fff;text-align:center}
+.cp .hero .eb{font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#8fb0ff}
+.cp .hero h1{font-size:clamp(30px,6vw,46px);font-weight:900;letter-spacing:-.02em;margin:14px 0 0;line-height:1.05}
+.cp .hero p{font-size:15px;color:#c3cff0;margin:16px auto 0;font-weight:500;line-height:1.6;max-width:46ch}
 .cp .card{background:#fff;border-radius:20px;padding:26px;margin-top:18px;box-shadow:0 12px 34px -22px rgba(10,31,82,.3);border:1px solid var(--line)}
 .cp .card h2{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.01em}
 .cp .sub{font-size:14px;color:var(--mute);margin-top:6px;font-weight:500;line-height:1.55}
