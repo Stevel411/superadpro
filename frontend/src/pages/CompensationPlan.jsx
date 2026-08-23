@@ -31,10 +31,16 @@ const CYCLE = [
 const CSS = `
 .cp{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--green:#2ecc71;--line:#e3e9f5;--mute:#7c89a8;max-width:900px;margin:0 auto;padding:8px 0 60px}
 .cp *{box-sizing:border-box}
-.cp .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:22px;padding:48px 32px;color:#fff;text-align:center}
-.cp .hero .eb{font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#8fb0ff}
-.cp .hero h1{font-size:clamp(30px,6vw,46px);font-weight:900;letter-spacing:-.02em;margin:14px 0 0;line-height:1.05}
-.cp .hero p{font-size:15px;color:#c3cff0;margin:16px auto 0;font-weight:500;line-height:1.6;max-width:46ch}
+.cp .hero{position:relative;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:22px;padding:40px 44px;color:#fff;overflow:hidden;text-align:left}
+.cp .hero::after{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,39,67,.22),transparent 70%);pointer-events:none}
+.cp .hero .eb{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#9fb8ff;margin-bottom:14px}
+.cp .hero .eb::before{content:'';width:26px;height:3px;background:var(--red);border-radius:2px}
+.cp .hero h1{font-size:clamp(30px,5vw,46px);font-weight:900;letter-spacing:-.02em;line-height:1.04;margin:0 0 14px}
+.cp .hero h1 .accent{color:#ff6b7f}
+.cp .hero p{font-size:15.5px;color:#c3cff0;font-weight:500;line-height:1.6;margin:0;max-width:60ch}
+.cp .hero .pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.cp .hero .pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:800;color:#eaf0ff}
+.cp .hero .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--red2)}
 .cp .card{background:#fff;border-radius:20px;padding:26px;margin-top:18px;box-shadow:0 12px 34px -22px rgba(10,31,82,.3);border:1px solid var(--line)}
 .cp .card h2{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.01em}
 .cp .sub{font-size:14px;color:var(--mute);margin-top:6px;font-weight:500;line-height:1.55}
@@ -89,8 +95,13 @@ export default function CompensationPlan() {
       <div className="cp">
         <div className="hero">
           <div className="eb">Compensation Plan</div>
-          <h1>Your effort.<br />Your income.</h1>
+          <h1>Your effort. <span className="accent">Your income.</span></h1>
           <p>Sales are paid member-to-member, straight to your wallet. Here's exactly where every sale you make goes — nothing hidden.</p>
+          <div className="pills">
+            <span className="pill"><span className="dot"></span> Paid member-to-member</span>
+            <span className="pill"><span className="dot"></span> Straight to your wallet</span>
+            <span className="pill"><span className="dot"></span> Nothing hidden</span>
+          </div>
         </div>
 
         <div className="card" style={{ padding: 0, overflow: 'hidden', background: '#000' }}>
