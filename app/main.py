@@ -38084,6 +38084,33 @@ def admin_al_seed_test_banner(request: Request, db: Session = Depends(get_db)):
     }
 
 
+@app.get("/admin/api/al/test-report")
+def admin_al_test_report(request: Request, db: Session = Depends(get_db)):
+    """File a report on a banner from the URL bar (walkthrough helper) — the real
+    Report button does this via POST for logged-in members. Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        bid = int(request.query_params.get("banner_id", "0"))
+    except (TypeError, ValueError):
+        bid = 0
+    b = db.query(BannerAd).filter(BannerAd.id == bid).first()
+    if not b:
+        return JSONResponse({"error": "banner not found"}, status_code=404)
+    db.add(BannerReport(banner_id=bid, reporter_user_id=None, reason="test report (admin tool)", status="open"))
+    db.commit()
+    open_ct = db.query(BannerReport).filter(BannerReport.banner_id == bid, BannerReport.status == "open").count()
+    if open_ct >= 3 and b.status == "active":
+        db.execute(text("UPDATE al_banner_ads SET status='flagged' WHERE id=:bid"), {"bid": bid})
+        db.commit()
+        b = db.query(BannerAd).filter(BannerAd.id == bid).first()
+    return {"ok": True, "banner_id": bid, "open_reports": open_ct,
+            "auto_hidden": (b.status == "flagged"),
+            "see_queue": "/admin/api/al/banner-reports?secret=%s" % secret}
+
+
 def _slugify(s: str) -> str:
     import re as _re
     s = _re.sub(r"[^a-z0-9]+", "-", (s or "").lower().strip()).strip("-")
