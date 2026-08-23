@@ -37762,6 +37762,101 @@ def banners_mine(user: User = Depends(get_current_user), db: Session = Depends(g
     }
 
 
+_AL_ADPOOL_CACHE = {"ts": 0.0, "pool": None}
+
+
+def _al_build_ad_pool(db: Session):
+    """The qualified banner pool for the network. A banner is eligible when it's
+    active, its slot pack is active, and its owner is watch-qualified — the same
+    gate as earning. Weight = pack level (bigger pack → shown more)."""
+    from . import al_engine as _ale
+    rows = (db.query(BannerAd, PackPurchase.pack_level, PackPurchase.user_id)
+              .join(PackPurchase, PackPurchase.id == BannerAd.pack_purchase_id)
+              .filter(BannerAd.status == "active", PackPurchase.status == "active").all())
+    wq_cache = {}
+    pool = []
+    for b, lvl, owner_id in rows:
+        if owner_id not in wq_cache:
+            try:
+                wq_cache[owner_id] = _ale.watch_qualified(db, owner_id)
+            except Exception:
+                wq_cache[owner_id] = False
+        if not wq_cache[owner_id]:
+            continue
+        pool.append({"id": b.id, "user_id": owner_id, "size": (b.size or "728x90"),
+                     "mode": b.mode, "image_url": b.image_url, "html_code": b.html_code,
+                     "title": b.title, "width": b.width, "height": b.height,
+                     "weight": max(1, int(lvl or 1))})
+    return pool
+
+
+def _al_ad_pool(db: Session, max_age: float = 60.0):
+    """Cached pool — rebuilt at most once per minute (public pages hit this hot)."""
+    import time as _t
+    now = _t.time()
+    if not _AL_ADPOOL_CACHE["pool"] or (now - _AL_ADPOOL_CACHE["ts"]) > max_age:
+        _AL_ADPOOL_CACHE["pool"] = _al_build_ad_pool(db)
+        _AL_ADPOOL_CACHE["ts"] = now
+    return _AL_ADPOOL_CACHE["pool"]
+
+
+@app.get("/api/al/network-ads")
+def al_network_ads(req: str = "728x90:1,300x250:4,300x600:2", owner: str = "",
+                   db: Session = Depends(get_db)):
+    """Public ad-serving endpoint for the banner network. Given a request like
+    '728x90:1,300x250:4,300x600:2' returns that many distinct banners per size,
+    weighted by pack level, the page owner's banner first on their own page, and
+    None for any slot the pool can't fill (client shows the house 'advertise here').
+    """
+    import random
+    pool = _al_ad_pool(db)
+    owner_uid = None
+    if owner:
+        ou = db.query(User).filter(func.lower(User.username) == owner.strip().lower()).first()
+        owner_uid = ou.id if ou else None
+
+    def _pick(size, cnt):
+        cands = [b for b in pool if b["size"] == size]
+        picked, used = [], set()
+        if owner_uid:  # own-banner-first on your own page
+            for b in cands:
+                if b["user_id"] == owner_uid:
+                    picked.append(b); used.add(b["id"]); break
+        rest = [b for b in cands if b["id"] not in used]
+        while len(picked) < cnt and rest:
+            total = sum(b["weight"] for b in rest)
+            r = random.uniform(0, total); acc = 0; chosen = rest[-1]
+            for b in rest:
+                acc += b["weight"]
+                if r <= acc:
+                    chosen = b; break
+            picked.append(chosen); used.add(chosen["id"])
+            rest = [b for b in rest if b["id"] not in used]
+        out = []
+        for i in range(cnt):
+            if i < len(picked):
+                b = picked[i]
+                out.append({"id": b["id"], "mode": b["mode"], "image_url": b["image_url"],
+                            "html_code": b["html_code"], "title": b["title"],
+                            "width": b["width"], "height": b["height"],
+                            "click_url": "/api/al/banner/%d/click" % b["id"]})
+            else:
+                out.append(None)
+        return out
+
+    slots = {}
+    for part in req.split(","):
+        part = part.strip()
+        if ":" not in part:
+            continue
+        size, cnt = part.split(":", 1)
+        try:
+            slots[size.strip()] = _pick(size.strip(), max(0, min(20, int(cnt))))
+        except Exception:
+            continue
+    return {"slots": slots, "advertise_url": "/my-banners"}
+
+
 @app.post("/api/al/banner/{banner_id}/impression")
 def banner_impression(banner_id: int, db: Session = Depends(get_db)):
     """Fire when a banner is ≥50% visible for ~1s on the showcase. Denormalised
