@@ -10,12 +10,14 @@ const CSS = `
 .gs-t{flex:1;min-width:0}
 .gs-t b{display:block;color:#fff;font-size:16px;font-weight:900}
 .gs-t span{display:block;color:#aebcf0;font-size:13px;font-weight:600;margin-top:2px}
-.gs-step{background:#fff;border:1px solid #e6ecf5;border-radius:16px;padding:18px 20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;box-shadow:0 12px 30px -24px rgba(10,31,82,.4)}
+.gs-lang{font-size:12.5px;font-weight:800;color:#c9d6f7;background:rgba(255,255,255,.1);border-radius:9px;padding:8px 12px;flex:none}
+.gs-step{background:#fff;border:1px solid #e6ecf5;border-radius:16px;padding:18px 22px;margin-bottom:12px;display:flex;gap:18px;align-items:center;box-shadow:0 12px 30px -24px rgba(10,31,82,.4)}
 .gs-num{width:38px;height:38px;border-radius:10px;background:rgba(18,56,143,.1);color:#12388f;font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center;flex:none}
 .gs-sc{flex:1;min-width:0}
 .gs-sc h3{margin:0 0 3px;font-size:17px;font-weight:900;color:#0d1230;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.gs-sc p{margin:0 0 12px;font-size:14px;color:#5a6584;font-weight:600;line-height:1.45}
-.gs-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.gs-sc p{margin:0;font-size:14px;color:#5a6584;font-weight:600;line-height:1.45}
+.gs-actions{flex:none;display:flex;gap:9px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+@media(max-width:640px){.gs-step{flex-wrap:wrap}.gs-actions{width:100%;justify-content:flex-start;margin-top:4px}}
 .gs-listen{display:inline-flex;align-items:center;gap:7px;background:#eef2fb;border:1px solid #dbe3f4;border-radius:10px;padding:10px 15px;font-size:13.5px;font-weight:800;color:#0a1f52;cursor:pointer}
 .gs-listen.on{background:#0a1f52;color:#fff;border-color:#0a1f52}
 .gs-do{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff;border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:900;text-decoration:none;box-shadow:0 8px 18px -8px rgba(200,16,46,.5)}
@@ -86,6 +88,7 @@ export default function GetStarted() {
         <div className="gs-hero" onClick={function () { play('overview'); }}>
           <span className="gs-ic">{playing === 'overview' ? <Wave cls="gs-wave" /> : <PlayIcon />}</span>
           <div className="gs-t"><b>Hear how this works</b><span>A 60-second overview — press play</span></div>
+          <span className="gs-lang">🇬🇧 English</span>
         </div>
 
         {STEPS.map(function (s) {
@@ -95,12 +98,12 @@ export default function GetStarted() {
               <div className="gs-sc">
                 <h3>{s.title}{s.power && <span className="gs-power">⚡ Most powerful</span>}</h3>
                 <p>{s.desc}</p>
-                <div className="gs-actions">
-                  <button className={'gs-listen' + (playing === s.key ? ' on' : '')} onClick={function () { play(s.key); }}>
-                    {playing === s.key ? <Wave cls="gs-lwave" /> : <SpeakerIcon />} Listen
-                  </button>
-                  <a className="gs-do" href={s.link}>{s.cta} →</a>
-                </div>
+              </div>
+              <div className="gs-actions">
+                <button className={'gs-listen' + (playing === s.key ? ' on' : '')} onClick={function () { play(s.key); }}>
+                  {playing === s.key ? <Wave cls="gs-lwave" /> : <SpeakerIcon />} Listen
+                </button>
+                <a className="gs-do" href={s.link}>{s.cta} →</a>
               </div>
             </div>
           );
