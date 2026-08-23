@@ -72773,6 +72773,76 @@ def admin_api_al_voice_sample(voice: str = "Joanna", secret: str = "", text: str
                             status_code=502)
 
 
+@app.get("/admin/api/al/grok-voice-sample")
+def admin_api_al_grok_voice_sample(voice: str = "ara", secret: str = "", text: str = ""):
+    """Synthesize a short Grok (xAI) TTS sample using the existing XAI_API_KEY.
+    Returns an MP3, or JSON on failure. Voices: eve, ara, rex, sal, leo."""
+    _check_migration_secret(secret)
+    ALLOWED = {"eve", "ara", "rex", "sal", "leo"}
+    if voice not in ALLOWED:
+        return JSONResponse({"error": "voice must be one of %s" % sorted(ALLOWED)}, status_code=400)
+    sample = text or ("Welcome to AdvantageLife. This is the most powerful thing you'll do here. "
+                      "You share your Showcase page once a week, and because your videos refresh "
+                      "on every visit, one post keeps working all week, sending real viewers to "
+                      "your offer. There are no guarantees, but the more you share, the more it works.")
+    key = os.getenv("XAI_API_KEY", "")
+    if not key:
+        return JSONResponse({"ok": False, "error": "XAI_API_KEY not set on this service"}, status_code=502)
+    try:
+        import requests as _rq
+        from fastapi import Response
+        r = _rq.post("https://api.x.ai/v1/tts",
+                     headers={"Authorization": "Bearer %s" % key, "Content-Type": "application/json"},
+                     json={"text": sample, "voice_id": voice, "language": "en", "output_format": "mp3"},
+                     timeout=60)
+        if r.status_code != 200:
+            return JSONResponse({"ok": False, "error": "Grok TTS failed", "status": r.status_code,
+                                 "detail": r.text[:500]}, status_code=502)
+        audio = r.content
+        if "application/json" in (r.headers.get("content-type") or ""):
+            import base64 as _b64, json as _j
+            try:
+                d = _j.loads(r.text)
+                b64 = d.get("audio") or d.get("audio_base64") or d.get("data") or ""
+                if isinstance(b64, str) and b64.startswith("http"):
+                    return RedirectResponse(b64)
+                if b64:
+                    audio = _b64.b64decode(b64)
+            except Exception:
+                pass
+        return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": "Grok TTS crashed", "detail": str(e)[:400]}, status_code=502)
+
+
+@app.get("/admin/al/grok-voice-compare")
+def admin_al_grok_voice_compare(secret: str = ""):
+    """Tap-to-play page comparing the five Grok voices in our real onboarding script."""
+    _check_migration_secret(secret)
+    html = """<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/><title>Grok voice compare</title>
+<style>body{font-family:system-ui,sans-serif;background:#eef2fb;color:#0d1230;margin:0;padding:24px}
+.w{max-width:520px;margin:0 auto}h1{font-size:19px;margin:0 0 4px}p.s{color:#5a6584;font-size:13px;margin:0 0 20px}
+.card{background:#fff;border:1px solid #e6ecf5;border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 12px 30px -22px rgba(10,31,82,.4)}
+.card b{font-size:15px}.card span{display:block;color:#5a6584;font-size:12.5px;margin:1px 0 10px}
+audio{width:100%}.err{background:#fff1f2;border:1px solid #f4b8c0;color:#a4122a;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:6px;display:none}</style></head>
+<body><div class="w">
+<h1>Pick your Grok voice</h1><p class="s">The five Grok voices in our real onboarding script. Tap play on each. Tell me the winner.</p>
+<div class="card"><b>ara</b><span>soft &middot; empathetic &middot; soothing — best for a welcome</span><audio controls preload="none" data-v="ara"></audio><div class="err"></div></div>
+<div class="card"><b>eve</b><span>the default &middot; expressive, conversational</span><audio controls preload="none" data-v="eve"></audio><div class="err"></div></div>
+<div class="card"><b>leo</b><span>male tone</span><audio controls preload="none" data-v="leo"></audio><div class="err"></div></div>
+<div class="card"><b>rex</b><span>male tone</span><audio controls preload="none" data-v="rex"></audio><div class="err"></div></div>
+<div class="card"><b>sal</b><span>alternate tone</span><audio controls preload="none" data-v="sal"></audio><div class="err"></div></div>
+<script>
+var sec=new URLSearchParams(location.search).get('secret')||'';
+document.querySelectorAll('audio').forEach(function(a){
+  a.src='/admin/api/al/grok-voice-sample?voice='+a.getAttribute('data-v')+'&secret='+encodeURIComponent(sec);
+  a.addEventListener('error',function(){var e=a.parentNode.querySelector('.err');e.style.display='block';e.textContent='Could not load — tap the grok-voice-sample URL directly to see the exact error.';});
+});
+</script></div></body></html>"""
+    return HTMLResponse(html)
+
+
 @app.get("/admin/al/voice-tts-demo")
 def admin_al_voice_tts_demo(secret: str = ""):
     """Client-side browser text-to-speech demo (Option B) so a voice can be heard
