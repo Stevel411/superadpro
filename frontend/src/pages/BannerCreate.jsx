@@ -95,13 +95,15 @@ export default function BannerCreate() {
                     </div>
                     <div style={{ fontSize: 12.5, fontWeight: 900 }}>{s.name}</div>
                     <div style={{ fontSize: 10.5, fontWeight: 700, color: '#9fb8ff', margin: '2px 0 5px' }}>{s.w}×{s.h}</div>
-                    <div style={{ fontSize: 10.5, fontWeight: 600, color: '#c3cff0', lineHeight: 1.3 }}>{s.where}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 600, color: '#c3cff0', lineHeight: 1.3, marginBottom: 8 }}>{s.where}</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 900, letterSpacing: '.03em', textTransform: 'uppercase', color: '#2ecc71', background: 'rgba(46,204,113,.14)', border: '1px solid rgba(46,204,113,.35)', borderRadius: 6, padding: '3px 7px' }}>✓ Shows on showcase pages</div>
                   </div>
                 );
               })}
             </div>
           </div>
-          <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase', color: '#8a97b8', margin: '4px 0 2px' }}>Other sizes — Banner Showcase &amp; discovery only</div>
+          <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase', color: '#8a97b8', margin: '4px 0 2px' }}>Other sizes</div>
+          <div style={{ fontSize: 12, color: MUTED, fontWeight: 600, margin: '0 0 4px' }}>These do <b>not</b> appear on shared showcase pages — they show only in the Banner Showcase gallery.</div>
           {SIZE_GROUPS.map(function (grp) {
             return (
               <div key={grp.group}>
