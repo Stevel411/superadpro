@@ -72773,6 +72773,92 @@ def admin_api_al_voice_sample(voice: str = "Joanna", secret: str = "", text: str
                             status_code=502)
 
 
+_AL_VOICE_SCRIPTS = {
+    "overview": ("Welcome to AdvantageLife. Here's how it works, and why it's different. This is a "
+                 "place where real people watch each other's video ads, so your offer gets seen by "
+                 "actual viewers, not bots. It's free to join. Now the powerful part: you get your "
+                 "own Showcase page and Banner page. Each week, you share your Showcase page publicly, "
+                 "on social media, in groups, anywhere your audience is. And because your videos rotate "
+                 "on every visit, one post stays fresh all week, sending a steady stream of real viewers "
+                 "to your offer. Your Banner page spreads your adverts the same way. The more you share, "
+                 "the more real traffic you get. It works both ways too. As you watch others' ads and "
+                 "build your team, you can earn, paid directly member to member. There are no guarantees, "
+                 "and no income is promised. What you get depends on the work you put in. But the traffic "
+                 "is real, the tools are real, and the more you share, the more it works."),
+    "receiving": ("Let's start by adding your receiving method, where your money lands. There are several "
+                  "ways to get paid, from crypto to popular payment apps, so you can choose whatever suits "
+                  "you best. Payments here go directly from one member to another, so we set this up first, "
+                  "before anything else. Add your preferred method once, and you're ready to receive."),
+    "ad": ("Next, create your ad. This is the video you want people to watch, your offer, your product, "
+           "your message. Add it here and it becomes your advert on the platform, ready to be seen by "
+           "real members. This is what you're promoting, so choose a video that represents you well. "
+           "Once it's in, you're on the map."),
+    "package": ("Now, purchase your package. This is what turns your ad into a real, live campaign. It "
+                "gives your video a set number of views to deliver, and it qualifies you to start earning. "
+                "Choose the package that fits your goals; you can always add more later. This is the step "
+                "that switches everything on."),
+    "watch": ("Every day, do your Watch to Earn. Watch your videos to stay qualified. This keeps you "
+              "eligible to earn and to withdraw. It matters for another reason too: it's what makes the "
+              "advertising genuine, because members really are watching each other's ads. It only takes a "
+              "few minutes a day. Make it a habit, and you stay in the game."),
+    "share": ("Now you're set up, and this is the part you do every week, because it's what actually drives "
+              "your results. Share your Showcase page publicly: social media, groups, messages, anywhere "
+              "your audience is. Because your videos refresh on every visit, one post keeps working all week, "
+              "sending real viewers to your offer. Then share your Banner page the same way, to spread your "
+              "adverts even wider. This is the engine. The more you share, the more everything else works."),
+}
+_AL_VOICE_STEPS = ["overview", "receiving", "ad", "package", "watch", "share"]
+
+
+@app.get("/admin/api/al/voice-generate")
+def admin_api_al_voice_generate(secret: str = "", lang: str = "en", voice: str = "ara", step: str = ""):
+    """Generate the onboarding voice clips via Grok (ara) and cache them in R2 at
+    deterministic keys (voice/{lang}/{step}.mp3). Idempotent — regenerates on call.
+    ?step=overview to do just one. Secret-gated."""
+    _check_migration_secret(secret)
+    from . import r2_storage
+    import requests as _rq
+    key_x = os.getenv("XAI_API_KEY", "")
+    if not key_x:
+        return JSONResponse({"error": "XAI_API_KEY not set"}, status_code=502)
+    steps = [step] if step else _AL_VOICE_STEPS
+    client = r2_storage._get_client()
+    out = {}
+    for s in steps:
+        txt = _AL_VOICE_SCRIPTS.get(s)
+        if not txt:
+            out[s] = {"error": "unknown step"}
+            continue
+        try:
+            r = _rq.post("https://api.x.ai/v1/tts",
+                         headers={"Authorization": "Bearer %s" % key_x, "Content-Type": "application/json"},
+                         json={"text": txt, "voice_id": voice, "language": lang}, timeout=120)
+            if r.status_code != 200:
+                out[s] = {"error": "grok %s" % r.status_code, "detail": r.text[:200]}
+                continue
+            audio = r.content
+            if "application/json" in (r.headers.get("content-type") or ""):
+                import base64 as _b64, json as _j
+                d = _j.loads(r.text)
+                b64 = d.get("audio") or d.get("audio_base64") or d.get("data") or ""
+                if b64:
+                    audio = _b64.b64decode(b64)
+            k = "voice/%s/%s.mp3" % (lang, s)
+            client.put_object(Bucket=r2_storage.R2_BUCKET, Key=k, Body=audio, ContentType="audio/mpeg")
+            out[s] = {"ok": True, "url": "%s/%s" % (r2_storage.R2_PUBLIC_URL, k), "bytes": len(audio)}
+        except Exception as e:
+            out[s] = {"error": str(e)[:200]}
+    return {"ok": True, "lang": lang, "voice": voice, "results": out}
+
+
+@app.get("/api/al/voice-manifest")
+def api_al_voice_manifest(lang: str = "en"):
+    """Public: the cached voice-clip URLs for the onboarding guide, per step."""
+    from . import r2_storage
+    base = r2_storage.R2_PUBLIC_URL
+    return {"lang": lang, "voices": {s: "%s/voice/%s/%s.mp3" % (base, lang, s) for s in _AL_VOICE_STEPS}}
+
+
 @app.get("/admin/api/al/grok-voice-sample")
 def admin_api_al_grok_voice_sample(voice: str = "ara", secret: str = "", text: str = ""):
     """Synthesize a short Grok (xAI) TTS sample using the existing XAI_API_KEY.
