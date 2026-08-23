@@ -38131,7 +38131,7 @@ def public_member_banners(username: str, db: Session = Depends(get_db)):
         '<div style="max-width:748px;margin:4px auto 20px"><div class="al-ad" data-size="728x90"></div></div>'
         + featured + more_html +
         '<div class="foot"><a href="/discover">Explore all banners →</a> · <a href="/banners/create">Create your own →</a></div>'
-        '<script src="/static/al-ads.js?v=1" data-owner="' + _h.escape(u.username or '') + '"></script>'
+        '<script src="/static/al-ads.js?v=2" data-owner="' + _h.escape(u.username or '') + '"></script>'
     )
     jsonld = '{"@context":"https://schema.org","@type":"ProfilePage","name":"%s","url":"%s"}' % (_h.escape(disp).replace('"', "'"), canonical)
     return HTMLResponse(_discover_shell(title, desc, canonical, "", jsonld, brand, inner))
@@ -73775,7 +73775,7 @@ def play_game_shared(game: str, ref: str, request: Request, user: User = Depends
     html = html.replace("</head>", cfg + og + _GAME_WRAPPER + "</head>", 1)
     _ad = ('<div style="max-width:748px;margin:16px auto;padding:0 12px;position:relative;z-index:5">'
            '<div class="al-ad" data-size="728x90"></div></div>'
-           '<script src="/static/al-ads.js?v=1" data-owner="%s"></script>' % safe_ref)
+           '<script src="/static/al-ads.js?v=2" data-owner="%s"></script>' % safe_ref)
     html = html.replace("</body>", _ad + "</body>", 1)
     # attribute a real (non-bot) visit to the sharing member
     if not _traffic_is_bot(request):

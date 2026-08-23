@@ -90,6 +90,18 @@ function VideoCard({ v, i, token, viewSeconds }) {
   );
 }
 
+function ReportBtn({ id }) {
+  const [done, setDone] = useState(false);
+  if (done) return <div style={{ position: 'absolute', top: 4, right: 4, fontSize: 9, fontWeight: 800, color: '#fff', background: 'rgba(10,31,82,.75)', borderRadius: 5, padding: '2px 6px', zIndex: 3 }}>Reported ✓</div>;
+  return (
+    <button title="Report this banner" onClick={function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (!window.confirm('Report this banner as inappropriate?')) return;
+      fetch('/api/al/banner/' + id + '/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'user report' }) }).then(function () { setDone(true); }).catch(function () { setDone(true); });
+    }} style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: 5, border: 'none', background: 'rgba(10,31,82,.5)', color: '#fff', fontSize: 10, lineHeight: '18px', cursor: 'pointer', padding: 0, opacity: 0.65, zIndex: 3 }}>⚠</button>
+  );
+}
+
 function NetBanner({ slot, w, h, sticky, advertiseUrl }) {
   const ref = useRef(null);
   const [seen, setSeen] = useState(false);
@@ -118,10 +130,11 @@ function NetBanner({ slot, w, h, sticky, advertiseUrl }) {
     );
   }
   return (
-    <div ref={ref} style={box}>
+    <div ref={ref} style={{ ...box, position: 'relative' }}>
       {slot.mode === 'html'
         ? <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: slot.html_code || '' }} />
         : <a href={slot.click_url} target="_blank" rel="noreferrer" style={{ display: 'block', width: '100%', height: '100%' }}><img src={slot.image_url} alt={slot.title || 'Advertisement'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></a>}
+      <ReportBtn id={slot.id} />
     </div>
   );
 }

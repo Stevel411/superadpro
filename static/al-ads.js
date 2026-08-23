@@ -60,6 +60,17 @@
       node.appendChild(img);
     }
     el.appendChild(node);
+    el.style.position = 'relative';
+    var rep = document.createElement('button');
+    rep.title = 'Report this banner';
+    rep.textContent = '\u26a0';
+    rep.style.cssText = 'position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:5px;border:none;background:rgba(10,31,82,.5);color:#fff;font-size:10px;line-height:18px;cursor:pointer;padding:0;opacity:.65;z-index:3';
+    rep.onclick = function (ev) {
+      ev.preventDefault(); ev.stopPropagation();
+      if (!window.confirm('Report this banner as inappropriate?')) return;
+      fetch('/api/al/banner/' + banner.id + '/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'user report' }) }).then(function () { rep.textContent = '\u2713'; }).catch(function () { rep.textContent = '\u2713'; });
+    };
+    el.appendChild(rep);
     track(el, banner.id);
   }
 
