@@ -78553,6 +78553,23 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
       <div class="gatewarn" id="gwarn" style="display:none"></div>
       <div id="shareBanner"></div>
       <div id="topSharers"></div>
+      <style>
+      .feat5{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 30px 64px -40px rgba(10,31,82,.45),0 0 0 1px #e6ecf5;display:flex;margin-bottom:22px}
+      .feat5 .f5-left{width:150px;flex:none;background:linear-gradient(165deg,#0a1f52,#12388f);color:#fff;padding:22px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+      .feat5 .f5-badge{background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.5);color:#9af5c0;border-radius:20px;padding:4px 9px;font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+      .feat5 .f5-amt{font-size:72px;font-weight:900;letter-spacing:-.05em;line-height:.82;color:#fff}
+      .feat5 .f5-amt em{font-style:normal;font-size:28px;vertical-align:top;color:#2ecc71;position:relative;top:8px}
+      .feat5 .f5-pl{font-size:10.5px;font-weight:800;color:#9fb8ff;margin-top:6px;line-height:1.3}
+      .feat5 .f5-right{flex:1;padding:20px 22px}
+      .feat5 .f5-right h3{margin:0 0 4px;font-size:18px;font-weight:900;color:#0a1f52;line-height:1.15}
+      .feat5 .f5-right p{margin:0 0 13px;font-size:12.5px;color:#5a6584;font-weight:600;line-height:1.45}
+      .feat5 .f5-feat{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:#28324e;margin-bottom:8px}
+      .feat5 .f5-feat b{color:#0d1230;font-weight:900}
+      .feat5 .f5-feat .i{width:21px;height:21px;border-radius:6px;background:#17a34a;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex:none}
+      .feat5 .f5-cta{margin-top:8px;width:100%;background:linear-gradient(120deg,#17a34a,#2ecc71);color:#fff;border:none;border-radius:13px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 16px 32px -14px rgba(23,163,74,.6)}
+      @media(max-width:560px){.feat5{flex-direction:column}.feat5 .f5-left{width:100%;padding:18px}.feat5 .f5-amt{font-size:64px}}
+      </style>
+      <div id="featPack"></div>
       <div class="packs" id="packGrid"></div>
       <div class="err" id="errPick"></div>
       <div class="cta">
@@ -78854,9 +78871,11 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     var _bg=document.getElementById('btnGo');
     if(_bg){_bg.disabled=true;_bg.textContent='Select a pack above';}
     var g=document.getElementById('packGrid');g.innerHTML='';
+    var fpc=document.getElementById('featPack'); if(fpc) fpc.innerHTML='';
     packs.forEach(function(pk){
       var d=document.createElement('div');
       var st=pk.state||'buyable';
+      if(pk.level===5 && (st==='buyable'||st==='owned_admin')){ renderFeatured(pk); return; }
       var _p='$'+Number(pk.price).toLocaleString();
       var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
       var running=(st==='running'||st==='in_grace'||st==='paused'||st==='needs_ad');
@@ -78919,6 +78938,28 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     if(!j.has_payout_method){var w=document.getElementById('gwarn');w.style.display='block';
       w.innerHTML='You have no receiving method on file — you can buy, but sales will pass over you until you <a href="/payout-methods">add one</a>.'}
     show('sPick');
+  }
+  function renderFeatured(pk){
+    var fp=document.getElementById('featPack'); if(!fp) return;
+    var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target);
+    fp.innerHTML=
+      '<div class="feat5">'
+      +'<div class="f5-left">'
+        +'<span class="f5-badge">Start here</span>'
+        +'<div class="f5-amt"><em>$</em>5</div>'
+        +'<div class="f5-pl">Test Pack<br>activates instantly</div>'
+      +'</div>'
+      +'<div class="f5-right">'
+        +'<h3>See the whole platform work</h3>'
+        +'<p>Put a real ad live and watch real members view it \u2014 the full experience, for the price of a coffee.</p>'
+        +'<div class="f5-feat"><span class="i">\u25B6</span> Your own <b>video ad, live</b></div>'
+        +'<div class="f5-feat"><span class="i">\u2713</span> <b>'+_v+' real views</b> from real people</div>'
+        +'<div class="f5-feat"><span class="i">\u25C6</span> <b>Promoted everywhere</b></div>'
+        +'<div class="f5-feat"><span class="i">\u2191</span> <b>Same earning engine</b> as every pack</div>'
+        +'<button class="f5-cta" type="button">Start for $5 \u2192</button>'
+      +'</div>'
+      +'</div>';
+    var b=fp.querySelector('.f5-cta'); if(b){ b.onclick=function(){ sel=pk; startPurchase(pk); scrollTop(); }; }
   }
   function startPurchase(pk){
     if(!pk){ if(!sel)return; pk=sel; }
