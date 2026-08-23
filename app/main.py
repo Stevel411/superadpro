@@ -32523,6 +32523,72 @@ AL_LAUNCH_EMAILS = {
     },
     # ── Weekly newsletter (audience: claimed) ────────────────────────────
     # Fired manually per issue by the admin — no cron; Steve approves each.
+    "promo1": {
+        "broadcast_key": "al_promo_2026_1",
+        "audience": "unclaimed",
+        "subject": "Your AdvantageLife account is ready — and it's free",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Remember SuperAdPro? It's now <b>AdvantageLife</b> — rebuilt from the "
+            "ground up, and it's <b>free to join</b>. No fee, no subscription, no catch.\n\n"
+            "Here's what's new and why it matters: you can run a <b>traffic campaign</b> "
+            "and <b>real people watch your ad</b> — genuine human views delivered to "
+            "whatever you're promoting.\n\n"
+            "Your account's already set up. Just claim it and set a password:\n\n"
+            "[[CTA|Claim your account|https://www.advantagelife.club/claim]]\n\n"
+            "P.S. AdvantageLife is a real advertising platform. No income is promised and "
+            "there are no guarantees — what you get depends on the effort you put in."
+        ),
+    },
+    "promo2": {
+        "broadcast_key": "al_promo_2026_2",
+        "audience": "unclaimed",
+        "subject": "Real people, watching your ad",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Quick one on how AdvantageLife actually works — because it's different "
+            "from most “traffic” out there.\n\n"
+            "You upload your ad or offer, choose a <b>campaign pack</b>, and it's delivered "
+            "as <b>real human views</b>. Our members watch ads to earn, so the eyes on your "
+            "campaign are real people — not bots, not fake clicks.\n\n"
+            "Packs run from <b>$5 to $1,000</b>, so you can start as small or as big as you "
+            "like — you pick the reach.\n\n"
+            "[[CTA|Claim your account|https://www.advantagelife.club/claim]]\n\n"
+            "P.S. No income is promised and there are no guarantees — what you get "
+            "depends on the effort you put in."
+        ),
+    },
+    "promo3": {
+        "broadcast_key": "al_promo_2026_3",
+        "audience": "unclaimed",
+        "subject": "See the whole platform work for $5",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Curious but not sure? The easiest way to see AdvantageLife for yourself is the "
+            "<b>$5 Test Pack</b>.\n\n"
+            "For $5 you put a real ad live, get <b>500 real human views</b>, and watch the "
+            "whole system work end to end — the campaign, the delivery, all of it. Low "
+            "commitment, full experience.\n\n"
+            "It's the simplest first step before you scale up.\n\n"
+            "[[CTA|Claim your account and start|https://www.advantagelife.club/claim]]\n\n"
+            "P.S. A real advertising product — 500 views delivered. No income is "
+            "promised; what you get depends on your effort."
+        ),
+    },
+    "promo4": {
+        "broadcast_key": "al_promo_2026_4",
+        "audience": "unclaimed",
+        "subject": "Your account's still here",
+        "body_md": (
+            "Hi {name},\n\n"
+            "Last note from me — I won't keep emailing.\n\n"
+            "Your AdvantageLife account is set up and waiting. It's <b>free to claim</b>, "
+            "there's no cost to get in, and you can look around with no obligation.\n\n"
+            "Whenever you're ready:\n\n"
+            "[[CTA|Claim your account|https://www.advantagelife.club/claim]]\n\n"
+            "All the best,\nThe AdvantageLife team"
+        ),
+    },
     "news1": {
         "broadcast_key": "al_news_2026_08_04",
         "audience": "claimed",
@@ -32597,6 +32663,13 @@ def _al_launch_recipients(db: Session, campaign: dict):
 def _al_launch_render(campaign: dict, name: str, unsub_url: str) -> dict:
     """Render one recipient's email (simple, brand-consistent HTML)."""
     body_html = campaign["body_md"].format(name=name).replace("\n\n", "</p><p>").replace("\n", "<br>")
+    if "[[CTA|" in body_html:
+        _pre, _rest = body_html.split("[[CTA|", 1)
+        _cta, _post = _rest.split("]]", 1)
+        _label, _url = (_cta.split("|", 1) + [""])[:2]
+        body_html = _pre + ('<a href="' + _url.strip() + '" style="display:inline-block;'
+            'background:#c8102e;color:#fff;text-decoration:none;border-radius:11px;'
+            'padding:14px 26px;font-weight:800;font-size:15px">' + _label.strip() + ' &rarr;</a>') + _post
     html = (
         "<div style='font-family:-apple-system,Segoe UI,Arial,sans-serif;max-width:560px;"
         "margin:0 auto;color:#1e293b;font-size:15px;line-height:1.6'>"
@@ -32735,6 +32808,22 @@ def admin_al_broadcast_counts(request: Request, db: Session = Depends(get_db)):
             "campaigns": out}
 
 
+@app.get("/admin/api/al/email-preview")
+def admin_al_email_preview(request: Request, db: Session = Depends(get_db)):
+    """Read-only: render a campaign's email HTML exactly as it sends. Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    which = (request.query_params.get("which", "promo1") or "promo1").lower()
+    c = AL_LAUNCH_EMAILS.get(which)
+    if not c:
+        return JSONResponse({"error": "unknown which; try " + ", ".join(AL_LAUNCH_EMAILS)}, status_code=400)
+    r = _al_launch_render(c, "Alex", "https://www.advantagelife.club/unsubscribe?token=PREVIEW")
+    return HTMLResponse("<p style='font:13px system-ui;color:#555;padding:8px 12px;background:#f3f4f6'>"
+                        "Subject: <b>" + r["subject"] + "</b></p>" + r["html"])
+
+
 def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
     campaign = AL_LAUNCH_EMAILS.get((which or "").lower())
     if not campaign:
@@ -32778,10 +32867,10 @@ def _al_launch_broadcast_impl(request, which, mode, confirm, limit, db, user):
 # previous step >= gap_days ago (per their own broadcast_log.sent_at), and
 # (c) have not yet received this step. re1 is the admin-fired opener.
 AL_REENG_STEPS = [
-    # (this_dict_key, prev_dict_key, gap_days_since_prev)
-    ("re2", "re1", 3),
-    ("re3", "re2", 4),
-    ("re4", "re3", 5),
+    # (this_dict_key, prev_dict_key, gap_days_since_prev) — new promo drip
+    ("promo2", "promo1", 3),
+    ("promo3", "promo2", 4),
+    ("promo4", "promo3", 5),
 ]
 
 
@@ -32826,14 +32915,14 @@ def _al_run_reengagement(db, dry):
     send can run off-request in a background task."""
     _ensure_broadcast_log_table(db)
     steps = []
-    re1_c = AL_LAUNCH_EMAILS["re1"]
+    re1_c = AL_LAUNCH_EMAILS["promo1"]
     re1_targets = _al_launch_recipients(db, re1_c)
     if dry:
-        steps.append({"step": "re1", "eligible": len(re1_targets),
+        steps.append({"step": "promo1", "eligible": len(re1_targets),
                       "sample": [{"id": u.id, "email": u.email} for u in re1_targets[:20]]})
     else:
         st1 = _al_send_to_targets(db, re1_c, re1_targets, "cron:al-reengagement")
-        steps.append({"step": "re1", "sent": st1["sent"], "failed": st1["failed"],
+        steps.append({"step": "promo1", "sent": st1["sent"], "failed": st1["failed"],
                       "skipped_already_sent": st1["skipped_already_sent"]})
     for this_key, prev_key, gap in AL_REENG_STEPS:
         this_c = AL_LAUNCH_EMAILS[this_key]
