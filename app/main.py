@@ -79844,19 +79844,12 @@ def al_support_admin_page(user: User = Depends(get_current_user)):
 
 
 @app.get("/start-here")
-def start_here_page(user: User = Depends(get_current_user)):
-    """Get Started — the voice-guided onboarding page (ara narration per step,
-    cached in R2). Replaces the old tabbed guide. Gated to members."""
-    _gate = _al_gate_page(user, shared_route=True)
-    if _gate:
-        return _gate
-    try:
-        import os as _os
-        _p = _os.path.join(_os.path.dirname(__file__), "al_get_started.html")
-        with open(_p, "r", encoding="utf-8") as _f:
-            return HTMLResponse(_f.read())
-    except Exception:
-        return HTMLResponse("<h1>Guide temporarily unavailable</h1>", status_code=500)
+def start_here_page(request: Request):
+    """Get Started — the voice-guided onboarding page (React, inside the app shell,
+    ara narration per step cached in R2). Served as the SPA shell like /dashboard."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.get("/start-here/guide")
