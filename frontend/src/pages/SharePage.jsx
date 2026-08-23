@@ -90,6 +90,39 @@ function VideoCard({ v, i, token, viewSeconds }) {
   );
 }
 
+function NetBanner({ slot, w, h, sticky, advertiseUrl }) {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!slot || !slot.id || seen || !ref.current) return;
+    let timer = null;
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[0];
+      if (e && e.isIntersecting && e.intersectionRatio >= 0.5) {
+        timer = setTimeout(() => {
+          fetch('/api/al/banner/' + slot.id + '/impression', { method: 'POST' }).catch(() => {});
+          setSeen(true);
+        }, 1000);
+      } else if (timer) { clearTimeout(timer); timer = null; }
+    }, { threshold: [0, 0.5, 1] });
+    io.observe(ref.current);
+    return () => { io.disconnect(); if (timer) clearTimeout(timer); };
+  }, [slot, seen]);
+  const box = { width: '100%', maxWidth: w, height: h, borderRadius: 12, overflow: 'hidden', margin: '0 auto', boxSizing: 'border-box', position: sticky ? 'sticky' : 'static', top: sticky ? 78 : 'auto' };
+  if (!slot) {
+    return (
+      <a href={advertiseUrl || '/my-banners'} ref={ref} style={{ ...box, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', background: 'repeating-linear-gradient(45deg,#eef2fb,#eef2fb 12px,#e6ecf5 12px,#e6ecf5 24px)', border: '2px dashed #b9c6e4', color: '#5a6584', fontWeight: 800, fontSize: 13, textAlign: 'center', padding: 12 }}>Display your banner here →</a>
+    );
+  }
+  return (
+    <div ref={ref} style={box}>
+      {slot.mode === 'html'
+        ? <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={{ __html: slot.html_code || '' }} />
+        : <a href={slot.click_url} target="_blank" rel="noreferrer" style={{ display: 'block', width: '100%', height: '100%' }}><img src={slot.image_url} alt={slot.title || 'Advertisement'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></a>}
+    </div>
+  );
+}
+
 export default function SharePage() {
   const { token } = useParams();
   const [data, setData] = useState(null);
@@ -101,11 +134,20 @@ export default function SharePage() {
       .then(d => (d.error ? setErr(true) : setData(d))).catch(() => setErr(true));
   }, [token]);
 
+  const [ads, setAds] = useState(null);
+  useEffect(() => {
+    const owner = data && data.sharer && data.sharer.username;
+    const q = (owner && owner !== 'a member') ? '&owner=' + encodeURIComponent(owner) : '';
+    fetch('/api/al/network-ads?req=728x90:1,300x250:4,300x600:2' + q)
+      .then(r => r.json()).then(setAds).catch(() => {});
+  }, [data]);
+
   if (err) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', color: MUTED, fontWeight: 600 }}>This share page isn’t available.</div>;
   if (!data) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', color: MUTED, fontWeight: 600 }}>Loading videos…</div>;
 
   const videos = data.videos || [];
   const sharerName = data.sharer?.username;
+  const slot = (size, i) => (ads && ads.slots && ads.slots[size] && ads.slots[size][i]) || null;
   const joinUrl = sharerName && sharerName !== 'a member' ? `/join/${encodeURIComponent(sharerName)}` : '/';
 
   return (
@@ -119,8 +161,12 @@ export default function SharePage() {
         <a href={joinUrl} style={{ marginLeft: 'auto', fontSize: 13, color: MUTED, fontWeight: 600, textDecoration: 'none' }}>Shared by <b style={{ color: RED }}>@{data.sharer?.username}</b></a>
       </div>
 
-      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '26px clamp(14px,4vw,40px) 60px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+      <style>{`.al-stage{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;gap:20px;align-items:start}.al-rail{display:flex;flex-direction:column;gap:16px}@media(max-width:1120px){.al-stage{grid-template-columns:1fr}.al-rail{display:none}}`}</style>
+      <div style={{ maxWidth: 1640, margin: '0 auto', padding: '22px clamp(14px,4vw,32px) 60px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <NetBanner slot={slot('728x90', 0)} w={728} h={90} advertiseUrl={joinUrl} />
+        </div>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <h1 style={{ fontSize: 'clamp(24px,3.4vw,33px)', fontWeight: 900, letterSpacing: -1 }}>This week’s <span style={{ color: RED }}>video showcase</span></h1>
           <p style={{ color: MUTED, fontWeight: 600, fontSize: 15, marginTop: 7 }}>Videos from independent creators and businesses. Watch whatever interests you.</p>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 12, background: '#fff', border: '1.5px solid ' + LINE, borderRadius: 30, padding: '7px 15px', fontSize: 12.5, fontWeight: 800, color: '#12388f' }}>
@@ -128,13 +174,27 @@ export default function SharePage() {
           </div>
         </div>
 
-        {videos.length === 0 ? (
-          <div style={{ background: '#fff', border: '1px solid ' + LINE, borderRadius: 16, padding: 44, textAlign: 'center', color: MUTED, fontWeight: 600 }}>No videos are showing right now — check back shortly.</div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(250px,1fr))', gap: 16 }}>
-            {videos.map((v, i) => <VideoCard key={v.id} v={v} i={i} token={token} viewSeconds={data.view_seconds || 30} />)}
+        <div className="al-stage">
+          <div className="al-rail">
+            <NetBanner slot={slot('300x250', 0)} w={300} h={250} advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 0)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x250', 2)} w={300} h={250} advertiseUrl={joinUrl} />
           </div>
-        )}
+          <div>
+            {videos.length === 0 ? (
+              <div style={{ background: '#fff', border: '1px solid ' + LINE, borderRadius: 16, padding: 44, textAlign: 'center', color: MUTED, fontWeight: 600 }}>No videos are showing right now — check back shortly.</div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(230px,1fr))', gap: 16 }}>
+                {videos.map((v, i) => <VideoCard key={v.id} v={v} i={i} token={token} viewSeconds={data.view_seconds || 30} />)}
+              </div>
+            )}
+          </div>
+          <div className="al-rail">
+            <NetBanner slot={slot('300x250', 1)} w={300} h={250} advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x600', 1)} w={300} h={600} sticky advertiseUrl={joinUrl} />
+            <NetBanner slot={slot('300x250', 3)} w={300} h={250} advertiseUrl={joinUrl} />
+          </div>
+        </div>
 
         <div style={{ marginTop: 30, background: 'linear-gradient(120deg,#0e2a6e,#0a1f52)', borderRadius: 20, padding: 'clamp(22px,3vw,32px)', textAlign: 'center', color: '#fff', boxShadow: '0 26px 55px -30px rgba(10,31,82,.7)' }}>
           <h2 style={{ fontSize: 'clamp(19px,2.4vw,25px)', fontWeight: 900, letterSpacing: -.5 }}>Want your video seen by thousands?</h2>
