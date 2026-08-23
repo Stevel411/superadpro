@@ -393,6 +393,7 @@ export default function NewDashboard() {
   }
   const [copied, setCopied] = useState(false);
   const [shareData, setShareData] = useState(null);
+  const [shareMode, setShareMode] = useState('showcase');   // 'showcase' | 'ref' — which link the modal shares
   const [bannerStats, setBannerStats] = useState(null);
   const [shareCopied, setShareCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -592,15 +593,20 @@ export default function NewDashboard() {
   const shareUrl = shareData
     ? (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url
     : '';
+  // The modal serves two links: the referral SALES link (grow your team) and the
+  // weekly video SHOWCASE link (drive traffic). shareMode picks which.
+  const activeShareUrl = shareMode === 'ref' ? refLink : shareUrl;
+  const activeShareTitle = shareMode === 'ref' ? 'Join me on AdvantageLife' : 'AdvantageLife — Video Showcase';
+  const activeShareText = shareMode === 'ref' ? 'Join me on AdvantageLife:' : "This week's video showcase — worth a look:";
 
   // Social share. IMPORTANT: none of these can prove a post happened — no
   // platform reports back. They exist to remove friction so more members
   // actually share; the PROOF is verified views on /w/{token}. We still call
   // mark-shared for analytics, never for qualification.
   function shareTo(where) {
-    if (!shareData) return;
-    var u = encodeURIComponent(shareUrl);
-    var txt = encodeURIComponent("This week's video showcase — worth a look:");
+    if (shareMode !== 'ref' && !shareData) return;
+    var u = encodeURIComponent(activeShareUrl);
+    var txt = encodeURIComponent(activeShareText);
     var urls = {
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + u,
       x:        'https://twitter.com/intent/tweet?url=' + u + '&text=' + txt,
@@ -608,7 +614,7 @@ export default function NewDashboard() {
       telegram: 'https://t.me/share/url?url=' + u + '&text=' + txt,
     };
     if (urls[where]) window.open(urls[where], '_blank', 'noopener,width=640,height=560');
-    markShared();
+    if (shareMode === 'showcase') markShared();
   }
 
   // Always open OUR modal — the OS share sheet is fine on a phone but on
@@ -617,14 +623,20 @@ export default function NewDashboard() {
   // via "More apps…", where it's genuinely useful (WhatsApp, Instagram, etc).
   function openShare() {
     if (!shareData) return;
+    setShareMode('showcase');
+    setShareOpen(true);
+  }
+
+  function openRefShare() {
+    setShareMode('ref');
     setShareOpen(true);
   }
 
   function moreApps() {
     var isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
     if (isMobile && navigator.share) {
-      navigator.share({ title: 'AdvantageLife — Video Showcase', url: shareUrl })
-        .then(markShared).catch(function () {});
+      navigator.share({ title: activeShareTitle, url: activeShareUrl })
+        .then(function () { if (shareMode === 'showcase') markShared(); }).catch(function () {});
     } else {
       copyShare();
     }
@@ -640,14 +652,15 @@ export default function NewDashboard() {
   }
 
   function copyShare() {
-    if (!shareData) return;
-    var full = (typeof window !== 'undefined' ? window.location.origin : '') + shareData.url;
-    try { navigator.clipboard.writeText(full); } catch (e) {}
+    if (shareMode !== 'ref' && !shareData) return;
+    try { navigator.clipboard.writeText(activeShareUrl); } catch (e) {}
     setShareCopied(true);
     setTimeout(function () { setShareCopied(false); }, 1800);
-    apiPost('/api/share/mark-shared', {})
-      .then(function () { apiGet('/api/share/my-link').then(setShareData).catch(function () {}); })
-      .catch(function () {});
+    if (shareMode === 'showcase') {
+      apiPost('/api/share/mark-shared', {})
+        .then(function () { apiGet('/api/share/my-link').then(setShareData).catch(function () {}); })
+        .catch(function () {});
+    }
   }
 
   function copyLink() {
@@ -685,7 +698,7 @@ export default function NewDashboard() {
             <span>Advantage<span className="life">Life</span></span>
           </span>
           <span className="sp"></span>
-          <button className="sharebtn" onClick={openShare} aria-label="Share your link"
+          <button className="sharebtn" onClick={openRefShare} aria-label="Share your link"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 42, padding: '0 15px', marginRight: 10, background: 'linear-gradient(120deg,#c8102e,#ff2743)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 14, cursor: 'pointer', boxShadow: '0 8px 18px -8px rgba(200,16,46,.55)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             <span className="sharebtn-full">Share your link</span>
@@ -789,7 +802,7 @@ export default function NewDashboard() {
                   <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
                 )}
                 <div className="note"><i>ⓘ</i> {t('dashboard.liveFiguresNote')}</div>
-                <button className="heroshare" onClick={openShare}>
+                <button className="heroshare" onClick={openRefShare}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M12 3v13M8 7l4-4 4 4" stroke="#0a1f52" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Share your link to grow your team →
                 </button>
@@ -922,12 +935,12 @@ export default function NewDashboard() {
         <div className="shmodal" onClick={function () { setShareOpen(false); }}>
           <div className="shcard" onClick={function (e) { e.stopPropagation(); }}>
             <button className="shx" onClick={function () { setShareOpen(false); }} aria-label="Close">×</button>
-            <div className="shk">Weekly · Video Showcase</div>
-            <h3 className="shh">Share your page</h3>
-            <p className="shp">One post a week keeps it working — the page refreshes its videos on every visit, so the same link stays current all week.</p>
+            <div className="shk">{shareMode === 'ref' ? 'Invite · Grow your team' : 'Weekly · Video Showcase'}</div>
+            <h3 className="shh">{shareMode === 'ref' ? 'Share your link' : 'Share your page'}</h3>
+            <p className="shp">{shareMode === 'ref' ? 'Everyone who joins through your link becomes part of your team — it opens your AdvantageLife sales page.' : 'One post a week keeps it working — the page refreshes its videos on every visit, so the same link stays current all week.'}</p>
 
             <div className="shlink">
-              <span className="shurl">{shareUrl}</span>
+              <span className="shurl">{activeShareUrl}</span>
               <button className="shcopy" onClick={copyShare}>{shareCopied ? 'Copied ✓' : 'Copy'}</button>
             </div>
 
@@ -950,7 +963,7 @@ export default function NewDashboard() {
               <button className="shmore" onClick={function () { moreApps(); setShareOpen(false); }}>More apps…</button>
             )}
 
-            <a className="shview" href={shareData ? shareData.url : '#'} target="_blank" rel="noreferrer">Preview my page →</a>
+            <a className="shview" href={shareMode === 'ref' ? refLink : (shareData ? shareData.url : '#')} target="_blank" rel="noreferrer">{shareMode === 'ref' ? 'Preview sales page →' : 'Preview my page →'}</a>
           </div>
         </div>
       )}
