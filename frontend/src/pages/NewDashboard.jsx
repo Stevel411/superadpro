@@ -525,7 +525,9 @@ export default function NewDashboard() {
     );
   }
 
-  // Banner share card — mirrors ShareCard, links to the member's public banner page.
+  // Banner share card — RETIRED as a share surface (banner reach now comes from the
+  // rotating network across shared pages). The /discover/u/ page stays live for SEO.
+  // eslint-disable-next-line no-unused-vars
   function BannerShareCard() {
     const uname = user?.username || '';
     if (!uname) return null;
@@ -786,7 +788,6 @@ export default function NewDashboard() {
             <div className="sidecards">
               <div className="sdv" />
               <ShareCard />
-              <BannerShareCard />
               <GameLinksCard />
             </div>
           </aside>
@@ -813,7 +814,7 @@ export default function NewDashboard() {
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
-            <div className="shmob"><ShareCard /><BannerShareCard /><GameLinksCard /></div>
+            <div className="shmob"><ShareCard /><GameLinksCard /></div>
 
             {wis && (
               <div className="wis">
