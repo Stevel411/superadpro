@@ -111,7 +111,10 @@ function NetBanner({ slot, w, h, sticky, advertiseUrl }) {
   const box = { width: '100%', maxWidth: w, height: h, borderRadius: 12, overflow: 'hidden', margin: '0 auto', boxSizing: 'border-box', position: sticky ? 'sticky' : 'static', top: sticky ? 78 : 'auto' };
   if (!slot) {
     return (
-      <a href={advertiseUrl || '/my-banners'} ref={ref} style={{ ...box, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', background: 'repeating-linear-gradient(45deg,#eef2fb,#eef2fb 12px,#e6ecf5 12px,#e6ecf5 24px)', border: '2px dashed #b9c6e4', color: '#5a6584', fontWeight: 800, fontSize: 13, textAlign: 'center', padding: 12 }}>Display your banner here →</a>
+      <a href={advertiseUrl || '/my-banners'} ref={ref} style={{ ...box, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, textDecoration: 'none', background: 'repeating-linear-gradient(45deg,#eef2fb,#eef2fb 12px,#e6ecf5 12px,#e6ecf5 24px)', border: '2px dashed #b9c6e4', color: '#5a6584', fontWeight: 800, fontSize: 13, textAlign: 'center', padding: 12 }}>
+        <span>Display your banner here →</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#8b97b4' }}>{w} × {h} banner</span>
+      </a>
     );
   }
   return (
