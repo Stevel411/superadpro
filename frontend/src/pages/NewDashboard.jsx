@@ -121,6 +121,12 @@ const CSS = `
 .al .shc .s{font-size:11.5px;color:#9aabd6;font-weight:600;margin-top:5px;line-height:1.5}
 .al .shc .b{width:100%;margin-top:11px;background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:900;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
 .al .shc.done .b{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);box-shadow:none}
+.al .tdc{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.32);border-radius:14px;padding:14px;margin:0 2px 12px}
+.al .tdc .k{display:flex;align-items:center;gap:7px;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#4ade80}
+.al .tdc .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25);flex-shrink:0}
+.al .tdc .h{font-size:14px;font-weight:900;color:#fff;margin-top:7px;line-height:1.35}
+.al .tdc .s{font-size:11.5px;color:#9aabd6;font-weight:600;margin-top:5px;line-height:1.5}
+.al .tdc .b{width:100%;margin-top:11px;background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:900;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
 .al .shc .v{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700;color:#9aabd6}
 .al .shc .v b{color:#4ade80;font-size:14px;font-variant-numeric:tabular-nums}
 .al .shc.bnr{border-color:rgba(255,39,67,.35);background:rgba(200,16,46,.12)}
@@ -508,6 +514,17 @@ export default function NewDashboard() {
   // One definition, rendered twice: in the sidebar (desktop) and in the main
   // column (mobile). The sidebar is hidden under 980px, so without the mobile
   // copy the weekly prompt would vanish on phones — where most members share.
+  function TrafficDropCard() {
+    return (
+      <div className="tdc">
+        <div className="k"><span className="dot" /> Free traffic tool</div>
+        <div className="h">⚡ Traffic Drop</div>
+        <div className="s">Surf to earn, drop your links, and get seen by real people — while you grow your team.</div>
+        <button className="b" onClick={function () { window.location.href = '/trafficdrop'; }}>Open Traffic Drop</button>
+      </div>
+    );
+  }
+
   function ShareCard() {
     if (!shareData) return null;
     const done = !!shareData.shared_this_week;
@@ -787,6 +804,7 @@ export default function NewDashboard() {
             <SideNav active="dashboard" />
             <div className="sidecards">
               <div className="sdv" />
+              <TrafficDropCard />
               <ShareCard />
               <GameLinksCard />
             </div>
@@ -814,7 +832,7 @@ export default function NewDashboard() {
 
             {/* Mobile only — the sidebar (which holds this on desktop) is
                 hidden under 980px, and phones are where most sharing happens. */}
-            <div className="shmob"><ShareCard /><GameLinksCard /></div>
+            <div className="shmob"><TrafficDropCard /><ShareCard /><GameLinksCard /></div>
 
             {wis && (
               <div className="wis">

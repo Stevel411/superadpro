@@ -20,13 +20,13 @@ export const NAV = [
   ] },
   { key: 'wallet', tk: 'nav.paymentDetails', label: 'Payment Details', to: '/payout-methods', link: false },
   { key: 'watch', tk: 'nav.dailyWatch', label: 'Daily Watch', to: '/watch', link: true },
-  { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true, standalone: true },
   { header: 'RUN YOUR BUSINESS', tk: 'nav.grpRunBusiness' },
   { key: 'sales', tk: 'nav.confirmSale', label: 'Confirm a Sale', to: '/my-sales', link: false },
   { key: 'team', tk: 'nav.myTeam', label: 'My Team', to: '/my-team', link: true },
   { key: 'leaderboard', tk: 'nav.leaderboard', label: 'Leaderboard', to: '/leaderboard', link: true },
   { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', to: '/my-marketing', link: true },
+  { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true },
   { key: 'banner-showcase', tk: 'nav.bannerShowcase', label: 'Banner Showcase', to: '/discover', link: false },
   { key: 'traffic', tk: 'nav.yourTraffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'kit', tk: 'nav.contentKit', label: 'Content Kit', to: '/content-kit', link: true },
@@ -41,7 +41,6 @@ const NAV_GROUPS = (function () {
   const groups = []; let cur = { header: null, items: [] };
   NAV.forEach(function (n) {
     if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, tk: n.tk, items: [] }; }
-    else if (n.standalone) { if (cur.items.length || cur.header) groups.push(cur); groups.push({ header: null, items: [n] }); cur = { header: null, items: [] }; }
     else cur.items.push(n);
   });
   if (cur.items.length || cur.header) groups.push(cur);
@@ -76,9 +75,6 @@ export default function SideNav({ active }) {
   }
   function renderItem(n) {
     const cls = n.key === active ? 'on' : undefined;
-    if (n.standalone) {
-      return <Link key={n.key} className={cls} to={n.to} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, fontWeight: 900, color: n.key === active ? '#fff' : '#2ecc71', margin: '8px 0' }}><span style={{ fontSize: 15 }}>⚡</span> {t(n.tk, { defaultValue: n.label })}</Link>;
-    }
     if (n.big) {
       return <a key={n.key} className={cls} href={n.to} style={{ fontSize: 15, fontWeight: 900, color: '#2ecc71', margin: '10px 0' }}><span style={{ fontSize: 15 }}>⭐</span> {t(n.tk, { defaultValue: n.label })}</a>;
     }
