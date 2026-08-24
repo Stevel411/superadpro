@@ -73229,6 +73229,47 @@ def admin_td_drip_preview(request: Request, db: Session = Depends(get_db)):
                         + subject + "</p><div style='background:#fff;border-radius:12px'>" + html + "</div></div>")
 
 
+# ============================================================================
+# FOLIO — the page builder. Members build/publish pages from the section
+# library. Lazy, idempotent table bootstrap (safe under SKIP_MIGRATIONS,
+# touches nothing existing). Access: all members (gate later if needed).
+# ============================================================================
+_FOLIO_TABLES_READY = False
+
+
+def _folio_ensure_tables(db):
+    global _FOLIO_TABLES_READY
+    if _FOLIO_TABLES_READY:
+        return
+    try:
+        db.execute(text(
+            "CREATE TABLE IF NOT EXISTS folio_page ("
+            "id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, slug VARCHAR(80) NOT NULL, "
+            "title VARCHAR(160) DEFAULT 'Untitled page', template_id VARCHAR(40), "
+            "accent VARCHAR(16) DEFAULT '#5b3df5', sections JSONB NOT NULL DEFAULT '[]', "
+            "status VARCHAR(16) DEFAULT 'draft', published_html TEXT, "
+            "created_at TIMESTAMP DEFAULT now(), updated_at TIMESTAMP DEFAULT now(), published_at TIMESTAMP)"))
+        db.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS folio_page_user_slug ON folio_page (user_id, slug)"))
+        db.commit()
+        _FOLIO_TABLES_READY = True
+    except Exception:
+        db.rollback()
+
+
+@app.get("/admin/api/folio/status")
+def admin_folio_status(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: confirm the folio_page table bootstrapped, report row count + columns."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _folio_ensure_tables(db)
+    total = db.execute(text("SELECT COUNT(*) FROM folio_page")).scalar() or 0
+    cols = db.execute(text("SELECT column_name FROM information_schema.columns "
+                           "WHERE table_name='folio_page' ORDER BY ordinal_position")).all()
+    return {"table": "folio_page", "ready": bool(cols), "pages": total, "columns": [c[0] for c in cols]}
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
