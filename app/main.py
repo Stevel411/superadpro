@@ -73270,6 +73270,164 @@ def admin_folio_status(request: Request, db: Session = Depends(get_db)):
     return {"table": "folio_page", "ready": bool(cols), "pages": total, "columns": [c[0] for c in cols]}
 
 
+def _folio_slugify(s):
+    import re as _re
+    s = _re.sub(r'[^a-z0-9]+', '-', (s or '').lower()).strip('-')[:60]
+    return s or 'page'
+
+
+def _folio_unique_slug(db, user_id, title, exclude_id=None):
+    base = _folio_slugify(title)
+    cand, i = base, 0
+    while True:
+        q = "SELECT 1 FROM folio_page WHERE user_id=:u AND slug=:s"
+        params = {"u": user_id, "s": cand}
+        if exclude_id:
+            q += " AND id<>:id"
+            params["id"] = exclude_id
+        if not db.execute(text(q), params).first():
+            return cand
+        i += 1
+        cand = base[:56] + '-' + str(i)
+
+
+def _folio_sections(raw):
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, str):
+        try:
+            return json.loads(raw)
+        except Exception:
+            return []
+    return []
+
+
+@app.get("/api/folio/pages")
+def folio_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """List the signed-in member's pages."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    rows = db.execute(text("SELECT id,slug,title,status,accent,template_id,updated_at,published_at "
+                           "FROM folio_page WHERE user_id=:u ORDER BY updated_at DESC"), {"u": user.id}).mappings().all()
+    out = [{"id": r["id"], "slug": r["slug"], "title": r["title"], "status": r["status"], "accent": r["accent"],
+            "template_id": r["template_id"], "updated_at": str(r["updated_at"]) if r["updated_at"] else None,
+            "published_at": str(r["published_at"]) if r["published_at"] else None} for r in rows]
+    return {"pages": out}
+
+
+@app.post("/api/folio/pages")
+async def folio_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a page (from a template or blank)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    title = (sanitize((body.get("title") or "Untitled page").strip())[:160]) or "Untitled page"
+    template_id = sanitize((body.get("template_id") or "").strip())[:40]
+    accent = (body.get("accent") or "#5b3df5").strip()[:16]
+    sections = body.get("sections") if isinstance(body.get("sections"), list) else []
+    slug = _folio_unique_slug(db, user.id, title)
+    row = db.execute(text("INSERT INTO folio_page (user_id,slug,title,template_id,accent,sections) "
+                          "VALUES (:u,:s,:t,:tp,:a,CAST(:sec AS JSONB)) RETURNING id"),
+                     {"u": user.id, "s": slug, "t": title, "tp": template_id, "a": accent, "sec": json.dumps(sections)}).first()
+    db.commit()
+    return {"ok": True, "id": row[0], "slug": slug}
+
+
+@app.get("/api/folio/pages/{page_id}")
+def folio_get(page_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Load one page (owner only)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    r = db.execute(text("SELECT id,slug,title,template_id,accent,sections,status,updated_at,published_at "
+                        "FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).mappings().first()
+    if not r:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return {"id": r["id"], "slug": r["slug"], "title": r["title"], "template_id": r["template_id"],
+            "accent": r["accent"], "sections": _folio_sections(r["sections"]), "status": r["status"],
+            "updated_at": str(r["updated_at"]) if r["updated_at"] else None,
+            "published_at": str(r["published_at"]) if r["published_at"] else None}
+
+
+@app.post("/api/folio/pages/{page_id}/save")
+async def folio_save(page_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Save edits to a page (owner only)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    owns = db.execute(text("SELECT title FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).first()
+    if not owns:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body.get("sections"), list):
+        return JSONResponse({"error": "sections must be a list"}, status_code=400)
+    title = (sanitize((body.get("title") or owns[0] or "Untitled page").strip())[:160]) or "Untitled page"
+    accent = (body.get("accent") or "#5b3df5").strip()[:16]
+    db.execute(text("UPDATE folio_page SET title=:t, accent=:a, sections=CAST(:sec AS JSONB), updated_at=now() "
+                    "WHERE id=:id AND user_id=:u"),
+               {"t": title, "a": accent, "sec": json.dumps(body["sections"]), "id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True, "saved_at": str(datetime.utcnow())}
+
+
+@app.post("/api/folio/pages/{page_id}/delete")
+def folio_delete(page_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Delete a page (owner only)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    res = db.execute(text("DELETE FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True, "deleted": res.rowcount}
+
+
+@app.get("/admin/api/folio/selftest")
+def admin_folio_selftest(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: exercise the full data layer (create->read->save->delete) against a throwaway
+    user_id, proving the JSONB round-trip works on live. Leaves nothing behind."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _folio_ensure_tables(db)
+    TEST_UID = -777  # never a real user
+    steps = {}
+    try:
+        db.execute(text("DELETE FROM folio_page WHERE user_id=:u"), {"u": TEST_UID})
+        secs = [{"type": "hero", "props": {"headline": "Hello"}}, {"type": "cta", "props": {}}]
+        slug = _folio_unique_slug(db, TEST_UID, "Self Test Page")
+        pid = db.execute(text("INSERT INTO folio_page (user_id,slug,title,template_id,accent,sections) "
+                              "VALUES (:u,:s,'Self Test Page','lumen','#5b3df5',CAST(:sec AS JSONB)) RETURNING id"),
+                         {"u": TEST_UID, "s": slug, "sec": json.dumps(secs)}).first()[0]
+        db.commit()
+        steps["create"] = {"id": pid, "slug": slug}
+        r = db.execute(text("SELECT sections FROM folio_page WHERE id=:id"), {"id": pid}).first()
+        got = _folio_sections(r[0])
+        steps["read_roundtrip_ok"] = (got == secs)
+        db.execute(text("UPDATE folio_page SET sections=CAST(:sec AS JSONB), title='Edited' WHERE id=:id"),
+                   {"sec": json.dumps(secs + [{"type": "footer", "props": {}}]), "id": pid})
+        db.commit()
+        r2 = db.execute(text("SELECT title, jsonb_array_length(sections) AS n FROM folio_page WHERE id=:id"), {"id": pid}).mappings().first()
+        steps["save"] = {"title": r2["title"], "section_count": r2["n"]}
+        d = db.execute(text("DELETE FROM folio_page WHERE id=:id"), {"id": pid})
+        db.commit()
+        steps["delete_rows"] = d.rowcount
+        left = db.execute(text("SELECT COUNT(*) FROM folio_page WHERE user_id=:u"), {"u": TEST_UID}).scalar()
+        steps["clean"] = (left == 0)
+        return {"ok": True, "steps": steps}
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"ok": False, "error": str(e)[:200], "steps": steps}, status_code=500)
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
