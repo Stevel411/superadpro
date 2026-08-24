@@ -72786,10 +72786,74 @@ async def td_join(request: Request, db: Session = Depends(get_db)):
     return {"ok": True, "message": "Almost there — check your email to confirm and activate your free traffic."}
 
 
+def _td_claim_html(token, email):
+    tpl = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Create your account &mdash; AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#ff2743;--grn:#17a34a;--gold:#ffd23f;--ink:#0d1230;--dim:#5a6584;--line:#e6ecf5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#eef2fb;padding:24px 14px 50px}
+  .page{max-width:440px;margin:0 auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px -46px rgba(10,31,82,.6),0 0 0 1px var(--line)}
+  .hero{background:linear-gradient(165deg,#0a1f52,#12388f);color:#fff;padding:28px 26px 24px;text-align:center}
+  .badge{display:inline-block;background:rgba(46,204,113,.16);border:1px solid rgba(46,204,113,.5);color:#9af5c0;border-radius:30px;padding:6px 13px;font-size:10.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  .hero h1{margin:14px 0 6px;font-size:28px;font-weight:900;letter-spacing:-.6px}
+  .hero p{font-size:13.5px;color:#dbe4fb;font-weight:600;margin:0}
+  .form{padding:22px 24px 22px}
+  .form label{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);margin:0 0 5px}
+  .field{margin-bottom:14px}
+  .field input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:14px;font-size:15px;font-family:inherit;font-weight:600;color:var(--ink)}
+  .field input::placeholder{color:#9aa4bd;font-weight:500}
+  .hint{font-size:11px;color:var(--dim);font-weight:600;margin:-8px 0 14px}
+  .go{width:100%;background:linear-gradient(120deg,var(--red),var(--red2));color:#fff;border:none;border-radius:13px;padding:16px;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 16px 34px -14px rgba(255,39,67,.6)}
+  .go:disabled{opacity:.6}
+  .err{color:var(--red);font-size:12.5px;font-weight:700;margin:10px 0 0;text-align:center}
+  .who{font-size:11.5px;color:var(--dim);font-weight:600;text-align:center;margin:12px 0 0}
+  .who b{color:var(--ink)}
+</style></head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <span class="badge">&#10003; Email confirmed</span>
+      <h1>Create your account</h1>
+      <p>Pick a username and password &mdash; then your free traffic goes live.</p>
+    </div>
+    <div class="form">
+      <div class="field"><label>Choose a username</label><input id="username" type="text" placeholder="e.g. johnmarketer" autocomplete="username" /></div>
+      <div class="hint">3&ndash;30 characters &middot; letters, numbers and underscores. This is public on your links.</div>
+      <div class="field"><label>Choose a password</label><input id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" /></div>
+      <button class="go" id="go">Create account &amp; start &rarr;</button>
+      <div class="err" id="err" style="display:none"></div>
+      <div class="who">Signing up as <b>__EMAIL__</b></div>
+    </div>
+  </div>
+<script>
+  var TOKEN="__TOKEN__";
+  var go=document.getElementById('go'), err=document.getElementById('err');
+  function fail(m){ err.textContent=m; err.style.display='block'; go.disabled=false; go.innerHTML='Create account &amp; start &rarr;'; }
+  go.onclick=function(){
+    err.style.display='none';
+    var u=document.getElementById('username').value.trim(), p=document.getElementById('password').value;
+    if(u.length<3){ return fail('Please choose a username (3+ characters).'); }
+    if(p.length<8){ return fail('Password must be at least 8 characters.'); }
+    go.disabled=true; go.textContent='...';
+    fetch('/api/trafficdrop/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:TOKEN,username:u,password:p})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d && d.ok){ window.location.href = d.redirect || '/trafficdrop'; }
+        else { fail((d&&d.error)||'Something went wrong, please try again.'); }
+      }).catch(function(){ fail('Something went wrong, please try again.'); });
+  };
+</script>
+</body></html>"""
+    return tpl.replace("__TOKEN__", token or "").replace("__EMAIL__", email or "")
+
+
 @app.get("/trafficdrop/confirm")
 def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db)):
-    """Double-opt-in confirm: creates the free AL account under the sharer, activates their link,
-    logs them in, lands them in the dashboard."""
+    """Double-opt-in confirm. Validates the email link, then shows the account-creation step
+    (choose username + password). The account is created on submit (td_complete)."""
     _td_ensure_tables(db)
     row = db.execute(text("SELECT email,url,sharer FROM td_pending WHERE token=:t"), {"t": token}).mappings().first()
     if not row:
@@ -72797,8 +72861,8 @@ def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db))
     if request.query_params.get("no"):
         db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
         db.commit()
-        return HTMLResponse(_td_confirm_result("No problem — you won't hear from us, and nothing was activated.", True))
-    email, url, sharer = row["email"], row["url"], row["sharer"]
+        return HTMLResponse(_td_confirm_result("No problem \u2014 you won't hear from us, and nothing was activated.", True))
+    email = row["email"]
     existing = db.query(User).filter(User.email == email).first()
     if existing:
         db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
@@ -72806,6 +72870,35 @@ def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db))
         resp = RedirectResponse(url="/trafficdrop", status_code=302)
         set_secure_cookie(resp, existing.id, request)
         return resp
+    return HTMLResponse(_td_claim_html(token, email))
+
+
+@app.post("/api/trafficdrop/complete")
+async def td_complete(request: Request, db: Session = Depends(get_db)):
+    """Finish signup: create the free AL member under the sharer with a chosen username + password,
+    activate their dropped link, log them in, land them in Traffic Drop."""
+    _td_ensure_tables(db)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    token = (body.get("token") or "").strip()
+    username = sanitize((body.get("username") or "").strip())
+    password = body.get("password") or ""
+    row = db.execute(text("SELECT email,url,sharer FROM td_pending WHERE token=:t"), {"t": token}).mappings().first()
+    if not row:
+        return JSONResponse({"error": "Your session expired \u2014 please sign up again."}, status_code=400)
+    email, url, sharer = row["email"], row["url"], row["sharer"]
+    if not validate_username(username):
+        return JSONResponse({"error": "Username must be 3\u201330 characters \u2014 letters, numbers and underscores only."}, status_code=400)
+    if len(password) < 8:
+        return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
+    if db.query(User).filter(User.username == username).first():
+        return JSONResponse({"error": "That username is taken \u2014 try another."}, status_code=400)
+    if db.query(User).filter(User.email == email).first():
+        db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
+        db.commit()
+        return JSONResponse({"error": "You're already a member \u2014 please log in."}, status_code=400)
     sponsor_id = None
     if sharer:
         sp = db.query(User).filter(User.username == sharer).first()
@@ -72815,10 +72908,7 @@ def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db))
         company = db.query(User).filter(User.username == "AdvantageLife").first()
         if company:
             sponsor_id = company.id
-    import secrets as _secrets
-    username = _td_gen_username(db, email)
-    pw = _secrets.token_urlsafe(16)
-    user = create_user(db, username, email, pw, sponsor_id=sponsor_id, first_name=username)
+    user = create_user(db, username, email, password, sponsor_id=sponsor_id, first_name=username)
     _al_join_free(db, user)
     if sponsor_id:
         sp_obj = db.query(User).filter(User.id == sponsor_id).first()
@@ -72833,7 +72923,7 @@ def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db))
     db.execute(text("INSERT INTO td_link (user_id,url,status) VALUES (:u,:url,'active')"), {"u": user.id, "url": url})
     db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
     db.commit()
-    resp = RedirectResponse(url="/trafficdrop?welcome=1", status_code=302)
+    resp = JSONResponse({"ok": True, "redirect": "/trafficdrop?welcome=1"})
     set_secure_cookie(resp, user.id, request)
     return resp
 
