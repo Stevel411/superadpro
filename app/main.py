@@ -72377,6 +72377,22 @@ def _td_next_link(db, surfer_id):
         {"s": surfer_id}).first()
 
 
+def _td_settle(db, surfer_id, link_id, owner_id):
+    """The ledger for one completed surf. Owner pays 1 credit and the view is delivered
+    (views_delivered +1). Surfer earns at the 2:1 ratio — 1 credit per 2 completed surfs.
+    Returns (earned_this_surf: bool, surfer_credits_after: int). Caller commits."""
+    db.execute(text("UPDATE td_account SET credits = GREATEST(credits - 1, 0) WHERE user_id=:o"), {"o": owner_id})
+    db.execute(text("UPDATE td_link SET views_delivered = views_delivered + 1 WHERE id=:l"), {"l": link_id})
+    _td_credits(db, surfer_id)  # ensure the surfer has an account
+    db.execute(text("UPDATE td_account SET surfs = surfs + 1 WHERE user_id=:s"), {"s": surfer_id})
+    surfs = db.execute(text("SELECT surfs FROM td_account WHERE user_id=:s"), {"s": surfer_id}).scalar() or 0
+    earned = (int(surfs) % 2 == 0)
+    if earned:
+        db.execute(text("UPDATE td_account SET credits = credits + 1 WHERE user_id=:s"), {"s": surfer_id})
+    cred = db.execute(text("SELECT credits FROM td_account WHERE user_id=:s"), {"s": surfer_id}).scalar() or 0
+    return earned, int(cred)
+
+
 def _td_credits(db, user_id):
     _td_ensure_tables(db)
     row = db.execute(text("SELECT credits FROM td_account WHERE user_id=:u"), {"u": user_id}).first()
@@ -72528,6 +72544,69 @@ def admin_td_next(request: Request, db: Session = Depends(get_db)):
     if not row:
         return {"served": None, "note": "pool empty for this surfer"}
     return {"served": {"link_id": row[0], "url": row[1], "owner_id": row[2]}}
+
+
+@app.post("/api/trafficdrop/surf/complete")
+async def td_surf_complete(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Complete a surf: validate the session + that the 10s timer genuinely elapsed server-side,
+    then settle the ledger (owner pays, view delivered, surfer earns at 2:1)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _td_ensure_tables(db)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    surf_id = body.get("surf_id")
+    if not surf_id:
+        return JSONResponse({"error": "missing surf_id"}, status_code=400)
+    row = db.execute(text("SELECT surfer_id, link_id, owner_id, completed, "
+                          "EXTRACT(EPOCH FROM (now() - served_at)) AS elapsed "
+                          "FROM td_surf WHERE id=:id"), {"id": surf_id}).mappings().first()
+    if not row or row["surfer_id"] != user.id:
+        return JSONResponse({"error": "invalid session"}, status_code=400)
+    if row["completed"]:
+        return JSONResponse({"error": "already completed"}, status_code=400)
+    elapsed = float(row["elapsed"] or 0)
+    if elapsed < 8:   # 10s timer, 2s slack for network/render
+        return JSONResponse({"error": "too soon", "wait": round(8 - elapsed, 1)}, status_code=400)
+    earned, credits = _td_settle(db, user.id, row["link_id"], row["owner_id"])
+    db.execute(text("UPDATE td_surf SET completed=true, completed_at=now() WHERE id=:id"), {"id": surf_id})
+    db.commit()
+    surfs = db.execute(text("SELECT surfs FROM td_account WHERE user_id=:s"), {"s": user.id}).scalar() or 0
+    return {"ok": True, "earned_credit": earned, "credits": credits,
+            "next_credit_in": 1 if (int(surfs) % 2 == 1) else 2}
+
+
+@app.get("/admin/api/al/td-simulate")
+def admin_td_simulate(request: Request, db: Session = Depends(get_db)):
+    """TEST: run one full surf settlement for a surfer through the real ledger, showing the
+    credit movement (owner pays, surfer earns 2:1). Bypasses the timer — for verifying math only."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    try:
+        sid = int(request.query_params.get("surfer_id", "0"))
+    except (TypeError, ValueError):
+        sid = 0
+    row = _td_next_link(db, sid)
+    if not row:
+        return {"note": "pool empty for this surfer"}
+    link_id, url, owner_id = row[0], row[1], row[2]
+    before_owner = db.execute(text("SELECT credits FROM td_account WHERE user_id=:o"), {"o": owner_id}).scalar() or 0
+    before_surfer = _td_credits(db, sid)
+    earned, surfer_after = _td_settle(db, sid, link_id, owner_id)
+    db.commit()
+    after_owner = db.execute(text("SELECT credits FROM td_account WHERE user_id=:o"), {"o": owner_id}).scalar() or 0
+    views = db.execute(text("SELECT views_delivered FROM td_link WHERE id=:l"), {"l": link_id}).scalar() or 0
+    surfs = db.execute(text("SELECT surfs FROM td_account WHERE user_id=:s"), {"s": sid}).scalar() or 0
+    return {"surfer_id": sid, "owner_id": owner_id, "link_id": link_id,
+            "owner_credits": {"before": int(before_owner), "after": int(after_owner)},
+            "surfer_credits": {"before": int(before_surfer), "after": int(surfer_after)},
+            "surfer_total_surfs": int(surfs), "earned_credit_this_surf": earned,
+            "link_views_delivered": int(views)}
 
 
 @app.get("/admin/api/al/grant-pack")
