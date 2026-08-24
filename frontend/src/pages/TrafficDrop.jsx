@@ -37,6 +37,12 @@ const CSS = `
 .td-share input{flex:1;border:1.5px solid #f0d98a;background:#fff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;color:#0a1f52}
 .td-share button{background:#ffd23f;color:#4a3500;border:none;border-radius:10px;padding:0 16px;font-size:12.5px;font-weight:900;cursor:pointer}
 .td-err{color:#c8102e;font-size:12.5px;font-weight:700;margin:0 0 10px}
+.td-surfbtn{display:inline-block;background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff;border:none;border-radius:12px;padding:13px 22px;font-size:15px;font-weight:900;cursor:pointer;margin:14px 0 6px;box-shadow:0 14px 30px -14px rgba(255,39,67,.6)}
+.td-surfurl{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:700;color:#fff;word-break:break-all;margin:0 auto 4px;max-width:340px}
+.td-ring{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:6px auto 12px}
+.td-ringin{width:70px;height:70px;border-radius:50%;background:#0a1f52;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff}
+.td-stop{display:block;margin:10px auto 0;background:none;border:none;color:#9fb8ff;font-size:12px;font-weight:800;cursor:pointer;text-decoration:underline}
+.td-sess{margin-top:14px;font-size:12px;color:#bcd0ff;font-weight:700;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
 `;
 
 export default function TrafficDrop() {
@@ -45,6 +51,11 @@ export default function TrafficDrop() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [phase, setPhase] = useState('idle');       // idle|loading|ready|viewing|verify|done
+  const [surf, setSurf] = useState(null);           // {surf_id, url}
+  const [timeLeft, setTimeLeft] = useState(10);
+  const [sSurfed, setSSurfed] = useState(0);
+  const [sEarned, setSEarned] = useState(0);
 
   function load() {
     fetch('/api/trafficdrop/me').then(function (r) { return r.json(); }).then(setData).catch(function () {});
@@ -64,6 +75,35 @@ export default function TrafficDrop() {
   function removeLink(id) {
     fetch('/api/trafficdrop/link/' + id + '/remove', { method: 'POST' }).then(load).catch(function () {});
   }
+
+  function nextSurf() {
+    setPhase('loading'); setSurf(null);
+    fetch('/api/trafficdrop/surf/next').then(function (r) { return r.json(); }).then(function (d) {
+      if (d.done || !d.url) { setPhase('done'); return; }
+      setSurf({ surf_id: d.surf_id, url: d.url }); setTimeLeft(d.timer || 10); setPhase('ready');
+    }).catch(function () { setPhase('done'); });
+  }
+  function visitSite() {
+    if (!surf) return;
+    window.open(surf.url, '_blank', 'noopener');
+    setPhase('viewing');
+  }
+  useEffect(function () {
+    if (phase !== 'viewing') return undefined;
+    if (timeLeft <= 0) { setPhase('verify'); return undefined; }
+    var t = setTimeout(function () { setTimeLeft(function (x) { return x - 1; }); }, 1000);
+    return function () { clearTimeout(t); };
+  }, [phase, timeLeft]);
+  function verifyDone() {
+    if (!surf) return;
+    var sid = surf.surf_id;
+    fetch('/api/trafficdrop/surf/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ surf_id: sid }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.ok) { setSSurfed(function (x) { return x + 1; }); if (d.earned_credit) setSEarned(function (x) { return x + 1; }); load(); }
+        nextSurf();
+      }).catch(function () { nextSurf(); });
+  }
+  function stopSurf() { setPhase('idle'); setSurf(null); }
 
   var credits = data ? data.credits : 0;
   var links = data ? data.links : [];
@@ -87,9 +127,48 @@ export default function TrafficDrop() {
         <div className="td-grid">
           <div>
             <div className="td-card td-surf">
-              <span className="td-soon">⚡ Surfing launches soon</span>
-              <h2>Surf to earn credits</h2>
-              <p>Visit other members' sites, earn credits, and spend them to put your own links in front of real people. The surf engine arrives in the next update.</p>
+              {phase === 'idle' ? (
+                <div>
+                  <h2>Surf to earn credits</h2>
+                  <p>Visit other members' sites for 10 seconds each. Every 2 sites you surf earns 1 view for your own links.</p>
+                  <button className="td-surfbtn" onClick={nextSurf}>Start surfing →</button>
+                </div>
+              ) : null}
+              {phase === 'loading' ? (<div><h2>Finding a site…</h2><p>One moment.</p></div>) : null}
+              {phase === 'ready' && surf ? (
+                <div>
+                  <div className="td-surfurl">{surf.url}</div>
+                  <button className="td-surfbtn" onClick={visitSite}>Visit site ↗</button>
+                  <p>Opens in a new tab — the 10-second timer starts when you visit.</p>
+                  <button className="td-stop" onClick={stopSurf}>Stop</button>
+                </div>
+              ) : null}
+              {phase === 'viewing' && surf ? (
+                <div>
+                  <div className="td-ring" style={{ background: 'conic-gradient(#2ecc71 ' + ((10 - timeLeft) / 10 * 100) + '%, rgba(255,255,255,.15) 0)' }}>
+                    <div className="td-ringin">{timeLeft}</div>
+                  </div>
+                  <div className="td-surfurl">{surf.url}</div>
+                  <p>Keep the site open — come back when the timer's done.</p>
+                  <button className="td-stop" onClick={stopSurf}>Stop</button>
+                </div>
+              ) : null}
+              {phase === 'verify' ? (
+                <div>
+                  <h2>Timer complete ✓</h2>
+                  <p>Confirm you're here to collect your credit.</p>
+                  <button className="td-surfbtn" onClick={verifyDone}>✓ I'm here — continue</button>
+                  <button className="td-stop" onClick={stopSurf}>Stop</button>
+                </div>
+              ) : null}
+              {phase === 'done' ? (
+                <div>
+                  <h2>No sites to surf right now</h2>
+                  <p>The pool's empty — check back soon, or add credits to your own links.</p>
+                  <button className="td-surfbtn" onClick={stopSurf}>Done</button>
+                </div>
+              ) : null}
+              {phase !== 'idle' ? (<div className="td-sess">This session: {sSurfed} surfed · {sEarned} credits earned</div>) : null}
             </div>
 
             <div className="td-card">
