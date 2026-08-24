@@ -73447,6 +73447,96 @@ def admin_folio_render_test(request: Request, db: Session = Depends(get_db)):
     return HTMLResponse(render_page(sample, accent=request.query_params.get("accent", "#0d9f6e"), title="Folio render test"))
 
 
+def _folio_notfound_html():
+    return ("<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>"
+            "<title>Page not found</title></head><body style='font-family:system-ui,sans-serif;background:#f6f2ea;color:#17141c;"
+            "display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;margin:0'>"
+            "<div><h1 style='font-size:52px;margin:0'>404</h1><p style='color:#6b6e7c'>This page isn't published, or doesn't exist.</p></div></body></html>")
+
+
+@app.post("/api/folio/pages/{page_id}/publish")
+def folio_publish(page_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Render the page to HTML and make it live at /page/{username}/{slug} (owner only)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    r = db.execute(text("SELECT slug,title,accent,sections FROM folio_page WHERE id=:id AND user_id=:u"),
+                   {"id": page_id, "u": user.id}).mappings().first()
+    if not r:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    from .folio_render import render_page
+    html = render_page(_folio_sections(r["sections"]), accent=r["accent"], title=r["title"])
+    db.execute(text("UPDATE folio_page SET status='published', published_html=:h, published_at=now() "
+                    "WHERE id=:id AND user_id=:u"), {"h": html, "id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True, "url": "https://www.advantagelife.club/page/" + user.username + "/" + r["slug"]}
+
+
+@app.post("/api/folio/pages/{page_id}/unpublish")
+def folio_unpublish(page_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Take a page offline (owner only). Keeps the draft; just stops serving it publicly."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    res = db.execute(text("UPDATE folio_page SET status='draft' WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True, "unpublished": res.rowcount}
+
+
+@app.get("/page/{username}/{slug}")
+def folio_public(username: str, slug: str, db: Session = Depends(get_db)):
+    """Public serving of a published Folio page. No auth."""
+    _folio_ensure_tables(db)
+    u = db.query(User).filter(User.username == username).first()
+    if not u:
+        return HTMLResponse(_folio_notfound_html(), status_code=404)
+    r = db.execute(text("SELECT published_html, status FROM folio_page WHERE user_id=:u AND slug=:s"),
+                   {"u": u.id, "s": slug}).mappings().first()
+    if not r or r["status"] != "published" or not r["published_html"]:
+        return HTMLResponse(_folio_notfound_html(), status_code=404)
+    return HTMLResponse(r["published_html"])
+
+
+@app.get("/admin/api/folio/publish-selftest")
+def admin_folio_publish_selftest(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: create + publish a page under the company account, return its public URL so the
+    /page/ serving can be verified end to end. Leaves the page live; publish-cleanup removes it."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _folio_ensure_tables(db)
+    admin = db.query(User).filter(User.username == "AdvantageLife").first()
+    if not admin:
+        return JSONResponse({"error": "company account not found"}, status_code=500)
+    db.execute(text("DELETE FROM folio_page WHERE user_id=:u AND slug LIKE 'folio-pub-test%'"), {"u": admin.id})
+    secs = [{"type": "nav", "props": {"brand": "Folio Test"}},
+            {"type": "hero", "props": {"headline": "It works", "headline_accent": "end to end."}},
+            {"type": "cta", "props": {}}]
+    slug = _folio_unique_slug(db, admin.id, "folio pub test")
+    from .folio_render import render_page
+    html = render_page(secs, accent="#5b3df5", title="Folio pub test")
+    db.execute(text("INSERT INTO folio_page (user_id,slug,title,accent,sections,status,published_html,published_at) "
+                    "VALUES (:u,:s,'Folio pub test','#5b3df5',CAST(:sec AS JSONB),'published',:h,now())"),
+               {"u": admin.id, "s": slug, "sec": json.dumps(secs), "h": html})
+    db.commit()
+    return {"ok": True, "url": "https://www.advantagelife.club/page/" + admin.username + "/" + slug,
+            "published_len": len(html), "slug": slug}
+
+
+@app.get("/admin/api/folio/publish-cleanup")
+def admin_folio_publish_cleanup(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: remove the publish self-test page(s)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _folio_ensure_tables(db)
+    res = db.execute(text("DELETE FROM folio_page WHERE slug LIKE 'folio-pub-test%'"))
+    db.commit()
+    return {"ok": True, "removed": res.rowcount}
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
