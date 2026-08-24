@@ -279,16 +279,7 @@ function MemberDetail({ id, onClose }) {
             <div style={box}>
               <div style={lab}>Account</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                {(function () {
-                  var al = d.access_level, S = { fontSize: 12.5, fontWeight: 900, padding: '3px 10px', borderRadius: 20 };
-                  if (d.lifetime || al === 'lifetime') return <span style={{ ...S, background: '#e7f6ee', color: GREEN }}>Lifetime member</span>;
-                  if (al === 'annual') return <span style={{ ...S, background: '#e8eefb', color: '#2563eb' }}>Annual member</span>;
-                  if (al === 'trial') {
-                    var days = d.membership_expires_at ? Math.max(0, Math.ceil((new Date(d.membership_expires_at) - Date.now()) / 86400000)) : null;
-                    return <span style={{ ...S, background: '#fff3e0', color: '#b45309' }}>{'Trial' + (days != null ? ' · ' + days + ' day' + (days === 1 ? '' : 's') + ' left' : '')}</span>;
-                  }
-                  return <span style={{ ...S, background: '#eef2f8', color: MUTED }}>Free — not joined</span>;
-                })()}
+                <span style={{ fontSize: 12.5, fontWeight: 900, padding: '3px 10px', borderRadius: 20, background: '#e7f6ee', color: GREEN }}>Member</span>
                 {d.is_admin && <span style={{ fontSize: 11, fontWeight: 900, color: '#fff', background: NAVY, borderRadius: 20, padding: '3px 10px' }}>ADMIN</span>}
               </div>
               <div style={{ fontSize: 12.5, color: MUTED, marginTop: 10, fontWeight: 600 }}>{d.email}</div>
