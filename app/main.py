@@ -72327,6 +72327,123 @@ def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_curre
             "packs_granted": granted_total, "members": members[:120]}
 
 
+# ═══════════════ TRAFFIC DROP — Phase 1: data foundation + member link/credit API ═══════════════
+_TD_TABLES_READY = False
+TD_WELCOME_CREDITS = 10
+TD_MAX_LINKS = 5
+
+
+def _td_ensure_tables(db):
+    global _TD_TABLES_READY
+    if _TD_TABLES_READY:
+        return True
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS td_account (user_id INTEGER PRIMARY KEY, "
+                        "credits INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT now())"))
+        db.execute(text("CREATE TABLE IF NOT EXISTS td_link (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, "
+                        "url TEXT NOT NULL, title TEXT, status VARCHAR(16) DEFAULT 'active', "
+                        "views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT now())"))
+        db.execute(text("CREATE INDEX IF NOT EXISTS idx_td_link_user ON td_link(user_id)"))
+        db.commit()
+        _TD_TABLES_READY = True
+        return True
+    except Exception:
+        db.rollback()
+        return False
+
+
+def _td_credits(db, user_id):
+    _td_ensure_tables(db)
+    row = db.execute(text("SELECT credits FROM td_account WHERE user_id=:u"), {"u": user_id}).first()
+    if row is None:
+        try:
+            db.execute(text("INSERT INTO td_account (user_id, credits) VALUES (:u, :c) ON CONFLICT DO NOTHING"),
+                       {"u": user_id, "c": TD_WELCOME_CREDITS})
+            db.commit()
+        except Exception:
+            db.rollback()
+        return TD_WELCOME_CREDITS
+    return int(row[0] or 0)
+
+
+def _td_valid_url(u):
+    import re as _re
+    u = (u or "").strip()
+    if not u:
+        return None
+    if not u.startswith(("http://", "https://")):
+        u = "https://" + u
+    m = _re.match(r"^https?://([^/\s]+)", u)
+    if not m or "." not in m.group(1):
+        return None
+    return u[:500]
+
+
+@app.get("/api/trafficdrop/me")
+def td_me(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """A member's Traffic Drop state: credit balance, their links, total views delivered."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    credits = _td_credits(db, user.id)
+    links = db.execute(text("SELECT id,url,title,status,views_delivered FROM td_link "
+                            "WHERE user_id=:u AND status!='removed' ORDER BY id DESC"),
+                       {"u": user.id}).mappings().all()
+    total = sum(int(l["views_delivered"] or 0) for l in links)
+    return {"credits": credits, "links": [dict(l) for l in links],
+            "views_delivered_total": total, "max_links": TD_MAX_LINKS}
+
+
+@app.post("/api/trafficdrop/link")
+async def td_add_link(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Drop a link into Traffic Drop (member). Validates URL, enforces the per-member slot limit."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _td_ensure_tables(db)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    url = _td_valid_url(body.get("url"))
+    if not url:
+        return JSONResponse({"error": "Enter a valid link (https://…)"}, status_code=400)
+    title = (str(body.get("title") or "")[:120]).strip() or None
+    active = db.execute(text("SELECT COUNT(*) FROM td_link WHERE user_id=:u AND status!='removed'"),
+                        {"u": user.id}).scalar() or 0
+    if active >= TD_MAX_LINKS:
+        return JSONResponse({"error": "You've reached your link limit (%d)." % TD_MAX_LINKS}, status_code=400)
+    db.execute(text("INSERT INTO td_link (user_id,url,title,status) VALUES (:u,:url,:t,'active')"),
+               {"u": user.id, "url": url, "t": title})
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/trafficdrop/link/{link_id}/remove")
+def td_remove_link(link_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Remove one of the member's own links."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _td_ensure_tables(db)
+    db.execute(text("UPDATE td_link SET status='removed' WHERE id=:id AND user_id=:u"),
+               {"id": link_id, "u": user.id})
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/admin/api/al/td-status")
+def admin_td_status(request: Request, db: Session = Depends(get_db)):
+    """Read-only Traffic Drop diagnostic (Phase 1). Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    accounts = db.execute(text("SELECT COUNT(*) FROM td_account")).scalar() or 0
+    links = db.execute(text("SELECT COUNT(*) FROM td_link WHERE status='active'")).scalar() or 0
+    sample = db.execute(text("SELECT id,user_id,url,views_delivered FROM td_link "
+                             "WHERE status='active' ORDER BY id DESC LIMIT 8")).mappings().all()
+    return {"td_accounts": accounts, "active_links": links, "sample": [dict(s) for s in sample]}
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
