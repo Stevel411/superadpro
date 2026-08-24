@@ -69,7 +69,7 @@ export default function TrafficDrop() {
   var links = data ? data.links : [];
   var views = data ? (data.views_delivered_total || 0) : 0;
   var maxLinks = data ? data.max_links : 5;
-  var refLink = data && data.username ? ('advantagelife.club/trafficdrop/' + data.username) : 'advantagelife.club/trafficdrop/\u2026';
+  var refLink = data && data.username ? ('advantagelife.club/trafficdrop/' + data.username) : 'advantagelife.club/trafficdrop/…';
 
   return (
     <AlShell active="trafficdrop">
@@ -87,29 +87,29 @@ export default function TrafficDrop() {
         <div className="td-grid">
           <div>
             <div className="td-card td-surf">
-              <span className="td-soon">\u26a1 Surfing launches soon</span>
+              <span className="td-soon">⚡ Surfing launches soon</span>
               <h2>Surf to earn credits</h2>
               <p>Visit other members' sites, earn credits, and spend them to put your own links in front of real people. The surf engine arrives in the next update.</p>
             </div>
 
             <div className="td-card">
               <h2>Your links</h2>
-              <div className="cs">Drop a link \u2014 up to {maxLinks}. Spend credits to put it in the rotation.</div>
+              <div className="cs">Drop a link — up to {maxLinks}. Spend credits to put it in the rotation.</div>
               <div className="td-addrow">
                 <input placeholder="https://your-offer.com" value={url}
                   onChange={function (e) { setUrl(e.target.value); }}
                   onKeyDown={function (e) { if (e.key === 'Enter') addLink(); }} />
-                <button onClick={addLink} disabled={busy}>{busy ? '\u2026' : 'Add'}</button>
+                <button onClick={addLink} disabled={busy}>{busy ? '…' : 'Add'}</button>
               </div>
               {err ? <div className="td-err">{err}</div> : null}
-              {links.length === 0 ? <div className="cs" style={{ margin: 0 }}>No links yet \u2014 drop your first one above.</div> : null}
+              {links.length === 0 ? <div className="cs" style={{ margin: 0 }}>No links yet — drop your first one above.</div> : null}
               {links.map(function (l) {
                 return (
                   <div className="td-link" key={l.id}>
                     <span className="dot"></span>
                     <span className="lu">{l.url}</span>
                     <span className="v">{(l.views_delivered || 0).toLocaleString()} <span>views</span></span>
-                    <button className="x" title="Remove" onClick={function () { removeLink(l.id); }}>\u00d7</button>
+                    <button className="x" title="Remove" onClick={function () { removeLink(l.id); }}>×</button>
                   </div>
                 );
               })}
@@ -119,12 +119,12 @@ export default function TrafficDrop() {
           <div>
             <div className="td-card td-up">
               <h2>Skip the surfing?</h2>
-              <p><b>Campaign packs</b> deliver a guaranteed number of <b>watch-verified views</b> \u2014 real members actually watching your ad. From <b>$5</b> to test.</p>
-              <a className="cta td-up-cta" href="/packs">See campaign packs \u2192</a>
+              <p><b>Campaign packs</b> deliver a guaranteed number of <b>watch-verified views</b> — real members actually watching your ad. From <b>$5</b> to test.</p>
+              <a className="cta td-up-cta" href="/packs">See campaign packs →</a>
             </div>
             <div className="td-card td-refer">
               <h2>Every marketer you bring = your team</h2>
-              <p>Share Traffic Drop. Anyone who joins comes in under you \u2014 you build your AdvantageLife team while they get free traffic.</p>
+              <p>Share Traffic Drop. Anyone who joins comes in under you — you build your AdvantageLife team while they get free traffic.</p>
               <div className="td-share">
                 <input value={refLink} readOnly />
                 <button onClick={function () {
