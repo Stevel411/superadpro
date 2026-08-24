@@ -72961,23 +72961,26 @@ def admin_td_cleanup(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     _td_ensure_tables(db)
     apply = request.query_params.get("apply") == "1"
-    accts = db.query(User).filter(
-        (User.email == "stevelaswsonsfm@gmail.com") | (User.email.like("%@simulator.amazonses.com"))
-    ).all()
+    uids = [r[0] for r in db.execute(text("SELECT user_id FROM td_account")).all()]
+    users = db.query(User).filter(User.id.in_(uids)).all() if uids else []
+    KEEP = {1, 319}  # AdvantageLife (company) + jlnprofits (real member) — clear TD data, keep the account
     acct_info = []
-    for u in accts:
+    for u in users:
         sp = db.query(User).filter(User.id == u.sponsor_id).first() if u.sponsor_id else None
         children = db.query(User).filter(User.sponsor_id == u.id).count()
+        keep = (u.id in KEEP) or bool(u.is_admin)
         acct_info.append({"id": u.id, "username": u.username, "email": u.email,
                           "sponsor": sp.username if sp else None, "direct_children": children,
-                          "delete_url": "/admin/api/delete-user?user_id=%d&confirm=yes" % u.id})
+                          "created": str(u.created_at)[:19] if u.created_at else None,
+                          "keep_account": keep,
+                          "delete_url": None if keep else "/admin/api/delete-user?user_id=%d&confirm=yes" % u.id})
     counts = {
         "links": db.execute(text("SELECT COUNT(*) FROM td_link")).scalar() or 0,
         "td_accounts": db.execute(text("SELECT COUNT(*) FROM td_account")).scalar() or 0,
         "surfs": db.execute(text("SELECT COUNT(*) FROM td_surf")).scalar() or 0,
         "pending": db.execute(text("SELECT COUNT(*) FROM td_pending")).scalar() or 0,
     }
-    out = {"test_member_accounts": acct_info, "exchange_data_counts": counts}
+    out = {"exchange_touched_accounts": acct_info, "exchange_data_counts": counts}
     if apply:
         for tbl in ("td_link", "td_account", "td_surf", "td_pending"):
             db.execute(text("DELETE FROM %s" % tbl))
