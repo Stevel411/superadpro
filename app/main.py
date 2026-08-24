@@ -4279,6 +4279,14 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/trafficdrop")
+def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for the Traffic Drop member dashboard."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
+
 @app.get("/compensation")
 def compensation_public(request: Request):
     """Public compensation plan.
@@ -72390,7 +72398,8 @@ def td_me(user: User = Depends(get_current_user), db: Session = Depends(get_db))
                        {"u": user.id}).mappings().all()
     total = sum(int(l["views_delivered"] or 0) for l in links)
     return {"credits": credits, "links": [dict(l) for l in links],
-            "views_delivered_total": total, "max_links": TD_MAX_LINKS}
+            "views_delivered_total": total, "max_links": TD_MAX_LINKS,
+            "username": user.username}
 
 
 @app.post("/api/trafficdrop/link")

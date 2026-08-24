@@ -29,6 +29,7 @@ const Academy = React.lazy(() => import('./pages/Academy'));
 const AcademyCourse = React.lazy(() => import('./pages/AcademyCourse'));
 const AcademyAdmin = React.lazy(() => import('./pages/AcademyAdmin'));
 const GetStarted = React.lazy(() => import('./pages/GetStarted'));
+const TrafficDrop = React.lazy(() => import('./pages/TrafficDrop'));
 const BannerShowcase = React.lazy(() => import('./pages/BannerShowcase'));
 const BannerCreate = React.lazy(() => import('./pages/BannerCreate'));
 const MyBanners = React.lazy(() => import('./pages/MyBanners'));
@@ -288,6 +289,7 @@ function AppRoutes() {
       <Route path="/home-preview" element={<Navigate to="/dashboard" replace />} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIToolsHub /></ProtectedRoute>} />
       <Route path="/start-here" element={<ProtectedRoute><GetStarted /></ProtectedRoute>} />
+      <Route path="/trafficdrop" element={<ProtectedRoute><TrafficDrop /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
       <Route path="/wallet" element={<WalletRoute />} />
       <Route path="/w/:token" element={<SharePage />} />
