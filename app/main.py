@@ -73007,6 +73007,38 @@ def admin_td_cleanup(request: Request, db: Session = Depends(get_db)):
     return out
 
 
+@app.get("/admin/api/al/td-delete-tests")
+def admin_td_delete_tests(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: delete Traffic Drop TEST-SIGNUP accounts (test-pattern emails ONLY) via the
+    battle-tested admin_delete_user cascade under an admin context. Dry-run default; ?apply=1 deletes."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    apply = request.query_params.get("apply") == "1"
+    admin_user = db.query(User).filter(User.is_admin == True).first()  # noqa: E712
+    if not admin_user:
+        return JSONResponse({"error": "no admin user found"}, status_code=500)
+    targets = db.query(User).filter(
+        (User.email.like("%@simulator.amazonses.com") | User.email.like("%stevelasw%")),
+        User.is_admin == False  # never an admin  # noqa: E712
+    ).all()
+    results = []
+    for u in targets:
+        info = {"id": u.id, "username": u.username, "email": u.email}
+        if not apply:
+            info["would_delete"] = True
+        else:
+            try:
+                r = admin_delete_user(u.id, user=admin_user, db=db)
+                info["result"] = r if isinstance(r, dict) else "deleted"
+            except Exception as e:
+                db.rollback()
+                info["error"] = str(e)[:180]
+        results.append(info)
+    return {"dryrun": not apply, "count": len(results), "targets": results}
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
