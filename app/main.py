@@ -72327,6 +72327,64 @@ def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_curre
             "packs_granted": granted_total, "members": members[:120]}
 
 
+@app.get("/admin/api/al/grant-pack")
+def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Comp a single campaign pack to one member (admin gift — no P2P payment, no
+    pass-up commissions, since it inserts an already-active row). Idempotent: will
+    not duplicate an active pack the member already owns. &dryrun=1 previews.
+    ?username= or ?user_id=, &level=. Admin session, MIGRATION_SECRET, or CRON_SECRET."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [s for s in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if s]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    dry = request.query_params.get("dryrun") in ("1", "true", "yes")
+    uname = (request.query_params.get("username") or "").strip().lstrip("@")
+    uid = request.query_params.get("user_id")
+    try:
+        level = int(request.query_params.get("level", "0"))
+    except (TypeError, ValueError):
+        level = 0
+    row = None
+    if uname:
+        row = db.query(User).filter(User.username == uname).first()
+    if row is None and uid:
+        try:
+            row = db.query(User).filter(User.id == int(uid)).first()
+        except (TypeError, ValueError):
+            pass
+    if row is None:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    pack = db.query(CampaignPack).filter(CampaignPack.level == level, CampaignPack.is_active == True).first()  # noqa: E712
+    if pack is None:
+        return JSONResponse({"error": "no active pack at level %d" % level}, status_code=404)
+    owned = {int(p.pack_level or 0) for p in db.query(PackPurchase).filter(
+        PackPurchase.user_id == row.id, PackPurchase.status == "active").all()}
+    already = level in owned
+    out = {"username": row.username, "user_id": row.id, "email": row.email,
+           "level": level, "owns_before": sorted(owned), "already_had_it": already, "dryrun": dry}
+    if already:
+        out["granted"] = False
+        out["note"] = "Member already owns an active $%d pack — nothing to do." % level
+        return {"ok": True, **out}
+    if dry:
+        out["granted"] = False
+        out["note"] = "DRY RUN — would grant an active $%d pack (gift, no commissions)." % level
+        return {"ok": True, **out}
+    db.add(PackPurchase(
+        user_id=row.id, pack_id=pack.id, pack_level=pack.level,
+        amount=0.0, payment_method="gift", status="active", source="gift",
+        activated_at=datetime.utcnow(), created_at=datetime.utcnow()))
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)[:140]}, status_code=500)
+    out["granted"] = True
+    out["owns_after"] = sorted(owned | {level})
+    out["note"] = "Granted active $%d pack (gift). They can now create an ad against it." % level
+    return {"ok": True, **out}
+
+
 @app.get("/admin/api/al/views-audit")
 def al_views_audit(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Real view-delivery audit: active campaigns, total/verified views, recent
