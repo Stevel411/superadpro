@@ -72949,6 +72949,47 @@ def admin_td_pending(request: Request, db: Session = Depends(get_db)):
     return {"pending": [dict(r) for r in rows]}
 
 
+@app.get("/admin/api/al/td-cleanup")
+def admin_td_cleanup(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated test-data sweep. Dry-run lists the test member accounts (with ready-to-tap
+    delete URLs) + the exchange data that would be wiped. ?apply=1 wipes the exchange tables
+    (all test so far). Member accounts are deleted separately via the delete_url (admin session,
+    battle-tested 41-model cascade)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    apply = request.query_params.get("apply") == "1"
+    accts = db.query(User).filter(
+        (User.email == "stevelaswsonsfm@gmail.com") | (User.email.like("%@simulator.amazonses.com"))
+    ).all()
+    acct_info = []
+    for u in accts:
+        sp = db.query(User).filter(User.id == u.sponsor_id).first() if u.sponsor_id else None
+        children = db.query(User).filter(User.sponsor_id == u.id).count()
+        acct_info.append({"id": u.id, "username": u.username, "email": u.email,
+                          "sponsor": sp.username if sp else None, "direct_children": children,
+                          "delete_url": "/admin/api/delete-user?user_id=%d&confirm=yes" % u.id})
+    counts = {
+        "links": db.execute(text("SELECT COUNT(*) FROM td_link")).scalar() or 0,
+        "td_accounts": db.execute(text("SELECT COUNT(*) FROM td_account")).scalar() or 0,
+        "surfs": db.execute(text("SELECT COUNT(*) FROM td_surf")).scalar() or 0,
+        "pending": db.execute(text("SELECT COUNT(*) FROM td_pending")).scalar() or 0,
+    }
+    out = {"test_member_accounts": acct_info, "exchange_data_counts": counts}
+    if apply:
+        for tbl in ("td_link", "td_account", "td_surf", "td_pending"):
+            db.execute(text("DELETE FROM %s" % tbl))
+        db.commit()
+        out["applied"] = "Exchange data wiped (links/accounts/surfs/pending) — clean slate."
+        out["next"] = "Delete the test member accounts by tapping each delete_url above while logged in as admin."
+    else:
+        out["dryrun"] = True
+        out["next"] = "?apply=1 wipes the exchange data. Delete member accounts via each delete_url (admin session)."
+    return out
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
