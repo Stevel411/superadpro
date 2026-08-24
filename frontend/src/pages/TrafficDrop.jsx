@@ -109,7 +109,7 @@ export default function TrafficDrop() {
   var links = data ? data.links : [];
   var views = data ? (data.views_delivered_total || 0) : 0;
   var maxLinks = data ? data.max_links : 5;
-  var refLink = data && data.username ? ('advantagelife.club/trafficdrop/' + data.username) : 'advantagelife.club/trafficdrop/…';
+  var refLink = data && data.username ? ('www.advantagelife.club/trafficdrop/' + data.username) : 'advantagelife.club/trafficdrop/…';
 
   return (
     <AlShell active="trafficdrop">

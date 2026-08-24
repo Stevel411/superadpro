@@ -288,6 +288,9 @@ class WwwRedirectMiddleware(BaseHTTPMiddleware):
         if host == "superadpro.com":
             url = str(request.url).replace("://superadpro.com", "://www.superadpro.com", 1)
             return RedirectResponse(url=url, status_code=301)
+        if host == "advantagelife.club":
+            url = str(request.url).replace("://advantagelife.club", "://www.advantagelife.club", 1)
+            return RedirectResponse(url=url, status_code=301)
         return await call_next(request)
 app.add_middleware(WwwRedirectMiddleware)
 
