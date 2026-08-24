@@ -43,6 +43,10 @@ const CSS = `
 .td-ringin{width:70px;height:70px;border-radius:50%;background:#0a1f52;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff}
 .td-stop{display:block;margin:10px auto 0;background:none;border:none;color:#9fb8ff;font-size:12px;font-weight:800;cursor:pointer;text-decoration:underline}
 .td-sess{margin-top:14px;font-size:12px;color:#bcd0ff;font-weight:700;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+.td-verify{display:flex;gap:10px;justify-content:center;margin:14px 0 4px}
+.td-vbtn{width:56px;height:56px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:24px;font-weight:900;cursor:pointer}
+.td-vbtn:hover{background:rgba(255,255,255,.18)}
+.td-verr{color:#ff9db0;font-size:12.5px;font-weight:700;margin:8px 0 0}
 `;
 
 export default function TrafficDrop() {
@@ -56,6 +60,8 @@ export default function TrafficDrop() {
   const [timeLeft, setTimeLeft] = useState(10);
   const [sSurfed, setSSurfed] = useState(0);
   const [sEarned, setSEarned] = useState(0);
+  const [verifyErr, setVerifyErr] = useState(false);
+  const [doneMsg, setDoneMsg] = useState('');
 
   function load() {
     fetch('/api/trafficdrop/me').then(function (r) { return r.json(); }).then(setData).catch(function () {});
@@ -77,10 +83,10 @@ export default function TrafficDrop() {
   }
 
   function nextSurf() {
-    setPhase('loading'); setSurf(null);
+    setPhase('loading'); setSurf(null); setVerifyErr(false);
     fetch('/api/trafficdrop/surf/next').then(function (r) { return r.json(); }).then(function (d) {
-      if (d.done || !d.url) { setPhase('done'); return; }
-      setSurf({ surf_id: d.surf_id, url: d.url }); setTimeLeft(d.timer || 10); setPhase('ready');
+      if (d.done || !d.url) { setDoneMsg(d.message || ''); setPhase('done'); return; }
+      setSurf({ surf_id: d.surf_id, url: d.url, verify: d.verify }); setTimeLeft(d.timer || 10); setPhase('ready');
     }).catch(function () { setPhase('done'); });
   }
   function visitSite() {
@@ -94,13 +100,14 @@ export default function TrafficDrop() {
     var t = setTimeout(function () { setTimeLeft(function (x) { return x - 1; }); }, 1000);
     return function () { clearTimeout(t); };
   }, [phase, timeLeft]);
-  function verifyDone() {
+  function verifyDone(answer) {
     if (!surf) return;
     var sid = surf.surf_id;
-    fetch('/api/trafficdrop/surf/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ surf_id: sid }) })
+    fetch('/api/trafficdrop/surf/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ surf_id: sid, answer: answer }) })
       .then(function (r) { return r.json(); }).then(function (d) {
-        if (d && d.ok) { setSSurfed(function (x) { return x + 1; }); if (d.earned_credit) setSEarned(function (x) { return x + 1; }); load(); }
-        nextSurf();
+        if (d && d.ok) { setVerifyErr(false); setSSurfed(function (x) { return x + 1; }); if (d.earned_credit) setSEarned(function (x) { return x + 1; }); load(); nextSurf(); }
+        else if (d && d.error === 'verify failed') { setVerifyErr(true); }
+        else { nextSurf(); }
       }).catch(function () { nextSurf(); });
   }
   function stopSurf() { setPhase('idle'); setSurf(null); }
@@ -153,18 +160,21 @@ export default function TrafficDrop() {
                   <button className="td-stop" onClick={stopSurf}>Stop</button>
                 </div>
               ) : null}
-              {phase === 'verify' ? (
+              {phase === 'verify' && surf && surf.verify ? (
                 <div>
-                  <h2>Timer complete ✓</h2>
-                  <p>Confirm you're here to collect your credit.</p>
-                  <button className="td-surfbtn" onClick={verifyDone}>✓ I'm here — continue</button>
+                  <h2>Almost there</h2>
+                  <p>Tap the number <b>{surf.verify.answer_prompt}</b> to collect your credit.</p>
+                  <div className="td-verify">
+                    {surf.verify.options.map(function (o) { return <button key={o} className="td-vbtn" onClick={function () { verifyDone(o); }}>{o}</button>; })}
+                  </div>
+                  {verifyErr ? <p className="td-verr">Not quite — tap the {surf.verify.answer_prompt}.</p> : null}
                   <button className="td-stop" onClick={stopSurf}>Stop</button>
                 </div>
               ) : null}
               {phase === 'done' ? (
                 <div>
-                  <h2>No sites to surf right now</h2>
-                  <p>The pool's empty — check back soon, or add credits to your own links.</p>
+                  <h2>Nothing to surf right now</h2>
+                  <p>{doneMsg || "The pool's empty — check back soon, or add credits to your own links."}</p>
                   <button className="td-surfbtn" onClick={stopSurf}>Done</button>
                 </div>
               ) : null}

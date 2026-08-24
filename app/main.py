@@ -72342,6 +72342,8 @@ def al_grant_grandfather_bundle(request: Request, user: User = Depends(get_curre
 _TD_TABLES_READY = False
 TD_WELCOME_CREDITS = 10
 TD_MAX_LINKS = 5
+TD_SURF_RATE_CAP = 120  # max surfs served per surfer per hour
+TD_SURF_COOLDOWN_MIN = 30  # don't re-serve a surfer the same link within this many minutes
 
 
 def _td_ensure_tables(db):
@@ -72360,6 +72362,7 @@ def _td_ensure_tables(db):
         db.execute(text("CREATE TABLE IF NOT EXISTS td_surf (id SERIAL PRIMARY KEY, surfer_id INTEGER NOT NULL, "
                         "link_id INTEGER NOT NULL, owner_id INTEGER NOT NULL, served_at TIMESTAMP DEFAULT now(), "
                         "completed BOOLEAN DEFAULT false, completed_at TIMESTAMP)"))
+        db.execute(text("ALTER TABLE td_surf ADD COLUMN IF NOT EXISTS challenge INTEGER"))
         db.execute(text("CREATE TABLE IF NOT EXISTS td_pending (token VARCHAR(64) PRIMARY KEY, email TEXT NOT NULL, "
                         "url TEXT NOT NULL, sharer TEXT, created_at TIMESTAMP DEFAULT now())"))
         db.execute(text("CREATE TABLE IF NOT EXISTS td_signup (user_id INTEGER PRIMARY KEY, email TEXT, name TEXT, "
@@ -72380,6 +72383,7 @@ def _td_next_link(db, surfer_id):
         "SELECT l.id, l.url, l.user_id FROM td_link l "
         "JOIN td_account a ON a.user_id = l.user_id "
         "WHERE l.status='active' AND l.user_id != :s AND a.credits >= 1 "
+        "AND l.id NOT IN (SELECT link_id FROM td_surf WHERE surfer_id=:s AND served_at > now() - interval '30 minutes') "
         "ORDER BY l.last_served_at ASC NULLS FIRST, random() LIMIT 1"),
         {"s": surfer_id}).first()
 
@@ -72500,15 +72504,28 @@ def td_surf_next(user: User = Depends(get_current_user), db: Session = Depends(g
     if not user:
         return JSONResponse({"error": "auth required"}, status_code=401)
     _td_ensure_tables(db)
+    recent = db.execute(text("SELECT COUNT(*) FROM td_surf WHERE surfer_id=:s AND served_at > now() - interval '1 hour'"),
+                        {"s": user.id}).scalar() or 0
+    if recent >= TD_SURF_RATE_CAP:
+        return {"done": True, "message": "You've surfed a lot this hour — take a short break and come back soon."}
     row = _td_next_link(db, user.id)
     if not row:
-        return {"done": True, "message": "No sites to surf right now — check back soon."}
+        return {"done": True, "message": "No new sites to surf right now — check back soon."}
     link_id, url, owner_id = row[0], row[1], row[2]
+    import random as _r
+    answer = _r.randint(1, 9)
+    opts = [answer]
+    while len(opts) < 3:
+        x = _r.randint(1, 9)
+        if x not in opts:
+            opts.append(x)
+    _r.shuffle(opts)
     db.execute(text("UPDATE td_link SET last_served_at=now() WHERE id=:id"), {"id": link_id})
-    surf_id = db.execute(text("INSERT INTO td_surf (surfer_id, link_id, owner_id) VALUES (:s,:l,:o) RETURNING id"),
-                         {"s": user.id, "l": link_id, "o": owner_id}).first()[0]
+    surf_id = db.execute(text("INSERT INTO td_surf (surfer_id, link_id, owner_id, challenge) VALUES (:s,:l,:o,:c) RETURNING id"),
+                         {"s": user.id, "l": link_id, "o": owner_id, "c": answer}).first()[0]
     db.commit()
-    return {"surf_id": surf_id, "link_id": link_id, "url": url, "timer": 10}
+    return {"surf_id": surf_id, "link_id": link_id, "url": url, "timer": 10,
+            "verify": {"answer_prompt": answer, "options": opts}}
 
 
 @app.get("/admin/api/al/td-seed")
@@ -72567,7 +72584,7 @@ async def td_surf_complete(request: Request, user: User = Depends(get_current_us
     surf_id = body.get("surf_id")
     if not surf_id:
         return JSONResponse({"error": "missing surf_id"}, status_code=400)
-    row = db.execute(text("SELECT surfer_id, link_id, owner_id, completed, "
+    row = db.execute(text("SELECT surfer_id, link_id, owner_id, completed, challenge, "
                           "EXTRACT(EPOCH FROM (now() - served_at)) AS elapsed "
                           "FROM td_surf WHERE id=:id"), {"id": surf_id}).mappings().first()
     if not row or row["surfer_id"] != user.id:
@@ -72577,6 +72594,12 @@ async def td_surf_complete(request: Request, user: User = Depends(get_current_us
     elapsed = float(row["elapsed"] or 0)
     if elapsed < 8:   # 10s timer, 2s slack for network/render
         return JSONResponse({"error": "too soon", "wait": round(8 - elapsed, 1)}, status_code=400)
+    try:
+        answer = int(body.get("answer", -1))
+    except (TypeError, ValueError):
+        answer = -1
+    if row["challenge"] is not None and answer != int(row["challenge"]):
+        return JSONResponse({"error": "verify failed"}, status_code=400)
     earned, credits = _td_settle(db, user.id, row["link_id"], row["owner_id"])
     db.execute(text("UPDATE td_surf SET completed=true, completed_at=now() WHERE id=:id"), {"id": surf_id})
     db.commit()
