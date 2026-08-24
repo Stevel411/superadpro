@@ -73428,6 +73428,25 @@ def admin_folio_selftest(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"ok": False, "error": str(e)[:200], "steps": steps}, status_code=500)
 
 
+@app.get("/admin/api/folio/render-test")
+def admin_folio_render_test(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: render a sample page server-side and return it, to confirm the renderer works on live."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from .folio_render import render_page
+    sample = [
+        {"type": "nav", "props": {"brand": "Acme Traffic"}},
+        {"type": "hero", "props": {"headline": "Get 3x more leads", "headline_accent": "without spending on ads.", "button": "Send it over"}},
+        {"type": "stats", "props": {}},
+        {"type": "features", "props": {}},
+        {"type": "cta", "props": {}},
+        {"type": "footer", "props": {"brand": "Acme Traffic"}},
+    ]
+    return HTMLResponse(render_page(sample, accent=request.query_params.get("accent", "#0d9f6e"), title="Folio render test"))
+
+
 @app.get("/admin/api/al/grant-pack")
 def al_grant_pack(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Comp a single campaign pack to one member (admin gift — no P2P payment, no
