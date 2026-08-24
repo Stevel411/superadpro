@@ -72362,6 +72362,8 @@ def _td_ensure_tables(db):
                         "completed BOOLEAN DEFAULT false, completed_at TIMESTAMP)"))
         db.execute(text("CREATE TABLE IF NOT EXISTS td_pending (token VARCHAR(64) PRIMARY KEY, email TEXT NOT NULL, "
                         "url TEXT NOT NULL, sharer TEXT, created_at TIMESTAMP DEFAULT now())"))
+        db.execute(text("CREATE TABLE IF NOT EXISTS td_signup (user_id INTEGER PRIMARY KEY, email TEXT, name TEXT, "
+                        "joined_at TIMESTAMP DEFAULT now(), drip_step INTEGER DEFAULT 0, drip_done BOOLEAN DEFAULT false)"))
         db.commit()
         _TD_TABLES_READY = True
         return True
@@ -72921,6 +72923,8 @@ async def td_complete(request: Request, db: Session = Depends(get_db)):
             {User.total_team: _f.coalesce(User.total_team, 0) + 1}, synchronize_session=False)
     _td_credits(db, user.id)
     db.execute(text("INSERT INTO td_link (user_id,url,status) VALUES (:u,:url,'active')"), {"u": user.id, "url": url})
+    db.execute(text("INSERT INTO td_signup (user_id,email,name) VALUES (:u,:e,:n) ON CONFLICT (user_id) DO NOTHING"),
+               {"u": user.id, "e": email, "n": username})
     db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
     db.commit()
     resp = JSONResponse({"ok": True, "redirect": "/trafficdrop?welcome=1"})
@@ -73037,6 +73041,169 @@ def admin_td_delete_tests(request: Request, db: Session = Depends(get_db)):
                 info["error"] = str(e)[:180]
         results.append(info)
     return {"dryrun": not apply, "count": len(results), "targets": results}
+
+
+_TD_BASE = "https://www.advantagelife.club"
+TD_DRIP_DAYS = [1, 3, 6, 10]  # day after signup each of the 4 emails goes out
+
+
+def _td_btn(label, url, alt=False):
+    bg = "#0a1f52" if alt else "#c8102e"
+    return ('<a href="' + url + '" style="display:inline-block;background:' + bg + ';color:#fff;'
+            'text-decoration:none;border-radius:10px;padding:12px 22px;font-weight:800;font-size:14px;'
+            'margin:6px 6px 6px 0">' + label + '</a>')
+
+
+def _td_unsub_token(uid, email):
+    import hashlib
+    secret = os.getenv("CRON_SECRET", "") or os.getenv("MIGRATION_SECRET", "") or "td"
+    return hashlib.sha256(("%s:%s:%s" % (uid, email, secret)).encode()).hexdigest()[:16]
+
+
+def _td_onboard_email(step, name):
+    """Return (subject, inner_html) for drip email `step` (0-3). {{name}} already substituted."""
+    n = name or "there"
+    b = _TD_BASE
+    if step == 0:
+        subject = "Your link is live — here's how to get more eyes on it"
+        html = ("<p>Hi " + n + ",</p>"
+                "<p>Your link is live in the AdvantageLife traffic network — nice work. Here's how to get real traffic flowing to it:</p>"
+                "<ol style='padding-left:18px'>"
+                "<li style='margin-bottom:7px'><b>Surf</b> — visit other members' sites for a few seconds each. Every 2 you surf earns a view for your own link.</li>"
+                "<li style='margin-bottom:7px'><b>Share</b> — drop your link anywhere you promote. Everyone who joins to get their own free traffic joins <b>on your team</b>.</li>"
+                "</ol><p>The more you surf and share, the more your link gets seen.</p>"
+                "<p>" + _td_btn("Start surfing &rarr;", b + "/trafficdrop") + "</p>"
+                "<p style='font-size:12px;color:#8a93ab'>No cost, no catch — this is your free traffic, working for you.</p>")
+    elif step == 1:
+        subject = "The difference between a glance and a customer"
+        html = ("<p>Hi " + n + ",</p>"
+                "<p>Free surf traffic is a great start. But let's be honest about what it is: people glancing at your site for a few seconds while they earn their own credits.</p>"
+                "<p>It gets you <b>seen</b>. It doesn't always get you <b>sold</b>.</p>"
+                "<p>The traffic that actually converts is different — real people who chose to sit and watch your offer, because they're part of a network built on watching, not just clicking. That's what AdvantageLife runs on.</p>"
+                "<p>More on that in a few days. For now — keep surfing and sharing.</p>"
+                "<p>" + _td_btn("Open Traffic Drop &rarr;", b + "/trafficdrop", alt=True) + "</p>")
+    elif step == 2:
+        subject = "Real people watching your offer — from $5"
+        html = ("<p>Hi " + n + ",</p>"
+                "<p>By now you've seen how surf traffic works: you grind, you earn, your link gets shown. Here's the upgrade.</p>"
+                "<p>A <b>campaign pack</b> puts your offer in front of real AdvantageLife members who actually watch it — a guaranteed number of <b>watch-verified views</b>. No surfing for every view. You buy the reach, real people watch, done.</p>"
+                "<p>Packs start at just <b>$5</b> to test the water.</p>"
+                "<p>" + _td_btn("See campaign packs &rarr;", b + "/packs") + "</p>"
+                "<p style='font-size:12px;color:#8a93ab'>No income is promised and there are no guarantees — what you get out depends on your offer and your effort. But real eyes beat empty clicks every time.</p>")
+    else:
+        subject = "You're building more than traffic"
+        html = ("<p>Hi " + n + ",</p>"
+                "<p>Here's something most people miss about AdvantageLife.</p>"
+                "<p>Every time you share your link and someone joins to get their own free traffic, <b>they join on your team</b>. You're not just driving traffic — you're building a network. And the earlier you build it, the more the whole thing works in your favour, because your spot only ever moves up as people join below you.</p>"
+                "<p>So two things worth doing today:</p>"
+                "<p>" + _td_btn("Share your link &rarr;", b + "/trafficdrop", alt=True) + _td_btn("See packs &rarr;", b + "/packs") + "</p>"
+                "<p style='font-size:12px;color:#8a93ab'>Free to join, real advertising product, no income promised — results depend on your effort.</p>")
+    return subject, html
+
+
+def _td_email_wrap(inner_html, unsub_url):
+    return ('<div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;padding:20px;color:#2b3350;font-size:14px;line-height:1.6">'
+            + inner_html +
+            '<hr style="border:none;border-top:1px solid #e6ecf5;margin:24px 0 14px">'
+            '<p style="font-size:11px;color:#8a93ab;line-height:1.5">You\'re getting this because you joined AdvantageLife to get free traffic. '
+            'AdvantageLife is free to join and a real advertising platform — no income is promised. '
+            '<a href="' + unsub_url + '" style="color:#8a93ab">Unsubscribe</a>.</p></div>')
+
+
+def _td_run_onboarding_drip(db, limit=200):
+    """Send the next due onboarding email to each enrolled signup. One email per user per run,
+    idempotent via drip_step. Only touches confirmed signups (they double-opted-in)."""
+    _td_ensure_tables(db)
+    now = datetime.utcnow()
+    rows = db.execute(text("SELECT user_id, email, name, joined_at, drip_step FROM td_signup "
+                           "WHERE drip_done=false ORDER BY joined_at LIMIT :lim"), {"lim": limit}).mappings().all()
+    sent, skipped, details = 0, 0, []
+    for r in rows:
+        step = int(r["drip_step"] or 0)
+        if step >= len(TD_DRIP_DAYS):
+            db.execute(text("UPDATE td_signup SET drip_done=true WHERE user_id=:u"), {"u": r["user_id"]})
+            continue
+        days_since = (now - r["joined_at"]).total_seconds() / 86400.0
+        if days_since < TD_DRIP_DAYS[step]:
+            skipped += 1
+            continue
+        subject, inner = _td_onboard_email(step, r["name"])
+        unsub = _TD_BASE + "/trafficdrop/unsub?uid=%d&t=%s" % (r["user_id"], _td_unsub_token(r["user_id"], r["email"]))
+        html = _td_email_wrap(inner, unsub)
+        ok = False
+        try:
+            from .email_utils import send_email
+            send_email(r["email"], subject, html, category="marketing", from_name="AdvantageLife", list_unsubscribe=unsub)
+            ok = True
+        except Exception:
+            ok = False
+        new_step = step + 1
+        db.execute(text("UPDATE td_signup SET drip_step=:s, drip_done=:d WHERE user_id=:u"),
+                   {"s": new_step, "d": new_step >= len(TD_DRIP_DAYS), "u": r["user_id"]})
+        sent += 1
+        details.append({"user_id": r["user_id"], "email_number": step + 1, "sent_ok": ok})
+    db.commit()
+    return {"sent": sent, "not_due_yet": skipped, "details": details}
+
+
+@app.get("/cron/td-onboarding")
+def cron_td_onboarding(request: Request, db: Session = Depends(get_db)):
+    """Daily cron: advance the Traffic Drop onboarding drip. Secret-gated (CRON_SECRET or MIGRATION_SECRET)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("CRON_SECRET", ""), os.getenv("MIGRATION_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    return _td_run_onboarding_drip(db)
+
+
+@app.get("/trafficdrop/unsub")
+def td_unsub(request: Request, uid: int = 0, t: str = "", db: Session = Depends(get_db)):
+    """Unsubscribe from the onboarding drip (token-validated). Stops the drip; account stays active."""
+    _td_ensure_tables(db)
+    row = db.execute(text("SELECT email FROM td_signup WHERE user_id=:u"), {"u": uid}).first()
+    if row and _td_unsub_token(uid, row[0]) == t:
+        db.execute(text("UPDATE td_signup SET drip_done=true WHERE user_id=:u"), {"u": uid})
+        db.commit()
+        return HTMLResponse(_td_confirm_result("You're unsubscribed from these emails. Your account stays active — use it anytime.", True))
+    return HTMLResponse(_td_confirm_result("This unsubscribe link is invalid or has expired.", False))
+
+
+@app.get("/admin/api/al/td-drip-status")
+def admin_td_drip_status(request: Request, db: Session = Depends(get_db)):
+    """Read-only onboarding-drip status: enrolled, by step, done, and how many are due right now."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    total = db.execute(text("SELECT COUNT(*) FROM td_signup")).scalar() or 0
+    done = db.execute(text("SELECT COUNT(*) FROM td_signup WHERE drip_done=true")).scalar() or 0
+    by_step = {}
+    for s in range(len(TD_DRIP_DAYS) + 1):
+        by_step[s] = db.execute(text("SELECT COUNT(*) FROM td_signup WHERE drip_step=:s AND drip_done=false"), {"s": s}).scalar() or 0
+    now = datetime.utcnow()
+    rows = db.execute(text("SELECT joined_at, drip_step FROM td_signup WHERE drip_done=false")).mappings().all()
+    due = sum(1 for r in rows if int(r["drip_step"] or 0) < len(TD_DRIP_DAYS)
+              and (now - r["joined_at"]).total_seconds() / 86400.0 >= TD_DRIP_DAYS[int(r["drip_step"] or 0)])
+    return {"enrolled": total, "completed": done, "active_by_next_step": by_step,
+            "due_to_send_now": due, "schedule_days": TD_DRIP_DAYS}
+
+
+@app.get("/admin/api/al/td-drip-preview")
+def admin_td_drip_preview(request: Request, db: Session = Depends(get_db)):
+    """Preview a drip email (?step=1-4). Secret-gated."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        step = max(1, min(4, int(request.query_params.get("step", "1")))) - 1
+    except (TypeError, ValueError):
+        step = 0
+    subject, inner = _td_onboard_email(step, "there")
+    html = _td_email_wrap(inner, _TD_BASE + "/trafficdrop/unsub?uid=0&t=preview")
+    return HTMLResponse("<div style='background:#eef2fb;padding:20px'><p style='font-family:Inter,sans-serif;font-weight:800;color:#0a1f52'>Subject: "
+                        + subject + "</p><div style='background:#fff;border-radius:12px'>" + html + "</div></div>")
 
 
 @app.get("/admin/api/al/grant-pack")
