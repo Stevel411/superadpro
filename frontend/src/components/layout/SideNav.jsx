@@ -27,6 +27,7 @@ export const NAV = [
   { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true },
+  { key: 'folio', tk: 'nav.folio', label: 'Page Builder', to: '/folio', link: true },
   { key: 'banner-showcase', tk: 'nav.bannerShowcase', label: 'Banner Showcase', to: '/discover', link: false },
   { key: 'traffic', tk: 'nav.yourTraffic', label: 'Your Traffic', to: '/my-traffic', link: true },
   { key: 'kit', tk: 'nav.contentKit', label: 'Content Kit', to: '/content-kit', link: true },

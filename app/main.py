@@ -4290,6 +4290,22 @@ def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     return RedirectResponse(url="/", status_code=302)
 
 
+@app.get("/folio")
+def folio_home_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for the Folio page builder (My Pages)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
+
+@app.get("/folio/edit/{page_id}")
+def folio_edit_page(page_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for the Folio editor."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
+
 @app.get("/compensation")
 def compensation_public(request: Request):
     """Public compensation plan.
