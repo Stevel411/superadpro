@@ -72961,35 +72961,49 @@ def admin_td_cleanup(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     _td_ensure_tables(db)
     apply = request.query_params.get("apply") == "1"
-    uids = [r[0] for r in db.execute(text("SELECT user_id FROM td_account")).all()]
-    users = db.query(User).filter(User.id.in_(uids)).all() if uids else []
-    KEEP = {1, 319}  # AdvantageLife (company) + jlnprofits (real member) — clear TD data, keep the account
-    acct_info = []
-    for u in users:
+
+    def _is_test(e):
+        e = (e or "").lower()
+        return e.endswith("@simulator.amazonses.com") or "stevelasw" in e
+
+    # SAFE delete list: ONLY accounts created by a test signup (test-pattern email).
+    # Never keys off "has a td_account" — real members who merely visited TD get one.
+    del_users = db.query(User).filter(
+        User.email.like("%@simulator.amazonses.com") | User.email.like("%stevelasw%")
+    ).all()
+    delete_these = []
+    for u in del_users:
+        if u.is_admin:
+            continue
         sp = db.query(User).filter(User.id == u.sponsor_id).first() if u.sponsor_id else None
         children = db.query(User).filter(User.sponsor_id == u.id).count()
-        keep = (u.id in KEEP) or bool(u.is_admin)
-        acct_info.append({"id": u.id, "username": u.username, "email": u.email,
-                          "sponsor": sp.username if sp else None, "direct_children": children,
-                          "created": str(u.created_at)[:19] if u.created_at else None,
-                          "keep_account": keep,
-                          "delete_url": None if keep else "/admin/api/delete-user?user_id=%d&confirm=yes" % u.id})
+        delete_these.append({"id": u.id, "username": u.username, "email": u.email,
+                             "sponsor": sp.username if sp else None, "direct_children": children,
+                             "created": str(u.created_at)[:19] if u.created_at else None,
+                             "delete_url": "/admin/api/delete-user?user_id=%d&confirm=yes" % u.id})
+
+    # Transparency only: every account that has a TD record (real ones are KEPT; wiping just clears their TD data)
+    uids = [r[0] for r in db.execute(text("SELECT user_id FROM td_account")).all()]
+    users = db.query(User).filter(User.id.in_(uids)).all() if uids else []
+    touched = [{"id": u.id, "username": u.username, "email": u.email,
+                "is_test_signup": _is_test(u.email)} for u in users]
+
     counts = {
         "links": db.execute(text("SELECT COUNT(*) FROM td_link")).scalar() or 0,
         "td_accounts": db.execute(text("SELECT COUNT(*) FROM td_account")).scalar() or 0,
         "surfs": db.execute(text("SELECT COUNT(*) FROM td_surf")).scalar() or 0,
         "pending": db.execute(text("SELECT COUNT(*) FROM td_pending")).scalar() or 0,
     }
-    out = {"exchange_touched_accounts": acct_info, "exchange_data_counts": counts}
+    out = {"delete_these": delete_these, "exchange_touched_accounts": touched, "exchange_data_counts": counts}
     if apply:
         for tbl in ("td_link", "td_account", "td_surf", "td_pending"):
             db.execute(text("DELETE FROM %s" % tbl))
         db.commit()
-        out["applied"] = "Exchange data wiped (links/accounts/surfs/pending) — clean slate."
-        out["next"] = "Delete the test member accounts by tapping each delete_url above while logged in as admin."
+        out["applied"] = "Exchange data wiped (all TD tables). Real members get a fresh TD record on next visit."
+        out["next"] = "Delete the test signups by tapping each delete_url in delete_these (admin session)."
     else:
         out["dryrun"] = True
-        out["next"] = "?apply=1 wipes the exchange data. Delete member accounts via each delete_url (admin session)."
+        out["next"] = "?apply=1 wipes the exchange data. Delete test accounts via delete_these[].delete_url (admin session)."
     return out
 
 
