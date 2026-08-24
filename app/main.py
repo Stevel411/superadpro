@@ -72352,12 +72352,29 @@ def _td_ensure_tables(db):
                         "url TEXT NOT NULL, title TEXT, status VARCHAR(16) DEFAULT 'active', "
                         "views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT now())"))
         db.execute(text("CREATE INDEX IF NOT EXISTS idx_td_link_user ON td_link(user_id)"))
+        db.execute(text("ALTER TABLE td_account ADD COLUMN IF NOT EXISTS surfs INTEGER DEFAULT 0"))
+        db.execute(text("ALTER TABLE td_link ADD COLUMN IF NOT EXISTS last_served_at TIMESTAMP"))
+        db.execute(text("CREATE TABLE IF NOT EXISTS td_surf (id SERIAL PRIMARY KEY, surfer_id INTEGER NOT NULL, "
+                        "link_id INTEGER NOT NULL, owner_id INTEGER NOT NULL, served_at TIMESTAMP DEFAULT now(), "
+                        "completed BOOLEAN DEFAULT false, completed_at TIMESTAMP)"))
         db.commit()
         _TD_TABLES_READY = True
         return True
     except Exception:
         db.rollback()
         return False
+
+
+def _td_next_link(db, surfer_id):
+    """Rotation: pick the next link to serve a surfer. Eligible = active link, not the
+    surfer's own, owner still has >=1 credit to spend. Least-recently-served first
+    (never-served links go first), random tiebreak — fair, even rotation."""
+    return db.execute(text(
+        "SELECT l.id, l.url, l.user_id FROM td_link l "
+        "JOIN td_account a ON a.user_id = l.user_id "
+        "WHERE l.status='active' AND l.user_id != :s AND a.credits >= 1 "
+        "ORDER BY l.last_served_at ASC NULLS FIRST, random() LIMIT 1"),
+        {"s": surfer_id}).first()
 
 
 def _td_credits(db, user_id):
@@ -72451,6 +72468,66 @@ def admin_td_status(request: Request, db: Session = Depends(get_db)):
     sample = db.execute(text("SELECT id,user_id,url,views_delivered FROM td_link "
                              "WHERE status='active' ORDER BY id DESC LIMIT 8")).mappings().all()
     return {"td_accounts": accounts, "active_links": links, "sample": [dict(s) for s in sample]}
+
+
+@app.get("/api/trafficdrop/surf/next")
+def td_surf_next(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Rotation: serve the surfer the next link to view. Records a surf session (validated
+    on completion in Step 3). Returns done=True when the pool is empty."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _td_ensure_tables(db)
+    row = _td_next_link(db, user.id)
+    if not row:
+        return {"done": True, "message": "No sites to surf right now — check back soon."}
+    link_id, url, owner_id = row[0], row[1], row[2]
+    db.execute(text("UPDATE td_link SET last_served_at=now() WHERE id=:id"), {"id": link_id})
+    surf_id = db.execute(text("INSERT INTO td_surf (surfer_id, link_id, owner_id) VALUES (:s,:l,:o) RETURNING id"),
+                         {"s": user.id, "l": link_id, "o": owner_id}).first()[0]
+    db.commit()
+    return {"surf_id": surf_id, "link_id": link_id, "url": url, "timer": 10}
+
+
+@app.get("/admin/api/al/td-seed")
+def admin_td_seed(request: Request, db: Session = Depends(get_db)):
+    """TEST helper: give a member an active link + a credit balance, so the rotation has a pool."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    uname = (request.query_params.get("username") or "").strip().lstrip("@")
+    u = db.query(User).filter(User.username == uname).first()
+    if not u:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    url = _td_valid_url(request.query_params.get("url") or ("https://example.com/" + uname))
+    try:
+        credits = int(request.query_params.get("credits", "5"))
+    except (TypeError, ValueError):
+        credits = 5
+    _td_credits(db, u.id)
+    db.execute(text("UPDATE td_account SET credits=:c WHERE user_id=:u"), {"c": credits, "u": u.id})
+    db.execute(text("INSERT INTO td_link (user_id,url,status) VALUES (:u,:url,'active')"), {"u": u.id, "url": url})
+    db.commit()
+    return {"ok": True, "username": uname, "user_id": u.id, "url": url, "credits": credits}
+
+
+@app.get("/admin/api/al/td-next")
+def admin_td_next(request: Request, db: Session = Depends(get_db)):
+    """TEST: preview what the rotation would serve a given surfer (no session created)."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    try:
+        sid = int(request.query_params.get("surfer_id", "0"))
+    except (TypeError, ValueError):
+        sid = 0
+    row = _td_next_link(db, sid)
+    if not row:
+        return {"served": None, "note": "pool empty for this surfer"}
+    return {"served": {"link_id": row[0], "url": row[1], "owner_id": row[2]}}
 
 
 @app.get("/admin/api/al/grant-pack")
