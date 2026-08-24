@@ -72357,6 +72357,8 @@ def _td_ensure_tables(db):
         db.execute(text("CREATE TABLE IF NOT EXISTS td_surf (id SERIAL PRIMARY KEY, surfer_id INTEGER NOT NULL, "
                         "link_id INTEGER NOT NULL, owner_id INTEGER NOT NULL, served_at TIMESTAMP DEFAULT now(), "
                         "completed BOOLEAN DEFAULT false, completed_at TIMESTAMP)"))
+        db.execute(text("CREATE TABLE IF NOT EXISTS td_pending (token VARCHAR(64) PRIMARY KEY, email TEXT NOT NULL, "
+                        "url TEXT NOT NULL, sharer TEXT, created_at TIMESTAMP DEFAULT now())"))
         db.commit()
         _TD_TABLES_READY = True
         return True
@@ -72607,6 +72609,251 @@ def admin_td_simulate(request: Request, db: Session = Depends(get_db)):
             "surfer_credits": {"before": int(before_surfer), "after": int(surfer_after)},
             "surfer_total_surfs": int(surfs), "earned_credit_this_surf": earned,
             "link_views_delivered": int(views)}
+
+
+def _td_gen_username(db, email):
+    import re as _re
+    base = _re.sub(r'[^a-zA-Z0-9_]', '', (email.split('@')[0] or 'surfer'))[:20] or 'surfer'
+    if len(base) < 3:
+        base = base + 'surfer'
+    cand, i = base, 0
+    while db.query(User).filter(User.username == cand).first():
+        i += 1
+        cand = base[:22] + str(i)
+    return cand
+
+
+def _td_confirm_email_html(confirm_url, sharer):
+    who = (" from " + sharer) if sharer else ""
+    return (
+        '<div style="font-family:Inter,Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">'
+        '<h1 style="color:#0a1f52;font-size:24px;font-weight:900;margin:0 0 10px">One click to activate your free traffic</h1>'
+        '<p style="color:#334455;font-size:15px;line-height:1.5">Thanks for joining AdvantageLife' + who + '! '
+        'Confirm your email and your link goes live in the traffic network, and your free member account is ready.</p>'
+        '<p style="text-align:center;margin:26px 0"><a href="' + confirm_url + '" '
+        'style="background:#c8102e;color:#fff;text-decoration:none;font-weight:900;font-size:16px;'
+        'padding:14px 30px;border-radius:12px;display:inline-block">Confirm &amp; activate &rarr;</a></p>'
+        '<p style="color:#8899aa;font-size:12px;line-height:1.5">If you did not request this, ignore this email &mdash; '
+        'nothing happens until you click. Clicking confirms you want AdvantageLife emails.</p></div>'
+    )
+
+
+def _td_confirm_result(msg, ok):
+    color = "#17a34a" if ok else "#c8102e"
+    mark = "&#10003;" if ok else "!"
+    return ('<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>AdvantageLife</title></head>'
+            '<body style="margin:0;font-family:Inter,Arial,sans-serif;background:#eef2fb;display:flex;align-items:center;'
+            'justify-content:center;min-height:100vh;padding:20px">'
+            '<div style="background:#fff;border-radius:18px;padding:34px;max-width:380px;text-align:center;'
+            'box-shadow:0 30px 70px -40px rgba(10,31,82,.5)">'
+            '<div style="font-size:40px;color:' + color + ';margin-bottom:10px">' + mark + '</div>'
+            '<p style="color:#0d1230;font-size:15px;font-weight:600;line-height:1.5;margin:0 0 18px">' + msg + '</p>'
+            '<a href="https://www.advantagelife.club/" style="color:#12388f;font-weight:800;text-decoration:none;font-size:14px">Go to AdvantageLife &rarr;</a>'
+            '</div></body></html>')
+
+
+_TD_CAPTURE_TEMPLATE = r"""<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Free traffic for your links &mdash; AdvantageLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#ff2743;--grn:#17a34a;--gold:#ffd23f;--ink:#0d1230;--dim:#5a6584;--line:#e6ecf5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:#eef2fb;padding:24px 14px 50px}
+  .page{max-width:440px;margin:0 auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 40px 90px -46px rgba(10,31,82,.6),0 0 0 1px var(--line)}
+  .invite{display:flex;align-items:center;gap:9px;padding:11px 18px;background:#f7f9ff;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--dim)}
+  .invite .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0a1f52,#12388f);color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+  .invite b{color:var(--ink)}
+  .hero{position:relative;background:linear-gradient(165deg,#0a1f52,#12388f);color:#fff;padding:30px 26px 26px;overflow:hidden;text-align:center}
+  .eyebrow{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:30px;padding:6px 13px;font-size:10.5px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#cfe0ff}
+  .hero h1{margin:14px 0 8px;font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1.05}
+  .hero h1 em{font-style:normal;color:var(--gold)}
+  .hero p{font-size:14px;line-height:1.55;color:#dbe4fb;font-weight:600;margin:0 auto;max-width:330px}
+  .hero p b{color:#fff}
+  .form{padding:22px 24px 8px}
+  .form label{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);margin:0 0 5px}
+  .field{position:relative;margin-bottom:14px}
+  .field input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:14px 14px;font-size:15px;font-family:inherit;font-weight:600;color:var(--ink)}
+  .field input::placeholder{color:#9aa4bd;font-weight:500}
+  .go{width:100%;background:linear-gradient(120deg,var(--red),var(--red2));color:#fff;border:none;border-radius:13px;padding:16px;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 16px 34px -14px rgba(255,39,67,.6)}
+  .go:disabled{opacity:.6}
+  .consent{font-size:11px;color:var(--dim);line-height:1.5;font-weight:600;margin:12px 2px 0;text-align:center}
+  .consent b{color:var(--ink)}
+  .err{color:var(--red);font-size:12.5px;font-weight:700;margin:10px 0 0;text-align:center}
+  .pills{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:14px 20px 4px}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:#f2f6ff;border:1px solid var(--line);border-radius:30px;padding:6px 12px;font-size:11.5px;font-weight:800;color:var(--navy)}
+  .pill i{color:var(--grn);font-style:normal}
+  .foot{padding:16px 24px 20px;font-size:10.5px;color:var(--dim);text-align:center;line-height:1.6}
+  .done{padding:44px 30px;text-align:center}
+  .done .ck{font-size:46px;color:var(--grn)}
+  .done h2{font-size:22px;font-weight:900;color:var(--navy);margin:8px 0 6px}
+  .done p{font-size:14px;color:var(--dim);font-weight:600;line-height:1.55}
+  .done b{color:var(--ink)}
+</style></head>
+<body>
+  <div class="page" id="page">
+    __INVITE__
+    <div class="hero">
+      <span class="eyebrow">Free traffic &middot; for marketers</span>
+      <h1>Drop your link.<br>Get <em>free traffic</em>.</h1>
+      <p>Put your offer in front of <b>real people</b> &mdash; free. Add your link below and it goes live in the network.</p>
+    </div>
+    <div class="form">
+      <div class="field"><label>Your link</label><input id="url" type="text" placeholder="https://your-offer.com" /></div>
+      <div class="field"><label>Your email</label><input id="email" type="email" placeholder="you@email.com" /></div>
+      <button class="go" id="go">Get free traffic &rarr;</button>
+      <div class="consent">This creates your <b>free AdvantageLife account</b> &mdash; no cost, no card. We will email you about your traffic and the platform; unsubscribe anytime.</div>
+      <div class="err" id="err" style="display:none"></div>
+    </div>
+    <div class="pills">
+      <span class="pill"><i>&#10003;</i> Real human views</span>
+      <span class="pill"><i>&#10003;</i> Free &middot; no card</span>
+      <span class="pill"><i>&#10003;</i> Live in seconds</span>
+    </div>
+    <div class="foot">AdvantageLife is free to join and a real advertising platform. No income is promised and there are no guarantees &mdash; results depend on your offer and your effort.</div>
+  </div>
+<script>
+  var SHARER = "__SHARER__";
+  var go=document.getElementById('go'), err=document.getElementById('err');
+  function fail(m){ err.textContent=m; err.style.display='block'; go.disabled=false; go.innerHTML='Get free traffic &rarr;'; }
+  go.onclick=function(){
+    err.style.display='none';
+    var url=document.getElementById('url').value.trim(), email=document.getElementById('email').value.trim();
+    if(!url){ return fail('Enter the link you want traffic to.'); }
+    if(!email || email.indexOf('@')<0){ return fail('Enter a valid email address.'); }
+    go.disabled=true; go.textContent='...';
+    fetch('/api/trafficdrop/join',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url,email:email,sharer:SHARER})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d && d.ok){
+          document.getElementById('page').innerHTML='<div class="done"><div class="ck">\u2713</div><h2>Almost there!</h2><p>We have sent a confirmation to <b>'+email+'</b>. Click the link in that email to activate your free traffic and your account.</p></div>';
+        } else { fail((d&&d.error)||'Something went wrong, please try again.'); }
+      }).catch(function(){ fail('Something went wrong, please try again.'); });
+  };
+</script>
+</body></html>"""
+
+
+def _td_capture_html(sharer_username, sharer_name):
+    if sharer_name:
+        initial = sharer_name[0].upper() if sharer_name else "A"
+        invite = ('<div class="invite"><span class="av">' + initial + '</span>'
+                  '<span><b>' + sharer_name + '</b> is sharing free traffic with you</span></div>')
+    else:
+        invite = ''
+    return _TD_CAPTURE_TEMPLATE.replace("__INVITE__", invite).replace("__SHARER__", sharer_username or "")
+
+
+@app.post("/api/trafficdrop/join")
+async def td_join(request: Request, db: Session = Depends(get_db)):
+    """Public capture: link + email -> pending signup + double-opt-in email. The AL account is
+    NOT created until they confirm (protects genealogy + sender reputation)."""
+    _td_ensure_tables(db)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    email = sanitize((body.get("email") or "").strip().lower())
+    url = _td_valid_url(body.get("url"))
+    sharer = sanitize((body.get("sharer") or "").strip().lstrip("@"))
+    if not validate_email(email):
+        return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
+    if is_disposable_email(email):
+        return JSONResponse({"error": "Please use a permanent email address."}, status_code=400)
+    if not url:
+        return JSONResponse({"error": "Please enter a valid link."}, status_code=400)
+    if db.query(User).filter(User.email == email).first():
+        return JSONResponse({"error": "You're already a member — log in to add your link."}, status_code=400)
+    import secrets as _secrets
+    token = _secrets.token_urlsafe(24)
+    db.execute(text("DELETE FROM td_pending WHERE email=:e"), {"e": email})
+    db.execute(text("INSERT INTO td_pending (token,email,url,sharer) VALUES (:t,:e,:u,:s)"),
+               {"t": token, "e": email, "u": url, "s": sharer or None})
+    db.commit()
+    confirm_url = "https://www.advantagelife.club/trafficdrop/confirm?token=" + token
+    unsub = confirm_url + "&no=1"
+    try:
+        from .email_utils import send_email
+        send_email(email, "Confirm your free traffic — AdvantageLife",
+                   _td_confirm_email_html(confirm_url, sharer),
+                   category="transactional", list_unsubscribe=unsub, from_name="AdvantageLife")
+    except Exception:
+        pass
+    return {"ok": True, "message": "Almost there — check your email to confirm and activate your free traffic."}
+
+
+@app.get("/trafficdrop/confirm")
+def td_confirm(request: Request, token: str = "", db: Session = Depends(get_db)):
+    """Double-opt-in confirm: creates the free AL account under the sharer, activates their link,
+    logs them in, lands them in the dashboard."""
+    _td_ensure_tables(db)
+    row = db.execute(text("SELECT email,url,sharer FROM td_pending WHERE token=:t"), {"t": token}).mappings().first()
+    if not row:
+        return HTMLResponse(_td_confirm_result("This confirmation link is invalid or has already been used.", False))
+    if request.query_params.get("no"):
+        db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
+        db.commit()
+        return HTMLResponse(_td_confirm_result("No problem — you won't hear from us, and nothing was activated.", True))
+    email, url, sharer = row["email"], row["url"], row["sharer"]
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
+        db.commit()
+        resp = RedirectResponse(url="/trafficdrop", status_code=302)
+        set_secure_cookie(resp, existing.id, request)
+        return resp
+    sponsor_id = None
+    if sharer:
+        sp = db.query(User).filter(User.username == sharer).first()
+        if sp:
+            sponsor_id = sp.id
+    if not sponsor_id:
+        company = db.query(User).filter(User.username == "AdvantageLife").first()
+        if company:
+            sponsor_id = company.id
+    import secrets as _secrets
+    username = _td_gen_username(db, email)
+    pw = _secrets.token_urlsafe(16)
+    user = create_user(db, username, email, pw, sponsor_id=sponsor_id, first_name=username)
+    _al_join_free(db, user)
+    if sponsor_id:
+        sp_obj = db.query(User).filter(User.id == sponsor_id).first()
+        try:
+            assign_passup_sponsor(db, user, sp_obj)
+        except Exception:
+            pass
+        from sqlalchemy import func as _f
+        db.query(User).filter(User.id == sponsor_id).update(
+            {User.total_team: _f.coalesce(User.total_team, 0) + 1}, synchronize_session=False)
+    _td_credits(db, user.id)
+    db.execute(text("INSERT INTO td_link (user_id,url,status) VALUES (:u,:url,'active')"), {"u": user.id, "url": url})
+    db.execute(text("DELETE FROM td_pending WHERE token=:t"), {"t": token})
+    db.commit()
+    resp = RedirectResponse(url="/trafficdrop?welcome=1", status_code=302)
+    set_secure_cookie(resp, user.id, request)
+    return resp
+
+
+@app.get("/trafficdrop/{username}")
+def td_capture_page(username: str, db: Session = Depends(get_db)):
+    """Public capture funnel for a shared Traffic Drop link (/trafficdrop/{sharer})."""
+    uname = (username or "").strip().lstrip("@")
+    sp = db.query(User).filter(User.username == uname).first()
+    sharer_name = (sp.first_name or sp.username) if sp else None
+    return HTMLResponse(_td_capture_html(uname if sp else "", sharer_name))
+
+
+@app.get("/admin/api/al/td-pending")
+def admin_td_pending(request: Request, db: Session = Depends(get_db)):
+    """TEST: list pending double-opt-in signups (email + token) so the confirm flow can be verified."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    _td_ensure_tables(db)
+    rows = db.execute(text("SELECT token,email,url,sharer,created_at FROM td_pending ORDER BY created_at DESC LIMIT 10")).mappings().all()
+    return {"pending": [dict(r) for r in rows]}
 
 
 @app.get("/admin/api/al/grant-pack")
