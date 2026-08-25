@@ -378,8 +378,8 @@
   background: linear-gradient(180deg,#ffffff,#fdfaf4) !important;
   background-image: none !important;
   border: 1.5px solid rgba(140,110,60,0.14) !important;
-  border-radius: 12px !important;
-  padding: 14px 10px !important;
+  border-radius: 15px !important;
+  padding: 15px 10px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -417,19 +417,24 @@
 /* Tile icons — bolder stroke + rounded caps + colour transitions.
    Bumped to 24px to match the larger tile footprint. */
 .labs-chrome .pal-item svg {
-  width: 22px !important;
-  height: 22px !important;
+  box-sizing: content-box !important;
+  width: 21px !important;
+  height: 21px !important;
+  padding: 9px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(200,16,46,0.10), rgba(18,56,143,0.09)) !important;
   color: #12388f !important;
   stroke-width: 2 !important;
   fill: none !important;
   stroke: currentColor !important;
   stroke-linecap: round !important;
   stroke-linejoin: round !important;
-  transition: color 0.15s ease !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
 }
 .labs-chrome .pal-item:hover svg,
 .labs-chrome .pal-item:active svg {
   color: #12388f !important;
+  background: linear-gradient(135deg, rgba(200,16,46,0.16), rgba(18,56,143,0.14)) !important;
 }
 
 /* Tile label */

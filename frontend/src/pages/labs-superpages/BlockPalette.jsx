@@ -511,8 +511,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
           internally for AI-chat legibility. */}
       <div style={{padding:'10px 12px 14px',flexShrink:0,background:'transparent',borderTop:'1px solid rgba(13,26,58,0.09)'}}>
         <div style={{borderRadius:12,background:'#ffffff',display:'flex',flexDirection:'column',overflow:'hidden',border:'1px solid rgba(255,255,255,0.14)',boxShadow:'0 6px 16px rgba(10,20,56,0.28)'}}>
-          <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'11px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between',background:'linear-gradient(120deg,#c8102e,#e8203f)'}}>
-            <span style={{fontSize:13,fontWeight:900,letterSpacing:0.7,textTransform:'uppercase',color:'#0d1a3a'}}>✦ {t('superPagesEditor.aiAssistant')}</span>
+          <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'11px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between',background:'linear-gradient(135deg,#0a1f52,#12388f)',boxShadow:'0 6px 16px rgba(18,56,143,0.28)'}}>
+            <span style={{fontSize:13,fontWeight:900,letterSpacing:0.7,textTransform:'uppercase',color:'#ffffff'}}>✦ {t('superPagesEditor.aiAssistant')}</span>
             <span style={{fontSize:12,color:'rgba(255,255,255,0.85)',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
           </div>
           {chatOpen && (
