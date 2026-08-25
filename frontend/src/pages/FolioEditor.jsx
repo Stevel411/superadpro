@@ -30,7 +30,6 @@ const CHROME = `
 [data-e]:hover{outline:1px dashed rgba(91,61,245,.5);outline-offset:2px;border-radius:2px;cursor:text}
 [data-btn]{cursor:pointer}
 [data-btn]:hover{outline:2px solid #5b3df5;outline-offset:2px;border-radius:4px}
-[data-btn]::after{content:'\1f517';font-size:10px;opacity:.6;margin-left:5px;vertical-align:middle}
 [data-e]:focus{outline:2px solid #5b3df5;outline-offset:2px;border-radius:2px}
 .fed-add{display:block;margin:14px auto;background:#fff;border:2px dashed #c3c9d8;color:#5b6070;font-weight:800;font-size:13px;padding:12px 20px;border-radius:10px;cursor:pointer;font-family:inherit}
 .fed-add:hover{border-color:#5b3df5;color:#5b3df5}
