@@ -30,6 +30,8 @@ const CHROME = `
 [data-e]:hover{outline:1px dashed rgba(91,61,245,.5);outline-offset:2px;border-radius:2px;cursor:text}
 [data-btn]{cursor:pointer}
 [data-btn]:hover{outline:2px solid #5b3df5;outline-offset:2px;border-radius:4px}
+[data-img]{cursor:pointer;position:relative}
+[data-img]:hover{outline:2px solid #5b3df5;outline-offset:2px}
 [data-e]:focus{outline:2px solid #5b3df5;outline-offset:2px;border-radius:2px}
 .fed-add{display:block;margin:14px auto;background:#fff;border:2px dashed #c3c9d8;color:#5b6070;font-weight:800;font-size:13px;padding:12px 20px;border-radius:10px;cursor:pointer;font-family:inherit}
 .fed-add:hover{border-color:#5b3df5;color:#5b3df5}
@@ -74,6 +76,8 @@ export default function FolioEditor() {
   const secsRef = useRef([]);
   const accentRef = useRef('#5b3df5');
   const titleRef = useRef('');
+  const fileRef = useRef(null);
+  const imgTargetRef = useRef(null);
   const [ver, setVer] = useState(0);
 
   useEffect(() => {
@@ -116,6 +120,8 @@ export default function FolioEditor() {
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
     const onClick = (e) => {
+      const im = e.target.closest('[data-img]');
+      if (im) { e.preventDefault(); syncFromDOM(); imgTargetRef.current = im.dataset.img; if (fileRef.current) fileRef.current.click(); return; }
       const lk = e.target.closest('[data-btn]');
       if (lk) { e.preventDefault(); syncFromDOM(); const pr = (lk.dataset.btn || '').split('|'); const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; setLinkEdit({ sid: pr[0], field: pr[1], text: sc.props[pr[1]] != null ? sc.props[pr[1]] : (lk.innerText || ''), href: sc.props[pr[1] + '_href'] || '' }); } return; }
       const btn = e.target.closest('.fsec-ctrl button'); if (!btn) return;
@@ -150,6 +156,19 @@ export default function FolioEditor() {
       .catch(() => { setSaving(''); alert('Publish failed — please try again.'); });
   }
 
+  function handleImg(e) {
+    const f = e.target.files && e.target.files[0]; const tgt = imgTargetRef.current;
+    e.target.value = '';
+    if (!f || !tgt) return;
+    const pr = tgt.split('|');
+    const fd = new FormData(); fd.append('file', f);
+    setSaving('Uploading image\u2026');
+    fetch('/api/folio/upload-image', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+      if (d && d.success && d.url) { const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; sc.props[pr[1]] = d.url; } setVer(v => v + 1); setSaving('Image added'); setTimeout(() => setSaving(''), 1500); }
+      else { alert((d && d.error) || 'Upload failed.'); setSaving(''); }
+    }).catch(() => { alert('Upload failed.'); setSaving(''); });
+  }
+
   function saveLinkEdit() {
     const sc = secsRef.current.find(x => x.id === linkEdit.sid);
     if (sc) { sc.props = sc.props || {}; sc.props[linkEdit.field] = linkEdit.text; sc.props[linkEdit.field + '_href'] = linkEdit.href.trim(); }
@@ -168,6 +187,7 @@ export default function FolioEditor() {
   return (
     <div className="fed">
       <style>{CHROME}{FOLIO_CSS}</style>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
       <div className="fed-bar">
         <a className="back" href="/folio" title="Back">←</a>
         <input className="ti" defaultValue={title} onChange={e => { titleRef.current = e.target.value; }} title="Page title" />
@@ -184,7 +204,7 @@ export default function FolioEditor() {
         <button className="save" onClick={() => save()}>{saving || 'Save'}</button>
         <button className="pub" onClick={publish}>Publish</button>
       </div>
-      <div className="fed-hint">Tap text to edit · tap a button to set its link · hover a section for controls</div>
+      <div className="fed-hint">Tap text to edit · tap a button for its link · tap an image to replace it</div>
       <div className="fed-stage">
         <div className={'fed-doc ' + (device === 'mobile' ? 'mobile' : '')}>
           <div ref={canvasRef} />

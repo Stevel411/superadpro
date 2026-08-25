@@ -56,6 +56,7 @@ export const FOLIO_CSS = String.raw`
 .s-featrow h2{font-family:var(--fo-font-display);font-weight:800;font-size:clamp(1.9rem,3.4vw,2.4rem);letter-spacing:-.01em;line-height:1.1;margin:12px 0 13px}
 .s-featrow .chk{list-style:none;margin-top:16px}.s-featrow .chk li{display:flex;gap:10px;margin-bottom:10px;font-size:15px;color:var(--fo-text-soft)}.s-featrow .chk li::before{content:'\2713';color:var(--fo-accent);font-weight:900}
 .s-featrow .shot{aspect-ratio:4/3;border-radius:var(--fo-radius-lg);background:linear-gradient(140deg,var(--fo-accent),var(--fo-accent-tint));box-shadow:var(--fo-shadow-lg);position:relative;overflow:hidden}
+.s-featrow .shot.shot-img::after{content:none;display:none}
 .s-featrow .shot::after{content:'';position:absolute;left:24px;right:24px;top:30px;height:14px;border-radius:7px;background:rgba(255,255,255,.55);box-shadow:0 36px 0 rgba(255,255,255,.4),0 64px 0 rgba(255,255,255,.26)}
 .s-steps{background:var(--fo-bone-2)}.s-steps .head{text-align:center;margin-bottom:48px}.s-steps h2{font-family:var(--fo-font-display);font-weight:800;font-size:var(--fo-text-4xl);letter-spacing:-.03em;margin-top:12px}
 .s-steps .g{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.step{text-align:center;padding:0 12px}

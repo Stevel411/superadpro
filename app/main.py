@@ -73402,6 +73402,43 @@ async def folio_save(page_id: int, request: Request, user: User = Depends(get_cu
     return {"ok": True, "saved_at": str(datetime.utcnow())}
 
 
+@app.post("/api/folio/upload-image")
+async def folio_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    """Upload an image for a Folio page (all members). Returns the public URL."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
+    if file.content_type not in allowed_types:
+        return JSONResponse({"error": "Only JPEG, PNG, GIF, WebP and SVG images are allowed."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
+    import uuid as _uuid, os as _os
+    ext = _os.path.splitext(file.filename or "image.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "gif", "webp", "svg"}:
+        ext = "jpg"
+    try:
+        from app.image_optimise import optimise_image
+        contents, ext, content_type_after = optimise_image(contents, ext)
+    except Exception:
+        content_type_after = file.content_type
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        try:
+            url = upload_image(contents, "folio-images", ext, content_type_after)
+        except Exception as e:
+            logger.error("Folio R2 upload failed: %s: %s", type(e).__name__, e)
+            return JSONResponse({"error": "Image storage is temporarily unavailable — please try again shortly."}, status_code=503)
+    else:
+        upload_dir = _os.path.join(_os.path.dirname(_os.path.dirname(__file__)), "static", "uploads")
+        _os.makedirs(upload_dir, exist_ok=True)
+        filename = str(user.id) + "_" + _uuid.uuid4().hex[:12] + "." + ext
+        with open(_os.path.join(upload_dir, filename), "wb") as f:
+            f.write(contents)
+        url = "/static/uploads/" + filename
+    return JSONResponse({"success": True, "url": url})
+
+
 @app.post("/api/folio/pages/{page_id}/delete")
 def folio_delete(page_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete a page (owner only)."""

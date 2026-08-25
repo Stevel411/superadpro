@@ -9,6 +9,8 @@ function esc(v, d) {
 function g(p, k, d) { return (p && p[k] !== undefined && p[k] !== '') ? p[k] : d; }
 function E(sid, f) { return 'contenteditable="true" spellcheck="false" data-e="' + sid + '|' + f + '"'; }
 function B(sid, f) { return 'data-btn="' + sid + '|' + f + '"'; }  // linkable button/link (text + destination via popover)
+function IU(p, f, d) { var u = (p && typeof p[f] === 'string' && p[f].trim()) ? p[f].trim() : d; return u.replace(/["'()\\ \n]/g, ''); }
+function IMG(sid, f) { return 'data-img="' + sid + '|' + f + '"'; }
 
 const R = {
   nav: (p, s) => '<div class="s-nav"><div class="fo-wr in">'
@@ -57,7 +59,7 @@ const R = {
     + '<h2 class="fo-disp" ' + E(s, 'heading') + '>' + esc(g(p, 'heading', 'Set it up once. Watch it work every day.')) + '</h2>'
     + '<p class="fo-lede" ' + E(s, 'lede') + '>' + esc(g(p, 'lede', "You don't need a following or a budget \u2014 just a plan you'll stick to.")) + '</p>'
     + '<ul class="chk"><li ' + E(s, 'k1') + '>' + esc(g(p, 'k1', 'A ranked list so you start easy')) + '</li><li ' + E(s, 'k2') + '>' + esc(g(p, 'k2', 'Ready-made copy for every platform')) + '</li><li ' + E(s, 'k3') + '>' + esc(g(p, 'k3', 'A simple daily checklist')) + '</li></ul>'
-    + '</div><div class="shot"></div></div></div>',
+    + '</div>' + (IU(p, 'shot', '') ? '<div class="shot shot-img" ' + IMG(s, 'shot') + ' style="background-image:url(' + IU(p, 'shot', '') + ');background-size:cover;background-position:center"></div>' : '<div class="shot" ' + IMG(s, 'shot') + '></div>') + '</div></div>',
 
   steps: (p, s) => {
     const st = (k, dn, dt, dp) => '<div class="step"><div class="num">' + dn + '</div><h3 ' + E(s, k + 't') + '>' + esc(g(p, k + 't', dt)) + '</h3><p ' + E(s, k + 'p') + '>' + esc(g(p, k + 'p', dp)) + '</p></div>';
@@ -71,7 +73,7 @@ const R = {
   },
 
   quote: (p, s) => '<div class="s s-quote"><div class="fo-wr"><p class="q fo-disp">\u201c<span ' + E(s, 'quote') + '>' + esc(g(p, 'quote', 'I stopped burning money on ads and doubled my leads in a month.')) + '</span>\u201d</p>'
-    + '<div class="qby"><div class="a" style="background-image:url(' + AV + '96?img=47)"></div><div class="n"><b ' + E(s, 'name') + '>' + esc(g(p, 'name', 'Dana Reyes')) + '</b><span ' + E(s, 'role') + '>' + esc(g(p, 'role', 'Affiliate marketer')) + '</span></div></div></div></div>',
+    + '<div class="qby"><div class="a" ' + IMG(s, 'avatar') + ' style="background-image:url(' + IU(p, 'avatar', AV + '96?img=47') + ')"></div><div class="n"><b ' + E(s, 'name') + '>' + esc(g(p, 'name', 'Dana Reyes')) + '</b><span ' + E(s, 'role') + '>' + esc(g(p, 'role', 'Affiliate marketer')) + '</span></div></div></div></div>',
 
   pricing: (p, s) => {
     const plan = (k, dn, dpr, feat, tag, items) => '<div class="plan' + (feat ? ' feat' : '') + '">' + (tag ? '<div class="tag">' + tag + '</div>' : '')
@@ -111,7 +113,7 @@ const R = {
 
   bio: (p, s) => {
     const lk = (k, d, pri) => '<a class="lk' + (pri ? ' pri' : '') + '" ' + B(s, k) + '>' + esc(g(p, k, d)) + '</a>';
-    return '<div class="s-bio"><div class="av" style="background-image:url(' + AV + '160?img=25)"></div>'
+    return '<div class="s-bio"><div class="av" ' + IMG(s, 'avatar') + ' style="background-image:url(' + IU(p, 'avatar', AV + '160?img=25') + ')"></div>'
       + '<h1 ' + E(s, 'name') + '>' + esc(g(p, 'name', 'Alex Rivers')) + '</h1>'
       + '<div class="h" ' + E(s, 'bio') + '>' + esc(g(p, 'bio', 'Marketer & creator. Helping you get traffic without the guesswork.')) + '</div>'
       + '<div class="links">' + lk('l1', '\uD83D\uDCD5 Get my free Traffic Playbook', true) + lk('l2', '\uD83C\uDFA5 Watch my latest video') + lk('l3', '\uD83D\uDCAC Join the free community') + lk('l4', '\uD83D\uDEE0 The tools I actually use') + '</div>'

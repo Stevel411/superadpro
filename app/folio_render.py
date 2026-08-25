@@ -23,6 +23,14 @@ def lnk(p, f):
     return ' href="' + html.escape(u) + '"' if u else ' href="#"'
 
 
+def imgurl(p, f, default):
+    u = p.get(f)
+    u = u.strip() if isinstance(u, str) and u.strip() else default
+    for c in ('"', "'", '(', ')', '\\', ' ', '\n'):
+        u = u.replace(c, '')
+    return u
+
+
 # --- section renderers (each takes a props dict, returns HTML) ---
 def _nav(p):
     return ('<div class="s-nav"><div class="fo-wr in">'
@@ -84,6 +92,13 @@ def _features(p):
             + '</div></div></div>')
 
 
+def _shot(p):
+    u = imgurl(p, "shot", "")
+    if u:
+        return '<div class="shot shot-img" style="background-image:url(' + u + ');background-size:cover;background-position:center"></div>'
+    return '<div class="shot"></div>'
+
+
 def _featrow(p):
     lis = ("<li>" + esc(p.get("k1"), "A ranked list so you start easy") + "</li>"
            "<li>" + esc(p.get("k2"), "Ready-made copy for every platform") + "</li>"
@@ -92,7 +107,7 @@ def _featrow(p):
             '<div class="fo-eyebrow">' + esc(p.get("eyebrow"), "Built for speed") + '</div>'
             '<h2 class="fo-disp">' + esc(p.get("heading"), "Set it up once. Watch it work every day.") + '</h2>'
             '<p class="fo-lede">' + esc(p.get("lede"), "You don't need a following or a budget \u2014 just a plan you'll stick to.") + '</p>'
-            '<ul class="chk">' + lis + '</ul></div><div class="shot"></div></div></div>')
+            '<ul class="chk">' + lis + '</ul></div>' + _shot(p) + '</div></div>')
 
 
 def _step(p, k, dn, dt, dp):
@@ -115,7 +130,7 @@ def _quote(p):
     hl = esc(p.get("highlight"), "")
     body = ('"' + q + '"') if not hl else ('"' + q + ' <span class="hl">' + hl + '</span>"')
     return ('<div class="s s-quote"><div class="fo-wr"><p class="q fo-disp">' + body + '</p>'
-            '<div class="qby"><div class="a" style="background-image:url(' + AV + '96?img=47)"></div>'
+            '<div class="qby"><div class="a" style="background-image:url(' + imgurl(p, "avatar", AV + "96?img=47") + ')"></div>'
             '<div class="n"><b>' + esc(p.get("name"), "Dana Reyes") + '</b><span>' + esc(p.get("role"), "Affiliate marketer") + '</span></div></div></div></div>')
 
 
@@ -172,7 +187,7 @@ def _footer(p):
 def _bio(p):
     def lk(k, d, pri=False):
         return '<a class="lk' + (' pri' if pri else '') + '"' + lnk(p, k) + '>' + esc(p.get(k), d) + '</a>'
-    return ('<div class="s-bio"><div class="av" style="background-image:url(' + AV + '160?img=25)"></div>'
+    return ('<div class="s-bio"><div class="av" style="background-image:url(' + imgurl(p, "avatar", AV + "160?img=25") + ')"></div>'
             '<h1>' + esc(p.get("name"), "Alex Rivers") + '</h1>'
             '<div class="h">' + esc(p.get("bio"), "Marketer & creator. Helping you get traffic without the guesswork.") + '</div>'
             '<div class="links">'
