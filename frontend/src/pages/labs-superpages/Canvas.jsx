@@ -1629,20 +1629,21 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                   <button
                     onClick={e => {
                       e.stopPropagation();
-                      // Strip this device's override: pass undefined to clear
-                      updateElement(el.id, { [deviceView]: undefined });
+                      // Clear ALL device overrides -> element returns to fully auto-responsive
+                      updateElement(el.id, { tablet: undefined, mobile: undefined });
                       markDirty();
                     }}
                     style={{
-                      padding: '2px 8px',
-                      background: deviceView === 'tablet' ? 'rgba(18,56,143,0.12)' : 'rgba(236,72,153,0.12)',
-                      border: 'none', borderRadius: 5, cursor: 'pointer',
+                      padding: '3px 10px',
+                      background: 'linear-gradient(135deg,#c8102e,#e8203f)',
+                      border: 'none', borderRadius: 6, cursor: 'pointer',
                       fontSize: 10, fontWeight: 900,
-                      color: deviceView === 'tablet' ? '#c8102e' : '#0a1f52',
-                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                      color: '#ffffff',
+                      letterSpacing: '0.05em', textTransform: 'uppercase',
+                      boxShadow: '0 2px 6px rgba(200,16,46,0.3)',
                     }}
-                    title={`This element has a ${deviceView} override. Click to reset to ${deviceView === 'mobile' ? 'tablet/desktop' : 'desktop'}.`}>
-                    {deviceView === 'tablet' ? '⟲ Tablet' : '⟲ Mobile'}
+                    title={`This element has a custom ${deviceView} layout, so it won't auto-adjust. Click to reset it to auto-responsive.`}>
+                    {'↺ Reset to auto'}
                   </button>
                   <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
                 </>
