@@ -73438,7 +73438,7 @@ async def folio_upload_image(file: UploadFile = File(...), user: User = Depends(
         with open(_os.path.join(upload_dir, filename), "wb") as f:
             f.write(contents)
         url = "/static/uploads/" + filename
-    return JSONResponse({"success": True, "url": url})
+    return JSONResponse({"success": True, "url": url, "data": [{"src": url}]})
 
 
 @app.post("/api/folio/pages/{page_id}/delete")
