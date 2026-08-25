@@ -29,6 +29,8 @@
     "@tiptap/starter-kit": "^3.22.4",
     "chart.js": "^4.5.1",
     "fabric": "^5.3.0",
+    "grapesjs": "^0.23.5",
+    "grapesjs-preset-webpage": "^1.0.3",
     "gsap": "^3.15.0",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.18",

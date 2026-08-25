@@ -82,6 +82,7 @@ const Funnels = React.lazy(() => import('./pages/Funnels'));
 const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
 const Folio = React.lazy(() => import('./pages/Folio'));
 const FolioEditor = React.lazy(() => import('./pages/FolioEditor'));
+const FolioGrapes = React.lazy(() => import('./pages/FolioGrapes'));
 const GiftLanding = React.lazy(() => import('./pages/GiftLanding'));
 const TeamGiftAccept = React.lazy(() => import('./pages/TeamGiftAccept'));
 const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
@@ -293,7 +294,7 @@ function AppRoutes() {
       <Route path="/start-here" element={<ProtectedRoute><GetStarted /></ProtectedRoute>} />
       <Route path="/trafficdrop" element={<ProtectedRoute><TrafficDrop /></ProtectedRoute>} />
       <Route path="/folio" element={<ProtectedRoute><Folio /></ProtectedRoute>} />
-      <Route path="/folio/edit/:id" element={<ProtectedRoute><FolioEditor /></ProtectedRoute>} />
+      <Route path="/folio/edit/:id" element={<ProtectedRoute><FolioGrapes /></ProtectedRoute>} />
       <Route path="/campaigns" element={<ProtectedRoute><RequireTier tier="basic"><VideoLibrary /></RequireTier></ProtectedRoute>} />
       <Route path="/wallet" element={<WalletRoute />} />
       <Route path="/w/:token" element={<SharePage />} />

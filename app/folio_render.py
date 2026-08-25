@@ -437,6 +437,30 @@ def render_sections(sections, accent="#5b3df5"):
     return '<div class="fo-page" style="--fo-accent:' + html.escape(acc) + '">' + "".join(body) + '</div>'
 
 
+def render_gjs_page(body_html, css, title="My page", page_id=0):
+    """Full standalone HTML document for a GrapesJS-authored page."""
+    capture = (
+        "<script>(function(){var pid=" + str(int(page_id or 0)) + ";"
+        "document.querySelectorAll('form.fo-optin').forEach(function(f){"
+        "f.addEventListener('submit',function(e){e.preventDefault();"
+        "var em=(f.querySelector('input[type=email]')||{}).value||'';"
+        "var nm=f.querySelector('input[name=name]');nm=nm?nm.value:'';"
+        "if(!em||em.indexOf('@')<0){return;}"
+        "var b=f.querySelector('button,[type=submit]');if(b){b.disabled=true;}"
+        "fetch('/api/folio/capture/'+pid,{method:'POST',headers:{'Content-Type':'application/json'},"
+        "body:JSON.stringify({email:em,name:nm})}).then(function(r){return r.json();}).then(function(d){"
+        "f.innerHTML='<div style=\\'padding:12px;font-weight:700\\'>\\u2713 You\\u2019re in \\u2014 check your inbox.</div>';"
+        "}).catch(function(){if(b){b.disabled=false;}});});});})();</script>"
+    )
+    fonts = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+             '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>')
+    return ('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>'
+            '<meta name="viewport" content="width=device-width, initial-scale=1"/>'
+            '<title>' + html.escape(title or "My page") + '</title>' + fonts
+            + '<style>*{box-sizing:border-box}body{margin:0}' + (css or "") + '</style></head><body>'
+            + (body_html or "") + capture + '</body></html>')
+
+
 def render_page(sections, accent="#5b3df5", title="My page", page_id=0):
     """Full standalone HTML document for a published page. page_id wires the opt-in capture."""
     from .folio_css import FOLIO_CSS
