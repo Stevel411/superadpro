@@ -17,12 +17,18 @@ def esc(v, default=""):
     return html.escape(str(v))
 
 
+def lnk(p, f):
+    u = p.get(f + "_href")
+    u = u.strip() if isinstance(u, str) else ""
+    return ' href="' + html.escape(u) + '"' if u else ' href="#"'
+
+
 # --- section renderers (each takes a props dict, returns HTML) ---
 def _nav(p):
     return ('<div class="s-nav"><div class="fo-wr in">'
             '<div class="fo-logo"><span class="m">\u2726</span> ' + esc(p.get("brand"), "YourBrand") + '</div>'
-            '<div class="links"><a>' + esc(p.get("l1"), "Features") + '</a><a>' + esc(p.get("l2"), "Pricing") + '</a>'
-            '<a class="fo-btn">' + esc(p.get("cta"), "Get started") + '</a></div></div></div>')
+            '<div class="links"><a' + lnk(p, "l1") + '>' + esc(p.get("l1"), "Features") + '</a><a' + lnk(p, "l2") + '>' + esc(p.get("l2"), "Pricing") + '</a>'
+            '<a class="fo-btn"' + lnk(p, "cta") + '>' + esc(p.get("cta"), "Get started") + '</a></div></div></div>')
 
 
 def _hero(p):
@@ -48,8 +54,8 @@ def _hero_center(p):
             '<span class="badge">' + esc(p.get("badge"), "\u2605 Loved by 9,400 marketers") + '</span>'
             '<h1 class="fo-disp">' + esc(p.get("headline"), "The last traffic course you'll ever need to buy.") + '</h1>'
             '<p class="fo-lede">' + esc(p.get("lede"), "Everything that actually works, in one place \u2014 no fluff, no theory, no monthly fees.") + '</p>'
-            '<div class="btns"><a class="fo-btn">' + esc(p.get("button"), "Get instant access") + '</a>'
-            '<a class="fo-btn fo-btn--ghost">' + esc(p.get("button2"), "Watch the trailer") + '</a></div></div></div>')
+            '<div class="btns"><a class="fo-btn"' + lnk(p, "button") + '>' + esc(p.get("button"), "Get instant access") + '</a>'
+            '<a class="fo-btn fo-btn--ghost"' + lnk(p, "button2") + '>' + esc(p.get("button2"), "Watch the trailer") + '</a></div></div></div>')
 
 
 def _stat(p, k, dn, dl):
@@ -79,8 +85,9 @@ def _features(p):
 
 
 def _featrow(p):
-    items = p.get("checks") if isinstance(p.get("checks"), list) else ["A ranked list so you start easy", "Ready-made copy for every platform", "A simple daily checklist"]
-    lis = "".join("<li>" + esc(x) + "</li>" for x in items[:6])
+    lis = ("<li>" + esc(p.get("k1"), "A ranked list so you start easy") + "</li>"
+           "<li>" + esc(p.get("k2"), "Ready-made copy for every platform") + "</li>"
+           "<li>" + esc(p.get("k3"), "A simple daily checklist") + "</li>")
     return ('<div class="s s-featrow"><div class="fo-wr g"><div>'
             '<div class="fo-eyebrow">' + esc(p.get("eyebrow"), "Built for speed") + '</div>'
             '<h2 class="fo-disp">' + esc(p.get("heading"), "Set it up once. Watch it work every day.") + '</h2>'
@@ -119,7 +126,7 @@ def _plan(p, k, dn, dpr, feat, tag, items):
     return ('<div class="plan' + (' feat' if feat else '') + '">' + tg
             + '<div class="pn">' + esc(p.get(k + "n"), dn) + '</div>'
             + '<div class="pr">' + esc(p.get(k + "pr"), dpr) + '<span>/mo</span></div>'
-            + '<ul>' + lis + '</ul><a class="' + btncls + '">' + esc(p.get(k + "b"), "Choose") + '</a></div>')
+            + '<ul>' + lis + '</ul><a class="' + btncls + '"' + lnk(p, k + "b") + '>' + esc(p.get(k + "b"), "Choose") + '</a></div>')
 
 
 def _pricing(p):
@@ -163,20 +170,23 @@ def _footer(p):
 
 
 def _bio(p):
-    links = p.get("links") if isinstance(p.get("links"), list) else [
-        {"t": "\U0001F4D5 Get my free Traffic Playbook", "pri": True}, {"t": "\U0001F3A5 Watch my latest video"},
-        {"t": "\U0001F4AC Join the free community"}, {"t": "\U0001F6E0 The tools I actually use"}]
-    lk = "".join('<a class="lk' + (' pri' if x.get("pri") else '') + '">' + esc(x.get("t")) + '</a>' for x in links[:8])
+    def lk(k, d, pri=False):
+        return '<a class="lk' + (' pri' if pri else '') + '"' + lnk(p, k) + '>' + esc(p.get(k), d) + '</a>'
     return ('<div class="s-bio"><div class="av" style="background-image:url(' + AV + '160?img=25)"></div>'
             '<h1>' + esc(p.get("name"), "Alex Rivers") + '</h1>'
             '<div class="h">' + esc(p.get("bio"), "Marketer & creator. Helping you get traffic without the guesswork.") + '</div>'
-            '<div class="links">' + lk + '</div>'
-            '<div class="soc"><i>ig</i><i>yt</i><i>x</i><i>in</i></div></div>')
+            '<div class="links">'
+            + lk("l1", "\U0001F4D5 Get my free Traffic Playbook", True)
+            + lk("l2", "\U0001F3A5 Watch my latest video")
+            + lk("l3", "\U0001F4AC Join the free community")
+            + lk("l4", "\U0001F6E0 The tools I actually use")
+            + '</div><div class="soc"><i>ig</i><i>yt</i><i>x</i><i>in</i></div></div>')
 
 
 def _webinar(p):
-    learn = p.get("learn") if isinstance(p.get("learn"), list) else ["Where to find buyers without paying for ads", "The daily routine that keeps them coming", "How to turn free traffic into real sales"]
-    lis = "".join("<li>" + esc(x) + "</li>" for x in learn[:6])
+    lis = ("<li>" + esc(p.get("w1"), "Where to find buyers without paying for ads") + "</li>"
+           "<li>" + esc(p.get("w2"), "The daily routine that keeps them coming") + "</li>"
+           "<li>" + esc(p.get("w3"), "How to turn free traffic into real sales") + "</li>")
     return ('<div class="s-web"><div class="fo-wr g"><div>'
             '<span class="date">\u25f7 ' + esc(p.get("date"), "Thu \u00b7 2:00 PM EST \u00b7 Free") + '</span>'
             '<h1 class="fo-disp">' + esc(p.get("headline"), "The 3-step system for free traffic that converts.") + '</h1>'
@@ -203,7 +213,7 @@ def _thanks(p):
             '<h1 class="fo-disp">' + esc(p.get("headline"), "You're in! Check your inbox.") + '</h1>'
             '<p class="fo-lede">' + esc(p.get("lede"), "Your playbook is on its way. While you wait \u2014 watch this 2-minute intro.") + '</p>'
             '<div class="vid"><div class="play">\u25b6</div></div>'
-            '<div style="margin-top:30px"><a class="fo-btn">' + esc(p.get("button"), "Get started now \u2192") + '</a></div></div></div>')
+            '<div style="margin-top:30px"><a class="fo-btn"' + lnk(p, "button") + '>' + esc(p.get("button"), "Get started now \u2192") + '</a></div></div></div>')
 
 
 SECTIONS = {

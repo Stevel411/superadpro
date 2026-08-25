@@ -28,6 +28,9 @@ const CHROME = `
 .fsec-ctrl button{width:28px;height:28px;border:none;border-radius:6px;background:#2a2e3a;color:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0}
 .fsec-ctrl button:hover{background:#5b3df5}
 [data-e]:hover{outline:1px dashed rgba(91,61,245,.5);outline-offset:2px;border-radius:2px;cursor:text}
+[data-btn]{cursor:pointer}
+[data-btn]:hover{outline:2px solid #5b3df5;outline-offset:2px;border-radius:4px}
+[data-btn]::after{content:'\1f517';font-size:10px;opacity:.6;margin-left:5px;vertical-align:middle}
 [data-e]:focus{outline:2px solid #5b3df5;outline-offset:2px;border-radius:2px}
 .fed-add{display:block;margin:14px auto;background:#fff;border:2px dashed #c3c9d8;color:#5b6070;font-weight:800;font-size:13px;padding:12px 20px;border-radius:10px;cursor:pointer;font-family:inherit}
 .fed-add:hover{border-color:#5b3df5;color:#5b3df5}
@@ -67,6 +70,7 @@ export default function FolioEditor() {
   const [toast, setToast] = useState(null);
   const [arOpen, setArOpen] = useState(false);
   const [ar, setAr] = useState({ forward_url: '', email_field: 'email', name_field: '' });
+  const [linkEdit, setLinkEdit] = useState(null);
   const canvasRef = useRef(null);
   const secsRef = useRef([]);
   const accentRef = useRef('#5b3df5');
@@ -113,6 +117,8 @@ export default function FolioEditor() {
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
     const onClick = (e) => {
+      const lk = e.target.closest('[data-btn]');
+      if (lk) { e.preventDefault(); syncFromDOM(); const pr = (lk.dataset.btn || '').split('|'); const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; setLinkEdit({ sid: pr[0], field: pr[1], text: sc.props[pr[1]] != null ? sc.props[pr[1]] : (lk.innerText || ''), href: sc.props[pr[1] + '_href'] || '' }); } return; }
       const btn = e.target.closest('.fsec-ctrl button'); if (!btn) return;
       e.preventDefault(); syncFromDOM();
       const i = parseInt(btn.dataset.idx, 10); const act = btn.dataset.act; const arr = secsRef.current;
@@ -145,6 +151,12 @@ export default function FolioEditor() {
       .catch(() => { setSaving(''); alert('Publish failed — please try again.'); });
   }
 
+  function saveLinkEdit() {
+    const sc = secsRef.current.find(x => x.id === linkEdit.sid);
+    if (sc) { sc.props = sc.props || {}; sc.props[linkEdit.field] = linkEdit.text; sc.props[linkEdit.field + '_href'] = linkEdit.href.trim(); }
+    setLinkEdit(null); setVer(v => v + 1);
+  }
+
   function saveAr() {
     fetch('/api/folio/pages/' + id + '/autoresponder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ar) })
       .then(r => r.json()).then(d => { if (d && d.ok) { setArOpen(false); setSaving(ar.forward_url ? 'Autoresponder connected' : 'Saved'); setTimeout(() => setSaving(''), 1800); } else alert((d && d.error) || 'Could not save.'); })
@@ -173,7 +185,7 @@ export default function FolioEditor() {
         <button className="save" onClick={() => save()}>{saving || 'Save'}</button>
         <button className="pub" onClick={publish}>Publish</button>
       </div>
-      <div className="fed-hint">Tap any text to edit it · hover a section for controls</div>
+      <div className="fed-hint">Tap text to edit · tap a button to set its link · hover a section for controls</div>
       <div className="fed-stage">
         <div className={'fed-doc ' + (device === 'mobile' ? 'mobile' : '')}>
           <div ref={canvasRef} />
@@ -193,6 +205,21 @@ export default function FolioEditor() {
               ))}
             </div>
             <button className="fed-x" onClick={() => setAddAt(-1)}>Cancel</button>
+          </div>
+        </div>
+      ) : null}
+
+      {linkEdit ? (
+        <div className="fed-modal" onClick={e => { if (e.target === e.currentTarget) setLinkEdit(null); }}>
+          <div className="box">
+            <h3>Button &amp; link</h3>
+            <p className="hint">Set what this button or link says, and where it sends people when clicked.</p>
+            <label>Text</label>
+            <input className="in" value={linkEdit.text} onChange={e => setLinkEdit({ ...linkEdit, text: e.target.value })} placeholder="Button text" />
+            <label>Links to (URL)</label>
+            <input className="in" value={linkEdit.href} onChange={e => setLinkEdit({ ...linkEdit, href: e.target.value })} placeholder="https://your-link.com" />
+            <button className="save-ar" onClick={saveLinkEdit}>Save</button>
+            <button className="fed-x" onClick={() => setLinkEdit(null)}>Cancel</button>
           </div>
         </div>
       ) : null}

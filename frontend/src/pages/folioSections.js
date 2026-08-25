@@ -8,12 +8,13 @@ function esc(v, d) {
 }
 function g(p, k, d) { return (p && p[k] !== undefined && p[k] !== '') ? p[k] : d; }
 function E(sid, f) { return 'contenteditable="true" spellcheck="false" data-e="' + sid + '|' + f + '"'; }
+function B(sid, f) { return 'data-btn="' + sid + '|' + f + '"'; }  // linkable button/link (text + destination via popover)
 
 const R = {
   nav: (p, s) => '<div class="s-nav"><div class="fo-wr in">'
     + '<div class="fo-logo"><span class="m">\u2726</span> <span ' + E(s, 'brand') + '>' + esc(g(p, 'brand', 'YourBrand')) + '</span></div>'
-    + '<div class="links"><a ' + E(s, 'l1') + '>' + esc(g(p, 'l1', 'Features')) + '</a><a ' + E(s, 'l2') + '>' + esc(g(p, 'l2', 'Pricing')) + '</a>'
-    + '<a class="fo-btn" ' + E(s, 'cta') + '>' + esc(g(p, 'cta', 'Get started')) + '</a></div></div></div>',
+    + '<div class="links"><a ' + B(s, 'l1') + '>' + esc(g(p, 'l1', 'Features')) + '</a><a ' + B(s, 'l2') + '>' + esc(g(p, 'l2', 'Pricing')) + '</a>'
+    + '<a class="fo-btn" ' + B(s, 'cta') + '>' + esc(g(p, 'cta', 'Get started')) + '</a></div></div></div>',
 
   hero: (p, s) => '<div class="s s-hero"><div class="fo-wr g"><div>'
     + '<div class="fo-eyebrow" ' + E(s, 'eyebrow') + '>' + esc(g(p, 'eyebrow', 'Free download \u00b7 2026')) + '</div>'
@@ -31,8 +32,8 @@ const R = {
     + '<span class="badge" ' + E(s, 'badge') + '>' + esc(g(p, 'badge', '\u2605 Loved by 9,400 marketers')) + '</span>'
     + '<h1 class="fo-disp" ' + E(s, 'headline') + '>' + esc(g(p, 'headline', "The last traffic course you'll ever need to buy.")) + '</h1>'
     + '<p class="fo-lede" ' + E(s, 'lede') + '>' + esc(g(p, 'lede', 'Everything that actually works, in one place \u2014 no fluff, no theory, no monthly fees.')) + '</p>'
-    + '<div class="btns"><a class="fo-btn" ' + E(s, 'button') + '>' + esc(g(p, 'button', 'Get instant access')) + '</a>'
-    + '<a class="fo-btn fo-btn--ghost" ' + E(s, 'button2') + '>' + esc(g(p, 'button2', 'Watch the trailer')) + '</a></div></div></div>',
+    + '<div class="btns"><a class="fo-btn" ' + B(s, 'button') + '>' + esc(g(p, 'button', 'Get instant access')) + '</a>'
+    + '<a class="fo-btn fo-btn--ghost" ' + B(s, 'button2') + '>' + esc(g(p, 'button2', 'Watch the trailer')) + '</a></div></div></div>',
 
   stats: (p, s) => {
     const c = (k, dn, dl) => '<div><div class="n" ' + E(s, k + 'n') + '>' + esc(g(p, k + 'n', dn)) + '</div><div class="l" ' + E(s, k + 'l') + '>' + esc(g(p, k + 'l', dl)) + '</div></div>';
@@ -77,7 +78,7 @@ const R = {
       + '<div class="pn" ' + E(s, k + 'n') + '>' + esc(g(p, k + 'n', dn)) + '</div>'
       + '<div class="pr"><span ' + E(s, k + 'pr') + '>' + esc(g(p, k + 'pr', dpr)) + '</span><span>/mo</span></div>'
       + '<ul>' + items.map(x => '<li>' + x + '</li>').join('') + '</ul>'
-      + '<a class="fo-btn' + (feat ? '' : ' fo-btn--ghost') + '" ' + E(s, k + 'b') + '>' + esc(g(p, k + 'b', 'Choose')) + '</a></div>';
+      + '<a class="fo-btn' + (feat ? '' : ' fo-btn--ghost') + '" ' + B(s, k + 'b') + '>' + esc(g(p, k + 'b', 'Choose')) + '</a></div>';
     return '<div class="s s-pricing"><div class="fo-wr"><div class="head">'
       + '<div class="fo-eyebrow" style="text-align:center" ' + E(s, 'eyebrow') + '>' + esc(g(p, 'eyebrow', 'Pricing')) + '</div>'
       + '<h2 class="fo-disp" ' + E(s, 'heading') + '>' + esc(g(p, 'heading', 'Start free. Upgrade when it pays.')) + '</h2></div><div class="g">'
@@ -109,7 +110,7 @@ const R = {
     + '<div class="bot"><span ' + E(s, 'copy') + '>' + esc(g(p, 'copy', '\u00a9 2026 YourBrand')) + '</span><span>Built with Folio</span></div></div></div>',
 
   bio: (p, s) => {
-    const lk = (k, d, pri) => '<a class="lk' + (pri ? ' pri' : '') + '" ' + E(s, k) + '>' + esc(g(p, k, d)) + '</a>';
+    const lk = (k, d, pri) => '<a class="lk' + (pri ? ' pri' : '') + '" ' + B(s, k) + '>' + esc(g(p, k, d)) + '</a>';
     return '<div class="s-bio"><div class="av" style="background-image:url(' + AV + '160?img=25)"></div>'
       + '<h1 ' + E(s, 'name') + '>' + esc(g(p, 'name', 'Alex Rivers')) + '</h1>'
       + '<div class="h" ' + E(s, 'bio') + '>' + esc(g(p, 'bio', 'Marketer & creator. Helping you get traffic without the guesswork.')) + '</div>'
@@ -136,7 +137,7 @@ const R = {
     + '<h1 class="fo-disp" ' + E(s, 'headline') + '>' + esc(g(p, 'headline', "You're in! Check your inbox.")) + '</h1>'
     + '<p class="fo-lede" ' + E(s, 'lede') + '>' + esc(g(p, 'lede', 'Your playbook is on its way. While you wait \u2014 watch this 2-minute intro.')) + '</p>'
     + '<div class="vid"><div class="play">\u25b6</div></div>'
-    + '<div style="margin-top:30px"><a class="fo-btn" ' + E(s, 'button') + '>' + esc(g(p, 'button', 'Get started now \u2192')) + '</a></div></div></div>',
+    + '<div style="margin-top:30px"><a class="fo-btn" ' + B(s, 'button') + '>' + esc(g(p, 'button', 'Get started now \u2192')) + '</a></div></div></div>',
 };
 
 export function renderSection(type, props, sid) {
