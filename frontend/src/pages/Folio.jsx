@@ -51,7 +51,11 @@ const TEMPLATES = [
   { id: 'assembly', name: 'Assembly', cat: 'Webinar', accent: '#2563eb', secs: ['nav', 'webinar', 'features', 'quote', 'footer'] },
   { id: 'horizon', name: 'Horizon', cat: 'Coming Soon', accent: '#5b3df5', secs: ['comingSoon'] },
   { id: 'relay', name: 'Relay', cat: 'Thank You', accent: '#0d9f6e', secs: ['nav', 'thankYou', 'footer'] },
-  { id: 'blank', name: 'Blank', cat: 'Start fresh', accent: '#5b3df5', secs: ['nav', 'heroCenter', 'cta', 'footer'] },
+  { id: 'blank', name: 'Blank canvas', cat: 'Build from scratch', accent: '#5b3df5', blocks: [
+    { type: 'heading', text: 'Your headline here', level: 'h1', style: { align: 'center' } },
+    { type: 'text', text: 'Add your message. Tap any element to style it — fonts, size, colour, spacing. Use “+ Add block” for images, buttons, video and more.', style: { align: 'center' } },
+    { type: 'button', text: 'Call to action', href: '', style: { align: 'center' } },
+  ] },
 ];
 
 export default function Folio() {
@@ -68,7 +72,7 @@ export default function Folio() {
     if (busy) return; setBusy(true);
     fetch('/api/folio/pages', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template_id: t.id, title: t.name + ' page', accent: t.accent, sections: t.secs.map(s => ({ type: s, props: {} })) })
+      body: JSON.stringify({ template_id: t.id, title: t.name + ' page', accent: t.accent, sections: t.blocks ? [{ type: 'blocks', props: { blocks: t.blocks } }] : t.secs.map(s => ({ type: s, props: {} })) })
     }).then(r => r.json()).then(d => {
       if (d && d.ok) { window.location.href = '/folio/edit/' + d.id; }
       else { setBusy(false); alert('Could not create the page — please try again.'); }
