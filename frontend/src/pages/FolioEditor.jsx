@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { FOLIO_CSS } from './folioCss';
-import { renderSection, SECTION_LIB } from './folioSections';
+import { renderSection, SECTION_LIB, BLOCK_LIB, newBlock } from './folioSections';
 
 const CHROME = `
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Space+Mono:wght@700&display=swap');
@@ -54,11 +54,42 @@ const CHROME = `
 .fed-toast a{color:#a99cff;font-weight:800;text-decoration:none;word-break:break-all}
 .fed-toast button{background:#2a2530;border:none;color:#fff;border-radius:8px;padding:7px 11px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;flex:none}
 .fed-center{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#8b8496;font-family:'Inter',sans-serif}
+.fb-add{display:block;width:100%;margin-top:10px;background:#f2f0ff;border:1.5px dashed #b9aef7;color:#5b3df5;font-weight:800;font-size:13px;padding:12px;border-radius:10px;cursor:pointer;font-family:inherit}
+.fb-add:hover{background:#e9e4ff}
+.fblk{position:relative;border-radius:8px;transition:box-shadow .15s;cursor:pointer;min-height:8px}
+.fblk:hover{box-shadow:0 0 0 2px #c9bdff}
+.fblk.sel{box-shadow:0 0 0 2px #5b3df5}
+.fb-spacer{display:flex;align-items:center;justify-content:center;color:#b9aef7;font-size:11px;font-family:'Space Mono',monospace;border:1px dashed #d9d3ea;border-radius:6px}
+.fbtray{position:fixed;inset:0;z-index:1250;background:rgba(23,20,28,.5);display:flex;align-items:flex-end}
+.fbtray .sheet{background:#fff;width:100%;border-top-left-radius:18px;border-top-right-radius:18px;padding:18px 16px 26px}
+.fbtray h4{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;margin:0 0 14px}
+.fbtray .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:9px}
+.fbtray .opt{border:1.5px solid #e6e1d6;border-radius:12px;padding:14px 8px;text-align:center;background:#fffdf8;cursor:pointer;font-weight:800;font-size:12.5px;color:#17141c}
+.fbtray .opt:hover{border-color:#5b3df5;background:#f6f5ff;color:#5b3df5}
+.fbtray .opt .i{font-size:19px;display:block;margin-bottom:6px}
+.fbp{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:0 -12px 40px -18px rgba(23,20,28,.4);padding:16px 16px 22px;max-height:72vh;overflow:auto}
+.fbp h4{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;margin:0 0 4px;display:flex;align-items:center;justify-content:space-between}
+.fbp .close{background:#efe9dd;border:none;border-radius:8px;width:30px;height:30px;font-weight:800;cursor:pointer;font-family:inherit}
+.fbp label{display:block;font-size:11px;font-weight:800;color:#5a6584;margin:12px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+.fbp .in,.fbp textarea{width:100%;border:1.5px solid #e3dccd;border-radius:9px;padding:10px 11px;font-size:14px;font-family:inherit;box-sizing:border-box}
+.fbp textarea{min-height:70px;resize:vertical}
+.fbp .seg2{display:flex;gap:6px}
+.fbp .seg2 button{flex:1;border:1.5px solid #e3dccd;background:#fff;border-radius:8px;padding:9px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;color:#17141c}
+.fbp .seg2 button.on{border-color:#5b3df5;background:#f2f0ff;color:#5b3df5}
+.fbp .thumb{width:100%;max-height:120px;object-fit:contain;border-radius:9px;margin-top:8px;background:#f6f2ea}
+.fbp .up{background:#5b3df5;color:#fff;border:none;border-radius:9px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;font-size:13px;margin-top:6px}
+.fbp .acts{display:flex;gap:8px;margin-top:16px}
+.fbp .acts button{flex:1;border:none;border-radius:9px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit;font-size:13px;background:#efe9dd;color:#17141c}
+.fbp .acts .del{background:#ffe9e9;color:#c8102e}
+.fbp .note{font-size:13px;color:#6b6e7c;padding:8px 0;line-height:1.5}
+
 `;
 
 let _uid = 0;
 const nid = () => 'fs' + (++_uid);
 const DOTS = ['#5b3df5', '#ff5c39', '#2563eb', '#0d9f6e', '#e11d64', '#f2b53c'];
+const BLK_ICON = { heading: 'H', text: '¶', image: '▣', button: '▭', video: '▶', divider: '―', spacer: '↕' };
+const BLK_NAME = { heading: 'Heading', text: 'Text', image: 'Image', button: 'Button', video: 'Video', divider: 'Divider', spacer: 'Spacer' };
 
 export default function FolioEditor() {
   const { id } = useParams();
@@ -72,6 +103,8 @@ export default function FolioEditor() {
   const [arOpen, setArOpen] = useState(false);
   const [ar, setAr] = useState({ forward_url: '', email_field: 'email', name_field: '' });
   const [linkEdit, setLinkEdit] = useState(null);
+  const [blkTray, setBlkTray] = useState(null);
+  const [blkSel, setBlkSel] = useState(null);
   const canvasRef = useRef(null);
   const secsRef = useRef([]);
   const accentRef = useRef('#5b3df5');
@@ -105,7 +138,7 @@ export default function FolioEditor() {
     ).join('');
     canvasRef.current.innerHTML = '<div class="fo-page" style="--fo-accent:' + accentRef.current + '">' + inner + '</div>';
   }
-  useEffect(() => { if (status === 'ok') build(); }, [status, ver]);
+  useEffect(() => { if (status !== 'ok') return; build(); if (blkSel && canvasRef.current) { const el = canvasRef.current.querySelector('[data-blk="' + blkSel.sid + '|' + blkSel.idx + '"]'); if (el) el.classList.add('sel'); } }, [status, ver, blkSel]);
 
   function syncFromDOM() {
     if (!canvasRef.current) return;
@@ -120,6 +153,10 @@ export default function FolioEditor() {
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
     const onClick = (e) => {
+      const addb = e.target.closest('[data-addblk]');
+      if (addb) { e.preventDefault(); syncFromDOM(); setBlkTray(addb.dataset.addblk); return; }
+      const blk = e.target.closest('.fblk');
+      if (blk) { e.preventDefault(); syncFromDOM(); const pr = (blk.dataset.blk || '').split('|'); setBlkSel({ sid: pr[0], idx: parseInt(pr[1], 10) }); return; }
       const im = e.target.closest('[data-img]');
       if (im) { e.preventDefault(); syncFromDOM(); imgTargetRef.current = im.dataset.img; if (fileRef.current) fileRef.current.click(); return; }
       const lk = e.target.closest('[data-btn]');
@@ -156,15 +193,22 @@ export default function FolioEditor() {
       .catch(() => { setSaving(''); alert('Publish failed — please try again.'); });
   }
 
+  function bkList(sid) { const sc = secsRef.current.find(x => x.id === sid); if (!sc) return null; sc.props = sc.props || {}; if (!Array.isArray(sc.props.blocks)) sc.props.blocks = []; return sc.props.blocks; }
+  function addBlock(sid, type) { const l = bkList(sid); if (!l) return; l.push(newBlock(type)); setBlkTray(null); setBlkSel({ sid: sid, idx: l.length - 1 }); setVer(v => v + 1); }
+  function patchBlock(patch) { if (!blkSel) return; const l = bkList(blkSel.sid); if (l && l[blkSel.idx]) { Object.assign(l[blkSel.idx], patch); setVer(v => v + 1); } }
+  function moveBlock(dir) { if (!blkSel) return; const l = bkList(blkSel.sid); if (!l) return; const j = blkSel.idx + dir; if (j < 0 || j >= l.length) return; const t = l[blkSel.idx]; l[blkSel.idx] = l[j]; l[j] = t; setBlkSel({ sid: blkSel.sid, idx: j }); setVer(v => v + 1); }
+  function delBlock() { if (!blkSel) return; const l = bkList(blkSel.sid); if (l) { l.splice(blkSel.idx, 1); setBlkSel(null); setVer(v => v + 1); } }
+  function uploadBlockImage() { if (!blkSel) return; imgTargetRef.current = 'blk|' + blkSel.sid + '|' + blkSel.idx; if (fileRef.current) fileRef.current.click(); }
+
   function handleImg(e) {
     const f = e.target.files && e.target.files[0]; const tgt = imgTargetRef.current;
     e.target.value = '';
     if (!f || !tgt) return;
     const pr = tgt.split('|');
-    const fd = new FormData(); fd.append('file', f);
+    const fd = new FormData(); fd.append('file', f);  // section: sid|field ; block: blk|sid|idx
     setSaving('Uploading image\u2026');
     fetch('/api/folio/upload-image', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
-      if (d && d.success && d.url) { const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; sc.props[pr[1]] = d.url; } setVer(v => v + 1); setSaving('Image added'); setTimeout(() => setSaving(''), 1500); }
+      if (d && d.success && d.url) { if (tgt.indexOf('blk|') === 0) { const l = bkList(pr[1]); if (l && l[+pr[2]]) l[+pr[2]].url = d.url; } else { const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; sc.props[pr[1]] = d.url; } } setVer(v => v + 1); setSaving('Image added'); setTimeout(() => setSaving(''), 1500); }
       else { alert((d && d.error) || 'Upload failed.'); setSaving(''); }
     }).catch(() => { alert('Upload failed.'); setSaving(''); });
   }
@@ -227,6 +271,45 @@ export default function FolioEditor() {
           </div>
         </div>
       ) : null}
+
+      {blkTray ? (
+        <div className="fbtray" onClick={e => { if (e.target === e.currentTarget) setBlkTray(null); }}>
+          <div className="sheet">
+            <h4>Add a block</h4>
+            <div className="grid">
+              {BLOCK_LIB.map(b => (
+                <button className="opt" key={b.type} onClick={() => addBlock(blkTray, b.type)}>
+                  <span className="i">{BLK_ICON[b.type]}</span>{b.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {blkSel ? (() => {
+        const l = bkList(blkSel.sid); const b = l && l[blkSel.idx];
+        if (!b) return null;
+        const seg = (val, opts, key) => (<div className="seg2">{opts.map(o => <button key={o.v} className={val === o.v ? 'on' : ''} onClick={() => patchBlock({ [key]: o.v })}>{o.l}</button>)}</div>);
+        const alignSeg = seg(b.align || 'left', [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }], 'align');
+        return (
+          <div className="fbp">
+            <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => setBlkSel(null)}>✕</button></h4>
+            {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Size</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], 'level')}<label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'image' ? (<><button className="up" onClick={uploadBlockImage}>{b.url ? 'Replace image' : 'Upload image'}</button>{b.url ? <img className="thumb" src={b.url} alt="" /> : null}<label>Link (optional)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'button' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Links to (URL)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Style</label>{seg(b.variant || 'solid', [{ v: 'solid', l: 'Solid' }, { v: 'ghost', l: 'Outline' }], 'variant')}<label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'video' ? (<><label>YouTube or Vimeo link</label><input className="in" value={b.url || ''} onChange={e => patchBlock({ url: e.target.value })} placeholder="https://youtube.com/watch?v=..." /><p className="note">Paste the link and it embeds as a player on your published page.</p></>) : null}
+            {b.type === 'divider' ? (<p className="note">A horizontal divider line to separate content.</p>) : null}
+            {b.type === 'spacer' ? (<><label>Height (px)</label><input className="in" type="number" value={b.height || 32} onChange={e => patchBlock({ height: parseInt(e.target.value, 10) || 32 })} /></>) : null}
+            <div className="acts">
+              <button onClick={() => moveBlock(-1)}>↑ Up</button>
+              <button onClick={() => moveBlock(1)}>↓ Down</button>
+              <button className="del" onClick={delBlock}>Delete</button>
+            </div>
+          </div>
+        );
+      })() : null}
 
       {linkEdit ? (
         <div className="fed-modal" onClick={e => { if (e.target === e.currentTarget) setLinkEdit(null); }}>

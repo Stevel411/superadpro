@@ -12,6 +12,21 @@ function B(sid, f) { return 'data-btn="' + sid + '|' + f + '"'; }  // linkable b
 function IU(p, f, d) { var u = (p && typeof p[f] === 'string' && p[f].trim()) ? p[f].trim() : d; return u.replace(/["'()\\ \n]/g, ''); }
 function IMG(sid, f) { return 'data-img="' + sid + '|' + f + '"'; }
 
+function renderBlockPreview(b) {
+  if (!b || typeof b !== 'object') return '';
+  const t = b.type;
+  const al = (['left', 'center', 'right'].indexOf(b.align) >= 0) ? b.align : 'left';
+  const ws = 'text-align:' + al;
+  if (t === 'heading') { const lvl = (['h1', 'h2', 'h3'].indexOf(b.level) >= 0) ? b.level : 'h2'; return '<' + lvl + ' class="fb-h" style="' + ws + '">' + esc(b.text, 'Your heading') + '</' + lvl + '>'; }
+  if (t === 'text') return '<div class="fb-t" style="' + ws + '">' + esc(b.text, 'Add your text here.').replace(/\n/g, '<br>') + '</div>';
+  if (t === 'image') { const u = IU(b, 'url', ''); const inner = u ? '<img class="fb-img" src="' + u + '"/>' : '<div class="fb-img-ph">Tap to upload an image</div>'; return '<div class="fb-imgwrap" style="' + ws + '">' + inner + '</div>'; }
+  if (t === 'button') { const v = b.variant === 'ghost' ? ' fo-btn--ghost' : ''; return '<div style="' + ws + '"><a class="fo-btn' + v + '">' + esc(b.text, 'Button') + '</a></div>'; }
+  if (t === 'video') { const has = b.url && String(b.url).trim(); return '<div class="fb-video-ph">' + (has ? '\u25b6 Video ready \u00b7 tap to change link' : '\u25b6 Tap to add a YouTube or Vimeo link') + '</div>'; }
+  if (t === 'divider') return '<hr class="fb-div"/>';
+  if (t === 'spacer') { let h = parseInt(b.height, 10) || 32; h = Math.max(4, Math.min(200, h)); return '<div class="fb-spacer" style="height:' + h + 'px">' + h + 'px space</div>'; }
+  return '';
+}
+
 const R = {
   nav: (p, s) => '<div class="s-nav"><div class="fo-wr in">'
     + '<div class="fo-logo"><span class="m">\u2726</span> <span ' + E(s, 'brand') + '>' + esc(g(p, 'brand', 'YourBrand')) + '</span></div>'
@@ -135,6 +150,11 @@ const R = {
     + '<div class="fo-form"><input class="fo-input" placeholder="Your best email" disabled/><button class="fo-btn" ' + E(s, 'button') + '>' + esc(g(p, 'button', 'Notify me')) + '</button></div>'
     + '<div class="soon" ' + E(s, 'soon') + '>' + esc(g(p, 'soon', 'Launching Spring 2026')) + '</div></div></div>',
 
+  blocks: (p, s) => {
+    const bl = Array.isArray(p.blocks) ? p.blocks : [];
+    const inner = bl.map((b, i) => '<div class="fblk" data-blk="' + s + '|' + i + '">' + renderBlockPreview(b) + '</div>').join('');
+    return '<div class="s s-blocks"><div class="fo-wr fb-wrap">' + (inner || '<div class="fb-empty">No blocks yet — add one below</div>') + '<button class="fb-add" data-addblk="' + s + '">+ Add block</button></div></div>';
+  },
   thankYou: (p, s) => '<div class="s s-thanks"><div class="fo-wr"><div class="tick">\u2713</div>'
     + '<h1 class="fo-disp" ' + E(s, 'headline') + '>' + esc(g(p, 'headline', "You're in! Check your inbox.")) + '</h1>'
     + '<p class="fo-lede" ' + E(s, 'lede') + '>' + esc(g(p, 'lede', 'Your playbook is on its way. While you wait \u2014 watch this 2-minute intro.')) + '</p>'
@@ -147,7 +167,22 @@ export function renderSection(type, props, sid) {
   return fn ? fn(props || {}, sid) : '';
 }
 
+export const BLOCK_LIB = [
+  { type: 'heading', label: 'Heading' },
+  { type: 'text', label: 'Text' },
+  { type: 'image', label: 'Image' },
+  { type: 'button', label: 'Button' },
+  { type: 'video', label: 'Video' },
+  { type: 'divider', label: 'Divider' },
+  { type: 'spacer', label: 'Spacer' },
+];
+export function newBlock(type) {
+  const d = { heading: { text: 'Your heading', level: 'h2', align: 'left' }, text: { text: 'Add your text here.', align: 'left' }, image: { url: '', align: 'center' }, button: { text: 'Click here', href: '', align: 'center', variant: 'solid' }, video: { url: '' }, divider: {}, spacer: { height: 32 } };
+  return Object.assign({ type: type }, d[type] || {});
+}
+
 export const SECTION_LIB = [
+  { type: 'blocks', label: 'Content blocks', cat: 'Build your own' },
   { type: 'nav', label: 'Navigation', cat: 'Structure' },
   { type: 'hero', label: 'Hero + opt-in', cat: 'Headers' },
   { type: 'heroCenter', label: 'Hero centered', cat: 'Headers' },

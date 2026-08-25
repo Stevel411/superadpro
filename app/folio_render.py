@@ -231,10 +231,76 @@ def _thanks(p):
             '<div style="margin-top:30px"><a class="fo-btn"' + lnk(p, "button") + '>' + esc(p.get("button"), "Get started now \u2192") + '</a></div></div></div>')
 
 
+def _video_embed(url):
+    """Return an embed iframe for a YouTube or Vimeo URL, or '' if unrecognised."""
+    import re
+    u = (url or "").strip()
+    if not u:
+        return ""
+    m = re.search(r"(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([A-Za-z0-9_-]{6,})", u)
+    if m:
+        return ('<iframe class="fb-frame" src="https://www.youtube.com/embed/' + m.group(1) + '" '
+                'frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>')
+    m = re.search(r"vimeo\.com/(?:video/)?(\d+)", u)
+    if m:
+        return ('<iframe class="fb-frame" src="https://player.vimeo.com/video/' + m.group(1) + '" '
+                'frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>')
+    return ""
+
+
+def render_block(b):
+    """Render one content block."""
+    if not isinstance(b, dict):
+        return ""
+    t = b.get("type", "")
+    al = b.get("align", "left")
+    if al not in ("left", "center", "right"):
+        al = "left"
+    ws = 'text-align:' + al
+    if t == "heading":
+        lvl = b.get("level") if b.get("level") in ("h1", "h2", "h3") else "h2"
+        return '<' + lvl + ' class="fb-h" style="' + ws + '">' + esc(b.get("text"), "Your heading") + '</' + lvl + '>'
+    if t == "text":
+        return '<div class="fb-t" style="' + ws + '">' + esc(b.get("text"), "Add your text here.").replace("\n", "<br>") + '</div>'
+    if t == "image":
+        u = imgurl(b, "url", "")
+        inner = ('<img class="fb-img" src="' + u + '"/>') if u else '<div class="fb-img-ph">No image yet</div>'
+        href = (b.get("href") or "").strip()
+        if u and href:
+            inner = '<a href="' + html.escape(href) + '">' + inner + '</a>'
+        return '<div class="fb-imgwrap" style="' + ws + '">' + inner + '</div>'
+    if t == "button":
+        href = (b.get("href") or "").strip()
+        variant = " fo-btn--ghost" if b.get("variant") == "ghost" else ""
+        return ('<div style="' + ws + '"><a class="fo-btn' + variant + '" href="'
+                + (html.escape(href) if href else "#") + '">' + esc(b.get("text"), "Button") + '</a></div>')
+    if t == "video":
+        emb = _video_embed(b.get("url", ""))
+        return '<div class="fb-video">' + emb + '</div>' if emb else '<div class="fb-video-ph">Paste a YouTube or Vimeo link</div>'
+    if t == "divider":
+        return '<hr class="fb-div"/>'
+    if t == "spacer":
+        try:
+            h = max(4, min(200, int(b.get("height", 32))))
+        except Exception:
+            h = 32
+        return '<div style="height:' + str(h) + 'px"></div>'
+    return ""
+
+
+def _blocks(p):
+    blocks = p.get("blocks") if isinstance(p.get("blocks"), list) else []
+    inner = "".join(render_block(b) for b in blocks)
+    if not inner:
+        inner = '<div class="fb-empty">Add your first block</div>'
+    return '<div class="s s-blocks"><div class="fo-wr fb-wrap">' + inner + '</div></div>'
+
+
 SECTIONS = {
     "nav": _nav, "hero": _hero, "heroCenter": _hero_center, "stats": _stats, "features": _features,
     "featRow": _featrow, "steps": _steps, "quote": _quote, "pricing": _pricing, "faq": _faq,
     "cta": _cta, "footer": _footer, "bio": _bio, "webinar": _webinar, "comingSoon": _coming, "thankYou": _thanks,
+    "blocks": _blocks,
 }
 
 
