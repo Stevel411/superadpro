@@ -65,6 +65,11 @@ const CHROME = `
 .fblk.dragging{opacity:.4}
 .fblk.drop-before{box-shadow:inset 0 4px 0 -1px #5b3df5}
 .fblk.drop-after{box-shadow:inset 0 -4px 0 -1px #5b3df5}
+.fsec-grip{position:absolute;top:8px;left:8px;z-index:31;cursor:grab;color:#fff;background:#17141c;border-radius:7px;padding:3px 8px;font-size:12px;line-height:1.2;opacity:.32;touch-action:none;user-select:none}
+.fsec:hover .fsec-grip{opacity:1}
+.fsec.dragging{opacity:.45}
+.fsec.drop-before{box-shadow:inset 0 5px 0 -1px #5b3df5}
+.fsec.drop-after{box-shadow:inset 0 -5px 0 -1px #5b3df5}
 .fb-spacer{display:flex;align-items:center;justify-content:center;color:#b9aef7;font-size:11px;font-family:'Space Mono',monospace;border:1px dashed #d9d3ea;border-radius:6px}
 .fbtray{position:fixed;inset:0;z-index:1250;background:rgba(23,20,28,.5);display:flex;align-items:flex-end}
 .fbtray .sheet{background:#fff;width:100%;border-top-left-radius:18px;border-top-right-radius:18px;padding:18px 16px 26px}
@@ -144,6 +149,7 @@ export default function FolioEditor() {
     const secs = secsRef.current;
     const inner = secs.map((s, i) =>
       '<div class="fsec" data-idx="' + i + '">'
+      + '<span class="fsec-grip" data-secgrip title="Drag to reorder">\u283f</span>'
       + '<div class="fsec-ctrl">'
       + '<button data-act="up" data-idx="' + i + '" title="Move up">\u2191</button>'
       + '<button data-act="down" data-idx="' + i + '" title="Move down">\u2193</button>'
@@ -199,9 +205,14 @@ export default function FolioEditor() {
       const d = dragRef.current; if (!d) return;
       e.preventDefault();
       const over = document.elementFromPoint(e.clientX, e.clientY);
-      const blk = over && over.closest ? over.closest('.fblk') : null;
       if (canvasRef.current) canvasRef.current.querySelectorAll('.drop-before,.drop-after').forEach(x => x.classList.remove('drop-before', 'drop-after'));
-      if (blk && blk.dataset.blk) { const pr = blk.dataset.blk.split('|'); if (pr[0] === d.sid) { const idx = +pr[1]; const r = blk.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; blk.classList.add(after ? 'drop-after' : 'drop-before'); d.to = after ? idx + 1 : idx; } }
+      if (d.kind === 'section') {
+        const sec = over && over.closest ? over.closest('.fsec') : null;
+        if (sec && sec.dataset.idx != null) { const idx = +sec.dataset.idx; const r = sec.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; sec.classList.add(after ? 'drop-after' : 'drop-before'); d.to = after ? idx + 1 : idx; }
+      } else {
+        const blk = over && over.closest ? over.closest('.fblk') : null;
+        if (blk && blk.dataset.blk) { const pr = blk.dataset.blk.split('|'); if (pr[0] === d.sid) { const idx = +pr[1]; const r = blk.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; blk.classList.add(after ? 'drop-after' : 'drop-before'); d.to = after ? idx + 1 : idx; } }
+      }
     };
     const onUp = () => {
       const d = dragRef.current; dragRef.current = null;
@@ -211,15 +222,16 @@ export default function FolioEditor() {
       clearDrop();
       if (!d) return;
       let to = d.to; if (to > d.from) to--;
-      if (to !== d.from && to >= 0) { const l = bkList(d.sid); if (l && d.from < l.length) { const [m] = l.splice(d.from, 1); l.splice(to, 0, m); setBlkSel(null); setVer(v => v + 1); commit(); } }
+      if (to === d.from || to < 0) return;
+      if (d.kind === 'section') { const arr = secsRef.current; if (d.from < arr.length) { const [m] = arr.splice(d.from, 1); arr.splice(to, 0, m); setBlkSel(null); setVer(v => v + 1); commit(); } }
+      else { const l = bkList(d.sid); if (l && d.from < l.length) { const [m] = l.splice(d.from, 1); l.splice(to, 0, m); setBlkSel(null); setVer(v => v + 1); commit(); } }
     };
     const onDown = (e) => {
-      const grip = e.target.closest && e.target.closest('.fbk-grip'); if (!grip) return;
-      const blk = grip.closest('.fblk'); if (!blk || !blk.dataset.blk) return;
-      e.preventDefault();
-      const pr = blk.dataset.blk.split('|');
-      dragRef.current = { sid: pr[0], from: +pr[1], to: +pr[1] };
-      blk.classList.add('dragging');
+      const bgrip = e.target.closest && e.target.closest('.fbk-grip');
+      const sgrip = e.target.closest && e.target.closest('.fsec-grip');
+      if (bgrip) { const blk = bgrip.closest('.fblk'); if (!blk || !blk.dataset.blk) return; e.preventDefault(); const pr = blk.dataset.blk.split('|'); dragRef.current = { kind: 'block', sid: pr[0], from: +pr[1], to: +pr[1] }; blk.classList.add('dragging'); }
+      else if (sgrip) { const sec = sgrip.closest('.fsec'); if (!sec || sec.dataset.idx == null) return; e.preventDefault(); const idx = +sec.dataset.idx; dragRef.current = { kind: 'section', from: idx, to: idx }; sec.classList.add('dragging'); }
+      else return;
       document.body.style.userSelect = 'none';
       document.addEventListener('pointermove', onMove, { passive: false });
       document.addEventListener('pointerup', onUp);
