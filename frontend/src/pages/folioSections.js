@@ -159,7 +159,7 @@ const R = {
 
   blocks: (p, s) => {
     const bl = Array.isArray(p.blocks) ? p.blocks : [];
-    const inner = bl.map((b, i) => '<div class="fblk" data-blk="' + s + '|' + i + '">' + renderBlockPreview(b) + '</div>').join('');
+    const inner = bl.map((b, i) => '<div class="fblk" data-blk="' + s + '|' + i + '"><span class="fbk-grip" data-grip title="Drag to reorder">\u2630</span>' + renderBlockPreview(b) + '</div>').join('');
     return '<div class="s s-blocks"><div class="fo-wr fb-wrap">' + (inner || '<div class="fb-empty">No blocks yet — add one below</div>') + '<button class="fb-add" data-addblk="' + s + '">+ Add block</button></div></div>';
   },
   thankYou: (p, s) => '<div class="s s-thanks"><div class="fo-wr"><div class="tick">\u2713</div>'

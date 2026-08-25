@@ -60,6 +60,11 @@ const CHROME = `
 .fblk{position:relative;border-radius:8px;transition:box-shadow .15s;cursor:pointer;min-height:8px}
 .fblk:hover{box-shadow:0 0 0 2px #c9bdff}
 .fblk.sel{box-shadow:0 0 0 2px #5b3df5}
+.fbk-grip{position:absolute;top:6px;left:6px;z-index:22;cursor:grab;color:#5b3df5;background:#fff;border:1px solid #e0dcef;border-radius:6px;padding:1px 6px;font-size:12px;line-height:1.3;opacity:.45;touch-action:none;user-select:none}
+.fblk:hover .fbk-grip{opacity:1}
+.fblk.dragging{opacity:.4}
+.fblk.drop-before{box-shadow:inset 0 4px 0 -1px #5b3df5}
+.fblk.drop-after{box-shadow:inset 0 -4px 0 -1px #5b3df5}
 .fb-spacer{display:flex;align-items:center;justify-content:center;color:#b9aef7;font-size:11px;font-family:'Space Mono',monospace;border:1px dashed #d9d3ea;border-radius:6px}
 .fbtray{position:fixed;inset:0;z-index:1250;background:rgba(23,20,28,.5);display:flex;align-items:flex-end}
 .fbtray .sheet{background:#fff;width:100%;border-top-left-radius:18px;border-top-right-radius:18px;padding:18px 16px 26px}
@@ -119,6 +124,7 @@ export default function FolioEditor() {
   const pastRef = useRef([]);
   const futureRef = useRef([]);
   const curRef = useRef('');
+  const dragRef = useRef(null);
   const [histVer, setHistVer] = useState(0);
   const [ver, setVer] = useState(0);
 
@@ -188,9 +194,40 @@ export default function FolioEditor() {
       else if (act === 'add') { setAddAt(i + 1); }
     };
     const onBlur = (e) => { if (e.target.hasAttribute && e.target.hasAttribute('data-e')) { syncFromDOM(); commit(); } };
+    const clearDrop = () => { if (canvasRef.current) canvasRef.current.querySelectorAll('.drop-before,.drop-after,.dragging').forEach(x => x.classList.remove('drop-before', 'drop-after', 'dragging')); };
+    const onMove = (e) => {
+      const d = dragRef.current; if (!d) return;
+      e.preventDefault();
+      const over = document.elementFromPoint(e.clientX, e.clientY);
+      const blk = over && over.closest ? over.closest('.fblk') : null;
+      if (canvasRef.current) canvasRef.current.querySelectorAll('.drop-before,.drop-after').forEach(x => x.classList.remove('drop-before', 'drop-after'));
+      if (blk && blk.dataset.blk) { const pr = blk.dataset.blk.split('|'); if (pr[0] === d.sid) { const idx = +pr[1]; const r = blk.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; blk.classList.add(after ? 'drop-after' : 'drop-before'); d.to = after ? idx + 1 : idx; } }
+    };
+    const onUp = () => {
+      const d = dragRef.current; dragRef.current = null;
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.body.style.userSelect = '';
+      clearDrop();
+      if (!d) return;
+      let to = d.to; if (to > d.from) to--;
+      if (to !== d.from && to >= 0) { const l = bkList(d.sid); if (l && d.from < l.length) { const [m] = l.splice(d.from, 1); l.splice(to, 0, m); setBlkSel(null); setVer(v => v + 1); commit(); } }
+    };
+    const onDown = (e) => {
+      const grip = e.target.closest && e.target.closest('.fbk-grip'); if (!grip) return;
+      const blk = grip.closest('.fblk'); if (!blk || !blk.dataset.blk) return;
+      e.preventDefault();
+      const pr = blk.dataset.blk.split('|');
+      dragRef.current = { sid: pr[0], from: +pr[1], to: +pr[1] };
+      blk.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup', onUp);
+    };
     c.addEventListener('click', onClick);
     c.addEventListener('focusout', onBlur);
-    return () => { c.removeEventListener('click', onClick); c.removeEventListener('focusout', onBlur); };
+    c.addEventListener('pointerdown', onDown);
+    return () => { c.removeEventListener('click', onClick); c.removeEventListener('focusout', onBlur); c.removeEventListener('pointerdown', onDown); document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); };
   }, [status]);
 
   function pickAccent(cx) { accentRef.current = cx; setAccent(cx); const pg = canvasRef.current && canvasRef.current.querySelector('.fo-page'); if (pg) pg.style.setProperty('--fo-accent', cx); commit(); }
