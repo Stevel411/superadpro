@@ -39,6 +39,12 @@ const CHROME = `
 .fed-modal .opt:hover{border-color:#5b3df5;background:#f6f5ff}
 .fed-modal .opt b{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:13.5px;display:block;color:#17141c}
 .fed-modal .opt span{font-size:10.5px;color:#8b8496;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.fed-modal .hint{font-size:12.5px;color:#6b6e7c;line-height:1.55;margin-bottom:4px}
+.fed-modal label{display:block;font-size:11.5px;font-weight:800;color:#5a6584;margin:12px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+.fed-modal .in{width:100%;border:1.5px solid #e3dccd;border-radius:10px;padding:11px 12px;font-size:14px;font-family:inherit}
+.fed-modal .in:focus{outline:none;border-color:#5b3df5}
+.fed-modal .row{display:flex;gap:10px}.fed-modal .row>div{flex:1}
+.fed-modal .save-ar{background:#5b3df5;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;margin-top:16px}
 .fed-x{background:#efe9dd;border:none;border-radius:10px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;margin-top:14px;width:100%}
 .fed-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1200;background:#17141c;color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 20px 40px -20px rgba(0,0,0,.5);max-width:92vw;font-size:13px;display:flex;align-items:center;gap:12px}
 .fed-toast a{color:#a99cff;font-weight:800;text-decoration:none;word-break:break-all}
@@ -59,6 +65,8 @@ export default function FolioEditor() {
   const [saving, setSaving] = useState('');
   const [addAt, setAddAt] = useState(-1); // -1 closed
   const [toast, setToast] = useState(null);
+  const [arOpen, setArOpen] = useState(false);
+  const [ar, setAr] = useState({ forward_url: '', email_field: 'email', name_field: '' });
   const canvasRef = useRef(null);
   const secsRef = useRef([]);
   const accentRef = useRef('#5b3df5');
@@ -70,6 +78,7 @@ export default function FolioEditor() {
       secsRef.current = (d.sections || []).map(s => ({ id: nid(), type: s.type, props: s.props || {} }));
       accentRef.current = d.accent || '#5b3df5';
       titleRef.current = d.title || 'Untitled page';
+      if (d.capture_config) setAr({ forward_url: d.capture_config.forward_url || '', email_field: d.capture_config.email_field || 'email', name_field: d.capture_config.name_field || '' });
       setAccent(accentRef.current); setTitle(titleRef.current); setStatus('ok');
     }).catch(() => setStatus('error'));
   }, [id]);
@@ -136,6 +145,12 @@ export default function FolioEditor() {
       .catch(() => { setSaving(''); alert('Publish failed — please try again.'); });
   }
 
+  function saveAr() {
+    fetch('/api/folio/pages/' + id + '/autoresponder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ar) })
+      .then(r => r.json()).then(d => { if (d && d.ok) { setArOpen(false); setSaving(ar.forward_url ? 'Autoresponder connected' : 'Saved'); setTimeout(() => setSaving(''), 1800); } else alert((d && d.error) || 'Could not save.'); })
+      .catch(() => alert('Could not save.'));
+  }
+
   if (status === 'loading') return <><style>{CHROME}</style><div className="fed-center">Loading editor…</div></>;
   if (status === 'error') return <><style>{CHROME}</style><div className="fed-center"><div style={{ textAlign: 'center' }}><p>Couldn't load this page.</p><a href="/folio" style={{ color: '#5b3df5', fontWeight: 800 }}>← Back to your pages</a></div></div></>;
 
@@ -154,6 +169,7 @@ export default function FolioEditor() {
           <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')}>Desktop</button>
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')}>Mobile</button>
         </div>
+        <button className="save" onClick={() => setArOpen(true)} title="Connect autoresponder">⚡</button>
         <button className="save" onClick={() => save()}>{saving || 'Save'}</button>
         <button className="pub" onClick={publish}>Publish</button>
       </div>
@@ -177,6 +193,23 @@ export default function FolioEditor() {
               ))}
             </div>
             <button className="fed-x" onClick={() => setAddAt(-1)}>Cancel</button>
+          </div>
+        </div>
+      ) : null}
+
+      {arOpen ? (
+        <div className="fed-modal" onClick={e => { if (e.target === e.currentTarget) setArOpen(false); }}>
+          <div className="box">
+            <h3>Connect your autoresponder</h3>
+            <p className="hint">Every lead is always saved to your <b>MyLeads</b>. To <i>also</i> send opt-ins straight to your own autoresponder (Mailchimp, GetResponse, AWeber, Brevo…), paste your form’s action URL and the field names it uses — you’ll find these in your autoresponder’s “raw HTML” or “embed form” code. Leave the URL blank to keep leads in MyLeads only.</p>
+            <label>Form action URL</label>
+            <input className="in" value={ar.forward_url} onChange={e => setAr({ ...ar, forward_url: e.target.value })} placeholder="https://your-autoresponder.com/subscribe" />
+            <div className="row">
+              <div><label>Email field name</label><input className="in" value={ar.email_field} onChange={e => setAr({ ...ar, email_field: e.target.value })} placeholder="email" /></div>
+              <div><label>Name field (optional)</label><input className="in" value={ar.name_field} onChange={e => setAr({ ...ar, name_field: e.target.value })} placeholder="name" /></div>
+            </div>
+            <button className="save-ar" onClick={saveAr}>Save connection</button>
+            <button className="fed-x" onClick={() => setArOpen(false)}>Cancel</button>
           </div>
         </div>
       ) : null}

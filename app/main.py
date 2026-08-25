@@ -73361,12 +73361,19 @@ def folio_get(page_id: int, user: User = Depends(get_current_user), db: Session 
     if not user:
         return JSONResponse({"error": "auth required"}, status_code=401)
     _folio_ensure_tables(db)
-    r = db.execute(text("SELECT id,slug,title,template_id,accent,sections,status,updated_at,published_at "
+    r = db.execute(text("SELECT id,slug,title,template_id,accent,sections,status,capture_config,updated_at,published_at "
                         "FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).mappings().first()
     if not r:
         return JSONResponse({"error": "not found"}, status_code=404)
+    cc = r["capture_config"]
+    if isinstance(cc, str):
+        try:
+            cc = json.loads(cc)
+        except Exception:
+            cc = None
     return {"id": r["id"], "slug": r["slug"], "title": r["title"], "template_id": r["template_id"],
             "accent": r["accent"], "sections": _folio_sections(r["sections"]), "status": r["status"],
+            "capture_config": cc,
             "updated_at": str(r["updated_at"]) if r["updated_at"] else None,
             "published_at": str(r["published_at"]) if r["published_at"] else None}
 
@@ -73561,6 +73568,34 @@ async def folio_capture(page_id: int, request: Request, db: Session = Depends(ge
         except Exception as e:
             logger.warning("[Folio] autoresponder forward failed: %s", str(e)[:120])
     return {"ok": True}
+
+
+@app.post("/api/folio/pages/{page_id}/autoresponder")
+async def folio_autoresponder(page_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Set (or clear) the external autoresponder forward for a page (owner only). Empty URL clears it."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    owns = db.execute(text("SELECT 1 FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).first()
+    if not owns:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    forward_url = (body.get("forward_url") or "").strip()[:500]
+    email_field = (body.get("email_field") or "email").strip()[:60] or "email"
+    name_field = (body.get("name_field") or "").strip()[:60]
+    if forward_url and not forward_url.startswith(("http://", "https://")):
+        return JSONResponse({"error": "The form URL must start with http:// or https://"}, status_code=400)
+    if forward_url:
+        cfg = {"forward_url": forward_url, "email_field": email_field, "name_field": name_field}
+        db.execute(text("UPDATE folio_page SET capture_config=CAST(:c AS JSONB) WHERE id=:id AND user_id=:u"),
+                   {"c": json.dumps(cfg), "id": page_id, "u": user.id})
+    else:
+        db.execute(text("UPDATE folio_page SET capture_config=NULL WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True, "configured": bool(forward_url)}
 
 
 @app.get("/admin/api/folio/publish-selftest")
