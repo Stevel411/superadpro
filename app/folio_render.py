@@ -32,8 +32,8 @@ def _hero(p):
             '<div class="fo-eyebrow">' + esc(p.get("eyebrow"), "Free download \u00b7 2026") + '</div>'
             '<h1>' + head + ' <span class="u">' + accent + '</span></h1>'
             '<p class="fo-lede">' + esc(p.get("lede"), "Find buyers without paying for ads \u2014 with a simple daily routine you can start today.") + '</p>'
-            '<div class="fo-form" style="margin-top:22px"><input class="fo-input" placeholder="' + esc(p.get("placeholder"), "Your best email") + '"/>'
-            '<button class="fo-btn">' + esc(p.get("button"), "Send the playbook") + '</button></div>'
+            '<form class="fo-form fo-optin" style="margin-top:22px"><input class="fo-input" type="email" name="email" required placeholder="' + esc(p.get("placeholder"), "Your best email") + '"/>'
+            '<button class="fo-btn" type="submit">' + esc(p.get("button"), "Send the playbook") + '</button></form>'
             '<div class="rea"><div class="avs"><span style="background-image:url(' + AV + '56?img=12)"></span>'
             '<span style="background-image:url(' + AV + '56?img=32)"></span><span style="background-image:url(' + AV + '56?img=45)"></span></div>'
             '<div class="t"><span class="stars">\u2605\u2605\u2605\u2605\u2605</span><br>' + esc(p.get("proof"), "9,400+ downloads") + '</div></div>'
@@ -149,8 +149,8 @@ def _cta(p):
     return ('<div class="s s-cta"><div class="fo-wr">'
             '<h2 class="fo-disp">' + esc(p.get("heading"), "Get 27 free traffic sources \u2014 free.") + '</h2>'
             '<p>' + esc(p.get("sub"), "Drop your email and it lands in your inbox in seconds.") + '</p>'
-            '<div class="fo-form"><input class="fo-input" placeholder="' + esc(p.get("placeholder"), "Your best email") + '"/>'
-            '<button class="fo-btn fo-btn--light">' + esc(p.get("button"), "Send it to me") + '</button></div>'
+            '<form class="fo-form fo-optin"><input class="fo-input" type="email" name="email" required placeholder="' + esc(p.get("placeholder"), "Your best email") + '"/>'
+            '<button class="fo-btn fo-btn--light" type="submit">' + esc(p.get("button"), "Send it to me") + '</button></form>'
             '<div class="fine">' + esc(p.get("fine"), "No spam. Unsubscribe anytime.") + '</div></div></div>')
 
 
@@ -183,8 +183,8 @@ def _webinar(p):
             '<p class="fo-lede">' + esc(p.get("lede"), "A live 45-minute training where I walk through the exact routine \u2014 and answer your questions at the end.") + '</p>'
             '<ul class="learn">' + lis + '</ul></div>'
             '<div class="card"><h4>' + esc(p.get("formTitle"), "Save your free seat") + '</h4>'
-            '<input class="fo-input" placeholder="First name"/><input class="fo-input" placeholder="Your best email"/>'
-            '<button class="fo-btn">' + esc(p.get("button"), "Reserve my seat \u2192") + '</button>'
+            '<form class="fo-optin"><input class="fo-input" name="name" placeholder="First name"/><input class="fo-input" type="email" name="email" required placeholder="Your best email"/>'
+            '<button class="fo-btn" type="submit">' + esc(p.get("button"), "Reserve my seat \u2192") + '</button></form>'
             '<div style="text-align:center;font-size:12px;color:#8b8e9c;margin-top:12px">Seats are limited \u00b7 Replay for registrants</div></div></div></div>')
 
 
@@ -194,7 +194,7 @@ def _coming(p):
     return ('<div class="s-coming"><div class="fo-wr"><div class="fo-logo"><span class="m">\u2726</span> ' + esc(p.get("brand"), "YourBrand") + '</div>'
             '<h1 class="fo-disp">' + head + ' <span class="u">' + accent + '</span></h1>'
             '<p>' + esc(p.get("lede"), "We're putting the finishing touches on it. Drop your email and be first through the door.") + '</p>'
-            '<div class="fo-form"><input class="fo-input" placeholder="Your best email"/><button class="fo-btn">' + esc(p.get("button"), "Notify me") + '</button></div>'
+            '<form class="fo-form fo-optin"><input class="fo-input" type="email" name="email" required placeholder="Your best email"/><button class="fo-btn" type="submit">' + esc(p.get("button"), "Notify me") + '</button></form>'
             '<div class="soon">' + esc(p.get("soon"), "Launching Spring 2026") + '</div></div></div>')
 
 
@@ -229,13 +229,26 @@ def render_sections(sections, accent="#5b3df5"):
     return '<div class="fo-page" style="--fo-accent:' + html.escape(acc) + '">' + "".join(body) + '</div>'
 
 
-def render_page(sections, accent="#5b3df5", title="My page"):
-    """Full standalone HTML document for a published page."""
+def render_page(sections, accent="#5b3df5", title="My page", page_id=0):
+    """Full standalone HTML document for a published page. page_id wires the opt-in capture."""
     from .folio_css import FOLIO_CSS
+    capture = (
+        "<script>(function(){var pid=" + str(int(page_id or 0)) + ";"
+        "document.querySelectorAll('form.fo-optin').forEach(function(f){"
+        "f.addEventListener('submit',function(e){e.preventDefault();"
+        "var em=(f.querySelector('input[type=email]')||{}).value||'';"
+        "var nm=f.querySelector('input[name=name]');nm=nm?nm.value:'';"
+        "if(!em||em.indexOf('@')<0){return;}"
+        "var b=f.querySelector('button');if(b){b.disabled=true;b.textContent='\\u2026';}"
+        "fetch('/api/folio/capture/'+pid,{method:'POST',headers:{'Content-Type':'application/json'},"
+        "body:JSON.stringify({email:em,name:nm})}).then(function(r){return r.json();}).then(function(d){"
+        "f.innerHTML='<div class=\\'fo-thanks\\'>\\u2713 You\\u2019re in \\u2014 check your inbox.</div>';"
+        "}).catch(function(){if(b){b.disabled=false;b.textContent='Try again';}});});});})();</script>"
+    )
     return ('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>'
             '<meta name="viewport" content="width=device-width, initial-scale=1"/>'
             '<title>' + html.escape(title or "My page") + '</title>'
             '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
             '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>'
             '<style>' + FOLIO_CSS + '</style></head><body>'
-            + render_sections(sections, accent) + '</body></html>')
+            + render_sections(sections, accent) + capture + '</body></html>')

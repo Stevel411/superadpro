@@ -1,4 +1,4 @@
-// AUTO-DERIVED from app/folio_css.py — keep in sync (editor canvas == published page).
+// AUTO-DERIVED from app/folio_css.py — keep in sync.
 export const FOLIO_CSS = String.raw`
 @property --fo-accent{ syntax:'<color>'; inherits:true; initial-value:#5b3df5; }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -103,6 +103,7 @@ export const FOLIO_CSS = String.raw`
 .s-thanks{text-align:center;padding:90px 0 40px}.s-thanks .tick{width:78px;height:78px;border-radius:50%;background:var(--fo-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 24px;box-shadow:0 18px 34px -14px color-mix(in srgb,var(--fo-accent) 55%,transparent)}
 .s-thanks h1{font-family:var(--fo-font-display);font-weight:800;font-size:var(--fo-text-4xl);letter-spacing:-.03em}.s-thanks .fo-lede{max-width:520px;margin:16px auto 0}
 .s-thanks .vid{max-width:620px;margin:36px auto 0;aspect-ratio:16/9;border-radius:var(--fo-radius-lg);background:linear-gradient(140deg,var(--fo-accent),var(--fo-accent-tint));box-shadow:var(--fo-shadow-lg);display:flex;align-items:center;justify-content:center}
+.fo-thanks{font-family:var(--fo-font-display);font-weight:700;font-size:18px;color:var(--fo-accent);padding:12px 0}
 .s-thanks .vid .play{width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;color:var(--fo-accent);font-size:24px;padding-left:5px}
 @media(max-width:820px){
   .s-hero .g,.s-featrow .g,.s-web .g{grid-template-columns:1fr;gap:34px}.cover-stage{order:-1}

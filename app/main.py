@@ -73266,6 +73266,7 @@ def _folio_ensure_tables(db):
             "status VARCHAR(16) DEFAULT 'draft', published_html TEXT, "
             "created_at TIMESTAMP DEFAULT now(), updated_at TIMESTAMP DEFAULT now(), published_at TIMESTAMP)"))
         db.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS folio_page_user_slug ON folio_page (user_id, slug)"))
+        db.execute(text("ALTER TABLE folio_page ADD COLUMN IF NOT EXISTS capture_config JSONB"))
         db.commit()
         _FOLIO_TABLES_READY = True
     except Exception:
@@ -73481,7 +73482,7 @@ def folio_publish(page_id: int, user: User = Depends(get_current_user), db: Sess
     if not r:
         return JSONResponse({"error": "not found"}, status_code=404)
     from .folio_render import render_page
-    html = render_page(_folio_sections(r["sections"]), accent=r["accent"], title=r["title"])
+    html = render_page(_folio_sections(r["sections"]), accent=r["accent"], title=r["title"], page_id=page_id)
     db.execute(text("UPDATE folio_page SET status='published', published_html=:h, published_at=now() "
                     "WHERE id=:id AND user_id=:u"), {"h": html, "id": page_id, "u": user.id})
     db.commit()
@@ -73513,6 +73514,55 @@ def folio_public(username: str, slug: str, db: Session = Depends(get_db)):
     return HTMLResponse(r["published_html"])
 
 
+@app.post("/api/folio/capture/{page_id}")
+async def folio_capture(page_id: int, request: Request, db: Session = Depends(get_db)):
+    """Public: an opt-in from a published Folio page. Stores the lead in the owner's MyLeads,
+    and (if configured) forwards it to their external autoresponder."""
+    from .database import MemberLead
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    email = (body.get("email") or "").strip().lower()
+    name = (body.get("name") or "").strip()[:100]
+    if not email or "@" not in email or "." not in email.split("@")[-1]:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+    _folio_ensure_tables(db)
+    r = db.execute(text("SELECT user_id, capture_config FROM folio_page WHERE id=:id AND status='published'"),
+                   {"id": page_id}).mappings().first()
+    if not r:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    # 1) into MyLeads (built-in), de-duped per owner+email
+    try:
+        exists = db.query(MemberLead).filter(MemberLead.user_id == r["user_id"], MemberLead.email == email).first()
+        if not exists:
+            db.add(MemberLead(user_id=r["user_id"], email=email, name=(name or None),
+                              source_url="folio-" + str(page_id), status="new", is_hot=False))
+            db.commit()
+    except Exception:
+        db.rollback()
+    # 2) external autoresponder forward (best-effort; configured in slice B)
+    cfg = r["capture_config"] if isinstance(r["capture_config"], dict) else None
+    if isinstance(r["capture_config"], str):
+        try:
+            cfg = json.loads(r["capture_config"])
+        except Exception:
+            cfg = None
+    if cfg and cfg.get("forward_url"):
+        try:
+            import urllib.parse
+            ef = cfg.get("email_field") or "email"
+            data = {ef: email}
+            if name and cfg.get("name_field"):
+                data[cfg["name_field"]] = name
+            req = urllib.request.Request(cfg["forward_url"], data=urllib.parse.urlencode(data).encode(),
+                                         headers={"Content-Type": "application/x-www-form-urlencoded"}, method="POST")
+            urllib.request.urlopen(req, timeout=8)
+        except Exception as e:
+            logger.warning("[Folio] autoresponder forward failed: %s", str(e)[:120])
+    return {"ok": True}
+
+
 @app.get("/admin/api/folio/publish-selftest")
 def admin_folio_publish_selftest(request: Request, db: Session = Depends(get_db)):
     """Secret-gated: create + publish a page under the company account, return its public URL so the
@@ -73532,12 +73582,29 @@ def admin_folio_publish_selftest(request: Request, db: Session = Depends(get_db)
     slug = _folio_unique_slug(db, admin.id, "folio pub test")
     from .folio_render import render_page
     html = render_page(secs, accent="#5b3df5", title="Folio pub test")
-    db.execute(text("INSERT INTO folio_page (user_id,slug,title,accent,sections,status,published_html,published_at) "
-                    "VALUES (:u,:s,'Folio pub test','#5b3df5',CAST(:sec AS JSONB),'published',:h,now())"),
-               {"u": admin.id, "s": slug, "sec": json.dumps(secs), "h": html})
+    pid = db.execute(text("INSERT INTO folio_page (user_id,slug,title,accent,sections,status,published_html,published_at) "
+                          "VALUES (:u,:s,'Folio pub test','#5b3df5',CAST(:sec AS JSONB),'published',:h,now()) RETURNING id"),
+                     {"u": admin.id, "s": slug, "sec": json.dumps(secs), "h": html}).first()[0]
     db.commit()
     return {"ok": True, "url": "https://www.advantagelife.club/page/" + admin.username + "/" + slug,
-            "published_len": len(html), "slug": slug}
+            "id": pid, "published_len": len(html), "slug": slug}
+
+
+@app.get("/admin/api/folio/capture-verify")
+def admin_folio_capture_verify(request: Request, db: Session = Depends(get_db)):
+    """Secret-gated: count leads captured from a Folio page (source_url=folio-{id}); cleanup=1 removes them."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (secret and secret in _secrets):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    pid = request.query_params.get("page_id", "")
+    src = "folio-" + str(pid)
+    if request.query_params.get("cleanup") == "1":
+        n = db.execute(text("DELETE FROM member_leads WHERE source_url=:s"), {"s": src}).rowcount
+        db.commit()
+        return {"ok": True, "removed_leads": n}
+    rows = db.execute(text("SELECT email, name, status FROM member_leads WHERE source_url=:s"), {"s": src}).mappings().all()
+    return {"ok": True, "source": src, "leads": [dict(x) for x in rows]}
 
 
 @app.get("/admin/api/folio/publish-cleanup")
