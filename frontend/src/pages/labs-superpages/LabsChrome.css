@@ -196,7 +196,7 @@
   font-weight: 900 !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
-  color: #ff8090 !important;
+  color: #12388f !important;
   margin-bottom: 4px;
 }
 
@@ -375,9 +375,9 @@
    shadow brightens. */
 .labs-chrome .pal-item {
   min-height: 94px !important;
-  background: #173f96 !important;
+  background: linear-gradient(180deg,#ffffff,#fdfaf4) !important;
   background-image: none !important;
-  border: 1.5px solid rgba(255,255,255,0.14) !important;
+  border: 1.5px solid rgba(140,110,60,0.14) !important;
   border-radius: 12px !important;
   padding: 14px 10px !important;
   display: flex !important;
@@ -389,7 +389,7 @@
   cursor: pointer !important;
   overflow: visible !important;
   isolation: isolate !important;
-  box-shadow: 0 1px 2px rgba(15,40,90,0.05), 0 2px 8px rgba(15,40,90,0.07) !important;
+  box-shadow: 0 1px 2px rgba(10,31,82,0.05), inset 0 1px 0 rgba(255,255,255,0.8) !important;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -398,20 +398,20 @@
 }
 
 .labs-chrome .pal-item:hover {
-  transform: translateY(-2px) !important;
-  border-color: #e8203f !important;
-  background: #1c4bb0 !important;
+  transform: translateY(-3px) !important;
+  border-color: rgba(18,56,143,0.28) !important;
+  background: linear-gradient(180deg,#ffffff,#fbf6ee) !important;
   background-image: none !important;
-  box-shadow: 0 10px 22px rgba(200,16,46,0.40) !important;
+  box-shadow: 0 12px 30px rgba(18,56,143,0.16), 0 3px 10px rgba(200,16,46,0.10) !important;
 }
 
 .labs-chrome .pal-item:active {
   transform: translateY(0px) !important;
   transition-duration: 0.08s !important;
   border-color: #c8102e !important;
-  background: #c8102e !important;
+  background: linear-gradient(180deg,#ffffff,rgba(200,16,46,0.05)) !important;
   background-image: none !important;
-  box-shadow: 0 3px 10px rgba(200,16,46,0.45) !important;
+  box-shadow: 0 3px 10px rgba(200,16,46,0.14) !important;
 }
 
 /* Tile icons — bolder stroke + rounded caps + colour transitions.
@@ -419,7 +419,7 @@
 .labs-chrome .pal-item svg {
   width: 22px !important;
   height: 22px !important;
-  color: #ffffff !important;
+  color: #12388f !important;
   stroke-width: 2 !important;
   fill: none !important;
   stroke: currentColor !important;
@@ -429,14 +429,14 @@
 }
 .labs-chrome .pal-item:hover svg,
 .labs-chrome .pal-item:active svg {
-  color: #ffffff !important;
+  color: #12388f !important;
 }
 
 /* Tile label */
 .labs-chrome .pal-item .pal-label {
   font-family: 'Sora', sans-serif !important;
   font-size: 13px !important;
-  color: #ffffff !important;
+  color: #0d1a3a !important;
   font-weight: 700 !important;
   letter-spacing: -0.01em !important;
   text-align: center !important;
@@ -444,7 +444,7 @@
 }
 .labs-chrome .pal-item:hover .pal-label,
 .labs-chrome .pal-item:active .pal-label {
-  color: #ffffff !important;
+  color: #0d1a3a !important;
 }
 
 /* Tile descriptor (Option A, 2 Jun 2026) */
@@ -452,7 +452,7 @@
   font-family: 'DM Sans', sans-serif !important;
   font-size: 12px !important;
   line-height: 1.3 !important;
-  color: #aebee6 !important;
+  color: #8a94a6 !important;
   font-weight: 500 !important;
   text-align: center !important;
   transition: color 0.15s ease !important;
