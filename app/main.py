@@ -36749,8 +36749,7 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
     """Load GrapesJS editor data for a page."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
@@ -36974,8 +36973,7 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     try:
         body = await request.json()
     except Exception:
@@ -38680,8 +38678,7 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
 
     # Validate file type
     allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
@@ -38730,8 +38727,7 @@ async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
 
     allowed_types = {"video/mp4", "video/webm", "video/ogg"}
     if file.content_type not in allowed_types:
@@ -38767,8 +38763,7 @@ async def funnel_upload_audio(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
 
     allowed_types = {"audio/mpeg", "audio/wav", "audio/ogg", "audio/mp3", "audio/x-wav"}
     if file.content_type not in allowed_types:
@@ -38873,8 +38868,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
                                 db: Session = Depends(get_db)):
     """Create a funnel page from a pre-built niche template."""
     if not user: return {"error": "Not logged in"}
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     body = await request.json()
     niche = body.get("niche", "affiliate-marketing")
     import json, random, string, re as _re
@@ -38931,8 +38925,7 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
@@ -59496,8 +59489,7 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     from .database import FunnelPage, FunnelEvent, MemberLead, EmailSendLog, Commission
     from sqlalchemy import func as _func, and_ as _and
 
@@ -59797,8 +59789,7 @@ def api_funnels_activity(request: Request, user: User = Depends(get_current_user
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     from .database import (
         FunnelPage, MemberLead, EmailSequence, Commission, User as _User,
     )
@@ -60036,8 +60027,7 @@ def api_funnels_setup_options(request: Request, user: User = Depends(get_current
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     from .database import LeadList, EmailSequence
 
     lists = db.query(LeadList).filter(
@@ -60094,8 +60084,7 @@ async def api_funnels_update_wiring(page_id: int, request: Request,
     """
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
 
     page = db.query(FunnelPage).filter(
         FunnelPage.id == page_id, FunnelPage.user_id == user.id
@@ -60371,8 +60360,7 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_pro(user):
-        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
+    # AL: Page Builder is free for all logged-in members (membership is free).
     original = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not original:
         return JSONResponse({"error": "Page not found"}, status_code=404)

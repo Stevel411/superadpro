@@ -221,9 +221,9 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       // tighter than the previous 72 to give the canvas a touch more
       // vertical room without sacrificing comfort.
       height: 64,
-      background: '#ffffff',
-      borderBottom: '2px solid #0a1f52',
-      boxShadow: '0 2px 10px -6px rgba(10,20,56,0.18)',
+      background: 'linear-gradient(180deg,#fffdf9,#fbf7ef)',
+      borderBottom: '1px solid rgba(140,110,60,0.16)',
+      boxShadow: '0 1px 0 rgba(255,255,255,0.7), 0 4px 14px rgba(10,31,82,0.05)',
       display: 'flex', alignItems: 'center', padding: '0 18px', gap: 10,
       flexShrink: 0,
       // Sticky positioning: floats above canvas pan.
@@ -254,7 +254,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
           cursor: pointer;
           flex-shrink: 0;
         }
-        .sp-brand:hover { background: #f1f5f9; }
+        .sp-brand:hover { background: #f3ede1; }
         .sp-brand-wm {
           font-family: Sora, system-ui, sans-serif;
           font-weight: 800; font-size: 15px;
@@ -292,7 +292,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <button onClick={onBack} className="sp-tb-pill" style={pillM}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#c8102e'; e.currentTarget.style.color = '#1e3a8a'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e3a8a'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.color = '#1e3a8a'; }}
         title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
         <ArrowLeft size={14}/>
         <span>{t('superPagesEditor.backShort', { defaultValue: 'Back' })}</span>
@@ -341,7 +341,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       )}
 
       <div style={{
-        display:'inline-flex', background:'#f1f5f9',
+        display:'inline-flex', background:'#f5f1e8',
         border:'1px solid #e2e8f0', borderRadius:8, padding:3, gap:0,
         flexShrink: 0,
       }}>
@@ -354,12 +354,12 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <>
           <button onClick={onUndo} className="sp-tb-pill" style={pillS} title={t('superPagesEditor.undoLabel')}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#c8102e'; e.currentTarget.style.color = '#1e3a8a'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e3a8a'; }}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.color = '#1e3a8a'; }}>
             <Undo2 size={14}/>
           </button>
           <button onClick={onRedo} className="sp-tb-pill" style={pillS} title={t('superPagesEditor.redoLabel')}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#c8102e'; e.currentTarget.style.color = '#1e3a8a'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e3a8a'; }}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.color = '#1e3a8a'; }}>
             <Redo2 size={14}/>
           </button>
         </>
@@ -379,7 +379,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             e.currentTarget.style.borderColor = '#c8102e';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)';
           }}
           title={t('superPagesEditor.templatesLabel', { defaultValue: 'Browse templates' })}>
           <LayoutTemplate size={14}/>
@@ -389,7 +389,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       <button onClick={onToggleLayers} className="sp-tb-pill" style={layersOpen ? pillM_active : pillM}
         onMouseEnter={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#c8102e'; e.currentTarget.style.color = '#1e3a8a'; } }}
-        onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e3a8a'; } }}
+        onMouseLeave={e => { if (!layersOpen) { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.color = '#1e3a8a'; } }}
         title={t('superPagesEditor.layersLabel', { defaultValue: 'Layers' })}>
         <Layers size={14}/>
         <span>{t('superPagesEditor.layers', { defaultValue: 'Layers' })}</span>
@@ -399,7 +399,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
         <>
           <button onClick={onToggleGrid} className="sp-tb-pill" style={gridOn ? pillS_active : pillS}
             onMouseEnter={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#c8102e'; e.currentTarget.style.color = '#1e3a8a'; } }}
-            onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e3a8a'; } }}
+            onMouseLeave={e => { if (!gridOn) { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.color = '#1e3a8a'; } }}
             title="Toggle 8px grid + snap (⌘')">
             <Grid3x3 size={14}/>
           </button>
@@ -419,14 +419,14 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
           <button onClick={onShowHelp} className="sp-tb-pill" style={pillS_accent}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,16,46,0.22)'; e.currentTarget.style.borderColor = '#c8102e'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; }}
             title={t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}>
             <HelpCircle size={14}/>
           </button>
 
           <button onClick={onClear} style={pillS_danger}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; e.currentTarget.style.color = '#1e3a8a'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)'; e.currentTarget.style.background = '#f5f1e8'; e.currentTarget.style.color = '#64748b'; }}
             title={t('superPagesEditor.clearCanvasLabel', { defaultValue: 'Clear canvas' })}>
             <Trash2 size={14}/>
           </button>
@@ -544,7 +544,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
             e.currentTarget.style.borderColor = '#c8102e';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.borderColor = 'rgba(140,110,60,0.18)';
           }}
           title={t('superPagesEditor.openLinkTitle', { defaultValue: 'Open the live page in a new tab' })}>
           <ExternalLink size={14}/>
@@ -594,7 +594,7 @@ const pillBase = {
 // Default ghost pill — most controls use this. Subtle white tint, cobalt-friendly.
 const pillM = {
   ...pillBase,
-  background: '#f1f5f9',
+  background: '#f5f1e8',
   color: '#1e3a8a',
   border: '1px solid #e2e8f0',
 };
@@ -632,7 +632,7 @@ const pillS = {
   ...pillBase,
   width: PILL_HEIGHT,
   padding: 0,
-  background: '#f1f5f9',
+  background: '#f5f1e8',
   color: '#1e3a8a',
   border: '1px solid #e2e8f0',
 };
