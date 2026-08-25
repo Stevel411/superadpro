@@ -30,6 +30,25 @@ Steve will call out any patch-shaped suggestion. Engineering instincts borrowed 
 
 Before making ANY change, trace it end-to-end and follow through every technical consequence: which other flows, endpoints, states, DB rows, or UI surfaces does it touch? What changes or breaks downstream? A change is not "done" until every affected surface has been checked and made consistent. NEVER assume how something works, where a button routes, what a field means, or that a flow does what its name implies — grep and read the ACTUAL code first, every time. (Assumptions caused repeated wrong fixes here — e.g. mis-routing "Create Campaign" before realising `/packs?new=1` IS the create-campaign flow.) The rule: verify against the real code → map the full ramifications → then change, logically and completely.
 
+## 🎛️ Page-Builder Standard — Best-in-Class or Not Shipped
+
+**25 Aug 2026 — Steve directive, now doctrine. This is the MINIMUM bar for every editor/builder we ship, not a stretch goal.**
+
+Anything a member uses to **build or edit** something visual — Folio (the page builder), email editors, funnel editors, any future canvas — must be genuinely competitive with the best builders in the industry: **Webflow, Leadpages, Carrd, Framer, LeadsLeap.** "It works" is NOT the standard. The test is: **"Would Carrd / Leadpages / Framer ship this exact interaction? Would a member choose us over them for this?"** If not, it isn't done.
+
+Every builder surface MUST meet all of these — they are the floor, not the ceiling:
+
+1. **Discoverable, never guess-and-tap.** A visible way to ADD things (an element/block tray that shows what's available) AND a consistent way to EDIT the selected thing (a properties panel). The member never hunts for what's editable or how to add something.
+2. **Add anything, anywhere.** Text, headings, images, buttons, video, dividers, spacers, forms — composable elements the member inserts where they choose. Fill-in-the-blank templates alone are NOT a builder.
+3. **Per-element control.** Every element exposes its real options: content, image upload, link/destination, alignment, size, colour, background, spacing, style.
+4. **Direct manipulation.** Select an element → a panel shows EVERY option for it. No dead controls. No "edit that somewhere else."
+5. **Mobile-first.** The whole thing works by tap on a phone — Steve builds and tests on mobile. A desktop-only interaction is a failed interaction.
+6. **WYSIWYG fidelity.** What the member edits === what publishes. The editor canvas and the published output must never drift (shared/derived renderers, not two hand-maintained copies).
+7. **Structural editing.** Add, delete, duplicate, reorder (drag), move up/down, and undo/redo.
+8. **No placeholders masquerading as features.** If an element renders, it must be editable and functional. No image slot you can't change, no button with no destination, no "coming soon" dressed as done.
+
+This is a standing standard: apply it to Folio and to every editor built hereafter, without being re-asked. When scoping any builder work, state explicitly how it meets (or the plan to meet) this bar. A builder feature that fails any of these points is unfinished, not shipped.
+
 ## 🔒 Membership Gate — SINGLE SOURCE OF TRUTH (28 Jun 2026)
 
 **`app/tier_gate.py` is the one place that decides which API endpoints require an active paid membership.** Do NOT scatter `if not user.is_active` checks into individual handlers — add/remove a prefix in `PAID_REQUIRED_PREFIXES` instead. This list drifted once (SuperPages/SuperLeads/SuperSeller/Pro/Posters were frontend-guarded but missing from the server gate, so direct API calls bypassed it); keeping it central is what prevents that recurring.
