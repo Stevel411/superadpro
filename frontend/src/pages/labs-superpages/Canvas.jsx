@@ -1261,7 +1261,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       // Padding bumped 28 → 40. Background stays light grey so the
       // canvas area reads as the document workspace against the cobalt
       // brand chrome on either side. Subtle radial gradient retained.
-      background: '#dfeaf7',
+      background: 'linear-gradient(160deg,#f3ece0,#eae2d6)',
       backgroundImage: 'none',
       overflow: 'auto',
       padding: 40,
@@ -1510,8 +1510,8 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
             backgroundImage:
-              'linear-gradient(to right, rgba(100,116,139,0.10) 1px, transparent 1px),' +
-              'linear-gradient(to bottom, rgba(100,116,139,0.10) 1px, transparent 1px)',
+              'linear-gradient(to right, rgba(120,100,70,0.12) 1px, transparent 1px),' +
+              'linear-gradient(to bottom, rgba(120,100,70,0.12) 1px, transparent 1px)',
             backgroundSize: '8px 8px',
             pointerEvents: 'none',
             zIndex: 0,

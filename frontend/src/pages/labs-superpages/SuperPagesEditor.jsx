@@ -970,7 +970,7 @@ export default function LabsSuperPagesEditor() {
              rendered HTML with full responsive CSS. */
           <div style={{
             flex:1,
-            background: '#dfeaf7',
+            background: 'linear-gradient(160deg,#f3ece0,#eae2d6)',
             backgroundImage: 'none',
             overflow:'auto',
             display:'flex',
@@ -1030,10 +1030,10 @@ export default function LabsSuperPagesEditor() {
               // cobalt (#12388f) for uniform brand surface across the
               // panel. Width bumped 260 → 320 for breathing room
               // around controls inside.
-              background: '#eef4fb',
-              border: '1px solid #dde5f1',
+              background: '#faf7f1',
+              border: '1px solid rgba(140,110,60,0.14)',
               borderRadius: 12,
-              boxShadow: '0 1px 3px rgba(30,58,138,0.06), 0 6px 16px rgba(30,58,138,0.08)',
+              boxShadow: '0 1px 3px rgba(10,31,82,0.05), 0 6px 16px rgba(10,31,82,0.08)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
