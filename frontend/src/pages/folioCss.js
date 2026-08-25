@@ -122,4 +122,8 @@ h1.fb-h{font-size:clamp(30px,5vw,52px)}h2.fb-h{font-size:clamp(24px,4vw,38px)}h3
 .fb-video{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--fo-radius);overflow:hidden;background:#000}
 .fb-frame{position:absolute;inset:0;width:100%;height:100%;border:0}
 .fb-div{border:none;border-top:1.5px solid color-mix(in srgb,var(--fo-ink) 12%,#fff);width:100%;margin:4px 0}
+
+.fb-sub{font-size:20px;line-height:1.5;color:var(--fo-ink-soft);font-weight:500}
+.fb-list{font-size:17px;line-height:1.7;color:var(--fo-ink-soft);padding-left:22px}
+.fb-list li{margin:6px 0}
 `;

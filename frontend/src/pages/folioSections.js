@@ -12,25 +12,53 @@ function B(sid, f) { return 'data-btn="' + sid + '|' + f + '"'; }  // linkable b
 function IU(p, f, d) { var u = (p && typeof p[f] === 'string' && p[f].trim()) ? p[f].trim() : d; return u.replace(/["'()\\ \n]/g, ''); }
 function IMG(sid, f) { return 'data-img="' + sid + '|' + f + '"'; }
 
+const FONTS = {
+  inter: "'Inter',system-ui,sans-serif", bricolage: "'Bricolage Grotesque',sans-serif",
+  poppins: "'Poppins',sans-serif", montserrat: "'Montserrat',sans-serif", dmsans: "'DM Sans',sans-serif",
+  worksans: "'Work Sans',sans-serif", playfair: "'Playfair Display',serif", lora: "'Lora',serif",
+  merriweather: "'Merriweather',serif", oswald: "'Oswald',sans-serif", anton: "'Anton',sans-serif",
+  spacemono: "'Space Mono',monospace",
+};
 function _col(v) { return (typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v.trim())) ? v.trim() : ''; }
-const _PAD = { sm: '12px', md: '28px', lg: '52px' };
+function _num(v, lo, hi) { const n = parseFloat(v); if (isNaN(n)) return null; return Math.max(lo, Math.min(hi, n)); }
+const _PAD = { sm: 12, md: 28, lg: 52 };
+function mergeStyle(b) {
+  const st = (b.style && typeof b.style === 'object') ? Object.assign({}, b.style) : {};
+  if (st.align == null && ['left', 'center', 'right'].indexOf(b.align) >= 0) st.align = b.align;
+  if (st.color == null && b.color) st.color = b.color;
+  if (st.bg == null && b.bg) st.bg = b.bg;
+  if (st.pt == null && _PAD[b.pad] != null) { st.pt = _PAD[b.pad]; st.pb = _PAD[b.pad]; }
+  return st;
+}
+function styleCss(st) {
+  if (!st || typeof st !== 'object') return '';
+  const o = [];
+  if (FONTS[st.font]) o.push('font-family:' + FONTS[st.font]);
+  const fs = _num(st.size, 8, 160); if (fs != null) o.push('font-size:' + Math.round(fs) + 'px');
+  if (['300', '400', '500', '600', '700', '800', '900'].indexOf(String(st.weight)) >= 0) o.push('font-weight:' + st.weight);
+  const lh = _num(st.lh, 0.8, 3); if (lh != null) o.push('line-height:' + lh);
+  const ls = _num(st.ls, -5, 30); if (ls != null) o.push('letter-spacing:' + ls + 'px');
+  const c = _col(st.color); if (c) o.push('color:' + c);
+  if (['left', 'center', 'right'].indexOf(st.align) >= 0) o.push('text-align:' + st.align);
+  const bg = _col(st.bg); if (bg) o.push('background:' + bg);
+  [['pt', 'padding-top'], ['pb', 'padding-bottom'], ['pl', 'padding-left'], ['pr', 'padding-right'], ['mt', 'margin-top'], ['mb', 'margin-bottom']].forEach(([k, css]) => { const v = _num(st[k], 0, 240); if (v != null) o.push(css + ':' + Math.round(v) + 'px'); });
+  const r = _num(st.radius, 0, 90); if (r != null) o.push('border-radius:' + Math.round(r) + 'px');
+  const bw = _num(st.bw, 0, 24), bc = _col(st.bc); if (bw != null && bw > 0 && bc) o.push('border:' + Math.round(bw) + 'px solid ' + bc);
+  return o.join(';');
+}
 function renderBlockPreview(b) {
   if (!b || typeof b !== 'object') return '';
-  const t = b.type;
-  const al = (['left', 'center', 'right'].indexOf(b.align) >= 0) ? b.align : 'left';
-  let ws = 'text-align:' + al;
-  const pad = _PAD[b.pad] || '';
-  if (pad) ws += ';padding-top:' + pad + ';padding-bottom:' + pad;
-  const bg = _col(b.bg);
-  if (bg) ws += ';background:' + bg + ';border-radius:var(--fo-radius)' + (pad ? '' : ';padding:22px');
-  const col = _col(b.color); const cstyle = col ? ';color:' + col : '';
-  if (t === 'heading') { const lvl = (['h1', 'h2', 'h3'].indexOf(b.level) >= 0) ? b.level : 'h2'; return '<' + lvl + ' class="fb-h" style="' + ws + cstyle + '">' + esc(b.text, 'Your heading') + '</' + lvl + '>'; }
-  if (t === 'text') return '<div class="fb-t" style="' + ws + cstyle + '">' + esc(b.text, 'Add your text here.').replace(/\n/g, '<br>') + '</div>';
-  if (t === 'image') { const u = IU(b, 'url', ''); const inner = u ? '<img class="fb-img" src="' + u + '"/>' : '<div class="fb-img-ph">Tap to upload an image</div>'; return '<div class="fb-imgwrap" style="' + ws + '">' + inner + '</div>'; }
-  if (t === 'button') { const v = b.variant === 'ghost' ? ' fo-btn--ghost' : ''; let bs = ''; const bb = _col(b.btnbg), bf = _col(b.btnfg); if (bb) bs += 'background:' + bb + ';border-color:' + bb + ';'; if (bf) bs += 'color:' + bf + ';'; const sa = bs ? ' style="' + bs + '"' : ''; return '<div style="' + ws + '"><a class="fo-btn' + v + '"' + sa + '>' + esc(b.text, 'Button') + '</a></div>'; }
-  if (t === 'video') { const has = b.url && String(b.url).trim(); return '<div style="' + ws + '"><div class="fb-video-ph">' + (has ? '\u25b6 Video ready \u00b7 tap to change link' : '\u25b6 Tap to add a YouTube or Vimeo link') + '</div></div>'; }
-  if (t === 'divider') return '<div style="' + ws + '"><hr class="fb-div"/></div>';
-  if (t === 'spacer') { let h = parseInt(b.height, 10) || 32; h = Math.max(4, Math.min(200, h)); return '<div class="fb-spacer" style="height:' + h + 'px">' + h + 'px space</div>'; }
+  const t = b.type; const st = mergeStyle(b); const css = styleCss(st); const sa = css ? ' style="' + css + '"' : '';
+  const al = (['left', 'center', 'right'].indexOf(st.align) >= 0) ? st.align : 'left';
+  if (t === 'heading') { const lvl = (['h1', 'h2', 'h3'].indexOf(b.level) >= 0) ? b.level : 'h2'; return '<' + lvl + ' class="fb-h"' + sa + '>' + esc(b.text, 'Your heading') + '</' + lvl + '>'; }
+  if (t === 'subheading') return '<div class="fb-sub"' + sa + '>' + esc(b.text, 'A supporting subheading').replace(/\n/g, '<br>') + '</div>';
+  if (t === 'text') return '<div class="fb-t"' + sa + '>' + esc(b.text, 'Add your text here.').replace(/\n/g, '<br>') + '</div>';
+  if (t === 'list') { const items = String(b.text || 'First point\nSecond point\nThird point').split('\n').filter(x => x.trim()).map(x => '<li>' + esc(x) + '</li>').join(''); return '<ul class="fb-list"' + sa + '>' + items + '</ul>'; }
+  if (t === 'image') { const u = IU(b, 'url', ''); const inner = u ? '<img class="fb-img" src="' + u + '"/>' : '<div class="fb-img-ph">Tap to upload an image</div>'; return '<div class="fb-imgwrap"' + sa + '>' + inner + '</div>'; }
+  if (t === 'button') { const v = b.variant === 'ghost' ? ' fo-btn--ghost' : ''; let bs = ''; const bb = _col(b.btnbg), bf = _col(b.btnfg); if (bb) bs += 'background:' + bb + ';border-color:' + bb + ';'; if (bf) bs += 'color:' + bf + ';'; if (FONTS[st.font]) bs += 'font-family:' + FONTS[st.font] + ';'; const bsz = _num(st.size, 8, 60); if (bsz != null) bs += 'font-size:' + Math.round(bsz) + 'px;'; const sat = bs ? ' style="' + bs + '"' : ''; return '<div style="text-align:' + al + '"><a class="fo-btn' + v + '"' + sat + '>' + esc(b.text, 'Button') + '</a></div>'; }
+  if (t === 'video') { const has = b.url && String(b.url).trim(); return '<div' + sa + '><div class="fb-video-ph">' + (has ? '\u25b6 Video ready \u00b7 tap to change link' : '\u25b6 Tap to add a YouTube or Vimeo link') + '</div></div>'; }
+  if (t === 'divider') return '<div style="text-align:' + al + '"><hr class="fb-div"/></div>';
+  if (t === 'spacer') { let h = parseInt(b.height, 10) || 32; h = Math.max(4, Math.min(240, h)); return '<div class="fb-spacer" style="height:' + h + 'px">' + h + 'px space</div>'; }
   return '';
 }
 
@@ -176,7 +204,9 @@ export function renderSection(type, props, sid) {
 
 export const BLOCK_LIB = [
   { type: 'heading', label: 'Heading' },
+  { type: 'subheading', label: 'Subheading' },
   { type: 'text', label: 'Text' },
+  { type: 'list', label: 'List' },
   { type: 'image', label: 'Image' },
   { type: 'button', label: 'Button' },
   { type: 'video', label: 'Video' },
@@ -184,7 +214,7 @@ export const BLOCK_LIB = [
   { type: 'spacer', label: 'Spacer' },
 ];
 export function newBlock(type) {
-  const d = { heading: { text: 'Your heading', level: 'h2', align: 'left' }, text: { text: 'Add your text here.', align: 'left' }, image: { url: '', align: 'center' }, button: { text: 'Click here', href: '', align: 'center', variant: 'solid' }, video: { url: '' }, divider: {}, spacer: { height: 32 } };
+  const d = { heading: { text: 'Your heading', level: 'h2', style: { align: 'left' } }, subheading: { text: 'A supporting subheading', style: { align: 'left' } }, text: { text: 'Add your text here.', style: { align: 'left' } }, list: { text: 'First point\nSecond point\nThird point', style: { align: 'left' } }, image: { url: '', align: 'center' }, button: { text: 'Click here', href: '', align: 'center', variant: 'solid' }, video: { url: '' }, divider: {}, spacer: { height: 32 } };
   return Object.assign({ type: type }, d[type] || {});
 }
 

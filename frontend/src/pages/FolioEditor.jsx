@@ -4,7 +4,7 @@ import { FOLIO_CSS } from './folioCss';
 import { renderSection, SECTION_LIB, BLOCK_LIB, newBlock } from './folioSections';
 
 const CHROME = `
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Space+Mono:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Space+Mono:wght@400;700&display=swap');
 .fed{position:fixed;inset:0;background:#e9ebf1;display:flex;flex-direction:column;font-family:'Inter',system-ui,sans-serif;z-index:1000}
 .fed-bar{height:56px;background:#17141c;color:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;flex:none}
 .fed-bar a.back{color:#c3c7d4;text-decoration:none;font-size:20px;padding:4px 6px}
@@ -91,6 +91,10 @@ const CHROME = `
 .fbp .crow input[type=color]{width:46px;height:34px;border:1.5px solid #e3dccd;border-radius:8px;padding:2px;cursor:pointer;background:#fff}
 .fbp .clr{background:#efe9dd;border:none;border-radius:8px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
 .fbp .def{font-size:12px;color:#9a94a6;font-weight:700}
+.fbp .grp{font-size:11px;font-weight:800;color:#5b3df5;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 2px;border-top:1px solid #eee6d6;padding-top:12px}
+.fbp .two{display:flex;gap:10px}
+.fbp .two>div,.fbp .half{flex:1}
+.fbp select.in{appearance:auto;-webkit-appearance:menulist;background:#fff}
 .fbp .thumb{width:100%;max-height:120px;object-fit:contain;border-radius:9px;margin-top:8px;background:#f6f2ea}
 .fbp .up{background:#5b3df5;color:#fff;border:none;border-radius:9px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;font-size:13px;margin-top:6px}
 .fbp .acts{display:flex;gap:8px;margin-top:16px}
@@ -103,8 +107,9 @@ const CHROME = `
 let _uid = 0;
 const nid = () => 'fs' + (++_uid);
 const DOTS = ['#5b3df5', '#ff5c39', '#2563eb', '#0d9f6e', '#e11d64', '#f2b53c'];
-const BLK_ICON = { heading: 'H', text: '¶', image: '▣', button: '▭', video: '▶', divider: '―', spacer: '↕' };
-const BLK_NAME = { heading: 'Heading', text: 'Text', image: 'Image', button: 'Button', video: 'Video', divider: 'Divider', spacer: 'Spacer' };
+const BLK_ICON = { heading: 'H', subheading: 'S', text: '¶', list: '☰', image: '▣', button: '▭', video: '▶', divider: '―', spacer: '↕' };
+const BLK_NAME = { heading: 'Heading', subheading: 'Subheading', text: 'Text', list: 'List', image: 'Image', button: 'Button', video: 'Video', divider: 'Divider', spacer: 'Spacer' };
+const FONT_OPTS = [{ v: 'inter', l: 'Inter' }, { v: 'bricolage', l: 'Bricolage' }, { v: 'poppins', l: 'Poppins' }, { v: 'montserrat', l: 'Montserrat' }, { v: 'dmsans', l: 'DM Sans' }, { v: 'worksans', l: 'Work Sans' }, { v: 'playfair', l: 'Playfair Display' }, { v: 'lora', l: 'Lora' }, { v: 'merriweather', l: 'Merriweather' }, { v: 'oswald', l: 'Oswald' }, { v: 'anton', l: 'Anton' }, { v: 'spacemono', l: 'Space Mono' }];
 
 export default function FolioEditor() {
   const { id } = useParams();
@@ -263,6 +268,7 @@ export default function FolioEditor() {
   function bkList(sid) { const sc = secsRef.current.find(x => x.id === sid); if (!sc) return null; sc.props = sc.props || {}; if (!Array.isArray(sc.props.blocks)) sc.props.blocks = []; return sc.props.blocks; }
   function addBlock(sid, type) { const l = bkList(sid); if (!l) return; l.push(newBlock(type)); setBlkTray(null); setBlkSel({ sid: sid, idx: l.length - 1 }); setVer(v => v + 1); commit(); }
   function patchBlock(patch) { if (!blkSel) return; const l = bkList(blkSel.sid); if (l && l[blkSel.idx]) { Object.assign(l[blkSel.idx], patch); setVer(v => v + 1); } }
+  function patchStyle(patch) { if (!blkSel) return; const l = bkList(blkSel.sid); if (l && l[blkSel.idx]) { const st = Object.assign({}, l[blkSel.idx].style, patch); Object.keys(st).forEach(k => { if (st[k] === undefined) delete st[k]; }); l[blkSel.idx].style = st; setVer(v => v + 1); } }
   function moveBlock(dir) { if (!blkSel) return; const l = bkList(blkSel.sid); if (!l) return; const j = blkSel.idx + dir; if (j < 0 || j >= l.length) return; const t = l[blkSel.idx]; l[blkSel.idx] = l[j]; l[j] = t; setBlkSel({ sid: blkSel.sid, idx: j }); setVer(v => v + 1); commit(); }
   function delBlock() { if (!blkSel) return; const l = bkList(blkSel.sid); if (l) { l.splice(blkSel.idx, 1); setBlkSel(null); setVer(v => v + 1); commit(); } }
   function uploadBlockImage() { if (!blkSel) return; imgTargetRef.current = 'blk|' + blkSel.sid + '|' + blkSel.idx; if (fileRef.current) fileRef.current.click(); }
@@ -359,25 +365,33 @@ export default function FolioEditor() {
       {blkSel ? (() => {
         const l = bkList(blkSel.sid); const b = l && l[blkSel.idx];
         if (!b) return null;
-        const seg = (val, opts, key) => (<div className="seg2">{opts.map(o => <button key={o.v} className={val === o.v ? 'on' : ''} onClick={() => patchBlock({ [key]: o.v })}>{o.l}</button>)}</div>);
-        const alignSeg = seg(b.align || 'left', [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }], 'align');
-        const colorCtl = (lbl, key, dflt) => (<><label>{lbl}</label><div className="crow"><input type="color" value={b[key] || (dflt || '#000000')} onChange={e => patchBlock({ [key]: e.target.value })} />{b[key] ? <button className="clr" onClick={() => patchBlock({ [key]: '' })}>Reset</button> : <span className="def">Default</span>}</div></>);
-        const spaceSeg = seg(b.pad || 'none', [{ v: 'none', l: 'None' }, { v: 'sm', l: 'S' }, { v: 'md', l: 'M' }, { v: 'lg', l: 'L' }], 'pad');
-        const styleArea = (['heading', 'text', 'image', 'button', 'video'].indexOf(b.type) >= 0) ? (<>{colorCtl('Background', 'bg', '#ffffff')}<label>Spacing</label>{spaceSeg}</>) : null;
+        const S = b.style || {};
+        const seg = (val, opts, cb) => (<div className="seg2">{opts.map(o => <button key={o.v} className={val === o.v ? 'on' : ''} onClick={() => cb(o.v)}>{o.l}</button>)}</div>);
+        const alignSeg = seg(S.align || 'left', [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }], v => patchStyle({ align: v }));
+        const colorS = (lbl, key, dflt) => (<><label>{lbl}</label><div className="crow"><input type="color" value={S[key] || dflt || '#111111'} onChange={e => patchStyle({ [key]: e.target.value })} />{S[key] ? <button className="clr" onClick={() => patchStyle({ [key]: undefined })}>Reset</button> : <span className="def">Default</span>}</div></>);
+        const num = (lbl, key, ph, mn, mx, step) => (<div className="half"><label>{lbl}</label><input className="in" type="number" min={mn} max={mx} step={step || 1} value={S[key] != null ? S[key] : ''} placeholder={ph || 'auto'} onChange={e => patchStyle({ [key]: e.target.value === '' ? undefined : +e.target.value })} /></div>);
+        const fontSel = (<><label>Font</label><select className="in" value={S.font || ''} onChange={e => patchStyle({ font: e.target.value || undefined })}><option value="">Theme default</option>{FONT_OPTS.map(f => <option key={f.v} value={f.v}>{f.l}</option>)}</select></>);
+        const weightSel = (<div className="half"><label>Weight</label><select className="in" value={S.weight || ''} onChange={e => patchStyle({ weight: e.target.value ? +e.target.value : undefined })}><option value="">Auto</option><option value="400">Regular</option><option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option><option value="800">Extrabold</option><option value="900">Black</option></select></div>);
+        const isText = ['heading', 'subheading', 'text', 'list'].indexOf(b.type) >= 0;
+        const typography = isText ? (<><div className="grp">Typography</div>{fontSel}<div className="two">{num('Size (px)', 'size', 'auto', 8, 160)}{weightSel}</div><div className="two">{num('Line height', 'lh', 'auto', 0.8, 3, 0.05)}{num('Letter spc', 'ls', '0', -5, 30, 0.5)}</div>{colorS('Text colour', 'color')}<label>Align</label>{alignSeg}</>) : null;
+        const spacing = (['heading', 'subheading', 'text', 'list', 'image', 'button', 'video'].indexOf(b.type) >= 0) ? (<><div className="grp">Spacing &amp; background</div><div className="two">{num('Pad top', 'pt', '0', 0, 240)}{num('Pad bottom', 'pb', '0', 0, 240)}</div>{colorS('Background', 'bg', '#ffffff')}<div className="two">{num('Radius', 'radius', '0', 0, 90)}{num('Border', 'bw', '0', 0, 24)}</div>{S.bw ? colorS('Border colour', 'bc') : null}</>) : null;
         return (
           <div className="fbp">
-            <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => { commit(); setBlkSel(null); }}>✕</button></h4>
-            {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Size</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], 'level')}<label>Align</label>{alignSeg}{colorCtl('Text colour', 'color')}</>) : null}
-            {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Align</label>{alignSeg}{colorCtl('Text colour', 'color')}</>) : null}
+            <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => { commit(); setBlkSel(null); }}>\u2715</button></h4>
+            {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Heading level</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], v => patchBlock({ level: v }))}</>) : null}
+            {b.type === 'subheading' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /></>) : null}
+            {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /></>) : null}
+            {b.type === 'list' ? (<><label>Items (one per line)</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /></>) : null}
             {b.type === 'image' ? (<><button className="up" onClick={uploadBlockImage}>{b.url ? 'Replace image' : 'Upload image'}</button>{b.url ? <img className="thumb" src={b.url} alt="" /> : null}<label>Link (optional)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Align</label>{alignSeg}</>) : null}
-            {b.type === 'button' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Links to (URL)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Style</label>{seg(b.variant || 'solid', [{ v: 'solid', l: 'Solid' }, { v: 'ghost', l: 'Outline' }], 'variant')}<label>Align</label>{alignSeg}{colorCtl('Button colour', 'btnbg')}{colorCtl('Text colour', 'btnfg', '#ffffff')}</>) : null}
+            {b.type === 'button' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Links to (URL)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Style</label>{seg(b.variant || 'solid', [{ v: 'solid', l: 'Solid' }, { v: 'ghost', l: 'Outline' }], v => patchBlock({ variant: v }))}<div className="grp">Typography</div>{fontSel}{num('Size (px)', 'size', 'auto', 8, 60)}<label>Align</label>{alignSeg}{colorS('Button colour', 'btnbg')}{colorS('Text colour', 'btnfg', '#ffffff')}</>) : null}
             {b.type === 'video' ? (<><label>YouTube or Vimeo link</label><input className="in" value={b.url || ''} onChange={e => patchBlock({ url: e.target.value })} placeholder="https://youtube.com/watch?v=..." /><p className="note">Paste the link and it embeds as a player on your published page.</p></>) : null}
             {b.type === 'divider' ? (<p className="note">A horizontal divider line to separate content.</p>) : null}
             {b.type === 'spacer' ? (<><label>Height (px)</label><input className="in" type="number" value={b.height || 32} onChange={e => patchBlock({ height: parseInt(e.target.value, 10) || 32 })} /></>) : null}
-            {styleArea}
+            {typography}
+            {spacing}
             <div className="acts">
-              <button onClick={() => moveBlock(-1)}>↑ Up</button>
-              <button onClick={() => moveBlock(1)}>↓ Down</button>
+              <button onClick={() => moveBlock(-1)}>\u2191 Up</button>
+              <button onClick={() => moveBlock(1)}>\u2193 Down</button>
               <button onClick={dupBlock}>Duplicate</button>
               <button className="del" onClick={delBlock}>Delete</button>
             </div>

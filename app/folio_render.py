@@ -256,58 +256,149 @@ def _color(v):
 
 _PAD_MAP = {"sm": "12px", "md": "28px", "lg": "52px"}
 
+# Curated professional font set (loaded on editor + published pages)
+FONTS = {
+    "inter": "'Inter',system-ui,sans-serif",
+    "bricolage": "'Bricolage Grotesque',sans-serif",
+    "poppins": "'Poppins',sans-serif",
+    "montserrat": "'Montserrat',sans-serif",
+    "dmsans": "'DM Sans',sans-serif",
+    "worksans": "'Work Sans',sans-serif",
+    "playfair": "'Playfair Display',serif",
+    "lora": "'Lora',serif",
+    "merriweather": "'Merriweather',serif",
+    "oswald": "'Oswald',sans-serif",
+    "anton": "'Anton',sans-serif",
+    "spacemono": "'Space Mono',monospace",
+}
+
+
+def _num(v, lo, hi):
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        return None
+    if n < lo:
+        n = lo
+    if n > hi:
+        n = hi
+    return n
+
+
+def style_css(st):
+    """Sanitised CSS from an element's style object. Every value bounded/whitelisted — no injection."""
+    if not isinstance(st, dict):
+        return ""
+    o = []
+    ff = FONTS.get(st.get("font"))
+    if ff:
+        o.append("font-family:" + ff)
+    fs = _num(st.get("size"), 8, 160)
+    if fs is not None:
+        o.append("font-size:" + str(int(fs)) + "px")
+    if str(st.get("weight")) in ("300", "400", "500", "600", "700", "800", "900"):
+        o.append("font-weight:" + str(st.get("weight")))
+    lh = _num(st.get("lh"), 0.8, 3)
+    if lh is not None:
+        o.append("line-height:" + ("%g" % lh))
+    ls = _num(st.get("ls"), -5, 30)
+    if ls is not None:
+        o.append("letter-spacing:" + ("%g" % ls) + "px")
+    col = _color(st.get("color"))
+    if col:
+        o.append("color:" + col)
+    if st.get("align") in ("left", "center", "right"):
+        o.append("text-align:" + st.get("align"))
+    bg = _color(st.get("bg"))
+    if bg:
+        o.append("background:" + bg)
+    for k, css in (("pt", "padding-top"), ("pb", "padding-bottom"), ("pl", "padding-left"),
+                   ("pr", "padding-right"), ("mt", "margin-top"), ("mb", "margin-bottom")):
+        v = _num(st.get(k), 0, 240)
+        if v is not None:
+            o.append(css + ":" + str(int(v)) + "px")
+    r = _num(st.get("radius"), 0, 90)
+    if r is not None:
+        o.append("border-radius:" + str(int(r)) + "px")
+    bw = _num(st.get("bw"), 0, 24)
+    bc = _color(st.get("bc"))
+    if bw is not None and bw > 0 and bc:
+        o.append("border:" + str(int(bw)) + "px solid " + bc)
+    return ";".join(o)
+
+
+def _merge_style(b):
+    """Element style object, back-filled from legacy top-level props so old blocks keep working."""
+    st = dict(b.get("style")) if isinstance(b.get("style"), dict) else {}
+    if "align" not in st and b.get("align") in ("left", "center", "right"):
+        st["align"] = b["align"]
+    if "color" not in st and b.get("color"):
+        st["color"] = b["color"]
+    if "bg" not in st and b.get("bg"):
+        st["bg"] = b["bg"]
+    if "pt" not in st and b.get("pad") in _PAD_MAP:
+        px = int(_PAD_MAP[b["pad"]].replace("px", ""))
+        st["pt"] = px
+        st["pb"] = px
+    return st
+
 
 def render_block(b):
-    """Render one content block."""
+    """Render one content block using the unified style engine."""
     if not isinstance(b, dict):
         return ""
     t = b.get("type", "")
-    al = b.get("align", "left")
-    if al not in ("left", "center", "right"):
-        al = "left"
-    ws = 'text-align:' + al
-    pad = _PAD_MAP.get(b.get("pad"), "")
-    if pad:
-        ws += ';padding-top:' + pad + ';padding-bottom:' + pad
-    bg = _color(b.get("bg"))
-    if bg:
-        ws += ';background:' + bg + ';border-radius:var(--fo-radius)' + ('' if pad else ';padding:22px')
-    col = _color(b.get("color"))
-    cstyle = (';color:' + col) if col else ''
+    st = _merge_style(b)
+    css = style_css(st)
+    sa = (' style="' + css + '"') if css else ''
     if t == "heading":
         lvl = b.get("level") if b.get("level") in ("h1", "h2", "h3") else "h2"
-        return '<' + lvl + ' class="fb-h" style="' + ws + cstyle + '">' + esc(b.get("text"), "Your heading") + '</' + lvl + '>'
+        return '<' + lvl + ' class="fb-h"' + sa + '>' + esc(b.get("text"), "Your heading") + '</' + lvl + '>'
+    if t == "subheading":
+        return '<div class="fb-sub"' + sa + '>' + esc(b.get("text"), "A supporting subheading").replace("\n", "<br>") + '</div>'
     if t == "text":
-        return '<div class="fb-t" style="' + ws + cstyle + '">' + esc(b.get("text"), "Add your text here.").replace("\n", "<br>") + '</div>'
+        return '<div class="fb-t"' + sa + '>' + esc(b.get("text"), "Add your text here.").replace("\n", "<br>") + '</div>'
+    if t == "list":
+        raw = b.get("text") or "First point\nSecond point\nThird point"
+        items = "".join('<li>' + esc(x) + '</li>' for x in str(raw).split("\n") if x.strip())
+        return '<ul class="fb-list"' + sa + '>' + items + '</ul>'
     if t == "image":
         u = imgurl(b, "url", "")
         inner = ('<img class="fb-img" src="' + u + '"/>') if u else '<div class="fb-img-ph">No image yet</div>'
         href = (b.get("href") or "").strip()
         if u and href:
             inner = '<a href="' + html.escape(href) + '">' + inner + '</a>'
-        return '<div class="fb-imgwrap" style="' + ws + '">' + inner + '</div>'
+        return '<div class="fb-imgwrap"' + sa + '>' + inner + '</div>'
     if t == "button":
         href = (b.get("href") or "").strip()
         variant = " fo-btn--ghost" if b.get("variant") == "ghost" else ""
         bstyle = ''
         btnbg = _color(b.get("btnbg"))
         btnfg = _color(b.get("btnfg"))
+        bfont = FONTS.get(st.get("font"))
+        bsize = _num(st.get("size"), 8, 60)
         if btnbg:
             bstyle += 'background:' + btnbg + ';border-color:' + btnbg + ';'
         if btnfg:
             bstyle += 'color:' + btnfg + ';'
+        if bfont:
+            bstyle += 'font-family:' + bfont + ';'
+        if bsize is not None:
+            bstyle += 'font-size:' + str(int(bsize)) + 'px;'
         stattr = (' style="' + bstyle + '"') if bstyle else ''
-        return ('<div style="' + ws + '"><a class="fo-btn' + variant + '"' + stattr + ' href="'
+        al = st.get("align") if st.get("align") in ("left", "center", "right") else "left"
+        return ('<div style="text-align:' + al + '"><a class="fo-btn' + variant + '"' + stattr + ' href="'
                 + (html.escape(href) if href else "#") + '">' + esc(b.get("text"), "Button") + '</a></div>')
     if t == "video":
         emb = _video_embed(b.get("url", ""))
         body = ('<div class="fb-video">' + emb + '</div>') if emb else '<div class="fb-video-ph">Paste a YouTube or Vimeo link</div>'
-        return '<div style="' + ws + '">' + body + '</div>'
+        return '<div' + sa + '>' + body + '</div>'
     if t == "divider":
-        return '<div style="' + ws + '"><hr class="fb-div"/></div>'
+        al = st.get("align") if st.get("align") in ("left", "center", "right") else "left"
+        return '<div style="text-align:' + al + '"><hr class="fb-div"/></div>'
     if t == "spacer":
         try:
-            h = max(4, min(200, int(b.get("height", 32))))
+            h = max(4, min(240, int(b.get("height", 32))))
         except Exception:
             h = 32
         return '<div style="height:' + str(h) + 'px"></div>'
@@ -366,6 +457,6 @@ def render_page(sections, accent="#5b3df5", title="My page", page_id=0):
             '<meta name="viewport" content="width=device-width, initial-scale=1"/>'
             '<title>' + html.escape(title or "My page") + '</title>'
             '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-            '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>'
+            '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>'
             '<style>' + FOLIO_CSS + '</style></head><body>'
             + render_sections(sections, accent) + capture + '</body></html>')
