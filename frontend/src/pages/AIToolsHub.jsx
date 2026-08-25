@@ -39,7 +39,7 @@ const I = {
 };
 
 const TOOLS = [
-  { icon: I.builder, name: 'Page Builder', to: '/pro/funnels', desc: 'Drag-and-drop landing pages. Hosted, mobile-ready, conversion-focused.' },
+  { icon: I.builder, name: 'Page Builder', to: '/folio', desc: 'Beautiful landing pages and opt-ins. Pick a template, edit inline, publish in minutes.' },
   { icon: I.blog, name: 'My Blog', to: '/my-site', desc: 'Your own blog and website — posts, pages, themes and a custom domain.' },
   { icon: I.linkhub, name: 'Link Hub', to: '/linkhub', desc: 'A single page hosting all your links in one place.' },
   { icon: I.linktools, name: 'Link Tools', to: '/link-tools', desc: 'Shorteners, cloakers, pixel tracking and A/B redirects.' },
