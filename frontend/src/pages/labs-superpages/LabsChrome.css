@@ -221,7 +221,7 @@
 .labs-chrome .ins-cobalt > div > div[style*="text-transform"][style*="uppercase"],
 .labs-chrome .ins-cobalt div[style*="text-transform:uppercase"],
 .labs-chrome .ins-cobalt div[style*="text-transform: uppercase"] {
-  color: #ff8090 !important;
+  color: #12388f !important;
 }
 
 /* Inputs, textareas, selects — white card treatment on cobalt
@@ -237,9 +237,9 @@
 .labs-chrome .ins-cobalt input:not([type]),
 .labs-chrome .ins-cobalt textarea,
 .labs-chrome .ins-cobalt select {
-  background: rgba(255,255,255,0.06) !important;
-  border: 1.5px solid rgba(255,255,255,0.16) !important;
-  color: #ffffff !important;
+  background: #f5f1e8 !important;
+  border: 1.5px solid rgba(13,26,58,0.12) !important;
+  color: #0d1a3a !important;
   box-shadow: none !important;
   transition: all 0.15s ease !important;
 }
@@ -251,15 +251,15 @@
 }
 .labs-chrome .ins-cobalt input::placeholder,
 .labs-chrome .ins-cobalt textarea::placeholder {
-  color: rgba(255,255,255,0.45) !important;
+  color: #97a0b2 !important;
 }
 .labs-chrome .ins-cobalt input:focus,
 .labs-chrome .ins-cobalt textarea:focus,
 .labs-chrome .ins-cobalt select:focus {
-  border-color: #c8102e !important;
-  background: rgba(255,255,255,0.09) !important;
+  border-color: #12388f !important;
+  background: #ffffff !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(200,16,46,0.25) !important;
+  box-shadow: 0 0 0 3px rgba(18,56,143,0.12) !important;
 }
 
 /* ScriptsPanel is a LIGHT card sub-panel nested inside .ins-cobalt. Its inputs
@@ -293,16 +293,16 @@
   /* 13 Jul 2026: navy panel to match the navy BlockPalette (V2). Panel
      goes cobalt; cards become navy (#173f96) with light text; inputs
      translucent. Reverts the 2 Jun light pass now both rails are navy. */
-  background: linear-gradient(180deg,#0e2a6e,#0a1f52) !important;
-  color: #e8eefb;
-  --sap-text-muted: #9db0e0;
-  --sap-text-faint: #8194bd;
-  --sap-text-primary: #ffffff;
-  --sap-text-secondary: #c7d3f2;
-  --sap-border: rgba(255,255,255,0.14);
-  --sap-border-faint: rgba(255,255,255,0.10);
-  --sap-bg-elevated: #173f96;
-  --sap-bg-input: rgba(255,255,255,0.06);
+  background: linear-gradient(180deg,#fffdf9,#fbf7ef) !important;
+  color: #0d1a3a;
+  --sap-text-muted: #5a6478;
+  --sap-text-faint: #97a0b2;
+  --sap-text-primary: #0d1a3a;
+  --sap-text-secondary: #475569;
+  --sap-border: rgba(13,26,58,0.12);
+  --sap-border-faint: rgba(13,26,58,0.08);
+  --sap-bg-elevated: #ffffff;
+  --sap-bg-input: #f5f1e8;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -340,13 +340,13 @@
 .labs-chrome .ins-cobalt [style*="background: white"] {
   /* 13 Jul 2026: cards are navy now (--sap-bg-elevated:#173f96), so text
      inside them must be light. Was dark-on-white for the light pass. */
-  --sap-text-muted: #aebee6;
-  --sap-text-faint: #8194bd;
-  --sap-text-primary: #ffffff;
-  --sap-text-secondary: #c7d3f2;
-  --sap-border: rgba(255,255,255,0.14);
-  --sap-border-faint: rgba(255,255,255,0.10);
-  color: #ffffff;
+  --sap-text-muted: #5a6478;
+  --sap-text-faint: #97a0b2;
+  --sap-text-primary: #0d1a3a;
+  --sap-text-secondary: #475569;
+  --sap-border: rgba(13,26,58,0.12);
+  --sap-border-faint: rgba(13,26,58,0.08);
+  color: #0d1a3a;
 }
 
 /* Dropdown native chrome — make the arrow dark since the select
@@ -354,7 +354,7 @@
 .labs-chrome .ins-cobalt select {
   -webkit-appearance: none !important;
   appearance: none !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2312388f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 8px center !important;
   padding-right: 26px !important;
@@ -363,7 +363,7 @@
 /* The 'EDITING' header strip at top of the Inspector — make the
    border read on cobalt. */
 .labs-chrome .ins-cobalt > div:first-child[style*="border-bottom"] {
-  border-bottom-color: rgba(255,255,255,0.12) !important;
+  border-bottom-color: rgba(13,26,58,0.09) !important;
 }
 
 /* The lifted tiles — navy outline + frosted gradient.
@@ -377,7 +377,7 @@
   min-height: 94px !important;
   background: linear-gradient(180deg,#ffffff,#fdfaf4) !important;
   background-image: none !important;
-  border: 1.5px solid rgba(140,110,60,0.14) !important;
+  border: 1.5px solid rgba(13,26,58,0.16) !important;
   border-radius: 15px !important;
   padding: 15px 10px !important;
   display: flex !important;
@@ -464,7 +464,7 @@
 }
 .labs-chrome .pal-item:hover .pal-sub,
 .labs-chrome .pal-item:active .pal-sub {
-  color: rgba(255,255,255,0.92) !important;
+  color: #8a94a6 !important;
 }
 
 /* Type chip — small dot in the corner showing glass vs solid
