@@ -788,7 +788,7 @@ export default function LabsSuperPagesEditor() {
       // /pro/funnels) and via the Back button next to it.
       hideSidebar={true}
       hideTopbar={true}
-      bgStyle={{ padding: 0, background: '#dfeaf7', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
+      bgStyle={{ padding: 0, background: 'linear-gradient(160deg,#f3ece0,#eae2d6)', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       {/* 25 May 2026: CSS variables for page-level typography are now
           set as React-controlled inline style props rather than via
