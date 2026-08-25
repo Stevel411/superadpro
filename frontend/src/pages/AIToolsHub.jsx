@@ -39,7 +39,7 @@ const I = {
 };
 
 const TOOLS = [
-  { icon: I.builder, name: 'Page Builder', to: '/folio', desc: 'Beautiful landing pages and opt-ins. Pick a template, edit inline, publish in minutes.' },
+  { icon: I.builder, name: 'Page Builder', to: '/labs/pagebuilder', desc: 'Drag-anywhere page builder. Place any element, style it in the inspector, publish in minutes.' },
   { icon: I.blog, name: 'My Blog', to: '/my-site', desc: 'Your own blog and website — posts, pages, themes and a custom domain.' },
   { icon: I.linkhub, name: 'Link Hub', to: '/linkhub', desc: 'A single page hosting all your links in one place.' },
   { icon: I.linktools, name: 'Link Tools', to: '/link-tools', desc: 'Shorteners, cloakers, pixel tracking and A/B redirects.' },
