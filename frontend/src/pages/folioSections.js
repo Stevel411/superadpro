@@ -12,17 +12,24 @@ function B(sid, f) { return 'data-btn="' + sid + '|' + f + '"'; }  // linkable b
 function IU(p, f, d) { var u = (p && typeof p[f] === 'string' && p[f].trim()) ? p[f].trim() : d; return u.replace(/["'()\\ \n]/g, ''); }
 function IMG(sid, f) { return 'data-img="' + sid + '|' + f + '"'; }
 
+function _col(v) { return (typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v.trim())) ? v.trim() : ''; }
+const _PAD = { sm: '12px', md: '28px', lg: '52px' };
 function renderBlockPreview(b) {
   if (!b || typeof b !== 'object') return '';
   const t = b.type;
   const al = (['left', 'center', 'right'].indexOf(b.align) >= 0) ? b.align : 'left';
-  const ws = 'text-align:' + al;
-  if (t === 'heading') { const lvl = (['h1', 'h2', 'h3'].indexOf(b.level) >= 0) ? b.level : 'h2'; return '<' + lvl + ' class="fb-h" style="' + ws + '">' + esc(b.text, 'Your heading') + '</' + lvl + '>'; }
-  if (t === 'text') return '<div class="fb-t" style="' + ws + '">' + esc(b.text, 'Add your text here.').replace(/\n/g, '<br>') + '</div>';
+  let ws = 'text-align:' + al;
+  const pad = _PAD[b.pad] || '';
+  if (pad) ws += ';padding-top:' + pad + ';padding-bottom:' + pad;
+  const bg = _col(b.bg);
+  if (bg) ws += ';background:' + bg + ';border-radius:var(--fo-radius)' + (pad ? '' : ';padding:22px');
+  const col = _col(b.color); const cstyle = col ? ';color:' + col : '';
+  if (t === 'heading') { const lvl = (['h1', 'h2', 'h3'].indexOf(b.level) >= 0) ? b.level : 'h2'; return '<' + lvl + ' class="fb-h" style="' + ws + cstyle + '">' + esc(b.text, 'Your heading') + '</' + lvl + '>'; }
+  if (t === 'text') return '<div class="fb-t" style="' + ws + cstyle + '">' + esc(b.text, 'Add your text here.').replace(/\n/g, '<br>') + '</div>';
   if (t === 'image') { const u = IU(b, 'url', ''); const inner = u ? '<img class="fb-img" src="' + u + '"/>' : '<div class="fb-img-ph">Tap to upload an image</div>'; return '<div class="fb-imgwrap" style="' + ws + '">' + inner + '</div>'; }
-  if (t === 'button') { const v = b.variant === 'ghost' ? ' fo-btn--ghost' : ''; return '<div style="' + ws + '"><a class="fo-btn' + v + '">' + esc(b.text, 'Button') + '</a></div>'; }
-  if (t === 'video') { const has = b.url && String(b.url).trim(); return '<div class="fb-video-ph">' + (has ? '\u25b6 Video ready \u00b7 tap to change link' : '\u25b6 Tap to add a YouTube or Vimeo link') + '</div>'; }
-  if (t === 'divider') return '<hr class="fb-div"/>';
+  if (t === 'button') { const v = b.variant === 'ghost' ? ' fo-btn--ghost' : ''; let bs = ''; const bb = _col(b.btnbg), bf = _col(b.btnfg); if (bb) bs += 'background:' + bb + ';border-color:' + bb + ';'; if (bf) bs += 'color:' + bf + ';'; const sa = bs ? ' style="' + bs + '"' : ''; return '<div style="' + ws + '"><a class="fo-btn' + v + '"' + sa + '>' + esc(b.text, 'Button') + '</a></div>'; }
+  if (t === 'video') { const has = b.url && String(b.url).trim(); return '<div style="' + ws + '"><div class="fb-video-ph">' + (has ? '\u25b6 Video ready \u00b7 tap to change link' : '\u25b6 Tap to add a YouTube or Vimeo link') + '</div></div>'; }
+  if (t === 'divider') return '<div style="' + ws + '"><hr class="fb-div"/></div>';
   if (t === 'spacer') { let h = parseInt(b.height, 10) || 32; h = Math.max(4, Math.min(200, h)); return '<div class="fb-spacer" style="height:' + h + 'px">' + h + 'px space</div>'; }
   return '';
 }

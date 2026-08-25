@@ -77,6 +77,10 @@ const CHROME = `
 .fbp .seg2{display:flex;gap:6px}
 .fbp .seg2 button{flex:1;border:1.5px solid #e3dccd;background:#fff;border-radius:8px;padding:9px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;color:#17141c}
 .fbp .seg2 button.on{border-color:#5b3df5;background:#f2f0ff;color:#5b3df5}
+.fbp .crow{display:flex;align-items:center;gap:10px}
+.fbp .crow input[type=color]{width:46px;height:34px;border:1.5px solid #e3dccd;border-radius:8px;padding:2px;cursor:pointer;background:#fff}
+.fbp .clr{background:#efe9dd;border:none;border-radius:8px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit}
+.fbp .def{font-size:12px;color:#9a94a6;font-weight:700}
 .fbp .thumb{width:100%;max-height:120px;object-fit:contain;border-radius:9px;margin-top:8px;background:#f6f2ea}
 .fbp .up{background:#5b3df5;color:#fff;border:none;border-radius:9px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;font-size:13px;margin-top:6px}
 .fbp .acts{display:flex;gap:8px;margin-top:16px}
@@ -308,16 +312,20 @@ export default function FolioEditor() {
         if (!b) return null;
         const seg = (val, opts, key) => (<div className="seg2">{opts.map(o => <button key={o.v} className={val === o.v ? 'on' : ''} onClick={() => patchBlock({ [key]: o.v })}>{o.l}</button>)}</div>);
         const alignSeg = seg(b.align || 'left', [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }], 'align');
+        const colorCtl = (lbl, key, dflt) => (<><label>{lbl}</label><div className="crow"><input type="color" value={b[key] || (dflt || '#000000')} onChange={e => patchBlock({ [key]: e.target.value })} />{b[key] ? <button className="clr" onClick={() => patchBlock({ [key]: '' })}>Reset</button> : <span className="def">Default</span>}</div></>);
+        const spaceSeg = seg(b.pad || 'none', [{ v: 'none', l: 'None' }, { v: 'sm', l: 'S' }, { v: 'md', l: 'M' }, { v: 'lg', l: 'L' }], 'pad');
+        const styleArea = (['heading', 'text', 'image', 'button', 'video'].indexOf(b.type) >= 0) ? (<>{colorCtl('Background', 'bg', '#ffffff')}<label>Spacing</label>{spaceSeg}</>) : null;
         return (
           <div className="fbp">
             <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => { commit(); setBlkSel(null); }}>✕</button></h4>
-            {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Size</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], 'level')}<label>Align</label>{alignSeg}</>) : null}
-            {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Size</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], 'level')}<label>Align</label>{alignSeg}{colorCtl('Text colour', 'color')}</>) : null}
+            {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Align</label>{alignSeg}{colorCtl('Text colour', 'color')}</>) : null}
             {b.type === 'image' ? (<><button className="up" onClick={uploadBlockImage}>{b.url ? 'Replace image' : 'Upload image'}</button>{b.url ? <img className="thumb" src={b.url} alt="" /> : null}<label>Link (optional)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Align</label>{alignSeg}</>) : null}
-            {b.type === 'button' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Links to (URL)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Style</label>{seg(b.variant || 'solid', [{ v: 'solid', l: 'Solid' }, { v: 'ghost', l: 'Outline' }], 'variant')}<label>Align</label>{alignSeg}</>) : null}
+            {b.type === 'button' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Links to (URL)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Style</label>{seg(b.variant || 'solid', [{ v: 'solid', l: 'Solid' }, { v: 'ghost', l: 'Outline' }], 'variant')}<label>Align</label>{alignSeg}{colorCtl('Button colour', 'btnbg')}{colorCtl('Text colour', 'btnfg', '#ffffff')}</>) : null}
             {b.type === 'video' ? (<><label>YouTube or Vimeo link</label><input className="in" value={b.url || ''} onChange={e => patchBlock({ url: e.target.value })} placeholder="https://youtube.com/watch?v=..." /><p className="note">Paste the link and it embeds as a player on your published page.</p></>) : null}
             {b.type === 'divider' ? (<p className="note">A horizontal divider line to separate content.</p>) : null}
             {b.type === 'spacer' ? (<><label>Height (px)</label><input className="in" type="number" value={b.height || 32} onChange={e => patchBlock({ height: parseInt(e.target.value, 10) || 32 })} /></>) : null}
+            {styleArea}
             <div className="acts">
               <button onClick={() => moveBlock(-1)}>↑ Up</button>
               <button onClick={() => moveBlock(1)}>↓ Down</button>

@@ -248,6 +248,15 @@ def _video_embed(url):
     return ""
 
 
+def _color(v):
+    import re
+    v = v.strip() if isinstance(v, str) else ""
+    return v if re.match(r'^#[0-9a-fA-F]{3,8}$', v) else ""
+
+
+_PAD_MAP = {"sm": "12px", "md": "28px", "lg": "52px"}
+
+
 def render_block(b):
     """Render one content block."""
     if not isinstance(b, dict):
@@ -257,11 +266,19 @@ def render_block(b):
     if al not in ("left", "center", "right"):
         al = "left"
     ws = 'text-align:' + al
+    pad = _PAD_MAP.get(b.get("pad"), "")
+    if pad:
+        ws += ';padding-top:' + pad + ';padding-bottom:' + pad
+    bg = _color(b.get("bg"))
+    if bg:
+        ws += ';background:' + bg + ';border-radius:var(--fo-radius)' + ('' if pad else ';padding:22px')
+    col = _color(b.get("color"))
+    cstyle = (';color:' + col) if col else ''
     if t == "heading":
         lvl = b.get("level") if b.get("level") in ("h1", "h2", "h3") else "h2"
-        return '<' + lvl + ' class="fb-h" style="' + ws + '">' + esc(b.get("text"), "Your heading") + '</' + lvl + '>'
+        return '<' + lvl + ' class="fb-h" style="' + ws + cstyle + '">' + esc(b.get("text"), "Your heading") + '</' + lvl + '>'
     if t == "text":
-        return '<div class="fb-t" style="' + ws + '">' + esc(b.get("text"), "Add your text here.").replace("\n", "<br>") + '</div>'
+        return '<div class="fb-t" style="' + ws + cstyle + '">' + esc(b.get("text"), "Add your text here.").replace("\n", "<br>") + '</div>'
     if t == "image":
         u = imgurl(b, "url", "")
         inner = ('<img class="fb-img" src="' + u + '"/>') if u else '<div class="fb-img-ph">No image yet</div>'
@@ -272,13 +289,22 @@ def render_block(b):
     if t == "button":
         href = (b.get("href") or "").strip()
         variant = " fo-btn--ghost" if b.get("variant") == "ghost" else ""
-        return ('<div style="' + ws + '"><a class="fo-btn' + variant + '" href="'
+        bstyle = ''
+        btnbg = _color(b.get("btnbg"))
+        btnfg = _color(b.get("btnfg"))
+        if btnbg:
+            bstyle += 'background:' + btnbg + ';border-color:' + btnbg + ';'
+        if btnfg:
+            bstyle += 'color:' + btnfg + ';'
+        stattr = (' style="' + bstyle + '"') if bstyle else ''
+        return ('<div style="' + ws + '"><a class="fo-btn' + variant + '"' + stattr + ' href="'
                 + (html.escape(href) if href else "#") + '">' + esc(b.get("text"), "Button") + '</a></div>')
     if t == "video":
         emb = _video_embed(b.get("url", ""))
-        return '<div class="fb-video">' + emb + '</div>' if emb else '<div class="fb-video-ph">Paste a YouTube or Vimeo link</div>'
+        body = ('<div class="fb-video">' + emb + '</div>') if emb else '<div class="fb-video-ph">Paste a YouTube or Vimeo link</div>'
+        return '<div style="' + ws + '">' + body + '</div>'
     if t == "divider":
-        return '<hr class="fb-div"/>'
+        return '<div style="' + ws + '"><hr class="fb-div"/></div>'
     if t == "spacer":
         try:
             h = max(4, min(200, int(b.get("height", 32))))
