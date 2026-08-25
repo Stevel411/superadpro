@@ -437,6 +437,38 @@ def render_sections(sections, accent="#5b3df5"):
     return '<div class="fo-page" style="--fo-accent:' + html.escape(acc) + '">' + "".join(body) + '</div>'
 
 
+def _capture_script(page_id):
+    return (
+        "<script>(function(){var pid=" + str(int(page_id or 0)) + ";"
+        "document.querySelectorAll('form.fo-optin').forEach(function(f){"
+        "f.addEventListener('submit',function(e){e.preventDefault();"
+        "var em=(f.querySelector('input[type=email]')||{}).value||'';"
+        "var nm=f.querySelector('input[name=name]');nm=nm?nm.value:'';"
+        "if(!em||em.indexOf('@')<0){return;}"
+        "var b=f.querySelector('button,[type=submit]');if(b){b.disabled=true;}"
+        "fetch('/api/folio/capture/'+pid,{method:'POST',headers:{'Content-Type':'application/json'},"
+        "body:JSON.stringify({email:em,name:nm})}).then(function(r){return r.json();}).then(function(d){"
+        "f.innerHTML='<div style=\\'padding:12px;font-weight:700\\'>\\u2713 You\\u2019re in \\u2014 check your inbox.</div>';"
+        "}).catch(function(){if(b){b.disabled=false;}});});});})();</script>"
+    )
+
+
+_FONTS_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+               '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700;900&display=swap" rel="stylesheet"/>')
+
+
+def render_unlayer_page(body_html, title="My page", page_id=0):
+    """Take Unlayer's exported HTML and inject our fonts + lead-capture wiring."""
+    h = body_html or ""
+    if "</head>" in h:
+        h = h.replace("</head>", _FONTS_LINK + "</head>", 1)
+    if "</body>" in h:
+        h = h.replace("</body>", _capture_script(page_id) + "</body>", 1)
+    else:
+        h = h + _capture_script(page_id)
+    return h
+
+
 def render_gjs_page(body_html, css, title="My page", page_id=0):
     """Full standalone HTML document for a GrapesJS-authored page."""
     capture = (

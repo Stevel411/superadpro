@@ -73268,6 +73268,7 @@ def _folio_ensure_tables(db):
         db.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS folio_page_user_slug ON folio_page (user_id, slug)"))
         db.execute(text("ALTER TABLE folio_page ADD COLUMN IF NOT EXISTS capture_config JSONB"))
         db.execute(text("ALTER TABLE folio_page ADD COLUMN IF NOT EXISTS gjs JSONB"))
+        db.execute(text("ALTER TABLE folio_page ADD COLUMN IF NOT EXISTS unlayer JSONB"))
         db.commit()
         _FOLIO_TABLES_READY = True
     except Exception:
@@ -73362,7 +73363,7 @@ def folio_get(page_id: int, user: User = Depends(get_current_user), db: Session 
     if not user:
         return JSONResponse({"error": "auth required"}, status_code=401)
     _folio_ensure_tables(db)
-    r = db.execute(text("SELECT id,slug,title,template_id,accent,sections,status,capture_config,gjs,updated_at,published_at "
+    r = db.execute(text("SELECT id,slug,title,template_id,accent,sections,status,capture_config,gjs,unlayer,updated_at,published_at "
                         "FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).mappings().first()
     if not r:
         return JSONResponse({"error": "not found"}, status_code=404)
@@ -73376,6 +73377,7 @@ def folio_get(page_id: int, user: User = Depends(get_current_user), db: Session 
             "accent": r["accent"], "sections": _folio_sections(r["sections"]), "status": r["status"],
             "capture_config": cc,
             "gjs": (json.loads(r["gjs"]) if isinstance(r["gjs"], str) else r["gjs"]),
+            "unlayer": (json.loads(r["unlayer"]) if isinstance(r["unlayer"], str) else r["unlayer"]),
             "updated_at": str(r["updated_at"]) if r["updated_at"] else None,
             "published_at": str(r["published_at"]) if r["published_at"] else None}
 
@@ -73517,6 +73519,26 @@ def _folio_notfound_html():
             "<div><h1 style='font-size:52px;margin:0'>404</h1><p style='color:#6b6e7c'>This page isn't published, or doesn't exist.</p></div></body></html>")
 
 
+@app.post("/api/folio/pages/{page_id}/save-unlayer")
+async def folio_save_unlayer(page_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Store Unlayer editor content (design JSON for re-editing + exported html) for a page (owner only)."""
+    if not user:
+        return JSONResponse({"error": "auth required"}, status_code=401)
+    _folio_ensure_tables(db)
+    owns = db.execute(text("SELECT 1 FROM folio_page WHERE id=:id AND user_id=:u"), {"id": page_id, "u": user.id}).first()
+    if not owns:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    payload = {"design": body.get("design"), "html": (body.get("html") or "")[:900000]}
+    db.execute(text("UPDATE folio_page SET unlayer=CAST(:g AS JSONB), updated_at=now() WHERE id=:id AND user_id=:u"),
+               {"g": json.dumps(payload), "id": page_id, "u": user.id})
+    db.commit()
+    return {"ok": True}
+
+
 @app.post("/api/folio/pages/{page_id}/save-gjs")
 async def folio_save_gjs(page_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Store GrapesJS editor content (html + css) for a page (owner only)."""
@@ -73543,10 +73565,23 @@ def folio_publish(page_id: int, user: User = Depends(get_current_user), db: Sess
     if not user:
         return JSONResponse({"error": "auth required"}, status_code=401)
     _folio_ensure_tables(db)
-    r = db.execute(text("SELECT slug,title,accent,sections,gjs FROM folio_page WHERE id=:id AND user_id=:u"),
+    r = db.execute(text("SELECT slug,title,accent,sections,gjs,unlayer FROM folio_page WHERE id=:id AND user_id=:u"),
                    {"id": page_id, "u": user.id}).mappings().first()
     if not r:
         return JSONResponse({"error": "not found"}, status_code=404)
+    ul = r["unlayer"]
+    if isinstance(ul, str):
+        try:
+            ul = json.loads(ul)
+        except Exception:
+            ul = None
+    if isinstance(ul, dict) and ul.get("html"):
+        from .folio_render import render_unlayer_page
+        html = render_unlayer_page(ul.get("html", ""), title=r["title"], page_id=page_id)
+        db.execute(text("UPDATE folio_page SET status='published', published_html=:h, published_at=now() WHERE id=:id AND user_id=:u"),
+                   {"h": html, "id": page_id, "u": user.id})
+        db.commit()
+        return {"ok": True, "url": "https://www.advantagelife.club/page/" + user.username + "/" + r["slug"]}
     gjs = r["gjs"]
     if isinstance(gjs, str):
         try:
