@@ -17,6 +17,7 @@ const CHROME = `
 .fed-bar .dots i{width:22px;height:22px;border-radius:6px;cursor:pointer;border:2px solid transparent}.fed-bar .dots i.on{border-color:#fff}
 .fed-bar input[type=color]{width:24px;height:24px;border:none;border-radius:6px;background:none;padding:0;cursor:pointer}
 .fed-bar .save{background:#2a2530;border:none;color:#fff;font-weight:800;font-size:13px;padding:9px 15px;border-radius:9px;cursor:pointer;font-family:inherit}
+.fed-bar .save:disabled{opacity:.35;cursor:default}
 .fed-bar .pub{background:#5b3df5;border:none;color:#fff;font-weight:800;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer;font-family:inherit}
 .fed-hint{background:#221d2b;color:#b8b1c2;font-size:12px;text-align:center;padding:6px;flex:none;font-weight:600}
 .fed-stage{flex:1;overflow:auto;padding:18px;display:flex;justify-content:center}
@@ -111,6 +112,10 @@ export default function FolioEditor() {
   const titleRef = useRef('');
   const fileRef = useRef(null);
   const imgTargetRef = useRef(null);
+  const pastRef = useRef([]);
+  const futureRef = useRef([]);
+  const curRef = useRef('');
+  const [histVer, setHistVer] = useState(0);
   const [ver, setVer] = useState(0);
 
   useEffect(() => {
@@ -119,7 +124,7 @@ export default function FolioEditor() {
       accentRef.current = d.accent || '#5b3df5';
       titleRef.current = d.title || 'Untitled page';
       if (d.capture_config) setAr({ forward_url: d.capture_config.forward_url || '', email_field: d.capture_config.email_field || 'email', name_field: d.capture_config.name_field || '' });
-      setAccent(accentRef.current); setTitle(titleRef.current); setStatus('ok');
+      setAccent(accentRef.current); setTitle(titleRef.current); curRef.current = JSON.stringify({ s: secsRef.current, a: accentRef.current, t: titleRef.current }); setStatus('ok');
     }).catch(() => setStatus('error'));
   }, [id]);
 
@@ -133,6 +138,7 @@ export default function FolioEditor() {
       + '<button data-act="up" data-idx="' + i + '" title="Move up">\u2191</button>'
       + '<button data-act="down" data-idx="' + i + '" title="Move down">\u2193</button>'
       + '<button data-act="add" data-idx="' + i + '" title="Add below">+</button>'
+      + '<button data-act="dup" data-idx="' + i + '" title="Duplicate">\u29c9</button>'
       + '<button data-act="del" data-idx="' + i + '" title="Delete">\u2715</button>'
       + '</div>' + renderSection(s.type, s.props, s.id) + '</div>'
     ).join('');
@@ -149,6 +155,13 @@ export default function FolioEditor() {
     });
   }
 
+  function snapshot() { return JSON.stringify({ s: secsRef.current, a: accentRef.current, t: titleRef.current }); }
+  function commit() { const now = snapshot(); if (now === curRef.current) return; if (curRef.current) pastRef.current.push(curRef.current); if (pastRef.current.length > 80) pastRef.current.shift(); curRef.current = now; futureRef.current = []; setHistVer(v => v + 1); }
+  function applySnap(str) { try { const d = JSON.parse(str); secsRef.current = d.s || []; accentRef.current = d.a || '#5b3df5'; titleRef.current = d.t || ''; setAccent(accentRef.current); setTitle(d.t || ''); setBlkSel(null); setVer(v => v + 1); setHistVer(v => v + 1); } catch (e) {} }
+  function undo() { syncFromDOM(); commit(); if (!pastRef.current.length) return; futureRef.current.push(curRef.current); const prev = pastRef.current.pop(); curRef.current = prev; applySnap(prev); }
+  function redo() { if (!futureRef.current.length) return; pastRef.current.push(curRef.current); const next = futureRef.current.pop(); curRef.current = next; applySnap(next); }
+  function dupBlock() { if (!blkSel) return; const l = bkList(blkSel.sid); if (!l || !l[blkSel.idx]) return; const copy = JSON.parse(JSON.stringify(l[blkSel.idx])); l.splice(blkSel.idx + 1, 0, copy); setBlkSel({ sid: blkSel.sid, idx: blkSel.idx + 1 }); setVer(v => v + 1); commit(); }
+
   // event delegation: control buttons + capture edits on blur
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
@@ -156,7 +169,7 @@ export default function FolioEditor() {
       const addb = e.target.closest('[data-addblk]');
       if (addb) { e.preventDefault(); syncFromDOM(); setBlkTray(addb.dataset.addblk); return; }
       const blk = e.target.closest('.fblk');
-      if (blk) { e.preventDefault(); syncFromDOM(); const pr = (blk.dataset.blk || '').split('|'); setBlkSel({ sid: pr[0], idx: parseInt(pr[1], 10) }); return; }
+      if (blk) { e.preventDefault(); syncFromDOM(); commit(); const pr = (blk.dataset.blk || '').split('|'); setBlkSel({ sid: pr[0], idx: parseInt(pr[1], 10) }); return; }
       const im = e.target.closest('[data-img]');
       if (im) { e.preventDefault(); syncFromDOM(); imgTargetRef.current = im.dataset.img; if (fileRef.current) fileRef.current.click(); return; }
       const lk = e.target.closest('[data-btn]');
@@ -164,19 +177,20 @@ export default function FolioEditor() {
       const btn = e.target.closest('.fsec-ctrl button'); if (!btn) return;
       e.preventDefault(); syncFromDOM();
       const i = parseInt(btn.dataset.idx, 10); const act = btn.dataset.act; const arr = secsRef.current;
-      if (act === 'up' && i > 0) { const t = arr[i - 1]; arr[i - 1] = arr[i]; arr[i] = t; setVer(v => v + 1); }
-      else if (act === 'down' && i < arr.length - 1) { const t = arr[i + 1]; arr[i + 1] = arr[i]; arr[i] = t; setVer(v => v + 1); }
-      else if (act === 'del') { if (window.confirm('Delete this section?')) { arr.splice(i, 1); setVer(v => v + 1); } }
+      if (act === 'up' && i > 0) { const t = arr[i - 1]; arr[i - 1] = arr[i]; arr[i] = t; setVer(v => v + 1); commit(); }
+      else if (act === 'down' && i < arr.length - 1) { const t = arr[i + 1]; arr[i + 1] = arr[i]; arr[i] = t; setVer(v => v + 1); commit(); }
+      else if (act === 'dup') { const copy = JSON.parse(JSON.stringify(arr[i])); copy.id = nid(); arr.splice(i + 1, 0, copy); setVer(v => v + 1); commit(); }
+      else if (act === 'del') { if (window.confirm('Delete this section?')) { arr.splice(i, 1); setVer(v => v + 1); commit(); } }
       else if (act === 'add') { setAddAt(i + 1); }
     };
-    const onBlur = (e) => { if (e.target.hasAttribute && e.target.hasAttribute('data-e')) syncFromDOM(); };
+    const onBlur = (e) => { if (e.target.hasAttribute && e.target.hasAttribute('data-e')) { syncFromDOM(); commit(); } };
     c.addEventListener('click', onClick);
     c.addEventListener('focusout', onBlur);
     return () => { c.removeEventListener('click', onClick); c.removeEventListener('focusout', onBlur); };
   }, [status]);
 
-  function pickAccent(cx) { accentRef.current = cx; setAccent(cx); const pg = canvasRef.current && canvasRef.current.querySelector('.fo-page'); if (pg) pg.style.setProperty('--fo-accent', cx); }
-  function addSection(type) { const at = addAt < 0 ? secsRef.current.length : addAt; syncFromDOM(); secsRef.current.splice(at, 0, { id: nid(), type, props: {} }); setAddAt(-1); setVer(v => v + 1); }
+  function pickAccent(cx) { accentRef.current = cx; setAccent(cx); const pg = canvasRef.current && canvasRef.current.querySelector('.fo-page'); if (pg) pg.style.setProperty('--fo-accent', cx); commit(); }
+  function addSection(type) { const at = addAt < 0 ? secsRef.current.length : addAt; syncFromDOM(); secsRef.current.splice(at, 0, { id: nid(), type, props: {} }); setAddAt(-1); setVer(v => v + 1); commit(); }
 
   function payload() { syncFromDOM(); return { title: titleRef.current, accent: accentRef.current, sections: secsRef.current.map(s => ({ type: s.type, props: s.props || {} })) }; }
   function save(cb) {
@@ -194,10 +208,10 @@ export default function FolioEditor() {
   }
 
   function bkList(sid) { const sc = secsRef.current.find(x => x.id === sid); if (!sc) return null; sc.props = sc.props || {}; if (!Array.isArray(sc.props.blocks)) sc.props.blocks = []; return sc.props.blocks; }
-  function addBlock(sid, type) { const l = bkList(sid); if (!l) return; l.push(newBlock(type)); setBlkTray(null); setBlkSel({ sid: sid, idx: l.length - 1 }); setVer(v => v + 1); }
+  function addBlock(sid, type) { const l = bkList(sid); if (!l) return; l.push(newBlock(type)); setBlkTray(null); setBlkSel({ sid: sid, idx: l.length - 1 }); setVer(v => v + 1); commit(); }
   function patchBlock(patch) { if (!blkSel) return; const l = bkList(blkSel.sid); if (l && l[blkSel.idx]) { Object.assign(l[blkSel.idx], patch); setVer(v => v + 1); } }
-  function moveBlock(dir) { if (!blkSel) return; const l = bkList(blkSel.sid); if (!l) return; const j = blkSel.idx + dir; if (j < 0 || j >= l.length) return; const t = l[blkSel.idx]; l[blkSel.idx] = l[j]; l[j] = t; setBlkSel({ sid: blkSel.sid, idx: j }); setVer(v => v + 1); }
-  function delBlock() { if (!blkSel) return; const l = bkList(blkSel.sid); if (l) { l.splice(blkSel.idx, 1); setBlkSel(null); setVer(v => v + 1); } }
+  function moveBlock(dir) { if (!blkSel) return; const l = bkList(blkSel.sid); if (!l) return; const j = blkSel.idx + dir; if (j < 0 || j >= l.length) return; const t = l[blkSel.idx]; l[blkSel.idx] = l[j]; l[j] = t; setBlkSel({ sid: blkSel.sid, idx: j }); setVer(v => v + 1); commit(); }
+  function delBlock() { if (!blkSel) return; const l = bkList(blkSel.sid); if (l) { l.splice(blkSel.idx, 1); setBlkSel(null); setVer(v => v + 1); commit(); } }
   function uploadBlockImage() { if (!blkSel) return; imgTargetRef.current = 'blk|' + blkSel.sid + '|' + blkSel.idx; if (fileRef.current) fileRef.current.click(); }
 
   function handleImg(e) {
@@ -208,7 +222,7 @@ export default function FolioEditor() {
     const fd = new FormData(); fd.append('file', f);  // section: sid|field ; block: blk|sid|idx
     setSaving('Uploading image\u2026');
     fetch('/api/folio/upload-image', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
-      if (d && d.success && d.url) { if (tgt.indexOf('blk|') === 0) { const l = bkList(pr[1]); if (l && l[+pr[2]]) l[+pr[2]].url = d.url; } else { const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; sc.props[pr[1]] = d.url; } } setVer(v => v + 1); setSaving('Image added'); setTimeout(() => setSaving(''), 1500); }
+      if (d && d.success && d.url) { if (tgt.indexOf('blk|') === 0) { const l = bkList(pr[1]); if (l && l[+pr[2]]) l[+pr[2]].url = d.url; } else { const sc = secsRef.current.find(x => x.id === pr[0]); if (sc) { sc.props = sc.props || {}; sc.props[pr[1]] = d.url; } } setVer(v => v + 1); commit(); setSaving('Image added'); setTimeout(() => setSaving(''), 1500); }
       else { alert((d && d.error) || 'Upload failed.'); setSaving(''); }
     }).catch(() => { alert('Upload failed.'); setSaving(''); });
   }
@@ -216,7 +230,7 @@ export default function FolioEditor() {
   function saveLinkEdit() {
     const sc = secsRef.current.find(x => x.id === linkEdit.sid);
     if (sc) { sc.props = sc.props || {}; sc.props[linkEdit.field] = linkEdit.text; sc.props[linkEdit.field + '_href'] = linkEdit.href.trim(); }
-    setLinkEdit(null); setVer(v => v + 1);
+    setLinkEdit(null); setVer(v => v + 1); commit();
   }
 
   function saveAr() {
@@ -234,7 +248,7 @@ export default function FolioEditor() {
       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
       <div className="fed-bar">
         <a className="back" href="/folio" title="Back">←</a>
-        <input className="ti" defaultValue={title} onChange={e => { titleRef.current = e.target.value; }} title="Page title" />
+        <input className="ti" value={title} onChange={e => { titleRef.current = e.target.value; setTitle(e.target.value); }} onBlur={commit} title="Page title" />
         <div className="sp" />
         <div className="dots">
           {DOTS.map(c => <i key={c} className={c === accent ? 'on' : ''} style={{ background: c }} onClick={() => pickAccent(c)} />)}
@@ -244,6 +258,8 @@ export default function FolioEditor() {
           <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')}>Desktop</button>
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')}>Mobile</button>
         </div>
+        <button className="save" onClick={undo} disabled={!pastRef.current.length} title="Undo">↶</button>
+        <button className="save" onClick={redo} disabled={!futureRef.current.length} title="Redo">↷</button>
         <button className="save" onClick={() => setArOpen(true)} title="Connect autoresponder">⚡</button>
         <button className="save" onClick={() => save()}>{saving || 'Save'}</button>
         <button className="pub" onClick={publish}>Publish</button>
@@ -294,7 +310,7 @@ export default function FolioEditor() {
         const alignSeg = seg(b.align || 'left', [{ v: 'left', l: 'Left' }, { v: 'center', l: 'Center' }, { v: 'right', l: 'Right' }], 'align');
         return (
           <div className="fbp">
-            <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => setBlkSel(null)}>✕</button></h4>
+            <h4><span>{BLK_NAME[b.type]}</span><button className="close" onClick={() => { commit(); setBlkSel(null); }}>✕</button></h4>
             {b.type === 'heading' ? (<><label>Text</label><input className="in" value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Size</label>{seg(b.level || 'h2', [{ v: 'h1', l: 'H1' }, { v: 'h2', l: 'H2' }, { v: 'h3', l: 'H3' }], 'level')}<label>Align</label>{alignSeg}</>) : null}
             {b.type === 'text' ? (<><label>Text</label><textarea value={b.text || ''} onChange={e => patchBlock({ text: e.target.value })} /><label>Align</label>{alignSeg}</>) : null}
             {b.type === 'image' ? (<><button className="up" onClick={uploadBlockImage}>{b.url ? 'Replace image' : 'Upload image'}</button>{b.url ? <img className="thumb" src={b.url} alt="" /> : null}<label>Link (optional)</label><input className="in" value={b.href || ''} onChange={e => patchBlock({ href: e.target.value })} placeholder="https://..." /><label>Align</label>{alignSeg}</>) : null}
@@ -305,6 +321,7 @@ export default function FolioEditor() {
             <div className="acts">
               <button onClick={() => moveBlock(-1)}>↑ Up</button>
               <button onClick={() => moveBlock(1)}>↓ Down</button>
+              <button onClick={dupBlock}>Duplicate</button>
               <button className="del" onClick={delBlock}>Delete</button>
             </div>
           </div>
