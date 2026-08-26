@@ -2605,6 +2605,17 @@ _MIGRATIONS_LOCK_ID = 1885347293
 _migrations_attempted_in_process = False
 
 
+class TradeTrackerData(Base):
+    """Server-side storage of a member's TradeTracker state (trades, checklist,
+    starting balance). One row per user; the tool's localStorage syncs to it so a
+    paid subscription persists and follows the member across devices."""
+    __tablename__ = "tradetracker_data"
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, index=True, unique=True)
+    data       = Column(Text, nullable=True)   # JSON: {trades, checklist, initialBalance}
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class MomentumIdea(Base):
     """A curated content idea for the Momentum marketer dashboard. Admin-curated:
     a hook (or several), a ready caption, a format, and a 'why this works' tip."""
@@ -2707,6 +2718,7 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS momentum_challenges (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, goal_count INTEGER DEFAULT 5, unit VARCHAR DEFAULT 'days', reward VARCHAR, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS momentum_plan (id SERIAL PRIMARY KEY, user_id INTEGER, plan_date VARCHAR, idea_id INTEGER, format VARCHAR DEFAULT 'post', title VARCHAR, done BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS momentum_days (id SERIAL PRIMARY KEY, user_id INTEGER, day VARCHAR, posted BOOLEAN DEFAULT FALSE, shared BOOLEAN DEFAULT FALSE, followed_up BOOLEAN DEFAULT FALSE, watched BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS tradetracker_data (id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE, data TEXT, updated_at TIMESTAMP DEFAULT NOW())",
         # Banner ads — bundled with campaign packs (image or sandboxed HTML embed)
         "CREATE TABLE IF NOT EXISTS al_banner_ads (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_purchase_id INTEGER, size VARCHAR DEFAULT '728x90', width INTEGER DEFAULT 728, height INTEGER DEFAULT 90, mode VARCHAR DEFAULT 'image', image_url VARCHAR, html_code TEXT, destination_url VARCHAR, title VARCHAR, description TEXT, category VARCHAR DEFAULT 'General', status VARCHAR DEFAULT 'active', impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, flash_flagged BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS al_banner_reports (id SERIAL PRIMARY KEY, banner_id INTEGER REFERENCES al_banner_ads(id), reporter_user_id INTEGER, reason VARCHAR, status VARCHAR DEFAULT 'open', created_at TIMESTAMP DEFAULT NOW())",

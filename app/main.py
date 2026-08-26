@@ -28,6 +28,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .database import AcademyCourse, AcademyLesson, AcademyProgress
 from .database import MomentumIdea, MomentumChallenge, MomentumPlan, MomentumDay
+from .database import TradeTrackerData
 from .database import BannerAd, BannerReport
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
 # Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
@@ -4299,6 +4300,52 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user)):
             return HTMLResponse(_f.read())
     except Exception:
         return RedirectResponse(url="/dashboard", status_code=302)
+
+
+@app.get("/api/al/tradetracker/data")
+def tt_data_get(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Load the member's saved TradeTracker state (trades, checklist, balance)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import TradeTrackerData
+    try:
+        row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
+        data = json.loads(row.data) if (row and row.data) else {}
+    except Exception:
+        data = {}
+    return {"ok": True, "data": data}
+
+
+@app.post("/api/al/tradetracker/save")
+async def tt_data_save(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Persist the member's TradeTracker state. Called by the tool's sync shim."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return JSONResponse({"error": "bad payload"}, status_code=400)
+    # defensive: ensure the table exists (sidesteps SKIP_MIGRATIONS)
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS tradetracker_data (id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE, data TEXT, updated_at TIMESTAMP DEFAULT NOW())"))
+        db.commit()
+    except Exception:
+        db.rollback()
+    from .database import TradeTrackerData
+    payload = {k: body.get(k) for k in ("trades", "checklist", "initialBalance") if k in body}
+    try:
+        row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
+        if not row:
+            row = TradeTrackerData(user_id=user.id)
+            db.add(row)
+        row.data = json.dumps(payload)
+        db.commit()
+    except Exception as _e:
+        db.rollback()
+        return JSONResponse({"error": str(_e)[:200]}, status_code=500)
+    return {"ok": True}
 
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
