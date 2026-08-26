@@ -179,12 +179,85 @@ const STARTER_BATCH_1 = [
   { id:tid('ty',4), type:'button', x:390,y:490,w:320,h:56, txt:'&#8592; Back to the site', url:'#', s:{fontFamily:_I,fontWeight:'800',fontSize:'16px',color:'#0d1a3a',background:'#fff',border:'1.5px solid rgba(13,26,58,0.15)',borderRadius:'12px',textAlign:'center'} },
 ]},];
 
+
+// -- Professional starter templates (batch 2, verified 25 Aug 2026) --
+function _spCard(t, s, c) {
+  return `<div style="background:${c || '#fff'};border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(13,26,58,0.06);height:100%;box-sizing:border-box"><div style="color:#f0a52a;font-size:15px;margin-bottom:6px">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style="font-size:14px;color:#0d1a3a;line-height:1.5;font-weight:500">${t}</div><div style="font-size:12px;color:#8a94a6;margin-top:10px;font-weight:700">&mdash; ${s}</div></div>`;
+}
+const STARTER_BATCH_2 = [
+// 9 VSL
+{ id:'vsl-sales', thumbnailGradient:'linear-gradient(135deg,#0b1020,#1a2440)', description:'Let a short video do the selling, with one clear CTA.', name:'Video Sales Page', category:'Sales', canvasBg:'#0b1020', els:[
+  { id:tid('v',1), type:'badge', x:400,y:60,w:300,h:34, txt:'&#9654; WATCH THIS FIRST', s:{fontFamily:_I,fontWeight:'800',fontSize:'12px',letterSpacing:'.08em',color:'#ff8a99',textAlign:'center',background:'rgba(255,39,67,0.14)',borderRadius:'30px',border:'1px solid rgba(255,138,153,0.4)',padding:'8px 0'} },
+  { id:tid('v',2), type:'heading', x:150,y:120,w:800,h:100, txt:'The fastest way to turn your traffic into sales.', s:{fontFamily:_I,fontWeight:'900',fontSize:'42px',color:'#fff',textAlign:'center',lineHeight:'1.1',letterSpacing:'-0.5px'} },
+  { id:tid('v',3), type:'video', x:270,y:250,w:560,h:315, txt:'', s:{background:'rgba(255,255,255,0.05)',borderRadius:'16px',border:'1px solid rgba(255,255,255,0.12)'} },
+  { id:tid('v',4), type:'button', x:370,y:600,w:360,h:60, txt:'Yes &mdash; _I want in &#8594;', url:'#', s:{fontFamily:_I,fontWeight:'900',fontSize:'18px',color:'#fff',background:'linear-gradient(135deg,#e8203f,#c8102e)',borderRadius:'12px',textAlign:'center'} },
+  { id:tid('v',5), type:'text', x:300,y:685,w:500,h:24, txt:'30-day guarantee &middot; Cancel anytime', s:{fontFamily:_I,fontSize:'12px',color:'#7f90bd',textAlign:'center',fontWeight:'600'} },
+]},
+// 10 QUIZ
+{ id:'quiz-optin', thumbnailGradient:'linear-gradient(135deg,#1a1035,#3a1e6c)', description:'Capture leads with an interactive quiz or survey.', name:'Quiz / Survey', category:'Lead Capture', canvasBg:'#1a1035', els:[
+  { id:tid('q',1), type:'badge', x:410,y:120,w:280,h:34, txt:'&#129504; 60-SECOND QUIZ', s:{fontFamily:_I,fontWeight:'800',fontSize:'12px',letterSpacing:'.08em',color:'#c7a3ff',textAlign:'center',background:'rgba(199,163,255,0.14)',borderRadius:'30px',border:'1px solid rgba(199,163,255,0.4)',padding:'8px 0'} },
+  { id:tid('q',2), type:'heading', x:150,y:185,w:800,h:130, txt:'What&rsquo;s really holding your traffic back?', s:{fontFamily:_I,fontWeight:'900',fontSize:'50px',color:'#fff',textAlign:'center',lineHeight:'1.08',letterSpacing:'-1px'} },
+  { id:tid('q',3), type:'text', x:250,y:330,w:600,h:56, txt:'Answer 5 quick questions and get a personalised action plan &mdash; free, instant, no fluff.', s:{fontFamily:_I,fontSize:'18px',color:'#cfc3f0',textAlign:'center',lineHeight:'1.55',fontWeight:'500'} },
+  { id:tid('q',4), type:'button', x:360,y:430,w:380,h:62, txt:'Start the quiz &#8594;', url:'#', s:{fontFamily:_I,fontWeight:'900',fontSize:'18px',color:'#1a1035',background:'linear-gradient(135deg,#fff,#e9dcff)',borderRadius:'14px',textAlign:'center'} },
+  { id:tid('q',5), type:'text', x:300,y:520,w:500,h:24, txt:'Takes under a minute &middot; Free result', s:{fontFamily:_I,fontSize:'12px',color:'#9d8fc4',textAlign:'center',fontWeight:'600'} },
+]},
+// 11 EVENT
+{ id:'event-registration', thumbnailGradient:'linear-gradient(135deg,#f6f2ea,#f3d9dd)', description:'Drive sign-ups for an event, summit or live session.', name:'Event Registration', category:'Registration', canvasBg:'#f6f2ea', els:[
+  { id:tid('e',1), type:'badge', x:400,y:70,w:300,h:34, txt:'&#127881; YOU&rsquo;RE INVITED', s:{fontFamily:_I,fontWeight:'800',fontSize:'12px',letterSpacing:'.08em',color:'#c8102e',textAlign:'center',background:'rgba(200,16,46,0.08)',borderRadius:'30px',border:'1px solid rgba(200,16,46,0.25)',padding:'8px 0'} },
+  { id:tid('e',2), type:'heading', x:150,y:130,w:800,h:120, txt:'The 2026 Growth Summit &mdash; join us live.', s:{fontFamily:_I,fontWeight:'900',fontSize:'46px',color:'#0d1a3a',textAlign:'center',lineHeight:'1.08',letterSpacing:'-1px'} },
+  { id:tid('e',3), type:'text', x:250,y:270,w:600,h:30, txt:'&#128197;&nbsp; Sat 14 June, 10am &nbsp;&middot;&nbsp; &#128205;&nbsp; Online &amp; free', s:{fontFamily:_I,fontSize:'16px',color:'#12388f',textAlign:'center',fontWeight:'800'} },
+  { id:tid('e',4), type:'text', x:270,y:320,w:560,h:60, txt:'A half-day of practical sessions from people actually growing right now. Replays for everyone who registers.', s:{fontFamily:_I,fontSize:'17px',color:'#5a6478',textAlign:'center',lineHeight:'1.55',fontWeight:'500'} },
+  { id:tid('e',5), type:'form', x:340,y:415,w:420,h:135, txt:_spForm('Reserve my free spot',_RED,false), _formRedirect:'__OWNER_REF__', s:{background:'transparent'} },
+  { id:tid('e',6), type:'text', x:300,y:565,w:500,h:24, txt:'Free to attend &middot; Replays included', s:{fontFamily:_I,fontSize:'12px',color:'#8a94a6',textAlign:'center',fontWeight:'600'} },
+]},
+// 12 TESTIMONIAL / PROOF
+{ id:'social-proof', thumbnailGradient:'linear-gradient(135deg,#ffffff,#eef2f8)', description:'Let testimonials and star ratings do the convincing.', name:'Testimonials / Proof', category:'Conversion', canvasBg:'#ffffff', els:[
+  { id:tid('t',1), type:'heading', x:150,y:90,w:800,h:80, txt:'Don&rsquo;t take our word for it.', s:{fontFamily:_I,fontWeight:'900',fontSize:'44px',color:'#0d1a3a',textAlign:'center',lineHeight:'1.1',letterSpacing:'-1px'} },
+  { id:tid('t',2), type:'text', x:250,y:185,w:600,h:40, txt:'Real results from real members using this exact system.', s:{fontFamily:_I,fontSize:'17px',color:'#5a6478',textAlign:'center',fontWeight:'500'} },
+  { id:tid('t',3), type:'text', x:80,y:260,w:300,h:170, txt:_spCard('&ldquo;_I went from zero to a full pipeline of leads in six weeks. This just works.&rdquo;','Sarah K.'), s:{background:'transparent'} },
+  { id:tid('t',4), type:'text', x:400,y:260,w:300,h:170, txt:_spCard('&ldquo;Finally a builder _I don&rsquo;t need a designer for. My pages look professional.&rdquo;','James R.'), s:{background:'transparent'} },
+  { id:tid('t',5), type:'text', x:720,y:260,w:300,h:170, txt:_spCard('&ldquo;The templates alone saved me weeks. _I launched in a single afternoon.&rdquo;','Maria L.'), s:{background:'transparent'} },
+  { id:tid('t',6), type:'button', x:370,y:470,w:360,h:58, txt:'Start free today &#8594;', url:'#', s:{fontFamily:_I,fontWeight:'900',fontSize:'18px',color:'#fff',background:'linear-gradient(135deg,#e8203f,#c8102e)',borderRadius:'12px',textAlign:'center'} },
+]},
+// 13 ABOUT / BIO
+{ id:'about-bio', thumbnailGradient:'linear-gradient(135deg,#f6f2ea,#e3e9f5)', description:'Introduce yourself and invite people to work with you.', name:'About / Bio', category:'Personal', canvasBg:'#f6f2ea', els:[
+  { id:tid('ab',1), type:'image', x:490,y:70,w:120,h:120, txt:'', s:{borderRadius:'50%',background:'linear-gradient(135deg,#12388f,#0a1f52)',border:'3px solid #fff',boxShadow:'0 6px 18px rgba(13,26,58,0.15)'} },
+  { id:tid('ab',2), type:'heading', x:250,y:210,w:600,h:60, txt:'Hi, _I&rsquo;m Your Name', s:{fontFamily:_I,fontWeight:'900',fontSize:'40px',color:'#0d1a3a',textAlign:'center',letterSpacing:'-1px'} },
+  { id:tid('ab',3), type:'text', x:250,y:285,w:600,h:120, txt:'_I help everyday marketers get more leads without the overwhelm. Over the last few years _I&rsquo;ve helped hundreds of people build pages that actually convert &mdash; and _I&rsquo;d love to help you next.', s:{fontFamily:_I,fontSize:'18px',color:'#5a6478',textAlign:'center',lineHeight:'1.6',fontWeight:'500'} },
+  { id:tid('ab',4), type:'button', x:390,y:440,w:320,h:56, txt:'Work with me &#8594;', url:'#', s:{fontFamily:_I,fontWeight:'900',fontSize:'17px',color:'#fff',background:'linear-gradient(135deg,#1a44a8,#0a1f52)',borderRadius:'12px',textAlign:'center'} },
+]},
+// 14 DISCOUNT OFFER
+{ id:'discount-offer', thumbnailGradient:'linear-gradient(135deg,#c8102e,#8f0b20)', description:'A bold, time-limited discount with a promo code.', name:'Discount Offer', category:'Sales', canvasBg:'#c8102e', els:[
+  { id:tid('d',1), type:'badge', x:400,y:90,w:300,h:36, txt:'&#9200; LIMITED TIME', s:{fontFamily:_I,fontWeight:'900',fontSize:'12px',letterSpacing:'.1em',color:'#fff',textAlign:'center',background:'rgba(255,255,255,0.15)',borderRadius:'30px',border:'1px solid rgba(255,255,255,0.4)',padding:'8px 0'} },
+  { id:tid('d',2), type:'heading', x:150,y:155,w:800,h:150, txt:'Save 40% today only.', s:{fontFamily:_I,fontWeight:'900',fontSize:'64px',color:'#fff',textAlign:'center',lineHeight:'1',letterSpacing:'-2px'} },
+  { id:tid('d',3), type:'text', x:250,y:325,w:600,h:40, txt:'Use code <b style="color:#fff;background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:8px;letter-spacing:2px">SAVE40</b> at checkout.', s:{fontFamily:_I,fontSize:'20px',color:'#ffd7dd',textAlign:'center',fontWeight:'600'} },
+  { id:tid('d',4), type:'button', x:360,y:420,w:380,h:64, txt:'Claim my 40% off &#8594;', url:'#', s:{fontFamily:_I,fontWeight:'900',fontSize:'19px',color:'#c8102e',background:'#fff',borderRadius:'14px',textAlign:'center'} },
+  { id:tid('d',5), type:'text', x:300,y:510,w:500,h:24, txt:'Offer ends at midnight &middot; No code needed after checkout', s:{fontFamily:_I,fontSize:'12px',color:'#ffc2ca',textAlign:'center',fontWeight:'600'} },
+]},
+// 15 APP DOWNLOAD
+{ id:'app-download', thumbnailGradient:'linear-gradient(135deg,#0b1020,#12233f)', description:'Promote an app with store buttons and ratings.', name:'App Download', category:'Sales', canvasBg:'#0b1020', els:[
+  { id:tid('ap',1), type:'heading', x:150,y:150,w:800,h:130, txt:'Your goals, in your pocket.', s:{fontFamily:_I,fontWeight:'900',fontSize:'52px',color:'#fff',textAlign:'center',lineHeight:'1.05',letterSpacing:'-1.5px'} },
+  { id:tid('ap',2), type:'text', x:275,y:295,w:550,h:56, txt:'Track progress, stay on habit, and never miss a day &mdash; free to download.', s:{fontFamily:_I,fontSize:'18px',color:'#a9b8e0',textAlign:'center',lineHeight:'1.55',fontWeight:'500'} },
+  { id:tid('ap',3), type:'button', x:300,y:395,w:230,h:58, txt:'&#63743;&nbsp; App Store', url:'#', s:{fontFamily:_I,fontWeight:'800',fontSize:'16px',color:'#fff',background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:'12px',textAlign:'center'} },
+  { id:tid('ap',4), type:'button', x:570,y:395,w:230,h:58, txt:'&#9654;&nbsp; Google Play', url:'#', s:{fontFamily:_I,fontWeight:'800',fontSize:'16px',color:'#fff',background:'rgba(255,255,255,0.1)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:'12px',textAlign:'center'} },
+  { id:tid('ap',5), type:'text', x:300,y:485,w:500,h:24, txt:'&#11088; 4.9 rating &middot; 50,000+ downloads', s:{fontFamily:_I,fontSize:'13px',color:'#7f90bd',textAlign:'center',fontWeight:'700'} },
+]},
+// 16 AFFILIATE PROMO (AL)
+{ id:'al-affiliate-promo', thumbnailGradient:'linear-gradient(135deg,#0a1f52,#0e6b3a)', description:'Promote AdvantageLife and earn as people join.', name:'Affiliate Promo', category:'Conversion', canvasBg:'#0a1f52', els:[
+  { id:tid('af',1), type:'badge', x:400,y:70,w:300,h:34, txt:'&#128184; GET PAID TO SHARE', s:{fontFamily:_I,fontWeight:'800',fontSize:'12px',letterSpacing:'.08em',color:'#22c26b',textAlign:'center',background:'rgba(34,194,107,0.12)',borderRadius:'30px',border:'1px solid rgba(34,194,107,0.4)',padding:'8px 0'} },
+  { id:tid('af',2), type:'heading', x:150,y:135,w:800,h:150, txt:'Advertising that pays you back.', s:{fontFamily:_I,fontWeight:'900',fontSize:'48px',color:'#fff',textAlign:'center',lineHeight:'1.05',letterSpacing:'-1px'} },
+  { id:tid('af',3), type:'text', x:250,y:300,w:600,h:80, txt:'Run video ads watched by real people, and earn as you share. Free to join &mdash; full access from day one.', s:{fontFamily:_I,fontSize:'18px',color:'#c8d6f5',textAlign:'center',lineHeight:'1.55',fontWeight:'500'} },
+  { id:tid('af',4), type:'button', x:370,y:420,w:360,h:60, txt:'Join free today &#8594;', url:'/register', s:{fontFamily:_I,fontWeight:'900',fontSize:'18px',color:'#fff',background:'linear-gradient(135deg,#e8203f,#c8102e)',borderRadius:'12px',textAlign:'center'} },
+  { id:tid('af',5), type:'text', x:300,y:505,w:500,h:24, txt:'No card &middot; No fees to join &middot; Start earning day one', s:{fontFamily:_I,fontSize:'12px',color:'#7f90bd',textAlign:'center',fontWeight:'600'} },
+]},];
+
 export const LABS_TEMPLATES = [
   AL_OPTIN_TOOLKIT,
   AL_OPTIN_HOWITWORKS,
   AL_OPTIN_GAME,
   AL_REVEAL,
   ...STARTER_BATCH_1,
+  ...STARTER_BATCH_2,
 ];
 
 // Category list — derived from templates, for filter pills in the
