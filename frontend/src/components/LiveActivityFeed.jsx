@@ -90,7 +90,6 @@ export default function LiveActivityFeed() {
           );
         })}
       </div>
-      <div className="laf-ft"><Link to="/leaderboard">See the leaderboard →</Link></div>
     </div>
   );
 }

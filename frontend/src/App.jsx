@@ -302,7 +302,7 @@ function AppRoutes() {
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/purchases" element={<Navigate to="/account?tab=billing" replace />} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
-      <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<Navigate to="/dashboard" replace />} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/my-marketing" element={<ProtectedRoute><MyMarketing /></ProtectedRoute>} />
       <Route path="/my-traffic" element={<ProtectedRoute><MyTraffic /></ProtectedRoute>} />

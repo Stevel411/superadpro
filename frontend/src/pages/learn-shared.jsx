@@ -60,7 +60,6 @@ export function getAssetItems(t) {
 
 export function getCommunityItems(t) {
   return [
-    { id: 'leaderboard', icon: Trophy,    name: t('learn.community.leaderboard.name', { defaultValue: 'Leaderboard' }),       desc: t('learn.community.leaderboard.desc', { defaultValue: 'Top earners and top recruiters across the platform. See where you rank.' }),       to: '/leaderboard' },
   ];
 }
 

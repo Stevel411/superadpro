@@ -23,7 +23,6 @@ export const NAV = [
   { header: 'RUN YOUR BUSINESS', tk: 'nav.grpRunBusiness' },
   { key: 'sales', tk: 'nav.confirmSale', label: 'Confirm a Sale', to: '/my-sales', link: false },
   { key: 'team', tk: 'nav.myTeam', label: 'My Team', to: '/my-team', link: true },
-  { key: 'leaderboard', tk: 'nav.leaderboard', label: 'Leaderboard', to: '/leaderboard', link: true },
   { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', to: '/my-marketing', link: true },
   { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true },

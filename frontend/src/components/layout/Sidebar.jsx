@@ -112,7 +112,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.videos', { defaultValue: 'Videos' }), shortLabel: t('navShort.videos', { defaultValue: 'Videos' }), icon: Tv, path: '/videos' },
       { label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
       { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
-      { label: t('nav.leaderboard'), shortLabel: t('navShort.leaderboard', { defaultValue: 'Ranks' }), icon: Trophy, path: '/leaderboard' },
     ]},
 
     { type: 'divider' },
