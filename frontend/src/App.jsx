@@ -53,6 +53,7 @@ const Videos = React.lazy(() => import('./pages/Videos'));
 const VideoDetail = React.lazy(() => import('./pages/VideoDetail'));
 const AdminVideos = React.lazy(() => import('./pages/AdminVideos'));
 const LabsPageBuilder = React.lazy(() => import('./pages/LabsPageBuilder'));
+const MyPages = React.lazy(() => import('./pages/labs-superpages/MyPages'));
 const CustomDomain = React.lazy(() => import('./pages/CustomDomain'));
 const HelpCustomDomain = React.lazy(() => import('./pages/HelpCustomDomain'));
 const SendingDomains = React.lazy(() => import('./pages/SendingDomains'));
@@ -371,6 +372,7 @@ function AppRoutes() {
       <Route path="/videos/:slug" element={<ProtectedRoute><VideoDetail /></ProtectedRoute>} />
       <Route path="/admin/videos" element={<ProtectedRoute><AdminVideos /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder" element={<ProtectedRoute><LabsPageBuilder /></ProtectedRoute>} />
+      <Route path="/labs/pagebuilder/mine" element={<ProtectedRoute><MyPages /></ProtectedRoute>} />
       <Route path="/custom-domain" element={<ProtectedRoute><CustomDomain /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder/custom-domain" element={<Navigate to="/custom-domain" replace />} />
       <Route path="/help/custom-domain" element={<ProtectedRoute><HelpCustomDomain /></ProtectedRoute>} />
