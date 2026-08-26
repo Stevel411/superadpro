@@ -9646,6 +9646,14 @@ def labs_pagebuilder_page(request: Request):
     if _react_index.exists():
         return _spa_shell()
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/labs/pagebuilder/mine")
+def labs_pagebuilder_my_pages(request: Request):
+    """My Pages — the member's created pages (edit / delete / view stats).
+    Separate screen from the Templates page; serves the React shell so the
+    direct URL and refresh work (client-side route in App.jsx)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/labs/pagebuilder/preview-templates")
 def labs_pagebuilder_preview_templates(request: Request):
     """Read-only portfolio view of every built-in Labs template. Renders
