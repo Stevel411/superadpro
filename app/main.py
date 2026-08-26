@@ -2105,7 +2105,7 @@ footer a{color:#b9c8ef}
   <div class="eyebrow"><span class="st">★</span> FREEDOM &nbsp;·&nbsp; LIFESTYLE &nbsp;·&nbsp; A REAL PLAN</div>
   <h1>Financial freedom isn't luck.<br><span class="u">It's a plan.</span> Here's yours.</h1>
   <div class="hsub">The AI marketing tools, the daily habit, and a step-by-step compensation plan — the whole path from starting out to living free, on your terms.</div>
-  <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box" style="position:relative;aspect-ratio:16/9"><video controls preload="metadata" playsinline poster="/static/videos/advantagelife-plan-poster.jpg" style="position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;background:#000"><source src="/static/videos/advantagelife-plan.mp4" type="video/mp4"></video></div></div>
+  <div class="hvid"><div class="hvid-label">Watch: what AdvantageLife is all about</div><div class="hvid-box" style="position:relative;aspect-ratio:16/9"><iframe src="https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/3d4fe9c5fc5289700d21a3c2401e2e39/iframe?primaryColor=%23c8102e" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true" title="AdvantageLife overview"></iframe></div></div>
   <a class="cta" href="/join">Get access →</a><a class="cta2" href="/plan">See the plan</a>
   <div class="pills">
     <span class="pill"><span class="i">✓</span> Free to join — full access</span>
@@ -2215,10 +2215,7 @@ footer a{color:var(--dim)}
   <h1>Your effort.<br>Your income.</h1>
   <div class="hsub">Sales are paid member to member, straight to your wallet. Here's exactly where every sale you make goes — nothing hidden.</div>
   <div class="hvid" style="max-width:760px;margin:28px auto 0;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.14);background:#000">
-    <video controls preload="metadata" playsinline poster="/static/videos/advantagelife-plan-poster.jpg" style="display:block;width:100%;height:auto;aspect-ratio:16/9">
-      <source src="/static/videos/advantagelife-plan.mp4" type="video/mp4">
-      Your browser can't play this video. <a href="/static/videos/advantagelife-plan.mp4" style="color:#ff8090">Open it here.</a>
-    </video>
+    <div style="position:relative;width:100%;aspect-ratio:16/9"><iframe src="https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/5cb16684acce6a8d833314099b59cd7d/iframe?primaryColor=%23c8102e" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true" title="AdvantageLife pass-up plan explained"></iframe></div>
   </div>
 </div>
 

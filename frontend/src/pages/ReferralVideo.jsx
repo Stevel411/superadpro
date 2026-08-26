@@ -84,15 +84,14 @@ export default function ReferralVideo() {
           </p>
           <div className="rv-vidwrap">
             <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 16, overflow: 'hidden', background: '#081335' }}>
-              <video
-                controls
-                preload="metadata"
-                playsInline
-                poster="/static/videos/advantagelife-plan-poster.jpg"
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0, objectFit: 'cover', background: '#000' }}
-              >
-                <source src="/static/videos/advantagelife-plan.mp4" type="video/mp4" />
-              </video>
+              <iframe
+                src="https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/3d4fe9c5fc5289700d21a3c2401e2e39/iframe?primaryColor=%23c8102e"
+                loading="lazy"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
+                allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                allowFullScreen
+                title="AdvantageLife overview"
+              />
             </div>
           </div>
           <div className="rv-trust">

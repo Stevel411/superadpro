@@ -105,11 +105,12 @@ export default function CompensationPlan() {
         </div>
 
         <div className="card" style={{ padding: 0, overflow: 'hidden', background: '#000' }}>
-          <video controls preload="metadata" playsInline
-            poster="/static/videos/advantagelife-plan-poster.jpg"
-            style={{ display: 'block', width: '100%', height: 'auto', aspectRatio: '16 / 9' }}>
-            <source src="/static/videos/advantagelife-plan.mp4" type="video/mp4" />
-          </video>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+            <iframe src="https://customer-oubslbdxlrt8pz6n.cloudflarestream.com/5cb16684acce6a8d833314099b59cd7d/iframe?primaryColor=%23c8102e" loading="lazy"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
+              allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowFullScreen
+              title="AdvantageLife pass-up plan explained" />
+          </div>
         </div>
 
         <div className="card">
