@@ -251,6 +251,585 @@ const STARTER_BATCH_2 = [
   { id:tid('af',5), type:'text', x:300,y:505,w:500,h:24, txt:'No card &middot; No fees to join &middot; Start earning day one', s:{fontFamily:_I,fontSize:'12px',color:'#7f90bd',textAlign:'center',fontWeight:'600'} },
 ]},];
 
+
+// -- VSL variations (batch 3, verified 25 Aug 2026) --
+const STARTER_BATCH_3 = [
+{
+  "id": "vsl-masterclass",
+  "name": "VSL — Free Masterclass",
+  "category": "Sales",
+  "canvasBg": "#0a1f52",
+  "els": [
+   {
+    "id": "t_m_1",
+    "type": "badge",
+    "x": 400,
+    "y": 56,
+    "w": 300,
+    "h": 34,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "800",
+     "fontSize": "12px",
+     "letterSpacing": ".08em",
+     "color": "#7fd6ff",
+     "textAlign": "center",
+     "background": "rgba(127,214,255,0.12)",
+     "borderRadius": "30px",
+     "border": "1px solid #7fd6ff66",
+     "padding": "8px 0"
+    },
+    "txt": "&#127916; FREE MASTERCLASS"
+   },
+   {
+    "id": "t_m_2",
+    "type": "heading",
+    "x": 130,
+    "y": 112,
+    "w": 840,
+    "h": 96,
+    "txt": "The free training that shows you exactly how it&rsquo;s done.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "40px",
+     "color": "#fff",
+     "textAlign": "center",
+     "lineHeight": "1.12",
+     "letterSpacing": "-0.5px"
+    }
+   },
+   {
+    "id": "t_m_3",
+    "type": "video",
+    "x": 290,
+    "y": 230,
+    "w": 520,
+    "h": 293,
+    "txt": "",
+    "s": {
+     "background": "rgba(255,255,255,0.05)",
+     "borderRadius": "16px",
+     "border": "1px solid rgba(255,255,255,0.12)",
+     "boxShadow": "0 10px 40px rgba(10,20,56,0.25)"
+    }
+   },
+   {
+    "id": "t_m_4",
+    "type": "text",
+    "x": 300,
+    "y": 545,
+    "w": 500,
+    "h": 80,
+    "txt": "&#10003;&nbsp; The 3-step system, start to finish<br>&#10003;&nbsp; The one mistake that kills most pages<br>&#10003;&nbsp; How to see results inside a week",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "15px",
+     "color": "#c8d6f5",
+     "textAlign": "left",
+     "lineHeight": "1.9",
+     "fontWeight": "600"
+    }
+   },
+   {
+    "id": "t_m_5",
+    "type": "button",
+    "x": 370,
+    "y": 640,
+    "w": 360,
+    "h": 58,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "18px",
+     "color": "#fff",
+     "background": "linear-gradient(135deg,#e8203f,#c8102e)",
+     "borderRadius": "12px",
+     "textAlign": "center"
+    },
+    "txt": "Watch the free training &#8594;",
+    "url": "#"
+   },
+   {
+    "id": "t_m_6",
+    "type": "text",
+    "x": 300,
+    "y": 712,
+    "w": 500,
+    "h": 22,
+    "txt": "Free &middot; No signup to watch &middot; 18 minutes",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "12px",
+     "color": "#7f90bd",
+     "textAlign": "center",
+     "fontWeight": "600"
+    }
+   }
+  ],
+  "thumbnailGradient": "linear-gradient(135deg,#0a1f52,#12388f)",
+  "description": "Free-masterclass framing &mdash; video, key takeaways, one CTA."
+ },
+ {
+  "id": "vsl-light",
+  "name": "VSL — Clean Light",
+  "category": "Sales",
+  "canvasBg": "#f6f2ea",
+  "els": [
+   {
+    "id": "t_l_1",
+    "type": "badge",
+    "x": 410,
+    "y": 60,
+    "w": 280,
+    "h": 34,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "800",
+     "fontSize": "12px",
+     "letterSpacing": ".08em",
+     "color": "#c8102e",
+     "textAlign": "center",
+     "background": "rgba(200,16,46,0.08)",
+     "borderRadius": "30px",
+     "border": "1px solid #c8102e66",
+     "padding": "8px 0"
+    },
+    "txt": "&#9654; WATCH THE DEMO"
+   },
+   {
+    "id": "t_l_2",
+    "type": "heading",
+    "x": 150,
+    "y": 116,
+    "w": 800,
+    "h": 90,
+    "txt": "See exactly how it works &mdash; in 3 minutes.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "42px",
+     "color": "#0d1a3a",
+     "textAlign": "center",
+     "lineHeight": "1.1",
+     "letterSpacing": "-1px"
+    }
+   },
+   {
+    "id": "t_l_3",
+    "type": "video",
+    "x": 290,
+    "y": 225,
+    "w": 520,
+    "h": 293,
+    "txt": "",
+    "s": {
+     "background": "#0d1a3a",
+     "borderRadius": "16px",
+     "border": "1px solid rgba(13,26,58,0.1)",
+     "boxShadow": "0 10px 40px rgba(10,20,56,0.25)"
+    }
+   },
+   {
+    "id": "t_l_4",
+    "type": "text",
+    "x": 275,
+    "y": 545,
+    "w": 550,
+    "h": 44,
+    "txt": "No jargon, no fluff &mdash; just a quick look at how it comes together, and how it can work for you.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "17px",
+     "color": "#5a6478",
+     "textAlign": "center",
+     "lineHeight": "1.5",
+     "fontWeight": "500"
+    }
+   },
+   {
+    "id": "t_l_5",
+    "type": "button",
+    "x": 370,
+    "y": 615,
+    "w": 360,
+    "h": 60,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "18px",
+     "color": "#fff",
+     "background": "linear-gradient(135deg,#e8203f,#c8102e)",
+     "borderRadius": "12px",
+     "textAlign": "center"
+    },
+    "txt": "Get started free &#8594;",
+    "url": "#"
+   },
+   {
+    "id": "t_l_6",
+    "type": "text",
+    "x": 300,
+    "y": 695,
+    "w": 500,
+    "h": 22,
+    "txt": "Free to start &middot; No card required",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "12px",
+     "color": "#8a94a6",
+     "textAlign": "center",
+     "fontWeight": "600"
+    }
+   }
+  ],
+  "thumbnailGradient": "linear-gradient(135deg,#f6f2ea,#e6dcc8)",
+  "description": "A clean, bright video sales page for a quick demo."
+ },
+ {
+  "id": "vsl-urgency",
+  "name": "VSL — Urgency",
+  "category": "Sales",
+  "canvasBg": "#12060a",
+  "els": [
+   {
+    "id": "t_u_1",
+    "type": "badge",
+    "x": 390,
+    "y": 56,
+    "w": 320,
+    "h": 34,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "800",
+     "fontSize": "12px",
+     "letterSpacing": ".08em",
+     "color": "#ff8a99",
+     "textAlign": "center",
+     "background": "rgba(255,39,67,0.16)",
+     "borderRadius": "30px",
+     "border": "1px solid #ff8a9966",
+     "padding": "8px 0"
+    },
+    "txt": "&#9200; DOORS CLOSE FRIDAY"
+   },
+   {
+    "id": "t_u_2",
+    "type": "heading",
+    "x": 150,
+    "y": 112,
+    "w": 800,
+    "h": 96,
+    "txt": "This closes Friday &mdash; watch before it&rsquo;s gone.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "42px",
+     "color": "#fff",
+     "textAlign": "center",
+     "lineHeight": "1.1",
+     "letterSpacing": "-0.5px"
+    }
+   },
+   {
+    "id": "t_u_3",
+    "type": "video",
+    "x": 290,
+    "y": 225,
+    "w": 520,
+    "h": 293,
+    "txt": "",
+    "s": {
+     "background": "rgba(255,255,255,0.05)",
+     "borderRadius": "16px",
+     "border": "1px solid rgba(255,255,255,0.12)",
+     "boxShadow": "0 10px 40px rgba(10,20,56,0.25)"
+    }
+   },
+   {
+    "id": "t_u_4",
+    "type": "text",
+    "x": 300,
+    "y": 545,
+    "w": 500,
+    "h": 30,
+    "txt": "&#128293; Only a handful of spots left at this price.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "16px",
+     "color": "#ffb3bd",
+     "textAlign": "center",
+     "fontWeight": "700"
+    }
+   },
+   {
+    "id": "t_u_5",
+    "type": "button",
+    "x": 360,
+    "y": 595,
+    "w": 380,
+    "h": 64,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "18px",
+     "color": "#fff",
+     "background": "linear-gradient(135deg,#e8203f,#c8102e)",
+     "borderRadius": "12px",
+     "textAlign": "center"
+    },
+    "txt": "Claim my spot now &#8594;",
+    "url": "#"
+   },
+   {
+    "id": "t_u_6",
+    "type": "text",
+    "x": 300,
+    "y": 680,
+    "w": 500,
+    "h": 22,
+    "txt": "Price goes up when the timer hits zero",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "12px",
+     "color": "#a06b72",
+     "textAlign": "center",
+     "fontWeight": "600"
+    }
+   }
+  ],
+  "thumbnailGradient": "linear-gradient(135deg,#12060a,#3a0f18)",
+  "description": "Scarcity-driven VSL &mdash; deadline, video, strong CTA."
+ },
+ {
+  "id": "vsl-proof",
+  "name": "VSL — Video + Proof",
+  "category": "Sales",
+  "canvasBg": "#ffffff",
+  "els": [
+   {
+    "id": "t_p_1",
+    "type": "heading",
+    "x": 150,
+    "y": 70,
+    "w": 800,
+    "h": 80,
+    "txt": "Watch this, then hear from people just like you.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "38px",
+     "color": "#0d1a3a",
+     "textAlign": "center",
+     "lineHeight": "1.12",
+     "letterSpacing": "-0.5px"
+    }
+   },
+   {
+    "id": "t_p_2",
+    "type": "video",
+    "x": 290,
+    "y": 175,
+    "w": 520,
+    "h": 293,
+    "txt": "",
+    "s": {
+     "background": "#0d1a3a",
+     "borderRadius": "16px",
+     "border": "1px solid rgba(13,26,58,0.1)",
+     "boxShadow": "0 10px 40px rgba(10,20,56,0.25)"
+    }
+   },
+   {
+    "id": "t_p_3",
+    "type": "text",
+    "x": 110,
+    "y": 500,
+    "w": 280,
+    "h": 110,
+    "txt": "<div style=\"background:#f6f2ea;border-radius:12px;padding:16px;height:100%;box-sizing:border-box\"><div style=\"color:#f0a52a\">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style=\"font-size:13px;color:#0d1a3a;margin-top:6px;line-height:1.5\">&ldquo;Watched the video, signed up, and had my page live the same day.&rdquo;</div></div>",
+    "s": {
+     "background": "transparent"
+    }
+   },
+   {
+    "id": "t_p_4",
+    "type": "text",
+    "x": 410,
+    "y": 500,
+    "w": 280,
+    "h": 110,
+    "txt": "<div style=\"background:#f6f2ea;border-radius:12px;padding:16px;height:100%;box-sizing:border-box\"><div style=\"color:#f0a52a\">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style=\"font-size:13px;color:#0d1a3a;margin-top:6px;line-height:1.5\">&ldquo;Everything he shows in the video actually works. No fluff.&rdquo;</div></div>",
+    "s": {
+     "background": "transparent"
+    }
+   },
+   {
+    "id": "t_p_5",
+    "type": "text",
+    "x": 710,
+    "y": 500,
+    "w": 280,
+    "h": 110,
+    "txt": "<div style=\"background:#f6f2ea;border-radius:12px;padding:16px;height:100%;box-sizing:border-box\"><div style=\"color:#f0a52a\">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style=\"font-size:13px;color:#0d1a3a;margin-top:6px;line-height:1.5\">&ldquo;Best 5 minutes I&rsquo;ve spent. Wish I&rsquo;d found this sooner.&rdquo;</div></div>",
+    "s": {
+     "background": "transparent"
+    }
+   },
+   {
+    "id": "t_p_6",
+    "type": "button",
+    "x": 370,
+    "y": 645,
+    "w": 360,
+    "h": 58,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "18px",
+     "color": "#fff",
+     "background": "linear-gradient(135deg,#e8203f,#c8102e)",
+     "borderRadius": "12px",
+     "textAlign": "center"
+    },
+    "txt": "Start free today &#8594;",
+    "url": "#"
+   }
+  ],
+  "thumbnailGradient": "linear-gradient(135deg,#ffffff,#eef2f8)",
+  "description": "Video with three testimonials right underneath it."
+ },
+ {
+  "id": "vsl-longform",
+  "name": "VSL — Long-form Sales",
+  "category": "Sales",
+  "canvasBg": "#f6f2ea",
+  "els": [
+   {
+    "id": "t_lf_1",
+    "type": "badge",
+    "x": 400,
+    "y": 50,
+    "w": 300,
+    "h": 34,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "800",
+     "fontSize": "12px",
+     "letterSpacing": ".08em",
+     "color": "#c8102e",
+     "textAlign": "center",
+     "background": "rgba(200,16,46,0.08)",
+     "borderRadius": "30px",
+     "border": "1px solid #c8102e66",
+     "padding": "8px 0"
+    },
+    "txt": "&#11088; NEW TRAINING"
+   },
+   {
+    "id": "t_lf_2",
+    "type": "heading",
+    "x": 130,
+    "y": 104,
+    "w": 840,
+    "h": 96,
+    "txt": "Everything you need to get leads &mdash; explained in one video.",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "40px",
+     "color": "#0d1a3a",
+     "textAlign": "center",
+     "lineHeight": "1.1",
+     "letterSpacing": "-1px"
+    }
+   },
+   {
+    "id": "t_lf_3",
+    "type": "video",
+    "x": 290,
+    "y": 220,
+    "w": 520,
+    "h": 293,
+    "txt": "",
+    "s": {
+     "background": "#0d1a3a",
+     "borderRadius": "16px",
+     "border": "1px solid rgba(13,26,58,0.1)",
+     "boxShadow": "0 10px 40px rgba(10,20,56,0.25)"
+    }
+   },
+   {
+    "id": "t_lf_4",
+    "type": "text",
+    "x": 340,
+    "y": 540,
+    "w": 420,
+    "h": 130,
+    "txt": "&#10003;&nbsp; The full system, nothing held back<br>&#10003;&nbsp; Templates &amp; scripts you can copy<br>&#10003;&nbsp; A clear plan for your first 30 days<br>&#10003;&nbsp; Lifetime access &amp; updates",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "16px",
+     "color": "#0d1a3a",
+     "textAlign": "left",
+     "lineHeight": "2",
+     "fontWeight": "600"
+    }
+   },
+   {
+    "id": "t_lf_5",
+    "type": "text",
+    "x": 350,
+    "y": 685,
+    "w": 400,
+    "h": 44,
+    "txt": "<span style=\"text-decoration:line-through;color:#8a94a6;font-size:20px\">$149</span> &nbsp; <b style=\"font-size:38px;color:#0d1a3a\">$39</b>",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "textAlign": "center"
+    }
+   },
+   {
+    "id": "t_lf_6",
+    "type": "button",
+    "x": 350,
+    "y": 750,
+    "w": 400,
+    "h": 62,
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontWeight": "900",
+     "fontSize": "18px",
+     "color": "#fff",
+     "background": "linear-gradient(135deg,#e8203f,#c8102e)",
+     "borderRadius": "12px",
+     "textAlign": "center"
+    },
+    "txt": "Get instant access &#8594;",
+    "url": "#"
+   },
+   {
+    "id": "t_lf_7",
+    "type": "text",
+    "x": 300,
+    "y": 832,
+    "w": 500,
+    "h": 22,
+    "txt": "&#128179; Secure checkout &middot; 30-day money-back guarantee",
+    "s": {
+     "fontFamily": "Inter,sans-serif",
+     "fontSize": "12px",
+     "color": "#8a94a6",
+     "textAlign": "center",
+     "fontWeight": "600"
+    }
+   }
+  ],
+  "thumbnailGradient": "linear-gradient(135deg,#f6f2ea,#f3d9dd)",
+  "description": "Long-form sales page &mdash; video, benefits, price, guarantee."
+ }
+];
+
 export const LABS_TEMPLATES = [
   AL_OPTIN_TOOLKIT,
   AL_OPTIN_HOWITWORKS,
@@ -258,6 +837,7 @@ export const LABS_TEMPLATES = [
   AL_REVEAL,
   ...STARTER_BATCH_1,
   ...STARTER_BATCH_2,
+  ...STARTER_BATCH_3,
 ];
 
 // Category list — derived from templates, for filter pills in the
