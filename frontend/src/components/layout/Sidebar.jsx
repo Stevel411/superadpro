@@ -31,6 +31,7 @@ function buildNav(t, isAdmin) {
   var items = [
     // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
+    { type: 'standalone', label: t('nav.momentum', { defaultValue: 'Momentum' }), shortLabel: t('navShort.momentum', { defaultValue: 'Grow' }), icon: Zap, path: '/momentum' },
     // Command Centre standalone removed 1 Jun 2026 — now reached as
     // "Performance" inside the Business Hub (/business-hub). Page stays at
     // /command-centre.
