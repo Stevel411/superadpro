@@ -50130,15 +50130,13 @@ async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db))
     })
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
-    """Serve React SuperPages listing. Non-Pro users are redirected to /upgrade."""
+    """Retired on AdvantageLife — the Page Builder now lives at /labs/pagebuilder
+    with My Pages at /labs/pagebuilder/mine. Any old bookmark / stray link to
+    /pro/funnels redirects there instead of the retired funnels list."""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse(url="/?login=1", status_code=302)
-    if not is_pro(user):
-        return RedirectResponse(url="/upgrade", status_code=302)
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+    return RedirectResponse(url="/labs/pagebuilder/mine", status_code=302)
 
 
 @app.get("/pro/funnels/new")
