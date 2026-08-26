@@ -82671,6 +82671,7 @@ def al_tradetracker_collab_seed(request: Request, user: User = Depends(get_curre
     if not (is_admin(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
+        from .database import Collaboration
         row = db.query(Collaboration).filter(Collaboration.ref_url == "/tradetracker").first()
         if row:
             row.is_published = True
