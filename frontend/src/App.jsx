@@ -95,6 +95,7 @@ const ReferralVideo = React.lazy(() => import('./pages/ReferralVideo'));
 // @app.get("/compensation-plan") already serves the SPA shell behind
 // get_current_user, so this needs no new server route. (24 Jul 2026)
 const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
+const Momentum = React.lazy(() => import('./pages/Momentum'));
 
 // Brand Poster Generator (May 2026)
 const BrandPostersGallery = React.lazy(() => import('./pages/brand-posters/BrandPostersGallery'));
@@ -278,6 +279,7 @@ function AppRoutes() {
       <Route path="/admin/collaborations" element={<ProtectedRoute><AdminCollaborations /></ProtectedRoute>} />
       <Route path="/admin/wisdom" element={<ProtectedRoute><AdminWisdom /></ProtectedRoute>} />
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
+      <Route path="/momentum" element={<ProtectedRoute><Momentum /></ProtectedRoute>} />
       {/* AL server-rendered pages — hard navigation out of the SPA */}
       {/* Server-rendered AL pages — HardRedirect so in-app <Link>s reach them
           instead of hitting the catch-all and bouncing to the homepage. */}

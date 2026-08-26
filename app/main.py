@@ -4280,6 +4280,13 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/momentum")
+def momentum_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for the Momentum marketer dashboard."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for the Traffic Drop member dashboard."""
@@ -55933,6 +55940,146 @@ def al_momentum_seed(request: Request, user: User = Depends(get_current_user), d
   except Exception as e:
     db.rollback()
     return JSONResponse({"error": str(e)[:400]}, status_code=500)
+
+
+
+def _momentum_idea_json(i):
+    try:
+        hooks = json.loads(i.hooks) if i.hooks else []
+    except Exception:
+        hooks = []
+    return {"id": i.id, "category": i.category, "format": i.format, "title": i.title,
+            "subtitle": i.subtitle, "hooks": hooks, "caption": i.caption, "tip": i.tip,
+            "hashtags": i.hashtags, "media_url": i.media_url}
+
+
+def _momentum_day(db, uid, day_s):
+    md = db.query(MomentumDay).filter(MomentumDay.user_id == uid, MomentumDay.day == day_s).first()
+    if not md:
+        md = MomentumDay(user_id=uid, day=day_s)
+        db.add(md); db.commit()
+    return md
+
+
+@app.get("/api/al/momentum")
+def al_momentum(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The member Momentum dashboard payload: today's idea, this week's plan,
+    streak, active challenge, checklist, and the idea library."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import datetime as _dt
+    today = _dt.date.today()
+    today_s = today.isoformat()
+    monday = today - _dt.timedelta(days=today.weekday())
+
+    dailies = (db.query(MomentumIdea)
+               .filter(MomentumIdea.is_published == True, MomentumIdea.is_daily == True)  # noqa: E712
+               .order_by(MomentumIdea.sort_order, MomentumIdea.id).all())
+    today_idea = _momentum_idea_json(dailies[today.timetuple().tm_yday % len(dailies)]) if dailies else None
+
+    lib = (db.query(MomentumIdea).filter(MomentumIdea.is_published == True)  # noqa: E712
+           .order_by(MomentumIdea.sort_order, MomentumIdea.id).all())
+    library = [_momentum_idea_json(i) for i in lib]
+
+    posted_days = {r.day for r in db.query(MomentumDay)
+                   .filter(MomentumDay.user_id == user.id, MomentumDay.posted == True).all()}  # noqa: E712
+    week = []
+    for k in range(7):
+        d = monday + _dt.timedelta(days=k)
+        items = db.query(MomentumPlan).filter(
+            MomentumPlan.user_id == user.id, MomentumPlan.plan_date == d.isoformat()).all()
+        week.append({"date": d.isoformat(), "day": d.strftime("%a"), "num": d.day,
+                     "is_today": d == today, "posted": d.isoformat() in posted_days,
+                     "items": [{"id": p.id, "format": p.format, "title": p.title, "done": p.done} for p in items]})
+
+    streak = 0
+    dd = today if today_s in posted_days else today - _dt.timedelta(days=1)
+    while dd.isoformat() in posted_days:
+        streak += 1
+        dd -= _dt.timedelta(days=1)
+
+    md = db.query(MomentumDay).filter(MomentumDay.user_id == user.id, MomentumDay.day == today_s).first()
+    checklist = {"posted": bool(md and md.posted), "shared": bool(md and md.shared),
+                 "followed_up": bool(md and md.followed_up), "watched": bool(md and md.watched)}
+
+    ch = db.query(MomentumChallenge).filter(MomentumChallenge.is_active == True).order_by(MomentumChallenge.id.desc()).first()  # noqa: E712
+    challenge = None
+    if ch:
+        wk = sum(1 for k in range(7) if (monday + _dt.timedelta(days=k)).isoformat() in posted_days)
+        challenge = {"title": ch.title, "goal": ch.goal_count, "unit": ch.unit,
+                     "reward": ch.reward, "progress": min(wk, ch.goal_count)}
+
+    # ref link for the one-tap handoff (so members share their own link)
+    ref = f"https://www.advantagelife.club/ref/{user.username}" if getattr(user, "username", None) else ""
+    return {"ok": True, "today": today_idea, "library": library, "week": week,
+            "streak": streak, "checklist": checklist, "challenge": challenge, "ref_link": ref}
+
+
+@app.post("/api/al/momentum/checklist")
+async def al_momentum_checklist(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Toggle one of today's checklist items. Ticking 'posted' feeds the streak."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    field = body.get("field")
+    if field not in ("posted", "shared", "followed_up", "watched"):
+        return JSONResponse({"error": "bad field"}, status_code=400)
+    import datetime as _dt
+    today_s = _dt.date.today().isoformat()
+    md = _momentum_day(db, user.id, today_s)
+    setattr(md, field, bool(body.get("value")))
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/al/momentum/plan")
+async def al_momentum_plan_add(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Add a content item to a day in the member's plan (from the library or blank)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    date_s = (body.get("date") or "").strip()
+    if not date_s:
+        import datetime as _dt
+        date_s = _dt.date.today().isoformat()
+    idea_id = body.get("idea_id")
+    fmt = body.get("format") or "post"
+    title = body.get("title") or "Post"
+    if idea_id:
+        idea = db.query(MomentumIdea).filter(MomentumIdea.id == int(idea_id)).first()
+        if idea:
+            fmt = idea.format; title = idea.title
+    p = MomentumPlan(user_id=user.id, plan_date=date_s, idea_id=(int(idea_id) if idea_id else None),
+                     format=fmt, title=title, done=False)
+    db.add(p); db.commit()
+    return {"ok": True, "id": p.id}
+
+
+@app.post("/api/al/momentum/plan/{item_id}/done")
+async def al_momentum_plan_done(item_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(MomentumPlan).filter(MomentumPlan.id == item_id, MomentumPlan.user_id == user.id).first()
+    if not p:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    p.done = not p.done
+    db.commit()
+    return {"ok": True, "done": p.done}
+
+
+@app.post("/api/al/momentum/plan/{item_id}/delete")
+async def al_momentum_plan_delete(item_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db.query(MomentumPlan).filter(MomentumPlan.id == item_id, MomentumPlan.user_id == user.id).delete()
+    db.commit()
+    return {"ok": True}
 
 
 @app.get("/api/al/activity-feed")
