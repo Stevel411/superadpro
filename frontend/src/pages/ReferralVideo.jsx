@@ -13,7 +13,7 @@
 // Every figure below is from code, not memory:
 //   $100 join + 7-day full refund ... stripe_service REFUND_SHARES al_lifetime
 //   pack prices and view targets .... campaign_packs (level IS the $ price)
-//   3/6/9 pass-up + infinite chains . passup_engine (verified by execution)
+//   6/9/11 pass-up + 3rd = company fee + infinite chains . passup_engine (verified by execution)
 //   three earning gates ............. al_engine.py:190 folds payable() into
 //                                     the qualification check, so a member
 //                                     with no payout method is skipped
@@ -38,8 +38,9 @@ const PACKS = [
   ['$1,000', 'Champion', '120,000 views'],
 ];
 
-const SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const CHAIN_AT = { 3: 1, 6: 2, 9: 3 };
+const SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const CHAIN_AT = { 6: 1, 9: 2, 11: 3 };
+const FEE_AT = 3;
 
 export default function ReferralVideo() {
   const { username } = useParams();
@@ -162,12 +163,12 @@ export default function ReferralVideo() {
             </p>
             <div className="rv-strip">
               {SLOTS.map((n) => (
-                <div className={'rv-slot' + (CHAIN_AT[n] ? ' up' : '')} key={n}>
+                <div className={'rv-slot' + (CHAIN_AT[n] ? ' up' : (n === FEE_AT ? ' fee' : ''))} key={n}>
                   <div className="rv-n2">{n}</div>
-                  <div className="rv-t2">{CHAIN_AT[n] ? 'Chain ' + CHAIN_AT[n] : 'Yours'}</div>
+                  <div className="rv-t2">{CHAIN_AT[n] ? 'Chain ' + CHAIN_AT[n] : (n === FEE_AT ? 'Fee' : 'Yours')}</div>
                 </div>
               ))}
-              <div className="rv-tail">10 onward &mdash; all yours</div>
+              <div className="rv-tail">12 onward &mdash; all yours</div>
             </div>
             <a className="rv-plink" href="/plan">See the full plan &rarr;</a>
           </div>
@@ -416,6 +417,7 @@ const styles = `
 .rv-slot{width:52px;border-radius:9px;padding:10px 0 8px;text-align:center;background:rgba(255,255,255,.09);
   border:1.5px solid rgba(255,255,255,.2)}
 .rv-slot.up{background:#c8102e;border-color:#c8102e}
+.rv-slot.fee{background:#c8862a;border-color:#c8862a}
 .rv-n2{font-size:16px;font-weight:900;line-height:1}
 .rv-t2{font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:5px;opacity:.72}
 .rv-tail{font-size:13px;font-weight:800;color:#fff;padding-left:8px}
