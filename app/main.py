@@ -55859,78 +55859,80 @@ def al_activity_events_audit(request: Request, user: User = Depends(get_current_
 
 @app.get("/admin/api/al/momentum-seed")
 def al_momentum_seed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Secret-gated: seed the Momentum starter content (ideas + a challenge) if
-    empty, and report table counts. Safe to re-run — only seeds when empty."""
+    """Secret-gated: ensure the Momentum tables exist (defensive, sidesteps
+    SKIP_MIGRATIONS), seed starter content if empty, and report counts."""
     secret = request.query_params.get("secret", "")
     _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
     if not (is_admin(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
-    seeded = 0
-    if db.query(MomentumChallenge).count() == 0:
-        db.add(MomentumChallenge(title="Post 5 days this week", goal_count=5, unit="days",
-                                 reward="Consistency badge", is_active=True))
-    if db.query(MomentumIdea).count() == 0:
-        IDEAS = [
-            dict(category="story", format="reel", is_daily=True, sort_order=1,
-                 title="Share your \u201cwhy\u201d",
-                 subtitle="The single most powerful post you can make. People don\u2019t join platforms \u2014 they join people they relate to. Talk to camera for 30 seconds about the moment you decided things had to change.",
-                 hooks=json.dumps(["I got tired of trading my hours for someone else\u2019s dream.",
-                                   "Nobody is coming to save your finances. So I stopped waiting.",
-                                   "Six months ago I almost didn\u2019t start. Here\u2019s what changed."]),
-                 caption="I got tired of trading my hours for someone else\u2019s dream. \ud83d\udcad\n\nSo I started building something of my own \u2014 a few minutes a day, no boss, no ceiling. AdvantageLife is free to join and every sale is paid straight to me, member to member.\n\nIf you\u2019ve been waiting for a sign, this is it. Link\u2019s in my bio. \ud83d\udc47",
-                 tip="A face + a real feeling beats a polished ad every time. Don\u2019t script it word-for-word \u2014 glance at the caption, then say it like you\u2019d tell a friend.",
-                 hashtags="#sidehustle #financialfreedom #advantagelife"),
-            dict(category="story", format="reel", sort_order=2, title="Where I started vs. now",
-                 subtitle="A simple before/after of your mindset or situation. Vulnerable and relatable \u2014 the algorithm loves it.",
-                 hooks=json.dumps(["This was me a year ago. Swipe to see the shift.",
-                                   "Same person. Completely different mindset. Here\u2019s what moved."]),
-                 caption="A year ago I was refreshing my bank app and hoping. Today I\u2019m building something that pays me directly. Not overnight \u2014 just a few minutes a day, done consistently. Free to start. \ud83d\udc47",
-                 tip="Contrast is the hook. The gap between \u2018then\u2019 and \u2018now\u2019 is what makes people stop.",
-                 hashtags="#transformation #sidehustle #advantagelife"),
-            dict(category="proof", format="story", sort_order=3, title="Someone just watched my ad",
-                 subtitle="Screenshot your campaign views ticking up. Real activity is the most convincing proof there is.",
-                 hooks=json.dumps(["Real people are watching my ad right now. \ud83d\udc40",
-                                   "This is what \u2018real views\u2019 actually looks like."]),
-                 caption="Real members watching my ad \u2014 not bots, not impressions. This is what advertising that actually gets watched looks like. Want your own running? Link in bio.",
-                 tip="Proof beats promises. A live number is more persuasive than any claim you could make.",
-                 hashtags="#proof #advantagelife"),
-            dict(category="teach", format="carousel", sort_order=4, title="What \u2018paid member-to-member\u2019 means",
-                 subtitle="Explain the one thing that makes AL different \u2014 no company skimming the middle. Educate, don\u2019t sell.",
-                 hooks=json.dumps(["\u2018Paid member to member\u2019 \u2014 what that actually means \ud83d\udc47",
-                                   "Most platforms take a cut. This one doesn\u2019t. Here\u2019s how."]),
-                 caption="On most platforms, the company takes the middle. Here, every sale is paid straight from one member to the next \u2014 wallet to wallet. That\u2019s the whole idea. Swipe to see how it works.",
-                 tip="Teaching builds trust. When you explain instead of sell, people lower their guard.",
-                 hashtags="#howitworks #advantagelife"),
-            dict(category="offer", format="post", sort_order=5, title="You can start for the price of a coffee",
-                 subtitle="The $5 Test Pack angle. Low-risk, curiosity-driven \u2014 perfect for fence-sitters.",
-                 hooks=json.dumps(["You can test the whole thing for $5. That\u2019s it.",
-                                   "The price of a coffee to see if this is for you."]),
-                 caption="You don\u2019t have to go all in. $5 puts a real ad live, gets you real views, and lets you see the whole platform work \u2014 for the price of a coffee. If it\u2019s not for you, you\u2019ve lost a fiver. If it is\u2026 \ud83d\ude80",
-                 tip="Low risk kills hesitation. \u2018Price of a coffee\u2019 makes the number feel like nothing.",
-                 hashtags="#startsmall #advantagelife"),
-            dict(category="story", format="reel", sort_order=6, title="The moment I decided",
-                 subtitle="The specific day something clicked. Specificity makes it believable and makes people see themselves in it.",
-                 hooks=json.dumps(["The exact moment I decided enough was enough.",
-                                   "It was an ordinary Tuesday when everything changed."]),
-                 caption="It wasn\u2019t some big dramatic moment. Just a quiet decision that I wasn\u2019t going to keep waiting for \u2018someday\u2019. Started small, stayed consistent, and here we are. Your moment can be today. \ud83d\udc47",
-                 tip="Specific beats general. A real day, a real feeling \u2014 that\u2019s what makes people believe you.",
-                 hashtags="#mystory #advantagelife"),
-            dict(category="proof", format="story", sort_order=7, title="My daily 5-minute routine",
-                 subtitle="Show your watch + share habit. Makes it feel doable \u2014 the #1 objection is \u2018I don\u2019t have time\u2019.",
-                 hooks=json.dumps(["My entire daily routine takes 5 minutes. Here it is.",
-                                   "\u2018I don\u2019t have time\u2019 \u2014 watch this."]),
-                 caption="This is my whole daily routine: do my watch, share my link, follow up anyone who replied. Five minutes. That\u2019s the \u2018work\u2019. Consistency is the only secret. \u23f1\ufe0f",
-                 tip="Kill the \u2018no time\u2019 objection by showing how little it takes. Doable beats impressive.",
-                 hashtags="#routine #advantagelife"),
-        ]
-        for it in IDEAS:
-            db.add(MomentumIdea(**it)); seeded += 1
-    db.commit()
-    return {"ok": True, "seeded_ideas": seeded,
-            "counts": {"ideas": db.query(MomentumIdea).count(),
-                       "challenges": db.query(MomentumChallenge).count(),
-                       "plan_rows": db.query(MomentumPlan).count(),
-                       "day_rows": db.query(MomentumDay).count()}}
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_ideas (id SERIAL PRIMARY KEY, category VARCHAR DEFAULT 'story', format VARCHAR DEFAULT 'reel', title VARCHAR NOT NULL, subtitle TEXT, hooks TEXT, caption TEXT, tip TEXT, hashtags VARCHAR, media_url VARCHAR, is_daily BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_challenges (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, goal_count INTEGER DEFAULT 5, unit VARCHAR DEFAULT 'days', reward VARCHAR, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_plan (id SERIAL PRIMARY KEY, user_id INTEGER, plan_date VARCHAR, idea_id INTEGER, format VARCHAR DEFAULT 'post', title VARCHAR, done BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_days (id SERIAL PRIMARY KEY, user_id INTEGER, day VARCHAR, posted BOOLEAN DEFAULT FALSE, shared BOOLEAN DEFAULT FALSE, followed_up BOOLEAN DEFAULT FALSE, watched BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.commit()
+        seeded = 0
+        if db.query(MomentumChallenge).count() == 0:
+            db.add(MomentumChallenge(title="Post 5 days this week", goal_count=5, unit="days",
+                                     reward="Consistency badge", is_active=True))
+        if db.query(MomentumIdea).count() == 0:
+            IDEAS = [
+                dict(category="story", format="reel", is_daily=True, sort_order=1,
+                     title="Share your \u201cwhy\u201d",
+                     subtitle="The single most powerful post you can make. People don\u2019t join platforms \u2014 they join people they relate to. Talk to camera for 30 seconds about the moment you decided things had to change.",
+                     hooks=json.dumps(["I got tired of trading my hours for someone else\u2019s dream.",
+                                       "Nobody is coming to save your finances. So I stopped waiting.",
+                                       "Six months ago I almost didn\u2019t start. Here\u2019s what changed."]),
+                     caption="I got tired of trading my hours for someone else\u2019s dream. \ud83d\udcad\n\nSo I started building something of my own \u2014 a few minutes a day, no boss, no ceiling. AdvantageLife is free to join and every sale is paid straight to me, member to member.\n\nIf you\u2019ve been waiting for a sign, this is it. Link\u2019s in my bio. \ud83d\udc47",
+                     tip="A face + a real feeling beats a polished ad every time. Don\u2019t script it word-for-word \u2014 glance at the caption, then say it like you\u2019d tell a friend.",
+                     hashtags="#sidehustle #financialfreedom #advantagelife"),
+                dict(category="story", format="reel", sort_order=2, title="Where I started vs. now",
+                     subtitle="A simple before/after of your mindset or situation. Vulnerable and relatable \u2014 the algorithm loves it.",
+                     hooks=json.dumps(["This was me a year ago. Swipe to see the shift.", "Same person. Completely different mindset."]),
+                     caption="A year ago I was refreshing my bank app and hoping. Today I\u2019m building something that pays me directly. Not overnight \u2014 just a few minutes a day, done consistently. Free to start. \ud83d\udc47",
+                     tip="Contrast is the hook. The gap between \u2018then\u2019 and \u2018now\u2019 is what makes people stop.",
+                     hashtags="#transformation #sidehustle #advantagelife"),
+                dict(category="proof", format="story", sort_order=3, title="Someone just watched my ad",
+                     subtitle="Screenshot your campaign views ticking up. Real activity is the most convincing proof there is.",
+                     hooks=json.dumps(["Real people are watching my ad right now. \ud83d\udc40", "This is what \u2018real views\u2019 actually looks like."]),
+                     caption="Real members watching my ad \u2014 not bots, not impressions. This is what advertising that actually gets watched looks like. Want your own running? Link in bio.",
+                     tip="Proof beats promises. A live number is more persuasive than any claim you could make.",
+                     hashtags="#proof #advantagelife"),
+                dict(category="teach", format="carousel", sort_order=4, title="What \u2018paid member-to-member\u2019 means",
+                     subtitle="Explain the one thing that makes AL different \u2014 no company skimming the middle. Educate, don\u2019t sell.",
+                     hooks=json.dumps(["\u2018Paid member to member\u2019 \u2014 what that actually means \ud83d\udc47", "Most platforms take a cut. This one doesn\u2019t."]),
+                     caption="On most platforms, the company takes the middle. Here, every sale is paid straight from one member to the next \u2014 wallet to wallet. That\u2019s the whole idea. Swipe to see how it works.",
+                     tip="Teaching builds trust. When you explain instead of sell, people lower their guard.",
+                     hashtags="#howitworks #advantagelife"),
+                dict(category="offer", format="post", sort_order=5, title="You can start for the price of a coffee",
+                     subtitle="The $5 Test Pack angle. Low-risk, curiosity-driven \u2014 perfect for fence-sitters.",
+                     hooks=json.dumps(["You can test the whole thing for $5. That\u2019s it.", "The price of a coffee to see if this is for you."]),
+                     caption="You don\u2019t have to go all in. $5 puts a real ad live, gets you real views, and lets you see the whole platform work \u2014 for the price of a coffee. \ud83d\ude80",
+                     tip="Low risk kills hesitation. \u2018Price of a coffee\u2019 makes the number feel like nothing.",
+                     hashtags="#startsmall #advantagelife"),
+                dict(category="story", format="reel", sort_order=6, title="The moment I decided",
+                     subtitle="The specific day something clicked. Specificity makes it believable and makes people see themselves in it.",
+                     hooks=json.dumps(["The exact moment I decided enough was enough.", "It was an ordinary Tuesday when everything changed."]),
+                     caption="It wasn\u2019t some big dramatic moment. Just a quiet decision that I wasn\u2019t going to keep waiting for \u2018someday\u2019. Started small, stayed consistent, and here we are. \ud83d\udc47",
+                     tip="Specific beats general. A real day, a real feeling \u2014 that\u2019s what makes people believe you.",
+                     hashtags="#mystory #advantagelife"),
+                dict(category="proof", format="story", sort_order=7, title="My daily 5-minute routine",
+                     subtitle="Show your watch + share habit. Makes it feel doable \u2014 the #1 objection is \u2018I don\u2019t have time\u2019.",
+                     hooks=json.dumps(["My entire daily routine takes 5 minutes. Here it is.", "\u2018I don\u2019t have time\u2019 \u2014 watch this."]),
+                     caption="This is my whole daily routine: do my watch, share my link, follow up anyone who replied. Five minutes. Consistency is the only secret. \u23f1\ufe0f",
+                     tip="Kill the \u2018no time\u2019 objection by showing how little it takes. Doable beats impressive.",
+                     hashtags="#routine #advantagelife"),
+            ]
+            for it in IDEAS:
+                db.add(MomentumIdea(**it)); seeded += 1
+        db.commit()
+        return {"ok": True, "seeded_ideas": seeded,
+                "counts": {"ideas": db.query(MomentumIdea).count(),
+                           "challenges": db.query(MomentumChallenge).count()}}
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)[:400]}, status_code=500)
 
 
 @app.get("/api/al/activity-feed")
