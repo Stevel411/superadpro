@@ -277,7 +277,10 @@ export default function exportHTML(els, canvasBg, canvasBgImage, typography, scr
         }
       }
     } else if (el.type === 'video' && !el.txt?.trim()) {
-      // Skip empty video placeholders
+      // Visible placeholder so the video area is obvious (a red play button
+      // + label pill, readable on any background). Replaced when the member
+      // adds a YouTube/Vimeo link or uploads an MP4.
+      h += `<div ${elAttrs} style="${st};display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden"><div style="width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#e8203f,#c8102e);display:flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 8px 24px rgba(200,16,46,0.35)"><div style="width:0;height:0;border-left:22px solid #fff;border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:6px"></div></div><div style="background:rgba(13,26,58,0.55);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:Inter,sans-serif;letter-spacing:0.02em">Your video goes here</div></div>`;
     } else if (el.type === 'image' && el.txt) {
       // _imageAlt + _imageFit added Phase 2C. Both have safe defaults
       // for older images (empty alt, cover fit) so retro-compat is
