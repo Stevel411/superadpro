@@ -4287,6 +4287,19 @@ def momentum_page(request: Request, user: User = Depends(get_current_user)):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/tradetracker")
+def tradetracker_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve the AL-reskinned TradeTracker Pro tool. Phase 1: gated behind login
+    (subscription gating comes in a later phase). Standalone HTML, data client-side."""
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    _tt = os.path.join(os.path.dirname(__file__), "tradetracker", "index.html")
+    try:
+        with open(_tt, encoding="utf-8") as _f:
+            return HTMLResponse(_f.read())
+    except Exception:
+        return RedirectResponse(url="/dashboard", status_code=302)
+
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for the Traffic Drop member dashboard."""
