@@ -56,6 +56,8 @@ const CSS = `
 .mmwrap .abtn.copy,.mmwrap .abtn.save{background:#eef3ff;color:var(--navy2);border:1.5px solid #d3ddf5}
 .mmwrap .abtn.copy.ok{background:rgba(23,163,74,.12);color:var(--green);border-color:rgba(23,163,74,.3)}
 .mmwrap .abtn.share{background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff}
+.mmwrap .abtn.ig{background:linear-gradient(135deg,#f9508c,#c8367f);color:#fff}
+.mmwrap .abtn.fb{background:linear-gradient(135deg,#1a6dff,#1250c8);color:#fff}
 .mmwrap .sharenote{font-size:12px;color:var(--muted);font-weight:600;line-height:1.45;margin-top:10px}
 .mmwrap .sharenote b{color:var(--navy2)}
 .mmwrap .tip{margin-top:15px;background:rgba(240,165,42,.1);border:1px solid rgba(240,165,42,.3);border-radius:11px;padding:11px 14px;font-size:12.5px;font-weight:600;color:#8a5a09;line-height:1.45}
@@ -125,6 +127,9 @@ export default function Momentum() {
     try { navigator.clipboard.writeText(fullCaption); } catch (e) { /* older browsers */ }
     setCopied(true); setTimeout(() => setCopied(false), 1800);
   };
+  const isMobile = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(navigator.userAgent || '');
+  const openApp = (url) => { copyCaption(); window.open(url, '_blank', 'noopener'); };
+  const fbUrl = (data.ref_link) ? ('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(data.ref_link)) : 'https://www.facebook.com';
   const sharePost = async () => {
     const shareData = { text: fullCaption };
     if (data.ref_link) shareData.url = data.ref_link;
@@ -211,9 +216,16 @@ export default function Momentum() {
               <div className="acts">
                 <button className={'abtn copy' + (copied ? ' ok' : '')} onClick={copyCaption}>{copied ? '✓ Copied' : '📋 Copy caption'}</button>
                 {t.media_url && <a className="abtn save" href={t.media_url} download target="_blank" rel="noopener">⬇ Save the graphic</a>}
-                <button className="abtn share" onClick={sharePost}>📲 Share post →</button>
+                {isMobile
+                  ? <button className="abtn share" onClick={sharePost}>📲 Share post →</button>
+                  : <>
+                      <button className="abtn fb" onClick={() => openApp(fbUrl)}>Open Facebook →</button>
+                      <button className="abtn ig" onClick={() => openApp('https://www.instagram.com')}>Open Instagram →</button>
+                    </>}
               </div>
-              <div className="sharenote">On your phone, <b>Share post</b> sends your caption{t.media_url ? ' and graphic' : ''} straight into Facebook, Instagram, WhatsApp — whichever you pick. On a computer, tap <b>Copy caption</b>, open the app, and paste.</div>
+              <div className="sharenote">{isMobile
+                ? <>Tap <b>Share post</b> to send your caption{t.media_url ? ' and graphic' : ''} straight into Facebook, Instagram or WhatsApp — pick the app and it's filled in.</>
+                : <>On a computer you post through the website: we <b>copy your caption</b> and open the app — just paste it in (Ctrl/Cmd + V){t.media_url ? ', and drop in the graphic you saved' : ''}.</>}</div>
               {t.tip && <div className="tip">💡 <b>Why this works:</b> {t.tip}</div>}
             </div>
           </div>
