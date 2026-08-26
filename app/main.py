@@ -56082,6 +56082,153 @@ async def al_momentum_plan_delete(item_id: int, request: Request, user: User = D
     return {"ok": True}
 
 
+
+def _momentum_admin_ok(request, user):
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    return bool(is_admin(user) or (secret and secret in _secrets))
+
+
+@app.get("/api/al/momentum/admin/list")
+def al_momentum_admin_list(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    ideas = db.query(MomentumIdea).order_by(MomentumIdea.sort_order, MomentumIdea.id).all()
+    chs = db.query(MomentumChallenge).order_by(MomentumChallenge.id.desc()).all()
+    return {"ok": True,
+            "ideas": [dict(_momentum_idea_json(i), is_daily=bool(i.is_daily),
+                           is_published=bool(i.is_published), sort_order=i.sort_order) for i in ideas],
+            "challenges": [{"id": c.id, "title": c.title, "goal_count": c.goal_count, "unit": c.unit,
+                            "reward": c.reward, "is_active": bool(c.is_active)} for c in chs]}
+
+
+@app.post("/api/al/momentum/admin/idea")
+async def al_momentum_admin_idea(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        b = await request.json()
+    except Exception:
+        b = {}
+    iid = b.get("id")
+    idea = db.query(MomentumIdea).filter(MomentumIdea.id == int(iid)).first() if iid else MomentumIdea()
+    if not idea:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    idea.category = (b.get("category") or "story").strip()
+    idea.format = (b.get("format") or "reel").strip()
+    idea.title = (b.get("title") or "Untitled idea").strip()
+    idea.subtitle = b.get("subtitle") or ""
+    hooks = b.get("hooks")
+    if isinstance(hooks, list):
+        idea.hooks = json.dumps([h for h in (x.strip() for x in hooks) if h])
+    idea.caption = b.get("caption") or ""
+    idea.tip = b.get("tip") or ""
+    idea.hashtags = b.get("hashtags") or ""
+    if "media_url" in b:
+        idea.media_url = b.get("media_url") or None
+    idea.is_daily = bool(b.get("is_daily", True))
+    idea.is_published = bool(b.get("is_published", True))
+    try:
+        idea.sort_order = int(b.get("sort_order") or 0)
+    except Exception:
+        idea.sort_order = 0
+    if not iid:
+        db.add(idea)
+    db.commit()
+    return {"ok": True, "id": idea.id}
+
+
+@app.post("/api/al/momentum/admin/idea/{iid}/delete")
+async def al_momentum_admin_idea_delete(iid: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    db.query(MomentumIdea).filter(MomentumIdea.id == iid).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/al/momentum/admin/idea/{iid}/image")
+async def al_momentum_admin_idea_image(iid: int, request: Request, file: UploadFile = File(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    idea = db.query(MomentumIdea).filter(MomentumIdea.id == iid).first()
+    if not idea:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    ct = (file.content_type or "").lower()
+    if ct not in ("image/jpeg", "image/png", "image/gif", "image/webp"):
+        return JSONResponse({"error": "Only JPEG, PNG, GIF and WebP images are allowed."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
+    ext = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[ct]
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        try:
+            url = upload_image(contents, "momentum-images", ext, ct)
+        except Exception as e:
+            logger.error(f"R2 upload failed (momentum-images): {type(e).__name__}: {e}")
+            return JSONResponse({"error": "Image storage temporarily unavailable — try again shortly."}, status_code=503)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        fn = f"mom_{uuid.uuid4().hex[:12]}.{ext}"
+        with open(os.path.join(upload_dir, fn), "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{fn}"
+    idea.media_url = url
+    db.commit()
+    return {"ok": True, "url": url}
+
+
+@app.post("/api/al/momentum/admin/challenge")
+async def al_momentum_admin_challenge(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        b = await request.json()
+    except Exception:
+        b = {}
+    cid = b.get("id")
+    ch = db.query(MomentumChallenge).filter(MomentumChallenge.id == int(cid)).first() if cid else MomentumChallenge()
+    if not ch:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    ch.title = (b.get("title") or "Post 5 days this week").strip()
+    try:
+        ch.goal_count = int(b.get("goal_count") or 5)
+    except Exception:
+        ch.goal_count = 5
+    ch.unit = (b.get("unit") or "days").strip()
+    ch.reward = b.get("reward") or ""
+    active = bool(b.get("is_active", True))
+    if active:
+        # only one active challenge at a time
+        for other in db.query(MomentumChallenge).filter(MomentumChallenge.is_active == True).all():  # noqa: E712
+            if other.id != ch.id:
+                other.is_active = False
+    ch.is_active = active
+    if not cid:
+        db.add(ch)
+    db.commit()
+    return {"ok": True, "id": ch.id}
+
+
+@app.post("/api/al/momentum/admin/challenge/{cid}/delete")
+async def al_momentum_admin_challenge_delete(cid: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not _momentum_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    db.query(MomentumChallenge).filter(MomentumChallenge.id == cid).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/momentum-admin")
+def momentum_admin_page(request: Request):
+    """Serve React SPA for the Momentum admin (admin-gated client-side)."""
+    if _react_index.exists():
+        return _spa_shell()
+    return RedirectResponse(url="/", status_code=302)
+
+
 @app.get("/api/al/activity-feed")
 def api_al_activity_feed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """The live momentum feed: recent REAL events + today's stats bar. The
