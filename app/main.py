@@ -55866,12 +55866,12 @@ def al_momentum_seed(request: Request, user: User = Depends(get_current_user), d
     if not (is_admin(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        with engine.connect() as conn:
-            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_ideas (id SERIAL PRIMARY KEY, category VARCHAR DEFAULT 'story', format VARCHAR DEFAULT 'reel', title VARCHAR NOT NULL, subtitle TEXT, hooks TEXT, caption TEXT, tip TEXT, hashtags VARCHAR, media_url VARCHAR, is_daily BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
-            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_challenges (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, goal_count INTEGER DEFAULT 5, unit VARCHAR DEFAULT 'days', reward VARCHAR, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
-            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_plan (id SERIAL PRIMARY KEY, user_id INTEGER, plan_date VARCHAR, idea_id INTEGER, format VARCHAR DEFAULT 'post', title VARCHAR, done BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
-            conn.execute(text("CREATE TABLE IF NOT EXISTS momentum_days (id SERIAL PRIMARY KEY, user_id INTEGER, day VARCHAR, posted BOOLEAN DEFAULT FALSE, shared BOOLEAN DEFAULT FALSE, followed_up BOOLEAN DEFAULT FALSE, watched BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
-            conn.commit()
+        if True:
+            db.execute(text("CREATE TABLE IF NOT EXISTS momentum_ideas (id SERIAL PRIMARY KEY, category VARCHAR DEFAULT 'story', format VARCHAR DEFAULT 'reel', title VARCHAR NOT NULL, subtitle TEXT, hooks TEXT, caption TEXT, tip TEXT, hashtags VARCHAR, media_url VARCHAR, is_daily BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
+            db.execute(text("CREATE TABLE IF NOT EXISTS momentum_challenges (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, goal_count INTEGER DEFAULT 5, unit VARCHAR DEFAULT 'days', reward VARCHAR, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())"))
+            db.execute(text("CREATE TABLE IF NOT EXISTS momentum_plan (id SERIAL PRIMARY KEY, user_id INTEGER, plan_date VARCHAR, idea_id INTEGER, format VARCHAR DEFAULT 'post', title VARCHAR, done BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
+            db.execute(text("CREATE TABLE IF NOT EXISTS momentum_days (id SERIAL PRIMARY KEY, user_id INTEGER, day VARCHAR, posted BOOLEAN DEFAULT FALSE, shared BOOLEAN DEFAULT FALSE, followed_up BOOLEAN DEFAULT FALSE, watched BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
+            db.commit()
         seeded = 0
         if db.query(MomentumChallenge).count() == 0:
             db.add(MomentumChallenge(title="Post 5 days this week", goal_count=5, unit="days",
