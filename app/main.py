@@ -81398,10 +81398,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 .bar .sp{flex:1}
 .bar a{color:#aebcf0;font-size:13px;font-weight:700;text-decoration:none}
 .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
-.hero{text-align:center;padding:44px 0 22px}
+.hero{text-align:left;padding:34px 0 6px}
 .hero .k{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
-.hero h1{font-size:clamp(32px,6vw,46px);font-weight:900;letter-spacing:-1.4px;line-height:1.03;margin:12px 0}
-.hero p{font-size:16.5px;color:var(--muted);font-weight:500;max-width:600px;margin:0 auto;line-height:1.55}
+.hero h1{font-size:clamp(30px,5.5vw,44px);font-weight:900;letter-spacing:-1.6px;line-height:1.03;margin:0 0 8px}.hero h1 .g{color:var(--green)}
+.hero p{font-size:15px;color:var(--muted);font-weight:600;max-width:52ch;margin:0;line-height:1.55}
 .hero .real{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(34,194,107,.12);color:#159a52;font-weight:800;font-size:13.5px;padding:8px 16px;border-radius:30px}
 .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:26px 0 12px}
 .pk{width:240px;background:#fff;border:1.5px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 38px -26px rgba(10,31,82,.5);position:relative}.pk-top{background:linear-gradient(165deg,var(--navy),var(--navy2));color:#fff;padding:20px 18px 18px;text-align:center;position:relative}.pk-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1;text-align:center}.pk-ribbon{background:linear-gradient(120deg,#f5b73c,#d98e12);color:#3a2a05;font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:8px 0}.pk .pk-sub{font-size:10.5px;font-weight:800;color:#9af5c0;margin-top:8px;line-height:1.35}.pk.feat{box-shadow:0 24px 48px -20px rgba(217,142,18,.5),0 0 0 2.5px var(--gold)}
@@ -81437,10 +81437,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 <div class="bar"><span class="wm">Advantage<span class="life">Life</span></span><a href="/dashboard">&larr; Dashboard</a><span class="sp"></span></div>
 <div class="wrap">
   <div class="hero">
-    <div class="k">Campaign Packs</div>
-    <h1>Pick your reach.<br>Real people watch.</h1>
-    <p>Every pack is video-ad views delivered by real, logged-in members &mdash; 30 seconds or more each, not bots. Browse anytime; buy when you're ready.</p>
-    <div class="real">&check; Verified human views &middot; delivered until your target is hit</div>
+    <h1>Choose your <span class="g">campaign pack</span></h1>
+    <p>Every pack puts a real video ad in front of real members &mdash; and pays you on the same earning engine. Start small or go big.</p>
   </div>
   <div class="grid">"""
 
