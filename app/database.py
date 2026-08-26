@@ -2605,6 +2605,64 @@ _MIGRATIONS_LOCK_ID = 1885347293
 _migrations_attempted_in_process = False
 
 
+class MomentumIdea(Base):
+    """A curated content idea for the Momentum marketer dashboard. Admin-curated:
+    a hook (or several), a ready caption, a format, and a 'why this works' tip."""
+    __tablename__ = "momentum_ideas"
+    id           = Column(Integer, primary_key=True, index=True)
+    category     = Column(String, default="story")      # story/proof/teach/offer/bts
+    format       = Column(String, default="reel")        # reel/story/post/carousel
+    title        = Column(String, nullable=False)
+    subtitle     = Column(Text, nullable=True)           # the angle / description
+    hooks        = Column(Text, nullable=True)           # JSON array of hook lines
+    caption      = Column(Text, nullable=True)
+    tip          = Column(Text, nullable=True)
+    hashtags     = Column(String, nullable=True)
+    media_url    = Column(String, nullable=True)
+    is_daily     = Column(Boolean, default=True)         # eligible for the daily feature
+    sort_order   = Column(Integer, default=0)
+    is_published = Column(Boolean, default=True)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class MomentumChallenge(Base):
+    """A weekly content challenge shown on the Momentum dashboard."""
+    __tablename__ = "momentum_challenges"
+    id           = Column(Integer, primary_key=True, index=True)
+    title        = Column(String, nullable=False)        # "Post 5 days this week"
+    goal_count   = Column(Integer, default=5)
+    unit         = Column(String, default="days")         # days/posts
+    reward       = Column(String, nullable=True)          # "Consistency badge"
+    is_active    = Column(Boolean, default=True)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class MomentumPlan(Base):
+    """A member's scheduled content for a given day."""
+    __tablename__ = "momentum_plan"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, index=True)
+    plan_date    = Column(String)                         # 'YYYY-MM-DD'
+    idea_id      = Column(Integer, nullable=True)
+    format       = Column(String, default="post")
+    title        = Column(String, nullable=True)
+    done         = Column(Boolean, default=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
+class MomentumDay(Base):
+    """A member's daily momentum actions (drives the streak + checklist)."""
+    __tablename__ = "momentum_days"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, index=True)
+    day          = Column(String)                         # 'YYYY-MM-DD'
+    posted       = Column(Boolean, default=False)
+    shared       = Column(Boolean, default=False)
+    followed_up  = Column(Boolean, default=False)
+    watched      = Column(Boolean, default=False)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+
+
 def run_migrations():
     """Add any new columns that don't exist yet in the live DB.
 
@@ -2644,6 +2702,11 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS academy_courses (id SERIAL PRIMARY KEY, slug VARCHAR UNIQUE, title VARCHAR NOT NULL, category VARCHAR DEFAULT 'Getting Started', level VARCHAR DEFAULT 'Beginner', cover_color VARCHAR DEFAULT '#0a1f52', cover_color2 VARCHAR DEFAULT '#12388f', description TEXT, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS academy_lessons (id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES academy_courses(id), module_title VARCHAR DEFAULT 'Lessons', module_order INTEGER DEFAULT 0, title VARCHAR NOT NULL, takeaway VARCHAR, source_creator VARCHAR, video_url VARCHAR NOT NULL, embed_url VARCHAR, video_id VARCHAR, platform VARCHAR DEFAULT 'youtube', duration VARCHAR, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS academy_progress (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), lesson_id INTEGER REFERENCES academy_lessons(id), completed_at TIMESTAMP DEFAULT NOW())",
+        # Momentum — marketer activity dashboard (curated content + member plans)
+        "CREATE TABLE IF NOT EXISTS momentum_ideas (id SERIAL PRIMARY KEY, category VARCHAR DEFAULT 'story', format VARCHAR DEFAULT 'reel', title VARCHAR NOT NULL, subtitle TEXT, hooks TEXT, caption TEXT, tip TEXT, hashtags VARCHAR, media_url VARCHAR, is_daily BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, is_published BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS momentum_challenges (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, goal_count INTEGER DEFAULT 5, unit VARCHAR DEFAULT 'days', reward VARCHAR, is_active BOOLEAN DEFAULT TRUE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS momentum_plan (id SERIAL PRIMARY KEY, user_id INTEGER, plan_date VARCHAR, idea_id INTEGER, format VARCHAR DEFAULT 'post', title VARCHAR, done BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS momentum_days (id SERIAL PRIMARY KEY, user_id INTEGER, day VARCHAR, posted BOOLEAN DEFAULT FALSE, shared BOOLEAN DEFAULT FALSE, followed_up BOOLEAN DEFAULT FALSE, watched BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         # Banner ads — bundled with campaign packs (image or sandboxed HTML embed)
         "CREATE TABLE IF NOT EXISTS al_banner_ads (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_purchase_id INTEGER, size VARCHAR DEFAULT '728x90', width INTEGER DEFAULT 728, height INTEGER DEFAULT 90, mode VARCHAR DEFAULT 'image', image_url VARCHAR, html_code TEXT, destination_url VARCHAR, title VARCHAR, description TEXT, category VARCHAR DEFAULT 'General', status VARCHAR DEFAULT 'active', impressions INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, flash_flagged BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS al_banner_reports (id SERIAL PRIMARY KEY, banner_id INTEGER REFERENCES al_banner_ads(id), reporter_user_id INTEGER, reason VARCHAR, status VARCHAR DEFAULT 'open', created_at TIMESTAMP DEFAULT NOW())",
