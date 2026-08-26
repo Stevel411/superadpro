@@ -79905,7 +79905,7 @@ _AL_PACKS_PAGE = r"""<!DOCTYPE html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0}
-:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e}
+:root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e;--green:#2ecc71;--green2:#17a34a}
 body{font-family:'Inter',sans-serif;background:#eef2fa;color:var(--ink);min-height:100vh;padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1120px;margin:0 auto}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
@@ -79923,32 +79923,32 @@ h1{font-weight:900;font-size:46px;letter-spacing:-1.8px;line-height:1.03}h1 .r{c
 .rule .eq{font-family:'Inter',sans-serif;font-weight:800;font-size:20px;color:var(--navy);letter-spacing:-.6px;margin-bottom:6px}
 .rule .eq em{font-style:normal;color:var(--red)}
 .rule p{font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5}.rule p b{color:var(--ink)}
-.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-.pk{position:relative;border-radius:18px;padding:22px 20px 20px;text-align:center;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 14px 34px -26px rgba(10,31,82,.5);transition:transform .14s,box-shadow .14s,border-color .14s;display:flex;flex-direction:column}
+.packs{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-bottom:22px}
+.pk{position:relative;width:242px;border-radius:18px;overflow:hidden;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 18px 40px -28px rgba(10,31,82,.5);transition:transform .14s,box-shadow .14s,border-color .14s;display:flex;flex-direction:column}.pk-top{background:linear-gradient(165deg,var(--navy),var(--navy2));color:#fff;padding:22px 18px 20px;text-align:center;position:relative}.pk-body{padding:16px 16px 18px;display:flex;flex-direction:column;flex:1;text-align:center}.pk-ribbon{background:linear-gradient(120deg,#f5b73c,#d98e12);color:#3a2a05;font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:8px 0}.pk .pk-sub{font-size:10.5px;font-weight:800;color:#9af5c0;margin-top:8px;line-height:1.35}
 .pk:hover{transform:translateY(-3px);box-shadow:0 20px 44px -24px rgba(10,31,82,.55)}
-.pk .pay{font-family:'Inter',sans-serif;font-weight:900;font-size:38px;letter-spacing:-1.8px;line-height:1;color:var(--navy)}
-.pk .reach{font-size:13px;font-weight:800;color:var(--red);margin:6px 0 14px}
+.pk .pay{font-family:'Inter',sans-serif;font-weight:900;font-size:40px;letter-spacing:-1.8px;line-height:1;color:#fff}.pk .pay em{font-style:normal;color:var(--green);font-size:0.55em;vertical-align:top;position:relative;top:0.16em;margin-right:1px}
+.pk .reach{font-size:12px;font-weight:800;color:#9fb8ff;margin:8px 0 0}
 .pk .rbar{height:5px;border-radius:99px;background:#e9eefa;overflow:hidden;margin-bottom:6px}
 .pk .rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--navy2),var(--red))}
-.pk .earn{border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
-.pk .earn b{display:block;font-family:'Inter',sans-serif;font-weight:900;font-size:23px;color:var(--red);letter-spacing:-.6px;line-height:1}
+.pk .earn{padding-top:0;margin-top:0;margin-bottom:12px}
+.pk .earn b{display:block;font-family:'Inter',sans-serif;font-weight:900;font-size:22px;color:var(--green2);letter-spacing:-.6px;line-height:1}
 .pk .earn span{display:block;font-size:9.5px;font-weight:800;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
-.pk.sel{border-color:var(--red);box-shadow:0 18px 40px -20px rgba(200,16,46,.5);transform:translateY(-3px)}
-.pk.sel .pay{color:var(--red)}
+.pk.sel{border-color:var(--green);box-shadow:0 20px 44px -20px rgba(23,163,74,.55);transform:translateY(-3px)}
+.pk.sel .pay{color:#fff}
 .pk.owned,.pk.covered,.pk.running,.pk.needs{border-color:rgba(34,194,107,.55)}
 .pk.paused{border-color:rgba(240,165,42,.55)}
 .pk.covered .covnote{font-size:11.5px;font-weight:800;color:#159a52;margin-top:12px;line-height:1.4}
 .pk.running .rbar i{background:linear-gradient(90deg,#2fd07a,#159a52)}
 .flag{position:absolute;top:13px;right:13px;font-size:9.5px;font-weight:900;letter-spacing:.05em;padding:5px 11px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
-.flag.own,.flag.run,.flag.cov{background:rgba(34,194,107,.15);color:#159a52}
-.flag.now{background:rgba(200,16,46,.12);color:var(--red)}
+.flag.own,.flag.run,.flag.cov{background:rgba(46,204,113,.22);color:#9af5c0}
+.flag.now{background:rgba(255,255,255,.92);color:#c8102e}
 .flag.grace{background:rgba(200,16,46,.12);color:var(--red)}
-.flag.needs,.flag.paused{background:rgba(240,165,42,.2);color:#a86a09}
-.pk.selectable{cursor:pointer}.pk:not(.selectable){cursor:default}
+.flag.needs,.flag.paused{background:rgba(240,165,42,.28);color:#ffe0a0}
+.pk.feat{box-shadow:0 26px 52px -20px rgba(217,142,18,.55),0 0 0 2.5px #f0a52a}.pk.selectable{cursor:pointer}.pk:not(.selectable){cursor:default}
 .rbar.real{background:#e9eefa}.rbar.real i{background:linear-gradient(90deg,#2fd07a,#159a52)}
 .prog-lbl{font-size:11px;font-weight:800;color:var(--dim);margin-top:5px;margin-bottom:8px}
 .pkbtn{width:100%;border:0;border-radius:11px;padding:13px;font-family:'Inter',sans-serif;font-weight:900;font-size:14px;cursor:pointer;margin-top:14px}
-.pkbtn.buy{background:linear-gradient(135deg,#ff2743,var(--red));color:#fff}
+.pkbtn.buy{background:linear-gradient(120deg,var(--green2),var(--green));color:#fff;box-shadow:0 14px 28px -14px rgba(23,163,74,.6)}
 .pkbtn.gold{background:linear-gradient(135deg,#f0a52a,#d98e12);color:#3a2a05}
 .pkbtn.ghost{background:#eef2fa;color:#9aa6c4;border:0;cursor:not-allowed}
 .pknote{font-size:10.5px;font-weight:700;color:var(--dim);text-align:center;margin-top:8px;line-height:1.4}
@@ -80029,7 +80029,7 @@ h2{font-weight:900;font-size:27px;letter-spacing:-.9px;line-height:1.12;margin-b
   h1{font-size:27px;letter-spacing:-.9px}
   .sub{font-size:13.5px}
   .packs{gap:8px}
-  .pk{padding:14px 6px 12px;border-radius:12px}
+  .pk{border-radius:12px}.pk-top{padding:14px 8px 12px}.pk-body{padding:12px 8px 12px}
   .pk .pay{font-size:18px;letter-spacing:-1.2px}
   .pk .reach{font-size:9.5px;margin:5px 0 8px}
   .pk .rbar{height:3px;margin-bottom:9px}
@@ -80498,8 +80498,21 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
     packs.forEach(function(pk){
       var d=document.createElement('div');
       var st=pk.state||'buyable';
-      if(pk.level===5 && (st==='buyable'||st==='owned_admin')){ renderFeatured(pk); return; }
+      if(pk.level===5 && (st==='buyable'||st==='owned_admin')){
+        var f5v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
+        var f5p=Number(pk.price).toLocaleString();
+        d.className='pk feat selectable'; d.dataset.state=st;
+        d.innerHTML='<div class="pk-ribbon">\u26A1 Get started</div>'
+          +'<div class="pk-top"><div class="pay"><em>$</em>'+f5p+'</div><div class="reach">'+f5v+'</div>'
+          +'<div class="pk-sub">Test Pack \u00b7 activates instantly</div></div>'
+          +'<div class="pk-body"><div class="earn"><b>$'+f5p+'</b><span>a sale pays</span></div>'
+          +'<button class="pkbtn buy">Start for $'+f5p+' \u2192</button></div>';
+        d.onclick=function(ev){ if(ev.target.closest('[data-act]'))return; sel=pk;
+          document.querySelectorAll('.pk').forEach(function(x){x.classList.remove('sel'); var ff=x.querySelector('.flag.now'); if(ff) ff.remove();});
+          d.classList.add('sel'); startPurchase(pk); };
+        g.appendChild(d); return; }
       var _p='$'+Number(pk.price).toLocaleString();
+      var _pHtml='<em>$</em>'+Number(pk.price).toLocaleString();
       var _v=(pk.views_target>=1000?(pk.views_target/1000)+'k':pk.views_target)+' views';
       var running=(st==='running'||st==='in_grace'||st==='paused'||st==='needs_ad');
       d.className='pk'+(running?' running':'')+(st==='needs_ad'?' needs':'')+(st==='paused'?' paused':'')+(st==='in_grace'?' grace':'')+(st==='covered'?' covered':'');
@@ -80528,9 +80541,9 @@ window.addEventListener('pageshow',function(e){if(e.persisted){location.reload()
       else if(st==='paused') foot='<button class="pkbtn ghost" disabled>Paused — share to resume</button>';
       else if(st==='covered') foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div><div class="covnote">\u2713 You already earn on '+_p+' sales<br>via your $'+Number(pk.covered_by).toLocaleString()+' pack</div>';
       else foot='<div class="earn"><b>'+_p+'</b><span>a sale pays</span></div><button class="pkbtn buy">Buy this pack →</button>';
-      d.innerHTML=badge
-        +'<div class="pay">'+_p+'</div><div class="reach">'+_v+'</div>'
-        +barHtml+foot;
+      d.innerHTML='<div class="pk-top">'+badge
+        +'<div class="pay">'+_pHtml+'</div><div class="reach">'+_v+'</div></div>'
+        +'<div class="pk-body">'+barHtml+foot+'</div>';
       // only buyable (and admin) cards are selectable for a NEW purchase
       var selectable=(st==='buyable'||st==='owned_admin');
       if(selectable){
