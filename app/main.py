@@ -81403,20 +81403,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
 .hero h1{font-size:clamp(32px,6vw,46px);font-weight:900;letter-spacing:-1.4px;line-height:1.03;margin:12px 0}
 .hero p{font-size:16.5px;color:var(--muted);font-weight:500;max-width:600px;margin:0 auto;line-height:1.55}
 .hero .real{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:rgba(34,194,107,.12);color:#159a52;font-weight:800;font-size:13.5px;padding:8px 16px;border-radius:30px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin:26px 0 12px}
-.pk{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;box-shadow:0 14px 34px -26px rgba(10,31,82,.5);position:relative}
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:26px 0 12px}
+.pk{width:252px;background:#fff;border:1.5px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 38px -26px rgba(10,31,82,.5);position:relative}.pk-top{background:linear-gradient(165deg,var(--navy),var(--navy2));color:#fff;padding:20px 18px 18px;text-align:center;position:relative}.pk-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1;text-align:center}.pk-ribbon{background:linear-gradient(120deg,#f5b73c,#d98e12);color:#3a2a05;font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:8px 0}.pk .pk-sub{font-size:10.5px;font-weight:800;color:#9af5c0;margin-top:8px;line-height:1.35}.pk.feat{box-shadow:0 24px 48px -20px rgba(217,142,18,.5),0 0 0 2.5px var(--gold)}
 .pk.pop{border:2.5px solid var(--red)}
-.pk .pop-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:4px 12px;border-radius:20px}
+.pk .pop-tag{position:absolute;top:9px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;padding:3px 11px;border-radius:20px;z-index:2}.pk.pop .pk-top{padding-top:30px}
 .pk .pkstat{position:absolute;top:12px;right:12px;font-size:10px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;padding:4px 9px;border-radius:20px}
-.pk .pkstat.active{background:rgba(34,194,107,.15);color:#159a52}
-.pk .pkstat.pending{background:rgba(240,165,42,.2);color:#a86a09}
+.pk .pkstat.active{background:rgba(46,204,113,.22);color:#9af5c0}
+.pk .pkstat.pending{background:rgba(240,165,42,.28);color:#ffe0a0}
 .pk.owned{border-color:rgba(34,194,107,.5)}
-.pk .nm{font-size:15px;font-weight:800;color:var(--navy2);text-transform:uppercase;letter-spacing:.03em}
-.pk .pr{font-size:40px;font-weight:900;letter-spacing:-1.6px;color:var(--navy);margin:6px 0 2px}
-.pk .vw{font-size:14px;font-weight:800;color:var(--red)}
-.pk .vw span{color:var(--muted);font-weight:600}
+.pk .nm{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.05em}
+.pk .pr{font-size:42px;font-weight:900;letter-spacing:-1.8px;color:#fff;margin:4px 0 4px}.pk .pr em{font-style:normal;color:var(--green);font-size:.55em;vertical-align:top;position:relative;top:.16em;margin-right:1px}
+.pk .vw{font-size:12.5px;font-weight:800;color:#9fb8ff}
+.pk .vw span{color:rgba(255,255,255,.55);font-weight:600}
 .pk .ds{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5;margin:12px 0 16px;flex:1}
-.pk .buy{display:block;text-align:center;background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;font-weight:900;font-size:15px;padding:13px;border-radius:11px;text-decoration:none}
+.pk .buy{display:block;text-align:center;background:linear-gradient(120deg,#17a34a,#2ecc71);color:#fff;font-weight:900;font-size:15px;padding:13px;border-radius:11px;text-decoration:none;margin-top:auto;box-shadow:0 12px 26px -14px rgba(23,163,74,.55)}
 .flow{background:var(--navy);border-radius:24px;padding:36px 30px;margin:36px 0 50px;color:#fff}
 .flow .fk{text-align:center;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9fb4e6}
 .flow h2{text-align:center;font-size:28px;font-weight:900;letter-spacing:-.6px;margin:8px 0 6px}
@@ -81489,42 +81489,15 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
         if int(p.level or 0) == 5:
             _v5 = int(p.views_target or 0)
             feat5_html = (
-                '<style>'
-                '.feat5{grid-column:1/-1;background:#fff;border-radius:20px;overflow:hidden;'
-                'box-shadow:0 30px 64px -40px rgba(10,31,82,.45),0 0 0 1px #e6ecf5;display:flex}'
-                '.feat5 .f5l{width:158px;flex:none;background:linear-gradient(165deg,#0a1f52,#12388f);'
-                'color:#fff;padding:24px 16px;display:flex;flex-direction:column;align-items:center;'
-                'justify-content:center;text-align:center}'
-                '.feat5 .f5b{background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.5);'
-                'color:#9af5c0;border-radius:20px;padding:4px 10px;font-size:9.5px;font-weight:900;'
-                'letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}'
-                '.feat5 .f5a{font-size:78px;font-weight:900;letter-spacing:-.05em;line-height:.82;color:#fff}'
-                '.feat5 .f5a em{font-style:normal;font-size:30px;vertical-align:top;color:#2ecc71;position:relative;top:9px}'
-                '.feat5 .f5p{font-size:11px;font-weight:800;color:#9fb8ff;margin-top:6px;line-height:1.3}'
-                '.feat5 .f5r{flex:1;padding:22px 24px}'
-                '.feat5 .f5r h3{margin:0 0 5px;font-size:19px;font-weight:900;color:#0a1f52;line-height:1.15}'
-                '.feat5 .f5r p{margin:0 0 14px;font-size:13px;color:#5a6584;font-weight:600;line-height:1.45}'
-                '.feat5 .f5f{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:#28324e;margin-bottom:9px}'
-                '.feat5 .f5f b{color:#0d1230;font-weight:900}'
-                '.feat5 .f5f .i{width:22px;height:22px;border-radius:6px;background:#17a34a;color:#fff;'
-                'display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:none}'
-                '.feat5 .f5c{margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:8px;'
-                'width:100%;background:linear-gradient(120deg,#17a34a,#2ecc71);color:#fff;border-radius:13px;'
-                'padding:14px;font-size:15.5px;font-weight:900;text-decoration:none;box-shadow:0 16px 32px -14px rgba(23,163,74,.6)}'
-                '@media(max-width:560px){.feat5{flex-direction:column}.feat5 .f5l{width:100%;padding:20px}.feat5 .f5a{font-size:66px}}'
-                '</style>'
-                '<div class="feat5">'
-                '<div class="f5l"><span class="f5b">Start here</span>'
-                '<div class="f5a"><em>$</em>5</div>'
-                '<div class="f5p">Test Pack<br>activates instantly</div></div>'
-                '<div class="f5r">'
-                '<h3>See the whole platform work</h3>'
-                '<p>Put a real ad live and watch real members view it &mdash; the full experience, for the price of a coffee.</p>'
-                '<div class="f5f"><span class="i">&#9654;</span> Your own <b>video ad, live</b></div>'
-                f'<div class="f5f"><span class="i">&#10003;</span> <b>{_v5:,} real views</b> from real people</div>'
-                '<div class="f5f"><span class="i">&#9670;</span> <b>Promoted everywhere</b></div>'
-                '<div class="f5f"><span class="i">&#8593;</span> <b>Same earning engine</b> as every pack</div>'
-                '<a class="f5c" href="/packs/checkout?level=5">Start for $5 &rarr;</a>'
+                '<div class="pk feat">'
+                '<div class="pk-ribbon">&#9889; Get started</div>'
+                '<div class="pk-top">'
+                '<div class="pr"><em>$</em>5</div>'
+                f'<div class="vw">{_v5:,} <span>views</span></div>'
+                '<div class="pk-sub">Test Pack &middot; activates instantly</div></div>'
+                '<div class="pk-body">'
+                '<div class="ds">Put a real ad live and watch real members view it &mdash; the whole platform, for the price of a coffee.</div>'
+                '<a class="buy" href="/packs/checkout?level=5">Start for $5 &rarr;</a>'
                 '</div></div>'
             )
             continue
@@ -81556,11 +81529,12 @@ def al_packs_catalog(request: Request, db: Session = Depends(get_db)):
             extra_cls = ' owned'
         cls = ("pk pop" if pop else "pk") + extra_cls
         cards.append(
-            f'<div class="{cls}">{tag}{badge}<div class="nm">{p.name}</div>'
-            f'<div class="pr">${price:,}</div>'
-            f'<div class="vw">{views} <span>views</span></div>'
-            f'<div class="ds">{desc}</div>'
-            f'<a class="buy" href="/packs/checkout?level={int(p.level or 0)}">{buy} &rarr;</a></div>')
+            f'<div class="{cls}"><div class="pk-top">{tag}{badge}'
+            f'<div class="nm">{p.name}</div>'
+            f'<div class="pr"><em>$</em>{price:,}</div>'
+            f'<div class="vw">{views} <span>views</span></div></div>'
+            f'<div class="pk-body"><div class="ds">{desc}</div>'
+            f'<a class="buy" href="/packs/checkout?level={int(p.level or 0)}">{buy} &rarr;</a></div></div>')
     html = _AL_PACKS_CATALOG_HEAD + feat5_html + "".join(cards) + _AL_PACKS_CATALOG_TAIL
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
