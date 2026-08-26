@@ -82670,22 +82670,28 @@ def al_tradetracker_collab_seed(request: Request, user: User = Depends(get_curre
     _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
     if not (is_admin(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
-    row = db.query(Collaboration).filter(Collaboration.ref_url == "/tradetracker").first()
-    if row:
-        row.is_published = True
-        db.commit()
-        return {"ok": True, "already": True, "id": row.id}
-    row = Collaboration(
-        name="TradeTracker Pro", category="Tools",
-        blurb=("A complete trading journal built into AdvantageLife. Log every trade, tag your "
-               "setups and emotions, and watch your win rate, profit factor and P&L build on a "
-               "profit calendar. Plus an AI Trade Coach that reads your own trades and shows you "
-               "exactly what's costing you money \u2014 not market tips, your own patterns."),
-        steve_take="The tool I wish I'd had when I started trading. It's right here, no extra login.",
-        ref_url="/tradetracker", logo_text="TT",
-        logo_from="#0a1f52", logo_to="#12388f", sort_order=0, is_published=True)
-    db.add(row); db.commit()
-    return {"ok": True, "id": row.id}
+    try:
+        row = db.query(Collaboration).filter(Collaboration.ref_url == "/tradetracker").first()
+        if row:
+            row.is_published = True
+            db.commit()
+            return {"ok": True, "already": True, "id": row.id}
+        row = Collaboration(
+            name="TradeTracker Pro", category="Tools",
+            blurb=("A complete trading journal built into AdvantageLife. Log every trade, tag your "
+                   "setups and emotions, and watch your win rate, profit factor and P&L build on a "
+                   "profit calendar. Plus an AI Trade Coach that reads your own trades and shows you "
+                   "exactly what's costing you money \u2014 not market tips, your own patterns."),
+            steve_take="The tool I wish I'd had when I started trading. It's right here, no extra login.",
+            ref_url="/tradetracker", logo_text="TT",
+            logo_from="#0a1f52", logo_to="#12388f", sort_order=0, is_published=True)
+        db.add(row); db.commit()
+        return {"ok": True, "id": row.id}
+
+
+    except Exception as _e:
+        db.rollback()
+        return JSONResponse({"error": str(_e)[:400]}, status_code=500)
 
 
 @app.get("/api/al/collaborations/go/{collab_id}")
