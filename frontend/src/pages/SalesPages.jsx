@@ -29,12 +29,9 @@ const CSS = `
 .al .spthemes{display:flex;gap:10px;margin-top:18px}
 .al .sptheme{flex:1;border:2px solid #e7ebf6;border-radius:12px;padding:8px;cursor:pointer;text-align:center;transition:.15s;background:none}
 .al .sptheme.on{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,.12)}
-.al .spthumb{height:78px;border-radius:8px;overflow:hidden;position:relative;border:1px solid #e7ebf6}
-.al .spthumb .bar{position:absolute;left:9px;right:9px;border-radius:3px}
-.al .spthumb .h{top:12px;height:11px}.al .spthumb .s{top:29px;height:6px;right:34px}.al .spthumb .b{top:45px;height:14px;right:44px;border-radius:6px}
-.al .th-light{background:#fff}.al .th-light .h{background:#0a1f52}.al .th-light .s{background:#c8102e}.al .th-light .b{background:#c8102e}
-.al .th-dark{background:#071a3d}.al .th-dark .h{background:#eef4ff}.al .th-dark .s{background:#ff2743}.al .th-dark .b{background:#c8102e}
-.al .th-bold{background:#2a0812}.al .th-bold .h{background:#ffeef1}.al .th-bold .s{background:#ff3b57}.al .th-bold .b{background:#ff3b57}
+.al .spthumb{border-radius:9px;overflow:hidden;border:1px solid #e7ebf6;line-height:0;background:#f3f5fb}
+.al .spthumb img{width:100%;display:block;aspect-ratio:640/377;object-fit:cover;object-position:top}
+.al .sptheme.on .spthumb{border-color:rgba(200,16,46,.35)}
 .al .sptheme .nm{font-size:12px;font-weight:800;color:#0a1f52;margin-top:7px}
 .al .sptheme.on .nm{color:#c8102e}
 .al .splinkrow{display:flex;align-items:stretch;gap:8px;margin-top:16px;flex-wrap:wrap}
@@ -123,7 +120,7 @@ export default function SalesPages() {
                         className={'sptheme' + (theme === t.id ? ' on' : '')}
                         onClick={function () { setTheme(t.id); }}
                         aria-pressed={theme === t.id}>
-                  <div className={'spthumb th-' + t.id}><span className="bar h" /><span className="bar s" /><span className="bar b" /></div>
+                  <div className="spthumb"><img src={'/static/sp-thumbs/' + t.id + '.png'} alt={t.name + ' theme preview'} loading="lazy" /></div>
                   <div className="nm">{t.name}</div>
                 </button>
               );
