@@ -4288,18 +4288,49 @@ def momentum_page(request: Request, user: User = Depends(get_current_user)):
         return _spa_shell()
     return RedirectResponse(url="/", status_code=302)
 
+_TT_SYNC_SHIM = r"""<script>
+(function(){
+  var D = __TT_DATA_JSON__;
+  try {
+    if (D && typeof D === 'object') {
+      if (D.trades != null) localStorage.setItem('trades', D.trades);
+      if (D.checklist != null) localStorage.setItem('checklist', D.checklist);
+      if (D.initialBalance != null) localStorage.setItem('initialBalance', D.initialBalance);
+    }
+  } catch(e){}
+  var t; function sync(){ clearTimeout(t); t=setTimeout(function(){
+    try { fetch('/api/al/tradetracker/save',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',
+      body: JSON.stringify({ trades: localStorage.getItem('trades'), checklist: localStorage.getItem('checklist'), initialBalance: localStorage.getItem('initialBalance') })}); } catch(e){}
+  }, 1500); }
+  try {
+    var orig = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = function(k,v){ orig(k,v); if(k==='trades'||k==='checklist'||k==='initialBalance') sync(); };
+  } catch(e){}
+})();
+</script>"""
+
+
 @app.get("/tradetracker")
-def tradetracker_page(request: Request, user: User = Depends(get_current_user)):
-    """Serve the AL-reskinned TradeTracker Pro tool. Phase 1: gated behind login
-    (subscription gating comes in a later phase). Standalone HTML, data client-side."""
+def tradetracker_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Serve the AL-reskinned TradeTracker Pro tool with the member's saved data
+    injected into localStorage server-side + a sync shim (Phase 2). Gated behind login."""
     if not user:
         return RedirectResponse(url="/login", status_code=302)
     _tt = os.path.join(os.path.dirname(__file__), "tradetracker", "index.html")
     try:
         with open(_tt, encoding="utf-8") as _f:
-            return HTMLResponse(_f.read())
+            html = _f.read()
     except Exception:
         return RedirectResponse(url="/dashboard", status_code=302)
+    from .database import TradeTrackerData
+    try:
+        row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
+        _data = row.data if (row and row.data) else "{}"
+    except Exception:
+        _data = "{}"
+    _data = (_data or "{}").replace("</", "<\\/")  # prevent </script> break-out
+    html = html.replace("</head>", _TT_SYNC_SHIM.replace("__TT_DATA_JSON__", _data) + "\n</head>", 1)
+    return HTMLResponse(html)
 
 
 @app.get("/api/al/tradetracker/data")
