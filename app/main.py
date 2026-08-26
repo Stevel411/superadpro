@@ -56259,11 +56259,11 @@ def api_al_activity_feed(request: Request, user: User = Depends(get_current_user
         "share":   ("shared their showcase", "share", False),
         "milestone": (None, "milestone", False),
     }
-    # Live feed leads with momentum — joins, sales, shares, milestones.
-    # Daily-watch "qualify" events are excluded: with 600+ members they
-    # flood the feed and bury the signal (still counted in "active today").
+    # Live feed shows ALL real activity — joins, sales, shares, milestones AND
+    # daily-watch "qualify" events. Qualifies are the social proof that the
+    # platform is active, which matters most while joins/sales are still sparse
+    # (Steve's call, 26 Aug 2026 — reversed the earlier exclusion).
     rows = (db.query(ActivityEvent)
-              .filter(ActivityEvent.event_type != "qualify")
               .order_by(ActivityEvent.created_at.desc()).limit(40).all())
     events = []
     for r in rows:
