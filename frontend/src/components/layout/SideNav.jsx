@@ -10,7 +10,6 @@ export const NAV = [
   { key: 'dashboard', tk: 'nav.dashboard', label: 'Dashboard', to: '/dashboard', link: true },
   { header: 'GET STARTED', tk: 'nav.grpGetStarted' },
   { key: 'start', tk: 'nav.startHere', label: 'Start Here', to: '/start-here', link: true, big: true },
-  { key: 'momentum', tk: 'nav.momentum', label: 'Momentum', to: '/momentum', link: true, big: true },
   { key: 'packs', tk: 'nav.campaignPacks', label: 'Campaign Packs', to: '/packs', link: false },
   { key: 'campaigns', tk: 'nav.myCampaigns', label: 'My Campaigns', to: '/campaigns', link: true, children: [
     { tk: 'nav.viewCampaigns', label: 'View campaigns', to: '/campaigns' },
@@ -26,6 +25,7 @@ export const NAV = [
   { key: 'team', tk: 'nav.myTeam', label: 'My Team', to: '/my-team', link: true },
   { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', to: '/ai-tools', link: true },
   { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', to: '/my-marketing', link: true },
+  { key: 'content-planner', tk: 'nav.contentPlanner', label: 'Content Planner', to: '/momentum', link: true },
   { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true },
   { key: 'banner-showcase', tk: 'nav.bannerShowcase', label: 'Banner Showcase', to: '/discover', link: false },
   { key: 'traffic', tk: 'nav.yourTraffic', label: 'Your Traffic', to: '/my-traffic', link: true },

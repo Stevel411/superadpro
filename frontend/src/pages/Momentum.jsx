@@ -171,7 +171,7 @@ export default function Momentum() {
         <div className="hero">
           <div className="hl">
             <div className="hk">AdvantageLife · Build your business</div>
-            <h1>Your <span className="g">Momentum</span> plan</h1>
+            <h1>Your <span className="g">content</span> planner</h1>
             <p>Post something today. We'll tell you what, write it for you, and keep you on a roll — because members who post are the ones who sell.</p>
           </div>
           <div className="streak">

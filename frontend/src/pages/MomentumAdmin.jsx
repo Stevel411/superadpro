@@ -81,7 +81,7 @@ export default function MomentumAdmin() {
     <div className="mma">
       <style>{CSS}</style>
       <div className="top">
-        <div><h1>Momentum <span className="r">admin</span></h1></div>
+        <div><h1>Content Planner <span className="r">admin</span></h1></div>
         <a className="back" href="/momentum">← View dashboard</a>
       </div>
       <div className="sub">Manage the content library members see. Changes are live immediately. Ideas marked "daily" rotate through the "Today's post" slot.</div>

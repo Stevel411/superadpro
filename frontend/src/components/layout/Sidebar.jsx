@@ -31,7 +31,6 @@ function buildNav(t, isAdmin) {
   var items = [
     // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
-    { type: 'standalone', label: t('nav.momentum', { defaultValue: 'Momentum' }), shortLabel: t('navShort.momentum', { defaultValue: 'Grow' }), icon: Zap, path: '/momentum' },
     // Command Centre standalone removed 1 Jun 2026 — now reached as
     // "Performance" inside the Business Hub (/business-hub). Page stays at
     // /command-centre.
@@ -46,6 +45,7 @@ function buildNav(t, isAdmin) {
     // live on the hub page only, so they're intentionally not listed here.
     { type: 'group', label: t('nav.myMarketing', { defaultValue: 'My Marketing' }), shortLabel: t('navShort.myMarketing', { defaultValue: 'Market' }), key: 'mymarketing', icon: Megaphone, items: [
       { label: t('nav.myMarketingHub', { defaultValue: 'My Marketing Hub' }), shortLabel: t('navShort.myMarketingHub', { defaultValue: 'Hub' }), icon: Megaphone, path: '/my-marketing' },
+      { label: t('nav.contentPlanner', { defaultValue: 'Content Planner' }), shortLabel: t('navShort.contentPlanner', { defaultValue: 'Planner' }), icon: Zap, path: '/momentum' },
       { label: t('nav.affiliateLink', { defaultValue: 'Affiliate Link & Social Share' }), shortLabel: t('navShort.affiliateLink', { defaultValue: 'Link' }), icon: Share2, path: '/social-share' },
       { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/plan', external: true },
       { label: t('nav.brandPosters', { defaultValue: 'Brand Posters' }), shortLabel: t('navShort.brandPosters', { defaultValue: 'Posters' }), icon: Sparkles, path: '/brand-posters', basic: true },
