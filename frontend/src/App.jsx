@@ -378,8 +378,8 @@ function AppRoutes() {
       <Route path="/help/custom-domain" element={<ProtectedRoute><HelpCustomDomain /></ProtectedRoute>} />
       <Route path="/sending-domains" element={<ProtectedRoute><SendingDomains /></ProtectedRoute>} />
       <Route path="/help/sending-domain" element={<ProtectedRoute><HelpSendingDomain /></ProtectedRoute>} />
-      <Route path="/labs/pagebuilder/preview-templates" element={<ProtectedRoute><LabsTemplatesPreview /></ProtectedRoute>} />
-      <Route path="/labs/pagebuilder/sandbox" element={<ProtectedRoute><LabsSandboxList /></ProtectedRoute>} />
+      <Route path="/labs/pagebuilder/preview-templates" element={<Navigate to="/labs/pagebuilder" replace />} />
+      <Route path="/labs/pagebuilder/sandbox" element={<Navigate to="/labs/pagebuilder" replace />} />
       <Route path="/labs/pagebuilder/sandbox/edit/:sandboxId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/labs/pagebuilder/edit/:pageId" element={<ProtectedRoute><LabsSuperPagesEditor /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
@@ -393,7 +393,7 @@ function AppRoutes() {
       <Route path="/admin/showcase" element={<ProtectedRoute><AdminShowcase /></ProtectedRoute>} />
       <Route path="/admin/orphans" element={<ProtectedRoute><AdminOrphans /></ProtectedRoute>} />
       <Route path="/admin/email-broadcast" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f8fafc',color:'#0ea5e9',fontFamily:'DM Sans,sans-serif'}}>{'Loading Email Broadcast…'}</div>}><AdminEmailBroadcast /></React.Suspense></ProtectedRoute>} />
-      <Route path="/pro/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
+      <Route path="/pro/funnels" element={<Navigate to="/labs/pagebuilder/mine" replace />} />
       <Route path="/funnels" element={<ProtectedRoute><RequireTier tier="pro"><Funnels /></RequireTier></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><RequireTier tier="pro"><LabsSuperPagesEditor /></RequireTier></ProtectedRoute>} />
       <Route path="/superdeck" element={<Navigate to="/tools" replace />} />

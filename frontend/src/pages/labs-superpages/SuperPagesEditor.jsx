@@ -464,7 +464,7 @@ export default function LabsSuperPagesEditor() {
       showToast('Add at least one element before publishing');
       return;
     }
-    if (!confirm('Publish this sandbox page to a live URL?\n\nThis creates a real funnel page in your /pro/funnels list AND publishes it live so you can test the working URL. The sandbox version stays in Labs so you can keep iterating.')) {
+    if (!confirm('Publish this sandbox page to a live URL?\n\nThis creates a real page in your My Pages list AND publishes it live so you can test the working URL. The sandbox version stays here so you can keep iterating.')) {
       return;
     }
     setSaving(true);
@@ -491,12 +491,12 @@ export default function LabsSuperPagesEditor() {
           window.open(liveUrl, '_blank', 'noopener,noreferrer');
           showToast('✓ Published — live page opening in new tab');
         } else {
-          showToast('✓ Published — opening in /pro/funnels');
+          showToast('✓ Published — opening in My Pages');
         }
         // Also navigate the current tab to /pro/funnels after a delay
         // so the member has the page in their funnel manager too
         setTimeout(() => {
-          navigate('/pro/funnels');
+          navigate('/labs/pagebuilder/mine');
         }, 1800);
       } else {
         showToast('Publish failed: ' + (res.error || 'unknown'));

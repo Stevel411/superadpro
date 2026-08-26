@@ -23,7 +23,7 @@ export default function ToolKitPage() {
           <div className="feat">Featured &middot; Page Builder</div>
           <h2>Build landing pages that convert</h2>
           <p>Drag-and-drop pages, funnels and opt-ins — no code, fully branded, live in minutes. Your front door to every campaign.</p>
-          <Link className="cta" to="/pro/funnels">Open Page Builder &nbsp;&rarr;</Link>
+          <Link className="cta" to="/labs/pagebuilder">Open Page Builder &nbsp;&rarr;</Link>
         </div>
         <div className="hr">
           <div className="prev">
