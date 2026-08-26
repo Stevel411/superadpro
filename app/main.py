@@ -80968,7 +80968,7 @@ _AL_SALES_PAGE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red-lt:#ff5a70;--ink:#0d1230;--dim:#5a6584;--line:#e3e8f4;--grn:#0b7a3e;--mono:'JetBrains Mono',monospace}
-body{font-family:'Inter',sans-serif;background:#fff;color:var(--ink);padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',sans-serif;background:#eef2fa;color:var(--ink);padding:22px 20px 90px;-webkit-font-smoothing:antialiased}
 .wrap{max-width:860px;margin:0 auto}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
 .backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);text-decoration:none;font-size:13px;font-weight:700}
@@ -80986,6 +80986,15 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
 .sum .s.up .n{color:#fff}.sum .s.up .l{color:#ffe0e5}
 .sum .s.keep{background:linear-gradient(150deg,#08381f,#0a6836);border-color:#08381f}
 .sum .s.keep .n{color:#fff}.sum .s.keep .l{color:#a9e3c2}
+.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#0a1f52,#12388f 62%,#1a49b0);border-radius:22px;padding:30px 32px 28px;color:#fff;margin:8px 0 4px;box-shadow:0 24px 54px -30px rgba(18,56,143,.7)}
+.hero::after{content:'';position:absolute;top:-70px;right:-40px;width:280px;height:300px;background:radial-gradient(circle,rgba(200,16,46,.4),transparent 68%);pointer-events:none}
+.hero .hk{font-size:11.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8ea6e8;position:relative}
+.hero h1{color:#fff;margin-top:9px;position:relative}.hero h1 .r{color:#ff5a70}
+.hero .sub{color:#c9d5f2;position:relative;max-width:60ch}
+.hero .howl{display:inline-flex;align-items:center;gap:7px;margin-top:17px;background:#fff;color:var(--navy);font-weight:800;font-size:13px;text-decoration:none;padding:11px 16px;border-radius:10px;position:relative}
+.sum{margin-top:20px}
+.sum .s.money{background:linear-gradient(150deg,#0a1f52,#12388f);border-color:transparent}.sum .s.money .n{color:#fff}.sum .s.money .l{color:#9fb4e6}
+.sale.action .who{font-size:16.5px;font-weight:900}.sale.action{background:linear-gradient(135deg,#fff,#fff6f7)}
 .hd{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
 .hd.q{color:var(--dim)}
 .err{display:none;background:#fdecec;color:#a3132e;border-radius:10px;padding:11px 14px;font-size:12.5px;font-weight:700;margin-bottom:14px}
@@ -81085,14 +81094,15 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
     <a class="backlink" href="/dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</a><a href="/payout-methods" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Payment Details</a><a href="/packs" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#0a1f52;background:#fff;border:1.5px solid #d7deef;border-radius:9px;padding:7px 13px;text-decoration:none;margin-left:8px">Buy packs</a>
     <div class="mk">Advantage<i>Life</i></div>
   </div>
-  <h1>Incoming <span class="r">sales</span></h1>
-  <div class="sub">Buyers pay you directly, wallet to wallet. Check your wallet &mdash; confirm only once the money has actually arrived.</div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 18px">
-    <a href="/sale-approval-guide" style="display:inline-flex;align-items:center;gap:7px;background:#c8102e;color:#fff;font-weight:800;font-size:13.5px;text-decoration:none;padding:11px 16px;border-radius:10px">▶ How incoming sales work — step-by-step</a>
+  <div class="hero">
+    <div class="hk">AdvantageLife &middot; Your incoming sales</div>
+    <h1>Incoming <span class="r">sales</span></h1>
+    <div class="sub">Buyers pay you directly, wallet to wallet. Check your wallet &mdash; confirm only once the money has actually arrived.</div>
+    <a class="howl" href="/sale-approval-guide">▶ How incoming sales work — step-by-step</a>
   </div>
   <div class="sum" id="sum" style="display:none">
+    <div class="s money"><div class="n" id="sumEarned">$0</div><div class="l">Received all time</div></div>
     <div class="s hot"><div class="n" id="sumAction">0</div><div class="l">Needs your confirmation</div></div>
-    <div class="s"><div class="n" id="sumEarned">$0</div><div class="l">Received all time</div></div>
     <div class="s" id="sumPassup"><div class="n" id="sumNext">&mdash;</div><div class="l" id="sumNextLbl">Next sale</div></div>
   </div>
   <div class="err" id="err"></div>
@@ -81186,7 +81196,7 @@ h1{font-weight:900;font-size:40px;letter-spacing:-1.5px;line-height:1.05}h1 .r{c
     d.innerHTML='<div class="av">'+esc(initial(s.buyer&&s.buyer.username))+'</div>'
       +'<div><div class="who">@'+esc(s.buyer&&s.buyer.username)+' <span>'+verb+' your $'+Number(s.amount).toFixed(0)+' pack</span></div>'
       +'<div class="meta">'+esc(pk.name||('Level '+pk.level))+' pack<span class="st '+stcls+'">'+stLabel(s.status)+'</span></div>'
-      +(s.tx_ref?('<div class="tx">tx '+esc(s.tx_ref)+'</div>'):'')
+      +(s.tx_ref?('<div class="tx">'+(s.action_needed?'Confirmation ID ':'tx ')+esc(s.tx_ref)+'</div>'):'')
       +(s.intent_id?('<button class="chatlink" onclick="openChat('+s.intent_id+',\''+esc((s.buyer&&s.buyer.username)||'').replace(/'/g,"")+'\')">\uD83D\uDCAC Message buyer</button>'):'')+'</div>'
       +'<div class="amt">'+money+'</div>';
     if(s.action_needed){
