@@ -998,6 +998,29 @@ html,body{max-width:100%;overflow-x:hidden;}
 .pb-btn{height:44px;padding:0 20px;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;border:none;}
 .pb-btn.ghost{background:#eef3ff;color:var(--accent);border:1.5px solid #d3ddf5;}
 .pb-btn.primary{background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;}
+
+/* ===== Daily routine + streak ===== */
+.cl-streak{display:flex;align-items:center;gap:16px;background:linear-gradient(125deg,#0a1f52,#12388f);color:#fff;border-radius:18px;padding:18px 22px;box-shadow:0 14px 34px -22px rgba(18,56,143,.6);margin-bottom:6px;}
+.cl-streak.done{background:linear-gradient(125deg,#0b7a3e,#17a34a);}
+.cl-flame{font-size:34px;flex:none;line-height:1;}
+.cl-sinfo{flex:1;min-width:0;}
+.cl-snum{font-size:22px;font-weight:900;letter-spacing:-.5px;}
+.cl-snum span{font-size:15px;font-weight:800;color:#c9d5f2;}
+.cl-streak.done .cl-snum span{color:rgba(255,255,255,.85);}
+.cl-ssub{font-size:12.5px;color:#c9d5f2;font-weight:600;margin-top:3px;}
+.cl-streak.done .cl-ssub{color:rgba(255,255,255,.9);}
+.cl-sdone{font-size:13px;font-weight:900;background:rgba(255,255,255,.18);padding:7px 13px;border-radius:20px;flex:none;}
+.cl-sprog{font-size:17px;font-weight:900;flex:none;color:#4ade80;}
+.cl-item{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:15px 18px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 2px rgba(10,31,82,.05);transition:border-color .12s;}
+.cl-item:hover{border-color:#cfd8ec;}
+.cl-check{width:26px;height:26px;border-radius:8px;border:2px solid #cfd8ec;flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;transition:.12s;}
+.cl-item.on .cl-check{background:#17a34a;border-color:#17a34a;}
+.cl-item.on{background:rgba(23,163,74,.05);border-color:rgba(23,163,74,.3);}
+.cl-text{flex:1;font-size:14.5px;font-weight:600;color:var(--text-primary);}
+.cl-item.on .cl-text{color:var(--text-secondary);text-decoration:line-through;}
+.cl-acts{display:flex;gap:6px;flex:none;}
+.cl-acts button{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--text-secondary);cursor:pointer;}
+.cl-add{border:1.6px dashed #cfd8ec;border-radius:14px;padding:15px;text-align:center;font-size:13.5px;font-weight:800;color:var(--accent);cursor:pointer;background:rgba(18,56,143,.03);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -1265,98 +1288,24 @@ html,body{max-width:100%;overflow-x:hidden;}
             <div id="checklist" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
-                        <div class="tt-hero-eyebrow">Plan</div>
-                        <h1 class="tt-hero-title">Daily Trading Checklist</h1>
-                        <p class="tt-hero-sub">Your pre-market routine &mdash; tick it off before you trade.</p>
+                        <div class="tt-hero-eyebrow">Plan &middot; Your routine</div>
+                        <h1 class="tt-hero-title">Daily <span>routine</span></h1>
+                        <p class="tt-hero-sub">Your pre-market prep, done consistently. Build the habit &mdash; the discipline shows up in your results.</p>
                     </div>
                 </div>
-                <div class="header">
-                    <h2>Daily Trading Checklist</h2>
-                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Complete these steps before trading each day</p>
-                </div>
-
-                <div class="checklist-card">
-                    <h3 style="margin-bottom: 1.5rem;">✅ Pre-Market Checklist</h3>
-                    <div id="checklistItems">
-                <div class="checklist-item " onclick="toggleChecklistItem(0)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Review Daily bias on Daily chart</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(1)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Mark key levels on 1H chart (POC, VAH, VAL)</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(2)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Set alerts at key levels</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(3)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Calculate position size for planned trades</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(4)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Confirm trading session is active (London/NY)</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(5)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Check economic calendar for high-impact news</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(6)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Review yesterday's trades and journal notes</div>
-                </div>
-            
-                <div class="checklist-item " onclick="toggleChecklistItem(7)">
-                    <div class="checkbox">
-                        
-                    </div>
-                    <div class="checklist-text">Confirm max 4 trades rule for today</div>
-                </div>
+                <div id="clStreak"></div>
+                <div class="tt-eyebrow">Your pre-market routine <span class="tt-eyebrow-add" onclick="clOpenModal()">+ Add step</span></div>
+                <div id="clItems"></div>
             </div>
-                    <button class="btn btn-secondary" onclick="resetChecklist()" style="margin-top: 1rem; width: 100%;">
-                        Reset Checklist
-                    </button>
-                </div>
 
-                <div class="strategy-card">
-                    <h3>📋 Trading Rules Reminder</h3>
-                    <div class="strategy-content">
-                        <ul>
-                            <li>Trade ONLY during London session (3AM - 12PM EST)</li>
-                            <li>Maximum 4 trades per day</li>
-                            <li>Risk ONLY 1% per trade</li>
-                            <li>Take mandatory break after 2 consecutive losses</li>
-                            <li>Execute ALL trades on 15-minute chart</li>
-                            <li>Never move stop loss away from entry</li>
-                            <li>Always use lot size calculator before entering</li>
-                            <li>Wait for confirmation before entering position</li>
-                        </ul>
-                    </div>
+            <div id="clModal" class="pb-modal">
+                <div class="pb-modal-card">
+                    <div class="pb-modal-h"><h3 id="clModalTitle">Add a step</h3><button class="pb-modal-x" onclick="clCloseModal()">&times;</button></div>
+                    <div class="pb-field"><label>Routine step</label><input type="text" id="clItemText" placeholder="e.g. Check the economic calendar for high-impact news"></div>
+                    <div class="pb-modal-acts"><button class="pb-btn ghost" onclick="clCloseModal()">Cancel</button><button class="pb-btn primary" onclick="clSaveModal()">Save step</button></div>
                 </div>
             </div>
 
-            <!-- CALCULATOR PAGE -->
             <div id="calculator" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1750,7 +1699,7 @@ html,body{max-width:100%;overflow-x:hidden;}
 
         // Initialize data
         let trades = JSON.parse(localStorage.getItem('trades')) || [];
-        let checklist = JSON.parse(localStorage.getItem('checklist')) || {};
+        let checklist = null;
         let currentDate = new Date();
         let currentTheme = localStorage.getItem('theme') || 'light';
         const INITIAL_BALANCE = parseFloat(localStorage.getItem('initialBalance')) || 10000;
@@ -1760,16 +1709,7 @@ html,body{max-width:100%;overflow-x:hidden;}
         let setupChart = null;
         let miniEquityChart = null;
 
-        const checklistItems = [
-            "Review Daily bias on Daily chart",
-            "Mark key levels on 1H chart (POC, VAH, VAL)",
-            "Set alerts at key levels",
-            "Calculate position size for planned trades",
-            "Confirm trading session is active (London/NY)",
-            "Check economic calendar for high-impact news",
-            "Review yesterday's trades and journal notes",
-            "Confirm max 4 trades rule for today"
-        ];
+        // checklist routine is now member-editable (see clSeed)
 
         // Initialize
         window.onload = function() {
@@ -1798,6 +1738,7 @@ html,body{max-width:100%;overflow-x:hidden;}
             if(pageName==='coach'){ try{ renderCoach(); }catch(e){} }
             if(pageName==='equity'){ try{ renderMiniEquityChart(); }catch(e){} }
             if(pageName==='strategy'){ try{ pbRender(); }catch(e){} }
+            if(pageName==='checklist'){ try{ renderChecklist(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -2311,35 +2252,60 @@ html,body{max-width:100%;overflow-x:hidden;}
         }
 
         // CHECKLIST
-        function renderChecklist() {
-            const today = new Date().toISOString().split('T')[0];
-            if (!checklist[today]) {
-                checklist[today] = checklistItems.map(() => false);
-            }
-
-            const container = document.getElementById('checklistItems');
-            container.innerHTML = checklistItems.map((item, index) => `
-                <div class="checklist-item ${checklist[today][index] ? 'checked' : ''}" onclick="toggleChecklistItem(${index})">
-                    <div class="checkbox">
-                        ${checklist[today][index] ? '✓' : ''}
-                    </div>
-                    <div class="checklist-text">${item}</div>
-                </div>
-            `).join('');
-        }
-
-        function toggleChecklistItem(index) {
-            const today = new Date().toISOString().split('T')[0];
-            checklist[today][index] = !checklist[today][index];
-            localStorage.setItem('checklist', JSON.stringify(checklist));
-            renderChecklist();
-        }
-
-        function resetChecklist() {
-            const today = new Date().toISOString().split('T')[0];
-            checklist[today] = checklistItems.map(() => false);
-            localStorage.setItem('checklist', JSON.stringify(checklist));
-            renderChecklist();
+        function clDateStr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+        function clToday(){ return clDateStr(new Date()); }
+        function clId(){ return 'cl'+Date.now()+Math.floor(Math.random()*10000); }
+        function clSeed(){ return { items:[
+            {id:clId(), text:'Check the economic calendar for high-impact news'},
+            {id:clId(), text:'Note the higher-timeframe bias and mark my key levels'},
+            {id:clId(), text:'Set price alerts at my levels'},
+            {id:clId(), text:'Confirm my risk per trade and max trades for the day'},
+            {id:clId(), text:"Review yesterday's trades and journal notes"},
+            {id:clId(), text:'Am I calm and in the right headspace to trade?'}
+        ], today:{date:clToday(), ticked:[]}, completedDates:[] }; }
+        function clLoad(){ try{ checklist=JSON.parse(localStorage.getItem('checklist')); }catch(e){ checklist=null; }
+            if(!checklist || !Array.isArray(checklist.items)){ checklist=clSeed(); clSave(); }
+            if(!checklist.today || checklist.today.date!==clToday()){ checklist.today={date:clToday(), ticked:[]}; clSave(); } }
+        function clEnsure(){ if(!checklist) clLoad(); }
+        function clSave(){ try{ localStorage.setItem('checklist', JSON.stringify(checklist)); }catch(e){} }
+        function clStreak(){ clEnsure(); var dates={}; (checklist.completedDates||[]).forEach(function(d){dates[d]=true;});
+            var streak=0; var d=new Date(); if(!dates[clToday()]){ d.setDate(d.getDate()-1); }
+            for(var i=0;i<400;i++){ if(dates[clDateStr(d)]){ streak++; d.setDate(d.getDate()-1); } else break; } return streak; }
+        function clLast7(){ clEnsure(); var dates={}; (checklist.completedDates||[]).forEach(function(d){dates[d]=true;}); var n=0; var d=new Date(); for(var i=0;i<7;i++){ if(dates[clDateStr(d)])n++; d.setDate(d.getDate()-1); } return n; }
+        function clToggle(id){ clEnsure(); var t=checklist.today.ticked; var i=t.indexOf(id); if(i>-1)t.splice(i,1); else t.push(id);
+            var allDone=checklist.items.length>0 && checklist.items.every(function(it){return t.indexOf(it.id)>-1;});
+            var td=clToday(); var cd=checklist.completedDates||[]; var has=cd.indexOf(td)>-1;
+            if(allDone && !has) cd.push(td); else if(!allDone && has) cd.splice(cd.indexOf(td),1);
+            checklist.completedDates=cd; clSave(); renderChecklist(); }
+        function clEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        var clEditingId=null;
+        function clOpenModal(id){ clEnsure(); clEditingId=id||null; var it=id?checklist.items.filter(function(x){return x.id===id;})[0]:null;
+            document.getElementById('clModalTitle').textContent=it?'Edit step':'Add a step';
+            document.getElementById('clItemText').value=it?it.text:'';
+            document.getElementById('clModal').style.display='flex'; setTimeout(function(){try{document.getElementById('clItemText').focus();}catch(e){}},50); }
+        function clCloseModal(){ document.getElementById('clModal').style.display='none'; clEditingId=null; }
+        function clSaveModal(){ var t=document.getElementById('clItemText').value.trim(); if(!t){ alert('Enter a step.'); return; }
+            if(clEditingId){ var it=checklist.items.filter(function(x){return x.id===clEditingId;})[0]; if(it) it.text=t; }
+            else { checklist.items.push({id:clId(), text:t}); }
+            clSave(); clCloseModal(); renderChecklist(); }
+        function clEditItem(id, ev){ if(ev)ev.stopPropagation(); clOpenModal(id); }
+        function clDelItem(id, ev){ if(ev)ev.stopPropagation(); if(!confirm('Remove this step?'))return; checklist.items=checklist.items.filter(function(x){return x.id!==id;}); checklist.today.ticked=(checklist.today.ticked||[]).filter(function(x){return x!==id;}); clSave(); renderChecklist(); }
+        function renderChecklist(){ clEnsure();
+            var t=checklist.today.ticked||[]; var total=checklist.items.length; var done=checklist.items.filter(function(it){return t.indexOf(it.id)>-1;}).length;
+            var allDone=total>0 && done>=total; var streak=clStreak(); var last7=clLast7();
+            var sc=document.getElementById('clStreak');
+            if(sc){ sc.innerHTML='<div class="cl-streak'+(allDone?' done':'')+'">'
+                +'<div class="cl-flame">'+(streak>0?'\u{1F525}':'\u{1F3AF}')+'</div>'
+                +'<div class="cl-sinfo"><div class="cl-snum">'+streak+' day'+(streak===1?'':'s')+' <span>streak</span></div>'
+                +'<div class="cl-ssub">Prepped '+last7+' of the last 7 days &middot; today '+done+'/'+total+'</div></div>'
+                +(allDone?'<div class="cl-sdone">\u2713 Done today</div>':'<div class="cl-sprog">'+(total?Math.round(done/total*100):0)+'%</div>')
+                +'</div>'; }
+            var ic=document.getElementById('clItems');
+            if(ic){ var h='';
+                checklist.items.forEach(function(it){ var on=t.indexOf(it.id)>-1;
+                    h+='<div class="cl-item'+(on?' on':'')+'" onclick="clToggle(\''+it.id+'\')"><div class="cl-check">'+(on?'\u2713':'')+'</div><div class="cl-text">'+clEsc(it.text)+'</div><div class="cl-acts"><button onclick="clEditItem(\''+it.id+'\',event)">Edit</button><button onclick="clDelItem(\''+it.id+'\',event)">&times;</button></div></div>'; });
+                h+='<div class="cl-add" onclick="clOpenModal()">+ Add a step to your routine</div>';
+                ic.innerHTML=h; }
         }
 
         // MODAL
