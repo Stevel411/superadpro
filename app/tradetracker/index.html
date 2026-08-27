@@ -899,6 +899,11 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-ticker .ch{font-size:11px;font-weight:800;}
 .tt-ticker .ch.up{color:#0b7a3e;}.tt-ticker .ch.dn{color:#c8102e;}
 .tt-ticker .tk-loading{font-size:12.5px;color:var(--text-secondary);font-weight:600;}
+
+/* AI Coach nav badge */
+.sidebar .nav-item.tt-nav-coach{position:relative;}
+.sidebar .nav-item .tt-new{margin-left:auto;font-size:8.5px;font-weight:900;background:#c8102e;color:#fff;padding:2px 7px;border-radius:20px;letter-spacing:.05em;}
+.sidebar .nav-item.active .tt-new{background:#fff;color:#c8102e;}
 </style>
 </head>
 <body>
@@ -933,6 +938,9 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                 <div class="nav-group">Review</div>
                 <div class="nav-item" onclick="showPage(&#39;analytics&#39;)">
                     <span class="nav-icon">📊</span><span>Analytics</span>
+                </div>
+                <div class="nav-item tt-nav-coach" onclick="showPage(&#39;coach&#39;)">
+                    <span class="nav-icon">🤖</span><span>AI Coach</span><span class="tt-new">NEW</span>
                 </div>
                 <div class="nav-group">Account</div>
                 <div class="nav-item" onclick="showPage(&#39;settings&#39;)">
@@ -1036,14 +1044,6 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
-                <div class="tt-eyebrow">Your AI Coach <span>&mdash; what to work on</span></div>
-                <div class="tt-coach">
-                    <div class="tt-coach-top">
-                        <div class="tt-coach-av">🤖</div>
-                        <div class="tt-coach-h"><div class="tt-coach-t">Your AI Trade Coach</div><div class="tt-coach-s">Reads your journal and tells you about your own patterns &mdash; not the market. Updates after every trade.</div></div>
-                    </div>
-                    <div class="tt-coach-body" id="ttCoachBody"></div>
-                </div>
                 <div class="tt-eyebrow">Profit calendar <span>&mdash; your daily P&amp;L</span></div>
                 <!-- CALENDAR -->
                 <div class="calendar-section">
@@ -1458,6 +1458,24 @@ body{font-family:'Inter',-apple-system,sans-serif;}
             </div>
 
             <!-- SETTINGS PAGE -->
+            <div id="coach" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Review</div>
+                        <h1 class="tt-hero-title">AI Trade <span>Coach</span></h1>
+                        <p class="tt-hero-sub">Your Coach reads your own journal and shows you your patterns &mdash; your edge, your leaks, and what to fix next. Not the market: your trading.</p>
+                    </div>
+                </div>
+                <div class="tt-eyebrow">What to work on</div>
+                <div class="tt-coach">
+                    <div class="tt-coach-top">
+                        <div class="tt-coach-av">🤖</div>
+                        <div class="tt-coach-h"><div class="tt-coach-t">Your AI Trade Coach</div><div class="tt-coach-s">Reads your journal and tells you about your own patterns &mdash; not the market. Updates after every trade.</div></div>
+                    </div>
+                    <div class="tt-coach-body" id="ttCoachBody"></div>
+                </div>
+            </div>
+
             <div id="settings" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1735,6 +1753,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
         // PAGE NAVIGATION
         function showPage(pageName) {
+            if(pageName==='coach'){ try{ renderCoach(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
