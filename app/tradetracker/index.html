@@ -909,6 +909,16 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-equity-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:20px 22px;box-shadow:0 10px 30px -22px rgba(10,20,56,.35);}
 .tt-equity-wrap{position:relative;height:260px;}
 .tt-equity-empty{display:none;padding:40px 10px;text-align:center;font-size:13.5px;color:var(--text-secondary);font-weight:500;line-height:1.55;}
+
+/* ===== Equity link-card + dedicated page ===== */
+.tt-equity-link{background:linear-gradient(120deg,#0a1f52,#12388f);color:#fff;border-radius:18px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;box-shadow:0 14px 34px -22px rgba(18,56,143,.6);transition:transform .15s, box-shadow .15s;}
+.tt-equity-link:hover{transform:translateY(-2px);box-shadow:0 20px 44px -22px rgba(18,56,143,.7);}
+.tt-equity-link-l{display:flex;align-items:center;gap:16px;min-width:0;}
+.tt-equity-link-ic{width:48px;height:48px;min-width:48px;border-radius:13px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.tt-equity-link-t{font-size:17px;font-weight:900;}
+.tt-equity-link-s{font-size:13px;color:#c9d5f2;font-weight:500;margin-top:2px;}
+.tt-equity-link-arrow{font-size:22px;font-weight:900;color:#fff;flex:none;}
+.tt-equity-wrap-full{height:420px;}
 </style>
 </head>
 <body>
@@ -1049,10 +1059,16 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
-                <div class="tt-eyebrow">Your equity curve <span>&mdash; cumulative P&amp;L over time</span></div>
-                <div class="tt-equity-card">
-                    <div class="tt-equity-wrap"><canvas id="miniEquityChart"></canvas></div>
-                    <div class="tt-equity-empty" id="ttEquityEmpty">Log a few trades and your growth curve builds here \u2014 the one line that tells you if you\u2019re actually making money over time.</div>
+                <div class="tt-eyebrow">Your growth</div>
+                <div class="tt-equity-link" onclick="showPage('equity')">
+                    <div class="tt-equity-link-l">
+                        <div class="tt-equity-link-ic">📈</div>
+                        <div>
+                            <div class="tt-equity-link-t">Your equity curve</div>
+                            <div class="tt-equity-link-s">See your cumulative P&amp;L and growth over time</div>
+                        </div>
+                    </div>
+                    <div class="tt-equity-link-arrow">&rarr;</div>
                 </div>
                 <div class="tt-eyebrow">Profit calendar <span>&mdash; your daily P&amp;L</span></div>
                 <!-- CALENDAR -->
@@ -1486,6 +1502,22 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                 </div>
             </div>
 
+            <div id="equity" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Review</div>
+                        <h1 class="tt-hero-title">Equity <span>curve</span></h1>
+                        <p class="tt-hero-sub">Your cumulative P&amp;L over time &mdash; the one line that tells you if you&rsquo;re actually growing. Every trade you log moves it.</p>
+                        <div class="tt-hero-actions"><button class="tt-hero-btn" onclick="showPage('dashboard')">&larr; Back to dashboard</button></div>
+                    </div>
+                </div>
+                <div class="tt-eyebrow">Cumulative P&amp;L</div>
+                <div class="tt-equity-card">
+                    <div class="tt-equity-wrap tt-equity-wrap-full"><canvas id="miniEquityChart"></canvas></div>
+                    <div class="tt-equity-empty" id="ttEquityEmpty">Log a few trades and your growth curve builds here &mdash; the one line that tells you if you&rsquo;re actually making money over time.</div>
+                </div>
+            </div>
+
             <div id="settings" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1765,6 +1797,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         // PAGE NAVIGATION
         function showPage(pageName) {
             if(pageName==='coach'){ try{ renderCoach(); }catch(e){} }
+            if(pageName==='equity'){ try{ renderMiniEquityChart(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
