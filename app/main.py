@@ -4316,8 +4316,8 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
     injected into localStorage server-side + a sync shim (Phase 2). Gated behind login."""
     if not user:
         return RedirectResponse(url="/login", status_code=302)
-    if not is_admin(user):
-        # Not launched to members yet — admin-only during build.
+    if not _tt_access(user):
+        # Not launched to members yet — admin/preview only during build.
         return RedirectResponse(url="/dashboard", status_code=302)
     _tt = os.path.join(os.path.dirname(__file__), "tradetracker", "index.html")
     try:
@@ -4334,6 +4334,13 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
     _data = (_data or "{}").replace("</", "<\\/")  # prevent </script> break-out
     html = html.replace("</head>", _TT_SYNC_SHIM.replace("__TT_DATA_JSON__", _data) + "\n</head>", 1)
     return HTMLResponse(html)
+
+
+# TradeTracker is admin-only during build. These IDs (Steve's master + personal
+# accounts) can also preview it before launch. Swap to subscription-gating at go-live.
+_TT_PREVIEW_IDS = {1, 906}
+def _tt_access(user):
+    return user is not None and (is_admin(user) or getattr(user, "id", 0) in _TT_PREVIEW_IDS)
 
 
 _TT_TICKER_CACHE = {"data": None, "ts": 0.0}
@@ -4359,7 +4366,7 @@ def al_forex_ticker(user: User = Depends(get_current_user)):
     covers the whole base."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_admin(user):
+    if not _tt_access(user):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     import time as _t
     now = _t.time()
@@ -4403,7 +4410,7 @@ def tt_data_get(request: Request, user: User = Depends(get_current_user), db: Se
     """Load the member's saved TradeTracker state (trades, checklist, balance)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_admin(user):
+    if not _tt_access(user):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     from .database import TradeTrackerData
     try:
@@ -4419,7 +4426,7 @@ async def tt_data_save(request: Request, user: User = Depends(get_current_user),
     """Persist the member's TradeTracker state. Called by the tool's sync shim."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not is_admin(user):
+    if not _tt_access(user):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
         body = await request.json()
