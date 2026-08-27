@@ -4333,6 +4333,66 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
     return HTMLResponse(html)
 
 
+_TT_TICKER_CACHE = {"data": None, "ts": 0.0}
+_TT_TICKER_PAIRS = ["EUR/USD", "GBP/USD", "USD/JPY", "AUD/USD", "USD/CAD", "XAU/USD"]
+
+
+def _tt_fmt_price(sym, price):
+    try:
+        v = float(price)
+    except Exception:
+        return str(price)
+    if "JPY" in sym:
+        return f"{v:.3f}"
+    if "XAU" in sym:
+        return f"{v:,.2f}"
+    return f"{v:.5f}"
+
+
+@app.get("/api/al/forex-ticker")
+def al_forex_ticker(user: User = Depends(get_current_user)):
+    """Cached forex ticker for TradeTracker. Fetches server-side once/min (key never
+    reaches the client) and serves the cache to every member, so one free API tier
+    covers the whole base."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import time as _t
+    now = _t.time()
+    if _TT_TICKER_CACHE["data"] and (now - _TT_TICKER_CACHE["ts"] < 60):
+        return {"ok": True, "pairs": _TT_TICKER_CACHE["data"], "cached": True}
+    key = os.getenv("TWELVEDATA_API_KEY", "b0d642f68aa342419303ec962420b071")
+    try:
+        import urllib.request as _u, urllib.parse as _up, json as _j
+        syms = _up.quote(",".join(_TT_TICKER_PAIRS))
+        url = f"https://api.twelvedata.com/quote?symbol={syms}&apikey={key}"
+        with _u.urlopen(url, timeout=8) as r:
+            raw = _j.loads(r.read().decode())
+        out = []
+        for sym in _TT_TICKER_PAIRS:
+            d = raw.get(sym) or {}
+            price = d.get("close")
+            if price is None:
+                continue
+            try:
+                pctf = float(d.get("percent_change") or 0)
+            except Exception:
+                pctf = 0.0
+            out.append({"symbol": sym, "price": _tt_fmt_price(sym, price),
+                        "pct": round(pctf, 2), "up": pctf >= 0})
+        if out:
+            _TT_TICKER_CACHE["data"] = out
+            _TT_TICKER_CACHE["ts"] = now
+            return {"ok": True, "pairs": out, "cached": False}
+        # API returned nothing usable — serve stale if we have it
+        if _TT_TICKER_CACHE["data"]:
+            return {"ok": True, "pairs": _TT_TICKER_CACHE["data"], "stale": True}
+        return JSONResponse({"error": "no data"}, status_code=502)
+    except Exception as e:
+        if _TT_TICKER_CACHE["data"]:
+            return {"ok": True, "pairs": _TT_TICKER_CACHE["data"], "stale": True}
+        return JSONResponse({"error": str(e)[:200]}, status_code=502)
+
+
 @app.get("/api/al/tradetracker/data")
 def tt_data_get(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Load the member's saved TradeTracker state (trades, checklist, balance)."""

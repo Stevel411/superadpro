@@ -886,6 +886,19 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-ins-h{font-size:14.5px;font-weight:800;color:var(--text-primary);margin-bottom:3px;}
 .tt-ins-d{font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.5;}
 .tt-coach-empty{padding:16px 0;font-size:13.5px;color:var(--text-secondary);font-weight:500;line-height:1.55;}
+
+/* ===== Live forex ticker ===== */
+.tt-ticker{display:flex;align-items:center;gap:20px;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:11px 20px;margin-top:16px;overflow:hidden;box-shadow:0 1px 2px rgba(10,31,82,.05);}
+.tt-ticker .tk-live{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900;letter-spacing:.1em;color:#0b7a3e;flex:none;padding-right:18px;border-right:1px solid var(--border);}
+.tt-ticker .tk-live .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.tt-ticker .tk-scroll{display:flex;align-items:center;gap:22px;overflow-x:auto;scrollbar-width:none;}
+.tt-ticker .tk-scroll::-webkit-scrollbar{display:none;}
+.tt-ticker .tk-item{display:flex;align-items:center;gap:7px;flex:none;}
+.tt-ticker .pr{font-size:12px;font-weight:800;color:var(--text-secondary);}
+.tt-ticker .px{font-size:13.5px;font-weight:900;color:var(--text-primary);}
+.tt-ticker .ch{font-size:11px;font-weight:800;}
+.tt-ticker .ch.up{color:#0b7a3e;}.tt-ticker .ch.dn{color:#c8102e;}
+.tt-ticker .tk-loading{font-size:12.5px;color:var(--text-secondary);font-weight:600;}
 </style>
 </head>
 <body>
@@ -963,6 +976,10 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="tt-ticker">
+                    <span class="tk-live"><span class="dot"></span>LIVE</span>
+                    <div class="tk-scroll" id="ttTickerItems"><span class="tk-loading">Loading markets\u2026</span></div>
+                </div>
                 <div class="tt-eyebrow">This week <span>&mdash; your numbers</span></div>
                 <!-- STATS ROW -->
                 <div class="stats-row">
@@ -1829,6 +1846,22 @@ body{font-family:'Inter',-apple-system,sans-serif;}
             if(Object.keys(risks).length>=3)out.push({k:'warn',i:'\u2696\uFE0F',h:'Your risk per trade is inconsistent',d:'You\u2019re mixing '+Object.keys(risks).length+' different risk levels. Your steadiest results come from a fixed rule \u2014 pick one and stick to it.'});
             return {empty:false,insights:out,count:trades.length};
         }
+
+
+        function renderTicker(){
+            var el=document.getElementById('ttTickerItems'); if(!el) return;
+            fetch('/api/al/forex-ticker',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+                if(!d || !d.ok || !d.pairs || !d.pairs.length){ el.innerHTML='<span class="tk-loading">Markets unavailable right now</span>'; return; }
+                el.innerHTML = d.pairs.map(function(p){
+                    var cls = p.up ? 'up' : 'dn'; var ar = p.up ? '\u25B2' : '\u25BC';
+                    return '<span class="tk-item"><span class="pr">'+p.symbol+'</span><span class="px">'+p.price+'</span><span class="ch '+cls+'">'+ar+' '+Math.abs(p.pct).toFixed(2)+'%</span></span>';
+                }).join('');
+            }).catch(function(){ el.innerHTML='<span class="tk-loading">Markets unavailable right now</span>'; });
+        }
+        (function(){
+            function startTicker(){ try{ renderTicker(); }catch(e){} setInterval(function(){ try{ renderTicker(); }catch(e){} }, 60000); }
+            if(document.readyState!=='loading') startTicker(); else document.addEventListener('DOMContentLoaded', startTicker);
+        })();
 
         function renderCoach(){
             var el=document.getElementById('ttCoachBody'); if(!el)return;
