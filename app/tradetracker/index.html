@@ -807,6 +807,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .btn-secondary,.btn.btn-secondary{background:#fff!important;color:#12388f!important;border:1.5px solid var(--border)!important;}
 /* cards general polish */
 .chart-card,.checklist-card,.strategy-card{border-radius:16px!important;border:1.5px solid var(--border)!important;box-shadow:0 1px 2px rgba(10,31,82,.05)!important;}
+
+/* ===== TradeTracker logo ===== */
+.sidebar .logo{display:flex!important;align-items:center!important;gap:12px!important;padding:2px 20px 20px!important;border-bottom:1px solid rgba(255,255,255,.10)!important;margin-bottom:12px!important;}
+.sidebar .logo .tt-logo-icon{flex:none!important;border-radius:12px;}
+.sidebar .logo .tt-wordmark{font-size:18px!important;font-weight:900!important;letter-spacing:-.4px!important;color:#fff!important;line-height:1.12!important;}
+.sidebar .logo .tt-wordmark .tk{color:#ff5a70!important;}
+.sidebar .logo .tt-wordmark .pro{font-size:11px!important;color:#4ade80!important;font-weight:900!important;letter-spacing:.06em!important;}
 </style>
 </head>
 <body>
@@ -814,10 +821,14 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="logo">
-                <h1>
-                    <div class="logo-icon">T</div>
-                    <span>TradeTracker Pro</span>
-                </h1>
+                <svg class="tt-logo-icon" width="42" height="42" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="52" height="52" rx="12" fill="url(#ttg)"/>
+                    <defs><linearGradient id="ttg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#12388f"/><stop offset="1" stop-color="#1a49b0"/></linearGradient></defs>
+                    <line x1="16" y1="14" x2="16" y2="38" stroke="#4ade80" stroke-width="2"/><rect x="13" y="24" width="6" height="10" rx="1.5" fill="#4ade80"/>
+                    <line x1="26" y1="12" x2="26" y2="34" stroke="#ff5a70" stroke-width="2"/><rect x="23" y="18" width="6" height="9" rx="1.5" fill="#ff5a70"/>
+                    <line x1="36" y1="10" x2="36" y2="40" stroke="#4ade80" stroke-width="2"/><rect x="33" y="16" width="6" height="16" rx="1.5" fill="#4ade80"/>
+                </svg>
+                <div class="tt-wordmark">Trade<span class="tk">Tracker</span> <span class="pro">PRO</span></div>
             </div>
 
             <nav class="nav">
