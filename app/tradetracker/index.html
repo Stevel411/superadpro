@@ -927,12 +927,6 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                 </div>
             </nav>
 
-            <div class="sidebar-footer">
-                <button class="theme-toggle-btn" onclick="toggleTheme()">
-                    <span>🌙</span>
-                    <span id="themeText">Use Dark Mode</span>
-                </button>
-            </div>
         </aside>
 
         <!-- MAIN CONTENT -->
@@ -1713,22 +1707,12 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         };
 
         // THEME
-        function toggleTheme() {
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            setTheme(newTheme);
-        }
+        function toggleTheme(){}
 
         function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
-            currentTheme = theme;
-            
-            const text = theme === 'dark' ? 'Use Light Mode' : 'Use Dark Mode';
-            const icon = theme === 'dark' ? '☀️' : '🌙';
-            document.getElementById('themeText').textContent = text;
-            document.querySelector('.theme-toggle-btn span:first-child').textContent = icon;
-            
-            renderCharts();
+            // Dark mode removed — platform is light-only.
+            document.documentElement.setAttribute('data-theme', 'light');
+            try { renderCharts(); } catch (e) {}
         }
 
         // PAGE NAVIGATION
