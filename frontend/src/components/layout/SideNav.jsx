@@ -7,40 +7,40 @@ import { useTranslation } from 'react-i18next';
 // AlShell (most pages) and NewDashboard (which has its own shell copy), so the
 // collapsible sections stay identical everywhere and can't drift.
 export const NAV = [
-  { key: 'dashboard', tk: 'nav.dashboard', label: 'Dashboard', to: '/dashboard', link: true },
-  { header: 'GET STARTED', tk: 'nav.grpGetStarted' },
-  { key: 'start', tk: 'nav.startHere', label: 'Start Here', to: '/start-here', link: true, big: true },
-  { key: 'packs', tk: 'nav.campaignPacks', label: 'Campaign Packs', to: '/packs', link: false },
-  { key: 'campaigns', tk: 'nav.myCampaigns', label: 'My Campaigns', to: '/campaigns', link: true, children: [
+  { key: 'dashboard', tk: 'nav.dashboard', label: 'Dashboard', icon: '🏠', to: '/dashboard', link: true },
+  { header: 'GET STARTED', icon: '🚀', tk: 'nav.grpGetStarted' },
+  { key: 'start', tk: 'nav.startHere', label: 'Start Here', icon: '⭐', to: '/start-here', link: true, big: true },
+  { key: 'packs', tk: 'nav.campaignPacks', label: 'Campaign Packs', icon: '📦', to: '/packs', link: false },
+  { key: 'campaigns', tk: 'nav.myCampaigns', label: 'My Campaigns', icon: '📣', to: '/campaigns', link: true, children: [
     { tk: 'nav.viewCampaigns', label: 'View campaigns', to: '/campaigns' },
     { tk: 'nav.createCampaign', label: 'Create Campaign', to: '/create-campaign' },
     { tk: 'nav.createBanner', label: 'Create Banner', to: '/banners/create' },
     { tk: 'nav.myBanners', label: 'My Banners', to: '/my-banners' },
     { tk: 'nav.performance', label: 'Performance', to: '/campaign-analytics' },
   ] },
-  { key: 'wallet', tk: 'nav.paymentDetails', label: 'Payment Details', to: '/payout-methods', link: false },
-  { key: 'watch', tk: 'nav.dailyWatch', label: 'Daily Watch', to: '/watch', link: true },
-  { header: 'RUN YOUR BUSINESS', tk: 'nav.grpRunBusiness' },
-  { key: 'sales', tk: 'nav.confirmSale', label: 'Confirm a Sale', to: '/my-sales', link: false },
-  { key: 'team', tk: 'nav.myTeam', label: 'My Team', to: '/my-team', link: true },
-  { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', to: '/ai-tools', link: true },
-  { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', to: '/my-marketing', link: true },
-  { key: 'content-planner', tk: 'nav.contentPlanner', label: 'Content Planner', to: '/momentum', link: true },
-  { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', to: '/trafficdrop', link: true },
-  { key: 'banner-showcase', tk: 'nav.bannerShowcase', label: 'Banner Showcase', to: '/discover', link: false },
-  { key: 'traffic', tk: 'nav.yourTraffic', label: 'Your Traffic', to: '/my-traffic', link: true },
-  { key: 'kit', tk: 'nav.contentKit', label: 'Content Kit', to: '/content-kit', link: true },
-  { key: 'academy', tk: 'nav.academy', label: 'Academy', to: '/academy', link: true },
-  { key: 'comp', tk: 'nav.compensationPlan', label: 'Compensation Plan', to: '/compensation-plan', link: true },
-  { header: 'MORE', tk: 'nav.grpMore' },
-  { key: 'wisdom', tk: 'nav.dailyWisdom', label: 'Daily Wisdom', to: '/wisdom', link: true },
-  { key: 'extras', tk: 'nav.vettedExtras', label: 'Vetted Extras', to: '/collaborations', link: true },
+  { key: 'wallet', tk: 'nav.paymentDetails', label: 'Payment Details', icon: '💳', to: '/payout-methods', link: false },
+  { key: 'watch', tk: 'nav.dailyWatch', label: 'Daily Watch', icon: '📺', to: '/watch', link: true },
+  { header: 'RUN YOUR BUSINESS', icon: '💼', tk: 'nav.grpRunBusiness' },
+  { key: 'sales', tk: 'nav.confirmSale', label: 'Confirm a Sale', icon: '🤝', to: '/my-sales', link: false },
+  { key: 'team', tk: 'nav.myTeam', label: 'My Team', icon: '👥', to: '/my-team', link: true },
+  { key: 'ai-tools', tk: 'nav.marketingTools', label: 'Marketing Tools', icon: '🧰', to: '/ai-tools', link: true },
+  { key: 'marketing', tk: 'nav.myMarketing', label: 'My Marketing', icon: '📢', to: '/my-marketing', link: true },
+  { key: 'content-planner', tk: 'nav.contentPlanner', label: 'Content Planner', icon: '📅', to: '/momentum', link: true },
+  { key: 'trafficdrop', tk: 'nav.trafficDrop', label: 'Traffic Drop', icon: '⚡', to: '/trafficdrop', link: true },
+  { key: 'banner-showcase', tk: 'nav.bannerShowcase', label: 'Banner Showcase', icon: '🎨', to: '/discover', link: false },
+  { key: 'traffic', tk: 'nav.yourTraffic', label: 'Your Traffic', icon: '📈', to: '/my-traffic', link: true },
+  { key: 'kit', tk: 'nav.contentKit', label: 'Content Kit', icon: '📁', to: '/content-kit', link: true },
+  { key: 'academy', tk: 'nav.academy', label: 'Academy', icon: '🎓', to: '/academy', link: true },
+  { key: 'comp', tk: 'nav.compensationPlan', label: 'Compensation Plan', icon: '💵', to: '/compensation-plan', link: true },
+  { header: 'MORE', icon: '✨', tk: 'nav.grpMore' },
+  { key: 'wisdom', tk: 'nav.dailyWisdom', label: 'Daily Wisdom', icon: '💡', to: '/wisdom', link: true },
+  { key: 'extras', tk: 'nav.vettedExtras', label: 'Vetted Extras', icon: '🎁', to: '/collaborations', link: true },
 ];
 
 const NAV_GROUPS = (function () {
   const groups = []; let cur = { header: null, items: [] };
   NAV.forEach(function (n) {
-    if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, tk: n.tk, items: [] }; }
+    if (n.header) { if (cur.items.length || cur.header) groups.push(cur); cur = { header: n.header, tk: n.tk, icon: n.icon, items: [] }; }
     else cur.items.push(n);
   });
   if (cur.items.length || cur.header) groups.push(cur);
@@ -84,7 +84,7 @@ export default function SideNav({ active }) {
       return (
         <div key={n.key}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Link className={n.key === active ? 'on' : undefined} to={n.to} style={{ flex: 1 }}>{t(n.tk, { defaultValue: n.label })}</Link>
+            <Link className={n.key === active ? 'on' : undefined} to={n.to} style={{ flex: 1 }}>{n.icon ? <span className="ic">{n.icon}</span> : null}{t(n.tk, { defaultValue: n.label })}</Link>
             <span role="button" aria-expanded={open} onClick={function (e) { e.preventDefault(); e.stopPropagation(); setSubOpen(function (p) { const nx = Object.assign({}, p); nx[n.key] = !open; return nx; }); }}
               style={{ cursor: 'pointer', padding: '6px 12px', display: 'inline-flex', alignItems: 'center' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .18s ease' }}>
@@ -113,9 +113,10 @@ export default function SideNav({ active }) {
         </div>
       );
     }
+    const _lbl = (<>{n.icon ? <span className="ic">{n.icon}</span> : null}{t(n.tk, { defaultValue: n.label })}</>);
     return n.link
-      ? <Link key={n.key} className={cls} to={n.to}>{t(n.tk, { defaultValue: n.label })}</Link>
-      : <a key={n.key} className={cls} href={n.to}>{t(n.tk, { defaultValue: n.label })}</a>;
+      ? <Link key={n.key} className={cls} to={n.to}>{_lbl}</Link>
+      : <a key={n.key} className={cls} href={n.to}>{_lbl}</a>;
   }
   return (
     <>
@@ -125,8 +126,8 @@ export default function SideNav({ active }) {
         return (
           <div key={'g' + gi} style={{ marginTop: 8 }}>
             <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '11px 13px', borderRadius: 11, background: isCol ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.10)', marginBottom: isCol ? 0 : 4 }}>
-              <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)' }}>{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '15px 15px 6px', marginBottom: isCol ? 0 : 2 }}>
+              <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 8 }}>{g.icon ? <span style={{ fontSize: 13 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
                 <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
