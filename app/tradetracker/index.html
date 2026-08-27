@@ -791,7 +791,12 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 /* page header */
 .main h1,.content h1,.page-header h1{font-weight:900!important;letter-spacing:-1px!important;}
 /* stat cards — premium */
-.stats-row{gap:16px!important;}
+.stats-row{gap:15px!important;grid-template-columns:repeat(4,1fr)!important;}
+@media(max-width:1150px){.stats-row{grid-template-columns:repeat(2,1fr)!important;}}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr!important;}}
+/* tighten stat cards for 4-across */
+.stat-card{padding:16px 17px!important;}
+.stat-value{font-size:26px!important;}
 .stat-card{border:1.5px solid var(--border)!important;border-radius:16px!important;padding:18px 20px!important;box-shadow:0 1px 2px rgba(10,31,82,.05)!important;transition:.15s!important;}
 .stat-card:hover{box-shadow:0 14px 32px -20px rgba(18,56,143,.28)!important;}
 .stat-label{font-size:11px!important;font-weight:800!important;letter-spacing:.06em!important;text-transform:uppercase!important;color:var(--text-secondary)!important;}
