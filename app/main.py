@@ -4316,6 +4316,9 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
     injected into localStorage server-side + a sync shim (Phase 2). Gated behind login."""
     if not user:
         return RedirectResponse(url="/login", status_code=302)
+    if not is_admin(user):
+        # Not launched to members yet — admin-only during build.
+        return RedirectResponse(url="/dashboard", status_code=302)
     _tt = os.path.join(os.path.dirname(__file__), "tradetracker", "index.html")
     try:
         with open(_tt, encoding="utf-8") as _f:
@@ -4356,6 +4359,8 @@ def al_forex_ticker(user: User = Depends(get_current_user)):
     covers the whole base."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_admin(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     import time as _t
     now = _t.time()
     if _TT_TICKER_CACHE["data"] and (now - _TT_TICKER_CACHE["ts"] < 60):
@@ -4398,6 +4403,8 @@ def tt_data_get(request: Request, user: User = Depends(get_current_user), db: Se
     """Load the member's saved TradeTracker state (trades, checklist, balance)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_admin(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     from .database import TradeTrackerData
     try:
         row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
@@ -4412,6 +4419,8 @@ async def tt_data_save(request: Request, user: User = Depends(get_current_user),
     """Persist the member's TradeTracker state. Called by the tool's sync shim."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_admin(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
         body = await request.json()
     except Exception:
@@ -82810,11 +82819,12 @@ def al_tradetracker_collab_seed(request: Request, user: User = Depends(get_curre
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
         from .database import Collaboration
+        pub = request.query_params.get("publish", "1") != "0"
         row = db.query(Collaboration).filter(Collaboration.ref_url == "/tradetracker").first()
         if row:
-            row.is_published = True
+            row.is_published = pub
             db.commit()
-            return {"ok": True, "already": True, "id": row.id}
+            return {"ok": True, "already": True, "id": row.id, "published": pub}
         row = Collaboration(
             name="TradeTracker Pro", category="Tools",
             blurb=("A complete trading journal built into AdvantageLife. Log every trade, tag your "
