@@ -867,6 +867,25 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-mchip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);user-select:none;background:#fff;}
 .tt-mchip input{accent-color:#c8102e;margin:0;}
 .tt-mchip:has(input:checked){border-color:#c8102e;background:rgba(200,16,46,.07);color:#c8102e;font-weight:800;}
+
+/* ===== AI Trade Coach ===== */
+.tt-coach{background:#fff;border:1.5px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px -22px rgba(10,20,56,.35);}
+.tt-coach-top{background:linear-gradient(125deg,#0a1f52,#12388f 65%,#1a49b0);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
+.tt-coach-top::after{content:'';position:absolute;top:-50px;right:-30px;width:200px;height:220px;background:radial-gradient(circle,rgba(200,16,46,.35),transparent 68%);}
+.tt-coach-av{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#c8102e,#e8203f);display:flex;align-items:center;justify-content:center;font-size:23px;flex:none;position:relative;}
+.tt-coach-h{position:relative;}
+.tt-coach-t{font-size:18px;font-weight:900;letter-spacing:-.3px;}
+.tt-coach-s{font-size:12.5px;color:#c9d5f2;font-weight:500;margin-top:2px;}
+.tt-coach-body{padding:4px 22px 16px;}
+.tt-ins{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--border);}
+.tt-ins:last-child{border-bottom:none;}
+.tt-ins-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;}
+.tt-ins.warn .tt-ins-ic{background:rgba(200,16,46,.10);}
+.tt-ins.good .tt-ins-ic{background:rgba(11,122,62,.12);}
+.tt-ins.tip .tt-ins-ic{background:rgba(240,165,42,.15);}
+.tt-ins-h{font-size:14.5px;font-weight:800;color:var(--text-primary);margin-bottom:3px;}
+.tt-ins-d{font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.5;}
+.tt-coach-empty{padding:16px 0;font-size:13.5px;color:var(--text-secondary);font-weight:500;line-height:1.55;}
 </style>
 </head>
 <body>
@@ -1006,6 +1025,14 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="tt-eyebrow">Your AI Coach <span>&mdash; what to work on</span></div>
+                <div class="tt-coach">
+                    <div class="tt-coach-top">
+                        <div class="tt-coach-av">🤖</div>
+                        <div class="tt-coach-h"><div class="tt-coach-t">Your AI Trade Coach</div><div class="tt-coach-s">Reads your journal and tells you about your own patterns &mdash; not the market. Updates after every trade.</div></div>
+                    </div>
+                    <div class="tt-coach-body" id="ttCoachBody"></div>
+                </div>
                 <div class="tt-eyebrow">Profit calendar <span>&mdash; your daily P&amp;L</span></div>
                 <!-- CALENDAR -->
                 <div class="calendar-section">
@@ -1791,7 +1818,46 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         }
 
         // STATS - WITH BUG FIX
+        function computeCoachInsights(trades){
+            if(!trades||trades.length<3) return {empty:true,count:trades?trades.length:0};
+            var out=[]; var pnl=function(t){return parseFloat(t.pnl)||0;}; var win=function(t){return pnl(t)>0;};
+            var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            var setups={};
+            trades.forEach(function(t){var k=(t.setup||'Other');if(!setups[k])setups[k]={n:0,w:0,pnl:0};setups[k].n++;if(win(t))setups[k].w++;setups[k].pnl+=pnl(t);});
+            var best=null;
+            for(var sk in setups){var d=setups[sk];if(d.n>=2){var wr=d.w/d.n;if(!best||wr>best.wr)best={s:sk,wr:wr,n:d.n,pnl:d.pnl};}}
+            if(best&&best.wr>=0.5)out.push({k:'good',i:'\u{1F3AF}',h:'Your '+best.s+' setup is your edge \u2014 '+Math.round(best.wr*100)+'% win rate',d:'Across '+best.n+' trades it\u2019s your most reliable setup'+(best.pnl>0?', up $'+best.pnl.toFixed(0)+' total':'')+'. Do more of what already works.'});
+            var byDay={};
+            trades.forEach(function(t){var dd=new Date(t.date).getDay();if(isNaN(dd))return;if(!byDay[dd])byDay[dd]={n:0,w:0,pnl:0};byDay[dd].n++;if(win(t))byDay[dd].w++;byDay[dd].pnl+=pnl(t);});
+            var worst=null;
+            for(var dk in byDay){var x=byDay[dk];if(x.n>=2){var w2=x.w/x.n;if(!worst||w2<worst.wr)worst={day:days[dk],wr:w2,n:x.n,pnl:x.pnl};}}
+            if(worst&&worst.wr<0.4)out.push({k:'warn',i:'\u{1F4C9}',h:'You struggle on '+worst.day+'s \u2014 '+Math.round(worst.wr*100)+'% win rate',d:'Your '+worst.n+' '+worst.day+' trades are your weakest'+(worst.pnl<0?', down $'+Math.abs(worst.pnl).toFixed(0):'')+'. Consider sitting them out.'});
+            var tp=0,tn=0;
+            trades.forEach(function(t){if(['Revenge','Greedy/FOMO','Fearful'].indexOf(t.emotion)>-1){tp+=pnl(t);tn++;}});
+            if(tn>=2&&tp<0)out.push({k:'warn',i:'\u2696\uFE0F',h:'Trading on tilt is costing you \u2014 $'+Math.abs(tp).toFixed(0),d:'Your '+tn+' trades taken while fearful, greedy or on revenge are net negative. Your calm, confident trades are where your money is.'});
+            var mis={};
+            trades.forEach(function(t){(t.mistakes||[]).forEach(function(m){if(!mis[m])mis[m]={n:0,pnl:0};mis[m].n++;mis[m].pnl+=pnl(t);});});
+            var top=null;
+            for(var mk in mis){if(!top||mis[mk].n>top.n)top={m:mk,n:mis[mk].n,pnl:mis[mk].pnl};}
+            if(top&&top.n>=2)out.push({k:'tip',i:'\u2702\uFE0F',h:'Your most repeated mistake: \u201C'+top.m+'\u201D \u2014 '+top.n+' times',d:'It shows up in '+top.n+' of your trades'+(top.pnl<0?' and has cost you $'+Math.abs(top.pnl).toFixed(0):'')+'. Fixing this one habit is your fastest gain.'});
+            var risks={};
+            trades.forEach(function(t){if(t.risk)risks[t.risk]=(risks[t.risk]||0)+1;});
+            if(Object.keys(risks).length>=3)out.push({k:'warn',i:'\u2696\uFE0F',h:'Your risk per trade is inconsistent',d:'You\u2019re mixing '+Object.keys(risks).length+' different risk levels. Your steadiest results come from a fixed rule \u2014 pick one and stick to it.'});
+            return {empty:false,insights:out,count:trades.length};
+        }
+
+        function renderCoach(){
+            var el=document.getElementById('ttCoachBody'); if(!el)return;
+            var r=computeCoachInsights(trades);
+            if(r.empty){ el.innerHTML='<div class="tt-coach-empty">Log a few trades and your Coach starts spotting your patterns \u2014 your best setups, your costly habits, and where you\u2019re leaving money on the table.'+(r.count>0?(' <b>('+r.count+' logged \u2014 a couple more and it kicks in.)</b>'):'')+'</div>'; return; }
+            if(!r.insights.length){ el.innerHTML='<div class="tt-coach-empty">Nothing jumping out yet \u2014 keep logging and the Coach will surface patterns as they build.</div>'; return; }
+            var html='';
+            r.insights.forEach(function(x){ html+='<div class="tt-ins '+x.k+'"><div class="tt-ins-ic">'+x.i+'</div><div class="tt-ins-tx"><div class="tt-ins-h">'+x.h+'</div><div class="tt-ins-d">'+x.d+'</div></div></div>'; });
+            el.innerHTML=html;
+        }
+
         function updateStats() {
+            try{ renderCoach(); }catch(e){}
             // Net Return
             const totalPnL = trades.reduce((sum, t) => sum + parseFloat(t.pnl), 0);
             const netReturnEl = document.getElementById('netReturn');
