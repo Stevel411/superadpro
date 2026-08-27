@@ -904,6 +904,11 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .sidebar .nav-item.tt-nav-coach{position:relative;}
 .sidebar .nav-item .tt-new{margin-left:auto;font-size:8.5px;font-weight:900;background:#c8102e;color:#fff;padding:2px 7px;border-radius:20px;letter-spacing:.05em;}
 .sidebar .nav-item.active .tt-new{background:#fff;color:#c8102e;}
+
+/* ===== Equity curve card ===== */
+.tt-equity-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:20px 22px;box-shadow:0 10px 30px -22px rgba(10,20,56,.35);}
+.tt-equity-wrap{position:relative;height:260px;}
+.tt-equity-empty{display:none;padding:40px 10px;text-align:center;font-size:13.5px;color:var(--text-secondary);font-weight:500;line-height:1.55;}
 </style>
 </head>
 <body>
@@ -1044,6 +1049,11 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="tt-eyebrow">Your equity curve <span>&mdash; cumulative P&amp;L over time</span></div>
+                <div class="tt-equity-card">
+                    <div class="tt-equity-wrap"><canvas id="miniEquityChart"></canvas></div>
+                    <div class="tt-equity-empty" id="ttEquityEmpty">Log a few trades and your growth curve builds here \u2014 the one line that tells you if you\u2019re actually making money over time.</div>
+                </div>
                 <div class="tt-eyebrow">Profit calendar <span>&mdash; your daily P&amp;L</span></div>
                 <!-- CALENDAR -->
                 <div class="calendar-section">
@@ -1717,6 +1727,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         let editingTradeIndex = null;
         let equityChart = null;
         let setupChart = null;
+        let miniEquityChart = null;
 
         const checklistItems = [
             "Review Daily bias on Daily chart",
@@ -1983,6 +1994,8 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         function renderMiniEquityChart() {
             const ctx = document.getElementById('miniEquityChart');
             if (!ctx) return;
+            var _emptyEl = document.getElementById('ttEquityEmpty');
+            if (_emptyEl) { var _has = (trades && trades.length > 0); _emptyEl.style.display = _has ? 'none' : 'block'; ctx.style.display = _has ? 'block' : 'none'; if(!_has){ if(miniEquityChart){miniEquityChart.destroy(); miniEquityChart=null;} return; } }
             
             const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
             let balance = INITIAL_BALANCE;
