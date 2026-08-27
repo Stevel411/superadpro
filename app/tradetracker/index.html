@@ -816,7 +816,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .sidebar .logo .tt-wordmark .pro{font-size:11px!important;color:#4ade80!important;font-weight:900!important;letter-spacing:.06em!important;}
 
 /* ===== AL-native dashboard ===== */
-#dashboard > .header{display:none!important;}
+.page > .header{display:none!important;}
 .tt-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#0a1f52,#12388f 62%,#1a49b0);border-radius:22px;padding:26px 30px;color:#fff;box-shadow:0 24px 54px -30px rgba(18,56,143,.7);display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
 .tt-hero::after{content:'';position:absolute;top:-70px;right:-40px;width:280px;height:300px;background:radial-gradient(circle,rgba(200,16,46,.4),transparent 68%);pointer-events:none;}
 .tt-hero-l{flex:1;min-width:280px;position:relative;z-index:2;}
@@ -994,6 +994,14 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- JOURNAL PAGE -->
             <div id="journal" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Trade</div>
+                        <h1 class="tt-hero-title">Trade Journal</h1>
+                        <p class="tt-hero-sub">Every position you've taken &mdash; logged, tagged and searchable.</p>
+                        <div class="tt-hero-actions"><button class="tt-hero-btn primary" onclick="openModal()">&#10133; Add Trade</button></div>
+                    </div>
+                </div>
                 <div class="header">
                     <div class="header-top">
                         <h2>Trade Journal</h2>
@@ -1010,6 +1018,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- ANALYTICS PAGE -->
             <div id="analytics" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Review</div>
+                        <h1 class="tt-hero-title">Analytics &amp; Performance</h1>
+                        <p class="tt-hero-sub">The numbers behind your trading &mdash; what's working and what's leaking.</p>
+                    </div>
+                </div>
                 <div class="header">
                     <h2>Analytics &amp; Performance</h2>
                 </div>
@@ -1052,6 +1067,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- STRATEGY PAGE -->
             <div id="strategy" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Plan</div>
+                        <h1 class="tt-hero-title">Trading Strategy</h1>
+                        <p class="tt-hero-sub">Your rules and playbook &mdash; the plan you trade to.</p>
+                    </div>
+                </div>
                 <div class="header">
                     <h2>Trading Strategy</h2>
                 </div>
@@ -1149,6 +1171,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- CHECKLIST PAGE -->
             <div id="checklist" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Plan</div>
+                        <h1 class="tt-hero-title">Daily Trading Checklist</h1>
+                        <p class="tt-hero-sub">Your pre-market routine &mdash; tick it off before you trade.</p>
+                    </div>
+                </div>
                 <div class="header">
                     <h2>Daily Trading Checklist</h2>
                     <p style="color: var(--text-muted); margin-top: 0.5rem;">Complete these steps before trading each day</p>
@@ -1237,6 +1266,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- CALCULATOR PAGE -->
             <div id="calculator" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Trade</div>
+                        <h1 class="tt-hero-title">Lot Size Calculator</h1>
+                        <p class="tt-hero-sub">Size every position to your risk before you enter.</p>
+                    </div>
+                </div>
                 <div class="header">
                     <h2>Lot Size Calculator</h2>
                     <p style="color: var(--text-muted); margin-top: 0.5rem;">Calculate optimal position size based on your risk tolerance</p>
@@ -1356,6 +1392,13 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
             <!-- SETTINGS PAGE -->
             <div id="settings" class="page">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">Account</div>
+                        <h1 class="tt-hero-title">Settings</h1>
+                        <p class="tt-hero-sub">Your account, starting balance and preferences.</p>
+                    </div>
+                </div>
                 <div class="header">
                     <h2>Settings</h2>
                 </div>
