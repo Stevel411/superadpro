@@ -4349,18 +4349,6 @@ def _tt_fmt_price(sym, price):
     return f"{v:.5f}"
 
 
-@app.get("/admin/api/al/ticker-diag")
-def al_ticker_diag(request: Request):
-    secret = request.query_params.get("secret", "")
-    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
-    if not (secret and secret in _secrets):
-        return JSONResponse({"error": "forbidden"}, status_code=403)
-    env = os.getenv("TWELVEDATA_API_KEY")
-    return {"env_var_set": bool(env), "env_len": len(env or ""),
-            "source_used": "env" if env else "baked_fallback",
-            "masked": (env[:3] + "\u2026" + env[-2:]) if (env and len(env) > 6) else None}
-
-
 @app.get("/api/al/forex-ticker")
 def al_forex_ticker(user: User = Depends(get_current_user)):
     """Cached forex ticker for TradeTracker. Fetches server-side once/min (key never
@@ -4372,7 +4360,7 @@ def al_forex_ticker(user: User = Depends(get_current_user)):
     now = _t.time()
     if _TT_TICKER_CACHE["data"] and (now - _TT_TICKER_CACHE["ts"] < 60):
         return {"ok": True, "pairs": _TT_TICKER_CACHE["data"], "cached": True}
-    key = os.getenv("TWELVEDATA_API_KEY", "b0d642f68aa342419303ec962420b071")
+    key = os.getenv("TWELVEDATA_API_KEY", "")
     try:
         import urllib.request as _u, urllib.parse as _up, json as _j
         syms = _up.quote(",".join(_TT_TICKER_PAIRS))
