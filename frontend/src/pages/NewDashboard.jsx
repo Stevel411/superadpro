@@ -44,9 +44,10 @@ const CSS = `
 .al .cols{display:grid;grid-template-columns:272px 1fr;gap:20px;align-items:stretch}
 @media(max-width:980px){.al .cols{grid-template-columns:1fr}.al .side{display:none}.al .nav{display:none}}
 /* ── sidebar ── */
-.al .side{background:linear-gradient(175deg,#0e2a6e,#0a1f52);border-radius:22px;padding:20px 14px;box-shadow:0 24px 50px -24px rgba(10,31,82,.6);display:flex;flex-direction:column}
-.al .side a{display:flex;align-items:center;gap:12px;color:#c7d3f2;font-weight:800;font-size:15px;padding:14px 16px;border-radius:13px;margin-bottom:5px}
-.al .side a.on{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.7)}
+.al .side{background:linear-gradient(160deg,#12388f,#0a1f52);border-radius:22px;padding:20px 14px;box-shadow:0 24px 50px -24px rgba(10,31,82,.6);display:flex;flex-direction:column}
+.al .side a{display:flex;align-items:center;gap:12px;color:#c9d5f2;font-weight:800;font-size:15px;padding:13px 15px;border-radius:12px;margin-bottom:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+.al .side a .ic{font-size:1.05em;width:22px;text-align:center;flex:none;line-height:1}
+.al .side a.on{background:linear-gradient(120deg,#c8102e,#ff2743);border-color:transparent;color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.55)}
 .al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
 .al .side .navhdr{font-size:10px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.42);text-transform:uppercase;padding:15px 16px 6px}
 .al .side .sdiv{height:1px;background:rgba(255,255,255,.12);margin:14px 6px;margin-top:auto}

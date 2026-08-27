@@ -127,7 +127,7 @@ export default function SideNav({ active }) {
           <div key={'g' + gi} style={{ marginTop: 8 }}>
             <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '15px 15px 6px', marginBottom: isCol ? 0 : 2 }}>
-              <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 8 }}>{g.icon ? <span style={{ fontSize: 13 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
+              <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', color: '#93a8e0', display: 'flex', alignItems: 'center', gap: 8 }}>{g.icon ? <span style={{ fontSize: 14 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
                 <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
