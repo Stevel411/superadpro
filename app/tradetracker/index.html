@@ -14,7 +14,7 @@
         }
 
         :root {
-            --bg-primary: #FAFAFA;
+            --bg-primary: #eef2fa;
             --bg-secondary: #FFFFFF;
             --bg-tertiary: #F5F5F5;
             
@@ -814,6 +814,26 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .sidebar .logo .tt-wordmark{font-size:18px!important;font-weight:900!important;letter-spacing:-.4px!important;color:#fff!important;line-height:1.12!important;}
 .sidebar .logo .tt-wordmark .tk{color:#ff5a70!important;}
 .sidebar .logo .tt-wordmark .pro{font-size:11px!important;color:#4ade80!important;font-weight:900!important;letter-spacing:.06em!important;}
+
+/* ===== AL-native dashboard ===== */
+#dashboard > .header{display:none!important;}
+.tt-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#0a1f52,#12388f 62%,#1a49b0);border-radius:22px;padding:26px 30px;color:#fff;box-shadow:0 24px 54px -30px rgba(18,56,143,.7);display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.tt-hero::after{content:'';position:absolute;top:-70px;right:-40px;width:280px;height:300px;background:radial-gradient(circle,rgba(200,16,46,.4),transparent 68%);pointer-events:none;}
+.tt-hero-l{flex:1;min-width:280px;position:relative;z-index:2;}
+.tt-hero-eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8ea6e8;}
+.tt-hero-title{font-size:30px!important;font-weight:900!important;letter-spacing:-1.1px!important;line-height:1.03!important;margin:8px 0 8px!important;color:#fff!important;}
+.tt-hero-title span{color:#4ade80!important;}
+.tt-hero-sub{font-size:14px;color:#c9d5f2;font-weight:500;line-height:1.5;max-width:56ch;margin:0 0 16px;}
+.tt-hero-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.tt-hero-btn{height:44px;padding:0 20px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;border:none;background:rgba(255,255,255,.12);color:#fff;}
+.tt-hero-btn.primary{background:#fff;color:#0a1f52;}
+.tt-hero-net{position:relative;z-index:2;background:#fff;border-radius:16px;padding:16px 26px;text-align:center;flex:none;box-shadow:0 14px 34px -16px rgba(0,0,0,.45);}
+.tt-hero-net .l{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5a6584;}
+.tt-hero-net .v{font-size:31px;font-weight:900;letter-spacing:-1px;color:#0b7a3e;margin-top:5px;}
+.tt-hero-net .s{font-size:11px;color:#5a6584;font-weight:600;margin-top:4px;}
+.tt-eyebrow{font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#c8102e;margin:24px 4px 13px;}
+.tt-eyebrow span{color:#5a6584;font-weight:800;}
+.calendar-section{background:#fff!important;border:1.5px solid #e6ecf5!important;border-radius:18px!important;box-shadow:0 10px 30px -22px rgba(10,20,56,.35)!important;padding:22px 24px!important;margin-top:0!important;}
 </style>
 </head>
 <body>
@@ -871,6 +891,22 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         <main class="main-content">
             <!-- DASHBOARD PAGE -->
             <div id="dashboard" class="page active">
+                <div class="tt-hero">
+                    <div class="tt-hero-l">
+                        <div class="tt-hero-eyebrow">TradeTracker Pro &middot; AdvantageLife</div>
+                        <h1 class="tt-hero-title">Your trading <span>dashboard</span></h1>
+                        <p class="tt-hero-sub">Every trade, every setup, every lesson &mdash; in one place. Log it, review it, and let your Coach show you your edge.</p>
+                        <div class="tt-hero-actions">
+                            <button class="tt-hero-btn primary" onclick="openModal()">&#10133; Add Trade</button>
+                            <button class="tt-hero-btn" onclick="exportData()">&#128229; Export</button>
+                        </div>
+                    </div>
+                    <div class="tt-hero-net">
+                        <div class="l">Net Return</div>
+                        <div class="v" id="heroNetReturn">$0.00</div>
+                        <div class="s"><span id="heroTradeCount">0</span> trades logged</div>
+                    </div>
+                </div>
                 <div class="header">
                     <div class="header-top">
                         <h2>Dashboard</h2>
@@ -885,6 +921,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="tt-eyebrow">This week <span>&mdash; your numbers</span></div>
                 <!-- STATS ROW -->
                 <div class="stats-row">
                     <div class="stat-card">
@@ -940,6 +977,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="tt-eyebrow">Profit calendar <span>&mdash; your daily P&amp;L</span></div>
                 <!-- CALENDAR -->
                 <div class="calendar-section">
                     <div class="calendar-header">
@@ -2160,4 +2198,20 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         });
     </script>
 
+<script>
+(function(){
+  function mirror(){
+    var n=document.getElementById('netReturn'), h=document.getElementById('heroNetReturn');
+    if(n&&h){ h.textContent=n.textContent; h.style.color=(n.textContent.indexOf('-')>-1)?'#c8102e':'#0b7a3e'; }
+    var t=document.getElementById('totalTrades'), ht=document.getElementById('heroTradeCount');
+    if(t&&ht){ ht.textContent=t.textContent; }
+  }
+  function start(){
+    var n=document.getElementById('netReturn');
+    if(n){ try{ new MutationObserver(mirror).observe(n,{childList:true,characterData:true,subtree:true}); }catch(e){} }
+    mirror(); setTimeout(mirror,400); setInterval(mirror,2000);
+  }
+  if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded',start);
+})();
+</script>
 </body></html>
