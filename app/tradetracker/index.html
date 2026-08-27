@@ -919,6 +919,41 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-equity-link-s{font-size:13px;color:#c9d5f2;font-weight:500;margin-top:2px;}
 .tt-equity-link-arrow{font-size:22px;font-weight:900;color:#fff;flex:none;}
 .tt-equity-wrap-full{height:420px;}
+
+/* ===== Responsive (grid-aware) — overrides the tool's legacy flex media queries ===== */
+html,body{max-width:100%;overflow-x:hidden;}
+.app{grid-template-columns:auto minmax(0,1fr)!important;}
+.main-content{max-width:100%!important;min-width:0!important;}
+.tt-topbar,.tt-hero,.tt-hero-l,.tt-coach,.tt-equity-card,.calendar-section,.stat-card{min-width:0;}
+.tt-hero{flex-wrap:wrap;}
+@media(max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)!important;padding:10px!important;gap:12px!important;}
+  .sidebar{display:none!important;}
+  .sidebar.tt-open{display:flex!important;position:fixed!important;top:74px;left:10px;right:10px;bottom:auto;max-height:78vh;z-index:200;width:auto!important;}
+  .sidebar.tt-open .nav-item span:not(.nav-icon){display:inline!important;}
+  .sidebar.tt-open .nav-item{justify-content:flex-start!important;}
+  .sidebar.tt-open .nav-group{display:block!important;}
+  .main-content{grid-column:1!important;margin-left:0!important;max-width:100%!important;padding:0!important;}
+  .tt-topbar{grid-column:1 / -1!important;padding:9px 13px!important;gap:8px!important;}
+  .tt-tb-wm{font-size:15px!important;}
+  .tt-tb-share{padding:0 13px!important;font-size:12.5px!important;height:38px!important;}
+  .tt-tb-burger{width:38px!important;height:38px!important;flex:none;}
+  .tt-hero{padding:20px 18px!important;}
+  .tt-hero-title{font-size:23px!important;}
+  .tt-hero-sub{font-size:13px!important;}
+  .tt-hero-net{width:100%!important;text-align:center;margin-top:6px;}
+  .stats-row{grid-template-columns:1fr!important;}
+  .tt-equity-wrap-full{height:300px!important;}
+  .tt-eyebrow{margin-left:2px;margin-right:2px;}
+}
+@media(max-width:420px){
+  .tt-topbar{padding:8px 11px!important;gap:6px!important;}
+  .tt-tb-wm{font-size:14px!important;}
+  .tt-tb-share span, .tt-tb-share{font-size:0!important;}
+  .tt-tb-share::before{content:"+ Add";font-size:12.5px;}
+  .tt-hero-title{font-size:21px!important;}
+  .calendar .day-pnl{font-size:9px!important;}
+}
 </style>
 </head>
 <body>
