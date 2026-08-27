@@ -861,6 +861,12 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .sidebar .nav-group{font-size:11px!important;font-weight:900!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:rgba(255,255,255,.42)!important;padding:14px 16px 6px!important;}
 .sidebar-footer{padding:14px 20px 4px!important;}
 @media(max-width:820px){.app{grid-template-columns:1fr;}.sidebar{display:none;grid-column:1;}.sidebar.tt-open{display:flex;}.main-content{grid-column:1;}}
+
+/* ===== Log Trade capture ===== */
+.tt-mistakes{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.tt-mchip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-secondary);user-select:none;background:#fff;}
+.tt-mchip input{accent-color:#c8102e;margin:0;}
+.tt-mchip:has(input:checked){border-color:#c8102e;background:rgba(200,16,46,.07);color:#c8102e;font-weight:800;}
 </style>
 </head>
 <body>
@@ -1528,6 +1534,40 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Risk this trade</label>
+                        <select id="tradeRisk">
+                            <option value="1% (planned)">1% (planned)</option>
+                            <option value="2%">2%</option>
+                            <option value="0.5%">0.5%</option>
+                            <option value="3%+ (over risk)">3%+ (over risk)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>How you felt going in</label>
+                        <select id="tradeEmotion">
+                            <option value="Calm">&#128524; Calm</option>
+                            <option value="Confident">&#128170; Confident</option>
+                            <option value="Fearful">&#128556; Fearful</option>
+                            <option value="Greedy/FOMO">&#129297; Greedy / FOMO</option>
+                            <option value="Revenge">&#128548; Revenge</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Any mistakes? (tick all that apply)</label>
+                    <div class="tt-mistakes">
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="Chased entry"> Chased entry</label>
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="Moved my stop"> Moved my stop</label>
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="Oversized"> Oversized</label>
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="No clear plan"> No clear plan</label>
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="Exited early"> Exited early</label>
+                        <label class="tt-mchip"><input type="checkbox" class="tt-mistake" value="Broke a rule"> Broke a rule</label>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>📝 Trade Notes &amp; Psychology</label>
                     <textarea id="tradeNotes" placeholder="Example:
@@ -1577,6 +1617,9 @@ body{font-family:'Inter',-apple-system,sans-serif;}
             document.getElementById('setupType').value = trade.setup;
             document.getElementById('dailyBias').value = trade.bias;
             document.getElementById('tradeNotes').value = trade.notes || '';
+            if(document.getElementById('tradeRisk')) document.getElementById('tradeRisk').value = trade.risk || '1% (planned)';
+            if(document.getElementById('tradeEmotion')) document.getElementById('tradeEmotion').value = trade.emotion || 'Calm';
+            Array.prototype.slice.call(document.querySelectorAll('.tt-mistake')).forEach(function(c){ c.checked = (trade.mistakes||[]).indexOf(c.value) > -1; });
             
             // Update modal title
             document.querySelector('.modal-header h3').textContent = 'Edit Trade';
@@ -2083,6 +2126,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 
         // MODAL
         function openModal() {
+            try{ Array.prototype.slice.call(document.querySelectorAll('.tt-mistake')).forEach(function(c){c.checked=false;}); }catch(e){}
             editingTradeIndex = null;
             document.getElementById('tradeModal').classList.add('active');
             document.querySelector('.modal-header h3').textContent = 'Add New Trade';
@@ -2111,6 +2155,9 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                 setup: document.getElementById('setupType').value,
                 bias: document.getElementById('dailyBias').value,
                 notes: document.getElementById('tradeNotes').value,
+                risk: (document.getElementById('tradeRisk')||{}).value || '',
+                emotion: (document.getElementById('tradeEmotion')||{}).value || '',
+                mistakes: Array.prototype.slice.call(document.querySelectorAll('.tt-mistake:checked')).map(function(c){return c.value;}),
                 timestamp: editingTradeIndex !== null ? trades[editingTradeIndex].timestamp : new Date().toISOString()
             };
             
