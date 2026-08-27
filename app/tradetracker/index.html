@@ -963,6 +963,41 @@ html,body{max-width:100%;overflow-x:hidden;}
   .app{height:auto!important;min-height:100vh!important;overflow:visible!important;}
   .main-content{overflow-y:visible!important;}
 }
+
+/* ===== Playbook ===== */
+.tt-eyebrow-add{font-size:12px;font-weight:800;color:var(--accent);cursor:pointer;text-transform:none;letter-spacing:0;}
+.pb-setup{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:13px;box-shadow:0 1px 2px rgba(10,31,82,.05);}
+.pb-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.pb-nm{font-size:16.5px;font-weight:900;letter-spacing:-.3px;color:var(--text-primary);}
+.pb-stat{font-size:12px;font-weight:800;padding:5px 11px;border-radius:20px;flex:none;white-space:nowrap;}
+.pb-stat.good{background:rgba(11,122,62,.1);color:#0b7a3e;}
+.pb-stat.mid{background:rgba(240,165,42,.15);color:#b9791a;}
+.pb-stat.bad{background:rgba(200,16,46,.08);color:#c8102e;}
+.pb-stat.none{background:#eef2fa;color:var(--text-muted);}
+.pb-rules{font-size:13.5px;color:var(--text-secondary);font-weight:500;line-height:1.5;}
+.pb-acts{display:flex;gap:8px;margin-top:12px;}
+.pb-acts button{font-size:12px;font-weight:800;padding:6px 13px;border-radius:9px;border:1.5px solid var(--border);background:#fff;color:var(--text-secondary);cursor:pointer;}
+.pb-acts button.edit{color:var(--accent);border-color:#d3ddf5;}
+.pb-addcard{border:1.6px dashed #cfd8ec;border-radius:16px;padding:18px;text-align:center;font-size:14px;font-weight:800;color:var(--accent);cursor:pointer;background:rgba(18,56,143,.03);}
+.tt-risk{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:8px 22px;box-shadow:0 1px 2px rgba(10,31,82,.05);}
+.pb-r{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);font-size:14px;font-weight:600;color:var(--text-primary);}
+.pb-r:last-of-type{border-bottom:none;}
+.pb-r-ic{width:32px;height:32px;border-radius:9px;background:rgba(200,16,46,.08);display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;}
+.pb-r-x{margin-left:auto;color:#b9c3d8;cursor:pointer;font-weight:800;font-size:18px;}
+.pb-addr{padding:14px 0 15px;font-size:13px;font-weight:800;color:var(--accent);cursor:pointer;}
+.pb-modal{display:none;position:fixed;inset:0;background:rgba(10,20,56,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.pb-modal-card{background:#fff;border-radius:18px;padding:24px;max-width:520px;width:100%;box-shadow:0 30px 70px -30px rgba(10,31,82,.5);}
+.pb-modal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pb-modal-h h3{font-size:19px;font-weight:900;color:var(--text-primary);}
+.pb-modal-x{background:#eef2fa;border:none;width:34px;height:34px;border-radius:10px;font-size:20px;cursor:pointer;color:var(--text-secondary);}
+.pb-field{margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
+.pb-field label{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary);}
+.pb-field input,.pb-field textarea{border:1.5px solid #e0e6f3;border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;outline:none;color:var(--text-primary);resize:vertical;}
+.pb-field input:focus,.pb-field textarea:focus{border-color:var(--accent);}
+.pb-modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;}
+.pb-btn{height:44px;padding:0 20px;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;border:none;}
+.pb-btn.ghost{background:#eef3ff;color:var(--accent);border:1.5px solid #d3ddf5;}
+.pb-btn.primary{background:linear-gradient(135deg,#12388f,#0a1f52);color:#fff;}
 </style>
 </head>
 <body>
@@ -1206,107 +1241,27 @@ html,body{max-width:100%;overflow-x:hidden;}
             <div id="strategy" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
-                        <div class="tt-hero-eyebrow">Plan</div>
-                        <h1 class="tt-hero-title">Trading Strategy</h1>
-                        <p class="tt-hero-sub">Your rules and playbook &mdash; the plan you trade to.</p>
+                        <div class="tt-hero-eyebrow">Plan &middot; Your playbook</div>
+                        <h1 class="tt-hero-title">Your <span>playbook</span></h1>
+                        <p class="tt-hero-sub">The setups you trade and the rules you trade by. Tag your trades with these setups and your Coach shows you which ones actually make money &mdash; and which to cut.</p>
                     </div>
                 </div>
-                <div class="header">
-                    <h2>Trading Strategy</h2>
-                </div>
+                <div class="tt-eyebrow">Your setups <span class="tt-eyebrow-add" onclick="pbOpenSetupModal()">+ Add a setup</span></div>
+                <div id="pbSetups"></div>
+                <div class="tt-eyebrow">Your risk rules</div>
+                <div class="tt-risk" id="pbRisk"></div>
+            </div>
 
-                <div class="strategy-card">
-                    <h3>📖 Three Timeframe Trading System</h3>
-                    
-                    <div class="strategy-section">
-                        <h4>📊 Overview</h4>
-                        <div class="strategy-content">
-                            <p style="margin-bottom: 1rem;"><strong>Trading Style:</strong> Intraday Position Trading (15M execution)</p>
-                            <p style="margin-bottom: 1rem;"><strong>Target:</strong> 3-4 quality trades per day</p>
-                            <p style="margin-bottom: 1rem;"><strong>Primary Pairs:</strong> GBP/USD, EUR/USD, USD/JPY</p>
-                            <p><strong>Sessions:</strong> London (3:00 AM - 12:00 PM EST) &amp; New York (8:00 AM - 5:00 PM EST)</p>
-                        </div>
-                    </div>
-
-                    <div class="strategy-section">
-                        <h4>📅 Daily Chart - "The Boss"</h4>
-                        <div class="strategy-content" style="border-left-color: var(--success);">
-                            <p style="margin-bottom: 0.75rem; font-weight: 600;">Purpose: Determine overall bias</p>
-                            <ul>
-                                <li>Identify trend direction</li>
-                                <li>Mark S/R zones</li>
-                                <li>Decide trade direction</li>
-                            </ul>
-                            <p style="margin-top: 1rem; color: var(--danger); font-weight: 700;">⚠️ DO NOT TRADE off Daily - Analysis only!</p>
-                        </div>
-                    </div>
-
-                    <div class="strategy-section">
-                        <h4>⏱️ One-Hour Chart - "The Manager"</h4>
-                        <div class="strategy-content" style="border-left-color: var(--warning);">
-                            <p style="margin-bottom: 0.75rem; font-weight: 600;">Purpose: Identify key levels</p>
-                            <ul>
-                                <li>Mark POC, VAH, VAL</li>
-                                <li>Mark liquidity pools</li>
-                                <li>Set alerts at key levels</li>
-                                <li>Watch for price interaction</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="strategy-section">
-                        <h4>⚡ Fifteen-Minute Chart - "The Executor"</h4>
-                        <div class="strategy-content" style="border-left-color: var(--accent);">
-                            <p style="margin-bottom: 0.75rem; font-weight: 600;">Purpose: Execute ALL trades</p>
-                            <ul>
-                                <li>Watch price at 1H levels</li>
-                                <li>Wait for breakout + confirmation</li>
-                                <li>Enter on retest</li>
-                                <li>Manage position on 15M</li>
-                            </ul>
-                            <p style="margin-top: 1rem; color: var(--success); font-weight: 700;">✅ ALL ENTRIES ON 15M ONLY!</p>
-                        </div>
-                    </div>
-
-                    <div class="strategy-section">
-                        <h4>🕐 Trading Sessions</h4>
-                        <div class="strategy-content" style="border-left-color: #f0a52a;">
-                            <p style="margin-bottom: 1rem;"><strong>London Session (3:00 AM - 12:00 PM EST)</strong></p>
-                            <ul style="margin-bottom: 1.5rem;">
-                                <li>High volatility at open (3:00 AM - 6:00 AM EST)</li>
-                                <li>Best for GBP/USD and EUR/USD</li>
-                                <li>Major economic news releases</li>
-                                <li>Strong directional moves</li>
-                            </ul>
-                            <p style="margin-bottom: 1rem;"><strong>New York Session (8:00 AM - 5:00 PM EST)</strong></p>
-                            <ul style="margin-bottom: 1.5rem;">
-                                <li>High volatility at open (8:00 AM - 11:00 AM EST)</li>
-                                <li>London-NY overlap (8:00 AM - 12:00 PM EST) = highest liquidity</li>
-                                <li>USD pairs most active</li>
-                                <li>US economic data releases</li>
-                            </ul>
-                            <p style="margin-top: 1rem; color: var(--accent); font-weight: 700;">💡 Best Trading: London-NY overlap (8:00 AM - 12:00 PM EST)</p>
-                        </div>
-                    </div>
-
-                    <div class="strategy-section">
-                        <h4>⚠️ Risk Management Rules</h4>
-                        <div class="strategy-content" style="border-left-color: var(--danger);">
-                            <ul>
-                                <li><strong>1% max risk per trade</strong></li>
-                                <li><strong>4 trades max per day</strong></li>
-                                <li><strong>2 consecutive losses</strong> = mandatory break</li>
-                                <li><strong>Never move stop away from entry</strong></li>
-                                <li>Use lot size calculator before every trade</li>
-                                <li>Avoid trading during low liquidity periods</li>
-                                <li>No trading 30 minutes before/after major news</li>
-                            </ul>
-                        </div>
-                    </div>
+            <!-- setup add/edit modal -->
+            <div id="pbSetupModal" class="pb-modal">
+                <div class="pb-modal-card">
+                    <div class="pb-modal-h"><h3 id="pbSetupModalTitle">Add a setup</h3><button class="pb-modal-x" onclick="pbCloseSetupModal()">&times;</button></div>
+                    <div class="pb-field"><label>Setup name</label><input type="text" id="pbSetupName" placeholder="e.g. London Breakout"></div>
+                    <div class="pb-field"><label>Rules &amp; criteria</label><textarea id="pbSetupRules" rows="4" placeholder="Entry rules, stop placement, target..."></textarea></div>
+                    <div class="pb-modal-acts"><button class="pb-btn ghost" onclick="pbCloseSetupModal()">Cancel</button><button class="pb-btn primary" onclick="pbSaveSetupModal()">Save setup</button></div>
                 </div>
             </div>
 
-            <!-- CHECKLIST PAGE -->
             <div id="checklist" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1842,6 +1797,7 @@ html,body{max-width:100%;overflow-x:hidden;}
         function showPage(pageName) {
             if(pageName==='coach'){ try{ renderCoach(); }catch(e){} }
             if(pageName==='equity'){ try{ renderMiniEquityChart(); }catch(e){} }
+            if(pageName==='strategy'){ try{ pbRender(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -1996,8 +1952,62 @@ html,body{max-width:100%;overflow-x:hidden;}
             el.innerHTML=html;
         }
 
+        // ===== Playbook (Strategy) =====
+        let playbook = null;
+        function pbId(){ return 'pb'+Date.now()+Math.floor(Math.random()*10000); }
+        function pbSeed(){ return { setups:[
+            {id:pbId(), name:'London Breakout', rules:'Break of the London session range after 8:00am. Enter on the retest with a clear structure shift. Stop below the range, target the prior day high/low.'},
+            {id:pbId(), name:'Pullback to EMA', rules:'In a clear trend, wait for a pullback to the 20 EMA on the 1H. Enter on an engulfing candle in the trend direction.'},
+            {id:pbId(), name:'Range Reversal', rules:'At a well-defined range extreme, enter on a rejection wick back into the range. Stop beyond the extreme.'}
+        ], riskRules:[
+            {id:pbId(), icon:'\u{1F4B0}', text:'Max 1% risk per trade'},
+            {id:pbId(), icon:'\u{1F6D1}', text:'Stop trading after 3% daily loss'},
+            {id:pbId(), icon:'\u{1F522}', text:'No more than 3 trades per day'}
+        ] }; }
+        function pbLoad(){ try{ playbook = JSON.parse(localStorage.getItem('playbook')); }catch(e){ playbook=null; }
+            if(!playbook || !Array.isArray(playbook.setups)){ playbook = pbSeed(); pbSave(); } }
+        function pbEnsure(){ if(!playbook) pbLoad(); }
+        function pbSave(){ try{ localStorage.setItem('playbook', JSON.stringify(playbook)); }catch(e){} }
+        function pbEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function pbSetupStat(name){ var ts=(trades||[]).filter(function(t){return t.setup===name;}); if(!ts.length) return null;
+            var w=ts.filter(function(t){return parseFloat(t.pnl)>0;}).length; var wr=Math.round(w/ts.length*100);
+            return {wr:wr, n:ts.length, cls: wr>=55?'good':(wr>=45?'mid':'bad')}; }
+        function pbRender(){ pbEnsure();
+            var c=document.getElementById('pbSetups'); if(c){ var h='';
+                playbook.setups.forEach(function(sp){ var st=pbSetupStat(sp.name);
+                    var badge = st ? '<div class="pb-stat '+st.cls+'">'+st.wr+'% win &middot; '+st.n+' trade'+(st.n>1?'s':'')+'</div>' : '<div class="pb-stat none">No trades yet</div>';
+                    h += '<div class="pb-setup"><div class="pb-top"><div class="pb-nm">'+pbEsc(sp.name)+'</div>'+badge+'</div><div class="pb-rules">'+pbEsc(sp.rules)+'</div><div class="pb-acts"><button class="edit" onclick="pbEditSetup(\''+sp.id+'\')">Edit</button><button onclick="pbDelSetup(\''+sp.id+'\')">Delete</button></div></div>'; });
+                h += '<div class="pb-addcard" onclick="pbOpenSetupModal()">+ Add a setup to your playbook</div>'; c.innerHTML=h; }
+            var r=document.getElementById('pbRisk'); if(r){ var rh='';
+                playbook.riskRules.forEach(function(rr){ rh += '<div class="pb-r"><div class="pb-r-ic">'+(rr.icon||'\u26A0\uFE0F')+'</div>'+pbEsc(rr.text)+'<span class="pb-r-x" onclick="pbDelRule(\''+rr.id+'\')">&times;</span></div>'; });
+                rh += '<div class="pb-addr" onclick="pbAddRule()">+ Add a rule</div>'; r.innerHTML=rh; }
+            pbSyncDropdown(); }
+        var pbEditingId=null;
+        function pbOpenSetupModal(id){ pbEnsure(); pbEditingId=id||null;
+            var sp = id ? playbook.setups.filter(function(x){return x.id===id;})[0] : null;
+            document.getElementById('pbSetupModalTitle').textContent = sp ? 'Edit setup' : 'Add a setup';
+            document.getElementById('pbSetupName').value = sp ? sp.name : '';
+            document.getElementById('pbSetupRules').value = sp ? sp.rules : '';
+            document.getElementById('pbSetupModal').style.display='flex'; }
+        function pbCloseSetupModal(){ document.getElementById('pbSetupModal').style.display='none'; pbEditingId=null; }
+        function pbSaveSetupModal(){ var name=document.getElementById('pbSetupName').value.trim(); if(!name){ alert('Give your setup a name.'); return; }
+            var rules=document.getElementById('pbSetupRules').value.trim();
+            if(pbEditingId){ var sp=playbook.setups.filter(function(x){return x.id===pbEditingId;})[0]; if(sp){ sp.name=name; sp.rules=rules; } }
+            else { playbook.setups.push({id:pbId(), name:name, rules:rules}); }
+            pbSave(); pbCloseSetupModal(); pbRender(); }
+        function pbEditSetup(id){ pbOpenSetupModal(id); }
+        function pbDelSetup(id){ if(!confirm('Delete this setup from your playbook?')) return; playbook.setups=playbook.setups.filter(function(x){return x.id!==id;}); pbSave(); pbRender(); }
+        function pbAddRule(){ var t=prompt('Your risk rule (e.g. Max 1% risk per trade):'); if(!t) return; playbook.riskRules.push({id:pbId(), icon:'\u2696\uFE0F', text:t.trim()}); pbSave(); pbRender(); }
+        function pbDelRule(id){ playbook.riskRules=playbook.riskRules.filter(function(x){return x.id!==id;}); pbSave(); pbRender(); }
+        function pbSyncDropdown(){ pbEnsure(); var sel=document.getElementById('setupType'); if(!sel) return; var cur=sel.value;
+            var opts=playbook.setups.map(function(s){return s.name;});
+            (trades||[]).forEach(function(t){ if(t.setup && t.setup!=='Other' && opts.indexOf(t.setup)===-1) opts.push(t.setup); });
+            sel.innerHTML = opts.map(function(o){return '<option value="'+pbEsc(o)+'">'+pbEsc(o)+'</option>';}).join('') + '<option value="Other">Other</option>';
+            if(cur && (opts.indexOf(cur)>-1 || cur==='Other')) sel.value=cur; }
+
         function updateStats() {
             try{ renderCoach(); }catch(e){}
+            try{ pbRender(); }catch(e){}
             // Net Return
             const totalPnL = trades.reduce((sum, t) => sum + parseFloat(t.pnl), 0);
             const netReturnEl = document.getElementById('netReturn');
@@ -2335,6 +2345,7 @@ html,body{max-width:100%;overflow-x:hidden;}
         // MODAL
         function openModal() {
             try{ Array.prototype.slice.call(document.querySelectorAll('.tt-mistake')).forEach(function(c){c.checked=false;}); }catch(e){}
+            try{ pbSyncDropdown(); }catch(e){}
             try{ setTimeout(autofillPrice, 50); }catch(e){}
             editingTradeIndex = null;
             document.getElementById('tradeModal').classList.add('active');

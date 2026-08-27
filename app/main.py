@@ -4296,15 +4296,16 @@ _TT_SYNC_SHIM = r"""<script>
       if (D.trades != null) localStorage.setItem('trades', D.trades);
       if (D.checklist != null) localStorage.setItem('checklist', D.checklist);
       if (D.initialBalance != null) localStorage.setItem('initialBalance', D.initialBalance);
+      if (D.playbook != null) localStorage.setItem('playbook', D.playbook);
     }
   } catch(e){}
   var t; function sync(){ clearTimeout(t); t=setTimeout(function(){
     try { fetch('/api/al/tradetracker/save',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',
-      body: JSON.stringify({ trades: localStorage.getItem('trades'), checklist: localStorage.getItem('checklist'), initialBalance: localStorage.getItem('initialBalance') })}); } catch(e){}
+      body: JSON.stringify({ trades: localStorage.getItem('trades'), checklist: localStorage.getItem('checklist'), initialBalance: localStorage.getItem('initialBalance'), playbook: localStorage.getItem('playbook') })}); } catch(e){}
   }, 1500); }
   try {
     var orig = localStorage.setItem.bind(localStorage);
-    localStorage.setItem = function(k,v){ orig(k,v); if(k==='trades'||k==='checklist'||k==='initialBalance') sync(); };
+    localStorage.setItem = function(k,v){ orig(k,v); if(k==='trades'||k==='checklist'||k==='initialBalance'||k==='playbook') sync(); };
   } catch(e){}
 })();
 </script>"""
@@ -4441,7 +4442,7 @@ async def tt_data_save(request: Request, user: User = Depends(get_current_user),
     except Exception:
         db.rollback()
     from .database import TradeTrackerData
-    payload = {k: body.get(k) for k in ("trades", "checklist", "initialBalance") if k in body}
+    payload = {k: body.get(k) for k in ("trades", "checklist", "initialBalance", "playbook") if k in body}
     try:
         row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
         if not row:
