@@ -954,6 +954,15 @@ html,body{max-width:100%;overflow-x:hidden;}
   .tt-hero-title{font-size:21px!important;}
   .calendar .day-pnl{font-size:9px!important;}
 }
+
+/* ===== App-shell: static topbar + sidebar, only content scrolls (desktop) ===== */
+.app{height:100vh!important;min-height:100vh;overflow:hidden!important;align-items:stretch!important;}
+.main-content{overflow-y:auto!important;min-height:0!important;padding-bottom:40px;}
+.sidebar{position:static!important;top:auto!important;align-self:stretch!important;height:auto!important;max-height:none!important;overflow-y:auto!important;}
+@media(max-width:820px){
+  .app{height:auto!important;min-height:100vh!important;overflow:visible!important;}
+  .main-content{overflow-y:visible!important;}
+}
 </style>
 </head>
 <body>
