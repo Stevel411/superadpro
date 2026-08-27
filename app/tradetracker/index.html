@@ -1503,7 +1503,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                 <div class="form-row">
                     <div class="form-group">
                         <label>Currency Pair</label>
-                        <select id="tradePair" required="">
+                        <select id="tradePair" required="" onchange="autofillPrice()">
                             <option value="GBP/USD">GBP/USD</option>
                             <option value="EUR/USD">EUR/USD</option>
                             <option value="USD/JPY">USD/JPY</option>
@@ -1525,6 +1525,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
                     <div class="form-group">
                         <label>Entry Price</label>
                         <input type="number" id="entryPrice" step="0.00001" required="">
+                        <small class="tt-autofill-hint" id="ttEntryHint" style="display:none;color:var(--text-muted);font-size:0.78rem;">\u21BB live market price \u2014 edit if this was an earlier trade</small>
                     </div>
 
                     <div class="form-group">
@@ -1847,6 +1848,21 @@ body{font-family:'Inter',-apple-system,sans-serif;}
             return {empty:false,insights:out,count:trades.length};
         }
 
+
+        function autofillPrice(){
+            var sel=document.getElementById('tradePair'), entry=document.getElementById('entryPrice'), hint=document.getElementById('ttEntryHint');
+            if(!sel||!entry) return;
+            var pair=sel.value;
+            if(pair==='Other'){ if(hint) hint.style.display='none'; return; }
+            fetch('/api/al/forex-ticker',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+                if(!d||!d.ok||!d.pairs) return;
+                var m=d.pairs.filter(function(x){return x.symbol===pair;})[0];
+                if(m && (!entry.value || entry.value==='')){
+                    entry.value=String(m.price).replace(/,/g,'');
+                    if(hint) hint.style.display='block';
+                }
+            }).catch(function(){});
+        }
 
         function renderTicker(){
             var el=document.getElementById('ttTickerItems'); if(!el) return;
@@ -2210,6 +2226,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
         // MODAL
         function openModal() {
             try{ Array.prototype.slice.call(document.querySelectorAll('.tt-mistake')).forEach(function(c){c.checked=false;}); }catch(e){}
+            try{ setTimeout(autofillPrice, 50); }catch(e){}
             editingTradeIndex = null;
             document.getElementById('tradeModal').classList.add('active');
             document.querySelector('.modal-header h3').textContent = 'Add New Trade';
