@@ -1070,6 +1070,28 @@ html,body{max-width:100%;overflow-x:hidden;}
 .an-row .pos{color:#0b7a3e;}.an-row .neg{color:#c8102e;}
 .an-empty{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:3rem;text-align:center;color:var(--text-muted);font-weight:500;}
 @media(max-width:640px){.an-kpis{grid-template-columns:repeat(2,1fr);}}
+
+/* ===== CSV import ===== */
+.imp-drop{border:1.8px dashed #cfd8ec;border-radius:16px;padding:34px 20px;text-align:center;cursor:pointer;background:rgba(18,56,143,.03);transition:.12s;}
+.imp-drop:hover{border-color:var(--accent);background:rgba(18,56,143,.06);}
+.imp-drop-ic{font-size:38px;}
+.imp-drop-t{font-size:15px;font-weight:800;color:var(--text-primary);margin-top:8px;}
+.imp-drop-sub{font-size:12.5px;color:var(--text-secondary);font-weight:600;margin-top:4px;}
+.imp-note{font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.5;margin-bottom:14px;}
+.imp-note b{color:var(--text-primary);}
+.imp-map{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.imp-map-row{display:flex;flex-direction:column;gap:5px;}
+.imp-map-row label{font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--text-secondary);}
+.imp-map-row select{border:1.5px solid #e0e6f3;border-radius:9px;padding:9px 11px;font-size:13px;font-weight:600;font-family:inherit;color:var(--text-primary);background:#fff;outline:none;}
+.imp-map-row select:focus{border-color:var(--accent);}
+.imp-preview-wrap{margin-bottom:16px;}
+.imp-preview-h{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:7px;}
+.imp-preview{overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;}
+.imp-preview table{width:100%;border-collapse:collapse;font-size:12px;}
+.imp-preview th{background:#f7f9fe;padding:8px 10px;text-align:left;font-weight:800;color:var(--text-secondary);text-transform:uppercase;font-size:10px;letter-spacing:.04em;}
+.imp-preview td{padding:8px 10px;border-top:1px solid var(--border);font-weight:600;color:var(--text-primary);white-space:nowrap;}
+.imp-preview td.pos{color:#0b7a3e;}.imp-preview td.neg{color:#c8102e;}
+@media(max-width:560px){.imp-map{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -1243,7 +1265,7 @@ html,body{max-width:100%;overflow-x:hidden;}
                         <div class="tt-hero-eyebrow">Trade</div>
                         <h1 class="tt-hero-title">Trade Journal</h1>
                         <p class="tt-hero-sub">Every position you've taken &mdash; logged, tagged and searchable.</p>
-                        <div class="tt-hero-actions"><button class="tt-hero-btn primary" onclick="openModal()">&#10133; Add Trade</button></div>
+                        <div class="tt-hero-actions"><button class="tt-hero-btn primary" onclick="openModal()">&#10133; Add Trade</button><button class="tt-hero-btn" onclick="importOpen()">&#128229; Import CSV</button></div>
                     </div>
                 </div>
                 <div class="header">
@@ -1263,6 +1285,26 @@ html,body{max-width:100%;overflow-x:hidden;}
                 </div>
                 <div class="jn-summary" id="jnSummary"></div>
                 <div id="tradeHistory"></div>
+            </div>
+
+            <div id="importModal" class="pb-modal">
+                <div class="pb-modal-card" style="max-width:660px;">
+                    <div class="pb-modal-h"><h3>Import trades from CSV</h3><button class="pb-modal-x" onclick="importClose()">&times;</button></div>
+                    <div id="importStep1">
+                        <div class="imp-drop" onclick="document.getElementById('importFile').click()">
+                            <div class="imp-drop-ic">&#128196;</div>
+                            <div class="imp-drop-t">Choose your broker CSV</div>
+                            <div class="imp-drop-sub">Works with MT4 / MT5 statements and any broker CSV export</div>
+                        </div>
+                        <input type="file" id="importFile" accept=".csv,text/csv,text/plain" style="display:none" onchange="importFileChosen(this)">
+                    </div>
+                    <div id="importStep2" style="display:none;">
+                        <div class="imp-note">We matched your columns automatically &mdash; check the mapping and adjust anything that&rsquo;s off. <b id="importRows"></b></div>
+                        <div class="imp-map" id="importMap"></div>
+                        <div class="imp-preview-wrap"><div class="imp-preview-h">Preview</div><div class="imp-preview" id="importPreview"></div></div>
+                        <div class="pb-modal-acts"><button class="pb-btn ghost" onclick="importBack()">Back</button><button class="pb-btn primary" onclick="importRun()">Import trades</button></div>
+                    </div>
+                </div>
             </div>
 
             <!-- ANALYTICS PAGE -->
@@ -2227,6 +2269,52 @@ html,body{max-width:100%;overflow-x:hidden;}
         }
 
         // TRADE HISTORY - FIXED to work with any trade data
+        // ===== CSV import =====
+        var _impData=null; var _impFields=[['date','Date'],['pair','Pair / symbol'],['direction','Direction'],['entry','Entry'],['exit','Exit'],['stop','Stop'],['size','Size / lots'],['pnl','Profit / P&L']];
+        function importOpen(){ _impData=null; document.getElementById('importStep1').style.display='block'; document.getElementById('importStep2').style.display='none'; var f=document.getElementById('importFile'); if(f)f.value=''; document.getElementById('importModal').style.display='flex'; }
+        function importClose(){ document.getElementById('importModal').style.display='none'; }
+        function importBack(){ document.getElementById('importStep1').style.display='block'; document.getElementById('importStep2').style.display='none'; var f=document.getElementById('importFile'); if(f)f.value=''; }
+        function impParseCSV(text){
+            var lines=text.split(/\r\n|\n|\r/).filter(function(l){return l.trim().length;});
+            var rows=lines.map(function(line){ var out=[],cur='',q=false; for(var i=0;i<line.length;i++){ var c=line[i];
+                if(q){ if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+                else { if(c==='"') q=true; else if(c===','||c===';'||c==='\t'){ out.push(cur); cur=''; } else cur+=c; } }
+                out.push(cur); return out; });
+            var headers=(rows.shift()||[]).map(function(h){return h.trim();});
+            return {headers:headers, rows:rows};
+        }
+        function impAutoMap(h){ var m={}; function find(pats){ for(var j=0;j<pats.length;j++){ for(var i=0;i<h.length;i++){ if(h[i].toLowerCase().indexOf(pats[j])>-1) return i; } } return -1; }
+            m.date=find(['open time','opentime','open date','date','time']); m.pair=find(['symbol','pair','instrument','ticker','market']);
+            m.direction=find(['type','side','direction','action','b/s']); m.entry=find(['open price','openprice','entry','open']);
+            m.exit=find(['close price','closeprice','exit','close']); m.stop=find(['s / l','s/l','stoploss','stop loss','stop','sl']);
+            m.size=find(['volume','lots','size','quantity','qty','units']); m.pnl=find(['profit','p&l','p/l','pnl','net','gain','result']); return m; }
+        function importFileChosen(input){ var file=input.files&&input.files[0]; if(!file) return; var r=new FileReader();
+            r.onload=function(e){ try{ var d=impParseCSV(String(e.target.result)); if(!d.headers.length||!d.rows.length){ alert('That file has no rows we can read.'); return; }
+                _impData=d; _impData.map=impAutoMap(d.headers); impBuildMap(); document.getElementById('importStep1').style.display='none'; document.getElementById('importStep2').style.display='block';
+                document.getElementById('importRows').textContent=d.rows.length+' rows found.'; }catch(err){ alert('Could not read that CSV.'); } };
+            r.readAsText(file); }
+        function impBuildMap(){ var h=_impData.headers; var opts='<option value="-1">\u2014 none \u2014</option>'+h.map(function(x,i){return '<option value="'+i+'">'+jnEsc(x)+'</option>';}).join('');
+            document.getElementById('importMap').innerHTML=_impFields.map(function(f){ var sel=_impData.map[f[0]]; sel=(sel==null?-1:sel);
+                return '<div class="imp-map-row"><label>'+f[1]+'</label><select data-f="'+f[0]+'" onchange="impMapChange()">'+opts.replace('value="'+sel+'"','value="'+sel+'" selected')+'</select></div>'; }).join('');
+            impPreview(); }
+        function impMapChange(){ Array.prototype.slice.call(document.querySelectorAll('#importMap select')).forEach(function(sel){ _impData.map[sel.getAttribute('data-f')]=parseInt(sel.value,10); }); impPreview(); }
+        function impGet(row,f){ var i=_impData.map[f]; return (i!=null&&i>=0&&i<row.length)?String(row[i]||'').trim():''; }
+        function impNorm(row){ var dir=impGet(row,'direction').toLowerCase();
+            var direction=(dir.indexOf('buy')>-1||dir.indexOf('long')>-1||dir==='b')?'Long':((dir.indexOf('sell')>-1||dir.indexOf('short')>-1||dir==='s')?'Short':(impGet(row,'direction')||''));
+            var pnlRaw=impGet(row,'pnl').replace(/[^0-9.\-]/g,''); var pnl=parseFloat(pnlRaw); if(isNaN(pnl))pnl=0;
+            return { date:impDate(impGet(row,'date')), pair:impGet(row,'pair'), direction:direction, entry:impGet(row,'entry'), exit:impGet(row,'exit'), stop:impGet(row,'stop'), size:impGet(row,'size'), pnl:String(pnl), setup:'', bias:'', notes:'Imported', risk:'', emotion:'', mistakes:[] }; }
+        function impDate(sVal){ if(!sVal) return (typeof clToday==='function'?clToday():new Date().toISOString().split('T')[0]);
+            var s=sVal.trim(); var m=s.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/); if(m) return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);
+            m=s.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/); if(m){ var d0=new Date(s); if(!isNaN(d0)) return d0.toISOString().split('T')[0]; return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2); }
+            var d=new Date(s); if(!isNaN(d)) return d.toISOString().split('T')[0]; return new Date().toISOString().split('T')[0]; }
+        function impPreview(){ var el=document.getElementById('importPreview'); if(!el)return; var sample=_impData.rows.slice(0,3).map(impNorm);
+            el.innerHTML='<table><tr><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Size</th><th>P&L</th></tr>'+sample.map(function(t){ return '<tr><td>'+jnEsc(t.date)+'</td><td>'+jnEsc(t.pair)+'</td><td>'+jnEsc(t.direction)+'</td><td>'+jnEsc(t.entry)+'</td><td>'+jnEsc(t.exit)+'</td><td>'+jnEsc(t.size)+'</td><td class="'+(parseFloat(t.pnl)>=0?'pos':'neg')+'">'+t.pnl+'</td></tr>'; }).join('')+'</table>'; }
+        function importRun(){ if(!_impData) return; var imported=_impData.rows.map(impNorm).filter(function(t){ return t.pair||t.date&&(t.entry||t.pnl!=='0'); });
+            if(!imported.length){ alert('Nothing to import \u2014 check the column mapping.'); return; }
+            trades=trades.concat(imported); localStorage.setItem('trades', JSON.stringify(trades));
+            try{ renderTradeHistory(); }catch(e){} try{ updateStats(); }catch(e){} try{ renderCalendar(); }catch(e){}
+            importClose(); alert('Imported '+imported.length+' trade'+(imported.length>1?'s':'')+'. They\'re in your journal now \u2014 tag them with setups/emotions to feed your Coach.'); }
+
         function tradeR(t){ var e=parseFloat(t.entry), x=parseFloat(t.exit), st=parseFloat(t.stop);
             if(isNaN(e)||isNaN(x)||isNaN(st)||e===st) return null; return (parseFloat(t.pnl)>0?1:-1)*(Math.abs(x-e)/Math.abs(e-st)); }
         function jnEmoIcon(em){ var m={'Calm':'\u{1F60C}','Confident':'\u{1F4AA}','Fearful':'\u{1F62C}','Greedy/FOMO':'\u{1F911}','Revenge':'\u{1F624}'}; return m[em]||''; }
