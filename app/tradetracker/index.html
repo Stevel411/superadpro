@@ -1781,6 +1781,7 @@ html,body{max-width:100%;overflow-x:hidden;}
             renderTradeHistory();
             renderCharts();
             renderChecklist();
+            try{ _ttRoute(); }catch(e){}
         };
 
         // THEME
@@ -1807,14 +1808,24 @@ html,body{max-width:100%;overflow-x:hidden;}
             document.getElementById(pageName).classList.add('active');
 
             document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
+                var oc = item.getAttribute('onclick') || '';
+                item.classList.toggle('active', oc.indexOf("showPage('" + pageName + "')") > -1);
             });
-            event.target.closest('.nav-item').classList.add('active');
 
             if (pageName === 'analytics') {
                 setTimeout(() => renderCharts(), 100);
             }
+            try { if ((location.hash || '').replace('#','') !== pageName) location.hash = pageName; } catch(e){}
         }
+
+        function _ttRoute(){
+            var h = (location.hash || '').replace('#','');
+            var el = h ? document.getElementById(h) : null;
+            var valid = el && el.classList && el.classList.contains('page');
+            if (el && el.classList.contains('active')) return;
+            showPage(valid ? h : 'dashboard');
+        }
+        window.addEventListener('hashchange', function(){ try{ _ttRoute(); }catch(e){} });
 
         // CALENDAR
         function renderCalendar() {
