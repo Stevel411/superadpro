@@ -1153,6 +1153,9 @@ select.cs-native{display:none!important;}
 .cs-opt:hover{background:#eef3ff;}
 .cs-opt.on{background:linear-gradient(120deg,#12388f,#0a1f52);color:#fff;}
 .cs-panel::-webkit-scrollbar{width:8px;}.cs-panel::-webkit-scrollbar-thumb{background:#d3ddf0;border-radius:8px;}
+
+.tt-res-sub{font-size:13px;font-weight:800;color:var(--text-secondary);margin:-8px 0 14px;}
+.tt-res-lev{color:#c8102e;font-weight:800;}
 </style>
 </head>
 <body>
@@ -1482,6 +1485,7 @@ select.cs-native{display:none!important;}
                             <div class="tt-res-main">
                                 <div class="tt-res-lbl">Recommended position size</div>
                                 <div class="tt-res-big" id="lotSizeResult">0.00 lots</div>
+                                <div class="tt-res-sub" id="calcSubValue" style="display:none;"></div>
                                 <div class="tt-res-stats">
                                     <div><span class="k">Risk amount</span><span class="v" id="riskAmount">$0</span></div>
                                     <div><span class="k" id="calcMoveLabel">Pips at risk</span><span class="v" id="pipsRisk">0</span></div>
@@ -2594,7 +2598,7 @@ select.cs-native{display:none!important;}
                 var _prec = (entry<10)?4:2; var _uprec = (_units<1)?4:(_units<100?2:0);
                 var _dir = entry > stop ? 'up' : 'down';
                 var _tg=[1,2,3].map(function(ratio){ var reward=_dist*ratio; var tp=_dir==='up'?(entry+reward):(entry-reward); return {ratio:ratio, price:tp.toFixed(_prec), move:reward.toFixed(_prec), profit:(reward*_units).toFixed(2)}; });
-                document.getElementById('lotSizeResult').textContent = _units.toFixed(_uprec) + ' ' + _ulabel;
+                document.getElementById('lotSizeResult').textContent = _units.toFixed(_uprec) + ' ' + _ulabel; var _pv=_units*entry; var _sv=document.getElementById('calcSubValue'); if(_sv){ _sv.innerHTML='&asymp; $'+_pv.toLocaleString('en-US',{maximumFractionDigits:0})+' position'+(_pv>balance?' <span class=\"tt-res-lev\">&middot; needs leverage</span>':''); _sv.style.display='block'; }
                 document.getElementById('riskAmount').textContent = '$' + _ra.toFixed(2);
                 document.getElementById('pipsRisk').textContent = _dist.toFixed(_prec); var _ml2=document.getElementById('calcMoveLabel'); if(_ml2)_ml2.textContent='Price move';
                 document.getElementById('profitTargets').innerHTML = _tg.map(function(t){ return '<div class="tt-res-tgt"><div class="r">1:'+t.ratio+'</div><div class="p">'+t.price+'<br>'+t.move+' move</div><div class="pf">+$'+t.profit+'</div></div>'; }).join('');
@@ -2653,7 +2657,7 @@ select.cs-native{display:none!important;}
             }
 
             // Display results
-            document.getElementById('lotSizeResult').textContent = lotSize + ' lots';
+            document.getElementById('lotSizeResult').textContent = lotSize + ' lots'; var _svf=document.getElementById('calcSubValue'); if(_svf){ _svf.style.display='none'; }
             document.getElementById('riskAmount').textContent = '$' + riskAmount.toFixed(2);
             document.getElementById('pipsRisk').textContent = pipRisk.toFixed(1); var _ml=document.getElementById('calcMoveLabel'); if(_ml)_ml.textContent='Pips at risk';
             
