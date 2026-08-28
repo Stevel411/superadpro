@@ -1564,6 +1564,15 @@ select.cs-native{display:none!important;}
                 </div>
             </div>
 
+            <style id="set-css">
+            .set-card{margin-bottom:16px;}
+            .set-h{margin:0 0 14px;font-weight:800;color:#0a1f52;font-size:1.05rem;}
+            .set-hint{display:block;color:var(--text-muted,#64748b);font-size:.82rem;line-height:1.5;margin-top:8px;}
+            .set-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
+            .set-danger{border-color:rgba(200,16,46,.35)!important;}
+            .set-btn-danger{background:#fff!important;color:#c8102e!important;border:1.5px solid rgba(200,16,46,.5)!important;font-weight:800!important;border-radius:11px!important;padding:11px 18px!important;}
+            .set-btn-danger:hover{background:#c8102e!important;color:#fff!important;}
+            </style>
             <div id="settings" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1576,17 +1585,41 @@ select.cs-native{display:none!important;}
                     <h2>Settings</h2>
                 </div>
 
-                <div class="stat-card">
-                    <h3 style="margin-bottom: 1.5rem;">⚙️ Account Settings</h3>
-                    
+                <div class="stat-card set-card">
+                    <h3 class="set-h">&#9881;&#65039; Account</h3>
                     <div class="form-group">
                         <label>Starting Balance ($)</label>
                         <input type="number" id="startingBalance" step="100">
+                        <small class="set-hint">The baseline your equity curve and return&nbsp;% are measured from. Changing it never touches your logged trades.</small>
                     </div>
+                    <button class="btn btn-primary" onclick="updateBalance()">Save</button>
+                </div>
 
-                    <button class="btn btn-primary" onclick="updateBalance()">
-                        Save Settings
-                    </button>
+                <div class="stat-card set-card">
+                    <h3 class="set-h">&#128190; Your data</h3>
+                    <p class="set-hint" style="margin-top:0;">Everything you log syncs automatically to your AdvantageLife account &mdash; sign in from any device and it&rsquo;s here. You can also take a copy with you.</p>
+                    <div class="set-actions">
+                        <button class="btn btn-secondary" onclick="exportData()">Export trades (CSV)</button>
+                        <button class="btn btn-secondary" onclick="ttBackup()">Download full backup (JSON)</button>
+                        <button class="btn btn-secondary" onclick="ttRestorePick()">Restore from backup&hellip;</button>
+                        <input type="file" id="ttRestoreFile" accept="application/json,.json" style="display:none" onchange="ttRestore(event)">
+                    </div>
+                    <small class="set-hint">CSV is for spreadsheets. The JSON backup captures your trades, playbook and checklist together &mdash; use it to move accounts or keep a safe copy.</small>
+                </div>
+
+                <div class="stat-card set-card set-danger">
+                    <h3 class="set-h">&#9888;&#65039; Reset</h3>
+                    <p class="set-hint" style="margin-top:0;">These can&rsquo;t be undone. Download a backup first if you&rsquo;re not sure.</p>
+                    <div class="set-actions">
+                        <button class="btn set-btn-danger" onclick="ttClearTrades()">Clear all trades</button>
+                        <button class="btn set-btn-danger" onclick="ttResetAll()">Reset everything</button>
+                    </div>
+                    <small class="set-hint"><b>Clear all trades</b> empties your journal but keeps your playbook, checklist and balance. <b>Reset everything</b> returns the whole tool to a fresh start.</small>
+                </div>
+
+                <div class="stat-card set-card">
+                    <h3 class="set-h">About</h3>
+                    <p class="set-hint" style="margin-top:0;">TradeTracker&nbsp;Pro &mdash; your trading journal, analytics and coach, inside AdvantageLife. Your data is stored securely on your account.</p>
                 </div>
             </div>
         </main>
@@ -2714,13 +2747,86 @@ select.cs-native{display:none!important;}
         }
 
         // SETTINGS
+        // Persist the four synced keys to the account NOW (no debounce), then run cb.
+        // The sync shim debounces 1500ms; an immediate location.reload() would race it
+        // and the reload would re-inject the server's OLD state, losing the change.
+        function _ttSaveNow(cb){
+            var payload = {
+                trades: localStorage.getItem('trades'),
+                checklist: localStorage.getItem('checklist'),
+                initialBalance: localStorage.getItem('initialBalance'),
+                playbook: localStorage.getItem('playbook')
+            };
+            var done = false; function fin(){ if(done) return; done = true; if(cb) cb(); }
+            try{
+                fetch('/api/al/tradetracker/save', {method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify(payload)}).then(fin, fin);
+            }catch(e){ fin(); }
+            setTimeout(fin, 4000); // never hang the UI if the network stalls
+        }
+
         function updateBalance() {
-            const newBalance = parseFloat(document.getElementById('startingBalance').value);
-            if (newBalance && newBalance > 0) {
-                localStorage.setItem('initialBalance', newBalance);
-                alert('Starting balance updated!');
-                location.reload();
-            }
+            var v = parseFloat(document.getElementById('startingBalance').value);
+            if (!(v > 0)) { alert('Enter a starting balance greater than 0.'); return; }
+            localStorage.setItem('initialBalance', String(v));
+            _ttSaveNow(function(){ location.reload(); });
+        }
+
+        // Full portable backup: trades + playbook + checklist + balance in one JSON file.
+        function ttBackup(){
+            var data = {
+                _app: 'TradeTracker Pro', _version: 1, _exported: new Date().toISOString(),
+                trades: localStorage.getItem('trades') || '[]',
+                playbook: localStorage.getItem('playbook') || 'null',
+                checklist: localStorage.getItem('checklist') || 'null',
+                initialBalance: localStorage.getItem('initialBalance') || '10000'
+            };
+            var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url; a.download = 'tradetracker-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click(); URL.revokeObjectURL(url);
+        }
+
+        function ttRestorePick(){ var el = document.getElementById('ttRestoreFile'); if(el){ el.value=''; el.click(); } }
+
+        function ttRestore(ev){
+            var f = ev.target.files && ev.target.files[0];
+            if(!f) return;
+            var reader = new FileReader();
+            reader.onload = function(){
+                var d;
+                try{ d = JSON.parse(reader.result); }catch(e){ alert('That file is not a valid TradeTracker backup.'); ev.target.value=''; return; }
+                if(!d || d._app !== 'TradeTracker Pro' || d.trades === undefined){
+                    alert('That file is not a valid TradeTracker backup.'); ev.target.value=''; return;
+                }
+                var t; try{ t = JSON.parse(d.trades); }catch(e){ t = null; }
+                if(!Array.isArray(t)){ alert('That backup looks corrupted (trades unreadable). Nothing was changed.'); ev.target.value=''; return; }
+                if(!confirm('Restore this backup? It replaces your current journal, playbook and checklist with the backup (' + t.length + ' trades). Your current data will be overwritten.')){ ev.target.value=''; return; }
+                localStorage.setItem('trades', d.trades);
+                if(d.playbook !== undefined && d.playbook !== null && d.playbook !== 'null') localStorage.setItem('playbook', d.playbook);
+                if(d.checklist !== undefined && d.checklist !== null && d.checklist !== 'null') localStorage.setItem('checklist', d.checklist);
+                if(d.initialBalance !== undefined && d.initialBalance !== null) localStorage.setItem('initialBalance', String(d.initialBalance));
+                _ttSaveNow(function(){ location.reload(); });
+            };
+            reader.readAsText(f);
+        }
+
+        function ttClearTrades(){
+            if(!confirm('Clear all trades? This empties your journal. Your playbook, checklist and balance stay. This cannot be undone.')) return;
+            if(!confirm('Really clear every trade? Download a backup first if you might want them back.')) return;
+            localStorage.setItem('trades', '[]');
+            _ttSaveNow(function(){ location.reload(); });
+        }
+
+        function ttResetAll(){
+            if(!confirm('Reset everything? This wipes your trades, playbook and checklist and returns the tool to a fresh start. This cannot be undone.')) return;
+            var typed = prompt('This is permanent. Type RESET to confirm.');
+            if(typed !== 'RESET'){ if(typed !== null) alert('Not reset — RESET was not typed.'); return; }
+            localStorage.setItem('trades', '[]');
+            localStorage.setItem('playbook', 'null');
+            localStorage.setItem('checklist', 'null');
+            localStorage.setItem('initialBalance', '10000');
+            _ttSaveNow(function(){ location.reload(); });
         }
 
         // EXPORT
