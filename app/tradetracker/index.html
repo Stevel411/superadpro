@@ -1054,6 +1054,22 @@ html,body{max-width:100%;overflow-x:hidden;}
 .jn-nums{margin-top:11px;font-size:12.5px;color:var(--text-secondary);font-weight:600;}
 .jn-notes{margin-top:10px;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.5;background:#f7f9fe;border-left:3px solid var(--accent);border-radius:8px;padding:10px 13px;font-style:italic;}
 .jn-empty{text-align:center;color:var(--text-muted);padding:3rem;font-weight:500;}
+
+/* ===== Analytics ===== */
+.an-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.an-kpi{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(10,31,82,.05);}
+.an-kpi-l{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary);}
+.an-kpi-v{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-top:5px;color:var(--text-primary);}
+.an-kpi-v.pos{color:#0b7a3e;}.an-kpi-v.neg{color:#c8102e;}
+.an-table{background:#fff;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(10,31,82,.05);}
+.an-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.2fr;align-items:center;padding:13px 18px;border-bottom:1px solid var(--border);font-size:13.5px;font-weight:700;color:var(--text-primary);}
+.an-table.no-r .an-row{grid-template-columns:2fr 1fr 1fr 1.2fr;}
+.an-row:last-child{border-bottom:none;}
+.an-row.an-head{background:#f7f9fe;font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--text-secondary);}
+.an-row .an-c1{font-weight:800;}
+.an-row .pos{color:#0b7a3e;}.an-row .neg{color:#c8102e;}
+.an-empty{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:3rem;text-align:center;color:var(--text-muted);font-weight:500;}
+@media(max-width:640px){.an-kpis{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
@@ -1258,48 +1274,19 @@ html,body{max-width:100%;overflow-x:hidden;}
                         <p class="tt-hero-sub">The numbers behind your trading &mdash; what's working and what's leaking.</p>
                     </div>
                 </div>
-                <div class="header">
-                    <h2>Analytics &amp; Performance</h2>
+                <div class="tt-eyebrow">Your key numbers</div>
+                <div class="an-kpis" id="anKpis"></div>
+                <div class="tt-equity-link" onclick="showPage('equity')" style="margin-top:6px;">
+                    <div class="tt-equity-link-l"><div class="tt-equity-link-ic">&#128200;</div><div><div class="tt-equity-link-t">Your equity curve</div><div class="tt-equity-link-s">Full cumulative P&amp;L over time</div></div></div>
+                    <div class="tt-equity-link-arrow">&rarr;</div>
                 </div>
-
-                <div class="chart-card">
-                    <h3>📈 Equity Curve</h3>
-                    <canvas id="equityCurve" style="box-sizing: border-box; display: block; height: 460px; width: 1125px;" width="2250" height="920"></canvas>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Start Balance</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;" id="startBalance">$10000.00</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Current Balance</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;" id="currentBalance">$10000.00</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Total Return</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;" id="totalReturn">0.00%</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Max Drawdown</div>
-                            <div style="font-size: 1.25rem; font-weight: 700;" id="maxDrawdown">-0.00%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <h3>🎯 Setup Performance</h3>
-                    <canvas id="setupChart" style="box-sizing: border-box; display: block; height: 356px; width: 1125px;" width="2250" height="712"></canvas>
-                </div>
-
-                <div class="chart-card">
-                    <h3>🔥 Performance Heat Map</h3>
-                    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                        Heat map visualization - Shows best trading days and times
-                    </p>
-                </div>
+                <div class="tt-eyebrow">By setup <span>&mdash; where's your edge</span></div>
+                <div id="anSetups"></div>
+                <div class="tt-eyebrow">By emotion <span>&mdash; the psychology</span></div>
+                <div id="anEmotions"></div>
             </div>
 
-            <!-- STRATEGY PAGE -->
-            <div id="strategy" class="page">
+                        <div id="strategy" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
                         <div class="tt-hero-eyebrow">Plan &middot; Your playbook</div>
@@ -1781,6 +1768,7 @@ html,body{max-width:100%;overflow-x:hidden;}
             if(pageName==='checklist'){ try{ renderChecklist(); }catch(e){} }
             if(pageName==='calculator'){ try{ calcInit(); }catch(e){} }
             if(pageName==='journal'){ try{ renderTradeHistory(); }catch(e){} }
+            if(pageName==='analytics'){ try{ renderAnalytics(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -2055,10 +2043,52 @@ html,body{max-width:100%;overflow-x:hidden;}
         }
 
         // CHARTS
+        function anFmt(n){ return (n>=0?'+':'-')+'$'+Math.abs(n).toFixed(0); }
+        function renderAnalytics(){
+            var ts=(trades||[]); var el=document.getElementById('anKpis');
+            var a1=document.getElementById('anSetups'), a2=document.getElementById('anEmotions');
+            if(ts.length===0){ if(el)el.innerHTML='<div class="an-empty">Log a few trades and your performance breakdown builds here \u2014 expectancy, your edge per setup, and how your emotions affect results.</div>'; if(a1)a1.innerHTML=''; if(a2)a2.innerHTML=''; return; }
+            var wins=ts.filter(function(t){return parseFloat(t.pnl)>0;}), losses=ts.filter(function(t){return parseFloat(t.pnl)<0;});
+            var avgWin=wins.length?wins.reduce(function(s,t){return s+parseFloat(t.pnl);},0)/wins.length:0;
+            var avgLoss=losses.length?Math.abs(losses.reduce(function(s,t){return s+parseFloat(t.pnl);},0)/losses.length):0;
+            var gp=wins.reduce(function(s,t){return s+parseFloat(t.pnl);},0), gl=Math.abs(losses.reduce(function(s,t){return s+parseFloat(t.pnl);},0));
+            var pf=gl>0?(gp/gl).toFixed(2):(gp>0?'\u221E':'0.00'); var wr=ts.length?wins.length/ts.length:0;
+            var exp=(wr*avgWin-(1-wr)*avgLoss);
+            var rs=ts.map(tradeR).filter(function(r){return r!=null;}); var avgR=rs.length?(rs.reduce(function(s,r){return s+r;},0)/rs.length):null;
+            var lw=wins.length?Math.max.apply(null,wins.map(function(t){return parseFloat(t.pnl);})):0;
+            var ll=losses.length?Math.min.apply(null,losses.map(function(t){return parseFloat(t.pnl);})):0;
+            var kpis=[
+                {l:'Expectancy',v:anFmt(exp)+' /trade',c:exp>=0?'pos':'neg'},
+                {l:'Avg R',v:avgR!=null?((avgR>=0?'+':'')+avgR.toFixed(2)+'R'):'\u2014',c:avgR!=null?(avgR>=0?'pos':'neg'):''},
+                {l:'Profit Factor',v:pf,c:''},
+                {l:'Win Rate',v:Math.round(wr*100)+'%',c:''},
+                {l:'Avg Win',v:'+$'+avgWin.toFixed(0),c:'pos'},
+                {l:'Avg Loss',v:'-$'+avgLoss.toFixed(0),c:'neg'},
+                {l:'Largest Win',v:'+$'+lw.toFixed(0),c:'pos'},
+                {l:'Largest Loss',v:anFmt(ll),c:'neg'}
+            ];
+            if(el) el.innerHTML=kpis.map(function(k){return '<div class="an-kpi"><div class="an-kpi-l">'+k.l+'</div><div class="an-kpi-v '+k.c+'">'+k.v+'</div></div>';}).join('');
+            renderBreakdown('anSetups','setup',true);
+            renderBreakdown('anEmotions','emotion',false);
+        }
+        function renderBreakdown(elId, field, withR){
+            var el=document.getElementById(elId); if(!el) return;
+            var groups={}; (trades||[]).forEach(function(t){ var k=t[field]||'\u2014'; if(!groups[k])groups[k]=[]; groups[k].push(t); });
+            var rows=Object.keys(groups).map(function(k){ var g=groups[k]; var w=g.filter(function(t){return parseFloat(t.pnl)>0;}).length;
+                var net=g.reduce(function(s,t){return s+(parseFloat(t.pnl)||0);},0);
+                var rs=g.map(tradeR).filter(function(r){return r!=null;}); var avgR=rs.length?(rs.reduce(function(s,r){return s+r;},0)/rs.length):null;
+                return {k:k,n:g.length,wr:Math.round(w/g.length*100),net:net,avgR:avgR}; });
+            rows.sort(function(a,b){ return b.net-a.net; });
+            var head='<div class="an-row an-head"><div class="an-c1">'+(field==='setup'?'Setup':'Emotion')+'</div><div>Trades</div><div>Win%</div>'+(withR?'<div>Avg R</div>':'')+'<div>Net</div></div>';
+            el.innerHTML='<div class="an-table'+(withR?'':' no-r')+'">'+head+rows.map(function(r){
+                var wcls=r.wr>=55?'pos':(r.wr>=45?'':'neg');
+                return '<div class="an-row"><div class="an-c1">'+jnEsc(r.k)+'</div><div>'+r.n+'</div><div class="'+wcls+'">'+r.wr+'%</div>'+(withR?'<div class="'+(r.avgR>=0?'pos':'neg')+'">'+(r.avgR!=null?((r.avgR>=0?'+':'')+r.avgR.toFixed(2)+'R'):'\u2014')+'</div>':'')+'<div class="'+(r.net>=0?'pos':'neg')+'">'+anFmt(r.net)+'</div></div>';
+            }).join('')+'</div>';
+        }
+
         function renderCharts() {
             renderMiniEquityChart();
-            renderEquityCurve();
-            renderSetupChart();
+            try{ renderAnalytics(); }catch(e){}
         }
 
         function renderMiniEquityChart() {
