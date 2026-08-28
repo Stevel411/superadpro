@@ -1552,6 +1552,14 @@ select.cs-native{display:none!important;}
             .ttchat-row input:focus{outline:none;border-color:#12388f;box-shadow:0 0 0 3px rgba(18,56,143,.12);}
             .ttchat-row .btn{flex:none;}
             .ttchat-note{font-size:11.5px;color:var(--text-muted,#64748b);margin-top:10px;line-height:1.5;}
+            .jn-review{margin-top:12px;}
+            .jn-review-btn{background:linear-gradient(135deg,#0a1f52,#12388f);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;}
+            .jn-review-btn:hover{filter:brightness(1.08);}
+            .jn-review-box{background:#f1f5fb;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.55;color:#0a1f52;font-weight:500;white-space:pre-wrap;}
+            .jn-review-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:#12388f;margin-bottom:8px;}
+            .jn-review-h .av{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#c8102e,#e8203f);display:inline-flex;align-items:center;justify-content:center;font-size:12px;}
+            .jn-review-re{background:none;border:none;color:#12388f;font-size:11.5px;font-weight:700;cursor:pointer;margin-top:10px;text-decoration:underline;padding:0;font-family:inherit;}
+            .jn-review-load{color:#64748b;font-style:italic;font-size:13px;padding:6px 0;}
             </style>
             <div id="coach" class="page">
                 <div class="tt-hero">
@@ -2601,7 +2609,45 @@ select.cs-native{display:none!important;}
                   +'<div class="jn-hr">'+(r!=null?'<span class="jn-r '+(r>=0?'pos':'neg')+'">'+(r>=0?'+':'')+r.toFixed(1)+'R</span>':'')+'<span class="jn-pnl '+(win?'pos':'neg')+'">'+(pnl>=0?'+':'-')+'$'+Math.abs(pnl).toFixed(2)+'</span>'
                   +'<button class="jn-ic" onclick="window.editTrade('+idx+')" title="Edit">\u270F\uFE0F</button><button class="jn-ic del" onclick="window.deleteTrade('+idx+')" title="Delete">\u{1F5D1}\uFE0F</button></div></div>'
                   +(tags?'<div class="jn-tags">'+tags+'</div>':'')+(nums.length?'<div class="jn-nums">'+nums.join(' &middot; ')+'</div>':'')
-                  +(t.notes?'<div class="jn-notes">'+jnEsc(t.notes).replace(/\n/g,'<br>')+'</div>':'')+(t.screenshot?'<div class="jn-shot"><img src="'+jnEsc(t.screenshot)+'" loading="lazy" onclick="ttLightbox(\''+jnEsc(t.screenshot)+'\')"></div>':'')+'</div>'; }).join('');
+                  +(t.notes?'<div class="jn-notes">'+jnEsc(t.notes).replace(/\n/g,'<br>')+'</div>':'')+(t.screenshot?'<div class="jn-shot"><img src="'+jnEsc(t.screenshot)+'" loading="lazy" onclick="ttLightbox(\''+jnEsc(t.screenshot)+'\')"></div>':'')+'<div class="jn-review" id="jnrev'+idx+'">'+ttReviewBlockHTML(t,idx)+'</div></div>'; }).join('');
+        }
+        // ===== Per-trade AI review (on-demand; cached onto the trade so it never re-charges) =====
+        // ttReviewTrade(idx) is standalone so auto-on-log is a one-line call in addTrade later.
+        function ttReviewBlockHTML(t, idx){
+            if(t.review && t.review.text){
+                return '<div class="jn-review-box"><div class="jn-review-h"><span class="av">\u{1F4DD}</span>Coach review</div>'+pbEsc(t.review.text).replace(/\n/g,"<br>")+'<div><button class="jn-review-re" onclick="ttReviewTrade('+idx+',true)">Re-review</button></div></div>';
+            }
+            return '<button class="jn-review-btn" onclick="ttReviewTrade('+idx+')">\u{1F916} Review this trade</button>';
+        }
+        function ttReviewContext(t){
+            var all=trades||[]; var P=function(x){return parseFloat(x.pnl)||0;};
+            var st=all.filter(function(x){return (x.setup||"")===(t.setup||"");}); var sw=st.filter(function(x){return P(x)>0;}).length;
+            var w=all.filter(function(x){return P(x)>0;}), l=all.filter(function(x){return P(x)<0;});
+            return { setupName:t.setup||"", setupTrades:st.length, setupWinRate:st.length?Math.round(sw/st.length*100):null,
+                accountBalance:parseFloat(localStorage.getItem("initialBalance"))||10000,
+                avgWin:w.length?Math.round(w.reduce(function(a,x){return a+P(x);},0)/w.length):0,
+                avgLoss:l.length?Math.round(Math.abs(l.reduce(function(a,x){return a+P(x);},0))/l.length):0,
+                totalTrades:all.length };
+        }
+        function ttReviewTrade(idx, force){
+            var t=(trades||[])[idx]; if(!t) return;
+            if(t.review && t.review.text && !force) return;
+            var box=document.getElementById("jnrev"+idx); if(box){ box.innerHTML='<div class="jn-review-load">Coach is reviewing this trade...</div>'; }
+            var payload={ trade:{ date:t.date,pair:t.pair,direction:t.direction,entry:t.entry,exit:t.exit,stop:t.stop,size:t.size,risk:t.risk,pnl:t.pnl,setup:t.setup||"",emotion:t.emotion||"",mistakes:t.mistakes||[],notes:t.notes||"",rMultiple:(typeof tradeR==="function"?tradeR(t):null) },
+                playbook:(function(){ try{ return JSON.parse(localStorage.getItem("playbook")); }catch(e){ return null; } })(),
+                context:ttReviewContext(t) };
+            fetch("/api/al/tradetracker/trade-review",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify(payload)})
+                .then(function(r){return r.json();})
+                .then(function(d){
+                    if(d && d.review){
+                        trades[idx].review={text:d.review, at:Date.now()};
+                        localStorage.setItem("trades", JSON.stringify(trades));
+                        if(box) box.innerHTML=ttReviewBlockHTML(trades[idx], idx);
+                    } else {
+                        if(box) box.innerHTML='<div class="jn-review-load">Could not generate a review just now - try again in a moment.</div><button class="jn-review-btn" onclick="ttReviewTrade('+idx+')">Try again</button>';
+                    }
+                })
+                .catch(function(){ if(box) box.innerHTML='<div class="jn-review-load">Could not reach the coach - check your connection.</div><button class="jn-review-btn" onclick="ttReviewTrade('+idx+')">Try again</button>'; });
         }
         function clDateStr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
         function clToday(){ return clDateStr(new Date()); }

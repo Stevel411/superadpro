@@ -4667,6 +4667,79 @@ async def tt_coach_chat(request: Request, user: User = Depends(get_current_user)
     return JSONResponse({"reply": reply, "remaining": max(0, _TT_COACH_DAILY_CAP - used - 1)})
 
 
+_TT_REVIEW_DAILY_CAP = 50
+
+@app.post("/api/al/tradetracker/trade-review")
+async def tt_trade_review(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Coaching review for ONE trade. The client caches the result onto the trade
+    (trades[idx].review) so it is generated at most once per trade and never
+    re-charged unless the member explicitly re-reviews. Reuses the shared
+    Grok/Haiku helper; capped per user per day to bound re-review abuse."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not _tt_access(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return JSONResponse({"error": "bad payload"}, status_code=400)
+    trade = body.get("trade") or {}
+    if not isinstance(trade, dict) or not trade:
+        return JSONResponse({"error": "no trade"}, status_code=400)
+    playbook = body.get("playbook")
+    context = body.get("context") or {}
+
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS al_tt_review_usage (user_id INTEGER NOT NULL, day DATE NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(user_id, day))"))
+        db.commit()
+    except Exception:
+        db.rollback()
+    try:
+        r = db.execute(text("SELECT count FROM al_tt_review_usage WHERE user_id=:u AND day=CURRENT_DATE"), {"u": user.id}).first()
+        used = int(r[0]) if r else 0
+    except Exception:
+        used = 0
+    if used >= _TT_REVIEW_DAILY_CAP:
+        return JSONResponse({"error": "limit", "review": "You have hit today's review limit \u2014 it resets tomorrow. Your existing reviews are saved on each trade."})
+
+    import json as _json
+    def _clip(o, n):
+        try:
+            return _json.dumps(o)[:n]
+        except Exception:
+            return "{}"
+    system = (
+        "You are the AI Trade Coach inside TradeTracker Pro. Review ONE trade from the trader's journal and help them improve. "
+        "Cover, where the data allows: what happened; whether it followed their playbook setup and rules; risk and stop placement vs their account and averages; exit quality (did they cut a winner short or let a loss run); the emotional read if a feeling or mistake is tagged; and ONE concrete thing to do better next time. "
+        "Ground every point in the numbers given \u2014 never invent data; if a field is missing, skip it rather than guess. "
+        "Be direct, specific and constructive, not generic. Keep it tight: about 4-6 short lines. "
+        "You are NOT a financial adviser: no buy/sell signals, no price predictions, no telling them what to trade next \u2014 only how to trade their own process better."
+    )
+    user_msg = (
+        "Review this trade.\n\nTRADE:\n" + _clip(trade, 1500) +
+        "\n\nMY PLAYBOOK:\n" + _clip(playbook, 2000) +
+        "\n\nCONTEXT:\n" + _clip(context, 1000)
+    )
+    from .grok_service import ai_text_generate
+    try:
+        review = await ai_text_generate(system=system, messages=[{"role": "user", "content": user_msg}], max_tokens=380, temperature=0.5)
+    except Exception as e:
+        logger.warning(f"tt_trade_review: all providers failed: {e}")
+        return JSONResponse({"error": "provider", "review": ""})
+    review = (review or "").strip()
+    if not review:
+        return JSONResponse({"error": "empty", "review": ""})
+
+    try:
+        db.execute(text("INSERT INTO al_tt_review_usage (user_id, day, count) VALUES (:u, CURRENT_DATE, 1) ON CONFLICT (user_id, day) DO UPDATE SET count = al_tt_review_usage.count + 1"), {"u": user.id})
+        db.commit()
+    except Exception:
+        db.rollback()
+    return JSONResponse({"review": review, "remaining": max(0, _TT_REVIEW_DAILY_CAP - used - 1)})
+
+
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for the Traffic Drop member dashboard."""
