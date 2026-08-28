@@ -835,34 +835,6 @@ export default function NewDashboard() {
                 hidden under 980px, and phones are where most sharing happens. */}
             <div className="shmob"><TrafficDropCard /><ShareCard /><GameLinksCard /></div>
 
-            {wis && (
-              <div className="wis">
-                <div className="wd">Today &middot; <b>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</b></div>
-                <div className="wq">{wis.text}</div>
-                <div className="wp">
-                  <div>
-                    <div className="who">{wis.author}</div>
-                  </div>
-                  {wis.year && <div className="yr">{wis.year}</div>}
-                </div>
-                <div className="wa">
-                  <button
-                    className={'wfav' + (wis.favourited ? ' on' : '')}
-                    onClick={function () {
-                      var next = !wis.favourited;
-                      setWis(Object.assign({}, wis, { favourited: next }));
-                      fetch('/api/al/wisdom/favourite/' + wis.id, { method: 'POST', credentials: 'include' })
-                        .then(function (r) { return r.ok ? r.json() : null; })
-                        .then(function (j) { if (j) setWis(function (w) { return Object.assign({}, w, { favourited: j.favourited }); }); })
-                        .catch(function () { setWis(function (w) { return Object.assign({}, w, { favourited: !next }); }); });
-                    }}>
-                    {wis.favourited ? '\u2665 Saved' : '\u2661 Save'}
-                  </button>
-                  <button className="wshare" onClick={function () { setWisShare(true); }}>Share this</button>
-                  <a className="wlib" href="/wisdom">Browse the library &rarr;</a>
-                </div>
-              </div>
-            )}
 
             {wisShare && wis && <WisdomShare quote={wis} onClose={function () { setWisShare(false); }} />}
 
@@ -943,6 +915,35 @@ export default function NewDashboard() {
                 <LiveActivityFeed />
               </div>
             </div>
+
+            {wis && (
+              <div className="wis">
+                <div className="wd">Today &middot; <b>{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</b></div>
+                <div className="wq">{wis.text}</div>
+                <div className="wp">
+                  <div>
+                    <div className="who">{wis.author}</div>
+                  </div>
+                  {wis.year && <div className="yr">{wis.year}</div>}
+                </div>
+                <div className="wa">
+                  <button
+                    className={'wfav' + (wis.favourited ? ' on' : '')}
+                    onClick={function () {
+                      var next = !wis.favourited;
+                      setWis(Object.assign({}, wis, { favourited: next }));
+                      fetch('/api/al/wisdom/favourite/' + wis.id, { method: 'POST', credentials: 'include' })
+                        .then(function (r) { return r.ok ? r.json() : null; })
+                        .then(function (j) { if (j) setWis(function (w) { return Object.assign({}, w, { favourited: j.favourited }); }); })
+                        .catch(function () { setWis(function (w) { return Object.assign({}, w, { favourited: !next }); }); });
+                    }}>
+                    {wis.favourited ? '\u2665 Saved' : '\u2661 Save'}
+                  </button>
+                  <button className="wshare" onClick={function () { setWisShare(true); }}>Share this</button>
+                  <a className="wlib" href="/wisdom">Browse the library &rarr;</a>
+                </div>
+              </div>
+            )}
           </main>
         </div>
       </div>
