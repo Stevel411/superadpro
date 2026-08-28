@@ -4406,6 +4406,36 @@ def al_forex_ticker(user: User = Depends(get_current_user)):
         return JSONResponse({"error": str(e)[:200]}, status_code=502)
 
 
+@app.post("/api/al/tradetracker/screenshot")
+async def tt_screenshot(request: Request, file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    """Upload a chart screenshot for a trade -> R2 (or local fallback). Returns the URL
+    the client stores on the trade object."""
+    if not _tt_access(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    ct = (file.content_type or "").lower()
+    if ct not in ("image/jpeg", "image/png", "image/gif", "image/webp"):
+        return JSONResponse({"error": "Only JPEG, PNG, GIF and WebP images are allowed."}, status_code=400)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
+    ext = {"image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"}[ct]
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        try:
+            url = upload_image(contents, "tradetracker-shots", ext, ct)
+        except Exception as e:
+            logger.error(f"R2 upload failed (tradetracker-shots): {type(e).__name__}: {e}")
+            return JSONResponse({"error": "Image storage temporarily unavailable — try again shortly."}, status_code=503)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        fn = f"tt_{uuid.uuid4().hex[:12]}.{ext}"
+        with open(os.path.join(upload_dir, fn), "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{fn}"
+    return {"ok": True, "url": url}
+
+
 @app.get("/api/al/tradetracker/data")
 def tt_data_get(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Load the member's saved TradeTracker state (trades, checklist, balance)."""
