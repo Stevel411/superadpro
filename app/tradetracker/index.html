@@ -2606,12 +2606,12 @@ select.cs-native{display:none!important;}
                 var _units = _ra / _dist;
                 var _sym=((document.getElementById('calcSymbol')||{}).value||'').trim(); var _ulabel = _sym ? _sym.toUpperCase() : (_mkt==='Stocks'?'shares':(_mkt==='Indices'?'contracts':'units'));
                 var _prec = (entry<10)?4:2; var _uprec = (_units<1)?4:(_units<100?2:0);
-                var _dir = entry > stop ? 'up' : 'down';
+                var _dir = entry > stop ? 'up' : 'down'; var _usd=(_mkt==='Crypto'||_mkt==='Stocks'||_mkt==='Commodities'); var _u=_usd?'$':''; var _psx=(_mkt==='Indices')?' pts':'';
                 var _tg=[1,2,3].map(function(ratio){ var reward=_dist*ratio; var tp=_dir==='up'?(entry+reward):(entry-reward); return {ratio:ratio, price:tp.toFixed(_prec), move:reward.toFixed(_prec), profit:(reward*_units).toFixed(2)}; });
                 document.getElementById('lotSizeResult').textContent = _units.toFixed(_uprec) + ' ' + _ulabel; var _pv=_units*entry; var _sv=document.getElementById('calcSubValue'); if(_sv){ _sv.innerHTML='&asymp; $'+_pv.toLocaleString('en-US',{maximumFractionDigits:0})+' position'+(_pv>balance?' <span class=\"tt-res-lev\">&middot; needs leverage</span>':''); _sv.style.display='block'; }
                 document.getElementById('riskAmount').textContent = '$' + _ra.toFixed(2);
-                document.getElementById('pipsRisk').textContent = _dist.toFixed(_prec); var _ml2=document.getElementById('calcMoveLabel'); if(_ml2)_ml2.textContent='Stop distance'; var _sp=(entry>0)?(_dist/entry*100):0; var _wn=document.getElementById('calcWarn'); if(_wn){ if(_sp>30){ _wn.innerHTML='\u26A0\uFE0F Your stop is <b>'+Math.round(_sp)+'% away from entry</b> \u2014 unusually far. Double-check your Entry and Stop.'; _wn.style.display='block'; } else { _wn.style.display='none'; } }
-                document.getElementById('profitTargets').innerHTML = _tg.map(function(t){ return '<div class="tt-res-tgt"><div class="r">1:'+t.ratio+'</div><div class="p">'+t.price+'<br>'+t.move+' move</div><div class="pf">+$'+t.profit+'</div></div>'; }).join('');
+                document.getElementById('pipsRisk').textContent = _u + _dist.toFixed(_prec) + _psx; var _ml2=document.getElementById('calcMoveLabel'); if(_ml2)_ml2.textContent='Stop distance'; var _sp=(entry>0)?(_dist/entry*100):0; var _wn=document.getElementById('calcWarn'); if(_wn){ if(_sp>30){ _wn.innerHTML='\u26A0\uFE0F Your stop is <b>'+Math.round(_sp)+'% away from entry</b> \u2014 unusually far. Double-check your Entry and Stop.'; _wn.style.display='block'; } else { _wn.style.display='none'; } }
+                document.getElementById('profitTargets').innerHTML = _tg.map(function(t){ return '<div class="tt-res-tgt"><div class="r">1:'+t.ratio+'</div><div class="p">'+_u+t.price+'<br>'+_u+t.move+' move</div><div class="pf">+$'+t.profit+'</div></div>'; }).join('');
                 document.getElementById('calcResult').style.display = 'block'; var _cph=document.getElementById('calcPlaceholder'); if(_cph)_cph.style.display='none';
                 return;
             }
