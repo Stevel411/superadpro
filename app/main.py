@@ -4371,7 +4371,7 @@ def al_forex_ticker(user: User = Depends(get_current_user)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     import time as _t
     now = _t.time()
-    if _TT_TICKER_CACHE["data"] and (now - _TT_TICKER_CACHE["ts"] < 60):
+    if _TT_TICKER_CACHE["data"] and (now - _TT_TICKER_CACHE["ts"] < 900):  # 15-min cache — free-tier credits count per symbol
         return {"ok": True, "pairs": _TT_TICKER_CACHE["data"], "cached": True}
     key = os.getenv("TWELVEDATA_API_KEY", "")
     try:
