@@ -83,10 +83,10 @@ export default function SideNav({ active }) {
       const open = (n.key in subOpen) ? subOpen[n.key] : (n.key === active || childActive);
       return (
         <div key={n.key}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Link className={n.key === active ? 'on' : undefined} to={n.to} style={{ flex: 1 }}>{n.icon ? <span className="ic">{n.icon}</span> : null}{t(n.tk, { defaultValue: n.label })}</Link>
+          <div style={{ position: 'relative' }}>
+            <Link className={n.key === active ? 'on' : undefined} to={n.to}>{n.icon ? <span className="ic">{n.icon}</span> : null}{t(n.tk, { defaultValue: n.label })}</Link>
             <span role="button" aria-expanded={open} onClick={function (e) { e.preventDefault(); e.stopPropagation(); setSubOpen(function (p) { const nx = Object.assign({}, p); nx[n.key] = !open; return nx; }); }}
-              style={{ cursor: 'pointer', padding: '6px 12px', display: 'inline-flex', alignItems: 'center' }}>
+              style={{ position: 'absolute', right: 6, top: 0, bottom: 0, cursor: 'pointer', padding: '0 12px', display: 'inline-flex', alignItems: 'center' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform .18s ease' }}>
                 <path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,0.6)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
