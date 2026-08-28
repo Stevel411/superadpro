@@ -1537,6 +1537,22 @@ select.cs-native{display:none!important;}
             </div>
 
             <!-- SETTINGS PAGE -->
+            <style id="ttchat-css">
+            .ttchat{padding:14px 22px 18px;}
+            .ttchat-log{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding:6px 2px;}
+            .ttchat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;font-weight:500;white-space:pre-wrap;word-wrap:break-word;}
+            .ttchat-msg.user{align-self:flex-end;background:linear-gradient(135deg,#0a1f52,#12388f);color:#fff;border-bottom-right-radius:4px;}
+            .ttchat-msg.coach{align-self:flex-start;background:#f1f5fb;color:#0a1f52;border:1.5px solid var(--border);border-bottom-left-radius:4px;}
+            .ttchat-msg.typing{color:#64748b;font-style:italic;}
+            .ttchat-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px;}
+            .ttchat-chip{background:#fff;border:1.5px solid var(--border);color:#12388f;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+            .ttchat-chip:hover{background:#12388f;color:#fff;border-color:#12388f;}
+            .ttchat-row{display:flex;gap:10px;margin-top:14px;}
+            .ttchat-row input{flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;color:#0a1f52;}
+            .ttchat-row input:focus{outline:none;border-color:#12388f;box-shadow:0 0 0 3px rgba(18,56,143,.12);}
+            .ttchat-row .btn{flex:none;}
+            .ttchat-note{font-size:11.5px;color:var(--text-muted,#64748b);margin-top:10px;line-height:1.5;}
+            </style>
             <div id="coach" class="page">
                 <div class="tt-hero">
                     <div class="tt-hero-l">
@@ -1552,6 +1568,23 @@ select.cs-native{display:none!important;}
                         <div class="tt-coach-h"><div class="tt-coach-t">Your AI Trade Coach</div><div class="tt-coach-s">Reads your journal and tells you about your own patterns &mdash; not the market. Updates after every trade.</div></div>
                     </div>
                     <div class="tt-coach-body" id="ttCoachBody"></div>
+                </div>
+
+                <div class="tt-eyebrow" style="margin-top:22px;">Ask your Coach</div>
+                <div class="tt-coach">
+                    <div class="tt-coach-top">
+                        <div class="tt-coach-av">&#128172;</div>
+                        <div class="tt-coach-h"><div class="tt-coach-t">Ask anything about your trading</div><div class="tt-coach-s">Grounded in your own logged trades &mdash; your patterns, your process. Not financial advice.</div></div>
+                    </div>
+                    <div class="ttchat">
+                        <div id="ttChatLog" class="ttchat-log"></div>
+                        <div id="ttChatChips" class="ttchat-chips"></div>
+                        <div class="ttchat-row">
+                            <input id="ttChatInput" type="text" autocomplete="off" placeholder="e.g. Where am I losing the most money?" onkeydown="if(event.key==='Enter'){event.preventDefault();ttChatSend();}">
+                            <button class="btn btn-primary" id="ttChatSendBtn" onclick="ttChatSend()">Send</button>
+                        </div>
+                        <div class="ttchat-note" id="ttChatNote">Grounded in your journal. Not financial advice &mdash; no buy/sell calls. Up to 20 questions a day.</div>
+                    </div>
                 </div>
             </div>
 
@@ -1932,7 +1965,7 @@ select.cs-native{display:none!important;}
 
         // PAGE NAVIGATION
         function showPage(pageName) {
-            if(pageName==='coach'){ try{ renderCoach(); }catch(e){} }
+            if(pageName==='coach'){ try{ renderCoach(); }catch(e){} try{ ttChatRender(); }catch(e){} }
             if(pageName==='equity'){ try{ renderMiniEquityChart(); }catch(e){} }
             if(pageName==='strategy'){ try{ pbRender(); }catch(e){} }
             if(pageName==='checklist'){ try{ renderChecklist(); }catch(e){} }
@@ -2108,6 +2141,63 @@ select.cs-native{display:none!important;}
             var html='';
             r.insights.forEach(function(x){ html+='<div class="tt-ins '+x.k+'"><div class="tt-ins-ic">'+x.i+'</div><div class="tt-ins-tx"><div class="tt-ins-h">'+x.h+'</div><div class="tt-ins-d">'+x.d+'</div></div></div>'; });
             el.innerHTML=html;
+        }
+
+        // ===== Coach chat (ask-anything, grounded in the member's own stats) =====
+        var TT_CHAT_STARTERS = ["What is my most profitable setup?","Where am I losing the most money?","How can I improve my win rate?","What is my biggest recurring mistake?"];
+        function ttChatLoad(){ try{ return JSON.parse(localStorage.getItem("ttCoachChat"))||[]; }catch(e){ return []; } }
+        function ttChatStore(h){ try{ localStorage.setItem("ttCoachChat", JSON.stringify(h.slice(-30))); }catch(e){} }
+        function ttCoachContext(){
+            var t=trades||[]; var P=function(x){return parseFloat(x.pnl)||0;};
+            var wins=t.filter(function(x){return P(x)>0;}), losses=t.filter(function(x){return P(x)<0;});
+            var net=t.reduce(function(a,x){return a+P(x);},0);
+            var gw=wins.reduce(function(a,x){return a+P(x);},0), gl=Math.abs(losses.reduce(function(a,x){return a+P(x);},0));
+            var bySetup={},byPair={},byEmotion={},byDay={}; var dow=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+            t.forEach(function(x){
+                var sk=x.setup||"Other"; if(!bySetup[sk])bySetup[sk]={n:0,w:0,pnl:0}; bySetup[sk].n++; if(P(x)>0)bySetup[sk].w++; bySetup[sk].pnl+=P(x);
+                var pk=x.pair||"?"; if(!byPair[pk])byPair[pk]={n:0,pnl:0}; byPair[pk].n++; byPair[pk].pnl+=P(x);
+                if(x.emotion){ if(!byEmotion[x.emotion])byEmotion[x.emotion]={n:0,pnl:0}; byEmotion[x.emotion].n++; byEmotion[x.emotion].pnl+=P(x); }
+                var dd=ttLocalDate(x.date).getDay(); if(!isNaN(dd)){ var dk=dow[dd]; if(!byDay[dk])byDay[dk]={n:0,w:0,pnl:0}; byDay[dk].n++; if(P(x)>0)byDay[dk].w++; byDay[dk].pnl+=P(x); }
+            });
+            var arr=function(o,wr){ return Object.keys(o).map(function(k){ var e={name:k,trades:o[k].n,pnl:Math.round(o[k].pnl)}; if(wr)e.winRate=Math.round(o[k].w/o[k].n*100); return e; }); };
+            return { totalTrades:t.length, wins:wins.length, losses:losses.length,
+                winRate:t.length?Math.round(wins.length/t.length*100):0, netPnL:Math.round(net),
+                profitFactor:gl>0?Math.round(gw/gl*100)/100:null,
+                avgWin:wins.length?Math.round(gw/wins.length):0, avgLoss:losses.length?Math.round(gl/losses.length):0,
+                startingBalance:parseFloat(localStorage.getItem("initialBalance"))||10000,
+                bySetup:arr(bySetup,true), byPair:arr(byPair,false), byEmotion:arr(byEmotion,false), byDayOfWeek:arr(byDay,true),
+                recentTrades:t.slice(-8).map(function(x){return {date:x.date,pair:x.pair,dir:x.direction,setup:x.setup||"",pnl:Math.round(P(x)),emotion:x.emotion||"",mistake:x.mistake||""};}) };
+        }
+        function ttChatBubble(role,txt){ return '<div class="ttchat-msg '+(role==="user"?"user":"coach")+'">'+pbEsc(txt).replace(/\n/g,"<br>")+'</div>'; }
+        function ttChatRender(){
+            var log=document.getElementById("ttChatLog"); var chips=document.getElementById("ttChatChips"); if(!log)return;
+            var h=ttChatLoad();
+            if(!h.length){ log.innerHTML='<div class="ttchat-msg coach">Ask me anything about your trading and I will answer from your own journal - your setups, pairs, emotions and where your money goes. I read your data, not the market.</div>'; }
+            else { log.innerHTML=h.map(function(m){return ttChatBubble(m.role,m.content);}).join(""); }
+            if(chips){ chips.innerHTML=TT_CHAT_STARTERS.map(function(q){ return '<button class="ttchat-chip" onclick="ttChatAsk(this.textContent)">'+pbEsc(q)+'</button>'; }).join(""); }
+            log.scrollTop=log.scrollHeight;
+        }
+        function ttChatAsk(q){ var i=document.getElementById("ttChatInput"); if(i)i.value=q; ttChatSend(); }
+        var _ttChatBusy=false;
+        function ttChatSend(){
+            if(_ttChatBusy)return;
+            var input=document.getElementById("ttChatInput"), log=document.getElementById("ttChatLog"), note=document.getElementById("ttChatNote");
+            if(!input||!log)return;
+            var msg=(input.value||"").trim(); if(!msg)return;
+            if((trades||[]).length<1){ var h0=ttChatLoad(); h0.push({role:"user",content:msg}); h0.push({role:"assistant",content:"Log a trade or two first - I can only coach you on what is in your journal. Once you have a few in, ask me anything."}); ttChatStore(h0); input.value=""; ttChatRender(); return; }
+            var h=ttChatLoad(); h.push({role:"user",content:msg}); ttChatStore(h);
+            input.value=""; ttChatRender();
+            log.insertAdjacentHTML("beforeend",'<div class="ttchat-msg coach typing" id="ttChatTyping">Coach is thinking...</div>'); log.scrollTop=log.scrollHeight;
+            _ttChatBusy=true; var btn=document.getElementById("ttChatSendBtn"); if(btn)btn.disabled=true;
+            fetch("/api/al/tradetracker/coach-chat",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify({message:msg,history:h.slice(-8),stats:ttCoachContext()})})
+                .then(function(r){return r.json();})
+                .then(function(d){
+                    var reply=(d&&d.reply)?d.reply:"Something went wrong - try again in a moment.";
+                    var h2=ttChatLoad(); h2.push({role:"assistant",content:reply}); ttChatStore(h2);
+                    if(note&&d&&typeof d.remaining==="number"){ note.textContent="Grounded in your journal. Not financial advice. "+d.remaining+" question"+(d.remaining===1?"":"s")+" left today."; }
+                })
+                .catch(function(){ var h2=ttChatLoad(); h2.push({role:"assistant",content:"I could not reach the coach just now - check your connection and try again."}); ttChatStore(h2); })
+                .then(function(){ _ttChatBusy=false; var b=document.getElementById("ttChatSendBtn"); if(b)b.disabled=false; ttChatRender(); var i=document.getElementById("ttChatInput"); if(i)i.focus(); });
         }
 
         // ===== Playbook (Strategy) =====

@@ -4592,6 +4592,81 @@ async def tt_data_save(request: Request, user: User = Depends(get_current_user),
         return JSONResponse({"error": str(_e)[:200]}, status_code=500)
     return {"ok": True}
 
+
+_TT_COACH_DAILY_CAP = 20
+
+@app.post("/api/al/tradetracker/coach-chat")
+async def tt_coach_chat(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Ask-anything Trade Coach. Grounded in the member's own stats (sent by the
+    client from its live localStorage), routed through the shared Grok/Haiku
+    helper, capped per user per day to bound cost. Not financial advice."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not _tt_access(user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return JSONResponse({"error": "bad payload"}, status_code=400)
+    message = (body.get("message") or "").strip()[:1000]
+    if not message:
+        return JSONResponse({"error": "empty"}, status_code=400)
+    history = body.get("history") or []
+    stats = body.get("stats") or {}
+
+    # Per-user daily cap (bounds LLM cost). AL-prefixed table, ensured on every
+    # path so it works under SKIP_MIGRATIONS; PK gives ON CONFLICT its index.
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS al_tt_coach_usage (user_id INTEGER NOT NULL, day DATE NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(user_id, day))"))
+        db.commit()
+    except Exception:
+        db.rollback()
+    try:
+        r = db.execute(text("SELECT count FROM al_tt_coach_usage WHERE user_id=:u AND day=CURRENT_DATE"), {"u": user.id}).first()
+        used = int(r[0]) if r else 0
+    except Exception:
+        used = 0
+    if used >= _TT_COACH_DAILY_CAP:
+        return JSONResponse({"reply": "That's your " + str(_TT_COACH_DAILY_CAP) + " coaching questions for today \u2014 the daily limit keeps this fast and included in your subscription. It resets tomorrow, and the insights above are always on.", "limited": True})
+
+    import json as _json
+    try:
+        stats_json = _json.dumps(stats)[:6000]
+    except Exception:
+        stats_json = "{}"
+    system = (
+        "You are the AI Trade Coach inside TradeTracker Pro, a trading journal. "
+        "You help ONE trader review their OWN logged trades and improve their process. "
+        "Be specific, direct and practical; keep answers to 2-5 sentences unless asked for more detail. "
+        "Ground every claim in the trader's stats below \u2014 never invent numbers; if the data does not show something, say so plainly. "
+        "You are NOT a financial adviser: never give buy/sell signals, price predictions or tell them what to trade. "
+        "If asked for market calls, redirect to their process, risk management and the patterns in their own journal. "
+        "Be encouraging but honest about leaks.\n\nTRADER STATS (JSON):\n" + stats_json
+    )
+    msgs = []
+    for m in history[-8:]:
+        if isinstance(m, dict) and m.get("role") in ("user", "assistant") and m.get("content"):
+            msgs.append({"role": m["role"], "content": str(m["content"])[:1500]})
+    msgs.append({"role": "user", "content": message})
+
+    from .grok_service import ai_text_generate
+    try:
+        reply = await ai_text_generate(system=system, messages=msgs, max_tokens=400, temperature=0.6)
+    except Exception as e:
+        logger.warning(f"tt_coach_chat: all providers failed: {e}")
+        return JSONResponse({"reply": "I could not reach the coach just now \u2014 give it another go in a moment. The insights above do not need a connection."})
+    reply = (reply or "").strip() or "I could not read an answer to that from your journal. Try asking about a setup, a pair, an emotion, or where you are losing money."
+
+    try:
+        db.execute(text("INSERT INTO al_tt_coach_usage (user_id, day, count) VALUES (:u, CURRENT_DATE, 1) ON CONFLICT (user_id, day) DO UPDATE SET count = al_tt_coach_usage.count + 1"), {"u": user.id})
+        db.commit()
+    except Exception:
+        db.rollback()
+    return JSONResponse({"reply": reply, "remaining": max(0, _TT_COACH_DAILY_CAP - used - 1)})
+
+
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for the Traffic Drop member dashboard."""
