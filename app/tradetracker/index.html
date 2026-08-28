@@ -1159,6 +1159,8 @@ select.cs-native{display:none!important;}
 
 .tt-res-warn{background:rgba(200,16,46,.07);border:1.5px solid rgba(200,16,46,.25);border-radius:11px;padding:11px 14px;font-size:12.5px;font-weight:600;color:#c8102e;line-height:1.5;margin:-4px 0 14px;text-align:left;}
 .tt-res-warn b{font-weight:900;}
+
+.tt-res-levnote{font-size:11px;color:var(--text-muted);font-weight:500;line-height:1.5;margin:9px 2px 0;}
 </style>
 </head>
 <body>
@@ -1484,6 +1486,7 @@ select.cs-native{display:none!important;}
                             <div class="tt-fg"><label>Entry price</label><input type="number" id="calcEntry" step="0.00001" placeholder="1.36500"></div>
                             <div class="tt-fg"><label>Stop loss</label><input type="number" id="calcStop" step="0.00001" placeholder="1.36300"></div>
                         </div>
+                        <div class="tt-fg"><label>Leverage (optional)</label><input type="number" id="calcLeverage" step="1" min="1" placeholder="1 = spot / no leverage"><div class="tt-fg-hint">e.g. 10 for 10&times; &mdash; shows your margin and an estimated liquidation price</div></div>
                         <button class="tt-calc-btn red" onclick="calculateLotSize()">Calculate Position Size</button>
                     </div>
                     <div class="tt-calc-card">
@@ -1499,6 +1502,11 @@ select.cs-native{display:none!important;}
                                     <div><span class="k">Risk amount</span><span class="v" id="riskAmount">$0</span></div>
                                     <div><span class="k" id="calcMoveLabel">Pips at risk</span><span class="v" id="pipsRisk">0</span></div>
                                 </div>
+                                <div class="tt-res-stats" id="calcLevStats" style="display:none;margin-top:12px;">
+                                    <div><span class="k">Margin required</span><span class="v" id="calcMargin">$0</span></div>
+                                    <div><span class="k">Est. liquidation</span><span class="v" id="calcLiq">$0</span></div>
+                                </div>
+                                <div class="tt-res-levnote" id="calcLevNote" style="display:none;">Estimate &mdash; excludes fees &amp; the exchange&rsquo;s maintenance margin, so real liquidation is a little closer.</div>
                             </div>
                             <div class="tt-res-tlbl">Profit targets</div>
                             <div id="profitTargets" class="tt-res-tgts"></div>
@@ -2592,6 +2600,18 @@ select.cs-native{display:none!important;}
             var sg=document.getElementById('calcSymbolGroup'); if(sg) sg.style.display=(m==='Forex')?'none':'';
             var cr=document.getElementById('calcResult'); if(cr) cr.style.display='none'; var _cph=document.getElementById('calcPlaceholder'); if(_cph)_cph.style.display=''; }
 
+        function _calcShowLeverage(entry, isLong, posval, prec, unit){
+            var lev = parseFloat((document.getElementById('calcLeverage')||{}).value) || 1;
+            var el = document.getElementById('calcLevStats'); var note = document.getElementById('calcLevNote'); if(!el) return;
+            if(lev > 1 && entry > 0){
+                var margin = posval / lev;
+                var liq = isLong ? entry*(1 - 1/lev) : entry*(1 + 1/lev); if(liq < 0) liq = 0;
+                document.getElementById('calcMargin').textContent = '$'+margin.toLocaleString('en-US',{maximumFractionDigits:0});
+                document.getElementById('calcLiq').textContent = unit + liq.toLocaleString('en-US',{maximumFractionDigits:prec});
+                el.style.display='flex'; if(note) note.style.display='block';
+            } else { el.style.display='none'; if(note) note.style.display='none'; }
+        }
+
         function calculateLotSize() {
             const balance = parseFloat(document.getElementById('calcBalance').value);
             const riskPercent = parseFloat(document.getElementById('calcRisk').value);
@@ -2612,6 +2632,7 @@ select.cs-native{display:none!important;}
                 document.getElementById('riskAmount').textContent = '$' + _ra.toFixed(2);
                 document.getElementById('pipsRisk').textContent = _u + _dist.toFixed(_prec) + _psx; var _ml2=document.getElementById('calcMoveLabel'); if(_ml2)_ml2.textContent='Stop distance'; var _sp=(entry>0)?(_dist/entry*100):0; var _wn=document.getElementById('calcWarn'); if(_wn){ if(_sp>30){ _wn.innerHTML='\u26A0\uFE0F Your stop is <b>'+Math.round(_sp)+'% away from entry</b> \u2014 unusually far. Double-check your Entry and Stop.'; _wn.style.display='block'; } else { _wn.style.display='none'; } }
                 document.getElementById('profitTargets').innerHTML = _tg.map(function(t){ return '<div class="tt-res-tgt"><div class="r">1:'+t.ratio+'</div><div class="p">'+_u+t.price+'<br>'+_u+t.move+' move</div><div class="pf">+$'+t.profit+'</div></div>'; }).join('');
+                try{ _calcShowLeverage(entry, _dir==='up', _units*entry, _prec, _u); }catch(e){}
                 document.getElementById('calcResult').style.display = 'block'; var _cph=document.getElementById('calcPlaceholder'); if(_cph)_cph.style.display='none';
                 return;
             }
@@ -2675,6 +2696,7 @@ select.cs-native{display:none!important;}
             const targetsHTML = targets.map(t => `<div class="tt-res-tgt"><div class="r">1:${t.ratio}</div><div class="p">${t.price}<br>${t.pips} pips</div><div class="pf">+$${t.profit}</div></div>`).join('');
             
             document.getElementById('profitTargets').innerHTML = targetsHTML;
+            try{ _calcShowLeverage(entry, entry>stop, parseFloat(lotSize)*100000*entry, (pairName.includes('JPY')?3:5), '$'); }catch(e){}
             
             document.getElementById('calcResult').style.display = 'block'; var _cph=document.getElementById('calcPlaceholder'); if(_cph)_cph.style.display='none';
         }
