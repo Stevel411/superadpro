@@ -5,6 +5,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/tradetracker/manifest.webmanifest">
+    <meta name="theme-color" content="#0a1f52">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TradeTracker">
+    <link rel="apple-touch-icon" href="/tradetracker/icon-192.png">
     <title>TradeTracker Pro - Complete Trading Journal</title>
     <style>
         * {
@@ -1572,6 +1579,7 @@ select.cs-native{display:none!important;}
             .set-danger{border-color:rgba(200,16,46,.35)!important;}
             .set-btn-danger{background:#fff!important;color:#c8102e!important;border:1.5px solid rgba(200,16,46,.5)!important;font-weight:800!important;border-radius:11px!important;padding:11px 18px!important;}
             .set-btn-danger:hover{background:#c8102e!important;color:#fff!important;}
+            #ttOffline{position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;background:#0a1f52;color:#fff;padding:10px 14px;border-radius:12px;font-size:.82rem;font-weight:700;text-align:center;box-shadow:0 12px 30px -12px rgba(10,31,82,.6);}
             </style>
             <div id="settings" class="page">
                 <div class="tt-hero">
@@ -1615,6 +1623,15 @@ select.cs-native{display:none!important;}
                         <button class="btn set-btn-danger" onclick="ttResetAll()">Reset everything</button>
                     </div>
                     <small class="set-hint"><b>Clear all trades</b> empties your journal but keeps your playbook, checklist and balance. <b>Reset everything</b> returns the whole tool to a fresh start.</small>
+                </div>
+
+                <div class="stat-card set-card">
+                    <h3 class="set-h">&#128241; App</h3>
+                    <p class="set-hint" style="margin-top:0;">Install TradeTracker to your home screen for one-tap access and offline logging.</p>
+                    <div class="set-actions">
+                        <button class="btn btn-secondary" id="ttInstallBtn" style="display:none" onclick="ttInstall()">Install app</button>
+                    </div>
+                    <small class="set-hint">On iPhone: tap <b>Share</b> &rarr; <b>Add to Home Screen</b>. On Android / desktop Chrome the <b>Install app</b> button appears here when it&rsquo;s available.</small>
                 </div>
 
                 <div class="stat-card set-card">
@@ -2886,6 +2903,29 @@ select.cs-native{display:none!important;}
     mirror(); setTimeout(mirror,400); setInterval(mirror,2000);
   }
   if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded',start);
+})();
+</script>
+<div id="ttOffline" style="display:none">You&rsquo;re offline &mdash; new trades save on this device and sync when you reconnect.</div>
+<script>
+(function(){
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/tradetracker-sw.js', {scope:'/tradetracker'}).catch(function(){});
+    });
+  }
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferredPrompt = e;
+    var b = document.getElementById('ttInstallBtn'); if(b) b.style.display='inline-flex';
+  });
+  window.ttInstall = function(){
+    if(!deferredPrompt){ alert('Your browser installs this from its own menu \u2014 look for Add to Home Screen.'); return; }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(){ deferredPrompt = null; var b=document.getElementById('ttInstallBtn'); if(b) b.style.display='none'; });
+  };
+  window.addEventListener('appinstalled', function(){ var b=document.getElementById('ttInstallBtn'); if(b) b.style.display='none'; });
+  window.addEventListener('online', function(){ try{ if(typeof _ttSaveNow==='function') _ttSaveNow(); }catch(e){} var o=document.getElementById('ttOffline'); if(o) o.style.display='none'; });
+  window.addEventListener('offline', function(){ var o=document.getElementById('ttOffline'); if(o) o.style.display='flex'; });
 })();
 </script>
 <div id="ttLightbox" onclick="this.style.display='none'"><img id="ttLightboxImg"></div>

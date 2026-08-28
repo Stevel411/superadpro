@@ -4311,6 +4311,64 @@ _TT_SYNC_SHIM = r"""<script>
 </script>"""
 
 
+_TT_MANIFEST = """{
+  "name": "TradeTracker Pro",
+  "short_name": "TradeTracker",
+  "description": "Your trading journal, analytics and coach.",
+  "start_url": "/tradetracker",
+  "scope": "/tradetracker",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a1f52",
+  "theme_color": "#0a1f52",
+  "icons": [
+    {"src": "/tradetracker/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/tradetracker/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/tradetracker/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}"""
+
+_TT_SW_JS = r"""
+const TT_CACHE = 'tt-cache-v1';
+const TT_SHELL = '/tradetracker?shell=1';
+const TT_PRECACHE = [
+  TT_SHELL,
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  '/tradetracker/manifest.webmanifest',
+  '/tradetracker/icon-192.png',
+  '/tradetracker/icon-512.png'
+];
+self.addEventListener('install', function(e){
+  e.waitUntil(caches.open(TT_CACHE).then(function(c){ return c.addAll(TT_PRECACHE).catch(function(){}); }).then(function(){ return self.skipWaiting(); }));
+});
+self.addEventListener('activate', function(e){
+  e.waitUntil(caches.keys().then(function(keys){ return Promise.all(keys.map(function(k){ if(k!==TT_CACHE) return caches.delete(k); })); }).then(function(){ return self.clients.claim(); }));
+});
+self.addEventListener('fetch', function(e){
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  // Never cache the API (dynamic, per-user). Let it hit the network; it fails
+  // offline and the page re-syncs localStorage on the 'online' event.
+  if (url.origin === self.location.origin && url.pathname.indexOf('/api/') === 0) return;
+  // Navigations: network-first so an online load always gets fresh, authed,
+  // per-user data. Offline, fall back to the DATA-FREE shell, which rehydrates
+  // from this device's localStorage -- never another account's cached document.
+  if (req.mode === 'navigate') {
+    e.respondWith(fetch(req).catch(function(){ return caches.match(TT_SHELL); }));
+    return;
+  }
+  // Everything else (Chart.js, icons, fonts): cache-first, then network.
+  e.respondWith(caches.match(req).then(function(hit){
+    return hit || fetch(req).then(function(res){
+      try { var copy = res.clone(); caches.open(TT_CACHE).then(function(c){ c.put(req, copy); }); } catch(_){}
+      return res;
+    }).catch(function(){ return hit; });
+  }));
+});
+"""
+
+
 @app.get("/tradetracker")
 def tradetracker_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Serve the AL-reskinned TradeTracker Pro tool with the member's saved data
@@ -4326,12 +4384,18 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
             html = _f.read()
     except Exception:
         return RedirectResponse(url="/dashboard", status_code=302)
-    from .database import TradeTrackerData
-    try:
-        row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
-        _data = row.data if (row and row.data) else "{}"
-    except Exception:
+    if request.query_params.get("shell") == "1":
+        # Offline PWA shell: inject NO user data. The app rehydrates from this
+        # device's own localStorage, so a cached shell can never surface one
+        # account's data to another on a shared browser.
         _data = "{}"
+    else:
+        from .database import TradeTrackerData
+        try:
+            row = db.query(TradeTrackerData).filter(TradeTrackerData.user_id == user.id).first()
+            _data = row.data if (row and row.data) else "{}"
+        except Exception:
+            _data = "{}"
     _data = (_data or "{}").replace("</", "<\\/")  # prevent </script> break-out
     html = html.replace("</head>", _TT_SYNC_SHIM.replace("__TT_DATA_JSON__", _data) + "\n</head>", 1)
     return HTMLResponse(html)
@@ -4342,6 +4406,49 @@ def tradetracker_page(request: Request, user: User = Depends(get_current_user), 
 _TT_PREVIEW_IDS = {1, 906}
 def _tt_access(user):
     return user is not None and (is_admin(user) or getattr(user, "id", 0) in _TT_PREVIEW_IDS)
+
+
+@app.get("/tradetracker-sw.js")
+def tradetracker_sw():
+    """Service worker for the TradeTracker PWA. Root-served so its scope can
+    cover /tradetracker; contains no user data, safe to serve ungated."""
+    from starlette.responses import Response
+    return Response(content=_TT_SW_JS, media_type="application/javascript",
+                    headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/tradetracker"})
+
+
+@app.get("/tradetracker/manifest.webmanifest")
+def tradetracker_manifest():
+    from starlette.responses import Response
+    return Response(content=_TT_MANIFEST, media_type="application/manifest+json",
+                    headers={"Cache-Control": "public, max-age=86400"})
+
+
+def _tt_icon_response(name):
+    from starlette.responses import Response
+    path = os.path.join(os.path.dirname(__file__), "tradetracker", name)
+    try:
+        with open(path, "rb") as f:
+            data = f.read()
+    except Exception:
+        return Response(status_code=404)
+    return Response(content=data, media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=604800"})
+
+
+@app.get("/tradetracker/icon-192.png")
+def tradetracker_icon_192():
+    return _tt_icon_response("icon-192.png")
+
+
+@app.get("/tradetracker/icon-512.png")
+def tradetracker_icon_512():
+    return _tt_icon_response("icon-512.png")
+
+
+@app.get("/tradetracker/icon-maskable-512.png")
+def tradetracker_icon_maskable():
+    return _tt_icon_response("icon-maskable-512.png")
 
 
 _TT_TICKER_CACHE = {"data": None, "ts": 0.0}
