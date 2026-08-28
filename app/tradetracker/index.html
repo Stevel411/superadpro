@@ -1831,7 +1831,10 @@ select.cs-native{display:none!important;}
                 mark(); }
             function mark(){ Array.prototype.forEach.call(panel.querySelectorAll('.cs-opt'), function(d){ d.classList.toggle('on', d.getAttribute('data-v')===sel.value); }); }
             function syncVal(){ var o=sel.options[sel.selectedIndex]; trig.querySelector('.cs-val').textContent = o?o.textContent:''; mark(); }
-            trig.addEventListener('click', function(e){ e.stopPropagation(); var open=panel.classList.contains('open'); csClose(); if(!open){ build(); panel.classList.add('open'); trig.classList.add('open'); } });
+            function positionPanel(){ var r=trig.getBoundingClientRect(); var ph=Math.min(260, panel.scrollHeight||200);
+                panel.style.position='fixed'; panel.style.right='auto'; panel.style.left=r.left+'px'; panel.style.width=r.width+'px';
+                var below=window.innerHeight - r.bottom; panel.style.top=(below < ph+14 && r.top > ph+14) ? (r.top - ph - 6)+'px' : (r.bottom + 6)+'px'; }
+            trig.addEventListener('click', function(e){ e.stopPropagation(); var open=panel.classList.contains('open'); csClose(); if(!open){ build(); panel.classList.add('open'); trig.classList.add('open'); positionPanel(); } });
             sel.addEventListener('change', syncVal);
             try{ new MutationObserver(function(){ syncVal(); if(panel.classList.contains('open')) build(); }).observe(sel, {childList:true}); }catch(e){}
             sel._cs={sync:syncVal};
@@ -1840,6 +1843,7 @@ select.cs-native{display:none!important;}
         function csClose(){ Array.prototype.forEach.call(document.querySelectorAll('.cs-panel.open'), function(p){ p.classList.remove('open'); });
             Array.prototype.forEach.call(document.querySelectorAll('.cs-trig.open'), function(t){ t.classList.remove('open'); }); }
         document.addEventListener('click', csClose);
+        document.addEventListener('scroll', function(e){ try{ if(e.target && e.target.closest && e.target.closest('.cs-panel')) return; }catch(_){} csClose(); }, true);
         function csInit(){ Array.prototype.forEach.call(document.querySelectorAll('select'), csEnhance); }
         function csRefreshAll(){ Array.prototype.forEach.call(document.querySelectorAll('select'), function(s){ if(s._cs) s._cs.sync(); }); }
 
