@@ -1467,6 +1467,11 @@ select.cs-native{display:none!important;}
                                 </select>
                                 <div class="tt-fg-hint">Pip value: $<span id="pipValueDisplay">10</span> / standard lot</div>
                             </div>
+                            <div class="tt-fg" id="calcSymbolGroup" style="display:none;"><label>Symbol (optional)</label>
+                                <input type="text" id="calcSymbol" list="calcSymList" autocomplete="off" placeholder="e.g. BTC, ETH, XRP, AAPL">
+                                <datalist id="calcSymList"><option value="BTC"></option><option value="ETH"></option><option value="SOL"></option><option value="XRP"></option><option value="BNB"></option><option value="DOGE"></option><option value="ADA"></option><option value="US30"></option><option value="NAS100"></option><option value="SPX500"></option><option value="XAU"></option><option value="AAPL"></option><option value="TSLA"></option><option value="NVDA"></option></datalist>
+                                <div class="tt-fg-hint">Just for labelling &mdash; the maths is the same for any asset</div>
+                            </div>
                         </div>
                         <div class="tt-calc-row">
                             <div class="tt-fg"><label>Account balance ($)</label><input type="number" id="calcBalance" value="10000" step="100"><div class="tt-fg-hint">Auto-filled from your account</div></div>
@@ -1497,7 +1502,7 @@ select.cs-native{display:none!important;}
                         </div>
                     </div>
                 </div>
-                <div class="tt-calc-tip">💡 <span><b>Position sizing:</b> risk a fixed % per trade so no single loss can hurt you. Lot size = (balance &times; risk%) &divide; (stop distance &times; pip value).</span></div>
+                <div class="tt-calc-tip">💡 <span><b>How it works:</b> your size is set so that hitting your stop loses exactly your chosen risk %. Forex is sized in <b>lots</b> (pip value varies by pair); crypto, stocks and indices are sized in <b>units</b> of the asset = risk &divide; the entry-to-stop distance.</span></div>
             </div>
 
             <!-- SETTINGS PAGE -->
@@ -2579,7 +2584,8 @@ select.cs-native{display:none!important;}
         }
 
         function calcMarketChange(){ var m=(document.getElementById('calcMarket')||{}).value||'Forex';
-            var pg=document.getElementById('calcPairGroup'); if(pg) pg.style.display=(m==='Forex')?'block':'none';
+            var pg=document.getElementById('calcPairGroup'); if(pg) pg.style.display=(m==='Forex')?'':'none';
+            var sg=document.getElementById('calcSymbolGroup'); if(sg) sg.style.display=(m==='Forex')?'none':'';
             var cr=document.getElementById('calcResult'); if(cr) cr.style.display='none'; var _cph=document.getElementById('calcPlaceholder'); if(_cph)_cph.style.display=''; }
 
         function calculateLotSize() {
@@ -2594,7 +2600,7 @@ select.cs-native{display:none!important;}
                 var _dist = Math.abs(entry - stop);
                 if (_dist === 0) { alert('Entry and stop cannot be the same.'); return; }
                 var _units = _ra / _dist;
-                var _ulabel = _mkt==='Stocks'?'shares':(_mkt==='Indices'?'contracts':'units');
+                var _sym=((document.getElementById('calcSymbol')||{}).value||'').trim(); var _ulabel = _sym ? _sym.toUpperCase() : (_mkt==='Stocks'?'shares':(_mkt==='Indices'?'contracts':'units'));
                 var _prec = (entry<10)?4:2; var _uprec = (_units<1)?4:(_units<100?2:0);
                 var _dir = entry > stop ? 'up' : 'down';
                 var _tg=[1,2,3].map(function(ratio){ var reward=_dist*ratio; var tp=_dir==='up'?(entry+reward):(entry-reward); return {ratio:ratio, price:tp.toFixed(_prec), move:reward.toFixed(_prec), profit:(reward*_units).toFixed(2)}; });
