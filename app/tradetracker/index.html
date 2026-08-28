@@ -1401,6 +1401,16 @@ html,body{max-width:100%;overflow-x:hidden;}
                     <h3 style="margin-bottom: 1.5rem;">📐 Position Size Calculator</h3>
                     
                     <div class="form-group">
+                        <label>Market</label>
+                        <select id="calcMarket" onchange="calcMarketChange()">
+                            <option value="Forex">Forex</option>
+                            <option value="Crypto">Crypto</option>
+                            <option value="Indices">Indices</option>
+                            <option value="Stocks">Stocks / Shares</option>
+                            <option value="Commodities">Commodities / Metals</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="calcPairGroup">
                         <label>Currency Pair</label>
                         <select id="calcPair" onchange="updatePipValue()">
                             <optgroup label="Major Pairs">
@@ -1591,13 +1601,14 @@ html,body{max-width:100%;overflow-x:hidden;}
                 <div class="form-row">
                     <div class="form-group">
                         <label>Currency Pair</label>
-                        <select id="tradePair" required="" onchange="autofillPrice()">
-                            <option value="GBP/USD">GBP/USD</option>
-                            <option value="EUR/USD">EUR/USD</option>
-                            <option value="USD/JPY">USD/JPY</option>
-                            <option value="AUD/USD">AUD/USD</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <input type="text" id="tradePair" list="ttPairList" required="" autocomplete="off" placeholder="e.g. GBP/USD, BTC/USD, US30, AAPL" onchange="autofillPrice()">
+                        <datalist id="ttPairList">
+                            <option value="EUR/USD"></option><option value="GBP/USD"></option><option value="USD/JPY"></option><option value="AUD/USD"></option><option value="USD/CAD"></option><option value="USD/CHF"></option><option value="NZD/USD"></option><option value="EUR/JPY"></option><option value="GBP/JPY"></option>
+                            <option value="BTC/USD"></option><option value="ETH/USD"></option><option value="SOL/USD"></option><option value="XRP/USD"></option><option value="BNB/USD"></option><option value="DOGE/USD"></option><option value="ADA/USD"></option>
+                            <option value="US30"></option><option value="NAS100"></option><option value="SPX500"></option><option value="GER40"></option><option value="UK100"></option><option value="JP225"></option>
+                            <option value="XAU/USD"></option><option value="XAG/USD"></option>
+                            <option value="AAPL"></option><option value="TSLA"></option><option value="NVDA"></option><option value="MSFT"></option><option value="AMZN"></option>
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -2531,19 +2542,40 @@ html,body{max-width:100%;overflow-x:hidden;}
             try{ openModal(); }catch(e){}
             setTimeout(function(){
                 var ps=document.getElementById('tradePair');
-                if(ps && pair){ for(var i=0;i<ps.options.length;i++){ if(ps.options[i].value===pair){ ps.value=pair; break; } } }
+                if(ps && pair){ ps.value=pair; }
                 var e1=document.getElementById('entryPrice'); if(e1) e1.value=entry;
                 var s1=document.getElementById('stopLoss'); if(s1) s1.value=stop;
                 var p1=document.getElementById('positionSize'); if(p1) p1.value=lot;
             }, 130);
         }
 
+        function calcMarketChange(){ var m=(document.getElementById('calcMarket')||{}).value||'Forex';
+            var pg=document.getElementById('calcPairGroup'); if(pg) pg.style.display=(m==='Forex')?'block':'none';
+            var cr=document.getElementById('calcResult'); if(cr) cr.style.display='none'; }
+
         function calculateLotSize() {
             const balance = parseFloat(document.getElementById('calcBalance').value);
             const riskPercent = parseFloat(document.getElementById('calcRisk').value);
             const entry = parseFloat(document.getElementById('calcEntry').value);
             const stop = parseFloat(document.getElementById('calcStop').value);
-            
+            var _mkt = (document.getElementById('calcMarket')||{}).value || 'Forex';
+            if (_mkt !== 'Forex') {
+                if (!balance || !riskPercent || !entry || !stop) { alert('Please fill in all fields'); return; }
+                var _ra = balance * (riskPercent/100);
+                var _dist = Math.abs(entry - stop);
+                if (_dist === 0) { alert('Entry and stop cannot be the same.'); return; }
+                var _units = _ra / _dist;
+                var _ulabel = _mkt==='Stocks'?'shares':(_mkt==='Indices'?'contracts':'units');
+                var _prec = (entry<10)?4:2; var _uprec = (_units<1)?4:(_units<100?2:0);
+                var _dir = entry > stop ? 'up' : 'down';
+                var _tg=[1,2,3].map(function(ratio){ var reward=_dist*ratio; var tp=_dir==='up'?(entry+reward):(entry-reward); return {ratio:ratio, price:tp.toFixed(_prec), move:reward.toFixed(_prec), profit:(reward*_units).toFixed(2)}; });
+                document.getElementById('lotSizeResult').textContent = _units.toFixed(_uprec) + ' ' + _ulabel;
+                document.getElementById('riskAmount').textContent = '$' + _ra.toFixed(2);
+                document.getElementById('pipsRisk').textContent = _dist.toFixed(_prec) + ' move';
+                document.getElementById('profitTargets').innerHTML = _tg.map(function(t){ return '<div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;"><div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">1:'+t.ratio+'</div><div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">Target: '+t.price+'</div><div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">'+t.move+' move</div><div style="font-size: 1.25rem; font-weight: 700; color: #10b981; margin-top: 0.5rem;">+$'+t.profit+'</div></div>'; }).join('');
+                document.getElementById('calcResult').style.display = 'block';
+                return;
+            }
             const select = document.getElementById('calcPair');
             const selectedOption = select.options[select.selectedIndex];
             const pipValue = parseFloat(selectedOption.getAttribute('data-pip'));
