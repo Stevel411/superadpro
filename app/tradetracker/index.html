@@ -1208,6 +1208,9 @@ select.cs-native{display:none!important;}
                     <span class="nav-icon">✅</span><span>Daily Checklist</span>
                 </div>
                 <div class="nav-group">Trade</div>
+                <div class="nav-item" onclick="showPage(&#39;riskrules&#39;)">
+                    <span class="nav-icon">🛡️</span><span>Risk Rules</span><span class="tt-new">NEW</span>
+                </div>
                 <div class="nav-item" onclick="showPage(&#39;calculator&#39;)">
                     <span class="nav-icon">🧮</span><span>Calculator</span>
                 </div>
@@ -1730,6 +1733,36 @@ select.cs-native{display:none!important;}
                 <div class="bt-card bt-res" id="bt-res"></div>
               </div>
             </div>
+            <div id="riskrules" class="page">
+              <style>
+               #riskrules .rr-eyebrow{font-weight:900;font-size:12px;letter-spacing:1.6px;color:#c8102e;text-transform:uppercase}
+               #riskrules .rr-h1{font-weight:900;font-size:26px;letter-spacing:-.6px;margin:4px 0 6px;color:#0a1f52}
+               #riskrules .rr-sub{font-size:14.5px;font-weight:600;color:#5a6a92;max-width:660px;line-height:1.5;margin-bottom:20px}
+               #riskrules .rr-card{background:#fff;border:1px solid #e2e8f4;border-radius:16px;box-shadow:0 20px 44px -30px rgba(10,31,82,.4);padding:20px 22px;margin-bottom:16px}
+               #riskrules .rr-ct{font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#5a6a92;margin-bottom:14px}
+               #riskrules .rr-rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+               #riskrules .rr-fg label{display:block;font-size:12px;font-weight:800;color:#0a1f52;margin-bottom:5px}
+               #riskrules .rr-fg input{width:100%;padding:11px 12px;border:1.5px solid #d7e0f2;border-radius:10px;font-size:16px;font-weight:800;color:#0a1f52;font-family:inherit}
+               #riskrules .rr-fg .h{font-size:11px;color:#5a6a92;font-weight:600;margin-top:4px}
+               #riskrules .rr-save{background:linear-gradient(120deg,#0a1f52,#12388f);color:#fff;font-weight:800;font-size:14px;padding:11px 20px;border:0;border-radius:11px;cursor:pointer}
+               #riskrules .rr-banner{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:14px;margin-bottom:16px}
+               #riskrules .rr-banner.ok{background:linear-gradient(120deg,#e5f6ee,#d6f0e3)}#riskrules .rr-banner.stop{background:linear-gradient(120deg,#fdeaec,#fbdfe3)}
+               #riskrules .rr-bic{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex:none;color:#fff}
+               #riskrules .rr-bic.ok{background:#0e9f6e}#riskrules .rr-bic.stop{background:#c8102e}
+               #riskrules .rr-bt{font-weight:900;font-size:18px;color:#0a1f52}#riskrules .rr-bs{font-size:13px;font-weight:600;color:#5a6a92;margin-top:2px}
+               #riskrules .rr-bar{height:12px;border-radius:99px;background:#e8edf8;overflow:hidden;margin:10px 0 6px}
+               #riskrules .rr-bar i{display:block;height:100%;border-radius:99px}
+               #riskrules .rr-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+               #riskrules .rr-m{background:#eef2fb;border-radius:11px;padding:12px 14px}#riskrules .rr-m .k{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#5a6a92}
+               #riskrules .rr-m .v{font-size:20px;font-weight:900;color:#0a1f52;margin-top:3px}#riskrules .rr-m .v.neg{color:#c8102e}#riskrules .rr-m .v.pos{color:#0e9f6e}
+               #riskrules .rr-why{font-size:12.5px;font-weight:600;color:#5a6a92;line-height:1.55;margin-top:12px}#riskrules .rr-why b{color:#0a1f52}
+               @media(max-width:720px){#riskrules .rr-rules{grid-template-columns:1fr}#riskrules .rr-mini{grid-template-columns:1fr}}
+              </style>
+              <div class="rr-eyebrow">Risk Guardrails</div>
+              <div class="rr-h1">The rules that actually separate winners from losers</div>
+              <div class="rr-sub">Strategy isn&rsquo;t what makes traders profitable &mdash; <b>risk discipline is</b>. Set your limits, and this watches your real trades against them: a daily-loss circuit-breaker, and an honest scorecard of when you break your own rules.</div>
+              <div id="rr-body"></div>
+            </div>
         </main>
     </div>
 
@@ -2031,6 +2064,7 @@ select.cs-native{display:none!important;}
             if(pageName==='journal'){ try{ renderTradeHistory(); }catch(e){} }
             if(pageName==='analytics'){ try{ renderAnalytics(); }catch(e){} }
             if(pageName==='backtester'){ try{ btInit(); }catch(e){} }
+            if(pageName==='riskrules'){ try{ rrRender(); }catch(e){} }
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
@@ -3157,6 +3191,53 @@ function btInit(){
 }
 window.btInit=btInit;
 if(document.readyState!=='loading') btInit(); else document.addEventListener('DOMContentLoaded', btInit);
+})();
+</script>
+<script>
+(function(){
+function rrTrades(){ try{return JSON.parse(localStorage.getItem('trades')||'[]');}catch(e){return [];} }
+function rrBal(){ var b=parseFloat(localStorage.getItem('initialBalance')); return isNaN(b)?10000:b; }
+function rrRules(){ var r={}; try{r=JSON.parse(localStorage.getItem('ttRiskRules'))||{};}catch(e){} return {maxRisk:+r.maxRisk||2, maxDaily:+r.maxDaily||6, maxTrades:+r.maxTrades||4}; }
+window.rrSaveRules=function(){ var r={maxRisk:+document.getElementById('rr-maxrisk').value||2, maxDaily:+document.getElementById('rr-maxdaily').value||6, maxTrades:+document.getElementById('rr-maxtrades').value||4}; try{localStorage.setItem('ttRiskRules',JSON.stringify(r));}catch(e){} rrRender(); };
+function rrToday(){ var n=new Date(); return n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2); }
+function rrOver(t){ var r=(t.risk||'').toLowerCase(); var m=t.mistakes||[]; return r.indexOf('over')>-1 || r.indexOf('3%')>-1 || m.indexOf('Oversized')>-1; }
+function money(v){ return (v<0?'-$':'$')+Math.abs(v).toFixed(0); }
+window.rrRender=function(){
+  var body=document.getElementById('rr-body'); if(!body) return;
+  var trades=rrTrades(), rules=rrRules(), bal=rrBal();
+  var equity=bal+trades.reduce(function(s,t){return s+(parseFloat(t.pnl)||0);},0);
+  var dailyLimit=equity*rules.maxDaily/100;
+  var today=rrToday(); var tt=trades.filter(function(t){return t.date===today;});
+  var todayPnl=tt.reduce(function(s,t){return s+(parseFloat(t.pnl)||0);},0);
+  var loss=Math.max(0,-todayPnl); var breached=(dailyLimit>0 && loss>=dailyLimit);
+  var overCount=rules.maxTrades>0 && tt.length>rules.maxTrades;
+  var stop = breached || overCount;
+  var usedPct=dailyLimit>0?Math.min(100,Math.round(loss/dailyLimit*100)):0;
+  var over=trades.filter(rrOver); var overCost=over.reduce(function(s,t){return s+(parseFloat(t.pnl)||0);},0);
+  var overPct=trades.length?Math.round(over.length/trades.length*100):0;
+  var streak=0; for(var i=trades.length-1;i>=0;i--){ if(rrOver(trades[i])) break; streak++; }
+  var rulesCard='<div class="rr-card"><div class="rr-ct">Your rules</div><div class="rr-rules">'+
+    '<div class="rr-fg"><label>Max risk per trade</label><input id="rr-maxrisk" type="number" step="0.5" value="'+rules.maxRisk+'"><div class="h">% of account on any single trade</div></div>'+
+    '<div class="rr-fg"><label>Max daily loss</label><input id="rr-maxdaily" type="number" step="0.5" value="'+rules.maxDaily+'"><div class="h">% of account &mdash; stop for the day if hit</div></div>'+
+    '<div class="rr-fg"><label>Max trades per day</label><input id="rr-maxtrades" type="number" step="1" value="'+rules.maxTrades+'"><div class="h">over-trading is where accounts die</div></div>'+
+    '</div><button class="rr-save" onclick="rrSaveRules()">Save my rules</button></div>';
+  var bannerCard='<div class="rr-card"><div class="rr-ct">Today &mdash; '+today+'</div>'+
+    '<div class="rr-banner '+(stop?'stop':'ok')+'"><div class="rr-bic '+(stop?'stop':'ok')+'">'+(stop?'\u2717':'\u2713')+'</div><div>'+
+      '<div class="rr-bt">'+(breached?'STOP &mdash; daily loss limit hit':(overCount?'STOP &mdash; over your trade count':'You\u2019re within your limits'))+'</div>'+
+      '<div class="rr-bs">'+(stop?'Walk away. The discipline to stop is the trade that saves your account.':'Trade your plan. '+money(dailyLimit-loss)+' of loss budget left today.')+'</div></div></div>'+
+    '<div class="rr-bar"><i style="width:'+usedPct+'%;background:'+(stop?'#c8102e':(usedPct>66?'#b7791f':'#0e9f6e'))+'"></i></div>'+
+    '<div class="rr-mini"><div class="rr-m"><div class="k">Today P&amp;L</div><div class="v '+(todayPnl<0?'neg':(todayPnl>0?'pos':''))+'">'+money(todayPnl)+'</div></div>'+
+      '<div class="rr-m"><div class="k">Daily loss limit</div><div class="v">'+money(dailyLimit)+'</div></div>'+
+      '<div class="rr-m"><div class="k">Trades today</div><div class="v '+(overCount?'neg':'')+'">'+tt.length+' / '+rules.maxTrades+'</div></div></div></div>';
+  var scoreCard='<div class="rr-card"><div class="rr-ct">Your discipline scorecard</div>'+
+    (trades.length===0?'<div class="rr-why">Log a few trades in your journal and this comes alive &mdash; it&rsquo;ll show how often you break your own risk rule and what it costs you.</div>':
+    '<div class="rr-mini"><div class="rr-m"><div class="k">Rule-breaks</div><div class="v '+(over.length?'neg':'pos')+'">'+over.length+' of '+trades.length+'</div></div>'+
+     '<div class="rr-m"><div class="k">Cost of breaking rules</div><div class="v '+(overCost<0?'neg':'pos')+'">'+money(overCost)+'</div></div>'+
+     '<div class="rr-m"><div class="k">Clean streak</div><div class="v pos">'+streak+'</div></div></div>'+
+     '<div class="rr-why">'+(over.length?('You broke your risk rule on <b>'+overPct+'%</b> of trades'+(overCost<0?', and those trades have cost you <b>'+money(overCost)+'</b>':'')+'. This is the single fastest thing you can fix &mdash; not a better strategy, just staying inside your own limits.'):'Clean record &mdash; every logged trade respected your risk rule. That discipline is exactly what the data says separates the traders who last.')+'</div>');
+  body.innerHTML=rulesCard+bannerCard+scoreCard;
+};
+if(document.readyState!=='loading'){ try{rrRender();}catch(e){} } else document.addEventListener('DOMContentLoaded',function(){try{rrRender();}catch(e){}});
 })();
 </script>
 </body></html>
