@@ -4492,6 +4492,39 @@ def tt_backtest_grid(request: Request,
         return JSONResponse({"error": "engine failed", "detail": str(e)[:400]}, status_code=500)
 
 
+@app.get("/api/al/tradetracker/backtest")
+def tt_backtest_custom(request: Request,
+                       user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Run one trader-chosen backtest configuration on demand, live from the DB.
+    Params: session, or_minutes, target, trend, fewer. Preview-gated (or ?secret=)."""
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    secret = request.query_params.get("secret", "")
+    if not (_tt_access(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    qp = request.query_params
+    session = qp.get("session", "New York")
+    try:
+        or_min = int(qp.get("or_minutes", "30"))
+    except Exception:
+        or_min = 30
+    tr = (qp.get("target", "") or "").strip()
+    target_R = None
+    if tr and tr not in ("0", "none", "hold", ""):
+        try:
+            target_R = float(tr)
+        except Exception:
+            target_R = None
+    trend = qp.get("trend", "") in ("1", "true", "yes", "on")
+    fewer = qp.get("fewer", "") in ("1", "true", "yes", "on")
+    try:
+        from .backtest_engine import run_custom
+        return JSONResponse(run_custom(db, "XAUUSD", session=session, or_minutes=or_min,
+                                       target_R=target_R, trend=trend, fewer=fewer))
+    except Exception as e:
+        return JSONResponse({"error": "engine failed", "detail": str(e)[:400]}, status_code=500)
+
+
 @app.get("/tradetracker-sw.js")
 def tradetracker_sw():
     """Service worker for the TradeTracker PWA. Root-served so its scope can
