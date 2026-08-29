@@ -246,9 +246,12 @@ def run_grid(db, market="XAUUSD"):
                         ("No tradeable edge \u2014 beats random, loses to costs" if be > rexp else
                          "No edge \u2014 no better than random")),
             "diagnosis": diagnosis, "suggestion": sug})
+    _lbl = {"XAUUSD": "XAU/USD (gold)", "EURUSD": "EUR/USD", "USDJPY": "USD/JPY",
+            "GBPUSD": "GBP/USD", "AUDUSD": "AUD/USD", "USDCAD": "USD/CAD",
+            "USDCHF": "USD/CHF", "NZDUSD": "NZD/USD"}
     result = {"presets": presets,
-              "meta": {"source": "XAU/USD 15m, live from database (2004-2026)",
-                       "oos": "2019-2026 (out-of-sample)",
+              "meta": {"source": _lbl.get(market, market) + " 15m, live from the database",
+                       "oos": "2019 onward (out-of-sample)",
                        "cost": "3bps spread + 1.5bps slippage per fill"}}
     _GRID[market] = result
     return result
