@@ -4408,6 +4408,72 @@ def _tt_access(user):
     return user is not None and (is_admin(user) or getattr(user, "id", 0) in _TT_PREVIEW_IDS)
 
 
+@app.get("/admin/load-price-bars")
+def admin_load_price_bars(request: Request,
+                          user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """One-time loader: seeds the price_bars table from the shipped gzipped CSV
+    (gold XAUUSD 15m + daily). Foundation for the live Strategy Backtester engine.
+    Admin session or ?secret=MIGRATION_SECRET/CRON_SECRET. Idempotent; ?force=1 reloads."""
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    secret = request.query_params.get("secret", "")
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        db.execute(text("CREATE TABLE IF NOT EXISTS price_bars ("
+                        "market TEXT NOT NULL, tf TEXT NOT NULL, ts TIMESTAMP NOT NULL, "
+                        "o DOUBLE PRECISION, h DOUBLE PRECISION, l DOUBLE PRECISION, c DOUBLE PRECISION, "
+                        "PRIMARY KEY (market, tf, ts))"))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": "create failed", "detail": str(e)[:300]}, status_code=500)
+    force = request.query_params.get("force") == "1"
+    try:
+        existing = int(db.execute(text("SELECT COUNT(*) FROM price_bars")).scalar() or 0)
+    except Exception:
+        existing = 0
+    if existing and not force:
+        return JSONResponse({"status": "already loaded", "rows": existing})
+    if force and existing:
+        db.execute(text("TRUNCATE price_bars")); db.commit()
+    import gzip as _gz, csv as _csv
+    path = os.path.join(os.path.dirname(__file__), "data", "price_bars_seed.csv.gz")
+    if not os.path.exists(path):
+        return JSONResponse({"error": "seed file missing", "path": path}, status_code=500)
+    method = None
+    try:
+        raw = db.connection().connection
+        cur = raw.cursor()
+        with _gz.open(path, "rt", encoding="utf-8") as f:
+            cur.copy_expert("COPY price_bars (market,tf,ts,o,h,l,c) FROM STDIN WITH (FORMAT csv, HEADER true)", f)
+        raw.commit()
+        method = "copy"
+    except Exception as e_copy:
+        try: db.rollback()
+        except Exception: pass
+        try:
+            ins = text("INSERT INTO price_bars (market,tf,ts,o,h,l,c) VALUES (:m,:tf,:ts,:o,:h,:l,:c) ON CONFLICT DO NOTHING")
+            batch = []
+            with _gz.open(path, "rt", encoding="utf-8") as f:
+                for row in _csv.DictReader(f):
+                    batch.append({"m": row["market"], "tf": row["tf"], "ts": row["ts"],
+                                  "o": float(row["o"]), "h": float(row["h"]), "l": float(row["l"]), "c": float(row["c"])})
+                    if len(batch) >= 5000:
+                        db.execute(ins, batch); db.commit(); batch = []
+            if batch:
+                db.execute(ins, batch); db.commit()
+            method = "insert"
+        except Exception as e_ins:
+            db.rollback()
+            return JSONResponse({"error": "load failed", "copy_err": str(e_copy)[:200], "insert_err": str(e_ins)[:200]}, status_code=500)
+    try:
+        loaded = int(db.execute(text("SELECT COUNT(*) FROM price_bars")).scalar() or 0)
+    except Exception:
+        loaded = 0
+    return JSONResponse({"status": "loaded", "method": method, "rows": loaded})
+
+
 @app.get("/tradetracker-sw.js")
 def tradetracker_sw():
     """Service worker for the TradeTracker PWA. Root-served so its scope can
