@@ -4474,6 +4474,24 @@ def admin_load_price_bars(request: Request,
     return JSONResponse({"status": "loaded", "method": method, "rows": loaded})
 
 
+@app.get("/api/al/tradetracker/backtest-grid")
+def tt_backtest_grid(request: Request,
+                     user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """Live Strategy Backtester grid — the honest coached preset results computed
+    on demand from the price_bars table by the server-side engine (replaces the
+    frontend's precomputed data). Preview-gated (or ?secret= for verification)."""
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    secret = request.query_params.get("secret", "")
+    if not (_tt_access(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        from .backtest_engine import run_grid
+        return JSONResponse(run_grid(db, "XAUUSD"))
+    except Exception as e:
+        return JSONResponse({"error": "engine failed", "detail": str(e)[:400]}, status_code=500)
+
+
 @app.get("/tradetracker-sw.js")
 def tradetracker_sw():
     """Service worker for the TradeTracker PWA. Root-served so its scope can
