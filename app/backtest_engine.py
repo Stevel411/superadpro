@@ -245,3 +245,81 @@ def run_grid(db, market="XAUUSD"):
                        "cost": "3bps spread + 1.5bps slippage per fill"}}
     _GRID[market] = result
     return result
+
+
+def run_custom(db, market="XAUUSD", session="New York", or_minutes=30,
+               target_R=None, trend=False, fewer=False):
+    """Run ONE backtest for a trader-chosen configuration, on demand, live from
+    the DB. Returns the same honest, coached shape as a grid preset."""
+    days = _load(db, market, "15m")
+    if session not in SESSIONS:
+        session = "New York"
+    os_, se = SESSIONS[session]
+    ob = max(1, int(round(or_minutes / 15.0)))
+    tmap = _trend(db, market) if trend else None
+    med = _is_median_or(days, os_, ob) if fewer else None
+    base = _oos(_orb(days, os_, ob, se, target_R=target_R, trend_map=tmap, min_or=med))
+    rexp = _oos(_orb(days, os_, ob, se, target_R=target_R, seed=1)).get("exp", 0)
+    be = base.get("exp", -9)
+
+    # suggestion: the best not-yet-applied lever
+    cands = []
+    if not trend:
+        vt = _oos(_orb(days, os_, ob, se, target_R=target_R, trend_map=_trend(db, market), min_or=med))
+        cands.append(("Add a trend filter",
+                      "only take the breakout in the direction of the daily trend", vt))
+    if not fewer:
+        m2 = _is_median_or(days, os_, ob)
+        vf = _oos(_orb(days, os_, ob, se, target_R=target_R,
+                       trend_map=tmap, min_or=m2))
+        cands.append(("Trade fewer, bigger days",
+                      "only trade when the opening range is wider than usual (skips quiet days)", vf))
+    if target_R is None:
+        v2 = _oos(_orb(days, os_, ob, se, target_R=2.0, trend_map=tmap, min_or=med))
+        cands.append(("Exit at a 2R target",
+                      "take profit at twice your risk instead of holding to the close", v2))
+    cands = [c for c in cands if c[2].get("n", 0) > 30]
+    best = max(cands, key=lambda c: c[2].get("exp", -9)) if cands else None
+
+    if be > 0:
+        diagnosis = ("This configuration actually holds up after costs \u2014 rare. Forward-test it "
+                     "on a demo before trusting real money.")
+    elif be > rexp:
+        diagnosis = ("Your entry timing isn't random \u2014 it beats coin-flip entries. What kills it "
+                     "is <b>cost</b>: " + str(base.get("n", 0)) + " trades, each risking a small "
+                     "opening-range stop, so the spread eats the edge. The lever is to <b>trade less "
+                     "but bigger</b>.")
+    else:
+        diagnosis = ("No better than random entries \u2014 the breakout alone carries no directional "
+                     "signal in this configuration. It needs a <b>reason to lean one way</b>.")
+    sug = None
+    if best:
+        be_exp = best[2]["exp"]
+        delta = round(be_exp - be, 4)
+        crossed = be_exp > 0
+        if crossed:
+            note = "and it crosses into profit \u2014 worth a proper forward-test."
+        elif delta > 0:
+            note = ("it improves things (from %+.3fR to %+.3fR) but still doesn't beat costs "
+                    "\u2014 closer, not there." % (be, be_exp))
+        else:
+            note = "but it doesn't help here \u2014 honest dead end for this idea."
+        sug = {"title": best[0], "how": best[1], "exp": be_exp, "delta": delta,
+               "n": best[2]["n"], "win": best[2]["win"],
+               "equity": best[2].get("equity", []), "note": note}
+
+    flags = []
+    if trend:
+        flags.append("trend-filtered")
+    if fewer:
+        flags.append("bigger-range days only")
+    detail = str(ob * 15) + "-min range, " + ("exit at " + str(target_R) + "R target" if target_R else "hold to session close")
+    if flags:
+        detail += " \u2014 " + ", ".join(flags)
+    return {"name": session + " Opening-Range Breakout",
+            "detail": detail, "oos": base, "rand_exp": round(rexp, 4),
+            "beats_random": bool(be > rexp), "profitable": bool(be > 0),
+            "verdict": ("EDGE \u2014 profitable after costs" if be > 0 else
+                        ("No tradeable edge \u2014 beats random, loses to costs" if be > rexp else
+                         "No edge \u2014 no better than random")),
+            "diagnosis": diagnosis, "suggestion": sug}
