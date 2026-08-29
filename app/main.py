@@ -4474,6 +4474,53 @@ def admin_load_price_bars(request: Request,
     return JSONResponse({"status": "loaded", "method": method, "rows": loaded})
 
 
+@app.post("/admin/ingest-price-bars")
+async def admin_ingest_price_bars(request: Request, db: Session = Depends(get_db)):
+    """Stream additional markets into price_bars directly (no committed seed).
+    Body = gzipped CSV (market,tf,ts,o,h,l,c with header). ?market=X&replace=1 clears
+    that market first (idempotent). Secret-gated."""
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    secret = request.query_params.get("secret", "")
+    ok = bool(secret and secret in _secrets)
+    if not ok:
+        try:
+            u = get_current_user(request, db)
+            ok = bool(u and is_admin(u))
+        except Exception:
+            ok = False
+    if not ok:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    db.execute(text("CREATE TABLE IF NOT EXISTS price_bars ("
+                    "market TEXT NOT NULL, tf TEXT NOT NULL, ts TIMESTAMP NOT NULL, "
+                    "o DOUBLE PRECISION, h DOUBLE PRECISION, l DOUBLE PRECISION, c DOUBLE PRECISION, "
+                    "PRIMARY KEY (market, tf, ts))"))
+    db.commit()
+    market = request.query_params.get("market", "")
+    if request.query_params.get("replace") == "1" and market:
+        db.execute(text("DELETE FROM price_bars WHERE market=:m"), {"m": market}); db.commit()
+    body = await request.body()
+    import gzip as _gz, io as _io
+    try:
+        raw = _gz.decompress(body)
+    except Exception:
+        raw = body
+    stream = _io.StringIO(raw.decode("utf-8"))
+    try:
+        conn = db.connection().connection
+        cur = conn.cursor()
+        cur.copy_expert("COPY price_bars (market,tf,ts,o,h,l,c) FROM STDIN WITH (FORMAT csv, HEADER true)", stream)
+        conn.commit()
+    except Exception as e:
+        try: db.rollback()
+        except Exception: pass
+        return JSONResponse({"error": "copy failed", "detail": str(e)[:300]}, status_code=500)
+    try:
+        n = int(db.execute(text("SELECT COUNT(*) FROM price_bars WHERE market=:m"), {"m": market}).scalar() or 0)
+    except Exception:
+        n = 0
+    return JSONResponse({"status": "ingested", "market": market, "market_rows": n})
+
+
 @app.get("/api/al/tradetracker/backtest-grid")
 def tt_backtest_grid(request: Request,
                      user: User = Depends(get_current_user),
