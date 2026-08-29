@@ -3206,7 +3206,7 @@ function btShow(p, idx){
    '<div class="bt-checks"><div class="bt-chk"><span class="d '+(ok?'y':'n')+'">'+(ok?'\u2713':'\u2717')+'</span> Profitable after costs</div>'+
    '<div class="bt-chk"><span class="d '+(p.beats_random?'y':'n')+'">'+(p.beats_random?'\u2713':'\u2717')+'</span> Beats random entries</div></div>'+
    '<div class="bt-coach"><div class="bt-coach-h">\uD83C\uDFAF Your coach: what happened &amp; what to try</div><div class="bt-coach-b"><div class="bt-why"><b>Why it came out this way:</b> '+p.diagnosis+'</div>'+tryhtml+'</div></div>'+
-   '<div class="bt-foot">Tested on <b>'+BT_DATA.meta.source+'</b>, judged only on the <b>out-of-sample</b> window ('+BT_DATA.meta.oos+') after <b>realistic fills</b> ('+BT_DATA.meta.cost+'). For context, simply holding gold rose sharply over these years &mdash; most intraday setups won\u2019t beat that, which is why your <b>risk discipline and trade review</b> matter more than a perfect entry.</div>';
+   '<div class="bt-foot">Tested on <b>'+BT_DATA.meta.source+'</b>, judged only on the <b>out-of-sample</b> window ('+BT_DATA.meta.oos+') after <b>realistic fills</b> ('+BT_DATA.meta.cost+'). For context, almost no simple intraday setup clears its own trading costs over the long run &mdash; which is why your <b>risk discipline and honest trade review</b> matter far more than a perfect entry.</div>';
 }
 function btRender(i){ btShow(BT_DATA.presets[i], i); }
 var BT_MKT_LABEL={XAUUSD:'21 years of real gold',EURUSD:'20 years of real EUR/USD',USDJPY:'22 years of real USD/JPY',GBPUSD:'22 years of real GBP/USD',AUDUSD:'22 years of real AUD/USD',USDCAD:'22 years of real USD/CAD',USDCHF:'22 years of real USD/CHF',NZDUSD:'20 years of real NZD/USD'};
