@@ -15,8 +15,15 @@ _BARS = {}    # (market, tf) -> list[(date, hm[int32], O, H, L, C)]  numpy per d
 _TREND = {}   # market -> {date: +1/-1/0}   (daily MA50 trend, no look-ahead)
 _GRID = {}    # market -> cached grid result dict
 
-SESSIONS = {"London": (600, 1080), "New York": (990, 1320), "Asia": (120, 600)}
+SESSIONS = {"London": (600, 1080), "New York": (990, 1320), "Asia": (120, 600)}  # XAUUSD broker time (EET/EEST)
+SESSIONS_FX = {"London": (480, 960), "New York": (780, 1260), "Asia": (0, 480)}  # forex majors, UTC
 OOS_CUTOFF = "2019-01-01"           # everything from here is out-of-sample
+
+
+def _sessions(market):
+    """Session windows depend on the market's timezone: gold is stored in broker
+    time (EET/EEST), the forex majors in UTC."""
+    return SESSIONS if market == "XAUUSD" else SESSIONS_FX
 GRID = [("London", 2, None), ("London", 4, None), ("New York", 2, None),
         ("New York", 4, None), ("New York", 2, 2.0), ("Asia", 2, None)]
 
@@ -189,7 +196,7 @@ def run_grid(db, market="XAUUSD"):
     tmap = _trend(db, market)
     presets = []
     for sess, ob, tR in GRID:
-        os_, se = SESSIONS[sess]
+        os_, se = _sessions(market)[sess]
         base = _oos(_orb(days, os_, ob, se, target_R=tR))
         rexp = _oos(_orb(days, os_, ob, se, target_R=tR, seed=1)).get("exp", 0)
         vt = _oos(_orb(days, os_, ob, se, target_R=tR, trend_map=tmap))
@@ -252,9 +259,9 @@ def run_custom(db, market="XAUUSD", session="New York", or_minutes=30,
     """Run ONE backtest for a trader-chosen configuration, on demand, live from
     the DB. Returns the same honest, coached shape as a grid preset."""
     days = _load(db, market, "15m")
-    if session not in SESSIONS:
+    if session not in _sessions(market):
         session = "New York"
-    os_, se = SESSIONS[session]
+    os_, se = _sessions(market)[session]
     ob = max(1, int(round(or_minutes / 15.0)))
     tmap = _trend(db, market) if trend else None
     med = _is_median_or(days, os_, ob) if fewer else None

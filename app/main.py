@@ -4532,9 +4532,12 @@ def tt_backtest_grid(request: Request,
     secret = request.query_params.get("secret", "")
     if not (_tt_access(user) or (secret and secret in _secrets)):
         return JSONResponse({"error": "forbidden"}, status_code=403)
+    market = (request.query_params.get("market", "XAUUSD") or "XAUUSD").upper()
+    if market not in ("XAUUSD","EURUSD","USDJPY","GBPUSD","AUDUSD","USDCAD","USDCHF","NZDUSD"):
+        market = "XAUUSD"
     try:
         from .backtest_engine import run_grid
-        return JSONResponse(run_grid(db, "XAUUSD"))
+        return JSONResponse(run_grid(db, market))
     except Exception as e:
         return JSONResponse({"error": "engine failed", "detail": str(e)[:400]}, status_code=500)
 
@@ -4564,9 +4567,12 @@ def tt_backtest_custom(request: Request,
             target_R = None
     trend = qp.get("trend", "") in ("1", "true", "yes", "on")
     fewer = qp.get("fewer", "") in ("1", "true", "yes", "on")
+    market = (qp.get("market", "XAUUSD") or "XAUUSD").upper()
+    if market not in ("XAUUSD","EURUSD","USDJPY","GBPUSD","AUDUSD","USDCAD","USDCHF","NZDUSD"):
+        market = "XAUUSD"
     try:
         from .backtest_engine import run_custom
-        return JSONResponse(run_custom(db, "XAUUSD", session=session, or_minutes=or_min,
+        return JSONResponse(run_custom(db, market, session=session, or_minutes=or_min,
                                        target_R=target_R, trend=trend, fewer=fewer))
     except Exception as e:
         return JSONResponse({"error": "engine failed", "detail": str(e)[:400]}, status_code=500)

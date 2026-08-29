@@ -1738,13 +1738,14 @@ select.cs-native{display:none!important;}
                @media(max-width:820px){#backtester .bt-grid{grid-template-columns:1fr}#backtester .bt-stats{grid-template-columns:repeat(2,1fr)}#backtester .bt-try-card{grid-template-columns:1fr}}
               </style>
               <div class="bt-eyebrow">Strategy Backtester</div>
-              <div class="bt-h1">Test your setup on 21 years of real gold data</div>
+              <div class="bt-h1" id="bt-h1">Test your setup on 21 years of real gold data</div>
               <div class="bt-sub">Pick a strategy, get the honest verdict &mdash; then a plain-English read on <b>why</b> it did that and <b>what to try next</b>. A coach, not a judge.</div>
               <button class="bt-voice" id="bt-voice" onclick="btVoicePlay()"><span class="bt-voice-ic">🔊</span><span id="bt-voice-lbl">How this works</span></button>
               <div class="bt-grid">
                 <div>
                   <div class="bt-card bt-build">
                     <h3>Build your test</h3>
+                    <div class="bt-ctrl"><label>Market</label><select id="bt-market" onchange="btMarketChange()"><option value="XAUUSD">Gold (XAU/USD)</option><option value="EURUSD">EUR/USD</option><option value="GBPUSD">GBP/USD</option><option value="USDJPY">USD/JPY</option><option value="AUDUSD">AUD/USD</option><option value="USDCAD">USD/CAD</option><option value="USDCHF">USD/CHF</option><option value="NZDUSD">NZD/USD</option></select></div>
                     <div class="bt-ctrl"><label>Session</label><select id="bt-session"><option>London</option><option selected>New York</option><option>Asia</option></select></div>
                     <div class="bt-ctrl"><label>Opening range</label><select id="bt-ormin"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
                     <div class="bt-ctrl"><label>Exit</label><select id="bt-target"><option value="">Hold to session close</option><option value="1">1R target</option><option value="2">2R target</option><option value="3">3R target</option></select></div>
@@ -3208,10 +3209,27 @@ function btShow(p, idx){
    '<div class="bt-foot">Tested on <b>'+BT_DATA.meta.source+'</b>, judged only on the <b>out-of-sample</b> window ('+BT_DATA.meta.oos+') after <b>realistic fills</b> ('+BT_DATA.meta.cost+'). For context, simply holding gold rose sharply over these years &mdash; most intraday setups won\u2019t beat that, which is why your <b>risk discipline and trade review</b> matter more than a perfect entry.</div>';
 }
 function btRender(i){ btShow(BT_DATA.presets[i], i); }
+var BT_MKT_LABEL={XAUUSD:'21 years of real gold',EURUSD:'20 years of real EUR/USD',USDJPY:'22 years of real USD/JPY',GBPUSD:'22 years of real GBP/USD',AUDUSD:'22 years of real AUD/USD',USDCAD:'22 years of real USD/CAD',USDCHF:'22 years of real USD/CHF',NZDUSD:'20 years of real NZD/USD'};
+function btMarket(){ var m=document.getElementById('bt-market'); return m?m.value:'XAUUSD'; }
+function btBuildList(){
+  var list=document.getElementById('bt-list'); if(!list) return; list.innerHTML='';
+  BT_DATA.presets.forEach(function(p,i){ var d=document.createElement('div'); d.className='bt-p'; d.onclick=function(){btRender(i);};
+    d.innerHTML='<b>'+p.name+'</b><span>'+p.detail+'</span><br><span class="bt-tag '+(p.profitable?'ok':'no')+'">'+(p.profitable?'Edge found':'No edge')+'</span>'; list.appendChild(d); });
+  if(BT_DATA.presets.length) btRender(2 % BT_DATA.presets.length);
+}
+function btLoadGrid(market){
+  var h1=document.getElementById('bt-h1'); if(h1) h1.textContent='Test your setup on '+(BT_MKT_LABEL[market]||'real market')+' data';
+  var res=document.getElementById('bt-res'); if(res) res.innerHTML='<div class="bt-loading">Loading '+market+' results\u2026</div>';
+  fetch('/api/al/tradetracker/backtest-grid?market='+encodeURIComponent(market),{credentials:'include'})
+    .then(function(r){return r.json();}).then(function(g){ if(g&&g.presets&&g.presets.length){BT_DATA=g;} btBuildList(); })
+    .catch(function(){ btBuildList(); });
+}
+window.btMarketChange=function(){ btLoadGrid(btMarket()); };
 function btRun(){
   var btn=document.getElementById('bt-run'); if(btn){ btn.disabled=true; btn.textContent='Running\u2026'; }
-  document.getElementById('bt-res').innerHTML='<div class="bt-loading">Running your backtest on 21 years of gold data\u2026</div>';
-  var q='session='+encodeURIComponent(document.getElementById('bt-session').value)
+  document.getElementById('bt-res').innerHTML='<div class="bt-loading">Running your backtest on real data\u2026</div>';
+  var q='market='+encodeURIComponent(btMarket())
+       +'&session='+encodeURIComponent(document.getElementById('bt-session').value)
        +'&or_minutes='+encodeURIComponent(document.getElementById('bt-ormin').value)
        +'&target='+encodeURIComponent(document.getElementById('bt-target').value)
        +'&trend='+(document.getElementById('bt-trend').checked?'1':'0')
@@ -3224,17 +3242,7 @@ function btRun(){
     document.getElementById('bt-res').innerHTML='<div class="bt-loading">Connection issue \u2014 try again.</div>'; });
 }
 window.btRun=btRun;
-function btInit(){
-  var list=document.getElementById('bt-list'); if(!list||list._done) return; list._done=1;
-  function build(){ list.innerHTML='';
-    BT_DATA.presets.forEach(function(p,i){ var d=document.createElement('div'); d.className='bt-p'; d.onclick=function(){btRender(i);};
-      d.innerHTML='<b>'+p.name+'</b><span>'+p.detail+'</span><br><span class="bt-tag '+(p.profitable?'ok':'no')+'">'+(p.profitable?'Edge found':'No edge')+'</span>'; list.appendChild(d); });
-    btRender(2);
-  }
-  fetch('/api/al/tradetracker/backtest-grid',{credentials:'include'}).then(function(r){return r.json();}).then(function(g){
-    if(g && g.presets && g.presets.length){ BT_DATA=g; } build();
-  }).catch(function(){ build(); });
-}
+function btInit(){ if(document.getElementById('bt-list')&&document.getElementById('bt-list')._done) return; if(document.getElementById('bt-list')) document.getElementById('bt-list')._done=1; btLoadGrid(btMarket()); }
 window.btInit=btInit;
 if(document.readyState!=='loading') btInit(); else document.addEventListener('DOMContentLoaded', btInit);
 })();
