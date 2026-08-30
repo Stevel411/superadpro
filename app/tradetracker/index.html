@@ -868,7 +868,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-tb-wm .pro{font-size:12px;color:#0b7a3e;font-weight:900;letter-spacing:.04em;}
 .tt-tb-sp{flex:1;}
 .tt-tb-share{height:42px;padding:0 18px;background:linear-gradient(120deg,#c8102e,#ff2743);color:#fff;border:none;border-radius:12px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 8px 18px -8px rgba(200,16,46,.55);display:inline-flex;align-items:center;gap:7px;}
-.tt-tb-burger{width:42px;height:42px;border-radius:12px;background:#0a1f52;color:#fff;border:none;font-size:17px;cursor:pointer;}
+.tt-tb-burger{display:none;width:42px;height:42px;border-radius:12px;background:#0a1f52;color:#fff;border:none;font-size:17px;cursor:pointer;align-items:center;justify-content:center;}
 /* sidebar -> rounded navy panel in the grid */
 .sidebar{position:sticky!important;top:18px;height:auto!important;max-height:calc(100vh - 36px);overflow-y:auto;grid-column:1;grid-row:2;width:250px!important;background:linear-gradient(160deg,#12388f,#0a1f52)!important;border-radius:18px!important;border:none!important;padding:14px 0!important;box-shadow:0 10px 30px -18px rgba(10,31,82,.35)!important;align-self:start;}
 .main-content{grid-column:2;grid-row:2;margin-left:0!important;padding-top:0!important;}
@@ -879,7 +879,7 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .sidebar .nav-item.active{background:linear-gradient(120deg,#c8102e,#ff2743)!important;border-color:transparent!important;color:#fff!important;box-shadow:0 10px 22px -10px rgba(200,16,46,.55)!important;}
 .sidebar .nav-group{font-size:11px!important;font-weight:900!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:rgba(255,255,255,.42)!important;padding:14px 16px 6px!important;}
 .sidebar-footer{padding:14px 20px 4px!important;}
-@media(max-width:820px){.app{grid-template-columns:1fr;}.sidebar{display:none;grid-column:1;}.sidebar.tt-open{display:flex;}.main-content{grid-column:1;}}
+@media(max-width:820px){.app{grid-template-columns:1fr;}.sidebar{display:none;grid-column:1;}.sidebar.tt-open{display:flex;}.main-content{grid-column:1;}.tt-tb-burger{display:inline-flex;}}
 
 /* ===== Log Trade capture ===== */
 .tt-mistakes{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
