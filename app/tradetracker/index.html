@@ -1687,6 +1687,15 @@ select.cs-native{display:none!important;}
                #chartread .cr-chips{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
                #chartread .cr-chip{display:inline-flex;align-items:center;gap:7px;font-weight:900;font-size:13px;padding:8px 15px;border-radius:99px}
                #chartread .cr-chip .k{font-weight:800;opacity:.65;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+               #chartread .cr-listen-row{display:flex;justify-content:flex-end;margin-bottom:10px}
+               #chartread .cr-listen{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #d7e0f2;color:#0a1f52;font-weight:800;font-size:13px;padding:8px 15px;border-radius:99px;cursor:pointer;font-family:inherit}
+               #chartread .cr-listen:hover{border-color:#12388f;background:#f6f9ff}
+               #chartread .cr-listen.loading{opacity:.6;cursor:default}
+               #chartread .cr-listen.playing{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff;border-color:transparent}
+               #chartread .cr-listen .ic{font-size:15px;line-height:1}
+               #chartread .cr-listen .lbl-stop{display:none}
+               #chartread .cr-listen.playing .lbl-play{display:none}
+               #chartread .cr-listen.playing .lbl-stop{display:inline}
                </style>
                <div class="cr-eyebrow">Chart Read</div>
                <div class="cr-h1">An honest read of any chart</div>
@@ -3659,7 +3668,15 @@ function crRenderRead(txt){
     if(mom) chips+='<span class="cr-chip" style="'+crChipStyle(mom)+'"><span class="k">Momentum</span> '+(window.pbEsc?pbEsc(mom):mom)+'</span>';
     chips+='</div>';
   }
-  return chips+'<div class="cr-read">'+crFormat(txt)+'</div>';
+  var lead=(bias||mom)?('Bias '+(bias||'unclear')+(mom?', momentum '+mom:'')+'. '):'';
+  var spoken=(lead+txt).replace(/\*+/g,'').replace(/\s+/g,' ').trim();
+  var listen='<div class="cr-listen-row"><button class="cr-listen" onclick="crListen(this)" data-speak="'+encodeURIComponent(spoken)+'"><span class="ic">\uD83D\uDD0A</span><span class="lbl-play">Listen</span><span class="lbl-stop">Stop</span></button></div>';
+  return chips+listen+'<div class="cr-read">'+crFormat(txt)+'</div>';
+}
+function crListen(btn){
+  if(btn.classList.contains('playing')){ if(window.ttCoachStopSpeak) ttCoachStopSpeak(); return; }
+  var t=decodeURIComponent(btn.getAttribute('data-speak')||'');
+  if(t && window.ttCoachSpeakText) ttCoachSpeakText(t, btn);
 }
 function crRead(){ if(!CR_IMG) return;
   var btn=document.getElementById('cr-btn'), lbl=document.getElementById('cr-btn-lbl'), out=document.getElementById('cr-out');
