@@ -1701,6 +1701,7 @@ select.cs-native{display:none!important;}
                  <img id="cr-preview" class="cr-preview" style="display:none" alt="chart preview">
                  <input type="text" id="cr-context" class="cr-context" placeholder="Optional: what is it? e.g. XAU/USD 15m, my London setup" style="display:none">
                  <button id="cr-btn" class="cr-btn" onclick="crRead()" style="display:none"><span id="cr-btn-lbl">Read this chart &rarr;</span></button>
+                 <button id="cr-new" class="cr-btn ghost" onclick="crReset()" style="display:none;margin:0 0 0 10px">&#8635; New chart</button>
                  <div class="cr-note">This is an educational read, not financial advice or a signal &mdash; always verify the exact levels on your own platform before acting.</div>
                </div>
                <div id="cr-out" class="cr-out"></div>
@@ -3617,10 +3618,25 @@ var CR_IMG=null;
 function crPick(e){ var f=e.target.files&&e.target.files[0]; if(!f)return;
   var r=new FileReader(); r.onload=function(){ CR_IMG=r.result;
     var pv=document.getElementById('cr-preview'); pv.src=CR_IMG; pv.style.display='block';
+    pv.title='Tap to choose a different chart'; pv.style.cursor='pointer';
+    pv.onclick=function(){ document.getElementById('cr-file').click(); };
     document.getElementById('cr-drop').style.display='none';
     document.getElementById('cr-context').style.display='block';
     var b=document.getElementById('cr-btn'); b.style.display='inline-flex';
+    var lbl=document.getElementById('cr-btn-lbl'); if(lbl) lbl.innerHTML='Read this chart \u2192';
+    var nb=document.getElementById('cr-new'); if(nb) nb.style.display='inline-flex';
+    var out=document.getElementById('cr-out'); if(out) out.innerHTML='';
   }; r.readAsDataURL(f);
+}
+function crReset(){
+  CR_IMG=null;
+  var fi=document.getElementById('cr-file'); if(fi) fi.value='';
+  var pv=document.getElementById('cr-preview'); if(pv){ pv.src=''; pv.style.display='none'; }
+  var dz=document.getElementById('cr-drop'); if(dz) dz.style.display='block';
+  var cx=document.getElementById('cr-context'); if(cx){ cx.value=''; cx.style.display='none'; }
+  var b=document.getElementById('cr-btn'); if(b){ b.style.display='none'; b.disabled=false; }
+  var nb=document.getElementById('cr-new'); if(nb) nb.style.display='none';
+  var out=document.getElementById('cr-out'); if(out) out.innerHTML='';
 }
 function crFormat(t){ t=(window.pbEsc?pbEsc(t):t);
   ['What I see','What would confirm continuation','What would invalidate it','Where risk sits'].forEach(function(h){ t=t.split(h).join('<b>'+h+'</b>'); });
