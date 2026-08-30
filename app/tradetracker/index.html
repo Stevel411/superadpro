@@ -1684,19 +1684,24 @@ select.cs-native{display:none!important;}
                #chartread .cr-rem{font-size:11.5px;color:#5a6a92;font-weight:700;margin-top:10px;text-align:right}
                #chartread .cr-loading{color:#5a6a92;font-weight:700;font-size:14px;padding:18px 4px}
                #chartread .cr-note{font-size:11.5px;color:#8a5a00;background:#fff4e0;border:1px solid #f0c987;border-radius:9px;padding:9px 12px;font-weight:700;margin-top:14px;line-height:1.45}
-               #chartread .cr-conv{border:1px solid #e2e8f4;border-radius:14px;padding:14px 18px;margin-bottom:14px;background:#fff;box-shadow:0 16px 36px -30px rgba(10,31,82,.5)}
-               #chartread .cr-conv-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-               #chartread .cr-conv-lean{font-weight:900;font-size:15px;color:#0a1f52}
-               #chartread .cr-conv-bars{display:inline-flex;gap:4px;align-items:center}
-               #chartread .cr-conv-bars i{width:22px;height:8px;border-radius:3px;background:#e2e8f4;display:inline-block}
-               #chartread .cr-conv-level{font-weight:800;font-size:13px;letter-spacing:.02em;color:#5a6a92}
-               #chartread .cr-conv-note{font-size:12.5px;font-weight:600;color:#5a6a92;margin-top:9px;line-height:1.5}
-               #chartread .cr-conv-low .cr-conv-bars i:nth-child(1){background:#b7791f}
-               #chartread .cr-conv-low .cr-conv-level{color:#b7791f}
-               #chartread .cr-conv-med .cr-conv-bars i:nth-child(-n+2){background:#12388f}
-               #chartread .cr-conv-med .cr-conv-level{color:#12388f}
-               #chartread .cr-conv-high .cr-conv-bars i{background:#0a1f52}
-               #chartread .cr-conv-high .cr-conv-level{color:#0a1f52}
+               #chartread .cr-banner{border-radius:14px;padding:15px 18px;margin-bottom:14px}
+               #chartread .cr-banner-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+               #chartread .cr-banner-lean{font-weight:900;font-size:18px;letter-spacing:-.2px}
+               #chartread .cr-banner-conv{font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:8px}
+               #chartread .cr-bars{display:inline-flex;gap:3px}
+               #chartread .cr-bars i{width:16px;height:7px;border-radius:2px;background:currentColor;opacity:.3;display:inline-block}
+               #chartread .cr-banner-note{font-size:12.5px;font-weight:600;margin-top:8px;line-height:1.5;opacity:.92}
+               #chartread .cr-c-low .cr-bars i:nth-child(1){opacity:1}
+               #chartread .cr-c-med .cr-bars i:nth-child(-n+2){opacity:1}
+               #chartread .cr-c-high .cr-bars i{opacity:1}
+               #chartread .cr-bear.cr-c-high{background:linear-gradient(120deg,#c8102e,#e8203f);color:#fff}
+               #chartread .cr-bear.cr-c-med{background:#dc3a52;color:#fff}
+               #chartread .cr-bear.cr-c-low{background:#fdeaec;color:#c8102e;border:1px solid #f5c2ca}
+               #chartread .cr-bull.cr-c-high{background:linear-gradient(120deg,#0e9f6e,#12b87f);color:#fff}
+               #chartread .cr-bull.cr-c-med{background:#33a97e;color:#fff}
+               #chartread .cr-bull.cr-c-low{background:#e6f7ef;color:#0b8f63;border:1px solid #b9e6d2}
+               #chartread .cr-neut.cr-c-high,#chartread .cr-neut.cr-c-med{background:#5a6a92;color:#fff}
+               #chartread .cr-neut.cr-c-low{background:#eef2fb;color:#5a6a92;border:1px solid #d7e0f2}
                #chartread .cr-listen-row{display:flex;justify-content:flex-end;margin-bottom:10px}
                #chartread .cr-listen{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #d7e0f2;color:#0a1f52;font-weight:800;font-size:13px;padding:8px 15px;border-radius:99px;cursor:pointer;font-family:inherit}
                #chartread .cr-listen:hover{border-color:#12388f;background:#f6f9ff}
@@ -3661,27 +3666,42 @@ function crFormat(t){ t=(window.pbEsc?pbEsc(t):t);
   ['What I see','What would confirm continuation','What would invalidate it','Where risk sits'].forEach(function(h){ t=t.split(h).join('<b>'+h+'</b>'); });
   return t.replace(/\n/g,'<br>');
 }
+function crBuildSpoken(lean, conv, body){
+  var lead=(lean||conv)?('Leaning '+String(lean||'unclear').toLowerCase()+(conv?', with '+String(conv).toLowerCase()+' conviction':'')+'. '):'';
+  var t=body;
+  t=t.replace(/What I see\s*[-:.\u2014]*\s*/i, "Here's what I see. ");
+  t=t.replace(/What would confirm continuation\s*[-:.\u2014]*\s*/i, "What would confirm it. ");
+  t=t.replace(/What would invalidate it\s*[-:.\u2014]*\s*/i, "What would invalidate it. ");
+  t=t.replace(/Where risk sits\s*[-:.\u2014]*\s*/i, "And where the risk sits. ");
+  t=t.replace(/(\d)\s*[-\u2013\u2014]\s*(\d)/g, '$1 to $2');
+  t=t.replace(/\s*\n+\s*/g, ' ');
+  t=t.replace(/\s+[-\u2013\u2014]\s+/g, ', ');
+  t=t.replace(/\*+/g,'');
+  t=t.replace(/\.\s*\.+/g, '. ');
+  t=t.replace(/\s{2,}/g, ' ').trim();
+  return (lead+t).trim();
+}
 function crRenderRead(txt){
   var lean=null, conv=null;
   var m=txt.match(/LEAN:\s*([A-Za-z]+)\s*\|\s*CONVICTION:\s*([A-Za-z]+)/i);
   if(m){ lean=m[1]; conv=m[2]; txt=txt.replace(m[0],'').replace(/^[\s\n]+/,''); }
-  var convHtml='';
+  var banner='';
   if(lean||conv){
+    var dir=(lean||'').toLowerCase();
+    var dcls=dir.indexOf('bull')>=0?'cr-bull':(dir.indexOf('bear')>=0?'cr-bear':'cr-neut');
     var cl=(conv||'').toLowerCase();
-    var cls=cl.indexOf('high')>=0?'cr-conv-high':(cl.indexOf('med')>=0?'cr-conv-med':'cr-conv-low');
-    var note=cl.indexOf('high')>=0 ? 'The technical factors line up in the same direction \u2014 a higher-conviction read. It is still a read, not a prediction, so manage your risk.'
+    var ccls=cl.indexOf('high')>=0?'cr-c-high':(cl.indexOf('med')>=0?'cr-c-med':'cr-c-low');
+    var note=cl.indexOf('high')>=0 ? 'The technical factors line up the same way \u2014 a higher-conviction read. Still a read, not a prediction, so manage your risk.'
             : cl.indexOf('med')>=0 ? 'Some factors agree and some don\u2019t \u2014 moderate conviction. Wait for more alignment before leaning in hard.'
-            : 'The technical factors are pulling in different directions \u2014 low conviction. This is a mixed picture, so don\u2019t force it.';
-    convHtml='<div class="cr-conv '+cls+'"><div class="cr-conv-top">'
-      +(lean?'<span class="cr-conv-lean">Leaning '+(window.pbEsc?pbEsc(lean):lean)+'</span>':'')
-      +'<span class="cr-conv-bars"><i></i><i></i><i></i></span>'
-      +(conv?'<span class="cr-conv-level">'+(window.pbEsc?pbEsc(conv):conv)+' conviction</span>':'')
-      +'</div><div class="cr-conv-note">'+note+'</div></div>';
+            : 'The factors are pulling in different directions \u2014 low conviction, a mixed picture. Don\u2019t force it.';
+    banner='<div class="cr-banner '+dcls+' '+ccls+'"><div class="cr-banner-row">'
+      +(lean?'<span class="cr-banner-lean">Leaning '+(window.pbEsc?pbEsc(lean):lean)+'</span>':'')
+      +(conv?'<span class="cr-banner-conv"><span class="cr-bars"><i></i><i></i><i></i></span>'+(window.pbEsc?pbEsc(conv):conv)+' conviction</span>':'')
+      +'</div><div class="cr-banner-note">'+note+'</div></div>';
   }
-  var lead=(lean||conv)?('Leaning '+(lean||'unclear')+(conv?', '+conv+' conviction':'')+'. '):'';
-  var spoken=(lead+txt).replace(/\*+/g,'').replace(/\s+/g,' ').trim();
+  var spoken=crBuildSpoken(lean, conv, txt);
   var listen='<div class="cr-listen-row"><button class="cr-listen" onclick="crListen(this)" data-speak="'+encodeURIComponent(spoken)+'"><span class="ic">\uD83D\uDD0A</span><span class="lbl-play">Listen</span><span class="lbl-stop">Stop</span></button></div>';
-  return convHtml+listen+'<div class="cr-read">'+crFormat(txt)+'</div>';
+  return banner+listen+'<div class="cr-read">'+crFormat(txt)+'</div>';
 }
 function crListen(btn){
   if(btn.classList.contains('playing')){ if(window.ttCoachStopSpeak) ttCoachStopSpeak(); return; }
