@@ -1684,6 +1684,9 @@ select.cs-native{display:none!important;}
                #chartread .cr-rem{font-size:11.5px;color:#5a6a92;font-weight:700;margin-top:10px;text-align:right}
                #chartread .cr-loading{color:#5a6a92;font-weight:700;font-size:14px;padding:18px 4px}
                #chartread .cr-note{font-size:11.5px;color:#8a5a00;background:#fff4e0;border:1px solid #f0c987;border-radius:9px;padding:9px 12px;font-weight:700;margin-top:14px;line-height:1.45}
+               #chartread .cr-chips{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+               #chartread .cr-chip{display:inline-flex;align-items:center;gap:7px;font-weight:900;font-size:13px;padding:8px 15px;border-radius:99px}
+               #chartread .cr-chip .k{font-weight:800;opacity:.65;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
                </style>
                <div class="cr-eyebrow">Chart Read</div>
                <div class="cr-h1">An honest read of any chart</div>
@@ -3623,6 +3626,25 @@ function crFormat(t){ t=(window.pbEsc?pbEsc(t):t);
   ['What I see','What would confirm continuation','What would invalidate it','Where risk sits'].forEach(function(h){ t=t.split(h).join('<b>'+h+'</b>'); });
   return t.replace(/\n/g,'<br>');
 }
+function crChipStyle(v){ v=(v||'').toLowerCase();
+  if(v==='bullish') return 'background:#e6f7ef;color:#0e9f6e';
+  if(v==='bearish') return 'background:#fdeaec;color:#c8102e';
+  if(v==='building') return 'background:#fff4e0;color:#b7791f';
+  return 'background:#eef2fb;color:#5a6a92';
+}
+function crRenderRead(txt){
+  var bias=null, mom=null;
+  var m=txt.match(/BIAS:\s*([A-Za-z]+)\s*\|\s*MOMENTUM:\s*([A-Za-z]+)/i);
+  if(m){ bias=m[1]; mom=m[2]; txt=txt.replace(m[0],'').replace(/^[\s\n]+/,''); }
+  var chips='';
+  if(bias||mom){
+    chips='<div class="cr-chips">';
+    if(bias) chips+='<span class="cr-chip" style="'+crChipStyle(bias)+'"><span class="k">Bias</span> '+(window.pbEsc?pbEsc(bias):bias)+'</span>';
+    if(mom) chips+='<span class="cr-chip" style="'+crChipStyle(mom)+'"><span class="k">Momentum</span> '+(window.pbEsc?pbEsc(mom):mom)+'</span>';
+    chips+='</div>';
+  }
+  return chips+'<div class="cr-read">'+crFormat(txt)+'</div>';
+}
 function crRead(){ if(!CR_IMG) return;
   var btn=document.getElementById('cr-btn'), lbl=document.getElementById('cr-btn-lbl'), out=document.getElementById('cr-out');
   btn.disabled=true; if(lbl)lbl.textContent='Reading the chart\u2026';
@@ -3631,7 +3653,7 @@ function crRead(){ if(!CR_IMG) return;
   fetch('/api/al/tradetracker/chart-read',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({image:CR_IMG,context:ctx})})
     .then(function(r){return r.json();}).then(function(d){
       btn.disabled=false; if(lbl)lbl.textContent='Read again \u2192';
-      if(d && d.read && !d.error){ out.innerHTML='<div class="cr-read">'+crFormat(d.read)+'</div>'+(d.remaining!=null?'<div class="cr-rem">'+d.remaining+' reads left today</div>':''); }
+      if(d && d.read && !d.error){ out.innerHTML=crRenderRead(d.read)+(d.remaining!=null?'<div class="cr-rem">'+d.remaining+' reads left today</div>':''); }
       else if(d && d.error==='limit'){ out.innerHTML='<div class="cr-read">'+(window.pbEsc?pbEsc(d.read||''):(d.read||'Daily limit reached \u2014 resets tomorrow.'))+'</div>'; }
       else { out.innerHTML='<div class="cr-loading">Couldn\u2019t read that one \u2014 try a clearer screenshot.</div>'; }
     }).catch(function(){ btn.disabled=false; if(lbl)lbl.textContent='Read again \u2192';
