@@ -70315,8 +70315,14 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
     text = text.strip()
 
     try:
-        # Use Jenny — natural-sounding American female voice
-        comm = edge_tts.Communicate(text, "en-GB-SoniaNeural", rate="+5%", pitch="+0Hz")
+        # Voice is selectable (whitelisted). Default = Sonia (page explainers);
+        # the AI Coach passes en-GB-RyanNeural so it reads as its own person.
+        _voice_ok = {"en-GB-SoniaNeural", "en-GB-RyanNeural", "en-GB-LibbyNeural",
+                     "en-GB-ThomasNeural", "en-US-JennyNeural", "en-US-GuyNeural"}
+        voice = body.get("voice") or "en-GB-SoniaNeural"
+        if voice not in _voice_ok:
+            voice = "en-GB-SoniaNeural"
+        comm = edge_tts.Communicate(text, voice, rate="+5%", pitch="+0Hz")
         audio_bytes = b""
         async for chunk in comm.stream():
             if chunk["type"] == "audio":
