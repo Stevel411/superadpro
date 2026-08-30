@@ -2189,7 +2189,8 @@ select.cs-native{display:none!important;}
             if (pageName === 'analytics') {
                 setTimeout(() => renderCharts(), 100);
             }
-            try { if ((location.hash || '').replace('#','') !== pageName) location.hash = pageName; } catch(e){}
+            try { if ((location.hash || '').replace('#','') !== pageName) history.replaceState(null, '', '#' + pageName); } catch(e){}
+            try { var _mc=document.querySelector('.main-content'); if(_mc) _mc.scrollTop=0; if(window.scrollTo) window.scrollTo(0,0); } catch(e){}
         }
 
         function _ttRoute(){
