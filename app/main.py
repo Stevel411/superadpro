@@ -4910,6 +4910,92 @@ async def tt_trade_review(request: Request, user: User = Depends(get_current_use
     return JSONResponse({"review": review, "remaining": max(0, _TT_REVIEW_DAILY_CAP - used - 1)})
 
 
+_TT_CHARTREAD_DAILY_CAP = 15  # vision calls cost more than text; keep the cap tighter
+
+
+@app.post("/api/al/tradetracker/chart-read")
+async def tt_chart_read(request: Request, db: Session = Depends(get_db)):
+    """Honest, risk-first read of a chart image the trader uploads. Vision call via
+    Grok. Preview-gated (or ?secret= for testing). Capped per user per day."""
+    # gating: preview user OR migration secret (for testing)
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    secret = request.query_params.get("secret", "")
+    user = None
+    if not (secret and secret in _secrets):
+        try:
+            user = get_current_user(request, db)
+        except Exception:
+            user = None
+        if not user:
+            return JSONResponse({"error": "Not authenticated"}, status_code=401)
+        if not _tt_access(user):
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return JSONResponse({"error": "bad payload"}, status_code=400)
+    img = (body.get("image") or "").strip()
+    if not img:
+        return JSONResponse({"error": "no image"}, status_code=400)
+    if not img.startswith("data:"):
+        img = "data:image/png;base64," + img
+    context = (body.get("context") or "").strip()[:800]
+
+    # daily cap (only for logged-in users; secret/test path is uncapped)
+    used = 0
+    if user:
+        try:
+            db.execute(text("CREATE TABLE IF NOT EXISTS al_tt_chartread_usage (user_id INTEGER NOT NULL, day DATE NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(user_id, day))"))
+            db.commit()
+        except Exception:
+            db.rollback()
+        try:
+            r = db.execute(text("SELECT count FROM al_tt_chartread_usage WHERE user_id=:u AND day=CURRENT_DATE"), {"u": user.id}).first()
+            used = int(r[0]) if r else 0
+        except Exception:
+            used = 0
+        if used >= _TT_CHARTREAD_DAILY_CAP:
+            return JSONResponse({"error": "limit", "read": "You have hit today's chart-read limit \u2014 it resets tomorrow."})
+
+    system = (
+        "You are an experienced trading coach giving an honest, educational read of a price chart the trader has uploaded. "
+        "You are NOT giving financial advice, a buy or sell signal, or a price prediction. Read the chart objectively and frame everything around risk.\n\n"
+        "Structure your reply with these short sections (use these exact headers):\n"
+        "What I see - the trend, market structure (higher highs/lows, ranges), the key support/resistance zones, and any notable candle or pattern, plus the current context.\n"
+        "What would confirm continuation - the conditions that would support the prevailing move.\n"
+        "What would invalidate it - the level or behaviour that would show this read is wrong.\n"
+        "Where risk sits - where a logical stop would sit and the risk if wrong.\n\n"
+        "Rules: Be honest and balanced; if the chart is choppy or unclear, say so. Give levels approximately and explicitly remind the trader to verify exact prices themselves, since reading precise numbers off an image is imperfect. Never say 'buy' or 'sell' and never predict with certainty - always frame as 'if X then Y' and lead with risk. Keep it tight and practical, like a mentor talking through the chart. If the image is not actually a price chart, say so plainly and stop."
+    )
+    prompt = "Read this chart."
+    if context:
+        prompt += " Context from the trader: " + context
+    messages = [{"role": "user", "content": [
+        {"type": "text", "text": prompt},
+        {"type": "image_url", "image_url": {"url": img}},
+    ]}]
+    model = request.query_params.get("model", "") or os.getenv("XAI_VISION_MODEL", "grok-4-1-fast")
+    try:
+        from .grok_service import grok_chat
+        res = await grok_chat(messages, model=model, system_prompt=system, max_tokens=750, temperature=0.4)
+    except Exception as e:
+        return JSONResponse({"error": "provider", "detail": str(e)[:200]}, status_code=500)
+    if res.get("error"):
+        return JSONResponse({"error": "provider", "detail": str(res.get("detail") or res.get("error"))[:300]}, status_code=502)
+    read = (res.get("content") or "").strip()
+    if not read:
+        return JSONResponse({"error": "empty", "read": ""})
+    if user:
+        try:
+            db.execute(text("INSERT INTO al_tt_chartread_usage (user_id, day, count) VALUES (:u, CURRENT_DATE, 1) ON CONFLICT (user_id, day) DO UPDATE SET count = al_tt_chartread_usage.count + 1"), {"u": user.id})
+            db.commit()
+        except Exception:
+            db.rollback()
+    return JSONResponse({"read": read, "model": res.get("model", model), "remaining": max(0, _TT_CHARTREAD_DAILY_CAP - used - 1) if user else None})
+
+
 @app.get("/trafficdrop")
 def trafficdrop_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for the Traffic Drop member dashboard."""
