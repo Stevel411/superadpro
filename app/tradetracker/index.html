@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- saved from url=(0071)file:///Users/SteveLawson/Downloads/tradetracker_complete_final_10.html -->
-<html lang="en" data-theme="light"><head>
+<html lang="en" data-theme="light"><head><script>(function(){try{var t=localStorage.getItem("tt_theme");if(!t){t=(window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
@@ -15,6 +15,7 @@
     <title>TradeTracker Pro - Complete Trading Journal</title>
     <style>
 :root{--brand:#2962ff;--brand2:#1e53e5;--bg:#eef2fa;--surface:#ffffff;--ink:#0a1f52;--muted:#5a6a92;--line:#e2e8f4;--hero1:#0a1f52;--hero2:#12388f;--hero3:#1a49b0;--accent-strong:#12388f;--subtle:#eef2fb;--subtle2:#f6f9ff;--line-soft:#d7e0f2;--text:#2a3a63;--text2:#5a6584;--on-dark:#cdd9f5;}
+[data-theme="dark"]{--bg:#0d1117;--surface:#161c26;--ink:#e8edf3;--muted:#9aa5ba;--line:#252d3a;--hero1:#0f1620;--hero2:#182438;--hero3:#1d3354;--accent-strong:#5b8cff;--subtle:#1a2230;--subtle2:#1e2736;--line-soft:#2b3546;--text:#c4ccd8;--text2:#a6b0c2;--on-dark:#b6c2d8;--brand:#3d7bff;--brand2:#2962ff;}
 
         * {
             margin: 0;
@@ -870,13 +871,14 @@ body{font-family:'Inter',-apple-system,sans-serif;}
 .tt-tb-wm .pro{font-size:12px;color:#0b7a3e;font-weight:900;letter-spacing:.04em;}
 .tt-tb-sp{flex:1;}
 .tt-tb-share{height:42px;padding:0 18px;background:linear-gradient(120deg,var(--brand),var(--brand2));color:#fff;border:none;border-radius:12px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 8px 18px -8px rgba(41,98,255,.5);display:inline-flex;align-items:center;gap:7px;}
+.tt-tb-theme{width:42px;height:42px;border-radius:12px;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);font-size:17px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px}.tt-tb-theme:hover{border-color:var(--brand)}
 .tt-tb-burger{display:none;width:42px;height:42px;border-radius:12px;background:var(--hero1);color:#fff;border:none;font-size:17px;cursor:pointer;align-items:center;justify-content:center;}
 /* sidebar -> rounded navy panel in the grid */
 .sidebar{position:sticky!important;top:18px;height:auto!important;max-height:calc(100vh - 36px);overflow-y:auto;grid-column:1;grid-row:2;width:250px!important;background:linear-gradient(160deg,var(--hero2),var(--hero1))!important;border-radius:18px!important;border:none!important;padding:14px 0!important;box-shadow:0 10px 30px -18px rgba(10,31,82,.35)!important;align-self:start;}
 .main-content{grid-column:2;grid-row:2;margin-left:0!important;padding-top:0!important;}
 /* AL nav cards */
 .sidebar .nav{padding:0 12px!important;}
-.sidebar .nav-item{display:flex!important;align-items:center;gap:12px;padding:13px 15px!important;border-radius:12px!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.10)!important;color:var(--line-soft)!important;font-weight:800!important;font-size:15px!important;margin:5px 0!important;cursor:pointer;}
+.sidebar .nav-item{display:flex!important;align-items:center;gap:12px;padding:13px 15px!important;border-radius:12px!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.10)!important;color:#c3cee8!important;font-weight:800!important;font-size:15px!important;margin:5px 0!important;cursor:pointer;}
 .sidebar .nav-item:hover{background:rgba(255,255,255,.11)!important;color:#fff!important;}
 .sidebar .nav-item.active{background:linear-gradient(120deg,var(--brand),var(--brand2))!important;border-color:transparent!important;color:#fff!important;box-shadow:0 10px 22px -10px rgba(41,98,255,.5)!important;}
 .sidebar .nav-group{font-size:11px!important;font-weight:900!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:rgba(255,255,255,.42)!important;padding:14px 16px 6px!important;}
@@ -1189,6 +1191,7 @@ select.cs-native{display:none!important;}
         <div class="tt-topbar">
             <span class="tt-tb-logo"><svg width="34" height="34" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg"><rect width="52" height="52" rx="12" fill="url(#ttgh)"/><defs><linearGradient id="ttgh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--hero2)"/><stop offset="1" stop-color="var(--hero1)"/></linearGradient></defs><line x1="16" y1="14" x2="16" y2="38" stroke="#4ade80" stroke-width="2"/><rect x="13" y="24" width="6" height="10" rx="1.5" fill="#4ade80"/><line x1="26" y1="12" x2="26" y2="34" stroke="#e8203f" stroke-width="2"/><rect x="23" y="18" width="6" height="9" rx="1.5" fill="#e8203f"/><line x1="36" y1="10" x2="36" y2="40" stroke="#4ade80" stroke-width="2"/><rect x="33" y="16" width="6" height="16" rx="1.5" fill="#4ade80"/></svg><span class="tt-tb-wm">Trade<span class="tk">Tracker</span> <span class="pro">PRO</span></span></span>
             <span class="tt-tb-sp"></span>
+            <button class="tt-tb-theme" onclick="ttToggleTheme()" aria-label="Toggle theme" title="Light / dark mode"><span id="ttThemeIcon">&#9790;</span></button>
             <button class="tt-tb-share" onclick="openModal()">&#10133; Add Trade</button>
             <button class="tt-tb-burger" onclick="document.querySelector('.sidebar').classList.toggle('tt-open')" aria-label="Menu">&#9776;</button>
         </div>
@@ -2198,8 +2201,7 @@ select.cs-native{display:none!important;}
         function toggleTheme(){}
 
         function setTheme(theme) {
-            // Dark mode removed — platform is light-only.
-            document.documentElement.setAttribute('data-theme', 'light');
+            // Theme is applied by the early head script + ttToggleTheme; keep charts in sync.
             try { renderCharts(); } catch (e) {}
         }
 
@@ -3724,5 +3726,9 @@ function crRead(){ if(!CR_IMG) return;
     }).catch(function(){ btn.disabled=false; if(lbl)lbl.textContent='Read again \u2192';
       out.innerHTML='<div class="cr-loading">Connection issue \u2014 try again.</div>'; });
 }
+</script>
+<script>
+window.ttToggleTheme=function(){ var cur=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',cur); try{localStorage.setItem('tt_theme',cur);}catch(e){} var ic=document.getElementById('ttThemeIcon'); if(ic) ic.innerHTML=cur==='dark'?'\u2600':'\u263E'; };
+(function(){ function si(){ var ic=document.getElementById('ttThemeIcon'); if(ic) ic.innerHTML=document.documentElement.getAttribute('data-theme')==='dark'?'\u2600':'\u263E'; } if(document.readyState!=='loading')si(); else document.addEventListener('DOMContentLoaded',si); })();
 </script>
 </body></html>
