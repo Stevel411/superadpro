@@ -2748,6 +2748,7 @@ def run_migrations():
         # admin approves it. Default FALSE so nothing existing goes public by
         # accident when this ships — approval is a deliberate act.
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE collaborations ADD COLUMN IF NOT EXISTS image_url VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",
@@ -6981,6 +6982,7 @@ class Collaboration(Base):
     logo_text    = Column(String(4), nullable=True)      # 2-3 char monogram
     logo_from    = Column(String(9), nullable=True, default="#0a1f52")  # gradient start
     logo_to      = Column(String(9), nullable=True, default="#12388f")  # gradient end
+    image_url    = Column(String(500), nullable=True)   # optional hero image for featured cards
     sort_order   = Column(Integer, default=0, index=True)
     click_count  = Column(Integer, default=0)
     is_published = Column(Boolean, default=False, nullable=False, index=True)  # the kill switch

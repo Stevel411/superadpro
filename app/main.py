@@ -83361,6 +83361,7 @@ def api_collaborations(user: User = Depends(get_current_user), db: Session = Dep
             "blurb": r.blurb, "take": r.steve_take,
             "logo_text": r.logo_text or (r.name[:2].upper() if r.name else "?"),
             "logo_from": r.logo_from or "#0a1f52", "logo_to": r.logo_to or "#12388f",
+            "image_url": r.image_url,
         } for r in rows],
         "categories": cats,
     })
@@ -83396,6 +83397,47 @@ def al_tradetracker_collab_seed(request: Request, user: User = Depends(get_curre
         return {"ok": True, "id": row.id}
 
 
+    except Exception as _e:
+        db.rollback()
+        return JSONResponse({"error": str(_e)[:400]}, status_code=500)
+
+
+@app.get("/admin/api/al/tradesmart-collab-seed")
+def al_tradesmart_collab_seed(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Secret-gated: upgrade the card into the TradeSmartClub featured card
+    (external platform + affiliate link + hero image). Tappable."""
+    secret = request.query_params.get("secret", "")
+    _secrets = [x for x in (os.getenv("MIGRATION_SECRET", ""), os.getenv("CRON_SECRET", "")) if x]
+    if not (is_admin(user) or (secret and secret in _secrets)):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        from .database import Collaboration
+        row = (db.query(Collaboration)
+                 .filter((Collaboration.ref_url == "/tradetracker")
+                         | (Collaboration.name.ilike("%TradeTracker%"))
+                         | (Collaboration.name.ilike("%TradeSmart%")))
+                 .first())
+        if row is None:
+            row = Collaboration(); db.add(row)
+        row.name = "TradeSmartClub"
+        row.category = "Tools"
+        row.blurb = ("The honest trading journal \u2014 it reads your trades and shows you, in plain "
+                     "dollars, exactly where you leak money: cutting winners early, oversized losers, "
+                     "revenge trades. Then it proves the fix with a backtester on 20+ years of real "
+                     "market data and an AI coach that reviews your own trades, not market tips. "
+                     "Built for forex and gold.")
+        row.steve_take = ("This is my own platform \u2014 the trading journal I wish I'd had when I "
+                          "started. Try it free for 7 days, no card needed.")
+        row.ref_url = "https://www.tradesmart.club/?ref=stevelawson"
+        row.logo_text = "TS"
+        row.logo_from = "#3d7bff"
+        row.logo_to = "#22e0b8"
+        row.image_url = "/static/img/tradesmart-hero.jpg"
+        row.sort_order = -10
+        row.is_published = True
+        db.commit()
+        return {"ok": True, "id": row.id, "name": row.name,
+                "image_url": row.image_url, "ref_url": row.ref_url, "published": row.is_published}
     except Exception as _e:
         db.rollback()
         return JSONResponse({"error": str(_e)[:400]}, status_code=500)
@@ -83470,6 +83512,7 @@ async def admin_collaborations_save(request: Request, user: User = Depends(_al_u
     row.logo_text = (body.get("logo_text") or name[:2].upper())[:4]
     row.logo_from = (body.get("logo_from") or "#0a1f52")[:9]
     row.logo_to = (body.get("logo_to") or "#12388f")[:9]
+    row.image_url = ((body.get("image_url") or "").strip() or None)
     if "sort_order" in body:
         row.sort_order = int(body.get("sort_order") or 0)
     if "published" in body:

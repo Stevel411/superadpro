@@ -44,6 +44,11 @@ const CSS = `
 .col .empty b{display:block;font-size:17px;font-weight:900;color:#0a1f52;margin-bottom:7px}
 .col .empty p{font-size:14px;color:#64748b;line-height:1.6;max-width:400px;margin:0 auto}
 .col .load{padding:50px 0;text-align:center;color:#64748b;font-weight:700}
+.col .featured{display:flex;flex-direction:column;gap:15px;margin-top:16px}
+.col .fcard{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1.4fr 1fr}
+.col .fcard .fimg{background:#081733 center/cover no-repeat;min-height:240px}
+.col .fcard .fin{padding:22px;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:640px){.col .fcard{grid-template-columns:1fr}.col .fcard .fimg{min-height:160px}}
 `;
 
 export default function Collaborations() {
@@ -110,26 +115,51 @@ export default function Collaborations() {
               <p>I add opportunities here as I find ones worth your time. Check back soon.</p>
             </div>
           ) : (
-            <div className="cards">
-              {shown.map(function (it) {
-                return (
-                  <div className="card" key={it.id}>
-                    <div className="cap" style={{ background: 'linear-gradient(90deg,' + it.logo_from + ',' + it.logo_to + ')' }} />
-                    <div className="in">
-                      <div className="logo" style={{ background: 'linear-gradient(135deg,' + it.logo_from + ',' + it.logo_to + ')' }}>{it.logo_text}</div>
-                      <div className="cat">{it.category}</div>
-                      <h4>{it.name}</h4>
-                      <div className="bl">{it.blurb}</div>
-                      {it.take && <div className="take">{it.take}</div>}
-                      <div className="foot">
-                        <a className="go" href={'/api/al/collaborations/go/' + it.id} target="_blank" rel="noopener noreferrer nofollow">Check it out &rarr;</a>
-                        <span className="mine"><span className="d" /> My link</span>
+            <>
+              {shown.filter(function (it) { return it.image_url; }).length > 0 && (
+                <div className="featured">
+                  {shown.filter(function (it) { return it.image_url; }).map(function (it) {
+                    return (
+                      <div className="fcard" key={'f' + it.id}>
+                        <div className="fimg" style={{ backgroundImage: 'url(' + it.image_url + ')' }} />
+                        <div className="fin">
+                          <div className="cat">{it.category}</div>
+                          <h4>{it.name}</h4>
+                          <div className="bl">{it.blurb}</div>
+                          {it.take && <div className="take">{it.take}</div>}
+                          <div className="foot">
+                            <a className="go" href={'/api/al/collaborations/go/' + it.id} target="_blank" rel="noopener noreferrer nofollow">Check it out &rarr;</a>
+                            <span className="mine"><span className="d" /> My link</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              )}
+              {shown.filter(function (it) { return !it.image_url; }).length > 0 && (
+                <div className="cards">
+                  {shown.filter(function (it) { return !it.image_url; }).map(function (it) {
+                    return (
+                      <div className="card" key={it.id}>
+                        <div className="cap" style={{ background: 'linear-gradient(90deg,' + it.logo_from + ',' + it.logo_to + ')' }} />
+                        <div className="in">
+                          <div className="logo" style={{ background: 'linear-gradient(135deg,' + it.logo_from + ',' + it.logo_to + ')' }}>{it.logo_text}</div>
+                          <div className="cat">{it.category}</div>
+                          <h4>{it.name}</h4>
+                          <div className="bl">{it.blurb}</div>
+                          {it.take && <div className="take">{it.take}</div>}
+                          <div className="foot">
+                            <a className="go" href={'/api/al/collaborations/go/' + it.id} target="_blank" rel="noopener noreferrer nofollow">Check it out &rarr;</a>
+                            <span className="mine"><span className="d" /> My link</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
