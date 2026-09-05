@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
+import NetworkAd from '../NetworkAd';
 import { useTranslation } from 'react-i18next';
 
 // Single source of truth for the member sidebar nav. Rendered by both the
@@ -140,6 +141,9 @@ export default function SideNav({ active }) {
       })}
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.10)' }}>
         <LanguageSelector openUp full />
+      </div>
+      <div style={{ marginTop: 12 }}>
+        <NetworkAd size="300x250" fluid labelColor="#8fa0c8" />
       </div>
     </>
   );
