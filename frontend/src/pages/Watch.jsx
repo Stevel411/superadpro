@@ -546,6 +546,9 @@ export default function Watch() {
               <div style={{animation:'fadeUp 1.8s ease-out'}}>
                 <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#12388f,#0a1f52)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(18,56,143,.3)'}}>{t('watch.backToDashboard')}</Link>
               </div>
+              <div style={{maxWidth:728,margin:'32px auto 0'}}>
+                <NetworkAd size="728x90" />
+              </div>
             </div>
         </div>
       </AlShell>
