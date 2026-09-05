@@ -5,6 +5,7 @@ import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import SideNav from '../components/layout/SideNav';
 import LiveActivityFeed from '../components/LiveActivityFeed';
+import NetworkAd from '../components/NetworkAd';
 import { useTranslation } from 'react-i18next';
 
 // AdvantageLife dashboard — rebuilt 11 Jul 2026 to Steve's approved modern
@@ -891,6 +892,8 @@ export default function NewDashboard() {
                 </div>
               );
             })()}
+
+            <NetworkAd size="728x90" />
 
             <div className="row">
 
