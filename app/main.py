@@ -74710,7 +74710,12 @@ def folio_public(username: str, slug: str, db: Session = Depends(get_db)):
                    {"u": u.id, "s": slug}).mappings().first()
     if not r or r["status"] != "published" or not r["published_html"]:
         return HTMLResponse(_folio_notfound_html(), status_code=404)
-    return HTMLResponse(r["published_html"])
+    _fh = r["published_html"]
+    _ad = ('<div style="max-width:748px;margin:16px auto;padding:0 12px">'
+           '<div class="al-ad" data-size="728x90"></div></div>'
+           '<script src="/static/al-ads.js?v=2" data-owner="%s"></script>' % (username or ""))
+    _fh = _fh.replace("</body>", _ad + "</body>", 1) if "</body>" in _fh else (_fh + _ad)
+    return HTMLResponse(_fh)
 
 
 @app.post("/api/folio/capture/{page_id}")
@@ -76581,6 +76586,10 @@ def play_game_member(game: str, user: User = Depends(get_current_user)):
            % (game, __import__("json").dumps(user.username or ""),
               __import__("json").dumps(os.getenv("BASE_URL", "https://www.advantagelife.club"))))
     html = html.replace("</head>", cfg + _GAME_WRAPPER + "</head>", 1)
+    _ad = ('<div style="max-width:748px;margin:16px auto;padding:0 12px;position:relative;z-index:5">'
+           '<div class="al-ad" data-size="728x90"></div></div>'
+           '<script src="/static/al-ads.js?v=2" data-owner="%s"></script>' % (user.username or ""))
+    html = html.replace("</body>", _ad + "</body>", 1)
     return HTMLResponse(html)
 
 
@@ -82547,7 +82556,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#eef2fa;color:var(--ink
   <div class="grid">"""
 
 _AL_PACKS_CATALOG_TAIL = r"""</div>
-  <div style="max-width:728px;margin:22px auto 6px;text-align:center"><div style="font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9aa6c0;margin-bottom:5px">Sponsored</div><div id="alPacksAd"></div></div><script>(function(){fetch("/api/al/network-ads?req=728x90:1").then(function(r){return r.json();}).then(function(d){var s=d&&d.slots&&d.slots["728x90"]&&d.slots["728x90"][0];var el=document.getElementById("alPacksAd");if(!el)return;if(s){var inner=(s.mode==="html")?s.html_code:("<img src=\""+s.image_url+"\" alt=\"Advertisement\" style=\"width:100%;height:auto;display:block\">");el.innerHTML="<a href=\""+s.click_url+"\" target=\"_blank\" rel=\"noreferrer\" style=\"display:block;max-width:728px;margin:0 auto;border-radius:12px;overflow:hidden\">"+inner+"</a>";try{fetch("/api/al/banner/"+s.id+"/impression",{method:"POST"})}catch(e){}}else{el.innerHTML="<a href=\"/my-banners\" style=\"display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:90px;max-width:728px;margin:0 auto;border-radius:12px;text-decoration:none;background:repeating-linear-gradient(45deg,#eef2fb,#eef2fb 12px,#e6ecf5 12px,#e6ecf5 24px);border:2px dashed #c3d0ea;color:#5a6584;font-weight:800;font-size:13px\">📢 Advertise here →</a>";}}).catch(function(){});})();</script>
+  <div style="max-width:748px;margin:22px auto 6px;padding:0 12px;text-align:center"><div class="al-ad" data-size="728x90"></div></div><script src="/static/al-ads.js?v=2" data-owner=""></script>
   <div class="flow" id="flow">
     <div class="fk">When you hit buy</div>
     <h2>Your ad comes first.</h2>
