@@ -46,9 +46,18 @@ const CSS = `
 .col .load{padding:50px 0;text-align:center;color:#64748b;font-weight:700}
 .col .featured{display:flex;flex-direction:column;gap:15px;margin-top:16px}
 .col .fcard{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1.4fr 1fr}
-.col .fcard .fimg{background:#081733 center/cover no-repeat;min-height:240px}
+.col .fcard .fimg{background:#081733 center/contain no-repeat;min-height:300px}
 .col .fcard .fin{padding:22px;display:flex;flex-direction:column;justify-content:center}
 @media(max-width:640px){.col .fcard{grid-template-columns:1fr}.col .fcard .fimg{min-height:160px}}
+.col .fcard .cat{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#64748b}
+.col .fcard h4{font-size:21px;font-weight:900;letter-spacing:-.01em;color:#0a1f52;margin:5px 0 0}
+.col .fcard .bl{font-size:14px;color:#475569;line-height:1.55;margin-top:9px}
+.col .fcard .take{background:#f6f8fc;border-left:3px solid #c8102e;border-radius:0 8px 8px 0;padding:10px 12px;margin-top:13px;font-size:13px;color:#334155;line-height:1.5;font-style:italic}
+.col .fcard .foot{display:flex;align-items:center;gap:14px;margin-top:18px}
+.col .fcard .go{background:#c8102e;color:#fff;border:0;border-radius:10px;padding:13px 26px;font-family:inherit;font-size:14.5px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 8px 20px -8px rgba(200,16,46,.55)}
+.col .fcard .go:hover{background:#a60d26}
+.col .fcard .mine{font-size:11px;font-weight:700;color:#64748b;display:inline-flex;align-items:center;gap:5px}
+.col .fcard .mine .d{width:7px;height:7px;border-radius:50%;background:#16a34a}
 `;
 
 export default function Collaborations() {

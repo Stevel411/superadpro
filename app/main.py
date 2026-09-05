@@ -83432,7 +83432,7 @@ def al_tradesmart_collab_seed(request: Request, user: User = Depends(get_current
         row.logo_text = "TS"
         row.logo_from = "#3d7bff"
         row.logo_to = "#22e0b8"
-        row.image_url = "/static/img/tradesmart-hero.jpg"
+        row.image_url = "/static/img/tradesmart-home.jpg"
         row.sort_order = -10
         row.is_published = True
         db.commit()
