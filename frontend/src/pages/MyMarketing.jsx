@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import AlShell from '../components/layout/AlShell';
+import NetworkAd from '../components/NetworkAd';
 import { useAuth } from '../hooks/useAuth';
 
 // ── My Marketing hub — AL-themed (Inter, navy/red/white) ─────────────
@@ -103,6 +104,7 @@ export default function MyMarketing() {
         <div className="img"><span className="tag">SHARE IT &middot; ADVANTAGELIFE</span></div>
       </div>
 
+      <NetworkAd size="728x90" />
       <div className="mmgrid">
         {cards.map(function (c) {
           return (
