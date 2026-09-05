@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AlShell from '../components/layout/AlShell';
+import NetworkAd from '../components/NetworkAd';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 
@@ -986,6 +987,8 @@ export default function Watch() {
           )}
         </div>
       </div>
+
+      <NetworkAd size="728x90" />
 
       {/* Subscribe consent modal */}
       {subOpen && current && (
