@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 // collapsible sections stay identical everywhere and can't drift.
 export const NAV = [
   { key: 'dashboard', tk: 'nav.dashboard', label: 'Dashboard', icon: '🏠', to: '/dashboard', link: true },
+  { key: 'earnings', tk: 'nav.walletEarnings', label: 'Wallet & Earnings', icon: '💰', to: '/earnings', link: false },
   { header: 'GET STARTED', icon: '🚀', tk: 'nav.grpGetStarted' },
   { key: 'start', tk: 'nav.startHere', label: 'Start Here', icon: '⭐', to: '/start-here', link: true, big: true },
   { key: 'packs', tk: 'nav.campaignPacks', label: 'Campaign Packs', icon: '📦', to: '/packs', link: false },

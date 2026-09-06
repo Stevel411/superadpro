@@ -3651,6 +3651,265 @@ async def api_al_plan_switch(request: Request, user: User = Depends(get_current_
     return JSONResponse({"ok": True, "plan": "matrix"})
 
 
+def _al_mask_addr(a):
+    a = a or ""
+    return (a[:5] + "\u2026" + a[-3:]) if len(a) > 10 else a
+
+
+def _al_net_label(n):
+    return {"tron": "TRC20", "trc20": "TRC20", "bsc": "BEP20", "bep20": "BEP20",
+            "eth": "ERC20", "erc20": "ERC20"}.get((n or "").lower(), (n or "").upper())
+
+
+def _al_ago(dt):
+    if not dt:
+        return ""
+    secs = (datetime.utcnow() - dt).total_seconds()
+    if secs < 120:
+        return "just now"
+    if secs < 3600:
+        return str(int(secs // 60)) + "m ago"
+    if secs < 86400:
+        return str(int(secs // 3600)) + "h ago"
+    return str(int(secs // 86400)) + "d ago"
+
+
+def _matrix_wallet_data(db, user):
+    from sqlalchemy import func as _f
+    uid = user.id
+    def ss(st):
+        return float(db.query(_f.coalesce(_f.sum(MatrixCommission.amount), 0)).filter(
+            MatrixCommission.earner_id == uid, MatrixCommission.status == st).scalar() or 0)
+    available, pending, paid = ss("payable"), ss("accrued"), ss("paid")
+    total = available + pending + paid
+    lvl_rows = db.query(MatrixCommission.level, _f.coalesce(_f.sum(MatrixCommission.amount), 0)).filter(
+        MatrixCommission.earner_id == uid, MatrixCommission.level >= 1).group_by(MatrixCommission.level).all()
+    lvlmap = {int(l): float(a) for l, a in lvl_rows}
+    by_level = [{"l": k, "amt": round(lvlmap.get(k, 0.0), 2)} for k in range(1, 6)]
+    rows = db.query(MatrixCommission).filter(MatrixCommission.earner_id == uid).order_by(
+        MatrixCommission.created_at.desc()).limit(24).all()
+    TIER_NAMES = {1: "Launchpad", 2: "Starter", 3: "Builder", 4: "Pro", 5: "Advanced",
+                  6: "Premium", 7: "Elite", 8: "Master", 9: "Champion"}
+    bids = {r.buyer_id for r in rows if r.buyer_id}
+    buyers = {u.id: u.username for u in db.query(User).filter(User.id.in_(bids)).all()} if bids else {}
+    history = []
+    for r in rows:
+        if int(r.level or 0) == 0:
+            continue
+        history.append({"level": int(r.level), "buyer": buyers.get(r.buyer_id, ""),
+                        "tier": TIER_NAMES.get(int(r.tier), "Tier " + str(r.tier)),
+                        "amt": round(float(r.amount), 2),
+                        "status": ("paid" if r.status == "paid" else "pending"),
+                        "when": _al_ago(r.created_at)})
+    waddr = getattr(user, "wallet_address", None)
+    wnet = getattr(user, "wallet_network", None)
+    wallet = {"set": bool(waddr), "network": (_al_net_label(wnet) if waddr else ""),
+              "masked": (_al_mask_addr(waddr) if waddr else "")}
+    return {"plan": (getattr(user, "plan", None) or "none"), "available": round(available, 2),
+            "pending": round(pending, 2), "lifetime_paid": round(paid, 2),
+            "total_earned": round(total, 2), "next_payout": "Monday",
+            "by_level": by_level, "wallet": wallet, "history": history}
+
+
+_AL_EARNINGS_PAGE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wallet & Earnings — AdvantageLife</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#8f0a20;--bg:#eef2f9;--card:#fff;
+    --ink:#0a1f52;--muted:#6b7794;--line:#e3e9f4;--green:#128a3e;--amber:#c77d0a;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.45;padding:0 0 60px;overflow-x:hidden}
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px}
+  a{color:inherit}
+
+  .top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 6px}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:800;color:var(--navy2);text-decoration:none}
+  .who{font-size:13px;font-weight:700;color:var(--muted)}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(140deg,#081741,#12388f);
+    color:#fff;padding:28px 26px 24px;margin-top:8px;box-shadow:0 18px 44px rgba(10,31,82,.22)}
+  .hero .aur{position:absolute;inset:-40%;pointer-events:none;filter:blur(60px);opacity:.7}
+  .hero .aur i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift 16s ease-in-out infinite}
+  .hero .aur i:nth-child(1){width:340px;height:340px;background:#1e53e5;left:-5%;top:-30%}
+  .hero .aur i:nth-child(2){width:280px;height:280px;background:#c8102e;right:-5%;top:-10%;opacity:.5;animation-delay:-6s}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,26px)}}
+  .hero .lab{position:relative;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9fb4e8;margin-bottom:6px}
+  .bal{position:relative;font-size:clamp(40px,10vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1}
+  .bal .u{font-size:.42em;font-weight:800;color:#9fb4e8;margin-left:8px;letter-spacing:0}
+  .balsub{position:relative;font-size:13.5px;color:#c9d6f2;font-weight:500;margin-top:6px}
+  .heromini{position:relative;display:flex;gap:22px;margin-top:20px;flex-wrap:wrap}
+  .hm{flex:1;min-width:120px}
+  .hm .k{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#8ea6d8}
+  .hm .v{font-size:20px;font-weight:900;margin-top:2px}
+  .paychip{position:relative;display:inline-flex;align-items:center;gap:7px;margin-top:18px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:30px;padding:7px 14px;
+    font-size:12.5px;font-weight:700;color:#eaf0fc}
+  .paychip .dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.6)}70%{box-shadow:0 0 0 8px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
+
+  .row2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:720px){.row2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 20px;
+    box-shadow:0 4px 16px rgba(10,31,82,.05)}
+  .card h3{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+
+  /* by-level chart */
+  .chart{display:flex;align-items:flex-end;gap:12px;height:150px;padding-top:6px}
+  .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .bar{width:100%;max-width:46px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#2f5bd0,#12388f);
+    height:0;transition:height 1s cubic-bezier(.2,.8,.2,1);position:relative}
+  .col.l5 .bar{background:linear-gradient(180deg,#ff5f76,#c8102e)}
+  .bar .amt{position:absolute;top:-19px;left:0;right:0;text-align:center;font-size:11px;font-weight:800;color:var(--navy);white-space:nowrap}
+  .col .cl{font-size:11px;font-weight:800;color:var(--muted);margin-top:8px}
+  .col.l5 .cl{color:var(--red)}
+
+  /* wallet */
+  .wcard .addr{display:flex;align-items:center;gap:10px;background:#f4f7fc;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .wcard .net{font-size:10.5px;font-weight:800;letter-spacing:.04em;background:#e7edf9;color:var(--navy2);padding:4px 9px;border-radius:7px}
+  .wcard .a{font-family:ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:700;color:var(--navy)}
+  .wcta{display:block;text-align:center;margin-top:12px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;
+    text-decoration:none;font-weight:800;font-size:14px;padding:12px;border-radius:12px}
+  .wnote{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+
+  /* history */
+  .hist{margin-top:16px}
+  .hitem{display:flex;align-items:center;gap:13px;padding:13px 4px;border-bottom:1px solid var(--line);
+    opacity:0;transform:translateY(8px);animation:rise .5s forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .hitem:last-child{border-bottom:none}
+  .hic{width:38px;height:38px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:900;color:#fff;background:linear-gradient(135deg,#2f5bd0,#12388f)}
+  .hitem.lvl5 .hic{background:linear-gradient(135deg,#ff5f76,#c8102e)}
+  .hmain{flex:1;min-width:0}
+  .hmain .t{font-size:14px;font-weight:800;color:var(--navy)}
+  .hmain .s{font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+  .hright{text-align:right;flex:none}
+  .hamt{font-size:15px;font-weight:900;color:var(--navy)}
+  .pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.03em;padding:2px 8px;border-radius:20px;margin-top:3px}
+  .pill.paid{background:#e5f6ec;color:var(--green)}
+  .pill.pending{background:#fdf2e3;color:var(--amber)}
+
+  .empty{text-align:center;padding:40px 20px}
+  .empty .em{font-size:40px}
+  .empty h4{font-size:19px;font-weight:900;margin:12px 0 6px}
+  .empty p{font-size:14px;color:var(--muted);max-width:42ch;margin:0 auto 18px}
+  .empty a{display:inline-block;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;text-decoration:none;
+    font-weight:800;font-size:14px;padding:12px 24px;border-radius:12px}
+
+  .secTitle{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:26px 4px 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="/dashboard">← Dashboard</a>
+    <span class="who" id="who"></span>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+  var D = {{WALLET_DATA}};
+  var USERNAME = "{{USERNAME}}";
+  var LNAMES={1:"Level 1",2:"Level 2",3:"Level 3",4:"Level 4",5:"Level 5"};
+
+  function money(x){return (x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  document.getElementById('who').textContent = USERNAME ? '@'+USERNAME : '';
+
+  function render(){
+    var app=document.getElementById('app');
+    if(!D || D.total_earned<=0){
+      if(D && D.plan==='p2p'){
+        app.innerHTML='<div class="card"><div class="empty"><div class="em">💳</div>'+
+          '<h4>You\'re on the Peer-to-Peer plan</h4>'+
+          '<p>Your direct commissions and withdrawals live on your Wallet page.</p>'+
+          '<a href="/wallet">Go to your Wallet →</a></div></div>';
+        return;
+      }
+      app.innerHTML='<div class="card"><div class="empty"><div class="em">🌱</div>'+
+        '<h4>Your earnings will appear here</h4>'+
+        '<p>As your matrix fills and your team activates packs, every commission lands here — paid weekly in USDT.</p>'+
+        '<a href="/packs">Activate a pack →</a></div></div>';
+      return;
+    }
+    var maxL=Math.max.apply(null,D.by_level.map(function(x){return x.amt;}))||1;
+    var bars=D.by_level.map(function(x){
+      return '<div class="col'+(x.l===5?' l5':'')+'"><div class="bar" data-h="'+Math.max(4,Math.round(x.amt/maxL*130))+'">'+
+        '<span class="amt">$'+money(x.amt)+'</span></div><div class="cl">L'+x.l+'</div></div>';
+    }).join('');
+
+    var wallet = D.wallet && D.wallet.set
+      ? '<div class="addr"><span class="net">'+esc(D.wallet.network)+'</span><span class="a">'+esc(D.wallet.masked)+'</span></div>'+
+        '<div class="wnote">Your weekly USDT payout is sent here. Keep it current — payouts go to this address only.</div>'
+      : '<a class="wcta" href="/payout-methods">＋ Add your USDT wallet</a>'+
+        '<div class="wnote">Add a USDT wallet (TRC20 recommended) to receive your weekly payouts.</div>';
+
+    var hist = (D.history||[]).map(function(h,i){
+      var paid = h.status==='paid';
+      return '<div class="hitem'+(h.level===5?' lvl5':'')+'" style="animation-delay:'+(i*0.05)+'s">'+
+        '<div class="hic">L'+h.level+'</div>'+
+        '<div class="hmain"><div class="t">'+LNAMES[h.level]+' commission'+(h.buyer?' · from @'+esc(h.buyer):'')+'</div>'+
+        '<div class="s">'+esc(h.tier)+' matrix · '+esc(h.when)+'</div></div>'+
+        '<div class="hright"><div class="hamt">$'+money(h.amt)+'</div>'+
+        '<span class="pill '+(paid?'paid':'pending')+'">'+(paid?'Paid':'Pending')+'</span></div></div>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="hero"><div class="aur"><i></i><i></i></div>'+
+        '<div class="lab">Available to withdraw</div>'+
+        '<div class="bal"><span id="balNum">$0.00</span><span class="u">USDT</span></div>'+
+        '<div class="balsub">Paid out weekly to your USDT wallet</div>'+
+        '<div class="heromini">'+
+          '<div class="hm"><div class="k">Pending</div><div class="v">$'+money(D.pending)+'</div></div>'+
+          '<div class="hm"><div class="k">Lifetime paid</div><div class="v">$'+money(D.lifetime_paid)+'</div></div>'+
+          '<div class="hm"><div class="k">Total earned</div><div class="v">$'+money(D.total_earned)+'</div></div>'+
+        '</div>'+
+        '<div class="paychip"><span class="dot"></span> Next payout · '+esc(D.next_payout||'Monday')+'</div>'+
+      '</div>'+
+      '<div class="row2">'+
+        '<div class="card"><h3>Where your earnings come from</h3><div class="chart" id="chart">'+bars+'</div></div>'+
+        '<div class="card wcard"><h3>Payout wallet</h3>'+wallet+'</div>'+
+      '</div>'+
+      '<div class="secTitle">Recent earnings</div>'+
+      '<div class="card hist">'+(hist||'<div class="wnote">No transactions yet.</div>')+'</div>';
+
+    // count-up balance
+    var el=document.getElementById('balNum'),t0=performance.now(),dur=900,target=D.available||0;
+    (function step(now){var p=Math.min(1,(now-t0)/dur);var v=target*(1-Math.pow(1-p,3));
+      el.textContent='$'+money(v);if(p<1)requestAnimationFrame(step);})(t0);
+    // grow bars
+    setTimeout(function(){document.querySelectorAll('.bar').forEach(function(b){b.style.height=b.dataset.h+'px';});},80);
+  }
+  render();
+</script>
+</body>
+</html>
+"""
+
+
+@app.get("/earnings")
+def earnings_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Matrix wallet & earnings — computed live from the ledger (never a stored balance)."""
+    if not user:
+        return RedirectResponse("/login?next=/earnings", status_code=303)
+    import json as _json
+    data = _matrix_wallet_data(db, user)
+    payload = _json.dumps(data).replace("<", "\\u003c")
+    out = _AL_EARNINGS_PAGE.replace("{{WALLET_DATA}}", payload).replace("{{USERNAME}}", (user.username or ""))
+    return HTMLResponse(out)
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""
