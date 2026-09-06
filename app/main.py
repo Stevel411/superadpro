@@ -3721,7 +3721,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#8f0a20;--bg:#eef2f9;--card:#fff;
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--red2:#8f0a20;--bg:#f5f7fc;--card:#fff;
     --ink:#0a1f52;--muted:#6b7794;--line:#e3e9f4;--green:#128a3e;--amber:#c77d0a;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
@@ -3734,26 +3734,27 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
   .who{font-size:13px;font-weight:700;color:var(--muted)}
 
   /* hero */
-  .hero{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(140deg,#081741,#12388f);
-    color:#fff;padding:28px 26px 24px;margin-top:8px;box-shadow:0 18px 44px rgba(10,31,82,.22)}
-  .hero .aur{position:absolute;inset:-40%;pointer-events:none;filter:blur(60px);opacity:.7}
-  .hero .aur i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift 16s ease-in-out infinite}
-  .hero .aur i:nth-child(1){width:340px;height:340px;background:#1e53e5;left:-5%;top:-30%}
-  .hero .aur i:nth-child(2){width:280px;height:280px;background:#c8102e;right:-5%;top:-10%;opacity:.5;animation-delay:-6s}
+  .hero{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(140deg,#ffffff,#eef4fd);
+    color:var(--navy);padding:30px 26px 24px;margin-top:8px;border:1px solid var(--line);box-shadow:0 12px 32px rgba(10,31,82,.08)}
+  .hero::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,#12388f,#c8102e)}
+  .hero .aur{position:absolute;inset:-40%;pointer-events:none;filter:blur(72px);opacity:.4}
+  .hero .aur i{position:absolute;border-radius:50%;animation:drift 16s ease-in-out infinite}
+  .hero .aur i:nth-child(1){width:300px;height:300px;background:#cfe0ff;left:-6%;top:-34%}
+  .hero .aur i:nth-child(2){width:230px;height:230px;background:#ffd7de;right:-6%;top:-14%;animation-delay:-6s}
   @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,26px)}}
-  .hero .lab{position:relative;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9fb4e8;margin-bottom:6px}
-  .bal{position:relative;font-size:clamp(40px,10vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1}
-  .bal .u{font-size:.42em;font-weight:800;color:#9fb4e8;margin-left:8px;letter-spacing:0}
-  .balsub{position:relative;font-size:13.5px;color:#c9d6f2;font-weight:500;margin-top:6px}
+  .hero .lab{position:relative;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .bal{position:relative;font-size:clamp(40px,10vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(120deg,#0b7a3f,#12a150,#1ec46a);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .bal .u{font-size:.42em;font-weight:800;color:var(--muted);margin-left:8px;letter-spacing:0;-webkit-text-fill-color:var(--muted)}
+  .balsub{position:relative;font-size:13.5px;color:var(--muted);font-weight:500;margin-top:6px}
   .heromini{position:relative;display:flex;gap:22px;margin-top:20px;flex-wrap:wrap}
   .hm{flex:1;min-width:120px}
-  .hm .k{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#8ea6d8}
-  .hm .v{font-size:20px;font-weight:900;margin-top:2px}
-  .paychip{position:relative;display:inline-flex;align-items:center;gap:7px;margin-top:18px;
-    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:30px;padding:7px 14px;
-    font-size:12.5px;font-weight:700;color:#eaf0fc}
-  .paychip .dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:pulse 2s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,132,.6)}70%{box-shadow:0 0 0 8px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
+  .hm .k{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .hm .v{font-size:20px;font-weight:900;margin-top:2px;color:#10914a}
+  .paychip{position:relative;display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:#e5f6ec;
+    border:1px solid #b8e6c8;border-radius:30px;padding:7px 14px;font-size:12.5px;font-weight:800;color:#0e7a38}
+  .paychip .dot{width:8px;height:8px;border-radius:50%;background:#128a3e;box-shadow:0 0 0 0 rgba(18,138,62,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(18,138,62,.5)}70%{box-shadow:0 0 0 8px rgba(18,138,62,0)}100%{box-shadow:0 0 0 0 rgba(18,138,62,0)}}
 
   .row2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:16px}
   @media(max-width:720px){.row2{grid-template-columns:1fr}}
@@ -3767,7 +3768,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
   .bar{width:100%;max-width:46px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#2f5bd0,#12388f);
     height:0;transition:height 1s cubic-bezier(.2,.8,.2,1);position:relative}
   .col.l5 .bar{background:linear-gradient(180deg,#ff5f76,#c8102e)}
-  .bar .amt{position:absolute;top:-19px;left:0;right:0;text-align:center;font-size:11px;font-weight:800;color:var(--navy);white-space:nowrap}
+  .bar .amt{position:absolute;top:-19px;left:0;right:0;text-align:center;font-size:11px;font-weight:800;color:#10914a;white-space:nowrap}
   .col .cl{font-size:11px;font-weight:800;color:var(--muted);margin-top:8px}
   .col.l5 .cl{color:var(--red)}
 
@@ -3792,7 +3793,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
   .hmain .t{font-size:14px;font-weight:800;color:var(--navy)}
   .hmain .s{font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
   .hright{text-align:right;flex:none}
-  .hamt{font-size:15px;font-weight:900;color:var(--navy)}
+  .hamt{font-size:15px;font-weight:900;color:#10914a}
   .pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.03em;padding:2px 8px;border-radius:20px;margin-top:3px}
   .pill.paid{background:#e5f6ec;color:var(--green)}
   .pill.pending{background:#fdf2e3;color:var(--amber)}
