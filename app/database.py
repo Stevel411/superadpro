@@ -419,6 +419,9 @@ class User(Base):
     story_prompt_dismissed_at = Column(DateTime, nullable=True)
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
+    plan                = Column(String, default="none", index=True)  # none | p2p | matrix — set at first pack purchase, locked after
+    plan_locked_at      = Column(DateTime, nullable=True)             # when the plan was first set
+    plan_switched_at    = Column(DateTime, nullable=True)             # one-way p2p->matrix switch time
     # Email broadcast opt-out (added 11 May 2026). True = excluded from admin
     # broadcast emails. Transactional emails (welcome, commission notifications,
     # password reset, etc.) ignore this flag and always send.
@@ -793,6 +796,29 @@ class PackCommission(Base):
     status          = Column(String, default="pending", index=True)  # pending / paid
     notes           = Column(Text, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
+
+class MatrixPosition(Base):
+    """A member's placement in one tier's 3-wide forced matrix (Matrix plan).
+
+    One row per (tier, user). tier == CampaignPack.level (1..9) selects which
+    matrix. parent_id is the matrix parent (NULL = a root of that tier's forest —
+    a member who joined the tier before anyone in their sponsor chain did).
+    Placement is forced 3-wide, top-down left-to-right, spilling into the first
+    open slot under the nearest sponsor-chain ancestor already in the matrix.
+    Earning (Phase 2) reads the 5 levels directly below a position; the tree
+    itself is unbounded in depth. Pure structure — no money here.
+    """
+    __tablename__ = "matrix_positions"
+    id          = Column(Integer, primary_key=True, index=True)
+    tier        = Column(Integer, index=True, nullable=False)              # pack level 1..9 = which matrix
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    parent_id   = Column(Integer, ForeignKey("matrix_positions.id"), index=True, nullable=True)
+    slot        = Column(Integer, default=0)                               # 0,1,2 under parent (left->right)
+    depth       = Column(Integer, default=0, index=True)                   # 0 = root; parent.depth + 1
+    sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True)   # real sponsor at placement (audit)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (UniqueConstraint("tier", "user_id", name="uq_matrix_tier_user"),)
+
 
 class PayoutMethod(Base):
     """A member's P2P payout details (how buyers pay them). Multiple allowed."""
@@ -2749,6 +2775,14 @@ def run_migrations():
         # accident when this ships — approval is a deliberate act.
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved BOOLEAN DEFAULT FALSE",
         "ALTER TABLE collaborations ADD COLUMN IF NOT EXISTS image_url VARCHAR",
+        # ── Matrix plan (Phase 1) ──
+        "CREATE TABLE IF NOT EXISTS matrix_positions (id SERIAL PRIMARY KEY, tier INTEGER NOT NULL, user_id INTEGER REFERENCES users(id), parent_id INTEGER REFERENCES matrix_positions(id), slot INTEGER DEFAULT 0, depth INTEGER DEFAULT 0, sponsor_id INTEGER REFERENCES users(id), created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_matrix_tier_user ON matrix_positions (tier, user_id)",
+        "CREATE INDEX IF NOT EXISTS ix_matrix_positions_parent ON matrix_positions (parent_id)",
+        "CREATE INDEX IF NOT EXISTS ix_matrix_positions_tier_depth ON matrix_positions (tier, depth)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan VARCHAR DEFAULT 'none'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_locked_at TIMESTAMP",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_switched_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",

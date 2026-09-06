@@ -30,6 +30,7 @@ from .database import AcademyCourse, AcademyLesson, AcademyProgress
 from .database import MomentumIdea, MomentumChallenge, MomentumPlan, MomentumDay
 from .database import TradeTrackerData
 from .database import BannerAd, BannerReport
+from .database import MatrixPosition
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
 # Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
 # for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
@@ -3301,6 +3302,27 @@ def _serialise_story_admin(row, user_map):
         "created_at":         row.created_at.isoformat() if row.created_at else None,
         "updated_at":         row.updated_at.isoformat() if row.updated_at else None,
     }
+
+
+@app.get("/admin/api/al/matrix/health")
+def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Phase 1 verification — confirm the matrix schema is live in this DB."""
+    _require_admin(user)
+    from sqlalchemy import func, text as _t
+    out = {"ok": True}
+    try:
+        out["positions"] = db.query(MatrixPosition).count()
+        rows = db.query(MatrixPosition.tier, func.count(MatrixPosition.id)).group_by(MatrixPosition.tier).all()
+        out["by_tier"] = {int(t): int(c) for t, c in rows}
+        out["roots"] = db.query(MatrixPosition).filter(MatrixPosition.parent_id.is_(None)).count()
+    except Exception as e:
+        out["ok"] = False; out["positions_error"] = str(e)[:200]
+    try:
+        db.execute(_t("SELECT plan, plan_locked_at, plan_switched_at FROM users LIMIT 1"))
+        out["plan_columns"] = True
+    except Exception as e:
+        out["ok"] = False; out["plan_columns"] = False; out["plan_error"] = str(e)[:200]
+    return JSONResponse(out)
 
 
 @app.get("/admin/api/stories")
