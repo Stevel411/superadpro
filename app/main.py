@@ -3348,11 +3348,8 @@ _AL_CHOOSE_PLAN_PAGE = r"""<!doctype html>
   .plan:nth-child(1){animation-delay:.26s}.plan:nth-child(2){animation-delay:.36s}
   @keyframes rise{to{opacity:1;transform:none}}
   .plan:hover{transform:translateY(-5px);box-shadow:0 20px 46px rgba(10,31,82,.16);border-color:var(--navy2)}
-  .plan.sel{border-color:transparent;box-shadow:0 20px 52px rgba(200,16,46,.22)}
-  .plan.sel::after{content:'';position:absolute;inset:-2px;border-radius:20px;z-index:-1;
-    background:conic-gradient(from var(--a,0deg),#c8102e,#ff5f76,#12388f,#c8102e);animation:spin 4s linear infinite}
-  @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
-  @keyframes spin{to{--a:360deg}}
+  .plan.sel{border-color:var(--navy2);background:var(--card);
+    box-shadow:0 22px 50px rgba(18,56,143,.16),0 0 0 4px rgba(18,56,143,.08)}
   .plan.sel::before{content:'✓';position:absolute;top:-14px;right:22px;width:32px;height:32px;border-radius:50%;
     background:var(--red);color:#fff;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;
     box-shadow:0 5px 14px rgba(200,16,46,.45);z-index:2;animation:pop .3s}
