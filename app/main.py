@@ -3304,6 +3304,336 @@ def _serialise_story_admin(row, user_map):
     }
 
 
+_AL_CHOOSE_PLAN_PAGE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choose your plan — AdvantageLife</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0a1f52; --navy2:#12388f; --red:#c8102e; --red2:#8f0a20;
+    --bg:#eef2f9; --card:#fff; --ink:#0a1f52; --muted:#6b7794; --line:#e3e9f4; --green:#128a3e;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;
+    line-height:1.45;padding:0 0 132px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+
+  header{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy2));
+    color:#fff;padding:44px 0 40px;border-bottom:4px solid var(--red)}
+  header::after{content:'';position:absolute;inset:0;
+    background:radial-gradient(900px 300px at 80% -20%, rgba(200,16,46,.28), transparent 60%);pointer-events:none}
+  header .wrap{position:relative}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9fb4e8;margin:0 0 10px}
+  h1{font-size:clamp(28px,5.2vw,46px);font-weight:900;letter-spacing:-.025em;margin:0 0 10px;line-height:1.05}
+  header p{margin:0;color:#c9d6f2;font-size:16px;font-weight:500;max-width:60ch}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+
+  .plan{position:relative;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:26px 24px;
+    cursor:pointer;transition:transform .16s cubic-bezier(.2,.7,.2,1),box-shadow .16s,border-color .16s;
+    display:flex;flex-direction:column;opacity:0;transform:translateY(16px);animation:rise .6s forwards}
+  .plan:nth-child(1){animation-delay:.05s}.plan:nth-child(2){animation-delay:.16s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .plan:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(10,31,82,.14);border-color:var(--navy2)}
+  .plan.sel{border-color:var(--red);box-shadow:0 18px 46px rgba(200,16,46,.20)}
+  .plan.sel::before{content:'✓';position:absolute;top:-13px;right:22px;width:30px;height:30px;border-radius:50%;
+    background:var(--red);color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px rgba(200,16,46,.4)}
+  .ribbon{position:absolute;top:16px;right:-2px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;
+    font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:6px 14px 6px 12px;
+    border-radius:20px 0 0 20px;box-shadow:0 4px 12px rgba(200,16,46,.3)}
+  .pname{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .phook{font-size:22px;font-weight:900;letter-spacing:-.01em;line-height:1.15;margin:0 0 4px;min-height:52px}
+  .psub{font-size:13.5px;color:var(--muted);font-weight:500;margin:0 0 18px}
+
+  /* live preview (matrix) */
+  .prev{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:14px;padding:16px 16px 18px;margin-bottom:18px;color:#fff}
+  .prev .lab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#b9c8ee;margin-bottom:9px}
+  .tierpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tp{border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#dbe4f7;font-family:inherit;
+    font-size:12px;font-weight:800;padding:6px 10px;border-radius:9px;cursor:pointer;transition:.12s}
+  .tp:hover{border-color:#fff}
+  .tp.on{background:var(--red);border-color:var(--red);color:#fff}
+  .prevbig{font-size:clamp(26px,6vw,34px);font-weight:900;letter-spacing:-.02em;line-height:1}
+  .prevbig em{color:#ff5f76;font-style:normal}
+  .prevcap{font-size:12.5px;color:#c9d6f2;font-weight:500;margin-top:4px}
+  .lvlbars{display:flex;gap:5px;align-items:flex-end;height:46px;margin-top:14px}
+  .lvlbar{flex:1;background:rgba(255,255,255,.18);border-radius:4px 4px 0 0;position:relative;transition:height .5s cubic-bezier(.2,.7,.2,1)}
+  .lvlbar:last-child{background:var(--red)}
+  .lvlbar span{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:9px;font-weight:700;color:#9fb4e8}
+
+  /* p2p visual */
+  .p2pvis{background:#f2f6fd;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px;text-align:center}
+  .p2pvis .n{font-size:34px;font-weight:900;color:var(--navy);letter-spacing:-.02em;line-height:1}
+  .p2pvis .c{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  ul{list-style:none;margin:0 0 20px;padding:0;flex:1}
+  li{position:relative;padding:0 0 11px 27px;font-size:14px;font-weight:500;color:#3a4763}
+  li::before{content:'';position:absolute;left:2px;top:5px;width:13px;height:13px;border-radius:50%;
+    background:#e5f0e9;border:2px solid var(--green)}
+  li.x::before{background:#fdecef;border-color:var(--red)}
+  li b{color:var(--navy);font-weight:800}
+  .choose{width:100%;font-family:inherit;font-size:15px;font-weight:800;padding:14px;border-radius:13px;
+    border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;transition:.14s}
+  .plan:hover .choose{background:var(--navy);color:#fff}
+  .plan.sel .choose{background:var(--red);border-color:var(--red);color:#fff}
+
+  /* sticky confirm bar */
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);box-shadow:0 -8px 28px rgba(10,31,82,.12);padding:15px 18px;
+    transform:translateY(120%);transition:transform .25s cubic-bezier(.2,.7,.2,1);z-index:40}
+  .bar.up{transform:none}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .bar .st{font-size:14.5px;font-weight:700;color:var(--muted)}
+  .bar .st b{color:var(--navy)}
+  .cta{font-family:inherit;font-size:15px;font-weight:800;padding:14px 30px;border-radius:13px;border:none;
+    background:var(--red);color:#fff;cursor:pointer;box-shadow:0 8px 22px rgba(200,16,46,.32);transition:.12s;white-space:nowrap}
+  .cta:hover{transform:translateY(-1px)}
+  .cta[disabled]{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(10,20,45,.55);backdrop-filter:blur(3px);display:none;
+    align-items:center;justify-content:center;padding:20px;z-index:60}
+  .ov.on{display:flex;animation:fade .2s}
+  @keyframes fade{from{opacity:0}}
+  .modal{background:#fff;border-radius:20px;max-width:460px;width:100%;padding:28px 26px;
+    box-shadow:0 30px 80px rgba(10,31,82,.4);animation:pop .24s cubic-bezier(.2,.8,.2,1)}
+  @keyframes pop{from{transform:scale(.94) translateY(10px);opacity:.6}}
+  .modal h3{font-size:21px;font-weight:900;margin:0 0 8px;letter-spacing:-.01em}
+  .modal p{font-size:14.5px;color:#41506e;margin:0 0 8px}
+  .modal .warn{background:#fff7ed;border:1px solid #f4d9b0;border-left:4px solid #e08a1e;border-radius:11px;
+    padding:12px 14px;font-size:13.5px;color:#7a4f14;font-weight:500;margin:14px 0 20px}
+  .modal .warn b{color:#8a3d00}
+  .mbtns{display:flex;gap:10px}
+  .mbtns button{flex:1;font-family:inherit;font-size:15px;font-weight:800;padding:13px;border-radius:12px;cursor:pointer;transition:.12s}
+  .mcancel{background:#fff;border:2px solid var(--line);color:var(--navy)}
+  .mgo{background:var(--red);border:2px solid var(--red);color:#fff;box-shadow:0 6px 18px rgba(200,16,46,.3)}
+  .mgo[disabled]{opacity:.6;cursor:wait}
+  .mmsg{font-size:13px;font-weight:700;margin-top:12px;text-align:center;min-height:16px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="eyebrow">AdvantageLife</p>
+    <h1>Choose how you earn</h1>
+    <p>Two ways to be paid — pick the one that fits how you'll actually work. This sets your plan for this pack and every one after, so choose the way you mean to build.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <!-- MATRIX -->
+    <div class="plan" data-plan="matrix">
+      <span class="ribbon">★ For team builders</span>
+      <p class="pname">3×5 Matrix</p>
+      <p class="phook">Build a team — spillover fills it under you</p>
+      <p class="psub">Earn across 5 levels. See what a full matrix pays:</p>
+
+      <div class="prev">
+        <div class="lab">Full-matrix earnings preview</div>
+        <div class="tierpills" id="pills"></div>
+        <div class="prevbig"><em id="prevAmt">$3,330</em></div>
+        <div class="prevcap" id="prevCap">A full Builder ($50) matrix — 363 positions</div>
+        <div class="lvlbars" id="bars"></div>
+      </div>
+
+      <ul>
+        <li><b>15%</b> on levels 1–4, <b>20%</b> on level 5 — the depth reward</li>
+        <li><b>Spillover</b> from your upline drops into your matrix</li>
+        <li><b>Compression</b> skips inactive uplines — no wasted seats</li>
+        <li>Best if you'd rather <b>build</b> than sell solo</li>
+      </ul>
+      <button class="choose">Choose the Matrix</button>
+    </div>
+
+    <!-- P2P -->
+    <div class="plan" data-plan="p2p">
+      <p class="pname">Peer-to-Peer</p>
+      <p class="phook">Sell direct, keep the lion's share</p>
+      <p class="psub">Paid straight from your buyers — no team needed.</p>
+
+      <div class="p2pvis">
+        <div class="n">100%</div>
+        <div class="c">direct commissions on the sales you keep</div>
+      </div>
+
+      <ul>
+        <li>You keep <b>7 of every 11</b> sales you make outright</li>
+        <li>3 pass up to your sponsor, 1 is the company fee</li>
+        <li><b>100%</b> of every sale from your 12th onward</li>
+        <li class="x">No team leverage — you earn from what <b>you</b> sell</li>
+      </ul>
+      <button class="choose">Choose Peer-to-Peer</button>
+    </div>
+  </div>
+</div>
+
+<div class="bar" id="bar">
+  <div class="wrap">
+    <div class="st" id="st">Select a plan to continue</div>
+    <button class="cta" id="cta" disabled>Continue →</button>
+  </div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="modal">
+    <h3 id="mTitle">Confirm your plan</h3>
+    <p id="mBody">You're choosing your earning plan.</p>
+    <div class="warn"><b>This choice is permanent.</b> It applies to this pack and every future pack. You can later move from Peer-to-Peer to the Matrix, but never back — and never both at once.</div>
+    <div class="mbtns">
+      <button class="mcancel" id="mCancel">Go back</button>
+      <button class="mgo" id="mGo">Confirm &amp; lock</button>
+    </div>
+    <div class="mmsg" id="mMsg"></div>
+  </div>
+</div>
+
+<script>
+  var CFG = { plan: "{{CURRENT_PLAN}}", isSwitch: "{{SWITCH}}" === "1" };
+  var TIERS=[["Launchpad",10],["Starter",20],["Builder",50],["Pro",100],["Advanced",200],
+             ["Premium",400],["Elite",600],["Master",800],["Champion",1000]];
+  var LVL=[0.15,0.15,0.15,0.15,0.20], FULLX=66.6, POS=[3,9,27,81,243];
+  var ti=2; // default Builder $50
+  var names={p2p:"Peer-to-Peer",matrix:"the Matrix"};
+  var sel=null;
+
+  function money(x){return '$'+Math.round(x).toLocaleString();}
+  function renderPills(){
+    document.getElementById('pills').innerHTML=TIERS.map(function(t,i){
+      return '<button class="tp'+(i===ti?' on':'')+'" data-i="'+i+'">$'+t[1]+'</button>';}).join('');
+  }
+  function renderPreview(){
+    var price=TIERS[ti][1], name=TIERS[ti][0];
+    var full=price*FULLX;
+    var el=document.getElementById('prevAmt');
+    // count-up
+    var start=parseInt((el.textContent||'0').replace(/[^0-9]/g,''))||0, t0=performance.now(), dur=420;
+    (function step(now){var p=Math.min(1,(now-t0)/dur);var v=start+(full-start)*(1-Math.pow(1-p,3));
+      el.textContent=money(v);if(p<1)requestAnimationFrame(step);})(t0);
+    document.getElementById('prevCap').textContent='A full '+name+' ($'+price+') matrix — 363 positions';
+    // level bars (per-level total = pos*price*pct), normalised
+    var tot=POS.map(function(p,i){return p*price*LVL[i];});
+    var mx=Math.max.apply(null,tot);
+    document.getElementById('bars').innerHTML=tot.map(function(v,i){
+      var h=Math.max(8,Math.round(v/mx*46));
+      return '<div class="lvlbar" style="height:'+h+'px"><span>L'+(i+1)+'</span></div>';}).join('');
+  }
+  document.getElementById('pills').addEventListener('click',function(e){
+    var b=e.target.closest('.tp');if(!b)return;ti=+b.dataset.i;renderPills();renderPreview();
+  });
+
+  var bar=document.getElementById('bar'), cta=document.getElementById('cta'), st=document.getElementById('st');
+  document.querySelectorAll('.plan').forEach(function(p){
+    p.addEventListener('click',function(e){
+      if(e.target.closest('.tierpills'))return; // don't select when tapping preview
+      document.querySelectorAll('.plan').forEach(function(x){x.classList.remove('sel');});
+      p.classList.add('sel');sel=p.dataset.plan;
+      st.innerHTML='You picked <b>'+names[sel]+'</b>';cta.disabled=false;bar.classList.add('up');
+    });
+  });
+
+  var ov=document.getElementById('ov');
+  cta.addEventListener('click',function(){
+    if(!sel)return;
+    document.getElementById('mTitle').textContent='Confirm: '+names[sel];
+    document.getElementById('mBody').textContent = sel==='matrix'
+      ? "You'll earn across 5 matrix levels, with spillover filling your team beneath you."
+      : "You'll earn direct commissions on the sales you personally make.";
+    document.getElementById('mMsg').textContent='';
+    ov.classList.add('on');
+  });
+  document.getElementById('mCancel').addEventListener('click',function(){ov.classList.remove('on');});
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('on');});
+
+  document.getElementById('mGo').addEventListener('click',function(){
+    var go=this, msg=document.getElementById('mMsg');
+    go.disabled=true;msg.style.color='#6b7794';msg.textContent='Locking your plan…';
+    var url = CFG.isSwitch ? '/api/al/plan/switch' : '/api/al/plan/choose';
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',
+      body:JSON.stringify({plan:sel})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d.ok){msg.style.color='#128a3e';msg.textContent='✓ '+names[sel]+' locked — taking you to the packs…';
+        setTimeout(function(){window.location.href='/packs';},900);}
+      else{go.disabled=false;msg.style.color='#c8102e';msg.textContent=(d&&d.error)||'Could not save — try again.';}
+    }).catch(function(){go.disabled=false;msg.style.color='#c8102e';msg.textContent='Network error — try again.';});
+  });
+
+  renderPills();renderPreview();
+</script>
+</body>
+</html>
+"""
+
+
+@app.get("/choose-plan")
+def choose_plan_page(request: Request, switch: int = 0,
+                     user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """First-purchase plan fork (P2P vs Matrix). switch=1 = P2P->Matrix upgrade."""
+    if not user:
+        return RedirectResponse("/login?next=/choose-plan", status_code=303)
+    plan = (getattr(user, "plan", None) or "none")
+    if switch and plan != "p2p":
+        return RedirectResponse("/packs", status_code=303)
+    if not switch and plan != "none":
+        return RedirectResponse("/packs", status_code=303)
+    out = _AL_CHOOSE_PLAN_PAGE.replace("{{CURRENT_PLAN}}", plan).replace("{{SWITCH}}", "1" if switch else "0")
+    return HTMLResponse(out)
+
+
+@app.get("/api/al/plan")
+def api_al_plan_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    plan = (getattr(user, "plan", None) or "none")
+    return JSONResponse({"plan": plan, "locked": plan != "none", "can_switch": plan == "p2p",
+                         "locked_at": user.plan_locked_at.isoformat() if getattr(user, "plan_locked_at", None) else None,
+                         "switched_at": user.plan_switched_at.isoformat() if getattr(user, "plan_switched_at", None) else None})
+
+
+@app.post("/api/al/plan/choose")
+async def api_al_plan_choose(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+    choice = (body.get("plan") or "").strip().lower()
+    if choice not in ("p2p", "matrix"):
+        return JSONResponse({"error": "Choose either p2p or matrix"}, status_code=400)
+    current = (getattr(user, "plan", None) or "none")
+    if current != "none":
+        return JSONResponse({"error": "Your plan is already set", "plan": current}, status_code=409)
+    user.plan = choice
+    user.plan_locked_at = datetime.utcnow()
+    db.commit()
+    return JSONResponse({"ok": True, "plan": choice})
+
+
+@app.post("/api/al/plan/switch")
+async def api_al_plan_switch(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """One-way P2P -> Matrix. Never the reverse; never both at once."""
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    current = (getattr(user, "plan", None) or "none")
+    if current != "p2p":
+        return JSONResponse({"error": "Only Peer-to-Peer members can switch to the Matrix", "plan": current}, status_code=400)
+    user.plan = "matrix"
+    user.plan_switched_at = datetime.utcnow()
+    db.commit()
+    return JSONResponse({"ok": True, "plan": "matrix"})
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""
