@@ -30,7 +30,7 @@ from .database import AcademyCourse, AcademyLesson, AcademyProgress
 from .database import MomentumIdea, MomentumChallenge, MomentumPlan, MomentumDay
 from .database import TradeTrackerData
 from .database import BannerAd, BannerReport
-from .database import MatrixPosition
+from .database import MatrixPosition, MatrixCommission
 # Coinbase Commerce removed 20 May 2026 — platform uses NOWPayments + WalletConnect/BSC only
 # Stripe re-introduced 23 May 2026 alongside the crypto rail. See app/stripe_service.py
 # for the SDK wrapper. Members can now sign up by card OR by USDT on BSC.
@@ -3322,6 +3322,10 @@ def admin_matrix_health(user: User = Depends(get_current_user), db: Session = De
         out["plan_columns"] = True
     except Exception as e:
         out["ok"] = False; out["plan_columns"] = False; out["plan_error"] = str(e)[:200]
+    try:
+        out["commissions"] = db.query(MatrixCommission).count()
+    except Exception as e:
+        out["ok"] = False; out["commissions_error"] = str(e)[:200]
     return JSONResponse(out)
 
 

@@ -1,0 +1,180 @@
+"""
+AdvantageLife — Matrix plan commission engine (Phase 2).
+
+Given a CONFIRMED matrix-plan pack purchase, this places the buyer (Phase 1) and
+accrues the level commissions up the buyer's 5-level window, writing them to the
+append-only MatrixCommission ledger.
+
+Split (locked): L1 15% · L2 15% · L3 15% · L4 15% · L5 20% — company 20% base.
+
+Qualification (both required, per level):
+  * owns an ACTIVE (non-expired) pack of that matrix's tier, AND
+  * watch-qualified (reuses al_engine.watch_qualified, incl. the 48h grace).
+
+Compression (within the 5-level window):
+  For each level k (1..5) the payee is the level-k upline if qualified; if not,
+  that level's share rolls UP to the nearest qualified upline still inside the
+  window; if none is found, the share falls to the company. A qualified member
+  therefore absorbs the shares of any unqualified members below them in the
+  window — a direct incentive to stay qualified.
+
+SAFEGUARDS (this is money):
+  * Earnings are DERIVED — balances are computed by summing ledger rows; there is
+    no writable matrix-wallet field to tamper with.
+  * A commission can only be created here, from a real purchase record; amounts
+    are computed from the canonical CampaignPack price, never from client input.
+  * Idempotent per purchase — a replayed confirmation writes nothing new.
+  * Every purchase's rows sum to the full pack price (5 level rows + 1 company
+    base row), so the ledger reconciles exactly against money received.
+
+Phase 2 is the engine only. Wiring it to a verified CoinPayments payment-in
+(so the ONLY trigger is real money arriving) is Phase 5.
+"""
+from decimal import Decimal, ROUND_HALF_UP
+
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.database import User, PackPurchase, CampaignPack, MatrixCommission
+import app.al_matrix as al_matrix
+
+# L1..L5 shares of the pack price. Company keeps the remaining 20% (base) plus
+# anything that falls through compression.
+MATRIX_LEVEL_PCT = [Decimal("0.15"), Decimal("0.15"), Decimal("0.15"),
+                    Decimal("0.15"), Decimal("0.20")]
+COMPANY_BASE_PCT = Decimal("0.20")
+EARN_DEPTH = 5
+
+_CENT = Decimal("0.000001")   # Money is Numeric(18,6)
+
+
+def _q(x) -> Decimal:
+    return Decimal(str(x)).quantize(_CENT, rounding=ROUND_HALF_UP)
+
+
+def _tier_price(db: Session, tier: int) -> Decimal:
+    """Canonical price for a tier, read from campaign_packs (single source of
+    truth — cannot drift, and never taken from client input)."""
+    pack = (db.query(CampaignPack)
+              .filter(CampaignPack.level == tier)
+              .order_by(CampaignPack.id.asc())
+              .first())
+    if not pack:
+        raise ValueError(f"_tier_price: no campaign pack at tier {tier}")
+    return _q(pack.price)
+
+
+def default_is_qualified(db: Session, user_id: int, tier: int) -> bool:
+    """Real qualification gate: owns an active pack at this tier AND is
+    watch-qualified. (Callers may inject their own predicate for testing.)"""
+    owns = (db.query(PackPurchase)
+              .filter(PackPurchase.user_id == user_id,
+                      PackPurchase.pack_level == tier,
+                      PackPurchase.status == "active")
+              .first() is not None)
+    if not owns:
+        return False
+    try:
+        import app.al_engine as eng
+        return bool(eng.watch_qualified(db, user_id))
+    except Exception:
+        return False
+
+
+def _resolve_level_payee(level_user: dict, qualified_ids: set, k: int):
+    """Payee for level k's share. Returns (earner_id_or_None, compressed_from).
+    Rolls up within the window to the nearest qualified upline; None => company."""
+    holder_k = level_user.get(k)
+    for j in range(k, EARN_DEPTH + 1):
+        uid = level_user.get(j)
+        if uid is None:
+            break                    # chain ended inside the window
+        if uid in qualified_ids:
+            return uid, (holder_k if j != k else None)
+    return None, holder_k            # company; record the original holder for audit
+
+
+def commit_matrix_sale(db: Session, purchase: PackPurchase,
+                       is_qualified=None, commit: bool = True):
+    """Place the buyer and accrue matrix commissions for a confirmed purchase.
+
+    `is_qualified` is an optional predicate fn(user_id) -> bool (used in tests);
+    it defaults to the real owns-tier + watch-qualified gate. Idempotent: if
+    commissions already exist for this purchase, they are returned unchanged.
+    """
+    existing = (db.query(MatrixCommission)
+                  .filter(MatrixCommission.purchase_id == purchase.id)
+                  .all())
+    if existing:
+        return existing
+
+    tier = purchase.pack_level
+    price = _tier_price(db, tier)
+    if is_qualified is None:
+        def is_qualified(uid, _t=tier):
+            return default_is_qualified(db, uid, _t)
+
+    # place the buyer (idempotent) and read the 5-level upline window
+    pos = al_matrix.place(db, purchase.user_id, tier, commit=False)
+    chain = al_matrix.upline_chain(db, pos, depth=EARN_DEPTH)   # [(1, parent_pos), ...]
+    level_user = {lvl: p.user_id for lvl, p in chain}
+    qualified_ids = {uid for uid in level_user.values() if is_qualified(uid)}
+
+    rows = []
+    company_from_levels = Decimal("0")
+    for k in range(1, EARN_DEPTH + 1):
+        share = _q(price * MATRIX_LEVEL_PCT[k - 1])
+        payee, comp_from = _resolve_level_payee(level_user, qualified_ids, k)
+        if payee is None:
+            company_from_levels += share
+        rows.append(MatrixCommission(
+            purchase_id=purchase.id, tier=tier, buyer_id=purchase.user_id,
+            earner_id=payee, level=k, amount=share,
+            is_company=(payee is None), compressed_from=comp_from,
+            status="accrued", tx_ref=getattr(purchase, "tx_ref", None)))
+
+    # company base 20% (kept regardless) — recorded so the ledger reconciles to price
+    rows.append(MatrixCommission(
+        purchase_id=purchase.id, tier=tier, buyer_id=purchase.user_id,
+        earner_id=None, level=0, amount=_q(price * COMPANY_BASE_PCT),
+        is_company=True, compressed_from=None, status="accrued",
+        tx_ref=getattr(purchase, "tx_ref", None)))
+
+    db.add_all(rows)
+    if commit:
+        db.commit()
+    else:
+        db.flush()
+    return rows
+
+
+# ── derived reads (never a stored balance) ─────────────────────────────────
+def matrix_earned(db: Session, user_id: int,
+                  statuses=("accrued", "payable", "paid")) -> Decimal:
+    """A member's matrix earnings, computed live from the ledger."""
+    v = (db.query(func.coalesce(func.sum(MatrixCommission.amount), 0))
+           .filter(MatrixCommission.earner_id == user_id,
+                   MatrixCommission.status.in_(statuses))
+           .scalar())
+    return _q(v or 0)
+
+
+def company_take(db: Session, tier: int = None) -> Decimal:
+    """Total company share (base + fall-through), optionally for one tier."""
+    q = (db.query(func.coalesce(func.sum(MatrixCommission.amount), 0))
+           .filter(MatrixCommission.earner_id.is_(None)))
+    if tier is not None:
+        q = q.filter(MatrixCommission.tier == tier)
+    return _q(q.scalar() or 0)
+
+
+def purchase_reconciles(db: Session, purchase_id: int) -> bool:
+    """Reconciliation safeguard: a purchase's commission rows must sum to the
+    full pack price. Any drift means fabricated or missing rows."""
+    rows = (db.query(MatrixCommission)
+              .filter(MatrixCommission.purchase_id == purchase_id).all())
+    if not rows:
+        return True
+    tier = rows[0].tier
+    total = sum((Decimal(str(r.amount)) for r in rows), Decimal("0"))
+    return _q(total) == _tier_price(db, tier)

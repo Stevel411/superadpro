@@ -820,6 +820,33 @@ class MatrixPosition(Base):
     __table_args__ = (UniqueConstraint("tier", "user_id", name="uq_matrix_tier_user"),)
 
 
+class MatrixCommission(Base):
+    """Matrix-plan earnings ledger — APPEND-ONLY, the source of truth for matrix
+    earnings. One row per level-share of a confirmed matrix-plan pack purchase.
+
+    A member's balance is COMPUTED by summing these rows — it is never written to
+    a mutable wallet field. A row exists only because a real, confirmed purchase
+    created it (purchase_id + tx_ref), so there is no code path that can mint
+    earnings without a backing payment. earner_id NULL / is_company True = the
+    company's share (the 20% base plus any level that fell through compression).
+    Every purchase's rows sum to the full pack price, so the books reconcile
+    exactly against money received.
+    """
+    __tablename__ = "matrix_commissions"
+    id              = Column(Integer, primary_key=True, index=True)
+    purchase_id     = Column(Integer, ForeignKey("pack_purchases.id"), index=True)  # the confirmed sale
+    tier            = Column(Integer, index=True)
+    buyer_id        = Column(Integer, ForeignKey("users.id"), index=True)
+    earner_id       = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # NULL = company
+    level           = Column(Integer)               # 1..5 level-share; 0 = company base 20%
+    amount          = Column(Money)
+    is_company      = Column(Boolean, default=False)
+    compressed_from = Column(Integer, nullable=True)  # user_id of the unqualified holder this rolled up from (audit)
+    status          = Column(String, default="accrued", index=True)  # accrued -> payable -> paid
+    tx_ref          = Column(String, nullable=True, index=True)       # the confirmed payment reference
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
 class PayoutMethod(Base):
     """A member's P2P payout details (how buyers pay them). Multiple allowed."""
     __tablename__ = "payout_methods"
@@ -2783,6 +2810,9 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan VARCHAR DEFAULT 'none'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_locked_at TIMESTAMP",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_switched_at TIMESTAMP",
+        "CREATE TABLE IF NOT EXISTS matrix_commissions (id SERIAL PRIMARY KEY, purchase_id INTEGER REFERENCES pack_purchases(id), tier INTEGER, buyer_id INTEGER REFERENCES users(id), earner_id INTEGER REFERENCES users(id), level INTEGER, amount NUMERIC(18,6), is_company BOOLEAN DEFAULT FALSE, compressed_from INTEGER, status VARCHAR DEFAULT 'accrued', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS ix_matrix_comm_purchase ON matrix_commissions (purchase_id)",
+        "CREATE INDEX IF NOT EXISTS ix_matrix_comm_earner ON matrix_commissions (earner_id, status)",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",
