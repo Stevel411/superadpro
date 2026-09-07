@@ -68,7 +68,11 @@ def _tier_price(db: Session, tier: int) -> Decimal:
 
 def default_is_qualified(db: Session, user_id: int, tier: int) -> bool:
     """Real qualification gate: owns an active pack at this tier AND is
-    watch-qualified. (Callers may inject their own predicate for testing.)"""
+    watch-qualified. The master/company account (admin) is qualified for life in
+    every matrix. (Callers may inject their own predicate for testing.)"""
+    _u = db.query(User).filter(User.id == user_id).first()
+    if _u is not None and getattr(_u, "is_admin", False):
+        return True
     owns = (db.query(PackPurchase)
               .filter(PackPurchase.user_id == user_id,
                       PackPurchase.pack_level == tier,

@@ -4270,6 +4270,19 @@ def admin_pack_set_active(level: int, active: bool = False,
     return JSONResponse({"ok": True, "level": level, "active": active, "affected": len(rows)})
 
 
+@app.get("/admin/api/al/matrix/seed-master")
+def admin_seed_master(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: place the master account at the root of every tier's matrix, so
+    the owner sits atop all matrices and everyone spills beneath. Idempotent."""
+    _require_admin(user)
+    import app.al_matrix as _mx, app.al_matrix_engine as _me
+    placed = []
+    for lvl in _me.pack_levels(db):
+        pos = _mx.place(db, user.id, lvl)
+        placed.append({"tier": lvl, "position_id": pos.id, "depth": pos.depth})
+    return JSONResponse({"ok": True, "user_id": user.id, "placed": placed})
+
+
 @app.get("/admin/api/al/matrix/test-checkout")
 def admin_matrix_test_checkout(tier: int = 10, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Admin-only: create a REAL CoinPayments invoice for a controlled test payment."""
