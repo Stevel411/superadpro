@@ -3919,35 +3919,52 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
     from . import coinpayments_service as cps
     from .database import CoinPaymentsOrder
     import app.al_matrix_engine as _me
+    from .database import MatrixWebhookLog
     body = await request.body()
     client_hdr = request.headers.get("X-CoinPayments-Client", "")
     ts_hdr = request.headers.get("X-CoinPayments-Timestamp", "")
     sig_hdr = request.headers.get("X-CoinPayments-Signature", "")
+    log = MatrixWebhookLog(hdr_client=(client_hdr or "")[:60], hdr_ts=(ts_hdr or "")[:40],
+                           hdr_sig=(sig_hdr or "")[:16],
+                           raw_body=body.decode("utf-8", "replace")[:4000])
+    def _save(outcome, verified=False, invoice=None, status=None, order_id=None):
+        log.outcome = outcome; log.verified = verified
+        log.extracted_invoice = invoice
+        log.extracted_status = (str(status) if status is not None else None)
+        log.matched_order_id = order_id
+        try:
+            db.add(log); db.commit()
+        except Exception:
+            db.rollback()
+
     if not cps.verify_webhook(body, client_hdr, ts_hdr, sig_hdr):
+        _save("bad_signature")
         logger.warning("CoinPayments webhook: invalid signature")
         return JSONResponse({"error": "invalid signature"}, status_code=403)
     data = cps.parse_webhook(body)
-    logger.info(f"CoinPayments webhook body: {body[:800]!r}")  # confirm v2 shape on first live hooks
     internal, status = cps.extract_invoice(data)
     order = db.query(CoinPaymentsOrder).filter(
         CoinPaymentsOrder.internal_order_id == internal).first()
     if not order:
+        _save("order_not_found", verified=True, invoice=internal, status=status)
         return {"status": "ignored", "reason": "order_not_found"}
-    # terminal-state guard: a completed order is never re-processed
     if order.status == "complete":
+        _save("already_complete", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "ignored", "reason": "already_complete"}
     if cps.status_is_failed(status):
-        order.status = "failed"; db.commit()
+        order.status = "failed"
+        _save("failed", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "failed"}
     if not cps.status_is_complete(status):
-        order.status = "pending"; db.commit()
+        order.status = "pending"
+        _save("pending", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "pending"}
-    # COMPLETE — activate + accrue (idempotent)
     try:
         _me.activate_and_commit(db, order, commit=False)
-        db.commit()
+        _save("complete", verified=True, invoice=internal, status=status, order_id=order.id)
     except Exception as e:
         db.rollback()
+        _save("activation_error", verified=True, invoice=internal, status=status, order_id=order.id)
         logger.error(f"CoinPayments activation failed for {internal}: {e}")
         return JSONResponse({"error": "activation_failed"}, status_code=500)
     return {"status": "complete"}
@@ -4223,6 +4240,53 @@ def matrix_page(request: Request, user: User = Depends(get_current_user), db: Se
     payload = _json.dumps(init).replace("<", "\\u003c")
     out = _AL_MATRIX_PAGE.replace("{{MATRIX_INIT}}", payload)
     return HTMLResponse(out)
+
+
+@app.get("/admin/api/al/matrix/test-checkout")
+def admin_matrix_test_checkout(tier: int = 1, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin-only: create a REAL CoinPayments invoice for a controlled test payment."""
+    _require_admin(user)
+    from . import coinpayments_service as cps
+    from .database import CoinPaymentsOrder, CampaignPack
+    if not cps.is_configured():
+        return JSONResponse({"error": "CoinPayments not configured"}, status_code=503)
+    pack = db.query(CampaignPack).filter(CampaignPack.level == tier).order_by(CampaignPack.id.asc()).first()
+    if not pack:
+        return JSONResponse({"error": "unknown tier"}, status_code=400)
+    order = CoinPaymentsOrder(user_id=user.id, pack_level=tier, amount_usd=pack.price,
+                             pay_network="trc20", status="created")
+    db.add(order); db.flush()
+    order.internal_order_id = f"ALM-{user.id}-{order.id}"
+    res = cps.create_invoice(amount_usd=float(pack.price),
+                             item_name=f"{pack.name} campaign pack (TEST)",
+                             custom=order.internal_order_id, buyer_email=(user.email or ""))
+    if not res.get("ok"):
+        order.status = "failed"; db.commit()
+        return JSONResponse({"ok": False, "error": res.get("error"), "raw": res.get("raw")}, status_code=502)
+    order.txn_id = res.get("invoice_id"); order.checkout_url = res.get("checkout_url")
+    order.status = "pending"; db.commit()
+    return JSONResponse({"ok": True, "order_id": order.id, "internal_order_id": order.internal_order_id,
+                         "invoice_id": res.get("invoice_id"), "checkout_url": res.get("checkout_url"),
+                         "amount": float(pack.price), "raw": res.get("raw")})
+
+
+@app.get("/admin/api/al/matrix/debug")
+def admin_matrix_debug(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin-only: recent orders + captured webhooks (confirm v2 shapes live)."""
+    _require_admin(user)
+    from .database import CoinPaymentsOrder, MatrixWebhookLog
+    orders = db.query(CoinPaymentsOrder).order_by(CoinPaymentsOrder.id.desc()).limit(10).all()
+    logs = db.query(MatrixWebhookLog).order_by(MatrixWebhookLog.id.desc()).limit(10).all()
+    return JSONResponse({
+        "orders": [{"id": o.id, "internal": o.internal_order_id, "tier": o.pack_level,
+                    "amount": float(o.amount_usd or 0), "status": o.status, "txn_id": o.txn_id,
+                    "purchase_id": o.purchase_id} for o in orders],
+        "webhooks": [{"id": w.id, "at": (w.received_at.isoformat() if w.received_at else None),
+                      "verified": w.verified, "outcome": w.outcome, "invoice": w.extracted_invoice,
+                      "status": w.extracted_status, "order_id": w.matched_order_id,
+                      "hdr_client": w.hdr_client, "hdr_ts": w.hdr_ts,
+                      "raw_body": (w.raw_body or "")[:2500]} for w in logs],
+    })
 
 
 @app.get("/admin/api/al/matrix/health")

@@ -871,6 +871,25 @@ class CoinPaymentsOrder(Base):
     completed_at      = Column(DateTime, nullable=True)
 
 
+class MatrixWebhookLog(Base):
+    """Debug capture of CoinPayments webhooks — lets admin see exactly what was
+    sent (headers, body, verification result, what we extracted) so the v2 field
+    shapes can be confirmed on the first live payment without server-log access.
+    """
+    __tablename__ = "matrix_webhook_log"
+    id                = Column(Integer, primary_key=True, autoincrement=True)
+    received_at       = Column(DateTime, default=datetime.utcnow)
+    verified          = Column(Boolean, default=False)
+    hdr_client        = Column(String, nullable=True)
+    hdr_ts            = Column(String, nullable=True)
+    hdr_sig           = Column(String, nullable=True)   # prefix only
+    extracted_invoice = Column(String, nullable=True)
+    extracted_status  = Column(String, nullable=True)
+    matched_order_id  = Column(Integer, nullable=True)
+    outcome           = Column(String, nullable=True)
+    raw_body          = Column(Text, nullable=True)
+
+
 class PayoutMethod(Base):
     """A member's P2P payout details (how buyers pay them). Multiple allowed."""
     __tablename__ = "payout_methods"
@@ -2840,6 +2859,7 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS coinpayments_orders (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_level INTEGER NOT NULL, internal_order_id VARCHAR(100), txn_id VARCHAR(100), amount_usd NUMERIC(18,6) NOT NULL, pay_network VARCHAR(20), checkout_url TEXT, status VARCHAR(20) DEFAULT 'created', purchase_id INTEGER REFERENCES pack_purchases(id), created_at TIMESTAMP DEFAULT NOW(), completed_at TIMESTAMP)",
         "CREATE INDEX IF NOT EXISTS ix_cp_orders_internal ON coinpayments_orders (internal_order_id)",
         "CREATE INDEX IF NOT EXISTS ix_cp_orders_txn ON coinpayments_orders (txn_id)",
+        "CREATE TABLE IF NOT EXISTS matrix_webhook_log (id SERIAL PRIMARY KEY, received_at TIMESTAMP DEFAULT NOW(), verified BOOLEAN DEFAULT FALSE, hdr_client VARCHAR, hdr_ts VARCHAR, hdr_sig VARCHAR, extracted_invoice VARCHAR, extracted_status VARCHAR, matched_order_id INTEGER, outcome VARCHAR, raw_body TEXT)",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",
