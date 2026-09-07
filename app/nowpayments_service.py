@@ -346,3 +346,39 @@ def get_payment_status(payment_id: int) -> dict:
     except Exception as e:
         logger.error(f"NOWPayments payment status check failed: {e}")
         return {"error": str(e)}
+
+
+# ── Matrix plan invoice (AdvantageLife) ────────────────────────────────────
+_AL_BASE = "https://www.advantagelife.club"
+
+
+def create_matrix_invoice(user_id: int, pack_level: int, price, order_row_id: int,
+                          item_name: str) -> dict:
+    """Create a NOWPayments invoice for a matrix-plan pack purchase.
+    order_id = ALM-{user}-{order_row_id} so the IPN routes to the matrix engine.
+    No pay_currency lock — the buyer picks their chain on the NOWPayments checkout
+    (enable USDT on ETH/BSC/TRON in the NOWPayments account)."""
+    if not NOWPAYMENTS_API_KEY:
+        return {"success": False, "error": "NOWPayments API key not configured"}
+    internal_order_id = f"ALM-{user_id}-{order_row_id}"
+    payload = {
+        "price_amount": float(price),
+        "price_currency": "usd",
+        "order_id": internal_order_id,
+        "order_description": item_name,
+        "ipn_callback_url": f"{_AL_BASE}/api/webhook/nowpayments",
+        "success_url": f"{_AL_BASE}/matrix?paid=1",
+        "cancel_url": f"{_AL_BASE}/packs",
+        "is_fee_paid_by_user": False,
+    }
+    try:
+        resp = httpx.post(f"{NOWPAYMENTS_API_BASE}/invoice", json=payload,
+                          headers=_api_headers(), timeout=15)
+        data = resp.json()
+        if resp.status_code in (200, 201) and data.get("invoice_url"):
+            return {"success": True, "invoice_url": data["invoice_url"],
+                    "internal_order_id": internal_order_id, "np_id": data.get("id"), "raw": data}
+        return {"success": False, "error": data.get("message") or data.get("statusCode") or str(data), "raw": data}
+    except Exception as e:
+        logger.error(f"NOWPayments matrix invoice error: {e}")
+        return {"success": False, "error": str(e)}

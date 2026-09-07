@@ -3986,13 +3986,13 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
                           db: Session = Depends(get_db)):
     """Start a matrix-plan pack purchase: buyer pays the company in USDT via
     CoinPayments. Returns a checkout URL. (Enforced later in the buy UI wiring.)"""
-    from . import coinpayments_service as cps
+    from . import nowpayments_service as nps
     from .database import CoinPaymentsOrder, CampaignPack
     if not user:
         return JSONResponse({"error": "Authentication required"}, status_code=401)
     if (getattr(user, "plan", None) or "none") != "matrix":
         return JSONResponse({"error": "Not on the Matrix plan"}, status_code=400)
-    if not cps.is_configured():
+    if not nps.is_configured():
         return JSONResponse({"error": "Crypto payments are not enabled yet"}, status_code=503)
     try:
         body = await request.json()
@@ -4291,28 +4291,27 @@ def admin_seed_master(user: User = Depends(get_current_user), db: Session = Depe
 def admin_matrix_test_checkout(tier: int = 10, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Admin-only: create a REAL CoinPayments invoice for a controlled test payment."""
     _require_admin(user)
-    from . import coinpayments_service as cps
+    from . import nowpayments_service as nps
     from .database import CoinPaymentsOrder, CampaignPack
-    if not cps.is_configured():
-        return JSONResponse({"error": "CoinPayments not configured"}, status_code=503)
+    if not nps.is_configured():
+        return JSONResponse({"error": "NOWPayments not configured"}, status_code=503)
     pack = db.query(CampaignPack).filter(CampaignPack.level == tier).order_by(CampaignPack.id.asc()).first()
     if not pack:
         return JSONResponse({"error": "unknown tier"}, status_code=400)
     order = CoinPaymentsOrder(user_id=user.id, pack_level=tier, amount_usd=pack.price,
-                             pay_network="trc20", status="created")
+                             pay_network="any", status="created")
     db.add(order); db.flush()
     order.internal_order_id = f"ALM-{user.id}-{order.id}"
-    res = cps.create_invoice(amount_usd=float(pack.price),
-                             item_name=f"{pack.name} campaign pack (TEST)",
-                             custom=order.internal_order_id, buyer_email=(user.email or ""))
-    if not res.get("ok"):
+    res = nps.create_matrix_invoice(user_id=user.id, pack_level=tier, price=float(pack.price),
+                                    order_row_id=order.id, item_name=f"{pack.name} campaign pack (TEST)")
+    if not res.get("success"):
         order.status = "failed"; db.commit()
         return JSONResponse({"ok": False, "error": res.get("error"), "raw": res.get("raw")}, status_code=502)
-    order.txn_id = res.get("invoice_id"); order.checkout_url = res.get("checkout_url")
+    order.txn_id = str(res.get("np_id")); order.checkout_url = res.get("invoice_url")
     order.status = "pending"; db.commit()
     return JSONResponse({"ok": True, "order_id": order.id, "internal_order_id": order.internal_order_id,
-                         "invoice_id": res.get("invoice_id"), "checkout_url": res.get("checkout_url"),
-                         "amount": float(pack.price), "raw": res.get("raw")})
+                         "np_id": res.get("np_id"), "checkout_url": res.get("invoice_url"),
+                         "amount": float(pack.price)})
 
 
 @app.get("/admin/api/al/matrix/debug")
@@ -26301,6 +26300,43 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
     np_payment_id = data.get("payment_id")
 
     logger.info(f"NOWPayments IPN: status={payment_status} order={order_id_str} payment_id={np_payment_id}")
+
+    # ── Matrix-plan orders (ALM-*): activate via the matrix engine ──
+    if order_id_str.startswith("ALM-"):
+        from .database import CoinPaymentsOrder, MatrixWebhookLog
+        import app.al_matrix_engine as _me
+        mo = db.query(CoinPaymentsOrder).filter(CoinPaymentsOrder.internal_order_id == order_id_str).first()
+        mlog = MatrixWebhookLog(hdr_client="nowpayments", hdr_ts=str(payment_status), verified=True,
+                                extracted_invoice=order_id_str, extracted_status=str(payment_status),
+                                raw_body=body_bytes.decode("utf-8", "replace")[:4000])
+        def _msave(outcome, oid=None):
+            mlog.outcome = outcome; mlog.matched_order_id = oid
+            try:
+                db.add(mlog); db.commit()
+            except Exception:
+                db.rollback()
+        if not mo:
+            _msave("order_not_found")
+            return {"status": "ignored", "reason": "matrix_order_not_found"}
+        if mo.status == "complete":
+            _msave("already_complete", mo.id)
+            return {"status": "ignored", "reason": "already_complete"}
+        if not mo.txn_id and np_payment_id:
+            mo.txn_id = str(np_payment_id)
+        if payment_status in ("finished", "confirmed"):
+            try:
+                _me.activate_and_commit(db, mo, commit=False)
+                _msave("complete", mo.id)
+            except Exception as e:
+                db.rollback(); _msave("activation_error", mo.id)
+                logger.error(f"Matrix activation failed for {order_id_str}: {e}")
+                return JSONResponse({"error": "activation_failed"}, status_code=500)
+            return {"status": "complete"}
+        if payment_status in ("failed", "refunded", "expired"):
+            mo.status = "failed"; _msave("failed", mo.id)
+            return {"status": "failed"}
+        mo.status = "pending"; _msave("pending", mo.id)
+        return {"status": "pending"}
 
     if not order_id_str or not order_id_str.startswith("SAP-"):
         logger.warning(f"NOWPayments IPN: unrecognized order_id format: {order_id_str}")
