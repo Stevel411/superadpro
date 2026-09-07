@@ -4362,6 +4362,13 @@ def admin_matrix_health(user: User = Depends(get_current_user), db: Session = De
     except Exception as e:
         out["ok"] = False; out["commissions_error"] = str(e)[:200]
     try:
+        from . import nowpayments_service as _nps
+        out["nowpayments"] = {"configured": _nps.is_configured(),
+                              "api_key_set": bool(_nps.NOWPAYMENTS_API_KEY),
+                              "ipn_secret_set": bool(_nps.NOWPAYMENTS_IPN_SECRET)}
+    except Exception as e:
+        out["nowpayments_error"] = str(e)[:200]
+    try:
         from . import coinpayments_service as _cps
         out["coinpayments"] = {
             "configured": _cps.is_configured(),
