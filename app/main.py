@@ -58463,9 +58463,9 @@ def public_share_page(token: str, db: Session = Depends(get_db)):
         sharer = db.query(User.username).filter(User.id == link.user_id).scalar()
 
     base = os.environ.get("PUBLIC_BASE_URL", "https://www.advantagelife.club").rstrip("/")
-    title = (f"{sharer}'s video showcase" if sharer else "This week's video showcase")
-    desc = ("Videos from independent creators and businesses — watch whatever "
-            "interests you. Updated continuously.")
+    title = "See what everyone's talking about"
+    desc = ("Your Advantage. Your Life. Real tools, real people, one platform "
+            "— take a look inside.")
     img = f"{base}/static/og-showcase.jpg"
     url = f"{base}/w/{token}"
 
@@ -58484,7 +58484,7 @@ def public_share_page(token: str, db: Session = Depends(get_db)):
         f'<meta property="og:image:type" content="image/jpeg">'
         f'<meta property="og:image:width" content="1200">'
         f'<meta property="og:image:height" content="630">'
-        f'<meta property="og:image:alt" content="AdvantageLife Video Views — 100% Commissions">'
+        f'<meta property="og:image:alt" content="AdvantageLife — See what everyone’s talking about">'
         f'<meta name="twitter:card" content="summary_large_image">'
         f'<meta name="twitter:title" content="{esc(title)}">'
         f'<meta name="twitter:description" content="{esc(desc)}">'
