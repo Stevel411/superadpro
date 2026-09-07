@@ -297,7 +297,7 @@ def matrix_view_tree(db, user, tier, depth=EARN_DEPTH):
                 out.append({"open": True})
         return out
 
-    pos = get_position(db, user.id, tier)
+    pos = al_matrix.get_position(db, user.id, tier)
     kids = build_kids(pos, 0) if pos else [{"open": True}, {"open": True}, {"open": True}]
     return {"you": True, "kids": kids}
 
