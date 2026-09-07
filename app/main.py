@@ -4104,6 +4104,10 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .ninfo .badge{display:inline-block;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;margin-top:8px}
   .ninfo .badge.d{background:#e7edf9;color:var(--navy2)}.ninfo .badge.s{background:#e5f6ec;color:var(--green)}.ninfo .badge.o{background:#eef2f9;color:var(--muted)}
   .n.open .nn{display:none}.nl{font-size:9px;font-weight:700;color:var(--muted)}
+  .abadge{margin-top:7px;font-size:10px;font-weight:800;color:#0e7a44;background:#e5f6ec;border:1px solid #b8e6c8;border-radius:20px;padding:3px 11px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+  .abadge .adot{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:apulse 2s infinite}
+  @keyframes apulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}70%{box-shadow:0 0 0 6px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+  .ibadge{margin-top:7px;font-size:10px;font-weight:700;color:var(--muted);background:#eef2f9;border:1px solid var(--line);border-radius:20px;padding:3px 11px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -4131,7 +4135,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   function ini(n){return (n[0]||'?').toUpperCase();}
   function nodeHtml(n){
     if(n.open) return '<div class="n open" data-t="open"><div class="nc"></div></div>';
-    if(n.you) return '<div class="n you" data-t="you"><div class="nc">YOU</div>'+(n.active?'<div class="abadge">\u25cf Active</div>':'<div class="ibadge">Not yet active</div>')+'</div>';
+    if(n.you) return '<div class="n you" data-t="you"><div class="nc">YOU</div>'+(n.active?'<div class="abadge"><span class="adot"></span>Active</div>':'<div class="ibadge">Not yet active</div>')+'</div>';
     var cls='n '+(n.kind==='s'?'spill':'');
     return '<div class="'+cls+'" data-t="node" data-nm="'+encodeURIComponent(n.name)+'" data-k="'+(n.kind||'')+'" data-d="'+n.depth+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
   }
