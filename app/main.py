@@ -4274,9 +4274,15 @@ def admin_matrix_debug(user: User = Depends(get_current_user), db: Session = Dep
     """Admin-only: recent orders + captured webhooks (confirm v2 shapes live)."""
     _require_admin(user)
     from .database import CoinPaymentsOrder, MatrixWebhookLog
+    from .database import CampaignPack
     orders = db.query(CoinPaymentsOrder).order_by(CoinPaymentsOrder.id.desc()).limit(10).all()
     logs = db.query(MatrixWebhookLog).order_by(MatrixWebhookLog.id.desc()).limit(10).all()
+    packs = db.query(CampaignPack).order_by(CampaignPack.level.asc(), CampaignPack.id.asc()).all()
     return JSONResponse({
+        "campaign_packs": [{"id": p.id, "name": p.name, "slug": p.slug,
+                            "price": float(p.price or 0), "level": p.level,
+                            "views_target": p.views_target, "is_active": getattr(p, "is_active", None)}
+                           for p in packs],
         "orders": [{"id": o.id, "internal": o.internal_order_id, "tier": o.pack_level,
                     "amount": float(o.amount_usd or 0), "status": o.status, "txn_id": o.txn_id,
                     "purchase_id": o.purchase_id} for o in orders],
