@@ -4061,13 +4061,20 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .tree ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
   .tree>ul{padding-top:0}
   .tree>ul::before{display:none}
-  .n{display:flex;flex-direction:column;align-items:center;min-width:52px}
+  .n{display:flex;flex-direction:column;align-items:center;min-width:52px;cursor:pointer}
   .nc{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;
     font-size:14px;color:#fff;background:linear-gradient(135deg,#2f5bd0,#12388f);box-shadow:0 3px 8px rgba(18,56,143,.25)}
   .n.you .nc{width:56px;height:56px;border-radius:15px;background:linear-gradient(135deg,#c8102e,#8f0a20);box-shadow:0 6px 16px rgba(200,16,46,.3)}
   .n.spill .nc{background:linear-gradient(135deg,#10914a,#0b7a3f)}
   .n.open .nc{width:22px;height:22px;background:#fff;border:2px dashed var(--open)}
   .nn{font-size:11px;font-weight:800;color:var(--navy);margin-top:5px;white-space:nowrap}
+  .ninfo{position:fixed;z-index:60;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(10,31,82,.24);padding:12px 15px;min-width:170px;max-width:230px;display:none}
+  .ninfo.show{display:block;animation:nipop .14s ease-out}
+  @keyframes nipop{from{opacity:0;transform:translateY(5px)}}
+  .ninfo .nm{font-size:15px;font-weight:900;color:var(--navy)}
+  .ninfo .rw{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:3px;line-height:1.4}
+  .ninfo .badge{display:inline-block;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;margin-top:8px}
+  .ninfo .badge.d{background:#e7edf9;color:var(--navy2)}.ninfo .badge.s{background:#e5f6ec;color:var(--green)}.ninfo .badge.o{background:#eef2f9;color:var(--muted)}
   .n.open .nn{display:none}.nl{font-size:9px;font-weight:700;color:var(--muted)}
 </style>
 </head>
@@ -4095,10 +4102,10 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
 
   function ini(n){return (n[0]||'?').toUpperCase();}
   function nodeHtml(n){
-    if(n.open) return '<div class="n open"><div class="nc"></div></div>';
-    if(n.you) return '<div class="n you"><div class="nc">YOU</div></div>';
+    if(n.open) return '<div class="n open" data-t="open"><div class="nc"></div></div>';
+    if(n.you) return '<div class="n you" data-t="you"><div class="nc">YOU</div></div>';
     var cls='n '+(n.kind==='s'?'spill':'');
-    return '<div class="'+cls+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
+    return '<div class="'+cls+'" data-t="node" data-nm="'+encodeURIComponent(n.name)+'" data-k="'+(n.kind||'')+'" data-d="'+n.depth+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
   }
   function treeHtml(n){
     var h='<li>'+nodeHtml(n);
@@ -4131,26 +4138,49 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
     document.getElementById('stage').innerHTML='<div class="tree"><ul>'+treeHtml(tree)+'</ul></div>';
     setTimeout(fit,30);
   }
-  document.getElementById('zin').onclick=function(){z=Math.min(2,z+0.15);apply();};
-  document.getElementById('zout').onclick=function(){z=Math.max(0.2,z-0.15);apply();};
+  document.getElementById('zin').onclick=function(){z=Math.min(2,z+0.15);apply();hideInfo();};
+  document.getElementById('zout').onclick=function(){z=Math.max(0.2,z-0.15);apply();hideInfo();};
   document.getElementById('zfit').onclick=fit;
 
   document.getElementById('pks').addEventListener('click',function(e){
     var b=e.target.closest('.pk');if(!b||b.classList.contains('locked'))return;
-    sel=+b.dataset.t;renderPacks();
+    sel=+b.dataset.t;hideInfo();renderPacks();
     fetch('/api/al/matrix/tree?tier='+sel,{credentials:'include'}).then(function(r){return r.json();})
       .then(function(d){renderTree(d.tree,d.stats);})
       .catch(function(){});
   });
 
   var vp=document.getElementById('vp'),drag=false,sx=0,sy=0;
-  vp.addEventListener('mousedown',function(e){drag=true;sx=e.clientX-tx;sy=e.clientY-ty;vp.classList.add('grabbing');});
+  vp.addEventListener('mousedown',function(e){drag=true;wasDrag=false;downX=e.clientX;downY=e.clientY;sx=e.clientX-tx;sy=e.clientY-ty;vp.classList.add('grabbing');hideInfo();});
   window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-sx;ty=e.clientY-sy;apply();});
   window.addEventListener('mouseup',function(){drag=false;vp.classList.remove('grabbing');});
   vp.addEventListener('wheel',function(e){e.preventDefault();z=Math.max(0.2,Math.min(2,z+(e.deltaY<0?0.1:-0.1)));apply();},{passive:false});
   vp.addEventListener('touchstart',function(e){if(e.touches.length===1){drag=true;sx=e.touches[0].clientX-tx;sy=e.touches[0].clientY-ty;}});
   vp.addEventListener('touchmove',function(e){if(drag&&e.touches.length===1){tx=e.touches[0].clientX-sx;ty=e.touches[0].clientY-ty;apply();}},{passive:true});
   vp.addEventListener('touchend',function(){drag=false;});
+
+  // ── tap-to-identify card ──
+  var wasDrag=false, downX=0, downY=0;
+  var info=document.createElement('div'); info.className='ninfo'; document.body.appendChild(info);
+  function hideInfo(){info.classList.remove('show');}
+  function showInfo(el){
+    var t=el.getAttribute('data-t'), h='';
+    if(t==='you') h='<div class="nm">YOU</div><div class="rw">Your position — the top of this matrix.</div>';
+    else if(t==='open') h='<div class="nm">Open position</div><div class="rw">Fills from spillover, or when someone you refer activates this package.</div><span class="badge o">Open</span>';
+    else { var nm=decodeURIComponent(el.getAttribute('data-nm')||''), k=el.getAttribute('data-k'), d=el.getAttribute('data-d');
+      h='<div class="nm">@'+nm+'</div><div class="rw">Level '+d+' in your matrix</div><span class="badge '+(k==='s'?'s':'d')+'">'+(k==='s'?'Spillover — placed under you':'Referred by you')+'</span>'; }
+    info.innerHTML=h;
+    var r=el.getBoundingClientRect();
+    info.style.left=Math.min(window.innerWidth-240, Math.max(8, r.left+r.width/2-85))+'px';
+    info.style.top=(r.bottom+8)+'px';
+    info.classList.add('show');
+  }
+  info.addEventListener('click',function(e){e.stopPropagation();});
+  document.getElementById('stage').addEventListener('click',function(e){
+    if(wasDrag){wasDrag=false;return;}
+    var n=e.target.closest('.n'); if(n) showInfo(n); else hideInfo();
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.ninfo') && !e.target.closest('#stage')) hideInfo(); });
 
   document.getElementById('who').textContent = INIT.username ? '@'+INIT.username : '';
   renderPacks(); renderTree(INIT.tree, INIT.stats);
