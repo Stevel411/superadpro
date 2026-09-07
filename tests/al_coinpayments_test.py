@@ -6,12 +6,13 @@ activates the pack and accrues matrix commissions, idempotently.
 
     cd <repo> && python3 tests/al_coinpayments_test.py
 """
-import os, sys, hmac, hashlib
+import os, sys, hmac, hashlib, base64
 from decimal import Decimal
 os.environ["SKIP_MIGRATIONS"] = "true"
 os.environ.setdefault("DATABASE_URL", "postgresql://u:p@localhost/none")
-os.environ["COINPAYMENTS_IPN_SECRET"] = "test_secret_123"
-os.environ["COINPAYMENTS_MERCHANT_ID"] = "MERCH123"
+os.environ["COINPAYMENTS_CLIENT_ID"] = "client-abc"
+os.environ["COINPAYMENTS_CLIENT_SECRET"] = "secret-xyz"
+os.environ["COINPAYMENTS_WEBHOOK_URL"] = "https://www.advantagelife.club/api/webhook/coinpayments"
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import create_engine
@@ -29,18 +30,21 @@ def check(label, cond):
         fails.append(label)
 def D(x): return Decimal(str(x))
 
-print("\n── IPN HMAC trust boundary ──")
-body = b"merchant=MERCH123&status=100&txn_id=abc123&custom=ALM-1-1&amount1=50.00&currency1=USD"
-good = hmac.new(b"test_secret_123", body, hashlib.sha512).hexdigest()
-check("valid signature + merchant accepted", cps.verify_ipn(body, good, "MERCH123") is True)
-check("tampered signature rejected", cps.verify_ipn(body, "deadbeef" + good[8:], "MERCH123") is False)
-check("wrong merchant rejected", cps.verify_ipn(body, good, "SOMEONE_ELSE") is False)
-check("empty signature rejected", cps.verify_ipn(body, "", "MERCH123") is False)
-d = cps.parse_ipn_body(body)
-check("parse extracts custom + status", d.get("custom") == "ALM-1-1" and d.get("status") == "100")
-check("status 100 = complete", cps.status_is_complete("100") and cps.status_is_complete("2"))
-check("status 1/0 not complete", not cps.status_is_complete("1") and not cps.status_is_complete("0"))
-check("status <0 = failed", cps.status_is_failed("-1") and not cps.status_is_failed("100"))
+print("\n── Webhook HMAC trust boundary (v2) ──")
+WURL = "https://www.advantagelife.club/api/webhook/coinpayments"
+wbody = b'{"invoice":{"invoiceId":"ALM-1-1","status":"Completed"}}'
+ts = "2026-09-07T09:00:00"
+def sign(bb, timestamp):
+    msg = "\ufeff" + "POST" + WURL + "client-abc" + timestamp + bb.decode("utf-8")
+    return base64.b64encode(hmac.new(b"secret-xyz", msg.encode("utf-8"), hashlib.sha256).digest()).decode()
+good = sign(wbody, ts)
+check("valid webhook signature accepted", cps.verify_webhook(wbody, "client-abc", ts, good) is True)
+check("tampered signature rejected", cps.verify_webhook(wbody, "client-abc", ts, "AAAA" + good[4:]) is False)
+check("wrong client id rejected", cps.verify_webhook(wbody, "someone-else", ts, good) is False)
+check("empty signature rejected", cps.verify_webhook(wbody, "client-abc", ts, "") is False)
+oid, status = cps.extract_invoice(cps.parse_webhook(wbody))
+check("extract pulls our invoice id + status", oid == "ALM-1-1" and cps.status_is_complete(status))
+check("failed status detected", cps.status_is_failed("Cancelled") and not cps.status_is_failed("Completed"))
 
 print("\n── Verified payment → activate + accrue ──")
 eng = create_engine("sqlite:///:memory:")

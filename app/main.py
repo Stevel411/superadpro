@@ -3920,12 +3920,15 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
     from .database import CoinPaymentsOrder
     import app.al_matrix_engine as _me
     body = await request.body()
-    sig = request.headers.get("HMAC", "")
-    data = cps.parse_ipn_body(body)
-    if not cps.verify_ipn(body, sig, data.get("merchant", "")):
-        logger.warning("CoinPayments IPN: invalid signature")
+    client_hdr = request.headers.get("X-CoinPayments-Client", "")
+    ts_hdr = request.headers.get("X-CoinPayments-Timestamp", "")
+    sig_hdr = request.headers.get("X-CoinPayments-Signature", "")
+    if not cps.verify_webhook(body, client_hdr, ts_hdr, sig_hdr):
+        logger.warning("CoinPayments webhook: invalid signature")
         return JSONResponse({"error": "invalid signature"}, status_code=403)
-    internal = data.get("custom", "")
+    data = cps.parse_webhook(body)
+    logger.info(f"CoinPayments webhook body: {body[:800]!r}")  # confirm v2 shape on first live hooks
+    internal, status = cps.extract_invoice(data)
     order = db.query(CoinPaymentsOrder).filter(
         CoinPaymentsOrder.internal_order_id == internal).first()
     if not order:
@@ -3933,9 +3936,6 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
     # terminal-state guard: a completed order is never re-processed
     if order.status == "complete":
         return {"status": "ignored", "reason": "already_complete"}
-    if not order.txn_id:
-        order.txn_id = data.get("txn_id")
-    status = data.get("status")
     if cps.status_is_failed(status):
         order.status = "failed"; db.commit()
         return {"status": "failed"}
@@ -3985,13 +3985,13 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
     db.add(order); db.flush()
     order.internal_order_id = f"ALM-{user.id}-{order.id}"
     ipn_url = str(request.base_url).rstrip("/") + "/api/webhook/coinpayments"
-    res = cps.create_transaction(amount_usd=float(pack.price), item_name=f"{pack.name} campaign pack",
-                                 custom=order.internal_order_id, buyer_email=(user.email or ""),
-                                 ipn_url=ipn_url, network=network)
+    res = cps.create_invoice(amount_usd=float(pack.price),
+                             item_name=f"{pack.name} campaign pack",
+                             custom=order.internal_order_id, buyer_email=(user.email or ""))
     if not res.get("ok"):
         order.status = "failed"; db.commit()
         return JSONResponse({"error": res.get("error", "checkout failed")}, status_code=502)
-    order.txn_id = res.get("txn_id"); order.checkout_url = res.get("checkout_url")
+    order.txn_id = res.get("invoice_id"); order.checkout_url = res.get("checkout_url")
     order.status = "pending"; db.commit()
     return JSONResponse({"ok": True, "checkout_url": res.get("checkout_url"),
                         "address": res.get("address"), "amount": res.get("amount")})

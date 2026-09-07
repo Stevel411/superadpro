@@ -1,144 +1,154 @@
 """
-AdvantageLife — CoinPayments service (Phase 5).
+AdvantageLife — CoinPayments v2 service (Phase 5).
 
-Matrix-plan buyers pay the COMPANY in USDT via CoinPayments; funds settle into
-the CoinPayments custody balance, from which Steve runs the weekly payout batch.
+Matrix-plan buyers pay the COMPANY in USDT via a CoinPayments v2 invoice; funds
+settle into custody, from which Steve runs the weekly payout batch.
 
-Two halves:
-  * create_transaction() — starts a payment (buyer pays company). Needs the API
-    key pair. Returns a checkout URL + txn_id.
-  * verify_ipn() — verifies the CoinPayments IPN (HMAC-SHA512 of the RAW POST
-    body, hex, in the "HMAC" header, keyed by the IPN secret). This is the trust
-    boundary: only a verified IPN can confirm a payment and create commissions.
+Auth (v2): every request carries three headers and an HMAC-SHA256 signature
+(Base64) computed with the integration CLIENT SECRET over the canonical string:
+    BOM + METHOD + URL + CLIENT_ID + TIMESTAMP(UTC ISO) + RAW_BODY
+Webhooks are signed by CoinPayments with the SAME scheme and headers, so they are
+verified with the client secret (there is no separate webhook secret). This is
+the trust boundary: only a correctly-signed webhook can confirm a payment.
 
-All of this is gated on env — with nothing configured, is_configured() is False
-and the checkout endpoint refuses cleanly rather than half-firing.
-
-Env (set in Railway when going live):
-  COINPAYMENTS_PUBLIC_KEY   — API public key
-  COINPAYMENTS_PRIVATE_KEY  — API private key
-  COINPAYMENTS_IPN_SECRET   — IPN secret (a random string you set in CoinPayments)
-  COINPAYMENTS_MERCHANT_ID  — merchant ID (checked against the IPN 'merchant' field)
+Env (Railway):
+  COINPAYMENTS_CLIENT_ID       — integration Client ID
+  COINPAYMENTS_CLIENT_SECRET   — integration Client Secret
+  (optional) COINPAYMENTS_API_URL       default https://a-api.coinpayments.net
+  (optional) COINPAYMENTS_WEBHOOK_URL   default https://www.advantagelife.club/api/webhook/coinpayments
+  (optional) COINPAYMENTS_USD_CURRENCY_ID  CoinPayments USD currency id
 """
 import os
 import hmac
 import hashlib
+import base64
+import json
 import logging
-import urllib.parse
+from datetime import datetime
 
 import httpx
 
 logger = logging.getLogger("coinpayments")
 
-API_URL = "https://www.coinpayments.net/api.php"
-PUBLIC_KEY  = os.environ.get("COINPAYMENTS_PUBLIC_KEY", "")
-PRIVATE_KEY = os.environ.get("COINPAYMENTS_PRIVATE_KEY", "")
-IPN_SECRET  = os.environ.get("COINPAYMENTS_IPN_SECRET", "")
-MERCHANT_ID = os.environ.get("COINPAYMENTS_MERCHANT_ID", "")
+API_BASE      = os.environ.get("COINPAYMENTS_API_URL", "https://a-api.coinpayments.net").rstrip("/")
+CLIENT_ID     = os.environ.get("COINPAYMENTS_CLIENT_ID", "")
+CLIENT_SECRET = os.environ.get("COINPAYMENTS_CLIENT_SECRET", "")
+WEBHOOK_URL   = os.environ.get("COINPAYMENTS_WEBHOOK_URL",
+                               "https://www.advantagelife.club/api/webhook/coinpayments")
+USD_CURRENCY_ID = os.environ.get("COINPAYMENTS_USD_CURRENCY_ID", "5057")
 
-# USDT on the chains we accept for payment-in. Buyer pays in one of these.
-PAY_CURRENCIES = {"trc20": "USDT.TRC20", "bep20": "USDT.BEP20", "erc20": "USDT.ERC20"}
+_BOM = "\ufeff"
 
 
 def is_configured() -> bool:
-    return bool(PUBLIC_KEY and PRIVATE_KEY and IPN_SECRET and MERCHANT_ID)
+    return bool(CLIENT_ID and CLIENT_SECRET)
 
 
-def ipn_configured() -> bool:
-    """Verification only needs the IPN secret + merchant id."""
-    return bool(IPN_SECRET and MERCHANT_ID)
+def _timestamp() -> str:
+    # UTC ISO-8601 to seconds, e.g. 2026-07-20T17:05:15
+    return datetime.utcnow().isoformat(timespec="seconds")
 
 
-# ── IPN verification (the trust boundary) ──────────────────────────────────
-def verify_ipn(body_bytes: bytes, hmac_header: str, merchant_field: str) -> bool:
-    """Verify a CoinPayments IPN.
+def _sign(method: str, url: str, timestamp: str, body_str: str) -> str:
+    """HMAC-SHA256 (Base64) over BOM + METHOD + URL + CLIENT_ID + TS + BODY."""
+    msg = _BOM + method + url + CLIENT_ID + timestamp + (body_str or "")
+    digest = hmac.new(CLIENT_SECRET.encode("utf-8"), msg.encode("utf-8"), hashlib.sha256).digest()
+    return base64.b64encode(digest).decode("ascii")
 
-    CoinPayments signs the RAW POST body with HMAC-SHA512 (hex) keyed by the IPN
-    secret, and sends it in the 'HMAC' header. We also confirm the 'merchant'
-    field matches our merchant id.
-    """
-    if not IPN_SECRET or not MERCHANT_ID:
-        logger.error("CoinPayments IPN not configured (secret/merchant missing)")
+
+# ── webhook verification (the trust boundary) ──────────────────────────────
+def verify_webhook(body_bytes: bytes, client_hdr: str, timestamp_hdr: str, signature_hdr: str) -> bool:
+    """Verify a CoinPayments v2 webhook using the same signature scheme, keyed by
+    the client secret. URL must match the registered webhook URL exactly."""
+    if not is_configured():
+        logger.error("CoinPayments not configured (client id/secret missing)")
         return False
-    if not hmac_header:
-        logger.warning("CoinPayments IPN: no HMAC header")
+    if not signature_hdr:
+        logger.warning("CoinPayments webhook: no signature header")
         return False
-    if (merchant_field or "") != MERCHANT_ID:
-        logger.warning("CoinPayments IPN: merchant mismatch")
+    if client_hdr and client_hdr != CLIENT_ID:
+        logger.warning("CoinPayments webhook: client id mismatch")
         return False
-    computed = hmac.new(IPN_SECRET.strip().encode("utf-8"),
-                        body_bytes, hashlib.sha512).hexdigest()
-    ok = hmac.compare_digest(computed, hmac_header)
+    body_str = body_bytes.decode("utf-8")
+    computed = _sign("POST", WEBHOOK_URL, timestamp_hdr or "", body_str)
+    ok = hmac.compare_digest(computed, signature_hdr)
     if not ok:
-        logger.warning("CoinPayments IPN: HMAC mismatch "
-                       f"computed_prefix={computed[:8]} received_prefix={(hmac_header or '')[:8]}")
+        logger.warning("CoinPayments webhook: signature mismatch "
+                       f"computed_prefix={computed[:10]} received_prefix={(signature_hdr or '')[:10]}")
     return ok
 
 
-def parse_ipn_body(body_bytes: bytes) -> dict:
-    """CoinPayments IPN bodies are form-urlencoded."""
+def parse_webhook(body_bytes: bytes) -> dict:
     try:
-        parsed = urllib.parse.parse_qs(body_bytes.decode("utf-8"))
-        return {k: v[0] if isinstance(v, list) and v else v for k, v in parsed.items()}
+        return json.loads(body_bytes.decode("utf-8"))
     except Exception as e:
-        logger.error(f"CoinPayments IPN parse failed: {e}")
+        logger.error(f"CoinPayments webhook parse failed: {e}")
         return {}
 
 
-def status_is_complete(status) -> bool:
-    """CoinPayments status: >=100 or ==2 means complete/paid."""
-    try:
-        s = int(status)
-    except (TypeError, ValueError):
-        return False
-    return s >= 100 or s == 2
+def _dig(d, *keys):
+    for k in keys:
+        if isinstance(d, dict) and k in d:
+            d = d[k]
+        else:
+            return None
+    return d
 
 
-def status_is_failed(status) -> bool:
-    try:
-        return int(status) < 0
-    except (TypeError, ValueError):
-        return False
+def extract_invoice(data: dict):
+    """Pull (our_invoice_id, status_str) from a webhook body, trying the likely
+    v2 shapes. our_invoice_id is the 'invoiceId' we set at creation (ALM-...)."""
+    inv = data.get("invoice") if isinstance(data.get("invoice"), dict) else data
+    our_id = (_dig(inv, "invoiceId") or _dig(inv, "invoiceIdString")
+              or _dig(data, "invoiceId") or _dig(inv, "customData", "invoiceId"))
+    status = (_dig(inv, "status") or _dig(data, "status") or _dig(data, "type") or "")
+    return our_id, str(status)
 
 
-# ── checkout creation (buyer pays company) ─────────────────────────────────
-def _signed_post(params: dict) -> dict:
-    """POST to the CoinPayments API with the private-key HMAC over the encoded body."""
-    params = dict(params)
-    params.update({"version": "1", "key": PUBLIC_KEY, "format": "json"})
-    encoded = urllib.parse.urlencode(params)
-    sig = hmac.new(PRIVATE_KEY.encode("utf-8"), encoded.encode("utf-8"),
-                   hashlib.sha512).hexdigest()
-    resp = httpx.post(API_URL, data=encoded,
-                      headers={"HMAC": sig,
-                               "Content-Type": "application/x-www-form-urlencoded"},
-                      timeout=20)
-    return resp.json()
+def status_is_complete(status: str) -> bool:
+    return str(status).lower() in ("completed", "complete", "paid", "invoicecompleted", "invoicepaid")
 
 
-def create_transaction(*, amount_usd, item_name: str, custom: str,
-                       buyer_email: str, ipn_url: str, network: str = "trc20") -> dict:
-    """Create a payment (buyer pays company in USDT). Returns
-    {ok, txn_id, checkout_url, address, amount, error}."""
+def status_is_failed(status: str) -> bool:
+    return str(status).lower() in ("cancelled", "canceled", "timedout", "expired", "failed")
+
+
+# ── invoice creation (buyer pays company) ──────────────────────────────────
+def create_invoice(*, amount_usd, item_name: str, custom: str, buyer_email: str) -> dict:
+    """Create a v2 merchant invoice. Returns {ok, invoice_id, checkout_url, error, raw}.
+    NOTE: the exact v2 invoice body is confirmed on the first live test; the
+    handler logs the raw response so any field tweak is a one-line fix."""
     if not is_configured():
         return {"ok": False, "error": "CoinPayments not configured"}
-    currency2 = PAY_CURRENCIES.get((network or "trc20").lower(), "USDT.TRC20")
+    url = API_BASE + "/api/v2/merchant/invoices"
+    amt = f"{float(amount_usd):.2f}"
+    payload = {
+        "currency": USD_CURRENCY_ID,
+        "invoiceId": custom,
+        "items": [{"name": item_name, "quantity": {"value": "1", "type": "2"},
+                   "amount": amt, "originalAmount": amt}],
+        "amount": {"total": amt, "breakdown": {"subtotal": amt}},
+        "buyer": {"email": buyer_email or ""},
+    }
+    body_str = json.dumps(payload, separators=(",", ":"))
+    ts = _timestamp()
+    headers = {
+        "Content-Type": "application/json",
+        "X-CoinPayments-Client": CLIENT_ID,
+        "X-CoinPayments-Timestamp": ts,
+        "X-CoinPayments-Signature": _sign("POST", url, ts, body_str),
+    }
     try:
-        data = _signed_post({
-            "cmd": "create_transaction",
-            "amount": str(amount_usd),
-            "currency1": "USD",
-            "currency2": currency2,
-            "buyer_email": buyer_email or "",
-            "item_name": item_name,
-            "custom": custom,
-            "ipn_url": ipn_url,
-        })
+        resp = httpx.post(url, content=body_str, headers=headers, timeout=25)
+        data = resp.json()
     except Exception as e:
-        logger.error(f"CoinPayments create_transaction failed: {e}")
+        logger.error(f"CoinPayments create_invoice failed: {e}")
         return {"ok": False, "error": str(e)}
-    if data.get("error") and data.get("error") != "ok":
-        return {"ok": False, "error": data.get("error")}
-    r = data.get("result", {}) or {}
-    return {"ok": True, "txn_id": r.get("txn_id"), "checkout_url": r.get("checkout_url"),
-            "address": r.get("address"), "amount": r.get("amount")}
+    if resp.status_code >= 400:
+        logger.error(f"CoinPayments create_invoice HTTP {resp.status_code}: {data}")
+        return {"ok": False, "error": f"{resp.status_code}: {data}"}
+    inv = data.get("invoice", data) if isinstance(data, dict) else {}
+    checkout = (inv.get("link") or inv.get("invoiceUrl") or inv.get("url")
+                or _dig(data, "checkout", "url"))
+    return {"ok": True, "invoice_id": inv.get("id") or inv.get("invoiceId"),
+            "checkout_url": checkout, "raw": data}
