@@ -249,20 +249,40 @@ def activate_and_commit(db, order, is_qualified=None, commit=True):
 
 
 # ── back-office matrix view data (reads real positions) ────────────────────
-_TIER_NAMES = GRID_TIER_NAMES
-_TIER_PRICE = {k: int(v) for k, v in GRID_PACKAGES.items()}
+def pack_catalog(db):
+    """Live product catalog from campaign_packs (active only), ordered by level.
+    level == price here (Launchpad=10 ... Champion=1000). Reading this keeps the
+    matrix in lock-step with the real products — no hardcoded tier list to drift."""
+    from app.database import CampaignPack
+    rows = (db.query(CampaignPack)
+              .filter(CampaignPack.is_active == True)
+              .order_by(CampaignPack.level.asc()).all())
+    return [{"level": int(r.level), "name": r.name, "price": float(r.price),
+             "views": r.views_target} for r in rows]
+
+
+def pack_levels(db):
+    return [p["level"] for p in pack_catalog(db)]
+
+
+def tier_name(db, level):
+    for p in pack_catalog(db):
+        if p["level"] == level:
+            return p["name"]
+    return "Tier " + str(level)
 
 
 def owned_tiers(db, user):
     """Tiers this member can view a matrix for: any with an active pack; admins see all."""
     from app.database import PackPurchase
+    levels = pack_levels(db)
     if getattr(user, "is_admin", False):
-        return sorted(GRID_TIER_NAMES.keys())
+        return levels
     rows = (db.query(PackPurchase.pack_level)
               .filter(PackPurchase.user_id == user.id, PackPurchase.status == "active")
               .distinct().all())
-    tiers = sorted({int(r[0]) for r in rows})
-    return tiers or []
+    owned = {int(r[0]) for r in rows}
+    return [l for l in levels if l in owned]
 
 
 def matrix_view_tree(db, user, tier, depth=EARN_DEPTH):

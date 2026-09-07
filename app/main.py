@@ -3688,7 +3688,8 @@ def _matrix_wallet_data(db, user):
     by_level = [{"l": k, "amt": round(lvlmap.get(k, 0.0), 2)} for k in range(1, 6)]
     rows = db.query(MatrixCommission).filter(MatrixCommission.earner_id == uid).order_by(
         MatrixCommission.created_at.desc()).limit(24).all()
-    from app.database import GRID_TIER_NAMES as TIER_NAMES
+    import app.al_matrix_engine as _mecat
+    TIER_NAMES = {p["level"]: p["name"] for p in _mecat.pack_catalog(db)}
     bids = {r.buyer_id for r in rows if r.buyer_id}
     buyers = {u.id: u.username for u in db.query(User).filter(User.id.in_(bids)).all()} if bids else {}
     history = []
@@ -4209,8 +4210,8 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
 def _matrix_owned_packages(db, user, sel):
     import app.al_matrix_engine as _me
     owned = set(_me.owned_tiers(db, user))
-    names = _me._TIER_NAMES; prices = _me._TIER_PRICE
-    return [{"tier": t, "name": names[t], "price": prices[t], "owned": (t in owned)} for t in sorted(names.keys())]
+    return [{"tier": p["level"], "name": p["name"], "price": int(p["price"]), "owned": (p["level"] in owned)}
+            for p in _me.pack_catalog(db)]
 
 
 @app.get("/api/al/matrix/tree")
@@ -4218,8 +4219,9 @@ def api_matrix_tree(tier: int = 3, user: User = Depends(get_current_user), db: S
     if not user:
         return JSONResponse({"error": "auth"}, status_code=401)
     import app.al_matrix_engine as _me
-    if tier not in _me._TIER_NAMES:
-        tier = 0
+    _levels = _me.pack_levels(db)
+    if tier not in _levels:
+        tier = (_levels[0] if _levels else 10)
     tree = _me.matrix_view_tree(db, user, tier)
     stats = _me.matrix_view_stats(db, user, tier, tree)
     return JSONResponse({"tier": tier, "tree": tree, "stats": stats})
@@ -4231,7 +4233,8 @@ def matrix_page(request: Request, user: User = Depends(get_current_user), db: Se
         return RedirectResponse("/login?next=/matrix", status_code=303)
     import app.al_matrix_engine as _me, json as _json
     owned = _me.owned_tiers(db, user)
-    sel = owned[0] if owned else 0
+    _levels = _me.pack_levels(db)
+    sel = owned[0] if owned else (_levels[0] if _levels else 10)
     tree = _me.matrix_view_tree(db, user, sel)
     stats = _me.matrix_view_stats(db, user, sel, tree)
     init = {"packages": _matrix_owned_packages(db, user, sel), "sel": sel,
@@ -4241,8 +4244,23 @@ def matrix_page(request: Request, user: User = Depends(get_current_user), db: Se
     return HTMLResponse(out)
 
 
+@app.get("/admin/api/al/packs/set-active")
+def admin_pack_set_active(level: int, active: bool = False,
+                          user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: activate/deactivate a campaign pack by level (used to retire the $5 test pack)."""
+    _require_admin(user)
+    from .database import CampaignPack
+    rows = db.query(CampaignPack).filter(CampaignPack.level == level).all()
+    if not rows:
+        return JSONResponse({"error": "no pack at that level"}, status_code=404)
+    for r in rows:
+        r.is_active = active
+    db.commit()
+    return JSONResponse({"ok": True, "level": level, "active": active, "affected": len(rows)})
+
+
 @app.get("/admin/api/al/matrix/test-checkout")
-def admin_matrix_test_checkout(tier: int = 0, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def admin_matrix_test_checkout(tier: int = 10, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Admin-only: create a REAL CoinPayments invoice for a controlled test payment."""
     _require_admin(user)
     from . import coinpayments_service as cps
