@@ -3997,6 +3997,200 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
                         "address": res.get("address"), "amount": res.get("amount")})
 
 
+_AL_MATRIX_PAGE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Matrix — AdvantageLife</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--bg:#f5f7fc;--card:#fff;--ink:#0a1f52;
+    --muted:#6b7794;--line:#cdd8ec;--green:#10914a;--open:#c3d0ea;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.45;padding:0 0 40px}
+  .wrap{max-width:1400px;margin:0 auto;padding:0 16px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px}
+  .back{font-size:13.5px;font-weight:800;color:var(--navy2);text-decoration:none}
+  .who{font-size:13px;font-weight:700;color:var(--muted)}
+  h1{font-size:clamp(23px,4.6vw,31px);font-weight:900;letter-spacing:-.02em;margin:10px 0 4px}
+  .sub{font-size:14px;color:var(--muted);font-weight:500;margin:0 0 16px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  @media(max-width:720px){.stats{grid-template-columns:1fr 1fr}}
+  .st{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:0 3px 12px rgba(10,31,82,.05)}
+  .st .k{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .st .v{font-size:22px;font-weight:900;letter-spacing:-.02em;margin-top:3px}
+  .st .v small{font-size:13px;font-weight:800;color:var(--muted)}
+  .st.green .v{color:var(--green)}
+
+  .pks{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
+  .pk{flex:none;border:2px solid var(--line);background:#fff;border-radius:11px;padding:8px 13px;cursor:pointer;transition:.12s;text-align:center}
+  .pk:hover{border-color:var(--navy2)}.pk.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .pk .nm{font-size:12.5px;font-weight:800}.pk .pr{font-size:10.5px;font-weight:700;opacity:.7}
+  .pk.locked{opacity:.45;cursor:default}.pk.locked .pr::before{content:'🔒 '}
+
+  .viewport{position:relative;height:600px;background:radial-gradient(circle at 50% 0,#eef3fb,#f5f7fc);
+    border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:grab;box-shadow:0 4px 16px rgba(10,31,82,.05)}
+  .viewport.grabbing{cursor:grabbing}
+  .stage{position:absolute;top:24px;left:50%;transform-origin:50% 0;will-change:transform}
+  .zoom{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
+  .zoom button{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:#fff;color:var(--navy);
+    font-size:19px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(10,31,82,.1);display:flex;align-items:center;justify-content:center}
+  .zoom button:hover{background:#f2f6fd}.zoom .fit{font-size:11px;font-weight:800}
+  .zlabel{position:absolute;left:14px;bottom:14px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-size:12px;font-weight:800;color:var(--muted);z-index:5}
+  .legend{position:absolute;left:14px;top:14px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:11.5px;font-weight:700;color:var(--muted);z-index:5;display:flex;gap:14px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+  .emptyhint{position:absolute;left:0;right:0;bottom:60px;text-align:center;font-size:13px;color:var(--muted);font-weight:600;z-index:4}
+
+  .tree ul{display:flex;justify-content:center;padding-top:22px;position:relative;margin:0}
+  .tree li{list-style:none;position:relative;padding:24px 1px 0;display:flex;flex-direction:column;align-items:center}
+  .tree li::before,.tree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--line);width:50%;height:22px}
+  .tree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+  .tree li:only-child::after,.tree li:only-child::before{display:none}
+  .tree li:only-child{padding-top:0}
+  .tree li:first-child::before,.tree li:last-child::after{border:0 none}
+  .tree li:last-child::before{border-right:2px solid var(--line);border-radius:0 6px 0 0}
+  .tree li:first-child::after{border-radius:6px 0 0 0}
+  .tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
+  .tree>ul{padding-top:0}
+  .n{display:flex;flex-direction:column;align-items:center;width:52px}
+  .nc{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;
+    font-size:14px;color:#fff;background:linear-gradient(135deg,#2f5bd0,#12388f);box-shadow:0 3px 8px rgba(18,56,143,.25)}
+  .n.you .nc{width:56px;height:56px;border-radius:15px;background:linear-gradient(135deg,#c8102e,#8f0a20);box-shadow:0 6px 16px rgba(200,16,46,.3)}
+  .n.spill .nc{background:linear-gradient(135deg,#10914a,#0b7a3f)}
+  .n.open .nc{width:22px;height:22px;background:#fff;border:2px dashed var(--open)}
+  .nn{font-size:11px;font-weight:800;color:var(--navy);margin-top:5px;white-space:nowrap}
+  .n.open .nn{display:none}.nl{font-size:9px;font-weight:700;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="/dashboard">← Dashboard</a><span class="who" id="who"></span></div>
+  <h1>My Matrix</h1>
+  <p class="sub">Your network fills a separate matrix for every package. Drag to move around; zoom out for the whole shape, in to read names. Blue = your referral · green = spillover · dashed = open.</p>
+
+  <div class="stats" id="stats"></div>
+  <div class="pks" id="pks"></div>
+
+  <div class="viewport" id="vp">
+    <div class="legend"><span><i style="background:#12388f"></i>Referral</span><span><i style="background:#10914a"></i>Spillover</span><span><i style="background:#fff;border:2px dashed #c3d0ea"></i>Open</span></div>
+    <div class="stage" id="stage"></div>
+    <div class="emptyhint" id="emptyhint" style="display:none">No one in this matrix yet — as your team activates packs, they'll appear here and spill under you.</div>
+    <div class="zlabel" id="zlabel">100%</div>
+    <div class="zoom"><button id="zin">+</button><button id="zout">−</button><button class="fit" id="zfit">Fit</button></div>
+  </div>
+</div>
+
+<script>
+  var INIT = {{MATRIX_INIT}};
+  var sel = INIT.sel;
+
+  function ini(n){return (n[0]||'?').toUpperCase();}
+  function nodeHtml(n){
+    if(n.open) return '<div class="n open"><div class="nc"></div></div>';
+    if(n.you) return '<div class="n you"><div class="nc">YOU</div><div class="nn">YOU</div></div>';
+    var cls='n '+(n.kind==='s'?'spill':'');
+    return '<div class="'+cls+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
+  }
+  function treeHtml(n){
+    var h='<li>'+nodeHtml(n);
+    if(n.kids&&n.kids.length){h+='<ul>';n.kids.forEach(function(k){h+=treeHtml(k);});h+='</ul>';}
+    h+='</li>';return h;
+  }
+  function money(x){return '$'+(x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+  function renderStats(s){
+    document.getElementById('stats').innerHTML=[
+      ['Positions filled', s.filled+'<small>/363</small>'],
+      ['Your front line', s.front+'<small>/3</small>'],
+      ['Spillover received', String(s.spillover)],
+      ['Earned (all matrices)', money(s.earned), true]
+    ].map(function(x){return '<div class="st'+(x[2]?' green':'')+'"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div>';}).join('');
+  }
+  function renderPacks(){
+    document.getElementById('pks').innerHTML=INIT.packages.map(function(p){
+      return '<div class="pk'+(p.tier===sel?' on':'')+(p.owned?'':' locked')+'" data-t="'+p.tier+'"><div class="nm">'+p.name+'</div><div class="pr">$'+p.price+'</div></div>';
+    }).join('');
+  }
+
+  var z=1,tx=0,ty=0;
+  function apply(){document.getElementById('stage').style.transform='translate(-50%,0) translate('+tx+'px,'+ty+'px) scale('+z+')';document.getElementById('zlabel').textContent=Math.round(z*100)+'%';}
+  function fit(){var st=document.getElementById('stage'),vp=document.getElementById('vp');var sw=st.scrollWidth||st.offsetWidth,sh=st.scrollHeight||st.offsetHeight;z=Math.max(.25,Math.min(1,(vp.clientWidth-60)/sw,(vp.clientHeight-60)/sh));tx=0;ty=0;apply();}
+  function renderTree(tree, stats){
+    renderStats(stats);
+    var filled=stats.filled;
+    document.getElementById('emptyhint').style.display = filled>0 ? 'none':'block';
+    document.getElementById('stage').innerHTML='<div class="tree"><ul>'+treeHtml(tree)+'</ul></div>';
+    setTimeout(fit,30);
+  }
+  document.getElementById('zin').onclick=function(){z=Math.min(2,z+0.15);apply();};
+  document.getElementById('zout').onclick=function(){z=Math.max(0.2,z-0.15);apply();};
+  document.getElementById('zfit').onclick=fit;
+
+  document.getElementById('pks').addEventListener('click',function(e){
+    var b=e.target.closest('.pk');if(!b||b.classList.contains('locked'))return;
+    sel=+b.dataset.t;renderPacks();
+    fetch('/api/al/matrix/tree?tier='+sel,{credentials:'include'}).then(function(r){return r.json();})
+      .then(function(d){renderTree(d.tree,d.stats);})
+      .catch(function(){});
+  });
+
+  var vp=document.getElementById('vp'),drag=false,sx=0,sy=0;
+  vp.addEventListener('mousedown',function(e){drag=true;sx=e.clientX-tx;sy=e.clientY-ty;vp.classList.add('grabbing');});
+  window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-sx;ty=e.clientY-sy;apply();});
+  window.addEventListener('mouseup',function(){drag=false;vp.classList.remove('grabbing');});
+  vp.addEventListener('wheel',function(e){e.preventDefault();z=Math.max(0.2,Math.min(2,z+(e.deltaY<0?0.1:-0.1)));apply();},{passive:false});
+  vp.addEventListener('touchstart',function(e){if(e.touches.length===1){drag=true;sx=e.touches[0].clientX-tx;sy=e.touches[0].clientY-ty;}});
+  vp.addEventListener('touchmove',function(e){if(drag&&e.touches.length===1){tx=e.touches[0].clientX-sx;ty=e.touches[0].clientY-ty;apply();}},{passive:true});
+  vp.addEventListener('touchend',function(){drag=false;});
+
+  document.getElementById('who').textContent = INIT.username ? '@'+INIT.username : '';
+  renderPacks(); renderTree(INIT.tree, INIT.stats);
+</script>
+</body>
+</html>
+"""
+
+
+def _matrix_owned_packages(db, user, sel):
+    import app.al_matrix_engine as _me
+    owned = set(_me.owned_tiers(db, user))
+    names = _me._TIER_NAMES; prices = _me._TIER_PRICE
+    return [{"tier": t, "name": names[t], "price": prices[t], "owned": (t in owned)} for t in range(1, 10)]
+
+
+@app.get("/api/al/matrix/tree")
+def api_matrix_tree(tier: int = 3, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "auth"}, status_code=401)
+    import app.al_matrix_engine as _me
+    if tier < 1 or tier > 9:
+        tier = 3
+    tree = _me.matrix_view_tree(db, user, tier)
+    stats = _me.matrix_view_stats(db, user, tier, tree)
+    return JSONResponse({"tier": tier, "tree": tree, "stats": stats})
+
+
+@app.get("/matrix")
+def matrix_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return RedirectResponse("/login?next=/matrix", status_code=303)
+    import app.al_matrix_engine as _me, json as _json
+    owned = _me.owned_tiers(db, user)
+    sel = owned[0] if owned else 3
+    tree = _me.matrix_view_tree(db, user, sel)
+    stats = _me.matrix_view_stats(db, user, sel, tree)
+    init = {"packages": _matrix_owned_packages(db, user, sel), "sel": sel,
+            "tree": tree, "stats": stats, "username": (user.username or "")}
+    payload = _json.dumps(init).replace("<", "\\u003c")
+    out = _AL_MATRIX_PAGE.replace("{{MATRIX_INIT}}", payload)
+    return HTMLResponse(out)
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""

@@ -245,3 +245,76 @@ def activate_and_commit(db, order, is_qualified=None, commit=True):
     else:
         db.flush()
     return purchase
+
+
+# ── back-office matrix view data (reads real positions) ────────────────────
+_TIER_NAMES = {1:"Launchpad",2:"Starter",3:"Builder",4:"Pro",5:"Advanced",
+               6:"Premium",7:"Elite",8:"Master",9:"Champion"}
+_TIER_PRICE = {1:10,2:20,3:50,4:100,5:200,6:400,7:600,8:800,9:1000}
+
+
+def owned_tiers(db, user):
+    """Tiers this member can view a matrix for: any with an active pack; admins see all."""
+    from app.database import PackPurchase
+    if getattr(user, "is_admin", False):
+        return list(range(1, 10))
+    rows = (db.query(PackPurchase.pack_level)
+              .filter(PackPurchase.user_id == user.id, PackPurchase.status == "active")
+              .distinct().all())
+    tiers = sorted({int(r[0]) for r in rows})
+    return tiers or []
+
+
+def matrix_view_tree(db, user, tier, depth=EARN_DEPTH):
+    """Nested tree of the member's matrix for `tier`, YOU at the root, down `depth`
+    levels. Node: {name,kind,depth,kids} where kind = d(irect referral) | s(pillover);
+    empty slots become {open:True}. Reads live matrix_positions."""
+    from app.database import MatrixPosition, User as _U
+    uname_cache = {}
+    def uname(uid):
+        if uid not in uname_cache:
+            u = db.query(_U).filter(_U.id == uid).first()
+            uname_cache[uid] = (u.username if u and u.username else "member")
+        return uname_cache[uid]
+
+    def children_of(pos_id):
+        return (db.query(MatrixPosition)
+                  .filter(MatrixPosition.tier == tier, MatrixPosition.parent_id == pos_id)
+                  .order_by(MatrixPosition.slot.asc(), MatrixPosition.id.asc()).all())
+
+    def build_kids(pos, d):
+        if d >= depth:
+            return []
+        byslot = {int(c.slot): c for c in children_of(pos.id)}
+        out = []
+        for slot in range(3):
+            c = byslot.get(slot)
+            if c:
+                kind = "d" if c.sponsor_id == user.id else "s"
+                out.append({"name": uname(c.user_id), "kind": kind,
+                            "depth": d + 1, "kids": build_kids(c, d + 1)})
+            else:
+                out.append({"open": True})
+        return out
+
+    pos = get_position(db, user.id, tier)
+    kids = build_kids(pos, 0) if pos else [{"open": True}, {"open": True}, {"open": True}]
+    return {"you": True, "kids": kids}
+
+
+def matrix_view_stats(db, user, tier, tree):
+    """Counts for the stat strip, computed from the tree + ledger."""
+    filled = [0]; front = [0]; spill = [0]
+    def walk(node, lvl):
+        for k in node.get("kids", []):
+            if k.get("open"):
+                continue
+            filled[0] += 1
+            if lvl == 0:
+                front[0] += 1
+            if k.get("kind") == "s":
+                spill[0] += 1
+            walk(k, lvl + 1)
+    walk(tree, 0)
+    return {"filled": filled[0], "front": front[0], "spillover": spill[0],
+            "earned": float(matrix_earned(db, user.id))}
