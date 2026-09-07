@@ -4019,6 +4019,18 @@ def admin_matrix_health(user: User = Depends(get_current_user), db: Session = De
         out["commissions"] = db.query(MatrixCommission).count()
     except Exception as e:
         out["ok"] = False; out["commissions_error"] = str(e)[:200]
+    try:
+        from . import coinpayments_service as _cps
+        out["coinpayments"] = {
+            "configured": _cps.is_configured(),
+            "client_id_set": bool(_cps.CLIENT_ID),
+            "client_id_tail": (_cps.CLIENT_ID[-4:] if _cps.CLIENT_ID else ""),
+            "client_secret_set": bool(_cps.CLIENT_SECRET),
+            "api_base": _cps.API_BASE,
+            "webhook_url": _cps.WEBHOOK_URL,
+        }
+    except Exception as e:
+        out["coinpayments_error"] = str(e)[:200]
     return JSONResponse(out)
 
 
