@@ -96,13 +96,16 @@ def _dig(d, *keys):
 
 
 def extract_invoice(data: dict):
-    """Pull (our_invoice_id, status_str) from a webhook body, trying the likely
-    v2 shapes. our_invoice_id is the 'invoiceId' we set at creation (ALM-...)."""
+    """Pull (our_invoice_id, event_type, invoice_state) from a v2 webhook body.
+    our_invoice_id is the 'invoiceId'/'invoiceNumber' we set at creation (ALM-...).
+    Completion is signalled by either the event type (InvoiceCompleted/Paid) or
+    the invoice state (Completed/Paid), so we return both and check either."""
     inv = data.get("invoice") if isinstance(data.get("invoice"), dict) else data
-    our_id = (_dig(inv, "invoiceId") or _dig(inv, "invoiceIdString")
+    our_id = (_dig(inv, "invoiceId") or _dig(inv, "invoiceNumber")
               or _dig(data, "invoiceId") or _dig(inv, "customData", "invoiceId"))
-    status = (_dig(inv, "status") or _dig(data, "status") or _dig(data, "type") or "")
-    return our_id, str(status)
+    ev_type = str(_dig(data, "type") or "")
+    state = str(_dig(inv, "state") or _dig(inv, "status") or _dig(data, "status") or "")
+    return our_id, ev_type, state
 
 
 def status_is_complete(status: str) -> bool:

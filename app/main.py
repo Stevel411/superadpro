@@ -3942,7 +3942,8 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
         logger.warning("CoinPayments webhook: invalid signature")
         return JSONResponse({"error": "invalid signature"}, status_code=403)
     data = cps.parse_webhook(body)
-    internal, status = cps.extract_invoice(data)
+    internal, ev_type, state = cps.extract_invoice(data)
+    status = (ev_type + '/' + state)
     order = None
     if internal:
         order = db.query(CoinPaymentsOrder).filter(
@@ -3961,11 +3962,11 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
     if order.status == "complete":
         _save("already_complete", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "ignored", "reason": "already_complete"}
-    if cps.status_is_failed(status):
+    if cps.status_is_failed(ev_type) or cps.status_is_failed(state):
         order.status = "failed"
         _save("failed", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "failed"}
-    if not cps.status_is_complete(status):
+    if not (cps.status_is_complete(ev_type) or cps.status_is_complete(state)):
         order.status = "pending"
         _save("pending", verified=True, invoice=internal, status=status, order_id=order.id)
         return {"status": "pending"}
