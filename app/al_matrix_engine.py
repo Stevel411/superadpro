@@ -30,6 +30,7 @@ SAFEGUARDS (this is money):
 Phase 2 is the engine only. Wiring it to a verified CoinPayments payment-in
 (so the ONLY trigger is real money arriving) is Phase 5.
 """
+from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 
 from sqlalchemy import func
@@ -178,3 +179,69 @@ def purchase_reconciles(db: Session, purchase_id: int) -> bool:
     tier = rows[0].tier
     total = sum((Decimal(str(r.amount)) for r in rows), Decimal("0"))
     return _q(total) == _tier_price(db, tier)
+
+
+def activate_and_commit(db, order, is_qualified=None, commit=True):
+    """On a COMPLETED CoinPayments order (the verified payment-in), activate the
+    buyer's pack + ad and accrue matrix commissions. Idempotent — safe to call
+    again on a retried IPN (returns the existing purchase, writes nothing new).
+
+    This is the ONLY path that turns a matrix payment into commissions, and it
+    only runs once an IPN has been HMAC-verified upstream.
+    """
+    from app.database import PackPurchase, CampaignPack, VideoCampaign
+    try:
+        from app.database import DAILY_WATCH_BY_TIER as _DWR
+    except Exception:
+        _DWR = {}
+
+    if order.status == "complete" and order.purchase_id:
+        return db.query(PackPurchase).filter(PackPurchase.id == order.purchase_id).first()
+
+    tier = order.pack_level
+    pack = (db.query(CampaignPack).filter(CampaignPack.level == tier)
+              .order_by(CampaignPack.id.asc()).first())
+    dwr = None
+    try:
+        dwr = _DWR.get(tier)
+    except Exception:
+        dwr = None
+
+    # bring the buyer's pre-built ad live (pack-backed = legitimate to show)
+    camp = (db.query(VideoCampaign)
+              .filter(VideoCampaign.user_id == order.user_id,
+                      VideoCampaign.status == "draft",
+                      VideoCampaign.embed_url != "")
+              .order_by(VideoCampaign.id.asc()).first())
+
+    purchase = PackPurchase(
+        user_id=order.user_id, pack_id=(pack.id if pack else None), pack_level=tier,
+        amount=order.amount_usd, payment_method="coinpayments", status="active",
+        tx_ref=(order.txn_id or order.internal_order_id),
+        activated_at=datetime.utcnow(), created_at=datetime.utcnow(),
+        source="purchase", daily_watch_required=dwr,
+        campaign_id=(camp.id if camp else None))
+    db.add(purchase)
+    db.flush()
+
+    if camp is not None and camp.status in ("draft", "pending"):
+        camp.status = "active"
+        if hasattr(camp, "share_approved"):
+            camp.share_approved = True
+        if getattr(camp, "share_approved_at", None) is None:
+            try:
+                camp.share_approved_at = datetime.utcnow()
+            except Exception:
+                pass
+
+    # accrue matrix commissions off the confirmed purchase (idempotent per purchase)
+    commit_matrix_sale(db, purchase, is_qualified=is_qualified, commit=False)
+
+    order.purchase_id = purchase.id
+    order.status = "complete"
+    order.completed_at = datetime.utcnow()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
+    return purchase

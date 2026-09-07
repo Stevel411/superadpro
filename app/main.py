@@ -3911,6 +3911,92 @@ def earnings_page(request: Request, user: User = Depends(get_current_user), db: 
     return HTMLResponse(out)
 
 
+@app.post("/api/webhook/coinpayments")
+async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
+    """CoinPayments IPN — the verified trigger. HMAC-checked; only a genuine,
+    completed payment activates the pack and accrues matrix commissions. Guards
+    against retried/out-of-order IPNs so commissions are never paid twice."""
+    from . import coinpayments_service as cps
+    from .database import CoinPaymentsOrder
+    import app.al_matrix_engine as _me
+    body = await request.body()
+    sig = request.headers.get("HMAC", "")
+    data = cps.parse_ipn_body(body)
+    if not cps.verify_ipn(body, sig, data.get("merchant", "")):
+        logger.warning("CoinPayments IPN: invalid signature")
+        return JSONResponse({"error": "invalid signature"}, status_code=403)
+    internal = data.get("custom", "")
+    order = db.query(CoinPaymentsOrder).filter(
+        CoinPaymentsOrder.internal_order_id == internal).first()
+    if not order:
+        return {"status": "ignored", "reason": "order_not_found"}
+    # terminal-state guard: a completed order is never re-processed
+    if order.status == "complete":
+        return {"status": "ignored", "reason": "already_complete"}
+    if not order.txn_id:
+        order.txn_id = data.get("txn_id")
+    status = data.get("status")
+    if cps.status_is_failed(status):
+        order.status = "failed"; db.commit()
+        return {"status": "failed"}
+    if not cps.status_is_complete(status):
+        order.status = "pending"; db.commit()
+        return {"status": "pending"}
+    # COMPLETE — activate + accrue (idempotent)
+    try:
+        _me.activate_and_commit(db, order, commit=False)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"CoinPayments activation failed for {internal}: {e}")
+        return JSONResponse({"error": "activation_failed"}, status_code=500)
+    return {"status": "complete"}
+
+
+@app.post("/api/al/matrix/checkout")
+async def matrix_checkout(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Start a matrix-plan pack purchase: buyer pays the company in USDT via
+    CoinPayments. Returns a checkout URL. (Enforced later in the buy UI wiring.)"""
+    from . import coinpayments_service as cps
+    from .database import CoinPaymentsOrder, CampaignPack
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    if (getattr(user, "plan", None) or "none") != "matrix":
+        return JSONResponse({"error": "Not on the Matrix plan"}, status_code=400)
+    if not cps.is_configured():
+        return JSONResponse({"error": "Crypto payments are not enabled yet"}, status_code=503)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    try:
+        tier = int(body.get("tier") or 0)
+    except (TypeError, ValueError):
+        tier = 0
+    network = (body.get("network") or "trc20").lower()
+    if network not in ("trc20", "bep20", "erc20"):
+        network = "trc20"
+    pack = db.query(CampaignPack).filter(CampaignPack.level == tier).first()
+    if not pack:
+        return JSONResponse({"error": "Unknown pack"}, status_code=400)
+    order = CoinPaymentsOrder(user_id=user.id, pack_level=tier, amount_usd=pack.price,
+                             pay_network=network, status="created")
+    db.add(order); db.flush()
+    order.internal_order_id = f"ALM-{user.id}-{order.id}"
+    ipn_url = str(request.base_url).rstrip("/") + "/api/webhook/coinpayments"
+    res = cps.create_transaction(amount_usd=float(pack.price), item_name=f"{pack.name} campaign pack",
+                                 custom=order.internal_order_id, buyer_email=(user.email or ""),
+                                 ipn_url=ipn_url, network=network)
+    if not res.get("ok"):
+        order.status = "failed"; db.commit()
+        return JSONResponse({"error": res.get("error", "checkout failed")}, status_code=502)
+    order.txn_id = res.get("txn_id"); order.checkout_url = res.get("checkout_url")
+    order.status = "pending"; db.commit()
+    return JSONResponse({"ok": True, "checkout_url": res.get("checkout_url"),
+                        "address": res.get("address"), "amount": res.get("amount")})
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""

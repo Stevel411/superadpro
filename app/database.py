@@ -847,6 +847,30 @@ class MatrixCommission(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class CoinPaymentsOrder(Base):
+    """A matrix-plan pack purchase paid to the company via CoinPayments.
+
+    internal_order_id (our 'custom' value, e.g. ALM-{user}-{id}) anchors
+    idempotency: the IPN handler finds the order by it, and a terminal status is
+    never downgraded — so a retried or out-of-order IPN can't activate twice.
+    purchase_id links the PackPurchase created on completion; the matrix
+    commissions are keyed off that purchase (also idempotent).
+    """
+    __tablename__ = "coinpayments_orders"
+    id                = Column(Integer, primary_key=True, autoincrement=True)
+    user_id           = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    pack_level        = Column(Integer, nullable=False)        # tier 1..9
+    internal_order_id = Column(String(100), nullable=True, index=True)  # ALM-{user}-{id}
+    txn_id            = Column(String(100), nullable=True, index=True)  # CoinPayments txn id
+    amount_usd        = Column(Numeric(18, 6), nullable=False)
+    pay_network       = Column(String(20), nullable=True)      # trc20 | bep20 | erc20
+    checkout_url      = Column(Text, nullable=True)
+    status            = Column(String(20), default="created", index=True)  # created|pending|complete|failed
+    purchase_id       = Column(Integer, ForeignKey("pack_purchases.id"), nullable=True)
+    created_at        = Column(DateTime, default=datetime.utcnow)
+    completed_at      = Column(DateTime, nullable=True)
+
+
 class PayoutMethod(Base):
     """A member's P2P payout details (how buyers pay them). Multiple allowed."""
     __tablename__ = "payout_methods"
@@ -2813,6 +2837,9 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS matrix_commissions (id SERIAL PRIMARY KEY, purchase_id INTEGER REFERENCES pack_purchases(id), tier INTEGER, buyer_id INTEGER REFERENCES users(id), earner_id INTEGER REFERENCES users(id), level INTEGER, amount NUMERIC(18,6), is_company BOOLEAN DEFAULT FALSE, compressed_from INTEGER, status VARCHAR DEFAULT 'accrued', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS ix_matrix_comm_purchase ON matrix_commissions (purchase_id)",
         "CREATE INDEX IF NOT EXISTS ix_matrix_comm_earner ON matrix_commissions (earner_id, status)",
+        "CREATE TABLE IF NOT EXISTS coinpayments_orders (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), pack_level INTEGER NOT NULL, internal_order_id VARCHAR(100), txn_id VARCHAR(100), amount_usd NUMERIC(18,6) NOT NULL, pay_network VARCHAR(20), checkout_url TEXT, status VARCHAR(20) DEFAULT 'created', purchase_id INTEGER REFERENCES pack_purchases(id), created_at TIMESTAMP DEFAULT NOW(), completed_at TIMESTAMP)",
+        "CREATE INDEX IF NOT EXISTS ix_cp_orders_internal ON coinpayments_orders (internal_order_id)",
+        "CREATE INDEX IF NOT EXISTS ix_cp_orders_txn ON coinpayments_orders (txn_id)",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_at TIMESTAMP",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS share_approved_by INTEGER",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS pack_purchase_id INTEGER",
