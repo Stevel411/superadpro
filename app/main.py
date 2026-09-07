@@ -51246,7 +51246,7 @@ Return ONLY a JSON array of 2 strings. No markdown, no explanation, just the JSO
 
     elif msg_type == "objection":
         objection_labels = {
-            "scam": "Is this a scam / pyramid scheme?",
+            "scam": "Is this a scam?",
             "money": "I don't have the money right now",
             "time": "I don't have time for this",
             "think": "I need to think about it",
