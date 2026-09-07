@@ -4131,7 +4131,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   function ini(n){return (n[0]||'?').toUpperCase();}
   function nodeHtml(n){
     if(n.open) return '<div class="n open" data-t="open"><div class="nc"></div></div>';
-    if(n.you) return '<div class="n you" data-t="you"><div class="nc">YOU</div></div>';
+    if(n.you) return '<div class="n you" data-t="you"><div class="nc">YOU</div>'+(n.active?'<div class="abadge">\u25cf Active</div>':'<div class="ibadge">Not yet active</div>')+'</div>';
     var cls='n '+(n.kind==='s'?'spill':'');
     return '<div class="'+cls+'" data-t="node" data-nm="'+encodeURIComponent(n.name)+'" data-k="'+(n.kind||'')+'" data-d="'+n.depth+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
   }
