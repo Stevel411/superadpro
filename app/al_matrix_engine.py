@@ -36,7 +36,8 @@ from decimal import Decimal, ROUND_HALF_UP
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.database import User, PackPurchase, CampaignPack, MatrixCommission
+from app.database import (User, PackPurchase, CampaignPack, MatrixCommission,
+                          GRID_TIER_NAMES, GRID_PACKAGES)
 import app.al_matrix as al_matrix
 
 # L1..L5 shares of the pack price. Company keeps the remaining 20% (base) plus
@@ -248,16 +249,15 @@ def activate_and_commit(db, order, is_qualified=None, commit=True):
 
 
 # ── back-office matrix view data (reads real positions) ────────────────────
-_TIER_NAMES = {1:"Launchpad",2:"Starter",3:"Builder",4:"Pro",5:"Advanced",
-               6:"Premium",7:"Elite",8:"Master",9:"Champion"}
-_TIER_PRICE = {1:10,2:20,3:50,4:100,5:200,6:400,7:600,8:800,9:1000}
+_TIER_NAMES = GRID_TIER_NAMES
+_TIER_PRICE = {k: int(v) for k, v in GRID_PACKAGES.items()}
 
 
 def owned_tiers(db, user):
     """Tiers this member can view a matrix for: any with an active pack; admins see all."""
     from app.database import PackPurchase
     if getattr(user, "is_admin", False):
-        return list(range(1, 10))
+        return sorted(GRID_TIER_NAMES.keys())
     rows = (db.query(PackPurchase.pack_level)
               .filter(PackPurchase.user_id == user.id, PackPurchase.status == "active")
               .distinct().all())
