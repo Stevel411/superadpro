@@ -3943,8 +3943,18 @@ async def coinpayments_ipn(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": "invalid signature"}, status_code=403)
     data = cps.parse_webhook(body)
     internal, status = cps.extract_invoice(data)
-    order = db.query(CoinPaymentsOrder).filter(
-        CoinPaymentsOrder.internal_order_id == internal).first()
+    order = None
+    if internal:
+        order = db.query(CoinPaymentsOrder).filter(
+            CoinPaymentsOrder.internal_order_id == internal).first()
+    if not order:
+        # fallback: match on the CoinPayments invoice id (UUID) present in the body
+        body_txt = body.decode("utf-8", "replace")
+        cands = (db.query(CoinPaymentsOrder)
+                   .filter(CoinPaymentsOrder.status == "pending",
+                           CoinPaymentsOrder.txn_id.isnot(None))
+                   .order_by(CoinPaymentsOrder.id.desc()).limit(30).all())
+        order = next((o for o in cands if o.txn_id and o.txn_id in body_txt), None)
     if not order:
         _save("order_not_found", verified=True, invoice=internal, status=status)
         return {"status": "ignored", "reason": "order_not_found"}

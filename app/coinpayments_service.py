@@ -147,8 +147,15 @@ def create_invoice(*, amount_usd, item_name: str, custom: str, buyer_email: str)
     if resp.status_code >= 400:
         logger.error(f"CoinPayments create_invoice HTTP {resp.status_code}: {data}")
         return {"ok": False, "error": f"{resp.status_code}: {data}"}
-    inv = data.get("invoice", data) if isinstance(data, dict) else {}
-    checkout = (inv.get("link") or inv.get("invoiceUrl") or inv.get("url")
-                or _dig(data, "checkout", "url"))
-    return {"ok": True, "invoice_id": inv.get("id") or inv.get("invoiceId"),
-            "checkout_url": checkout, "raw": data}
+    inv = {}
+    if isinstance(data, dict):
+        invs = data.get("invoices")
+        if isinstance(invs, list) and invs:
+            inv = invs[0] or {}
+        elif isinstance(data.get("invoice"), dict):
+            inv = data["invoice"]
+        else:
+            inv = data
+    checkout = (inv.get("checkoutLink") or inv.get("link") or inv.get("invoiceUrl") or inv.get("url"))
+    invoice_id = inv.get("id") or inv.get("invoiceId")
+    return {"ok": True, "invoice_id": invoice_id, "checkout_url": checkout, "raw": data}
