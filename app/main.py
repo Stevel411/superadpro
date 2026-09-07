@@ -4046,8 +4046,10 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
   .emptyhint{position:absolute;left:0;right:0;bottom:60px;text-align:center;font-size:13px;color:var(--muted);font-weight:600;z-index:4}
 
-  .tree ul{display:flex;justify-content:center;padding-top:22px;position:relative;margin:0}
-  .tree li{list-style:none;position:relative;padding:24px 1px 0;display:flex;flex-direction:column;align-items:center}
+  .tree{display:inline-block}
+  .tree ul{display:flex;justify-content:center;padding-top:22px;position:relative;margin:0;padding-left:0}
+  .tree li{list-style:none;position:relative;padding:24px 6px 0;display:flex;flex-direction:column;align-items:center}
+  /* connector from each child up to the horizontal bar */
   .tree li::before,.tree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--line);width:50%;height:22px}
   .tree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
   .tree li:only-child::after,.tree li:only-child::before{display:none}
@@ -4055,9 +4057,11 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .tree li:first-child::before,.tree li:last-child::after{border:0 none}
   .tree li:last-child::before{border-right:2px solid var(--line);border-radius:0 6px 0 0}
   .tree li:first-child::after{border-radius:6px 0 0 0}
-  .tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
+  /* vertical drop from a parent to its children's bar */
+  .tree ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);width:0;height:22px}
   .tree>ul{padding-top:0}
-  .n{display:flex;flex-direction:column;align-items:center;width:52px}
+  .tree>ul::before{display:none}
+  .n{display:flex;flex-direction:column;align-items:center;min-width:52px}
   .nc{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;
     font-size:14px;color:#fff;background:linear-gradient(135deg,#2f5bd0,#12388f);box-shadow:0 3px 8px rgba(18,56,143,.25)}
   .n.you .nc{width:56px;height:56px;border-radius:15px;background:linear-gradient(135deg,#c8102e,#8f0a20);box-shadow:0 6px 16px rgba(200,16,46,.3)}
@@ -4092,7 +4096,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   function ini(n){return (n[0]||'?').toUpperCase();}
   function nodeHtml(n){
     if(n.open) return '<div class="n open"><div class="nc"></div></div>';
-    if(n.you) return '<div class="n you"><div class="nc">YOU</div><div class="nn">YOU</div></div>';
+    if(n.you) return '<div class="n you"><div class="nc">YOU</div></div>';
     var cls='n '+(n.kind==='s'?'spill':'');
     return '<div class="'+cls+'"><div class="nc">'+ini(n.name)+'</div><div class="nn">@'+n.name+'</div><div class="nl">L'+n.depth+'</div></div>';
   }
