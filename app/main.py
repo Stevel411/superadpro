@@ -4252,6 +4252,26 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .abadge .adot{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:apulse 2s infinite}
   @keyframes apulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}70%{box-shadow:0 0 0 6px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
   .ibadge{margin-top:7px;font-size:10px;font-weight:700;color:var(--muted);background:#eef2f9;border:1px solid var(--line);border-radius:20px;padding:3px 11px;white-space:nowrap}
+
+  .pkgstatus{margin:2px 0 16px}
+  .psc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px;box-shadow:0 6px 20px rgba(10,31,82,.05)}
+  .psc .prow{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+  .psc .pnm{font-size:15px;font-weight:900;color:var(--navy)}
+  .psc .pill{font-size:10.5px;font-weight:800;padding:3px 11px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .psc .pill .d{width:7px;height:7px;border-radius:50%}
+  .psc.active .pill{background:#e5f6ec;color:#0e7a44;border:1px solid #b8e6c8}.psc.active .pill .d{background:#16a34a}
+  .psc.running_low .pill{background:#fef3e2;color:#b45309;border:1px solid #f5d9a8}.psc.running_low .pill .d{background:#d97706}
+  .psc.grace .pill{background:#eef3ff;color:#12388f;border:1px solid #cfe0fb}.psc.grace .pill .d{background:#12388f}
+  .psc.expired .pill{background:#fdeaec;color:#c8102e;border:1px solid #f3bcc3}.psc.expired .pill .d{background:#c8102e}
+  .psc.notowned{border-style:dashed}.psc.notowned .pill{background:#eef2f9;color:#64748b;border:1px solid #e6ecf5}.psc.notowned .pill .d{background:#94a3b8}
+  .psc .bar{height:9px;border-radius:8px;background:#eef2f8;overflow:hidden}
+  .psc .fill{height:100%;border-radius:8px}
+  .psc.active .fill{background:#16a34a}.psc.running_low .fill{background:#d97706}.psc.grace .fill{background:#12388f}.psc.expired .fill{background:#c8102e}
+  .psc .meta{display:flex;justify-content:space-between;margin-top:7px;font-size:12px;font-weight:700;color:var(--muted)}
+  .psc .msg{margin-top:11px;font-size:13px;font-weight:700;line-height:1.45}
+  .psc.active .msg{color:#0e7a44}.psc.running_low .msg{color:#b45309}.psc.grace .msg{color:#12388f}.psc.expired .msg{color:#c8102e}.psc.notowned .msg{color:var(--muted)}
+  .psc .react{display:inline-block;margin-top:12px;font-weight:900;font-size:13px;border-radius:10px;padding:11px 20px;text-decoration:none;color:#fff}
+  .psc.running_low .react{background:#d97706}.psc.grace .react{background:#12388f}.psc.expired .react{background:#c8102e}.psc.notowned .react{background:var(--red)}
 </style>
 </head>
 <body>
@@ -4262,6 +4282,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
 
   <div class="stats" id="stats"></div>
   <div class="pks" id="pks"></div>
+  <div class="pkgstatus" id="pkgstatus"></div>
 
   <div class="viewport" id="vp">
     <div class="legend"><span><i style="background:#12388f"></i>Referral</span><span><i style="background:#10914a"></i>Spillover</span><span><i style="background:#fff;border:2px dashed #c3d0ea"></i>Open</span></div>
@@ -4303,6 +4324,41 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
       return '<div class="pk'+(p.tier===sel?' on':'')+(p.owned?'':' locked')+'" data-t="'+p.tier+'"><div class="nm">'+p.name+'</div><div class="pr">$'+p.price+'</div></div>';
     }).join('');
   }
+  var PKG={};
+  function nfmt(n){return (n||0).toLocaleString('en-US');}
+  function loadStatus(){
+    fetch('/api/al/matrix/package-status',{credentials:'include'})
+      .then(function(r){return r.ok?r.json():{packages:[]};})
+      .then(function(j){PKG={};(j.packages||[]).forEach(function(p){PKG[p.tier]=p;});renderStatus();})
+      .catch(function(){});
+  }
+  function renderStatus(){
+    var el=document.getElementById('pkgstatus'); if(!el)return;
+    var pk=(INIT.packages||[]).filter(function(x){return x.tier===sel;})[0]||{name:'',tier:sel};
+    var p=PKG[sel];
+    if(!p){
+      el.innerHTML='<div class="psc notowned"><div class="prow"><span class="pnm">'+pk.name+'</span>'+
+        '<span class="pill"><span class="d"></span>Not activated</span></div>'+
+        '<div class="msg">You haven\'t activated a '+pk.name+' package yet — activate to hold your position and start earning in this matrix.</div>'+
+        '<a class="react" href="/matrix/buy">Activate a Package \u2192</a></div>';
+      return;
+    }
+    var st=p.state, pct=p.pct||0;
+    var lbl={active:'Active',running_low:'Running low',grace:'Grace period',expired:'Expired'}[st]||'Active';
+    var msg={
+      active:"You're active and earning across your "+p.name+" matrix.",
+      running_low:"Almost delivered ("+pct+"%). Reactivate to keep earning without a gap.",
+      grace:"Views delivered \u2014 you're in the grace period. Reactivate to keep earning and hold your position.",
+      expired:"Your "+p.name+" matrix is inactive \u2014 sales in your team pass up to the next active member above you. Reactivate to start earning again."
+    }[st];
+    el.innerHTML='<div class="psc '+st+'"><div class="prow"><span class="pnm">'+p.name+'</span>'+
+      '<span class="pill"><span class="d"></span>'+lbl+'</span></div>'+
+      '<div class="bar"><div class="fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="meta"><span>'+nfmt(p.views_delivered)+' / '+nfmt(p.views_target)+' views delivered</span><span>'+pct+'%</span></div>'+
+      '<div class="msg">'+msg+'</div>'+
+      (st!=='active'?'<a class="react" href="/matrix/buy">Reactivate '+p.name+' \u2192</a>':'')+
+      '</div>';
+  }
 
   var z=1,tx=0,ty=0;
   function apply(){document.getElementById('stage').style.transform='translate(-50%,0) translate('+tx+'px,'+ty+'px) scale('+z+')';document.getElementById('zlabel').textContent=Math.round(z*100)+'%';}
@@ -4320,7 +4376,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
 
   document.getElementById('pks').addEventListener('click',function(e){
     var b=e.target.closest('.pk');if(!b||b.classList.contains('locked'))return;
-    sel=+b.dataset.t;hideInfo();renderPacks();
+    sel=+b.dataset.t;hideInfo();renderPacks();renderStatus();
     fetch('/api/al/matrix/tree?tier='+sel,{credentials:'include'}).then(function(r){return r.json();})
       .then(function(d){renderTree(d.tree,d.stats);})
       .catch(function(){});
@@ -4359,6 +4415,7 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   document.addEventListener('click',function(e){ if(!e.target.closest('.ninfo') && !e.target.closest('#stage')) hideInfo(); });
 
   document.getElementById('who').textContent = INIT.username ? '@'+INIT.username : '';
+  loadStatus();
   renderPacks(); renderTree(INIT.tree, INIT.stats);
 </script>
 </body>
