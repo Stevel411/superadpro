@@ -49,9 +49,9 @@ const CSS = `
 .al .side a{display:flex;align-items:center;gap:12px;color:#c9d5f2;font-weight:800;font-size:15px;padding:13px 15px;border-radius:12px;margin-bottom:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
 .al .side a .ic{font-size:1.05em;width:22px;text-align:center;flex:none;line-height:1}
 .al .side a.on{background:linear-gradient(120deg,#c8102e,#ff2743);border-color:transparent;color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.55)}
-.al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
+.al .side a:not(.on):hover{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #5b7fc4}
 .al .side .grphead{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:13px 15px;margin:8px 0 5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px}
-.al .side .grphead:hover{border-color:rgba(255,255,255,.22)}
+.al .side .grphead:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.08);box-shadow:inset 3px 0 0 #5b7fc4}
 .al .side .grphead .gh{font-size:13px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#b7c6ee;display:flex;align-items:center;gap:8px}
 .al .side .subnav{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:9px;font-size:13.5px;font-weight:600;text-decoration:none;color:rgba(201,214,240,.92);background:transparent;border:0;margin:2px 0;transition:background .12s,color .12s,box-shadow .12s}
 .al .side .subnav:hover{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #5b7fc4}
@@ -189,7 +189,9 @@ const CSS = `
    space-between spreads the two cards to the full height, so the last one
    lands flush with the video's bottom edge without stretching a card's
    internals or leaving a hole inside it. */
-.al .rightcol{justify-content:space-between}
+.al .rightcol{justify-content:flex-start;overflow:hidden}
+.al .rightcol .laf-card{height:100%;display:flex;flex-direction:column;min-height:0}
+.al .rightcol .laf-feed{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}
 .al .rightcol>.card{flex:0 1 auto}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}
@@ -446,6 +448,21 @@ export default function NewDashboard() {
       .then(function (j) { if (alive && j && j.quote) setWis(j.quote); })
       .catch(function () {});
     return function () { alive = false; };
+  }, []);
+
+  useEffect(function () {
+    function sync() {
+      var w = document.querySelector('.al .row .card.cwatch');
+      var r = document.querySelector('.al .row .rightcol');
+      if (w && r) { r.style.height = w.offsetHeight + 'px'; }
+    }
+    sync();
+    var t1 = setTimeout(sync, 300), t2 = setTimeout(sync, 1200);
+    var wc = document.querySelector('.al .row .card.cwatch');
+    var ro = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(sync) : null;
+    if (ro && wc) ro.observe(wc);
+    window.addEventListener('resize', sync);
+    return function () { clearTimeout(t1); clearTimeout(t2); if (ro) ro.disconnect(); window.removeEventListener('resize', sync); };
   }, []);
 
   useEffect(function () {
