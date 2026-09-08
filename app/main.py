@@ -3830,25 +3830,19 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
 
   function render(){
     var app=document.getElementById('app');
-    if(!D || D.total_earned<=0){
-      if(D && D.plan==='p2p'){
-        app.innerHTML='<div class="card"><div class="empty"><div class="em">💳</div>'+
-          '<h4>You\'re on the Peer-to-Peer plan</h4>'+
-          '<p>Your direct commissions and withdrawals live on your Wallet page.</p>'+
-          '<a href="/wallet">Go to your Wallet →</a></div></div>';
-        return;
-      }
-      app.innerHTML='<div class="card"><div class="empty"><div class="em">🌱</div>'+
-        '<h4>Your earnings will appear here</h4>'+
-        '<p>As your matrix fills and your team activates packs, every commission lands here — paid weekly in USDT.</p>'+
-        '<a href="/matrix/buy">Activate a pack →</a></div></div>';
+    if(D && D.plan==='p2p' && (D.total_earned||0)<=0){
+      app.innerHTML='<div class="card"><div class="empty"><div class="em">💳</div>'+
+        '<h4>You\'re on the Peer-to-Peer plan</h4>'+
+        '<p>Your direct commissions and withdrawals live on your Wallet page.</p>'+
+        '<a href="/wallet">Go to your Wallet →</a></div></div>';
       return;
     }
-    var maxL=Math.max.apply(null,D.by_level.map(function(x){return x.amt;}))||1;
-    var bars=D.by_level.map(function(x){
+    var by=(D.by_level||[]);
+    var maxL=Math.max.apply(null,by.map(function(x){return x.amt;}))||1;
+    var bars= by.length ? by.map(function(x){
       return '<div class="col'+(x.l===5?' l5':'')+'"><div class="bar" data-h="'+Math.max(4,Math.round(x.amt/maxL*130))+'">'+
         '<span class="amt">$'+money(x.amt)+'</span></div><div class="cl">L'+x.l+'</div></div>';
-    }).join('');
+    }).join('') : '<div class="wnote">Your earnings will show here by level as your team activates packs.</div>';
 
     var wallet = D.wallet && D.wallet.set
       ? '<div class="addr"><span class="net">'+esc(D.wallet.network)+'</span><span class="a">'+esc(D.wallet.masked)+'</span></div>'+
@@ -3877,6 +3871,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
           '<div class="hm"><div class="k">Total earned</div><div class="v">$'+money(D.total_earned)+'</div></div>'+
         '</div>'+
         '<div class="paychip"><span class="dot"></span> Next payout · '+esc(D.next_payout||'Monday')+'</div>'+
+        ((D.total_earned||0)>0 ? '' : '<a class="wcta" href="/matrix/buy" style="display:inline-block;margin-top:14px">Activate a pack to start earning →</a>')+
       '</div>'+
       '<div class="row2">'+
         '<div class="card"><h3>Where your earnings come from</h3><div class="chart" id="chart">'+bars+'</div></div>'+
