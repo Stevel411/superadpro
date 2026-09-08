@@ -189,9 +189,7 @@ const CSS = `
    space-between spreads the two cards to the full height, so the last one
    lands flush with the video's bottom edge without stretching a card's
    internals or leaving a hole inside it. */
-.al .rightcol{justify-content:space-between;min-height:0}
-.al .rightcol .laf-card{height:100%;display:flex;flex-direction:column;min-height:0}
-.al .rightcol .laf-feed{flex:1 1 auto;max-height:none;min-height:0}
+.al .rightcol{justify-content:space-between}
 .al .rightcol>.card{flex:0 1 auto}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}
