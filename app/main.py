@@ -4550,6 +4550,121 @@ def api_matrix_package_status(user: User = Depends(get_current_user), db: Sessio
     return JSONResponse({"packages": _me.package_status(db, user.id)})
 
 
+def _compute_payout_batch(db, min_payout):
+    """Ledger-derived weekly payout: what each member is owed (unpaid matrix
+    commissions), reconciliation-guarded, grouped by payout chain."""
+    from .database import MatrixCommission, CoinPaymentsOrder, User as _U
+    import app.al_engine as _eng
+    received = float(db.query(func.coalesce(func.sum(CoinPaymentsOrder.amount_usd), 0))
+                       .filter(CoinPaymentsOrder.status == "complete").scalar() or 0)
+    credited = float(db.query(func.coalesce(func.sum(MatrixCommission.amount), 0)).scalar() or 0)
+    company_total = float(db.query(func.coalesce(func.sum(MatrixCommission.amount), 0))
+                            .filter(MatrixCommission.is_company == True).scalar() or 0)
+    rows = (db.query(MatrixCommission.earner_id, func.sum(MatrixCommission.amount))
+              .filter(MatrixCommission.is_company == False,
+                      MatrixCommission.earner_id.isnot(None),
+                      MatrixCommission.status != "paid")
+              .group_by(MatrixCommission.earner_id).all())
+    batch, held, by_chain, eligible_ids = [], [], {}, []
+    for uid, owed in rows:
+        owed = float(owed or 0)
+        if owed <= 0:
+            continue
+        m = db.query(_U).filter(_U.id == uid).first()
+        if not m:
+            continue
+        try:
+            wq = bool(_eng.watch_qualified(db, uid))
+        except Exception:
+            wq = False
+        addr = (getattr(m, "wallet_address", "") or "").strip()
+        net = (getattr(m, "wallet_network", "") or "").strip().lower()
+        rec = {"user_id": uid, "username": (m.username or (m.email or "").split("@")[0]),
+               "amount": round(owed, 2), "network": net or None, "address": addr or None,
+               "watch_qualified": wq}
+        reasons = []
+        if owed < float(min_payout): reasons.append("below_min")
+        if not addr: reasons.append("no_payout_wallet")
+        if not wq: reasons.append("not_watch_qualified")
+        if reasons:
+            rec["reason"] = ",".join(reasons); held.append(rec)
+        else:
+            batch.append(rec); eligible_ids.append(uid)
+            by_chain[net] = round(by_chain.get(net, 0) + owed, 2)
+    payout_total = round(sum(b["amount"] for b in batch), 2)
+    return {
+        "reconciliation": {"received": round(received, 2), "credited": round(credited, 2),
+                           "ok": credited <= received + 0.01},
+        "min_payout": float(min_payout),
+        "totals": {"payout_total": payout_total, "member_count": len(batch),
+                   "held_count": len(held), "company_total": round(company_total, 2)},
+        "by_chain": by_chain,
+        "batch": sorted(batch, key=lambda x: -x["amount"]),
+        "held": sorted(held, key=lambda x: -x["amount"]),
+        "_eligible_ids": eligible_ids,
+    }
+
+
+@app.get("/admin/api/al/matrix/payout-batch")
+def admin_matrix_payout_batch(min: float = 10.0, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Weekly payout batch (JSON): who's owed, reconciliation, per-chain totals."""
+    _require_admin(user)
+    out = _compute_payout_batch(db, min)
+    out.pop("_eligible_ids", None)
+    return JSONResponse(out)
+
+
+@app.get("/admin/api/al/matrix/payout-batch.csv")
+def admin_matrix_payout_csv(min: float = 10.0, network: str = "",
+                            user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Payout batch as CSV for a multisend (address,amount,network,username).
+    Optional ?network=tron|bsc|eth to export just one chain's sends."""
+    _require_admin(user)
+    from starlette.responses import Response as _Resp
+    out = _compute_payout_batch(db, min)
+    net = (network or "").strip().lower()
+    lines = ["address,amount,network,username"]
+    for b in out["batch"]:
+        if net and (b["network"] or "") != net:
+            continue
+        lines.append("%s,%s,%s,%s" % (b["address"], b["amount"], b["network"] or "", b["username"]))
+    return _Resp("\n".join(lines), media_type="text/csv",
+                 headers={"Content-Disposition": "attachment; filename=al-payout-batch.csv"})
+
+
+@app.post("/admin/api/al/matrix/payout-batch/mark-paid")
+async def admin_matrix_mark_paid(request: Request, user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Mark the current eligible batch's commissions as paid (run AFTER you've
+    sent the multisend). Body: {min?, tx_hash?}. Only marks members who are
+    currently eligible at the given threshold."""
+    _require_admin(user)
+    from .database import MatrixCommission
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    min_payout = float(body.get("min") or 10.0)
+    tx_hash = (body.get("tx_hash") or "").strip() or None
+    out = _compute_payout_batch(db, min_payout)
+    ids = out["_eligible_ids"]
+    marked = 0
+    for uid in ids:
+        q = db.query(MatrixCommission).filter(
+            MatrixCommission.is_company == False,
+            MatrixCommission.earner_id == uid,
+            MatrixCommission.status != "paid")
+        for c in q.all():
+            c.status = "paid"
+            if tx_hash:
+                c.tx_ref = (c.tx_ref or "") + ("|payout:" + tx_hash if tx_hash else "")
+            marked += 1
+    db.commit()
+    return JSONResponse({"ok": True, "members_paid": len(ids), "commissions_marked": marked,
+                         "total_paid": out["totals"]["payout_total"]})
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""
