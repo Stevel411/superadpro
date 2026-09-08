@@ -189,9 +189,7 @@ const CSS = `
    space-between spreads the two cards to the full height, so the last one
    lands flush with the video's bottom edge without stretching a card's
    internals or leaving a hole inside it. */
-.al .rightcol{justify-content:flex-start;overflow:hidden}
-.al .rightcol .laf-card{height:100%;display:flex;flex-direction:column;min-height:0}
-.al .rightcol .laf-feed{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}
+.al .rightcol{justify-content:space-between}
 .al .rightcol>.card{flex:0 1 auto}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}
@@ -453,8 +451,14 @@ export default function NewDashboard() {
   useEffect(function () {
     function sync() {
       var w = document.querySelector('.al .row .card.cwatch');
-      var r = document.querySelector('.al .row .rightcol');
-      if (w && r) { r.style.height = w.offsetHeight + 'px'; }
+      var card = document.querySelector('.al .row .laf-card');
+      var feed = document.querySelector('.al .row .laf-feed');
+      if (!w || !card || !feed) return;
+      // height of everything in the feed card that ISN'T the scrolling list
+      var chrome = card.offsetHeight - feed.offsetHeight;
+      var target = w.offsetHeight - chrome;
+      // max-height only ever shrinks the feed list -> can never stretch the page
+      if (target > 140) feed.style.maxHeight = target + 'px';
     }
     sync();
     var t1 = setTimeout(sync, 300), t2 = setTimeout(sync, 1200);
