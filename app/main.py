@@ -4583,6 +4583,11 @@ _AL_PAYOUT_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"
   .reason{font-size:11px;color:var(--red);font-weight:700}
   .paybtn{background:var(--red);color:#fff;font-weight:900;font-size:14px;border:none;border-radius:11px;padding:13px 24px;cursor:pointer;margin-top:16px}
   .empty{color:var(--muted);font-weight:600;font-size:13.5px;padding:16px;text-align:center}
+  .copywrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+  .cwlab{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:9px}
+  .copyrow{display:flex;gap:8px;flex-wrap:wrap}
+  .copybtn{background:var(--navy);color:#fff;font-weight:800;font-size:12.5px;border:none;border-radius:9px;padding:9px 14px;cursor:pointer;font-family:inherit}
+  .copybtn:hover{background:#12388f}.copybtn.done{background:var(--green)}
 </style></head><body><div class="wrap">
   <div class="top"><a class="back" href="/admin/al">&larr; Admin</a><span class="sub" style="margin:0">Weekly Payout Batch</span></div>
   <h1>Weekly Payout</h1>
@@ -4615,6 +4620,21 @@ _AL_PAYOUT_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"
     csv+='<a href="/admin/api/al/matrix/payout-batch.csv?min='+MIN+'">\u2b07 All CSV</a></div>';
     h+='<div class="bar"><label>Min payout $</label><input id="min" type="number" value="'+MIN+'" min="0" step="1">'+
        '<button class="btn" onclick="var v=document.getElementById(&#39;min&#39;).value;location.search=&#39;?min=&#39;+v;">Apply</button>'+csv+'</div>';
+    // batch-copy for multisend (Disperse for EVM), auto-chunked
+    var CHUNK=150, groups={};
+    (D.batch||[]).forEach(function(m){ if(!m.address)return; var n=(m.network||'?'); (groups[n]=groups[n]||[]).push(m); });
+    window.__COPY={}; var copyBtns='';
+    Object.keys(groups).forEach(function(net){
+      var list=groups[net], chunks=[]; for(var i=0;i<list.length;i+=CHUNK) chunks.push(list.slice(i,i+CHUNK));
+      var isEvm=/^(bsc|bep20|eth|erc20|polygon|arbitrum)$/.test((net||'').toLowerCase());
+      chunks.forEach(function(ch,ci){
+        var id='cp_'+net+'_'+ci;
+        window.__COPY[id]=ch.map(function(m){return m.address+' '+m.amount;}).join('\n');
+        var lab=(isEvm?'Disperse · ':'')+(net||'').toUpperCase()+(chunks.length>1?(' batch '+(ci+1)+'/'+chunks.length):'')+' ('+ch.length+')';
+        copyBtns+='<button class="copybtn" data-id="'+id+'">\u2398 Copy '+lab+'</button>';
+      });
+    });
+    if(copyBtns) h+='<div class="copywrap"><div class="cwlab">Copy for multisend — paste into Disperse (EVM chains) or your Tron batch tool. Auto-split into safe batches.</div><div class="copyrow">'+copyBtns+'</div></div>';
     var b=D.batch||[];
     h+='<div class="sec">To pay this week ('+b.length+')</div>';
     if(b.length){
@@ -4632,6 +4652,10 @@ _AL_PAYOUT_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"
       h+='</table>';
     }
     document.getElementById('app').innerHTML=h;
+    document.querySelectorAll('.copybtn').forEach(function(b){ b.onclick=function(){
+      var t=(window.__COPY||{})[b.dataset.id]||'';
+      navigator.clipboard.writeText(t).then(function(){ var o=b.innerHTML; b.classList.add('done'); b.innerHTML='\u2713 Copied '+(t.split('\n').length)+' rows'; setTimeout(function(){b.classList.remove('done'); b.innerHTML=o;},1500); });
+    };});
   }
   function markPaid(){
     var tx=prompt('Optional: paste the payout tx hash (or leave blank). This marks the batch PAID.');
