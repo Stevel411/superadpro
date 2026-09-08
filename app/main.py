@@ -4545,6 +4545,106 @@ def api_matrix_package_status(user: User = Depends(get_current_user), db: Sessio
     return JSONResponse({"packages": _me.package_status(db, user.id)})
 
 
+_AL_PAYOUT_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Weekly Payout — AdvantageLife Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  :root{--navy:#0a1f52;--red:#c8102e;--muted:#64748b;--line:#e6ecf5;--bg:#f4f7fc;--green:#16a34a;--amber:#d97706}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--navy);padding:26px 20px 70px}
+  .wrap{max-width:1000px;margin:0 auto}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .back{color:var(--navy);font-weight:800;font-size:14px;text-decoration:none}
+  h1{font-size:30px;font-weight:900;letter-spacing:-.5px}
+  .sub{color:var(--muted);font-size:14px;font-weight:500;margin-bottom:18px}
+  .recon{border-radius:14px;padding:15px 18px;margin-bottom:16px;font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .recon.ok{background:#e5f6ec;border:1px solid #b8e6c8;color:#0e7a44}
+  .recon.bad{background:#fdeaec;border:1px solid #f3bcc3;color:var(--red)}
+  .recon .r{font-weight:600;color:var(--muted);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .c{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .c .k{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .c .v{font-size:24px;font-weight:900;margin-top:3px}
+  .c .v.g{color:var(--green)}
+  .bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .bar label{font-size:13px;font-weight:800}
+  .bar input{width:80px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-weight:800;font-family:inherit}
+  .bar .btn{background:var(--navy);color:#fff;font-weight:800;font-size:13px;border:none;border-radius:9px;padding:9px 16px;text-decoration:none;cursor:pointer}
+  .chainrow{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .chainrow a{background:#eef3ff;color:var(--navy2,#12388f);color:#12388f;font-weight:800;font-size:12.5px;border:1px solid #d6e2fb;border-radius:9px;padding:9px 14px;text-decoration:none}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:11px 14px;font-size:13px;border-bottom:1px solid var(--line)}
+  th{background:#f7faff;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  td.amt{font-weight:900;text-align:right}
+  td.addr{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+  .tag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px}
+  .tag.y{background:#e5f6ec;color:#0e7a44}.tag.n{background:#fdeaec;color:var(--red)}
+  .sec{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:22px 0 8px}
+  .reason{font-size:11px;color:var(--red);font-weight:700}
+  .paybtn{background:var(--red);color:#fff;font-weight:900;font-size:14px;border:none;border-radius:11px;padding:13px 24px;cursor:pointer;margin-top:16px}
+  .empty{color:var(--muted);font-weight:600;font-size:13.5px;padding:16px;text-align:center}
+</style></head><body><div class="wrap">
+  <div class="top"><a class="back" href="/admin/al">&larr; Admin</a><span class="sub" style="margin:0">Weekly Payout Batch</span></div>
+  <h1>Weekly Payout</h1>
+  <div class="sub">Ledger-derived. Fund each chain from your wallet, run the multisend from the CSV, then mark paid.</div>
+  <div id="app"><div class="empty">Loading…</div></div>
+</div>
+<script>
+  var MIN = new URLSearchParams(location.search).get('min') || 10;
+  function money(x){return (x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function load(){
+    fetch('/admin/api/al/matrix/payout-batch?min='+MIN,{credentials:'include'})
+      .then(function(r){return r.json();}).then(render)
+      .catch(function(){document.getElementById('app').innerHTML='<div class="empty">Failed to load.</div>';});
+  }
+  function render(D){
+    var rec=D.reconciliation||{}, t=D.totals||{};
+    var chains=Object.keys(D.by_chain||{});
+    var h='';
+    h+='<div class="recon '+(rec.ok?'ok':'bad')+'"><span>'+(rec.ok?'\u2713 Reconciled — credited never exceeds received':'\u26a0 CHECK — credited exceeds money received')+'</span>'+
+       '<span class="r">received $'+money(rec.received)+' · credited $'+money(rec.credited)+'</span></div>';
+    h+='<div class="cards">'+
+       '<div class="c"><div class="k">Payout total</div><div class="v g">$'+money(t.payout_total)+'</div></div>'+
+       '<div class="c"><div class="k">Members to pay</div><div class="v">'+(t.member_count||0)+'</div></div>'+
+       '<div class="c"><div class="k">Held</div><div class="v">'+(t.held_count||0)+'</div></div>'+
+       '<div class="c"><div class="k">Company (kept)</div><div class="v">$'+money(t.company_total)+'</div></div>'+
+       '</div>';
+    var csv='<div class="chainrow">';
+    if(chains.length){ chains.forEach(function(c){ csv+='<a href="/admin/api/al/matrix/payout-batch.csv?min='+MIN+'&network='+encodeURIComponent(c)+'">\u2b07 '+esc((c||'').toUpperCase())+' CSV · $'+money(D.by_chain[c])+'</a>'; }); }
+    csv+='<a href="/admin/api/al/matrix/payout-batch.csv?min='+MIN+'">\u2b07 All CSV</a></div>';
+    h+='<div class="bar"><label>Min payout $</label><input id="min" type="number" value="'+MIN+'" min="0" step="1">'+
+       '<button class="btn" onclick="var v=document.getElementById(&#39;min&#39;).value;location.search=&#39;?min=&#39;+v;">Apply</button>'+csv+'</div>';
+    var b=D.batch||[];
+    h+='<div class="sec">To pay this week ('+b.length+')</div>';
+    if(b.length){
+      h+='<table><tr><th>Member</th><th>Chain</th><th>Address</th><th>Watch</th><th style="text-align:right">Amount</th></tr>';
+      b.forEach(function(m){ h+='<tr><td>@'+esc(m.username)+'</td><td>'+esc((m.network||'').toUpperCase())+'</td>'+
+        '<td class="addr">'+esc(m.address||'')+'</td><td><span class="tag '+(m.watch_qualified?'y':'n')+'">'+(m.watch_qualified?'OK':'no')+'</span></td>'+
+        '<td class="amt">$'+money(m.amount)+'</td></tr>'; });
+      h+='</table>';
+      h+='<button class="paybtn" onclick="markPaid()">Mark this batch paid \u2713</button>';
+    } else { h+='<div class="empty">Nothing to pay out at this threshold.</div>'; }
+    var held=D.held||[];
+    if(held.length){
+      h+='<div class="sec">Held — rolling over ('+held.length+')</div><table><tr><th>Member</th><th>Reason</th><th style="text-align:right">Owed</th></tr>';
+      held.forEach(function(m){ h+='<tr><td>@'+esc(m.username)+'</td><td class="reason">'+esc((m.reason||'').replace(/_/g,' '))+'</td><td class="amt">$'+money(m.amount)+'</td></tr>'; });
+      h+='</table>';
+    }
+    document.getElementById('app').innerHTML=h;
+  }
+  function markPaid(){
+    var tx=prompt('Optional: paste the payout tx hash (or leave blank). This marks the batch PAID.');
+    if(tx===null) return;
+    fetch('/admin/api/al/matrix/payout-batch/mark-paid',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',
+      body:JSON.stringify({min:Number(MIN),tx_hash:tx})})
+      .then(function(r){return r.json();}).then(function(j){ alert('Marked paid: '+j.members_paid+' members, '+j.commissions_marked+' commissions ($'+money(j.total_paid)+').'); load(); })
+      .catch(function(){alert('Failed to mark paid.');});
+  }
+  load();
+</script></body></html>"""
+
+
 def _compute_payout_batch(db, min_payout):
     """Ledger-derived weekly payout: what each member is owed (unpaid matrix
     commissions), reconciliation-guarded, grouped by payout chain."""
@@ -4598,6 +4698,13 @@ def _compute_payout_batch(db, min_payout):
         "held": sorted(held, key=lambda x: -x["amount"]),
         "_eligible_ids": eligible_ids,
     }
+
+
+@app.get("/admin/al/payout", response_class=HTMLResponse)
+def admin_al_payout_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user or not is_admin(user):
+        return RedirectResponse("/login?next=/admin/al/payout", status_code=303)
+    return HTMLResponse(_AL_PAYOUT_PAGE)
 
 
 @app.get("/admin/api/al/matrix/payout-batch")
