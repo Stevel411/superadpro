@@ -3841,7 +3841,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
       app.innerHTML='<div class="card"><div class="empty"><div class="em">🌱</div>'+
         '<h4>Your earnings will appear here</h4>'+
         '<p>As your matrix fills and your team activates packs, every commission lands here — paid weekly in USDT.</p>'+
-        '<a href="/packs">Activate a pack →</a></div></div>';
+        '<a href="/matrix/buy">Activate a pack →</a></div></div>';
       return;
     }
     var maxL=Math.max.apply(null,D.by_level.map(function(x){return x.amt;}))||1;
