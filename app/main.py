@@ -3988,10 +3988,13 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
     CoinPayments. Returns a checkout URL. (Enforced later in the buy UI wiring.)"""
     from . import nowpayments_service as nps
     from .database import CoinPaymentsOrder, CampaignPack
+    from datetime import datetime as _dt
     if not user:
         return JSONResponse({"error": "Authentication required"}, status_code=401)
-    if (getattr(user, "plan", None) or "none") != "matrix":
-        return JSONResponse({"error": "Not on the Matrix plan"}, status_code=400)
+    plan = getattr(user, "plan", None) or "none"
+    if plan == "p2p":
+        return JSONResponse({"error": "You're on the Peer-to-Peer plan",
+                             "redirect": "/packs"}, status_code=400)
     if not nps.is_configured():
         return JSONResponse({"error": "Crypto payments are not enabled yet"}, status_code=503)
     try:
@@ -4002,27 +4005,168 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
         tier = int(body.get("tier") or 0)
     except (TypeError, ValueError):
         tier = 0
-    network = (body.get("network") or "trc20").lower()
-    if network not in ("trc20", "bep20", "erc20"):
-        network = "trc20"
-    pack = db.query(CampaignPack).filter(CampaignPack.level == tier).first()
+    pack = db.query(CampaignPack).filter(
+        CampaignPack.level == tier, CampaignPack.is_active == True).first()
     if not pack:
         return JSONResponse({"error": "Unknown pack"}, status_code=400)
+    if plan == "none":
+        user.plan = "matrix"
+        if hasattr(user, "plan_locked_at") and not getattr(user, "plan_locked_at", None):
+            user.plan_locked_at = _dt.utcnow()
     order = CoinPaymentsOrder(user_id=user.id, pack_level=tier, amount_usd=pack.price,
-                             pay_network=network, status="created")
+                             pay_network="any", status="created")
     db.add(order); db.flush()
     order.internal_order_id = f"ALM-{user.id}-{order.id}"
-    ipn_url = str(request.base_url).rstrip("/") + "/api/webhook/coinpayments"
-    res = cps.create_invoice(amount_usd=float(pack.price),
-                             item_name=f"{pack.name} campaign pack",
-                             custom=order.internal_order_id, buyer_email=(user.email or ""))
-    if not res.get("ok"):
+    res = nps.create_matrix_invoice(user_id=user.id, pack_level=tier, price=float(pack.price),
+                                    order_row_id=order.id, item_name=f"{pack.name} campaign pack")
+    if not res.get("success"):
         order.status = "failed"; db.commit()
         return JSONResponse({"error": res.get("error", "checkout failed")}, status_code=502)
-    order.txn_id = res.get("invoice_id"); order.checkout_url = res.get("checkout_url")
+    order.txn_id = str(res.get("np_id")); order.checkout_url = res.get("invoice_url")
     order.status = "pending"; db.commit()
-    return JSONResponse({"ok": True, "checkout_url": res.get("checkout_url"),
-                        "address": res.get("address"), "amount": res.get("amount")})
+    return JSONResponse({"ok": True, "checkout_url": res.get("invoice_url"),
+                        "amount": float(pack.price)})
+
+
+_AL_MATRIX_BUY_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Activate a Package — AdvantageLife</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--muted:#64748b;--line:#e6ecf5;--bg:#f4f7fc;--green:#16a34a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--navy);padding:26px 18px 70px}
+  .wrap{max-width:900px;margin:0 auto}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .back{color:var(--navy2);font-weight:800;font-size:14px;text-decoration:none}
+  .who{color:var(--muted);font-weight:700;font-size:13px}
+  h1{font-size:32px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:14.5px;font-weight:500;max-width:640px;line-height:1.5}
+  .planpill{display:inline-flex;align-items:center;gap:7px;background:#eef3ff;color:var(--navy2);font-weight:800;font-size:12px;padding:5px 12px;border-radius:20px;margin-top:12px}
+  .planpill .d{width:8px;height:8px;border-radius:50%;background:var(--navy2)}
+  .steps{display:flex;gap:10px;margin:20px 0}
+  .step{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+  .step.on{border-color:var(--red);box-shadow:0 4px 14px rgba(200,16,46,.09)}
+  .step .num{width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--muted);font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step.on .num{background:var(--red);color:#fff}
+  .step .lbl b{display:block;font-size:13px;font-weight:800}
+  .step .lbl span{font-size:11px;color:var(--muted);font-weight:600}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:0 8px 30px rgba(10,31,82,.06)}
+  .selrow{display:flex;justify-content:space-between;align-items:baseline}
+  .selname{font-size:25px;font-weight:900;letter-spacing:-.5px}
+  .selname .act{font-size:11px;font-weight:800;color:var(--green);background:#e5f6ec;border:1px solid #b8e6c8;padding:3px 10px;border-radius:20px;margin-left:9px;vertical-align:3px}
+  .selprice{font-size:38px;font-weight:900;letter-spacing:-1.5px}
+  .selprice em{font-size:18px;font-style:normal;color:var(--muted);font-weight:800;vertical-align:7px}
+  .selviews{font-size:13.5px;color:var(--muted);font-weight:700;margin-top:2px}
+  .slwrap{margin:24px 0 6px}
+  input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:8px;background:linear-gradient(90deg,var(--navy2),var(--red));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:4px solid var(--red);box-shadow:0 3px 10px rgba(200,16,46,.35);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:4px solid var(--red);cursor:pointer}
+  .ticks{display:flex;justify-content:space-between;margin-top:9px}
+  .ticks span{font-size:10px;color:var(--muted);font-weight:800}
+  .ticks span.a{color:var(--red)}
+  .earn{margin-top:20px;background:#f7faff;border:1px solid #e2ebfa;border-radius:14px;padding:15px 17px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .earn .el{font-size:12.5px;color:var(--navy2);font-weight:800;max-width:380px}
+  .earn .el span{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px;line-height:1.45}
+  .earn .ev{font-size:28px;font-weight:900;color:var(--green);letter-spacing:-1px;text-align:right}
+  .earn .ev em{font-size:12px;font-style:normal;color:var(--muted);font-weight:700;display:block}
+  .pay{display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap;gap:16px}
+  .chains{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chain{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:11.5px;font-weight:800}
+  .chain .dot{width:8px;height:8px;border-radius:50%}
+  .payr{text-align:right;margin-left:auto}
+  .payr .t{font-size:12px;color:var(--muted);font-weight:700}
+  .payr .a{font-size:28px;font-weight:900;letter-spacing:-1px}
+  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:900;font-size:15px;border:none;border-radius:12px;padding:14px 28px;cursor:pointer;margin-top:8px;text-decoration:none}
+  .cta:hover{background:#a80d26}.cta:disabled{opacity:.6;cursor:default}
+  .secure{font-size:11px;color:var(--muted);font-weight:600;margin-top:8px}
+  .note{background:#eef3ff;border:1px solid #d6e2fb;border-radius:12px;padding:12px 15px;margin-top:16px;font-size:12.5px;color:var(--navy2);font-weight:600;line-height:1.5}
+  .disc{font-size:10.5px;color:var(--muted);font-weight:500;margin-top:10px;line-height:1.5}
+  #err{display:none;background:#fdeaec;border:1px solid #f3bcc3;color:var(--red);font-weight:700;font-size:13px;border-radius:10px;padding:11px 14px;margin-top:14px}
+</style></head>
+<body><div class="wrap">
+  <div class="top"><a class="back" href="/dashboard">← Dashboard</a><span class="who" id="who"></span></div>
+  <h1>Activate a Package</h1>
+  <div class="sub">Every package is a real ad campaign — your ad gets watched by real members, and you earn across your matrix as your team activates the same package.</div>
+  <div class="planpill"><span class="d"></span> You're on the Matrix plan</div>
+  <div class="steps">
+    <div class="step on"><span class="num">1</span><span class="lbl"><b>Choose package</b><span>Slide to pick your tier</span></span></div>
+    <div class="step"><span class="num">2</span><span class="lbl"><b>Pay with crypto</b><span>USDT · secure checkout</span></span></div>
+    <div class="step"><span class="num">3</span><span class="lbl"><b>Build your campaign</b><span>The ad that gets watched</span></span></div>
+  </div>
+  <div class="card">
+    <div class="selrow"><div class="selname" id="snm">—</div><div class="selprice" id="spr"></div></div>
+    <div class="selviews" id="svw"></div>
+    <div class="slwrap"><input type="range" id="sl" min="0" max="0" step="1" value="0"><div class="ticks" id="ticks"></div></div>
+    <div class="earn">
+      <div class="el">Potential earnings per live campaign, if matrix filled
+        <span>A full 3×5 matrix (363 positions). Most positions won't fully fill — this is the maximum a completed campaign can pay, not a promise.</span></div>
+      <div class="ev" id="ev"></div>
+    </div>
+    <div class="pay">
+      <div><div class="t" style="font-size:12px;color:var(--muted);font-weight:700">Pay in USDT on any chain</div>
+        <div class="chains"><span class="chain"><span class="dot" style="background:#f0b90b"></span>BSC</span><span class="chain"><span class="dot" style="background:#26a17b"></span>Tron</span><span class="chain"><span class="dot" style="background:#627eea"></span>Ethereum</span></div></div>
+      <div class="payr"><div class="t">Total to pay</div><div class="a" id="amt"></div>
+        <button class="cta" id="paybtn" onclick="pay()">Pay with crypto →</button>
+        <div class="secure">🔒 Secure checkout · funds to AdvantageLife</div></div>
+    </div>
+    <div id="err"></div>
+  </div>
+  <div class="note"><b>How it works:</b> pay → build your campaign ad → it goes live and delivers its views (about <b id="vn"></b> views), then it expires. <b>Reactivate before it runs out to keep earning</b> — if your package lapses, sales in your team pass up to the next active member above you (you have a 48-hour grace period).</div>
+  <div class="disc">No earnings are promised or guaranteed. Figures show the maximum a single completed campaign could pay if every matrix position filled and stayed qualified, which is uncommon. What you earn depends on your own effort and your team's activity. See our income disclosure.</div>
+</div>
+<script>
+  var INIT={{BUY_INIT}};
+  var P=INIT.packages||[];
+  document.getElementById('who').textContent=(INIT.username?'@'+INIT.username:'')+' · Matrix plan';
+  function fmt(n){return n.toLocaleString('en-US');}
+  var sl=document.getElementById('sl'); sl.max=Math.max(0,P.length-1);
+  var t=document.getElementById('ticks'); P.forEach(function(p,i){var s=document.createElement('span');s.textContent='$'+p.price;s.id='tk'+i;t.appendChild(s);});
+  function cur(){return P[+sl.value]||P[0];}
+  function upd(){var i=+sl.value,p=P[i]; if(!p)return;
+    document.getElementById('snm').innerHTML=p.name+(p.owned?' <span class="act">✓ Active</span>':'');
+    document.getElementById('spr').innerHTML='<em>$</em>'+p.price;
+    document.getElementById('svw').textContent=fmt(p.views)+' campaign views delivered';
+    document.getElementById('ev').innerHTML='up to $'+fmt(Math.round(p.price*66.6))+'<em>if fully filled</em>';
+    document.getElementById('amt').textContent='$'+Number(p.price).toFixed(2);
+    document.getElementById('vn').textContent=fmt(p.views);
+    document.getElementById('paybtn').innerHTML=(p.owned?'Reactivate — pay with crypto →':'Pay with crypto →');
+    for(var k=0;k<P.length;k++){var e=document.getElementById('tk'+k); if(e)e.className=(k===i?'a':'');}
+  }
+  sl.addEventListener('input',upd); upd();
+  function pay(){
+    var b=document.getElementById('paybtn'), er=document.getElementById('err'); er.style.display='none';
+    b.disabled=true; b.textContent='Creating secure checkout…';
+    fetch('/api/al/matrix/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tier:cur().tier})})
+      .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+      .then(function(o){
+        if(o.j&&o.j.checkout_url){window.location.href=o.j.checkout_url;return;}
+        if(o.j&&o.j.redirect){window.location.href=o.j.redirect;return;}
+        er.textContent=(o.j&&o.j.error)?o.j.error:'Could not start checkout. Please try again.'; er.style.display='block';
+        b.disabled=false; upd();
+      }).catch(function(){er.textContent='Network error — please try again.';er.style.display='block';b.disabled=false;upd();});
+  }
+</script></body></html>"""
+
+
+@app.get("/matrix/buy")
+def matrix_buy_page(request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """Matrix-plan pack purchase page (separate from the P2P /packs flow)."""
+    if not user:
+        return RedirectResponse("/login?next=/matrix/buy", status_code=303)
+    plan = getattr(user, "plan", None) or "none"
+    if plan == "p2p":
+        return RedirectResponse("/packs", status_code=303)
+    import app.al_matrix_engine as _me
+    cat = _me.pack_catalog(db)
+    owned = set(_me.owned_tiers(db, user))
+    packages = [{"tier": p["level"], "name": p["name"], "price": int(p["price"]),
+                 "views": p["views"], "owned": (p["level"] in owned)} for p in cat]
+    uname = (getattr(user, "username", None)
+             or ((user.email or "").split("@")[0] if getattr(user, "email", None) else ""))
+    init = {"packages": packages, "username": uname, "plan": plan}
+    html = _AL_MATRIX_BUY_PAGE.replace("{{BUY_INIT}}", json.dumps(init))
+    return HTMLResponse(html)
 
 
 _AL_MATRIX_PAGE = r"""<!doctype html>
