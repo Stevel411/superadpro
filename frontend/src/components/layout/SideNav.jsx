@@ -99,13 +99,8 @@ export default function SideNav({ active }) {
               {n.children.map(function (c) {
                 const on = curPath === c.to;
                 return (
-                  <Link key={c.to} to={c.to} style={{
-                    display: 'flex', alignItems: 'center', gap: 9, padding: '9px 13px', borderRadius: 9,
-                    fontSize: 13.5, fontWeight: on ? 800 : 600, textDecoration: 'none',
-                    color: on ? '#fff' : 'rgba(201,214,240,0.92)',
-                    background: on ? 'rgba(200,16,46,0.18)' : 'transparent',
-                  }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: on ? '#ff2743' : 'rgba(127,143,184,0.9)', flex: 'none' }} />
+                  <Link key={c.to} to={c.to} className={'subnav' + (on ? ' on' : '')}>
+                    <span className="dot" />
                     {t(c.tk, { defaultValue: c.label })}
                   </Link>
                 );
@@ -127,9 +122,8 @@ export default function SideNav({ active }) {
         const isCol = isCollapsed(g.header);
         return (
           <div key={'g' + gi} style={{ marginTop: 8 }}>
-            <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none', padding: '15px 15px 6px', marginBottom: isCol ? 0 : 2 }}>
-              <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: '.8px', textTransform: 'uppercase', color: '#b7c6ee', display: 'flex', alignItems: 'center', gap: 8 }}>{g.icon ? <span style={{ fontSize: 14 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
+            <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol} className="grphead">
+              <span className="gh">{g.icon ? <span style={{ fontSize: 14 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
                 <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

@@ -50,6 +50,14 @@ const CSS = `
 .al .side a .ic{font-size:1.05em;width:22px;text-align:center;flex:none;line-height:1}
 .al .side a.on{background:linear-gradient(120deg,#c8102e,#ff2743);border-color:transparent;color:#fff;box-shadow:0 10px 22px -10px rgba(200,16,46,.55)}
 .al .side a:not(.on):hover{background:rgba(255,255,255,.07);color:#fff}
+.al .side .grphead{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:13px 15px;margin:8px 0 5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px}
+.al .side .grphead:hover{border-color:rgba(255,255,255,.22)}
+.al .side .grphead .gh{font-size:13px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#b7c6ee;display:flex;align-items:center;gap:8px}
+.al .side .subnav{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:9px;font-size:13.5px;font-weight:600;text-decoration:none;color:rgba(201,214,240,.92);background:transparent;border:0;margin:2px 0;transition:background .12s,color .12s,box-shadow .12s}
+.al .side .subnav:hover{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #5b7fc4}
+.al .side .subnav.on{font-weight:800;color:#fff;background:rgba(200,16,46,.18)}
+.al .side .subnav .dot{width:6px;height:6px;border-radius:50%;background:rgba(127,143,184,.9);flex:none}
+.al .side .subnav.on .dot{background:#ff2743}
 .al .side .navhdr{font-size:10px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.42);text-transform:uppercase;padding:15px 16px 6px}
 .al .side .sdiv{height:1px;background:rgba(255,255,255,.12);margin:14px 6px;margin-top:auto}
 .al .wshBack{position:fixed;inset:0;background:rgba(10,31,82,.55);z-index:120;display:flex;align-items:center;justify-content:center;padding:18px}
