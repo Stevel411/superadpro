@@ -790,6 +790,9 @@ export default function NewDashboard() {
             {menuOpen && (
               <div className="menu">
                 <div className="mhead"><b>{name}</b><span>@{user?.username || ''}</span></div>
+                <a href={(user && user.plan === 'p2p') ? '/wallet' : '/earnings'}>💰 Wallet & Earnings</a>
+                <a href="/payout-methods">💳 Payment Details</a>
+                <div className="sep"></div>
                 <Link to="/account">Profile</Link>
                 <Link to="/account?tab=security">Security</Link>
                 <a href="/support-center">Support</a>
