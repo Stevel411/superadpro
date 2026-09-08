@@ -73,6 +73,12 @@ def default_is_qualified(db: Session, user_id: int, tier: int) -> bool:
     _u = db.query(User).filter(User.id == user_id).first()
     if _u is not None and getattr(_u, "is_admin", False):
         return True
+    # lazily expire past-grace packs so the matrix gate reflects reality (no scheduler)
+    try:
+        import app.al_engine as _eng
+        _eng._expire_overdue_packs(db, user_id)
+    except Exception:
+        pass
     owns = (db.query(PackPurchase)
               .filter(PackPurchase.user_id == user_id,
                       PackPurchase.pack_level == tier,
@@ -274,6 +280,53 @@ def tier_name(db, level):
         if p["level"] == level:
             return p["name"]
     return "Tier " + str(level)
+
+
+RUNNING_LOW_PCT = 85  # amber "running low" once a campaign is this % delivered
+
+
+def package_status(db: Session, user_id: int):
+    """Per-tier lifecycle status for a member's matrix packs, for the
+    Active / Running-low / Expired component. Triggers lazy expiry first so the
+    state is current. state in: active | running_low | grace | expired."""
+    from app.database import PackPurchase, VideoCampaign
+    try:
+        import app.al_engine as _eng
+        _eng._expire_overdue_packs(db, user_id)
+    except Exception:
+        pass
+    cat = {p["level"]: p for p in pack_catalog(db)}
+    rows = (db.query(PackPurchase)
+              .filter(PackPurchase.user_id == user_id)
+              .order_by(PackPurchase.id.desc()).all())
+    out, seen = [], set()
+    for r in rows:
+        lvl = int(r.pack_level or 0)
+        if lvl not in cat or lvl in seen:
+            continue
+        seen.add(lvl)
+        info = cat[lvl]
+        camp = (db.query(VideoCampaign).filter(VideoCampaign.id == r.campaign_id).first()
+                if r.campaign_id else None)
+        delivered = int(getattr(camp, "views_delivered", 0) or 0) if camp else 0
+        target = int(info.get("views") or (getattr(camp, "views_target", 0) if camp else 0) or 0)
+        pct = min(100, round(100.0 * delivered / target)) if target else 0
+        if r.status == "expired":
+            state = "expired"
+        elif r.completed_at is not None:
+            state = "grace"          # views delivered; earning during the grace window
+        elif pct >= RUNNING_LOW_PCT:
+            state = "running_low"
+        else:
+            state = "active"
+        out.append({
+            "tier": lvl, "name": info["name"],
+            "views_target": target, "views_delivered": delivered, "pct": pct,
+            "state": state,
+            "grace_until": r.grace_expires_at.isoformat() if r.grace_expires_at else None,
+        })
+    out.sort(key=lambda x: x["tier"])
+    return out
 
 
 def owned_tiers(db, user):

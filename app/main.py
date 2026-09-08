@@ -4483,6 +4483,16 @@ def admin_matrix_debug(user: User = Depends(get_current_user), db: Session = Dep
     })
 
 
+@app.get("/api/al/matrix/package-status")
+def api_matrix_package_status(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Per-tier lifecycle status (active/running_low/grace/expired) for the
+    member's matrix packages — drives the status component."""
+    if not user:
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    import app.al_matrix_engine as _me
+    return JSONResponse({"packages": _me.package_status(db, user.id)})
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""
