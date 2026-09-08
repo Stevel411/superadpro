@@ -55,7 +55,7 @@ const CSS = `
 .al .side .grphead .gh{font-size:13px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#b7c6ee;display:flex;align-items:center;gap:8px}
 .al .side .subnav{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:9px;font-size:13.5px;font-weight:600;text-decoration:none;color:rgba(201,214,240,.92);background:transparent;border:0;margin:2px 0;transition:background .12s,color .12s,box-shadow .12s}
 .al .side .subnav:hover{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #5b7fc4}
-.al .side .subnav.on{font-weight:800;color:#fff;background:rgba(200,16,46,.18)}
+.al .side .subnav.on{font-weight:800;color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 3px 0 0 #5b7fc4}
 .al .side .subnav .dot{width:6px;height:6px;border-radius:50%;background:rgba(127,143,184,.9);flex:none}
 .al .side .subnav.on .dot{background:#ff2743}
 .al .side .navhdr{font-size:10px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.42);text-transform:uppercase;padding:15px 16px 6px}
@@ -80,7 +80,7 @@ const CSS = `
 .al .wshCopy{background:#fff;color:#0a1f52;border:1.5px solid #e2e8f0 !important}
 .al .wshNote{font-size:12px;color:#64748b;margin-top:11px;text-align:center}
 /* ── daily wisdom ── */
-.al .wis{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px 26px 20px;position:relative;overflow:hidden;margin-bottom:20px}
+.al .wis{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px 26px 20px;position:relative;overflow:hidden;margin-top:20px;margin-bottom:20px}
 .al .wis::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:#c8102e}
 .al .wis .wd{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#64748b;margin-bottom:14px}
 .al .wis .wd b{color:#12388f}
@@ -189,7 +189,9 @@ const CSS = `
    space-between spreads the two cards to the full height, so the last one
    lands flush with the video's bottom edge without stretching a card's
    internals or leaving a hole inside it. */
-.al .rightcol{justify-content:space-between}
+.al .rightcol{justify-content:space-between;min-height:0}
+.al .rightcol .laf-card{height:100%;display:flex;flex-direction:column;min-height:0}
+.al .rightcol .laf-feed{flex:1 1 auto;max-height:none;min-height:0}
 .al .rightcol>.card{flex:0 1 auto}
 .al .card.cboard .rows{min-height:0;overflow-y:auto}
 @media(max-width:900px){.al .row{grid-template-columns:1fr}}

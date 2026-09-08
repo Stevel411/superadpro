@@ -45,7 +45,7 @@ const CHROME = `
 .al .side .grphead .gh{font-size:13px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:#b7c6ee;display:flex;align-items:center;gap:8px}
 .al .side .subnav{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:9px;font-size:13.5px;font-weight:600;text-decoration:none;color:rgba(201,214,240,.92);background:transparent;border:0;margin:2px 0;transition:background .12s,color .12s,box-shadow .12s}
 .al .side .subnav:hover{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 3px 0 0 #5b7fc4}
-.al .side .subnav.on{font-weight:800;color:#fff;background:rgba(200,16,46,.18)}
+.al .side .subnav.on{font-weight:800;color:#fff;background:rgba(255,255,255,.08);box-shadow:inset 3px 0 0 #5b7fc4}
 .al .side .subnav .dot{width:6px;height:6px;border-radius:50%;background:rgba(127,143,184,.9);flex:none}
 .al .side .subnav.on .dot{background:#ff2743}
 .al .albk{display:inline-flex;align-items:center;gap:6px;color:#5a6584;font-weight:800;font-size:12.5px;margin-bottom:12px}
