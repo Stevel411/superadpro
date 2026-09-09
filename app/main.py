@@ -4481,21 +4481,27 @@ def admin_seed_master(user: User = Depends(get_current_user), db: Session = Depe
 
 
 @app.get("/admin/api/al/matrix/test-checkout")
-def admin_matrix_test_checkout(tier: int = 10, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Admin-only: create a REAL CoinPayments invoice for a controlled test payment."""
+def admin_matrix_test_checkout(tier: int = 10, as_user: int = 0, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin-only: create a REAL NOWPayments invoice for a controlled test payment.
+    as_user lets the invoice be billed as another member (the downline buyer)."""
     _require_admin(user)
     from . import nowpayments_service as nps
-    from .database import CoinPaymentsOrder, CampaignPack
+    from .database import CoinPaymentsOrder, CampaignPack, User as _U
     if not nps.is_configured():
         return JSONResponse({"error": "NOWPayments not configured"}, status_code=503)
+    buyer = user
+    if as_user:
+        buyer = db.query(_U).filter(_U.id == as_user).first()
+        if not buyer:
+            return JSONResponse({"error": "as_user not found"}, status_code=404)
     pack = db.query(CampaignPack).filter(CampaignPack.level == tier).order_by(CampaignPack.id.asc()).first()
     if not pack:
         return JSONResponse({"error": "unknown tier"}, status_code=400)
-    order = CoinPaymentsOrder(user_id=user.id, pack_level=tier, amount_usd=pack.price,
+    order = CoinPaymentsOrder(user_id=buyer.id, pack_level=tier, amount_usd=pack.price,
                              pay_network="any", status="created")
     db.add(order); db.flush()
-    order.internal_order_id = f"ALM-{user.id}-{order.id}"
-    res = nps.create_matrix_invoice(user_id=user.id, pack_level=tier, price=float(pack.price),
+    order.internal_order_id = f"ALM-{buyer.id}-{order.id}"
+    res = nps.create_matrix_invoice(user_id=buyer.id, pack_level=tier, price=float(pack.price),
                                     order_row_id=order.id, item_name=f"{pack.name} campaign pack (TEST)")
     if not res.get("success"):
         order.status = "failed"; db.commit()
@@ -4786,6 +4792,57 @@ async def admin_matrix_mark_paid(request: Request, user: User = Depends(get_curr
     db.commit()
     return JSONResponse({"ok": True, "members_paid": len(ids), "commissions_marked": marked,
                          "total_paid": out["totals"]["payout_total"]})
+
+
+@app.get("/admin/api/al/matrix/make-eligible")
+def admin_make_eligible(uid: int, tier: int = 10, wallet: str = "0xTEST000000000000000000000000000000000000",
+                        network: str = "bsc", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin/dry-run: make a (test) member eligible to earn at a tier — active
+    pack + matrix position + watch-qualified today + payout wallet."""
+    _require_admin(user)
+    from .database import User as _U, PackPurchase, CampaignPack, WatchQuota
+    import app.al_matrix as _mx
+    import datetime as _dtm
+    m = db.query(_U).filter(_U.id == uid).first()
+    if not m:
+        return JSONResponse({"error": "user not found"}, status_code=404)
+    pack = db.query(CampaignPack).filter(CampaignPack.level == tier).order_by(CampaignPack.id.asc()).first()
+    if not pack:
+        return JSONResponse({"error": "unknown tier"}, status_code=400)
+    # active pack (if not already owned at this tier)
+    have = db.query(PackPurchase).filter(PackPurchase.user_id == uid, PackPurchase.pack_level == tier,
+                                         PackPurchase.status == "active").first()
+    if not have:
+        db.add(PackPurchase(user_id=uid, pack_id=pack.id, pack_level=tier, amount=pack.price,
+                            payment_method="grant", status="active", tx_ref="DRYRUN-%d-%d" % (uid, tier),
+                            activated_at=_dtm.datetime.utcnow(), created_at=_dtm.datetime.utcnow(), source="grant"))
+        db.flush()
+    # matrix position
+    _mx.place(db, uid, tier)
+    # watch-qualified today: quota met outright
+    todaystr = _dtm.datetime.utcnow().strftime("%Y-%m-%d")
+    q = db.query(WatchQuota).filter(WatchQuota.user_id == uid).first()
+    if q is None:
+        q = WatchQuota(user_id=uid, daily_required=1)
+        db.add(q)
+    q.daily_required = 1
+    q.today_date = todaystr
+    q.today_watched = max(q.today_watched or 0, 1)
+    q.last_quota_met = todaystr
+    q.commissions_paused = False
+    # set plan + wallet
+    if (getattr(m, "plan", None) or "none") == "none":
+        m.plan = "matrix"
+    m.wallet_address = wallet
+    m.wallet_network = network
+    db.commit()
+    # report resulting eligibility
+    import app.al_engine as _eng, app.al_matrix_engine as _me
+    return JSONResponse({"ok": True, "uid": uid, "username": m.username, "tier": tier,
+                         "owned": tier in _me.owned_tiers(db, m),
+                         "watch_qualified": bool(_eng.watch_qualified(db, uid)),
+                         "wallet": m.wallet_address, "network": m.wallet_network,
+                         "note": "If watch_qualified is false, complete a real daily watch for this account, or use the watch-credit path."})
 
 
 @app.get("/admin/api/al/matrix/testers")
