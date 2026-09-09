@@ -81520,6 +81520,7 @@ def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
 @app.get("/api/al/packs")
 def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db)):
     """Pack tiers + the caller's earning state + any open intent."""
+    from .database import MatrixCommission as _MC_pk
     _al_expire_stale(db)
     packs = (db.query(CampaignPack).filter(CampaignPack.is_active == True)
                .order_by(CampaignPack.level).all())
@@ -81536,6 +81537,8 @@ def al_list_packs(user: User = Depends(_al_user), db: Session = Depends(get_db))
         "earning_level": _ale.earning_level(db, user.id),
         "watch_qualified": _ale.watch_qualified(db, user.id),
         "has_payout_method": _ale.payable(db, user.id),
+        "matrix_earned": round(float(db.query(func.coalesce(func.sum(_MC_pk.amount), 0))
+                                     .filter(_MC_pk.earner_id == user.id, _MC_pk.is_company == False).scalar() or 0), 2),
         "has_draft_ad": bool(db.query(VideoCampaign.id).filter(
             VideoCampaign.user_id == user.id,
             VideoCampaign.status == "draft").first()),

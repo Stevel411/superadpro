@@ -104,6 +104,9 @@ const CSS = `
 .al .hero .k{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ff8fa0;margin-bottom:16px}
 .al .hero .k::before{content:'';width:26px;height:3px;background:#c8102e;border-radius:2px}
 .al .hero .lbl{font-size:15.5px;font-weight:700;color:#aebcf0;margin-bottom:2px}
+.al .hero .ebreak{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.85)}
+.al .hero .ebreak b{color:#fff;font-weight:900}
+.al .hero .ebreak .dot{opacity:.5}
 .al .hero .big{font-weight:900;font-size:clamp(48px,6.4vw,70px);letter-spacing:-3px;line-height:1.03}
 .al .hero .cap{font-size:15.5px;font-weight:600;color:#c9d6f7;margin:6px 0 20px}
 .al .hero .pill{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(120deg,#c8102e,#e8203f);border-radius:13px;padding:14px 22px;font-weight:900;font-size:15.5px;box-shadow:0 12px 26px -10px rgba(200,16,46,.7)}
@@ -532,7 +535,9 @@ export default function NewDashboard() {
   const nextIsOps = nextPos === 3;
   const nextPassesUp = nextPos === 6 || nextPos === 9 || nextPos === 11;
   const confirmedSales = ((alSales || {}).sales || []).filter(function (x) { return x.status === 'confirmed'; });
-  const earnedTotal = confirmedSales.reduce(function (a, x) { return a + Number(x.amount || 0); }, 0);
+  const p2pEarned = confirmedSales.reduce(function (a, x) { return a + Number(x.amount || 0); }, 0);
+  const matrixEarned = Number(ap.matrix_earned || 0);
+  const earnedTotal = p2pEarned + matrixEarned;
   const team = Number(d.total_team || 0);
   const activeTeam = Number(d.directs_active != null ? d.directs_active : (d.network_active || 0));
   const watchedToday = !!w.watched_today;
@@ -850,6 +855,11 @@ export default function NewDashboard() {
                 <div className="k">{t('dashboard.yourEarnings')}</div>
                 <div className="lbl">{t('dashboard.totalEarned')}</div>
                 <div className="big">{formatMoney(earnedTotal)}</div>
+                <div className="ebreak">
+                  <span>🕸️ Matrix <b>{formatMoney(matrixEarned)}</b></span>
+                  <span className="dot">·</span>
+                  <span>🤝 Peer-to-Peer <b>{formatMoney(p2pEarned)}</b></span>
+                </div>
                 <div className="cap">Welcome back, {name}{isAdmin ? '' : (ownedPack ? (' — earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : ' — no pack yet')}</div>
                 {!isAdmin && (
                   <span className="pill">{cycleCount}/11 this cycle · next {nextPos === 0 ? 'is yours — 100%' : ('(#' + nextPos + ') ' + (nextIsOps ? 'funds the platform' : nextPassesUp ? 'passes up' : 'yours — 100%'))}</span>
