@@ -4788,6 +4788,32 @@ async def admin_matrix_mark_paid(request: Request, user: User = Depends(get_curr
                          "total_paid": out["totals"]["payout_total"]})
 
 
+@app.get("/admin/api/al/matrix/testers")
+def admin_matrix_testers(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin: state of @test* accounts for dry-run planning — sponsor, owned
+    tiers, watch-qualified, matrix positions."""
+    _require_admin(user)
+    from .database import User as _U, PackPurchase, MatrixPosition
+    import app.al_engine as _eng, app.al_matrix_engine as _me
+    testers = (db.query(_U).filter(_U.username.ilike("test%")).order_by(_U.id.asc()).all())
+    out = []
+    for u in testers:
+        owned = sorted({int(r[0]) for r in db.query(PackPurchase.pack_level)
+                        .filter(PackPurchase.user_id == u.id, PackPurchase.status == "active").all()})
+        pos = db.query(MatrixPosition.tier).filter(MatrixPosition.user_id == u.id).all()
+        try:
+            wq = bool(_eng.watch_qualified(db, u.id))
+        except Exception:
+            wq = False
+        sp = db.query(_U).filter(_U.id == u.sponsor_id).first() if u.sponsor_id else None
+        out.append({"id": u.id, "username": u.username, "sponsor_id": u.sponsor_id,
+                    "sponsor_name": (sp.username if sp else None),
+                    "plan": getattr(u, "plan", None), "owned_tiers": owned,
+                    "matrix_positions": sorted({int(t[0]) for t in pos}),
+                    "watch_qualified": wq, "wallet": bool(getattr(u, "wallet_address", None))})
+    return JSONResponse({"count": len(out), "testers": out})
+
+
 @app.get("/admin/api/al/matrix/health")
 def admin_matrix_health(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Phase 1 verification — confirm the matrix schema is live in this DB."""
