@@ -3987,9 +3987,7 @@ async def matrix_checkout(request: Request, user: User = Depends(get_current_use
     if not user:
         return JSONResponse({"error": "Authentication required"}, status_code=401)
     plan = getattr(user, "plan", None) or "none"
-    if plan == "p2p":
-        return JSONResponse({"error": "You're on the Peer-to-Peer plan",
-                             "redirect": "/packs"}, status_code=400)
+    # Both systems are open — no exclusivity. plan just records the home/first plan.
     if not nps.is_configured():
         return JSONResponse({"error": "Crypto payments are not enabled yet"}, status_code=503)
     try:
@@ -4151,8 +4149,6 @@ def matrix_buy_page(request: Request, user: User = Depends(get_current_user),
     if not user:
         return RedirectResponse("/login?next=/matrix/buy", status_code=303)
     plan = getattr(user, "plan", None) or "none"
-    if plan == "p2p":
-        return RedirectResponse("/packs", status_code=303)
     import app.al_matrix_engine as _me
     cat = _me.pack_catalog(db)
     owned = set(_me.owned_tiers(db, user))

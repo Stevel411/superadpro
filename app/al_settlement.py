@@ -211,6 +211,11 @@ def confirm(db: Session, intent_id: int, confirmed_by: int = None, do_commit: bo
     buyer_row = db.query(User).filter(User.id == intent.buyer_id).first()
     if buyer_row is not None:
         buyer_row.cycle_sale_count = 0
+        # Record home/first plan on first activation (both plans stay available).
+        if (getattr(buyer_row, "plan", None) or "none") == "none":
+            buyer_row.plan = "p2p"
+            if hasattr(buyer_row, "plan_locked_at") and not getattr(buyer_row, "plan_locked_at", None):
+                buyer_row.plan_locked_at = datetime.utcnow()
 
     # Flip the pre-created ad live so it enters the watch feed now that the sale
     # is confirmed. New flow parks it as 'draft', legacy as 'pending' — activate
