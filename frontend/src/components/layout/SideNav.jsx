@@ -14,6 +14,7 @@ export const NAV = [
   { header: 'THE MATRIX', icon: '🕸️', tk: 'nav.grpMatrix' },
   { key: 'matrix-buy', tk: 'nav.activateMatrix', label: 'Activate a Package', icon: '🚀', to: '/matrix/buy', link: false },
   { key: 'matrix', tk: 'nav.myMatrix', label: 'My Matrix', icon: '🕸️', to: '/matrix', link: false },
+  { key: 'matrix-comp', tk: 'nav.howMatrixPays', label: 'How the Matrix Pays', icon: '💵', to: '/how-matrix-pays', link: false },
   { header: 'PEER-TO-PEER', icon: '🤝', tk: 'nav.grpP2P' },
   { key: 'start', tk: 'nav.gettingStarted', label: 'Getting Started', icon: '⭐', to: '/start-here', link: true },
   { key: 'packs', tk: 'nav.activateP2P', label: 'Activate a Package', icon: '📦', to: '/packs', link: false },

@@ -4083,6 +4083,7 @@ _AL_MATRIX_BUY_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="ut
   <h1>Activate a Package</h1>
   <div class="sub">Every package is a real ad campaign — your ad gets watched by real members, and you earn across your matrix as your team activates the same package.</div>
   <div class="planpill"><span class="d"></span> You're on the Matrix plan</div>
+  <div style="margin-top:10px"><a href="/how-matrix-pays" style="color:#12388f;font-weight:800;font-size:13px;text-decoration:none">New to the matrix? See how it pays \u2192</a></div>
   <div class="steps">
     <div class="step on"><span class="num">1</span><span class="lbl"><b>Choose package</b><span>Slide to pick your tier</span></span></div>
     <div class="step"><span class="num">2</span><span class="lbl"><b>Pay with crypto</b><span>USDT · secure checkout</span></span></div>
@@ -10479,6 +10480,143 @@ def internal_tools_pages(request: Request):
 # route showing direct referrals + earnings breakdown + commission
 # history. Auth/data gates live on /api/network — this is just the
 # React SPA shell handler so direct URL access works.
+_AL_MATRIX_EXPLAINER = r"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--muted:#64748b;--line:#e6ecf5;--bg:#f4f7fc;--green:#16a34a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--navy);padding:0 0 60px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px}
+  .hero{background:linear-gradient(160deg,#12388f,#0a1f52);color:#fff;padding:44px 18px 40px;text-align:center;border-radius:0 0 26px 26px;margin-bottom:26px}
+  .hero .k{font-size:12px;font-weight:900;letter-spacing:1px;color:#7fa0e0;text-transform:uppercase}
+  .hero h1{font-size:38px;font-weight:900;letter-spacing:-1px;margin:8px 0}
+  .hero p{font-size:16px;font-weight:500;color:#c9d6f7;max-width:560px;margin:0 auto;line-height:1.55}
+  h2{font-size:22px;font-weight:900;letter-spacing:-.3px;margin:28px 0 12px}
+  .lead{color:var(--muted);font-size:14.5px;font-weight:500;line-height:1.55;margin-bottom:14px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+  .step .n{width:28px;height:28px;border-radius:8px;background:var(--red);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .step b{display:block;font-size:14px;font-weight:900;margin:9px 0 4px}
+  .step span{font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.45}
+  /* levels */
+  .levels{background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px 18px;margin:6px 0}
+  .lv{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .lv:last-child{border-bottom:0}
+  .lv .lc{width:44px;height:44px;border-radius:11px;background:#eef3ff;color:var(--navy2);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+  .lv.l5 .lc{background:#fdeaec;color:var(--red)}
+  .lv .li{flex:1}
+  .lv .li b{font-size:14.5px;font-weight:900}
+  .lv .li span{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+  .lv .pct{font-size:20px;font-weight:900;color:var(--green)}
+  .lv .pct em{display:block;font-size:11px;font-style:normal;color:var(--muted);font-weight:700;text-align:right}
+  .tierpick{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+  .tchip{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer;color:var(--navy)}
+  .tchip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .lvhead{display:grid;grid-template-columns:52px 1fr 60px 90px 110px;gap:10px;padding:11px 4px;font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line)}
+  .lvhead .r,.lvrow .r{text-align:right}
+  .lvrow{display:grid;grid-template-columns:52px 1fr 60px 90px 110px;gap:10px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);font-size:13.5px;font-weight:700}
+  .lvrow .lc{width:40px;height:40px;border-radius:10px;background:#eef3ff;color:var(--navy2);font-weight:900;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .lvrow.l5 .lc{background:#fdeaec;color:var(--red)}
+  .lvrow .persale{color:var(--navy);font-weight:800}
+  .lvrow .tot{color:var(--green);font-weight:900;text-align:right}
+  .lvtot{display:flex;justify-content:space-between;align-items:center;padding:14px 4px 6px;font-size:14px;font-weight:900}
+  .lvtot span:last-child{color:var(--green);font-size:20px}
+  /* table */
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  th,td{padding:12px 15px;font-size:13.5px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{background:#f7faff;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  td.nm{font-weight:900}
+  td.pot{font-weight:900;color:var(--green)}
+  .gates{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .gate{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .gate b{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:900}
+  .gate p{font-size:12.5px;color:var(--muted);font-weight:600;line-height:1.5;margin-top:6px}
+  .cta{display:block;text-align:center;background:var(--red);color:#fff;font-weight:900;font-size:16px;border-radius:14px;padding:16px;text-decoration:none;margin-top:24px}
+  .disc{font-size:11px;color:var(--muted);font-weight:500;margin-top:16px;line-height:1.55;text-align:center}
+</style></head><body>
+  <div class="hero">
+    <div class="k">The Matrix</div>
+    <h1>How the Matrix Pays</h1>
+    <p>Activate a package, and you earn a share every time someone in your team — five levels deep — activates the same package. Paid weekly in USDT.</p>
+  </div>
+  <div class="wrap">
+    <h2>How it works</h2>
+    <div class="lead">Each package has its own <b>3-wide, 5-deep</b> matrix — up to <b>363 positions</b>. You have 3 front-line spots; as your team (and spillover from your upline) fills in, your matrix grows beneath you.</div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b>Activate a package</b><span>Buy a campaign pack in USDT. Your ad goes live and you claim your matrix position.</span></div>
+      <div class="step"><div class="n">2</div><b>Your team fills in</b><span>People you refer sit on your front line; overflow spills down to the next open spot.</span></div>
+      <div class="step"><div class="n">3</div><b>Earn 5 levels deep</b><span>Every activation in your 5-level matrix pays you a commission — automatically.</span></div>
+    </div>
+
+    <h2>What each level pays</h2>
+    <div class="lead">Pick a package to see the exact commission per level. On a full matrix, the deeper levels hold the most positions — where the potential compounds.</div>
+    <div class="tierpick" id="tierpick"></div>
+    <div class="levels">
+      <div class="lvhead"><span>Level</span><span>Positions</span><span>Rate</span><span>Per sale</span><span class="r">Level total</span></div>
+      <div id="lvrows"></div>
+      <div class="lvtot"><span>Full-matrix total (if completely filled)</span><span id="lvtotal">$666</span></div>
+    </div>
+
+    <h2>Income potential per package</h2>
+    <div class="lead">If a matrix fills completely, here's the maximum a single completed campaign can pay. Most positions never fully fill — these are ceilings, not promises.</div>
+    <table>
+      <tr><th>Package</th><th>Price</th><th>Full-matrix potential</th></tr>
+      <tr><td class="nm">Launchpad</td><td>$10</td><td class="pot">up to $666</td></tr>
+      <tr><td class="nm">Starter</td><td>$20</td><td class="pot">up to $1,332</td></tr>
+      <tr><td class="nm">Builder</td><td>$50</td><td class="pot">up to $3,330</td></tr>
+      <tr><td class="nm">Pro</td><td>$100</td><td class="pot">up to $6,660</td></tr>
+      <tr><td class="nm">Advanced</td><td>$200</td><td class="pot">up to $13,320</td></tr>
+      <tr><td class="nm">Premium</td><td>$400</td><td class="pot">up to $26,640</td></tr>
+      <tr><td class="nm">Elite</td><td>$600</td><td class="pot">up to $39,960</td></tr>
+      <tr><td class="nm">Master</td><td>$800</td><td class="pot">up to $53,280</td></tr>
+      <tr><td class="nm">Champion</td><td>$1,000</td><td class="pot">up to $66,600</td></tr>
+    </table>
+
+    <h2>To earn, stay qualified</h2>
+    <div class="gates">
+      <div class="gate"><b>📦 Own the package</b><p>You earn on a level only if you hold an active package at that tier or higher. Activate the tiers you want to earn from.</p></div>
+      <div class="gate"><b>📺 Do your daily watch</b><p>Complete your daily watch to stay qualified to earn — with a 48-hour grace window. It's what makes the ads real.</p></div>
+    </div>
+    <div class="lead" style="margin-top:14px">Packages deliver a set number of ad views, then expire — <b>reactivate to keep earning</b> and hold your position. Commissions are paid to your USDT wallet <b>every week</b>.</div>
+
+    <a class="cta" href="/matrix/buy">Activate a package →</a>
+    <div class="disc">No income is promised or guaranteed. Figures show the maximum a single completed matrix could pay if every position filled and stayed qualified, which is uncommon. Your results depend on your own effort and your team's activity. See our full income disclosure.</div>
+  </div>
+<script>
+  var TIERS=[["Launchpad",10],["Starter",20],["Builder",50],["Pro",100],["Advanced",200],["Premium",400],["Elite",600],["Master",800],["Champion",1000]];
+  var LV=[[1,3,15],[2,9,15],[3,27,15],[4,81,15],[5,243,20]];
+  var sel=0;
+  function money(x){return x.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function moneyc(x){return x.toLocaleString('en-US');}
+  var tp=document.getElementById('tierpick');
+  TIERS.forEach(function(t,i){var b=document.createElement('div');b.className='tchip'+(i===0?' on':'');b.textContent=t[0]+' $'+t[1];b.onclick=function(){sel=i;draw();};tp.appendChild(b);});
+  function draw(){
+    var price=TIERS[sel][1], total=0, h='';
+    LV.forEach(function(l){
+      var persale=price*l[2]/100, tot=persale*l[1]; total+=tot;
+      h+='<div class="lvrow'+(l[0]===5?' l5':'')+'"><div class="lc">L'+l[0]+'</div>'+
+         '<div>'+l[1]+' position'+(l[1]>1?'s':'')+'</div>'+
+         '<div>'+l[2]+'%</div>'+
+         '<div class="persale">$'+money(persale)+'</div>'+
+         '<div class="tot">$'+money(tot)+'</div></div>';
+    });
+    document.getElementById('lvrows').innerHTML=h;
+    document.getElementById('lvtotal').textContent='$'+moneyc(Math.round(total));
+    Array.prototype.forEach.call(tp.children,function(c,i){c.className='tchip'+(i===sel?' on':'');});
+  }
+  draw();
+</script>
+</body></html>
+"""
+
+
+@app.get("/how-matrix-pays", response_class=HTMLResponse)
+def how_matrix_pays_page(request: Request):
+    """Public Matrix comp-plan explainer with income potential."""
+    return HTMLResponse(_AL_MATRIX_EXPLAINER)
+
+
 _AL_NETWORK_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Network — AdvantageLife</title>
 <style>
