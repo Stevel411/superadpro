@@ -67,30 +67,30 @@ def _tier_price(db: Session, tier: int) -> Decimal:
 
 
 def default_is_qualified(db: Session, user_id: int, tier: int) -> bool:
-    """Real qualification gate: owns an active pack at this tier AND is
-    watch-qualified. The master/company account (admin) is qualified for life in
-    every matrix. (Callers may inject their own predicate for testing.)"""
+    """EARN / accrual gate for the matrix: owns an active pack at this tier.
+
+    Watch-qualification is deliberately NOT checked here. In this model the daily
+    watch is the WITHDRAWAL gate, not the earn gate: a pack owner accrues their
+    commissions regardless of whether they've done today's watch, and simply
+    can't WITHDRAW until watch-qualified (the weekly payout batch holds anyone
+    who isn't). So missing a watch never loses a commission or compresses it away
+    — it just holds it. Compression here only skips uplines who don't own the
+    pack at this level ('skin in the game'). Admin/master qualifies for life.
+    (Callers may inject their own predicate for testing.)"""
     _u = db.query(User).filter(User.id == user_id).first()
     if _u is not None and getattr(_u, "is_admin", False):
         return True
-    # lazily expire past-grace packs so the matrix gate reflects reality (no scheduler)
+    # lazily expire past-grace packs so the gate reflects reality (no scheduler)
     try:
         import app.al_engine as _eng
         _eng._expire_overdue_packs(db, user_id)
     except Exception:
         pass
-    owns = (db.query(PackPurchase)
+    return (db.query(PackPurchase)
               .filter(PackPurchase.user_id == user_id,
                       PackPurchase.pack_level == tier,
                       PackPurchase.status == "active")
               .first() is not None)
-    if not owns:
-        return False
-    try:
-        import app.al_engine as eng
-        return bool(eng.watch_qualified(db, user_id))
-    except Exception:
-        return False
 
 
 def _resolve_level_payee(level_user: dict, qualified_ids: set, k: int):
