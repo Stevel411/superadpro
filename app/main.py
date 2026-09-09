@@ -10535,6 +10535,9 @@ _AL_MATRIX_EXPLAINER = r"""<!DOCTYPE html><html><head><meta charset="utf-8"><met
   .cta{display:block;text-align:center;background:var(--red);color:#fff;font-weight:900;font-size:16px;border-radius:14px;padding:16px;text-decoration:none;margin-top:24px}
   .disc{font-size:11px;color:var(--muted);font-weight:500;margin-top:16px;line-height:1.55;text-align:center}
 </style></head><body>
+  <div style="max-width:860px;margin:0 auto;padding:16px 18px 0">
+    <a href="/dashboard" style="color:#12388f;font-weight:800;font-size:14px;text-decoration:none">&larr; Back to Dashboard</a>
+  </div>
   <div class="hero">
     <div class="k">The Matrix</div>
     <h1>How the Matrix Pays</h1>
