@@ -81459,6 +81459,32 @@ def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
     methods = db.query(PayoutMethod).filter(PayoutMethod.user_id == member_id).all()
     payout = [{"type": pm.method_type, "is_default": bool(pm.is_default)} for pm in methods]
 
+    # ── Matrix (new plan): earnings, placement, payout wallet ──
+    from .database import MatrixCommission, MatrixPosition
+    _mxr = db.query(MatrixCommission).filter(MatrixCommission.earner_id == member_id,
+                                             MatrixCommission.is_company == False).all()
+    _mxpaid = sum(float(c.amount or 0) for c in _mxr if c.status == "paid")
+    _mxpend = sum(float(c.amount or 0) for c in _mxr if c.status != "paid")
+    _mxpos = sorted({int(t[0]) for t in db.query(MatrixPosition.tier)
+                     .filter(MatrixPosition.user_id == member_id).all()})
+    _mxup = None
+    _fp = (db.query(MatrixPosition).filter(MatrixPosition.user_id == member_id)
+             .order_by(MatrixPosition.tier.asc()).first())
+    if _fp and _fp.parent_id:
+        _par = db.query(MatrixPosition).filter(MatrixPosition.id == _fp.parent_id).first()
+        if _par:
+            _pu = db.query(User).filter(User.id == _par.user_id).first()
+            _mxup = _pu.username if _pu else None
+    _myposids = [r[0] for r in db.query(MatrixPosition.id).filter(MatrixPosition.user_id == member_id).all()]
+    _mxfront = (db.query(func.count(MatrixPosition.id))
+                  .filter(MatrixPosition.parent_id.in_(_myposids)).scalar() or 0) if _myposids else 0
+    matrix = {
+        "earned_total": round(_mxpaid + _mxpend, 2), "earned_paid": round(_mxpaid, 2),
+        "earned_pending": round(_mxpend, 2), "positions": _mxpos, "upline": _mxup,
+        "front_line": int(_mxfront), "wallet": bool(getattr(m, "wallet_address", None)),
+        "wallet_network": getattr(m, "wallet_network", None),
+    }
+
     # ── Tree ──
     sponsor = db.query(User.username).filter(User.id == m.sponsor_id).first() if m.sponsor_id else None
     passup = db.query(User.username).filter(User.id == m.pass_up_sponsor_id).first() if m.pass_up_sponsor_id else None
@@ -81481,6 +81507,7 @@ def al_admin_member_detail(member_id: int, user: User = Depends(_al_user),
         "sales_made": sales_made,
         "packs": packs,
         "earnings": earnings,
+        "matrix": matrix,
         "payout_methods": payout,
         "tree": {
             "sponsor_id": m.sponsor_id, "sponsor": sponsor[0] if sponsor else None,

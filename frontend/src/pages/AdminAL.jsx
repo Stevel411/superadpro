@@ -286,6 +286,21 @@ function MemberDetail({ id, onClose }) {
               <div style={{ fontSize: 12, color: MUTED, marginTop: 3 }}>ID {d.id} · joined {d.created_at ? new Date(d.created_at).toLocaleDateString('en-GB') : '—'}</div>
             </div>
 
+            {d.matrix && <div style={box}>
+              <div style={lab}>🕸️ Matrix earnings</div>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: 10 }}>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: GREEN }}>{money(d.matrix.earned_total)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Total</div></div>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: NAVY }}>{money(d.matrix.earned_paid)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Paid</div></div>
+                <div><div style={{ fontSize: 24, fontWeight: 900, color: '#b45309' }}>{money(d.matrix.earned_pending)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Pending</div></div>
+              </div>
+              <div style={{ borderTop: '1px solid ' + LINE, paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12.5 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>In matrices</span><b style={{ color: NAVY }}>{(d.matrix.positions && d.matrix.positions.length) ? d.matrix.positions.map(t => 'L' + t).join(', ') : '—'}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Placed under</span><b style={{ color: NAVY }}>{d.matrix.upline ? '@' + d.matrix.upline : '— (root)'}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Front line filled</span><b style={{ color: NAVY }}>{d.matrix.front_line}</b></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: MUTED, fontWeight: 600 }}>Payout wallet</span><b style={{ color: d.matrix.wallet ? GREEN : RED }}>{d.matrix.wallet ? (d.matrix.wallet_network || 'set').toUpperCase() : 'none — payouts held'}</b></div>
+              </div>
+            </div>}
+
             <div style={box}>
               <div style={lab}>Can this member earn?</div>
               <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
@@ -294,12 +309,12 @@ function MemberDetail({ id, onClose }) {
                 {pill(d.gates.payable, 'Has payout method')}
               </div>
               <div style={{ fontSize: 12, color: MUTED, marginTop: 10, fontWeight: 600, lineHeight: 1.5 }}>
-                All three are required for a sale to pay them. Any failing gate sends the sale up their chain.
+                Owns a pack + Watch-qualified = qualified to earn (Matrix commissions accrue; unqualified Matrix levels compress up the chain). A payout wallet is needed to receive Matrix payouts — P2P settles member-to-member.
               </div>
             </div>
 
             <div style={box}>
-              <div style={lab}>Earnings received</div>
+              <div style={lab}>🤝 Peer-to-Peer earnings</div>
               <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: d.earnings.count ? 12 : 0 }}>
                 <div><div style={{ fontSize: 24, fontWeight: 900, color: GREEN }}>{money(d.earnings.total)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Total</div></div>
                 <div><div style={{ fontSize: 24, fontWeight: 900, color: NAVY }}>{money(d.earnings.paid)}</div><div style={{ fontSize: 11, color: MUTED, fontWeight: 700 }}>Paid</div></div>
@@ -332,7 +347,7 @@ function MemberDetail({ id, onClose }) {
 
             <div style={box}>
               <div style={lab}>Payout methods</div>
-              {d.payout_methods.length === 0 ? <div style={{ fontSize: 12.5, color: RED, fontWeight: 700 }}>None on file — sales skip this member.</div>
+              {d.payout_methods.length === 0 ? <div style={{ fontSize: 12.5, color: RED, fontWeight: 700 }}>None on file. Matrix commissions still accrue but are held until a wallet is added; P2P settles member-to-member.</div>
                 : <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                   {d.payout_methods.map((pm, i) => <span key={i} style={{ fontSize: 12, fontWeight: 800, padding: '4px 11px', borderRadius: 8, background: '#eef2f8', color: NAVY }}>{pm.type}{pm.is_default ? ' · default' : ''}</span>)}
                 </div>}
