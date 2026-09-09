@@ -4699,15 +4699,20 @@ def _compute_payout_batch(db, min_payout):
             wq = bool(_eng.watch_qualified(db, uid))
         except Exception:
             wq = False
+        try:
+            sq = bool(_eng.share_qualified(db, uid))
+        except Exception:
+            sq = False
         addr = (getattr(m, "wallet_address", "") or "").strip()
         net = (getattr(m, "wallet_network", "") or "").strip().lower()
         rec = {"user_id": uid, "username": (m.username or (m.email or "").split("@")[0]),
                "amount": round(owed, 2), "network": net or None, "address": addr or None,
-               "watch_qualified": wq}
+               "watch_qualified": wq, "share_qualified": sq}
         reasons = []
         if owed < float(min_payout): reasons.append("below_min")
         if not addr: reasons.append("no_payout_wallet")
         if not wq: reasons.append("not_watch_qualified")
+        if not sq: reasons.append("not_shared_this_week")
         if reasons:
             rec["reason"] = ",".join(reasons); held.append(rec)
         else:
@@ -59117,11 +59122,11 @@ def api_share_my_link(request: Request, user: User = Depends(get_current_user),
         "verified_views_this_week": int(views_this_week),
         "share_count": int(link.share_count or 0),
         # Phase 1 honesty — surfaced in the UI so nobody is blindsided later.
-        "phase": 1,
+        "phase": 2,
         "gates_commission": False,
-        "notice": ("Sharing doesn't affect your commission yet. It will in a later "
-                   "release — we're measuring real sharing first so the required "
-                   "number is fair, and we'll tell you before it changes."),
+        "notice": ("Share your showcase page at least once a week to keep your "
+                   "withdrawals unlocked. New advertisers get a short grace period "
+                   "after your first ad goes live."),
     }
 
 
