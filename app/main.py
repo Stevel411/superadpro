@@ -10479,12 +10479,167 @@ def internal_tools_pages(request: Request):
 # route showing direct referrals + earnings breakdown + commission
 # history. Auth/data gates live on /api/network — this is just the
 # React SPA shell handler so direct URL access works.
+_AL_NETWORK_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Network — AdvantageLife</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--muted:#64748b;--line:#e6ecf5;--bg:#f4f7fc;--green:#16a34a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--navy);padding:26px 18px 60px}
+  .wrap{max-width:900px;margin:0 auto}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .back{color:var(--navy2);font-weight:800;font-size:14px;text-decoration:none}
+  .who{color:var(--muted);font-weight:700;font-size:13px}
+  h1{font-size:30px;font-weight:900;letter-spacing:-.5px}
+  .sub{color:var(--muted);font-size:14px;font-weight:500;margin-bottom:18px}
+  .sys{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+  .syscard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .syscard.matrix{border-top:4px solid var(--navy2)}
+  .syscard.p2p{border-top:4px solid var(--red)}
+  .syscard .hh{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:900}
+  .syscard .hh .ic{font-size:18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .stat .k{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .stat .v{font-size:26px;font-weight:900;margin-top:2px}
+  .stat .v.g{color:var(--green)}
+  .cnote{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:12px;line-height:1.45}
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:10px 18px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .tab.on.matrix{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .tab.on.p2p{background:var(--red);color:#fff;border-color:var(--red)}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:12px 15px;font-size:13.5px;border-bottom:1px solid var(--line)}
+  th{background:#f7faff;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .who2{font-weight:800}
+  .tag{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px}
+  .tag.d{background:#e7edf9;color:var(--navy2)}.tag.s{background:#e5f6ec;color:var(--green)}
+  td.amt{font-weight:900;text-align:right;color:var(--green)}
+  .empty{text-align:center;color:var(--muted);font-weight:600;font-size:13.5px;padding:30px}
+</style></head><body><div class="wrap">
+  <div class="top"><a class="back" href="/dashboard">&larr; Dashboard</a><span class="who" id="who"></span></div>
+  <h1>My Network</h1>
+  <div class="sub">Your team and earnings across both systems. Peer-to-Peer settles directly member-to-member; Matrix commissions are paid to you weekly.</div>
+  <div class="sys">
+    <div class="syscard matrix"><div class="hh"><span class="ic">&#128376;</span> The Matrix</div>
+      <div class="grid2"><div class="stat"><div class="k">Commissions earned</div><div class="v g" id="mEarn">$0.00</div></div>
+      <div class="stat"><div class="k">People in your matrices</div><div class="v" id="mCount">0</div></div></div>
+      <div class="cnote">Paid to you weekly in USDT. Spillover included.</div></div>
+    <div class="syscard p2p"><div class="hh"><span class="ic">&#129309;</span> Peer-to-Peer</div>
+      <div class="grid2"><div class="stat"><div class="k">Earned (direct)</div><div class="v g" id="pEarn">$0.00</div></div>
+      <div class="stat"><div class="k">People you've referred</div><div class="v" id="pCount">0</div></div></div>
+      <div class="cnote">Settled member-to-member &mdash; no platform payout. Your sales history.</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on matrix" id="tabM" onclick="show('m')"><span>&#128376;</span> <span id="tabMlbl">Matrix network</span></div>
+    <div class="tab p2p" id="tabP" onclick="show('p')"><span>&#129309;</span> <span id="tabPlbl">P2P team</span></div>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+  var NET={{NETWORK_DATA}}, UN="{{USERNAME}}";
+  document.getElementById('who').textContent = UN ? '@'+UN : '';
+  function money(x){return (x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  document.getElementById('mEarn').textContent='$'+money(NET.matrix.earned);
+  document.getElementById('mCount').textContent=NET.matrix.count;
+  document.getElementById('pEarn').textContent='$'+money(NET.p2p.earned);
+  document.getElementById('pCount').textContent=NET.p2p.count;
+  document.getElementById('tabMlbl').textContent='Matrix network ('+NET.matrix.count+')';
+  document.getElementById('tabPlbl').textContent='P2P team ('+NET.p2p.count+')';
+  function show(which){
+    document.getElementById('tabM').classList.toggle('on',which==='m');
+    document.getElementById('tabP').classList.toggle('on',which==='p');
+    var el=document.getElementById('list'),h='';
+    if(which==='m'){
+      var ppl=NET.matrix.people||[];
+      if(!ppl.length){ el.innerHTML='<div class="empty">No one in your matrices yet. As your team activates packs, they\'ll appear here.</div>'; return; }
+      h='<table><tr><th>Member</th><th>How</th><th>Joined</th><th>Level</th><th style="text-align:right">Earned you</th></tr>';
+      ppl.forEach(function(m){ h+='<tr><td class="who2">@'+esc(m.username)+'</td>'+
+        '<td><span class="tag '+(m.kind==='spillover'?'s':'d')+'">'+(m.kind==='spillover'?'Spillover':'Your referral')+'</span></td>'+
+        '<td>'+esc(m.joined)+'</td><td>L'+m.level+'</td><td class="amt">$'+money(m.earned)+'</td></tr>'; });
+      h+='</table>';
+    } else {
+      var ppl=NET.p2p.people||[];
+      if(!ppl.length){ el.innerHTML='<div class="empty">You haven\'t referred anyone yet. Share your link to build your P2P team.</div>'; return; }
+      h='<table><tr><th>Member</th><th>How</th><th>Joined</th><th style="text-align:right">Earned you</th></tr>';
+      ppl.forEach(function(m){ h+='<tr><td class="who2">@'+esc(m.username)+'</td>'+
+        '<td><span class="tag d">Your referral</span></td><td>'+esc(m.joined)+'</td><td class="amt">$'+money(m.earned)+'</td></tr>'; });
+      h+='</table>';
+    }
+    el.innerHTML=h;
+  }
+  show('m');
+</script></body></html>"""
+
+
+def _al_my_network(db, user):
+    """Per-system network + earnings: Matrix (weekly-paid commissions + matrix
+    downline) and Peer-to-Peer (direct-settled sales + referrals)."""
+    from .database import MatrixCommission, P2PIntent, User as _U
+    import app.al_matrix as _mx, app.al_matrix_engine as _me
+    uid = user.id
+    def _nm(u): return (u.username or ((u.email or "").split("@")[0]) or ("#" + str(u.id)))
+    def _jd(u):
+        d = getattr(u, "created_at", None)
+        return d.strftime("%d %b %Y") if d else ""
+    # ---- Matrix ----
+    m_earned = float(db.query(func.coalesce(func.sum(MatrixCommission.amount), 0))
+                       .filter(MatrixCommission.earner_id == uid,
+                               MatrixCommission.is_company == False).scalar() or 0)
+    perbuyer = {}
+    for bid, amt in (db.query(MatrixCommission.buyer_id, func.sum(MatrixCommission.amount))
+                       .filter(MatrixCommission.earner_id == uid, MatrixCommission.is_company == False)
+                       .group_by(MatrixCommission.buyer_id).all()):
+        perbuyer[bid] = float(amt or 0)
+    m_people = {}
+    for tier in _me.owned_tiers(db, user):
+        pos = _mx.get_position(db, uid, tier)
+        if not pos:
+            continue
+        try:
+            levels = _mx.downline_by_level(db, pos, tier)
+        except Exception:
+            levels = {}
+        for lvl, poss in (levels or {}).items():
+            for pp in poss:
+                pu = db.query(_U).filter(_U.id == pp.user_id).first()
+                if not pu:
+                    continue
+                if pu.id in m_people and m_people[pu.id]["level"] <= lvl:
+                    continue
+                m_people[pu.id] = {"username": _nm(pu), "level": lvl,
+                                   "kind": ("referral" if getattr(pu, "sponsor_id", None) == uid else "spillover"),
+                                   "joined": _jd(pu), "earned": round(perbuyer.get(pu.id, 0), 2)}
+    m_list = sorted(m_people.values(), key=lambda x: (x["level"], -x["earned"]))
+    # ---- Peer-to-Peer ----
+    p_earned = float(db.query(func.coalesce(func.sum(P2PIntent.amount), 0))
+                       .filter(P2PIntent.earner_id == uid, P2PIntent.status == "confirmed").scalar() or 0)
+    p_perbuyer = {}
+    for bid, amt in (db.query(P2PIntent.buyer_id, func.sum(P2PIntent.amount))
+                       .filter(P2PIntent.earner_id == uid, P2PIntent.status == "confirmed")
+                       .group_by(P2PIntent.buyer_id).all()):
+        p_perbuyer[bid] = float(amt or 0)
+    refs = db.query(_U).filter(_U.sponsor_id == uid).order_by(_U.id.desc()).all()
+    p_list = [{"username": _nm(r), "joined": _jd(r), "earned": round(p_perbuyer.get(r.id, 0), 2)} for r in refs]
+    p_list.sort(key=lambda x: -x["earned"])
+    return {"matrix": {"earned": round(m_earned, 2), "count": len(m_list), "people": m_list},
+            "p2p": {"earned": round(p_earned, 2), "count": len(p_list), "people": p_list}}
+
+
 @app.get("/my-team")
-def my_team_page(request: Request):
-    """Serve React SPA for the member My Team / Downline page."""
-    if _react_index.exists():
-        return _spa_shell()
-    return HTMLResponse("<h1>Loading...</h1>")
+def my_team_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """My Network — per-system team + earnings (Matrix & Peer-to-Peer)."""
+    if not user:
+        return RedirectResponse("/login?next=/my-team", status_code=303)
+    try:
+        data = _al_my_network(db, user)
+    except Exception as e:
+        logger.error("my-network build failed: %s", e)
+        data = {"matrix": {"earned": 0, "count": 0, "people": []},
+                "p2p": {"earned": 0, "count": 0, "people": []}}
+    uname = (getattr(user, "username", None) or ((user.email or "").split("@")[0] if getattr(user, "email", None) else ""))
+    html = _AL_NETWORK_PAGE.replace("{{NETWORK_DATA}}", json.dumps(data)).replace("{{USERNAME}}", uname)
+    return HTMLResponse(html)
 
 # Admin Network Tree — full deep tree view across all users (20 May 2026).
 # Reuses the existing /admin/api/network-tree endpoint which returns

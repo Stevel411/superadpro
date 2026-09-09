@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 export const NAV = [
   { key: 'dashboard', tk: 'nav.dashboard', label: 'Dashboard', icon: '🏠', to: '/dashboard', link: true },
   { key: 'watch', tk: 'nav.dailyWatch', label: 'Daily Watch', icon: '📺', to: '/watch', link: true },
-  { key: 'team', tk: 'nav.myTeam', label: 'My Team', icon: '👥', to: '/my-team', link: true },
+  { key: 'team', tk: 'nav.myTeam', label: 'My Team', icon: '👥', to: '/my-team', link: false },
   { header: 'THE MATRIX', icon: '🕸️', tk: 'nav.grpMatrix' },
   { key: 'matrix-buy', tk: 'nav.activateMatrix', label: 'Activate a Package', icon: '🚀', to: '/matrix/buy', link: false },
   { key: 'matrix', tk: 'nav.myMatrix', label: 'My Matrix', icon: '🕸️', to: '/matrix', link: false },
