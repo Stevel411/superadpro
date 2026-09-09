@@ -121,15 +121,16 @@ export default function SideNav({ active }) {
       {NAV_GROUPS.map(function (g, gi) {
         if (!g.header) return <div key={'g' + gi}>{g.items.map(renderItem)}</div>;
         const isCol = isCollapsed(g.header);
+        const sysCls = g.header === 'THE MATRIX' ? ' matrix' : g.header === 'PEER-TO-PEER' ? ' p2p' : g.header === 'MARKETING' ? ' mkt' : '';
         return (
           <div key={'g' + gi}>
-            <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol} className="grphead">
+            <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol} className={'grphead' + sysCls}>
               <span className="gh">{g.icon ? <span style={{ fontSize: 14 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
                 <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.65)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div style={{ overflow: 'hidden', maxHeight: isCol ? 0 : 1000, transition: 'max-height .22s ease', paddingLeft: 4 }}>
+            <div className={'grpsub' + sysCls} style={{ overflow: 'hidden', maxHeight: isCol ? 0 : 1000, transition: 'max-height .22s ease', paddingLeft: 4 }}>
               {g.items.map(renderItem)}
             </div>
           </div>
