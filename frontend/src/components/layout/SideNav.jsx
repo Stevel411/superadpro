@@ -121,7 +121,7 @@ export default function SideNav({ active }) {
         if (!g.header) return <div key={'g' + gi}>{g.items.map(renderItem)}</div>;
         const isCol = isCollapsed(g.header);
         return (
-          <div key={'g' + gi} style={{ marginTop: 8 }}>
+          <div key={'g' + gi}>
             <div onClick={function () { toggleGroup(g.header); }} role="button" aria-expanded={!isCol} className="grphead">
               <span className="gh">{g.icon ? <span style={{ fontSize: 14 }}>{g.icon}</span> : null}{g.tk ? t(g.tk, { defaultValue: g.header }) : g.header}</span>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ transform: isCol ? 'rotate(-90deg)' : 'none', transition: 'transform .18s ease', flex: 'none' }}>
