@@ -59141,14 +59141,11 @@ def api_share_mark_shared(user: User = Depends(get_current_user),
     fire the feed event, and a brand-new member with no pack can't 'share'."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    has_showcase = (db.query(VideoCampaign.id)
-                      .filter(VideoCampaign.user_id == user.id,
-                              VideoCampaign.status.in_(["active", "paused"])).first())
-    if not has_showcase:
-        return JSONResponse({"error": "no_campaign",
-                             "message": "There's nothing to showcase yet — create your "
-                             "video ad and activate it with a pack first, then share."},
-                            status_code=400)
+    # The showcase page a member shares is the ROTATING POOL of everyone's
+    # campaigns (fair round-robin, like the banners) — NOT the member's own ad.
+    # So a member can share (and share-qualify) even before they've made their
+    # own ad; requiring an own-campaign here would wrongly trap members who
+    # haven't advertised yet. Any logged-in member may share the pool.
     link = _get_or_create_share_link(db, user)
     link.last_shared_at = datetime.utcnow()
     link.share_count = (link.share_count or 0) + 1
