@@ -12977,14 +12977,23 @@ def admin_api_test_email(
     try:
         from app.email_utils import send_welcome_free_email
         result = send_welcome_free_email(target, "Steve", "AdvantageLife")
-        # send_email returns bool or (bool, message_id) depending on call site
         ok = result[0] if isinstance(result, tuple) else bool(result)
         out["sent"] = ok
         if not ok:
-            out["error"] = "send_email returned falsy — provider rejected or not configured (check logs)"
+            out["error"] = "send_email returned falsy — provider rejected or not configured"
     except Exception as e:
         out["sent"] = False
         out["error"] = str(e)[:500]
+    # Raw SES diagnostic — surfaces the ACTUAL provider error (sandbox / unverified
+    # identity / bad creds), which the wrapper above swallows.
+    try:
+        r = mailer.ses_send(to_email=target, subject="AdvantageLife email test",
+                            html="<p>AdvantageLife SES connectivity test.</p>",
+                            text="AdvantageLife SES connectivity test.")
+        out["ses_raw"] = {"ok": r.get("ok"), "message_id": r.get("message_id"),
+                          "error": (r.get("error") or "")[:600]}
+    except Exception as e:
+        out["ses_raw"] = {"ok": False, "error": ("exception: " + str(e))[:600]}
     return JSONResponse(out)
 
 
