@@ -862,10 +862,10 @@ export default function NewDashboard() {
               <div className="hl">
                 <div className="k">{t('dashboard.yourEarnings')}</div>
                 <div className="lbl">{t('dashboard.totalEarned')}</div>
-                <div className="big">{formatMoney(earnedTotal)}</div>
+                <div className="big">${formatMoney(earnedTotal)}</div>
                 <div className="ebreak">
-                  <div className="ecard"><div className="et">🕸️ Matrix</div><div className="ev">{formatMoney(matrixEarned)}</div></div>
-                  <div className="ecard"><div className="et">🤝 Peer-to-Peer</div><div className="ev">{formatMoney(p2pEarned)}</div></div>
+                  <div className="ecard"><div className="et">🕸️ Matrix</div><div className="ev">${formatMoney(matrixEarned)}</div></div>
+                  <div className="ecard"><div className="et">🤝 Peer-to-Peer</div><div className="ev">${formatMoney(p2pEarned)}</div></div>
                 </div>
                 <div className="cap">Welcome back, {name}{isAdmin ? '' : (ownedPack ? (' — earning at the $' + Number(ownedPack.price).toLocaleString() + ' level') : ' — no pack yet')}</div>
                 {!isAdmin && (
