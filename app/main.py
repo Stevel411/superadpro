@@ -78267,39 +78267,93 @@ def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_
 
 
 # ── PRE-LAUNCH TEST-DATA PURGE (launch gate #6) ───────────────────────────
-# Removes @test* accounts and EVERY row reachable from them via foreign keys
-# (matrix positions/commissions, purchases, orders, intents, campaigns, blogs,
-# funnels, tickets + their messages, …) so the 611 real members launch with
-# EMPTY matrices and a ZEROED ledger. Dry-run by default; destructive only with
-# &apply=1 AND &expect_users=N. The whole apply is ONE transaction — it either
+# Removes @test* accounts and EVERY row reachable from them, discovering the
+# foreign-key graph from the LIVE DATABASE at runtime (information_schema) — so
+# it covers tables created via raw SQL as well as ORM models. Dry-run by
+# default; destructive only with &apply=1 AND &expect_users=N. One transaction:
 # fully succeeds or fully rolls back.
 #
-# Deletes run CHILDREN-FIRST down a full FK-dependency order (_PURGE_ORDER), each
-# table scoped by a subquery that bottoms out at the test-user id set — so a row
-# is only ever removed because it traces back to a test account. A real member's
-# row is unreachable from the test set (tree-integrity guard proves it), so it
-# can never be touched. Audit/secondary refs on any SURVIVING row are NULLed
-# (_PURGE_REF) before the final users delete.
-#
-# _PURGE_ORDER / _PURGE_SCOPE are GENERATED from the model FK graph — regenerate
-# them if the schema changes, don't hand-edit.
-_PURGE_ORDER = ["academy_progress", "achievements", "activity_events", "ad_assets", "admin_broadcasts", "admin_repair_log", "ai_usage_quotas", "al_banner_reports", "al_intent_messages", "al_ticket_messages", "blog_comments", "blog_media", "blog_menu_items", "blog_optin_forms", "blog_pages", "blog_post_tags", "blog_post_views", "brand_kits", "broadcast_log", "coinpayments_orders", "commissions", "copilot_briefings", "course_commissions", "course_passup_tracker", "course_progress", "crypto_payment_orders", "digital_product_affiliates", "digital_product_purchases", "digital_product_reviews", "direct_join_payments", "email_send_log", "explainer_video_views", "funnel_events", "funnel_leads", "game_scores", "gift_vouchers", "grid_plan_feedback", "grid_positions", "linkhub_clicks", "login_events", "marketing_asset_visits", "matrix_commissions", "matrix_positions", "member_course_lessons", "member_course_purchases", "member_showcase", "member_stories", "membership_renewals", "notifications", "nowpayments_orders", "nurture_sequences", "onchain_orphan_transfers", "p2p_transfers", "pack_commissions", "password_reset_tokens", "payments", "payout_methods", "pending_commissions", "platform_status", "poster_generations", "poster_template_shares", "prize_winners", "proseller_messages", "purchase_consents", "sending_domains", "share_codes", "share_views", "short_links", "signup_funnel_events", "step_up_balance", "stripe_charges", "superscene_credits", "superscene_orders", "superscene_pipelines", "superscene_videos", "superseller_campaigns", "team_messages", "team_pulse_actions", "traffic_events", "video_watches", "walletconnect_payment_orders", "watch_quotas", "wisdom_favourites", "withdrawal_approvals", "al_banner_ads", "al_support_tickets", "blog_posts", "blog_tags", "course_purchases", "digital_products", "explainer_videos", "grids", "link_rotators", "linkhub_links", "member_courses", "member_leads", "p2p_intents", "pack_purchases", "prospects", "share_links", "withdrawals", "blogs", "funnel_pages", "linkhub_profiles", "video_campaigns", "custom_domains", "lead_lists", "email_sequences"]
-_PURGE_SCOPE = {"short_links": [["user_id", "USER"], ["rotator_id", "link_rotators"]], "lead_lists": [["user_id", "USER"], ["sequence_id", "email_sequences"]], "team_pulse_actions": [["target_user_id", "USER"]], "blog_tags": [["blog_id", "blogs"]], "withdrawals": [["user_id", "USER"]], "blog_optin_forms": [["blog_id", "blogs"], ["lead_list_id", "lead_lists"]], "p2p_intents": [["buyer_id", "USER"], ["campaign_id", "video_campaigns"]], "funnel_leads": [["user_id", "USER"], ["page_id", "funnel_pages"]], "blog_comments": [["post_id", "blog_posts"]], "linkhub_profiles": [["user_id", "USER"]], "explainer_video_views": [["user_id", "USER"], ["video_id", "explainer_videos"]], "course_progress": [["user_id", "USER"]], "platform_status": [], "stripe_charges": [["user_id", "USER"]], "team_messages": [["from_user_id", "USER"]], "broadcast_log": [["user_id", "USER"]], "course_commissions": [["buyer_id", "USER"], ["purchase_id", "course_purchases"]], "grids": [["owner_id", "USER"]], "al_banner_ads": [["user_id", "USER"]], "prospects": [["user_id", "USER"]], "share_codes": [["owner_user_id", "USER"], ["source_page_id", "funnel_pages"]], "traffic_events": [["member_id", "USER"]], "wisdom_favourites": [["user_id", "USER"]], "superscene_credits": [["user_id", "USER"]], "watch_quotas": [["user_id", "USER"]], "notifications": [["user_id", "USER"]], "al_ticket_messages": [["ticket_id", "al_support_tickets"]], "al_intent_messages": [["sender_id", "USER"], ["intent_id", "p2p_intents"]], "brand_kits": [["user_id", "USER"]], "gift_vouchers": [["gifter_user_id", "USER"]], "game_scores": [["user_id", "USER"]], "member_stories": [["user_id", "USER"]], "signup_funnel_events": [["user_id", "USER"]], "matrix_positions": [["user_id", "USER"]], "copilot_briefings": [["user_id", "USER"]], "digital_product_reviews": [["buyer_id", "USER"], ["product_id", "digital_products"]], "link_rotators": [["user_id", "USER"]], "course_purchases": [["user_id", "USER"]], "member_course_purchases": [["buyer_id", "USER"], ["course_id", "member_courses"]], "membership_renewals": [["user_id", "USER"]], "superscene_orders": [["user_id", "USER"]], "video_watches": [["user_id", "USER"], ["campaign_id", "video_campaigns"]], "email_send_log": [["lead_id", "member_leads"], ["sequence_id", "email_sequences"]], "blog_media": [["blog_id", "blogs"]], "al_banner_reports": [["banner_id", "al_banner_ads"]], "email_sequences": [["user_id", "USER"]], "academy_progress": [["user_id", "USER"]], "step_up_balance": [["user_id", "USER"]], "superscene_pipelines": [["user_id", "USER"]], "explainer_videos": [], "linkhub_clicks": [["link_id", "linkhub_links"], ["profile_id", "linkhub_profiles"]], "poster_template_shares": [["sharer_user_id", "USER"]], "digital_product_purchases": [["buyer_id", "USER"], ["product_id", "digital_products"]], "nowpayments_orders": [["user_id", "USER"]], "payout_methods": [["user_id", "USER"]], "p2p_transfers": [["from_user_id", "USER"]], "crypto_payment_orders": [["user_id", "USER"]], "grid_plan_feedback": [["user_id", "USER"]], "pack_purchases": [["user_id", "USER"], ["campaign_id", "video_campaigns"]], "purchase_consents": [["user_id", "USER"]], "login_events": [["user_id", "USER"]], "sending_domains": [["user_id", "USER"]], "withdrawal_approvals": [["withdrawal_id", "withdrawals"]], "blogs": [["member_id", "USER"], ["custom_domain_id", "custom_domains"]], "proseller_messages": [["user_id", "USER"], ["prospect_id", "prospects"]], "member_showcase": [["user_id", "USER"]], "walletconnect_payment_orders": [["user_id", "USER"]], "marketing_asset_visits": [], "blog_menu_items": [["blog_id", "blogs"]], "digital_products": [["creator_id", "USER"]], "pack_commissions": [["buyer_id", "USER"], ["purchase_id", "pack_purchases"]], "pending_commissions": [["recipient_id", "USER"], ["grid_id", "grids"]], "grid_positions": [["member_id", "USER"], ["grid_id", "grids"]], "prize_winners": [["user_id", "USER"]], "blog_post_views": [["post_id", "blog_posts"]], "activity_events": [["user_id", "USER"]], "custom_domains": [["user_id", "USER"]], "blog_posts": [["blog_id", "blogs"]], "payments": [["from_user_id", "USER"]], "video_campaigns": [["user_id", "USER"]], "onchain_orphan_transfers": [], "superseller_campaigns": [["user_id", "USER"]], "linkhub_links": [["user_id", "USER"], ["profile_id", "linkhub_profiles"]], "al_support_tickets": [["user_id", "USER"]], "matrix_commissions": [["buyer_id", "USER"], ["purchase_id", "pack_purchases"]], "ad_assets": [["user_id", "USER"]], "admin_broadcasts": [["sent_by_user_id", "USER"]], "superscene_videos": [["user_id", "USER"]], "nurture_sequences": [["user_id", "USER"]], "password_reset_tokens": [["user_id", "USER"]], "funnel_pages": [["user_id", "USER"], ["default_list_id", "lead_lists"]], "member_courses": [["creator_id", "USER"]], "commissions": [["from_user_id", "USER"], ["grid_id", "grids"]], "users": [], "blog_post_tags": [["post_id", "blog_posts"], ["tag_id", "blog_tags"]], "funnel_events": [["user_id", "USER"], ["page_id", "funnel_pages"]], "course_passup_tracker": [["user_id", "USER"]], "achievements": [["user_id", "USER"]], "digital_product_affiliates": [["user_id", "USER"], ["product_id", "digital_products"]], "admin_repair_log": [], "member_course_lessons": [["course_id", "member_courses"]], "member_leads": [["user_id", "USER"], ["source_funnel_id", "funnel_pages"], ["list_id", "lead_lists"], ["email_sequence_id", "email_sequences"]], "poster_generations": [["user_id", "USER"]], "ai_usage_quotas": [["user_id", "USER"]], "blog_pages": [["blog_id", "blogs"]], "share_views": [["share_link_id", "share_links"], ["campaign_id", "video_campaigns"]], "share_links": [["user_id", "USER"]], "direct_join_payments": [["user_id", "USER"]], "coinpayments_orders": [["user_id", "USER"], ["purchase_id", "pack_purchases"]]}
+# Deletes run CHILDREN-FIRST down the real FK-dependency order, each table
+# scoped by a subquery that bottoms out at the test-user id set — a row is only
+# removed because it traces back to a test account, so a real member's row is
+# unreachable (tree-integrity guard proves it). Audit/secondary references to a
+# test user on SURVIVING rows are NULLed (_PURGE_REF) instead of deleted, so
+# shared/global rows (platform_status, etc.) aren't removed.
+
+# (table, col) FK edges to users that are NULLed instead of driving a delete.
 _PURGE_REF = {"admin_repair_log": ["admin_user_id"], "commissions": ["to_user_id"], "course_commissions": ["earner_id"], "digital_product_purchases": ["affiliate_id"], "explainer_videos": ["created_by_user_id"], "gift_vouchers": ["claimed_by_user_id", "reserved_for_user_id"], "marketing_asset_visits": ["signup_attributed_user_id"], "matrix_commissions": ["earner_id"], "matrix_positions": ["sponsor_id"], "member_course_purchases": ["sponsor_id"], "member_leads": ["attribution_user_id"], "onchain_orphan_transfers": ["resolved_by_user_id"], "p2p_intents": ["earner_id", "confirmed_by"], "p2p_transfers": ["to_user_id"], "pack_commissions": ["earner_id"], "payments": ["to_user_id"], "pending_commissions": ["trigger_id"], "platform_status": ["set_by_user_id"], "poster_template_shares": ["converted_user_id"], "prospects": ["converted_user_id"], "team_messages": ["to_user_id"], "team_pulse_actions": ["sponsor_user_id"], "video_campaigns": ["share_approved_by"], "withdrawal_approvals": ["approved_by_user_id"]}
 
 
-def _purge_scope_sql(table):
-    """Recursively build a WHERE predicate scoping `table` to the test-user set,
-    bottoming out at USER owner columns (`col = ANY(:ids)`) or climbing a parent
-    FK via a subquery. Children are always deleted before parents, so referenced
-    parent rows still exist when a child's subquery runs."""
-    parts = []
-    for col, kind in _PURGE_SCOPE.get(table, []):
-        if kind == "USER":
-            parts.append(f"{col} = ANY(:ids)")
-        else:
-            parts.append(f"{col} IN (SELECT id FROM {kind} WHERE {_purge_scope_sql(kind)})")
-    return "(" + " OR ".join(parts) + ")" if parts else "FALSE"
+def _live_fk_edges(db):
+    """Every single-column FK on the public schema, from the live DB:
+    returns list of (child_table, child_col, parent_table)."""
+    rows = db.execute(text("""
+        SELECT tc.table_name, kcu.column_name, ccu.table_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema   = kcu.table_schema
+        JOIN information_schema.constraint_column_usage ccu
+          ON tc.constraint_name = ccu.constraint_name
+         AND tc.table_schema   = ccu.table_schema
+        WHERE tc.constraint_type = 'FOREIGN KEY'
+          AND tc.table_schema = 'public'
+    """)).fetchall()
+    return [(r[0], r[1], r[2]) for r in rows]
+
+
+def _build_purge_plan(db):
+    """From the live FK graph, build the delete-graph (edges that drive a delete,
+    i.e. excluding the _PURGE_REF null-edges and self-loops), the closure of
+    tables reachable downward from `users`, a children-first delete order, and a
+    recursive scope-SQL builder. Returns (order, scope_sql_fn, closure)."""
+    edges = _live_fk_edges(db)
+    ref = {(t, c) for t, cols in _PURGE_REF.items() for c in cols}
+    dedges = [(ch, col, pa) for (ch, col, pa) in edges if ch != pa and (ch, col) not in ref]
+    parents_of = {}                       # child -> list of (col, parent)
+    for ch, col, pa in dedges:
+        parents_of.setdefault(ch, []).append((col, pa))
+    # closure: tables that can reach `users` through delete edges
+    closure = {"users"}
+    changed = True
+    while changed:
+        changed = False
+        for ch, col, pa in dedges:
+            if pa in closure and ch not in closure:
+                closure.add(ch); changed = True
+    # children-first order (a table is ready when nothing still-pending points at it)
+    pending = set(closure) - {"users"}
+    order, guard = [], 0
+    while pending and guard < 10000:
+        guard += 1
+        referenced = {pa for ch in pending for (col, pa) in parents_of.get(ch, []) if pa in pending}
+        ready = sorted(t for t in pending if t not in referenced)
+        if not ready:
+            ready = sorted(pending)       # cycle — flush remainder
+        order += ready
+        pending -= set(ready)
+
+    memo = {}
+    def scope_sql(table, stack=()):
+        if table == "users":
+            return "id = ANY(:ids)"
+        if table in memo:
+            return memo[table]
+        if table in stack:
+            return "FALSE"
+        parts = []
+        for col, pa in parents_of.get(table, []):
+            if pa not in closure:
+                continue
+            if pa == "users":
+                parts.append(f"{col} = ANY(:ids)")
+            else:
+                parts.append(f"{col} IN (SELECT id FROM {pa} WHERE {scope_sql(pa, stack + (table,))})")
+        sql = "(" + " OR ".join(parts) + ")" if parts else "FALSE"
+        memo[table] = sql
+        return sql
+
+    return order, scope_sql, closure
 
 
 @app.get("/admin/api/al/purge-test-data")
@@ -78320,11 +78374,9 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
     apply = q.get("apply") == "1"
     allow_lifetime = q.get("allow_lifetime") == "1"
 
-    # tables actually present on this deploy (SAP-only tables are skipped clean)
     existing = {r[0] for r in db.execute(text(
         "SELECT table_name FROM information_schema.tables WHERE table_schema='public'")).fetchall()}
 
-    # 1) resolve candidates (master id=1 is NEVER a candidate)
     cands = db.execute(text(
         "SELECT id, username, email, access_level, created_at FROM users "
         "WHERE username ILIKE :pat AND id <> 1 ORDER BY id"), {"pat": pattern}).fetchall()
@@ -78334,13 +78386,11 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
     ids = [r[0] for r in keep]
     users_out = [{"id": r[0], "username": r[1], "email": r[2],
                   "access_level": r[3], "created_at": str(r[4])} for r in keep]
-
     if not ids:
         return {"applied": False, "pattern": pattern, "matched": 0,
                 "skipped_lifetime": skipped_lifetime,
                 "note": "no test accounts matched — nothing to purge"}
 
-    # 2) tree-integrity: any REAL member hanging off a to-be-deleted account?
     orphan_risk = []
     for col in ("sponsor_id", "pass_up_sponsor_id"):
         for r in db.execute(text(
@@ -78356,34 +78406,33 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
             {"ids": ids}).fetchall():
             orphan_risk.append({"real_member_id": r[0], "via": "matrix_parent", "tier": r[1]})
 
-    # 3) footprint counts across the full cascade (only rows that would be deleted)
+    order, scope_sql, closure = _build_purge_plan(db)
+
     footprint, total_rows = {}, 0
-    for tbl in _PURGE_ORDER:
+    for tbl in order:
         if tbl not in existing:
             continue
         try:
-            n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {_purge_scope_sql(tbl)}"),
+            n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {scope_sql(tbl)}"),
                            {"ids": ids}).scalar() or 0
         except Exception:
-            db.rollback()
-            continue
+            db.rollback(); continue
         if n:
-            footprint[tbl] = n
-            total_rows += n
+            footprint[tbl] = n; total_rows += n
 
     blocked = bool(orphan_risk)
     if not apply:
         return {"applied": False, "pattern": pattern, "matched": len(ids),
                 "users": users_out, "skipped_lifetime": skipped_lifetime,
                 "footprint_rows": footprint, "total_child_rows": total_rows,
-                "tree_integrity_blocked": blocked, "orphan_risk": orphan_risk,
+                "cascade_tables": len(order), "tree_integrity_blocked": blocked,
+                "orphan_risk": orphan_risk,
                 "note": ("DRY-RUN. Review the user list. "
                          + ("BLOCKED: real members hang off these accounts — fix genealogy first. "
                             if blocked else "")
                          + f"To execute: &apply=1&expect_users={len(ids)}"
                          + ("&allow_lifetime=1" if allow_lifetime else ""))}
 
-    # ---- APPLY ----
     if blocked:
         return JSONResponse({"error": "tree_integrity_blocked", "orphan_risk": orphan_risk,
                              "note": "real members would be orphaned; not deleting"}, status_code=409)
@@ -78398,20 +78447,17 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
 
     deleted = {}
     try:
-        # pre-null self-references so single-table deletes can't self-FK-violate
         if "matrix_positions" in existing:
             db.execute(text("UPDATE matrix_positions SET parent_id=NULL WHERE user_id = ANY(:ids)"), {"ids": ids})
         db.execute(text("UPDATE users SET sponsor_id=NULL, pass_up_sponsor_id=NULL WHERE id = ANY(:ids)"), {"ids": ids})
 
-        # cascade delete, children first
-        for tbl in _PURGE_ORDER:
+        for tbl in order:
             if tbl not in existing:
                 continue
-            res = db.execute(text(f"DELETE FROM {tbl} WHERE {_purge_scope_sql(tbl)}"), {"ids": ids})
+            res = db.execute(text(f"DELETE FROM {tbl} WHERE {scope_sql(tbl)}"), {"ids": ids})
             if res.rowcount:
                 deleted[tbl] = res.rowcount
 
-        # NULL audit/secondary refs on any surviving row before dropping users
         for tbl, cols in _PURGE_REF.items():
             if tbl not in existing:
                 continue
