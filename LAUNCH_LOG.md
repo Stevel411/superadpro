@@ -9,6 +9,16 @@
 
 ---
 
+## 🗓️ 2026-09-10 (pm-2) — Matrix payout wallet: dedicated screen, 3 chains (BSC default)
+
+**Finding:** the matrix weekly batch pays to `user.wallet_network`/`wallet_address`, but the member UI meant to set those (Account.jsx `saveWallet`) was **never wired to a button** — matrix earners had no live way to set their payout wallet (only admin/test set it). The dashboard "Add your USDT wallet" card also pointed at `/payout-methods`, which is the **P2P** system and doesn't write those fields.
+
+**Built:** `GET /matrix/payout-wallet` — a dedicated, mobile-first, brand-styled screen. USDT only, **BSC default + "Recommended"**, ETH and Tron selectable, per-chain address validation (0x for BSC/ETH, T… for Tron), writes `user.wallet_*` via `/api/account/update`. Dashboard wallet card now links here. Kept separate from `/payout-methods` (P2P) by Steve's call — members entering a wallet in each system is acceptable.
+
+**Chain policy (superseded the earlier BSC-only lock):** matrix payout accepts **BSC / ETH / Tron**, BSC default. `validate_wallet` now handles `eth` (shares BSC's 0x format). So the weekly batch can group BSC/ETH (Disperse) and Tron (separate tool) per member choice. Pay-IN was already BSC-default.
+
+---
+
 ## 🗓️ 2026-09-10 (pm) — Gate #6 purge tool BUILT (dry-run verified path pending)
 
 **`GET /admin/api/al/purge-test-data`** shipped — the pre-launch test-data purge (removes @test* accounts + every row they created so the 611 launch with empty matrices + a zeroed ledger). **Dry-run by default**; destructive only with `&apply=1&expect_users=N`. Built from a static sweep of all ~90 user-FK tables (OWNER cols → delete row; audit/REF cols → NULL on survivors, never a delete key, so a real member's row can't be removed just for *referencing* a test user). One atomic transaction — fully succeeds or fully rolls back.

@@ -1448,7 +1448,7 @@ def validate_wallet(w, network=None):
         return False
     if network == 'tron':
         return bool(_TRON_WALLET_RE.match(w))
-    if network == 'bsc':
+    if network in ('bsc', 'eth'):
         return bool(_BSC_WALLET_RE.match(w))
     # Legacy/unknown network — accept either format
     return bool(_BSC_WALLET_RE.match(w) or _TRON_WALLET_RE.match(w))
@@ -3847,8 +3847,8 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
     var wallet = D.wallet && D.wallet.set
       ? '<div class="addr"><span class="net">'+esc(D.wallet.network)+'</span><span class="a">'+esc(D.wallet.masked)+'</span></div>'+
         '<div class="wnote">Your weekly USDT payout is sent here. Keep it current — payouts go to this address only.</div>'
-      : '<a class="wcta" href="/payout-methods">＋ Add your USDT wallet</a>'+
-        '<div class="wnote">Add your USDT wallet (BEP-20 / BSC) to receive your weekly payouts.</div>';
+      : '<a class="wcta" href="/matrix/payout-wallet">＋ Add your payout wallet</a>'+
+        '<div class="wnote">Add your USDT wallet (BSC, Ethereum or Tron) to receive your weekly Matrix payouts.</div>';
 
     var hist = (D.history||[]).map(function(h,i){
       var paid = h.status==='paid';
@@ -58297,26 +58297,25 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
             user.wallet_address = None
             user.wallet_network = None
         else:
-            # If saving a wallet, network MUST be specified — no silent
-            # ambiguity. The dispatcher needs network to route correctly.
-            # AdvantageLife pays out BEP-20 (BSC) only — the weekly batch is
-            # dispersed on BSC, so a Tron payout wallet can't be paid. Enforce it.
+            # If saving a wallet, network MUST be specified — the weekly
+            # matrix batch groups by chain to disperse correctly. AdvantageLife
+            # matrix payout = USDT on BSC (default), Ethereum, or Tron.
             from . import brand_config as _bc
-            if _bc.IS_ADVANTAGELIFE and wn == "tron":
-                return JSONResponse(
-                    {"error": "AdvantageLife payouts are BEP-20 (BSC) only. Add a USDT (BSC) wallet address starting 0x."},
-                    status_code=400,
-                )
-            _allowed_nets = ("bsc",) if _bc.IS_ADVANTAGELIFE else ("tron", "bsc")
+            if _bc.IS_ADVANTAGELIFE:
+                if not wn:
+                    wn = "bsc"                       # default to BSC when unspecified
+                _allowed_nets = ("bsc", "eth", "tron")
+            else:
+                _allowed_nets = ("tron", "bsc")
             if not wn or wn not in _allowed_nets:
                 return JSONResponse(
-                    {"error": ("Add your USDT (BEP-20 / BSC) wallet address." if _bc.IS_ADVANTAGELIFE
-                               else "Withdrawal network is required. Choose TRC-20 (Tron) or BEP-20 (BSC).")},
+                    {"error": "Choose your payout network: USDT on BSC (BEP-20), Ethereum (ERC-20), or Tron (TRC-20)."},
                     status_code=400,
                 )
             # Validate wallet format against the chosen network
             if not validate_wallet(wa, network=wn):
-                expected = "T-prefix base58 (34 chars) for Tron" if wn == "tron" else "0x-prefix hex (42 chars) for BSC"
+                expected = ("T-prefix base58 (34 chars) for Tron" if wn == "tron"
+                            else "0x-prefix hex (42 chars) for BSC / Ethereum")
                 return JSONResponse(
                     {"error": f"Wallet address doesn't match the chosen network. Expected {expected}."},
                     status_code=400,
@@ -84945,6 +84944,142 @@ def al_payout_methods_page(user: User = Depends(get_current_user), db: Session =
     if _gate:
         return _gate
     return HTMLResponse(_AL_WALLETS_PAGE)
+
+
+# ── Matrix payout-wallet screen (Option B, USDT-only, BSC default) ─────────
+# Dedicated to the MATRIX weekly payout (user.wallet_address/network — the
+# field the Disperse batch reads). Separate from /payout-methods (P2P).
+_AL_MATRIX_WALLET_PAGE = r"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matrix payout wallet — AdvantageLife</title>
+<style>
+  :root{--navy:#0a1f52;--navy2:#12388f;--red:#c8102e;--ink:#0f172a;--dim:#64748b;--line:#e6ebf5;--grn:#0b7a3e}
+  *{box-sizing:border-box}
+  body{margin:0;background:#eef2f9;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--ink)}
+  .wrap{max-width:560px;margin:0 auto;padding:22px 16px 60px}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--navy);font-weight:800;font-size:13px;text-decoration:none;margin-bottom:16px}
+  h1{font-size:26px;font-weight:900;letter-spacing:-.02em;margin:0 0 6px}
+  h1 .r{color:var(--red)}
+  .sub{font-size:14px;color:var(--dim);line-height:1.6;margin:0 0 22px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 10px 30px -20px rgba(10,31,82,.35)}
+  .cur{display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;margin-bottom:20px}
+  .cur .badge{background:var(--grn);color:#fff;font-weight:900;font-size:10px;letter-spacing:.05em;border-radius:100px;padding:5px 11px;text-transform:uppercase;flex:none}
+  .cur .t{font-size:13px;font-weight:700;color:#166534;line-height:1.4}
+  .cur .a{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#15803d}
+  .fl{display:block;font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+  .nets{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:22px}
+  .net{display:flex;align-items:center;gap:13px;border:2px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;transition:border-color .12s,background .12s;background:#fff}
+  .net:hover{border-color:#c9d6ef}
+  .net.on{border-color:var(--navy);background:#f5f8ff}
+  .net .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:15px;flex:none}
+  .net .nm{font-size:15px;font-weight:900;line-height:1.2}
+  .net .ds{font-size:12px;color:var(--dim);margin-top:2px}
+  .net .rec{margin-left:auto;background:var(--red);color:#fff;font-weight:900;font-size:9.5px;letter-spacing:.05em;border-radius:100px;padding:4px 9px;text-transform:uppercase;flex:none}
+  .net .tick{margin-left:auto;color:var(--navy);font-weight:900;font-size:18px;display:none}
+  .net.on .tick{display:block}
+  .net.on .rec{display:none}
+  .inp{width:100%;border:2px solid var(--line);border-radius:12px;padding:14px 15px;font-size:15px;font-family:ui-monospace,Menlo,monospace;outline:none}
+  .inp:focus{border-color:var(--navy)}
+  .hint{font-size:12px;color:var(--dim);margin:8px 2px 0}
+  .err{display:none;font-size:13px;font-weight:700;color:var(--red);margin:10px 2px 0}
+  .warn{font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:11px;padding:12px 13px;line-height:1.5;margin:20px 0 0}
+  .btn{width:100%;margin-top:20px;background:var(--red);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 12px 26px -12px rgba(200,16,46,.5)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .ok{display:none;font-size:13px;font-weight:800;color:var(--grn);text-align:center;margin-top:14px}
+  .alt{display:block;text-align:center;margin-top:22px;font-size:13px;color:var(--dim);text-decoration:none}
+  .alt b{color:var(--navy)}
+</style></head><body>
+<div class="wrap">
+  <a class="back" href="/matrix">&larr; Matrix</a>
+  <h1>Matrix payout <span class="r">wallet</span></h1>
+  <p class="sub">Where your <b>weekly Matrix commission</b> is sent, in USDT. Pick the chain your wallet is on &mdash; BSC is fastest and cheapest. This is separate from your P2P receiving methods.</p>
+  <div class="card">
+    <div class="cur" id="cur" style="display:none">
+      <span class="badge">On file</span>
+      <div><div class="t" id="curNet"></div><div class="a" id="curAddr"></div></div>
+    </div>
+
+    <span class="fl">Payout network</span>
+    <div class="nets" id="nets">
+      <div class="net" data-net="bsc"><div class="ic" style="background:#0a7d5a">&#8366;</div><div><div class="nm">USDT &middot; BSC</div><div class="ds">BEP-20 &middot; fastest, lowest fees</div></div><span class="rec">Recommended</span><span class="tick">&#10003;</span></div>
+      <div class="net" data-net="eth"><div class="ic" style="background:#6c5ce7">&#8366;</div><div><div class="nm">USDT &middot; Ethereum</div><div class="ds">ERC-20 &middot; higher network fees</div></div><span class="tick">&#10003;</span></div>
+      <div class="net" data-net="tron"><div class="ic" style="background:#c8102e">&#8366;</div><div><div class="nm">USDT &middot; Tron</div><div class="ds">TRC-20</div></div><span class="tick">&#10003;</span></div>
+    </div>
+
+    <span class="fl">Wallet address</span>
+    <input class="inp" id="addr" autocomplete="off" spellcheck="false" placeholder="0x&hellip;">
+    <div class="hint" id="hint">Your USDT (BEP-20 / BSC) address &mdash; starts with 0x.</div>
+    <div class="err" id="err"></div>
+
+    <div class="warn">&#9888; Send only to a wallet <b>you control on the network you pick</b>. USDT sent on the wrong network can be lost permanently.</div>
+
+    <button class="btn" id="save">Save payout wallet</button>
+    <div class="ok" id="ok">&#10003; Saved &mdash; your weekly payout will be sent here.</div>
+  </div>
+  <a class="alt" href="/payout-methods">Setting up <b>P2P</b> instead? Manage receiving methods &rarr;</a>
+</div>
+<script>
+  var CUR_NET="{{CUR_NET}}", CUR_ADDR="{{CUR_ADDR}}", CUR_MASKED="{{CUR_MASKED}}";
+  var HINTS={bsc:"Your USDT (BEP-20 / BSC) address \u2014 starts with 0x.",
+             eth:"Your USDT (ERC-20 / Ethereum) address \u2014 starts with 0x.",
+             tron:"Your USDT (TRC-20 / Tron) address \u2014 starts with T."};
+  var PH={bsc:"0x\u2026",eth:"0x\u2026",tron:"T\u2026"};
+  var LABELS={bsc:"USDT \u00b7 BEP-20 (BSC)",eth:"USDT \u00b7 ERC-20 (Ethereum)",tron:"USDT \u00b7 TRC-20 (Tron)"};
+  var sel = (CUR_NET==="eth"||CUR_NET==="tron")?CUR_NET:"bsc";
+  function paint(){
+    document.querySelectorAll(".net").forEach(function(n){ n.classList.toggle("on", n.dataset.net===sel); });
+    document.getElementById("hint").textContent=HINTS[sel];
+    document.getElementById("addr").placeholder=PH[sel];
+    document.getElementById("err").style.display="none";
+    document.getElementById("ok").style.display="none";
+  }
+  document.querySelectorAll(".net").forEach(function(n){ n.onclick=function(){ sel=n.dataset.net; paint(); }; });
+  if(CUR_ADDR){ document.getElementById("addr").value=CUR_ADDR; }
+  if(CUR_NET){
+    var c=document.getElementById("cur"); c.style.display="flex";
+    document.getElementById("curNet").textContent=LABELS[CUR_NET]||("USDT \u00b7 "+CUR_NET.toUpperCase());
+    document.getElementById("curAddr").textContent=CUR_MASKED;
+  }
+  paint();
+  function valid(addr,net){ return net==="tron" ? /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(addr) : /^0x[a-fA-F0-9]{40}$/.test(addr); }
+  document.getElementById("save").onclick=function(){
+    var b=this, addr=(document.getElementById("addr").value||"").trim(), er=document.getElementById("err");
+    if(!valid(addr,sel)){ er.textContent = sel==="tron" ? "That doesn't look like a Tron (TRC-20) address \u2014 it should start with T." : "That doesn't look like a "+(sel==="eth"?"Ethereum (ERC-20)":"BSC (BEP-20)")+" address \u2014 it should start with 0x and be 42 characters."; er.style.display="block"; return; }
+    b.disabled=true; b.textContent="Saving\u2026"; er.style.display="none";
+    fetch("/api/account/update",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",
+      body:JSON.stringify({wallet_address:addr,wallet_network:sel})})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+      .then(function(res){
+        b.disabled=false; b.textContent="Save payout wallet";
+        if(!res.ok||res.j.error){ er.textContent=res.j.error||"Couldn't save \u2014 try again."; er.style.display="block"; return; }
+        document.getElementById("ok").style.display="block";
+        var c=document.getElementById("cur"); c.style.display="flex";
+        document.getElementById("curNet").textContent=LABELS[sel];
+        document.getElementById("curAddr").textContent=addr.slice(0,6)+"\u2026"+addr.slice(-4);
+      })
+      .catch(function(){ b.disabled=false; b.textContent="Save payout wallet"; er.textContent="Network error \u2014 try again."; er.style.display="block"; });
+  };
+</script></body></html>"""
+
+
+@app.get("/matrix/payout-wallet")
+def al_matrix_payout_wallet_page(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Dedicated MATRIX payout-wallet screen: USDT on BSC (default) / ETH / Tron.
+    Writes user.wallet_address/network — the field the weekly Disperse batch
+    reads. Separate from /payout-methods (P2P receiving methods)."""
+    _gate = _al_gate_page(user)
+    if _gate:
+        return _gate
+    net = (getattr(user, "wallet_network", "") or "").lower()
+    addr = getattr(user, "wallet_address", "") or ""
+    masked = (addr[:6] + "\u2026" + addr[-4:]) if len(addr) > 12 else addr
+    html = (_AL_MATRIX_WALLET_PAGE
+            .replace("{{CUR_NET}}", net)
+            .replace("{{CUR_ADDR}}", addr)
+            .replace("{{CUR_MASKED}}", masked))
+    return HTMLResponse(html)
+
 
 
 
