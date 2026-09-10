@@ -514,6 +514,28 @@ def send_usdt_bsc(to_address, amount_usdt):
     - Different chain ID (56 vs 137)
     - Gas token is BNB not POL (semantically same, just different name)
     """
+    # HARD BLOCK (AdvantageLife) — server-side treasury signing is PERMANENTLY
+    # disabled on AdvantageLife and takes precedence over all env config.
+    # AL pays members MANUALLY via Disperse from a self-custody wallet; the
+    # server holds no treasury key and must never broadcast a payout, even if
+    # TREASURY_PRIVATE_KEY_BSC and WITHDRAWALS_ENABLED are later set. This is a
+    # deliberate security guard, not a bug. To re-enable automated payouts you
+    # must consciously do THREE things: (1) remove this block, (2) set
+    # TREASURY_PRIVATE_KEY_BSC in Railway, (3) set WITHDRAWALS_ENABLED=true.
+    try:
+        from . import brand_config as _bc
+        _is_advantagelife = bool(getattr(_bc, "IS_ADVANTAGELIFE", False))
+    except Exception:
+        _is_advantagelife = False
+    if _is_advantagelife:
+        logging.error(
+            "BSC send BLOCKED: server-side treasury signing is permanently "
+            "disabled on AdvantageLife (manual Disperse only). to=%s amount=%s",
+            to_address, amount_usdt)
+        return {"success": False, "tx_hash": None,
+                "error": "AUTO_SEND_DISABLED: AdvantageLife pays out manually via "
+                         "Disperse; the server never signs treasury transactions."}
+
     # SECURITY FREEZE (2026-06-03 incident): all on-chain sends are disabled
     # unless WITHDRAWALS_ENABLED == "true" is explicitly set in Railway.
     # Default (env unset) = FROZEN, so this is active the moment it deploys

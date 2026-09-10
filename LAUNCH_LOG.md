@@ -9,6 +9,12 @@
 
 ---
 
+## 🗓️ 2026-09-10 (pm-4) — SECURITY: server-side treasury signing HARD-BLOCKED on AL
+
+Confirmed with Steve's Railway vars that `TREASURY_PRIVATE_KEY_BSC` and `WITHDRAWALS_ENABLED` are **not set** — so the server holds no treasury key and can't sign. Added a permanent code guard at the top of `withdrawals.send_usdt_bsc`: on AdvantageLife it refuses to sign and returns `AUTO_SEND_DISABLED` before touching any key/env — takes precedence over env config. AL pays members MANUALLY via Disperse (self-custody); inbound is unchanged (NOWPayments → Steve's own wallets). To ever re-enable auto-payout: (1) remove the guard, (2) set `TREASURY_PRIVATE_KEY_BSC`, (3) set `WITHDRAWALS_ENABLED=true` — a deliberate 3-step decision. Note: `RAILWAY_API_TOKEN` is in the env (used by custom-domains) and can manage the Railway project — another reason to rotate the GitHub PAT before launch.
+
+---
+
 ## 🗓️ 2026-09-10 (pm-3) — BOTH LAUNCH GATES CLOSED · ready for the 611
 
 **#5 payout rail — proven live.** Real approve + disperse of USDT on BNB Smart Chain from the AdvantageLife Treasury MetaMask (disperse.app). Monday flow verified end to end. BSC-USDT contract `0x55d398326f99059fF775485246999027B3197955`.
