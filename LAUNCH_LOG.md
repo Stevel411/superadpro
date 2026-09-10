@@ -2,10 +2,39 @@
 
 > **For future-Claude reading this in a new session:** This file is the curated narrative of where the platform is right now. Read top-to-bottom for full context on recent decisions, currently-watched concerns, and pending work. The daily-briefing email Steve receives includes these sections too. Whoever you are, you're caught up after reading this.
 >
-> **Note on history:** AdvantageLife is the rebrand-and-relaunch of SuperAdPro (fork-and-migrate, fresh DB, branch `advantagelife-passup`). Entries dated before ~2026-07-09 describe SuperAdPro-era work and are kept for context — but the live model is now AdvantageLife: $100 lifetime join + 100% P2P campaign packs (pass-up: 3rd=company fee, 6/9/11=upline — see ENGINEERING_STANDARDS). Profit Grid, monthly membership, Nexus/matrix, and the 20% credit affiliate plan are all RETIRED. When a pre-09-Jul entry conflicts with the AL model, the AL model wins.
+> **Note on history:** AdvantageLife is the rebrand-and-relaunch of SuperAdPro (fork-and-migrate, fresh DB, branch `advantagelife-passup`). Entries dated before ~2026-07-09 describe SuperAdPro-era work and are kept for context — but the live model has since evolved again. **CURRENT MODEL (Sep 2026):** AdvantageLife runs TWO parallel systems, both available to every member: (1) **🕸️ The Matrix** — 3×5 forced matrix per pack tier, crypto (USDT) in, commissions paid **weekly** by the company (L1-L4 15%, L5 20%, company 20%); and (2) **🤝 Peer-to-Peer** — the original pass-up model, buyer pays seller **directly wallet-to-wallet** (no platform payout). **Join is FREE** — the $100 lifetime / paid-membership model was SCRAPPED (only stale docstrings still mention it). Profit Grid, Nexus, and the 20% credit affiliate plan remain RETIRED. When any older entry conflicts with this, the CURRENT MODEL wins.
 
 > **For Steve:** Update the curated sections below at the end of each session. The auto-snapshot block at the top of the daily-briefing email is generated fresh from the database — you don't update that.
 
+
+---
+
+## 🗓️ 2026-09-10 — MATRIX LAUNCH-READY: money loop proven live; comp model + gates locked
+
+**One line:** The matrix platform is **functionally complete and proven with real money.** Only operational prep + a final test-data purge remain before opening to the 611. (HEAD `463e168`.)
+
+### Proven LIVE this session (real USDT, not simulation)
+- **Full member journey:** test13 (downline) bought a real $10 Launchpad via `/matrix/buy` → **placed under test12 (upline)** → test12 **earned $1.50 (L1)** → surfaced in the payout batch. Reconciliation held to the penny.
+- **Migrated-member login:** `/claim` → SES email from `noreply@advantagelife.club` → link on advantagelife.club → set password → log in. End-to-end. (SES is out of sandbox; a "recipient refused" scare was just a `+` in a test URL decoding to a space.)
+- **Commission engine:** verified across full-chain, sparse-chain, every tier — reconciles exactly; compression, idempotency, terminal-guard all correct.
+
+### COMP MODEL — LOCKED (do not re-litigate)
+- **Earn/accrue = own an active pack at that level.** Compression skips uplines who don't own the pack ("skin in the game"). Watch/share are NOT earn gates.
+- **Withdraw = watch-qualified AND share-qualified** (both weekly-ish, both recorded, both achievable by ANY member with no dependence on other people → **no one is ever trapped**). Daily watch + weekly share (tap a real platform Share button → recorded via `ShareLink.last_shared_at`). Payout batch HOLDS members failing either gate.
+- **Ads made in own time — not a gate for anything.**
+- **Sharing = fair ROTATING POOL** of everyone's campaigns (`_rotate_share_campaigns`, excludes sharer; like the banners). Shareable by any member even with no ad of their own — the old "must own a campaign to share" trap was removed.
+
+### Payment rail — NOWPayments (self-custody, ungateable)
+CoinPayments was dropped (won't serve UK sole traders). NOWPayments: no KYB for crypto, USDT-only on **BSC/Tron/ETH**, 5% underpayment covering, converts + **forwards to Steve's own wallets** (never custodies). Weekly payout at **`/admin/al/payout`** — reconciliation-guarded, per-chain **Copy-for-Disperse** (auto-chunked 150/batch), mark-paid. **No server withdrawal keys.** Webhook `/api/webhook/nowpayments` (HMAC-verified, idempotent, terminal-guarded).
+
+### Built/fixed this session
+`/matrix/buy` (slider purchase page) · package lifecycle (views-delivered expiry, 7-day grace, Active/Running-low/Grace/Expired status card) · `/my-team` My Network (per-system) · `/how-matrix-pays` public explainer (+ video script) · menu restructure with per-system colours (Matrix royal-blue, P2P sky-blue, Marketing teal) + sidebar bg matched to hero navy · **fixed the $0-when-earned bug** in dashboard hero (green combined total + Matrix/P2P split cards) AND admin member panel (both were reading P2P-only) · Steve seeded at root of all 9 matrices, qualified-for-life · plan model = both systems open, `plan` records home/first plan.
+
+### ⚠️ REMAINING BEFORE PUBLIC LAUNCH
+1. **#5 Treasury float + practice Disperse** (operational, Steve's side) — stage USDT for week-1 payouts; do one practice multisend.
+2. **#6 PRE-LAUNCH TEST-DATA PURGE — MUST BE LAST.** Live DB still has **@test* accounts + the dry-run purchases/positions (test12/test13)/commissions**. Purge so the 611 real members launch with **clean matrices + zeroed ledger**. NOT built — needs a careful count→confirm→delete admin action (id by `username ILIKE 'test%'`, review before deleting; never touch a real member).
+
+All original launch items #1–#4 are ✅ done.
 
 ---
 
