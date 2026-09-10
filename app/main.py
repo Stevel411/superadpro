@@ -78267,97 +78267,39 @@ def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_
 
 
 # ── PRE-LAUNCH TEST-DATA PURGE (launch gate #6) ───────────────────────────
-# Removes @test* accounts and every row they created (matrix positions,
-# commissions, pack purchases, payment orders, P2P intents, campaigns, watch/
-# share state, …) so the 611 real members launch with EMPTY matrices and a
-# ZEROED ledger. Dry-run by default; destructive only with &apply=1 AND an
-# echo-back of the exact user count. The whole apply runs in ONE transaction:
-# it either fully succeeds or fully rolls back — never a half-purged DB.
+# Removes @test* accounts and EVERY row reachable from them via foreign keys
+# (matrix positions/commissions, purchases, orders, intents, campaigns, blogs,
+# funnels, tickets + their messages, …) so the 611 real members launch with
+# EMPTY matrices and a ZEROED ledger. Dry-run by default; destructive only with
+# &apply=1 AND &expect_users=N. The whole apply is ONE transaction — it either
+# fully succeeds or fully rolls back.
 #
-# GUARDS (any failing guard blocks apply):
-#   • user id 1 (master/Steve) is NEVER in the set.
-#   • access_level='lifetime' accounts are excluded by default (a real
-#     grandfathered member could match 'test%'); &allow_lifetime=1 to override.
-#   • tree-integrity: if any REAL member's sponsor/pass-up/matrix chain hangs
-#     off a to-be-deleted account, apply is BLOCKED (would orphan the 611).
-#   • &expect_users=N must equal the resolved count (catches a set that moved
-#     under you between dry-run and apply).
+# Deletes run CHILDREN-FIRST down a full FK-dependency order (_PURGE_ORDER), each
+# table scoped by a subquery that bottoms out at the test-user id set — so a row
+# is only ever removed because it traces back to a test account. A real member's
+# row is unreachable from the test set (tree-integrity guard proves it), so it
+# can never be touched. Audit/secondary refs on any SURVIVING row are NULLed
+# (_PURGE_REF) before the final users delete.
 #
-# Ownership model: OWNER cols (the row belongs to a test user) → delete the
-# row. REF cols (audit/secondary: sponsor, earner, confirmer, *_by, …) → NULL
-# on any surviving row so the final users-delete can't FK-violate. Deleting is
-# only ever keyed on OWNER cols, so a real member's row can never be removed
-# because a test user is merely referenced by it.
+# _PURGE_ORDER / _PURGE_SCOPE are GENERATED from the model FK graph — regenerate
+# them if the schema changes, don't hand-edit.
+_PURGE_ORDER = ["academy_progress", "achievements", "activity_events", "ad_assets", "admin_broadcasts", "admin_repair_log", "ai_usage_quotas", "al_banner_reports", "al_intent_messages", "al_ticket_messages", "blog_comments", "blog_media", "blog_menu_items", "blog_optin_forms", "blog_pages", "blog_post_tags", "blog_post_views", "brand_kits", "broadcast_log", "coinpayments_orders", "commissions", "copilot_briefings", "course_commissions", "course_passup_tracker", "course_progress", "crypto_payment_orders", "digital_product_affiliates", "digital_product_purchases", "digital_product_reviews", "direct_join_payments", "email_send_log", "explainer_video_views", "funnel_events", "funnel_leads", "game_scores", "gift_vouchers", "grid_plan_feedback", "grid_positions", "linkhub_clicks", "login_events", "marketing_asset_visits", "matrix_commissions", "matrix_positions", "member_course_lessons", "member_course_purchases", "member_showcase", "member_stories", "membership_renewals", "notifications", "nowpayments_orders", "nurture_sequences", "onchain_orphan_transfers", "p2p_transfers", "pack_commissions", "password_reset_tokens", "payments", "payout_methods", "pending_commissions", "platform_status", "poster_generations", "poster_template_shares", "prize_winners", "proseller_messages", "purchase_consents", "sending_domains", "share_codes", "share_views", "short_links", "signup_funnel_events", "step_up_balance", "stripe_charges", "superscene_credits", "superscene_orders", "superscene_pipelines", "superscene_videos", "superseller_campaigns", "team_messages", "team_pulse_actions", "traffic_events", "video_watches", "walletconnect_payment_orders", "watch_quotas", "wisdom_favourites", "withdrawal_approvals", "al_banner_ads", "al_support_tickets", "blog_posts", "blog_tags", "course_purchases", "digital_products", "explainer_videos", "grids", "link_rotators", "linkhub_links", "member_courses", "member_leads", "p2p_intents", "pack_purchases", "prospects", "share_links", "withdrawals", "blogs", "funnel_pages", "linkhub_profiles", "video_campaigns", "custom_domains", "lead_lists", "email_sequences"]
+_PURGE_SCOPE = {"short_links": [["user_id", "USER"], ["rotator_id", "link_rotators"]], "lead_lists": [["user_id", "USER"], ["sequence_id", "email_sequences"]], "team_pulse_actions": [["target_user_id", "USER"]], "blog_tags": [["blog_id", "blogs"]], "withdrawals": [["user_id", "USER"]], "blog_optin_forms": [["blog_id", "blogs"], ["lead_list_id", "lead_lists"]], "p2p_intents": [["buyer_id", "USER"], ["campaign_id", "video_campaigns"]], "funnel_leads": [["user_id", "USER"], ["page_id", "funnel_pages"]], "blog_comments": [["post_id", "blog_posts"]], "linkhub_profiles": [["user_id", "USER"]], "explainer_video_views": [["user_id", "USER"], ["video_id", "explainer_videos"]], "course_progress": [["user_id", "USER"]], "platform_status": [], "stripe_charges": [["user_id", "USER"]], "team_messages": [["from_user_id", "USER"]], "broadcast_log": [["user_id", "USER"]], "course_commissions": [["buyer_id", "USER"], ["purchase_id", "course_purchases"]], "grids": [["owner_id", "USER"]], "al_banner_ads": [["user_id", "USER"]], "prospects": [["user_id", "USER"]], "share_codes": [["owner_user_id", "USER"], ["source_page_id", "funnel_pages"]], "traffic_events": [["member_id", "USER"]], "wisdom_favourites": [["user_id", "USER"]], "superscene_credits": [["user_id", "USER"]], "watch_quotas": [["user_id", "USER"]], "notifications": [["user_id", "USER"]], "al_ticket_messages": [["ticket_id", "al_support_tickets"]], "al_intent_messages": [["sender_id", "USER"], ["intent_id", "p2p_intents"]], "brand_kits": [["user_id", "USER"]], "gift_vouchers": [["gifter_user_id", "USER"]], "game_scores": [["user_id", "USER"]], "member_stories": [["user_id", "USER"]], "signup_funnel_events": [["user_id", "USER"]], "matrix_positions": [["user_id", "USER"]], "copilot_briefings": [["user_id", "USER"]], "digital_product_reviews": [["buyer_id", "USER"], ["product_id", "digital_products"]], "link_rotators": [["user_id", "USER"]], "course_purchases": [["user_id", "USER"]], "member_course_purchases": [["buyer_id", "USER"], ["course_id", "member_courses"]], "membership_renewals": [["user_id", "USER"]], "superscene_orders": [["user_id", "USER"]], "video_watches": [["user_id", "USER"], ["campaign_id", "video_campaigns"]], "email_send_log": [["lead_id", "member_leads"], ["sequence_id", "email_sequences"]], "blog_media": [["blog_id", "blogs"]], "al_banner_reports": [["banner_id", "al_banner_ads"]], "email_sequences": [["user_id", "USER"]], "academy_progress": [["user_id", "USER"]], "step_up_balance": [["user_id", "USER"]], "superscene_pipelines": [["user_id", "USER"]], "explainer_videos": [], "linkhub_clicks": [["link_id", "linkhub_links"], ["profile_id", "linkhub_profiles"]], "poster_template_shares": [["sharer_user_id", "USER"]], "digital_product_purchases": [["buyer_id", "USER"], ["product_id", "digital_products"]], "nowpayments_orders": [["user_id", "USER"]], "payout_methods": [["user_id", "USER"]], "p2p_transfers": [["from_user_id", "USER"]], "crypto_payment_orders": [["user_id", "USER"]], "grid_plan_feedback": [["user_id", "USER"]], "pack_purchases": [["user_id", "USER"], ["campaign_id", "video_campaigns"]], "purchase_consents": [["user_id", "USER"]], "login_events": [["user_id", "USER"]], "sending_domains": [["user_id", "USER"]], "withdrawal_approvals": [["withdrawal_id", "withdrawals"]], "blogs": [["member_id", "USER"], ["custom_domain_id", "custom_domains"]], "proseller_messages": [["user_id", "USER"], ["prospect_id", "prospects"]], "member_showcase": [["user_id", "USER"]], "walletconnect_payment_orders": [["user_id", "USER"]], "marketing_asset_visits": [], "blog_menu_items": [["blog_id", "blogs"]], "digital_products": [["creator_id", "USER"]], "pack_commissions": [["buyer_id", "USER"], ["purchase_id", "pack_purchases"]], "pending_commissions": [["recipient_id", "USER"], ["grid_id", "grids"]], "grid_positions": [["member_id", "USER"], ["grid_id", "grids"]], "prize_winners": [["user_id", "USER"]], "blog_post_views": [["post_id", "blog_posts"]], "activity_events": [["user_id", "USER"]], "custom_domains": [["user_id", "USER"]], "blog_posts": [["blog_id", "blogs"]], "payments": [["from_user_id", "USER"]], "video_campaigns": [["user_id", "USER"]], "onchain_orphan_transfers": [], "superseller_campaigns": [["user_id", "USER"]], "linkhub_links": [["user_id", "USER"], ["profile_id", "linkhub_profiles"]], "al_support_tickets": [["user_id", "USER"]], "matrix_commissions": [["buyer_id", "USER"], ["purchase_id", "pack_purchases"]], "ad_assets": [["user_id", "USER"]], "admin_broadcasts": [["sent_by_user_id", "USER"]], "superscene_videos": [["user_id", "USER"]], "nurture_sequences": [["user_id", "USER"]], "password_reset_tokens": [["user_id", "USER"]], "funnel_pages": [["user_id", "USER"], ["default_list_id", "lead_lists"]], "member_courses": [["creator_id", "USER"]], "commissions": [["from_user_id", "USER"], ["grid_id", "grids"]], "users": [], "blog_post_tags": [["post_id", "blog_posts"], ["tag_id", "blog_tags"]], "funnel_events": [["user_id", "USER"], ["page_id", "funnel_pages"]], "course_passup_tracker": [["user_id", "USER"]], "achievements": [["user_id", "USER"]], "digital_product_affiliates": [["user_id", "USER"], ["product_id", "digital_products"]], "admin_repair_log": [], "member_course_lessons": [["course_id", "member_courses"]], "member_leads": [["user_id", "USER"], ["source_funnel_id", "funnel_pages"], ["list_id", "lead_lists"], ["email_sequence_id", "email_sequences"]], "poster_generations": [["user_id", "USER"]], "ai_usage_quotas": [["user_id", "USER"]], "blog_pages": [["blog_id", "blogs"]], "share_views": [["share_link_id", "share_links"], ["campaign_id", "video_campaigns"]], "share_links": [["user_id", "USER"]], "direct_join_payments": [["user_id", "USER"]], "coinpayments_orders": [["user_id", "USER"], ["purchase_id", "pack_purchases"]]}
+_PURGE_REF = {"admin_repair_log": ["admin_user_id"], "commissions": ["to_user_id"], "course_commissions": ["earner_id"], "digital_product_purchases": ["affiliate_id"], "explainer_videos": ["created_by_user_id"], "gift_vouchers": ["claimed_by_user_id", "reserved_for_user_id"], "marketing_asset_visits": ["signup_attributed_user_id"], "matrix_commissions": ["earner_id"], "matrix_positions": ["sponsor_id"], "member_course_purchases": ["sponsor_id"], "member_leads": ["attribution_user_id"], "onchain_orphan_transfers": ["resolved_by_user_id"], "p2p_intents": ["earner_id", "confirmed_by"], "p2p_transfers": ["to_user_id"], "pack_commissions": ["earner_id"], "payments": ["to_user_id"], "pending_commissions": ["trigger_id"], "platform_status": ["set_by_user_id"], "poster_template_shares": ["converted_user_id"], "prospects": ["converted_user_id"], "team_messages": ["to_user_id"], "team_pulse_actions": ["sponsor_user_id"], "video_campaigns": ["share_approved_by"], "withdrawal_approvals": ["approved_by_user_id"]}
 
-# table -> owner columns (delete row when ANY owner col is a test user)
-_PURGE_OWNER = {
-    "academy_progress": ["user_id"], "achievements": ["user_id"],
-    "activity_events": ["user_id"], "ad_assets": ["user_id"],
-    "admin_broadcasts": ["sent_by_user_id"], "ai_usage_quotas": ["user_id"],
-    "al_banner_ads": ["user_id"], "al_intent_messages": ["sender_id"],
-    "al_support_tickets": ["user_id"], "blogs": ["member_id"],
-    "brand_kits": ["user_id"], "broadcast_log": ["user_id"],
-    "coinpayments_orders": ["user_id"], "commissions": ["from_user_id"],
-    "copilot_briefings": ["user_id"], "course_commissions": ["buyer_id"],
-    "course_passup_tracker": ["user_id"], "course_progress": ["user_id"],
-    "course_purchases": ["user_id"], "crypto_payment_orders": ["user_id"],
-    "custom_domains": ["user_id"], "digital_product_affiliates": ["user_id"],
-    "digital_product_purchases": ["buyer_id"],
-    "digital_product_reviews": ["buyer_id"], "digital_products": ["creator_id"],
-    "direct_join_payments": ["user_id"], "email_sequences": ["user_id"],
-    "explainer_video_views": ["user_id"], "funnel_events": ["user_id"],
-    "funnel_leads": ["user_id"], "funnel_pages": ["user_id"],
-    "game_scores": ["user_id"], "gift_vouchers": ["gifter_user_id"],
-    "grid_plan_feedback": ["user_id"], "grid_positions": ["member_id"],
-    "grids": ["owner_id"], "lead_lists": ["user_id"],
-    "link_rotators": ["user_id"], "linkhub_links": ["user_id"],
-    "linkhub_profiles": ["user_id"], "login_events": ["user_id"],
-    "matrix_commissions": ["buyer_id"], "matrix_positions": ["user_id"],
-    "member_course_purchases": ["buyer_id"], "member_courses": ["creator_id"],
-    "member_leads": ["user_id"], "member_showcase": ["user_id"],
-    "member_stories": ["user_id"], "membership_renewals": ["user_id"],
-    "notifications": ["user_id"], "nowpayments_orders": ["user_id"],
-    "nurture_sequences": ["user_id"], "p2p_intents": ["buyer_id"],
-    "p2p_transfers": ["from_user_id"], "pack_commissions": ["buyer_id"],
-    "pack_purchases": ["user_id"], "password_reset_tokens": ["user_id"],
-    "payments": ["from_user_id"], "payout_methods": ["user_id"],
-    "pending_commissions": ["recipient_id"], "poster_generations": ["user_id"],
-    "poster_template_shares": ["sharer_user_id"], "prize_winners": ["user_id"],
-    "proseller_messages": ["user_id"], "prospects": ["user_id"],
-    "purchase_consents": ["user_id"], "sending_domains": ["user_id"],
-    "share_codes": ["owner_user_id"], "share_links": ["user_id"],
-    "short_links": ["user_id"], "signup_funnel_events": ["user_id"],
-    "step_up_balance": ["user_id"], "stripe_charges": ["user_id"],
-    "superscene_credits": ["user_id"], "superscene_orders": ["user_id"],
-    "superscene_pipelines": ["user_id"], "superscene_videos": ["user_id"],
-    "superseller_campaigns": ["user_id"], "team_messages": ["from_user_id"],
-    "team_pulse_actions": ["target_user_id"], "traffic_events": ["member_id"],
-    "video_campaigns": ["user_id"], "video_watches": ["user_id"],
-    "walletconnect_payment_orders": ["user_id"], "watch_quotas": ["user_id"],
-    "wisdom_favourites": ["user_id"], "withdrawals": ["user_id"],
-}
-# table -> reference-only columns (NULL on survivors; never a delete key)
-_PURGE_REF = {
-    "admin_repair_log": ["admin_user_id"],
-    "commissions": ["to_user_id"], "course_commissions": ["earner_id"],
-    "digital_product_purchases": ["affiliate_id"],
-    "explainer_videos": ["created_by_user_id"],
-    "gift_vouchers": ["claimed_by_user_id", "reserved_for_user_id"],
-    "marketing_asset_visits": ["signup_attributed_user_id"],
-    "matrix_commissions": ["earner_id"], "matrix_positions": ["sponsor_id"],
-    "member_course_purchases": ["sponsor_id"],
-    "member_leads": ["attribution_user_id"],
-    "onchain_orphan_transfers": ["resolved_by_user_id"],
-    "p2p_intents": ["earner_id", "confirmed_by"],
-    "p2p_transfers": ["to_user_id"], "pack_commissions": ["earner_id"],
-    "payments": ["to_user_id"], "pending_commissions": ["trigger_id"],
-    "platform_status": ["set_by_user_id"],
-    "poster_template_shares": ["converted_user_id"],
-    "prospects": ["converted_user_id"], "team_messages": ["to_user_id"],
-    "team_pulse_actions": ["sponsor_user_id"],
-    "video_campaigns": ["share_approved_by"],
-    "withdrawal_approvals": ["approved_by_user_id"],
-}
+
+def _purge_scope_sql(table):
+    """Recursively build a WHERE predicate scoping `table` to the test-user set,
+    bottoming out at USER owner columns (`col = ANY(:ids)`) or climbing a parent
+    FK via a subquery. Children are always deleted before parents, so referenced
+    parent rows still exist when a child's subquery runs."""
+    parts = []
+    for col, kind in _PURGE_SCOPE.get(table, []):
+        if kind == "USER":
+            parts.append(f"{col} = ANY(:ids)")
+        else:
+            parts.append(f"{col} IN (SELECT id FROM {kind} WHERE {_purge_scope_sql(kind)})")
+    return "(" + " OR ".join(parts) + ")" if parts else "FALSE"
 
 
 @app.get("/admin/api/al/purge-test-data")
@@ -78378,6 +78320,10 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
     apply = q.get("apply") == "1"
     allow_lifetime = q.get("allow_lifetime") == "1"
 
+    # tables actually present on this deploy (SAP-only tables are skipped clean)
+    existing = {r[0] for r in db.execute(text(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema='public'")).fetchall()}
+
     # 1) resolve candidates (master id=1 is NEVER a candidate)
     cands = db.execute(text(
         "SELECT id, username, email, access_level, created_at FROM users "
@@ -78397,33 +78343,33 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
     # 2) tree-integrity: any REAL member hanging off a to-be-deleted account?
     orphan_risk = []
     for col in ("sponsor_id", "pass_up_sponsor_id"):
-        rows = db.execute(text(
+        for r in db.execute(text(
             f"SELECT id, username, {col} FROM users "
-            f"WHERE {col} = ANY(:ids) AND id <> ALL(:ids)"), {"ids": ids}).fetchall()
-        for r in rows:
+            f"WHERE {col} = ANY(:ids) AND id <> ALL(:ids)"), {"ids": ids}).fetchall():
             orphan_risk.append({"real_member_id": r[0], "username": r[1],
                                 "via": col, "points_at": r[2]})
-    mp = db.execute(text(
-        "SELECT child.user_id, child.tier FROM matrix_positions child "
-        "JOIN matrix_positions parent ON child.parent_id = parent.id "
-        "WHERE parent.user_id = ANY(:ids) AND child.user_id <> ALL(:ids)"),
-        {"ids": ids}).fetchall()
-    for r in mp:
-        orphan_risk.append({"real_member_id": r[0], "via": "matrix_parent",
-                            "tier": r[1]})
+    if "matrix_positions" in existing:
+        for r in db.execute(text(
+            "SELECT child.user_id, child.tier FROM matrix_positions child "
+            "JOIN matrix_positions parent ON child.parent_id = parent.id "
+            "WHERE parent.user_id = ANY(:ids) AND child.user_id <> ALL(:ids)"),
+            {"ids": ids}).fetchall():
+            orphan_risk.append({"real_member_id": r[0], "via": "matrix_parent", "tier": r[1]})
 
-    # 3) footprint counts (delete rows, keyed on OWNER cols only)
+    # 3) footprint counts across the full cascade (only rows that would be deleted)
     footprint, total_rows = {}, 0
-    for tbl, cols in _PURGE_OWNER.items():
-        where = " OR ".join(f"{c} = ANY(:ids)" for c in cols)
+    for tbl in _PURGE_ORDER:
+        if tbl not in existing:
+            continue
         try:
-            n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {where}"),
+            n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {_purge_scope_sql(tbl)}"),
                            {"ids": ids}).scalar() or 0
-        except Exception as e:            # table absent on this deploy → skip
-            db.rollback(); n = 0
-            footprint[tbl] = f"skip ({type(e).__name__})"; continue
+        except Exception:
+            db.rollback()
+            continue
         if n:
-            footprint[tbl] = n; total_rows += n
+            footprint[tbl] = n
+            total_rows += n
 
     blocked = bool(orphan_risk)
     if not apply:
@@ -78439,55 +78385,44 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
 
     # ---- APPLY ----
     if blocked:
-        return JSONResponse({"error": "tree_integrity_blocked",
-                             "orphan_risk": orphan_risk,
-                             "note": "real members would be orphaned; not deleting"},
-                            status_code=409)
+        return JSONResponse({"error": "tree_integrity_blocked", "orphan_risk": orphan_risk,
+                             "note": "real members would be orphaned; not deleting"}, status_code=409)
     try:
         expect = int(q.get("expect_users", "-1"))
     except ValueError:
         expect = -1
     if expect != len(ids):
-        return JSONResponse({"error": "expect_users_mismatch",
-                             "resolved": len(ids), "expect_users": expect,
-                             "note": f"re-tap with &expect_users={len(ids)}"},
+        return JSONResponse({"error": "expect_users_mismatch", "resolved": len(ids),
+                             "expect_users": expect, "note": f"re-tap with &expect_users={len(ids)}"},
                             status_code=400)
 
     deleted = {}
     try:
-        # pre-null self-references so the deletes don't self-FK-violate
-        db.execute(text("UPDATE matrix_positions SET parent_id=NULL WHERE user_id = ANY(:ids)"), {"ids": ids})
+        # pre-null self-references so single-table deletes can't self-FK-violate
+        if "matrix_positions" in existing:
+            db.execute(text("UPDATE matrix_positions SET parent_id=NULL WHERE user_id = ANY(:ids)"), {"ids": ids})
         db.execute(text("UPDATE users SET sponsor_id=NULL, pass_up_sponsor_id=NULL WHERE id = ANY(:ids)"), {"ids": ids})
-        # OWNER deletes (children)
-        for tbl, cols in _PURGE_OWNER.items():
-            where = " OR ".join(f"{c} = ANY(:ids)" for c in cols)
-            try:
-                res = db.execute(text(f"DELETE FROM {tbl} WHERE {where}"), {"ids": ids})
-                if res.rowcount:
-                    deleted[tbl] = res.rowcount
-            except Exception:
-                db.rollback()
-                raise
-        # REF nulls (survivors only — deleted rows are already gone)
+
+        # cascade delete, children first
+        for tbl in _PURGE_ORDER:
+            if tbl not in existing:
+                continue
+            res = db.execute(text(f"DELETE FROM {tbl} WHERE {_purge_scope_sql(tbl)}"), {"ids": ids})
+            if res.rowcount:
+                deleted[tbl] = res.rowcount
+
+        # NULL audit/secondary refs on any surviving row before dropping users
         for tbl, cols in _PURGE_REF.items():
+            if tbl not in existing:
+                continue
             for c in cols:
                 try:
                     db.execute(text(f"UPDATE {tbl} SET {c}=NULL WHERE {c} = ANY(:ids)"), {"ids": ids})
                 except Exception:
-                    pass  # table/col absent on this deploy
-        # final guard: nothing may still reference the set before we drop users
-        for tbl, cols in {**_PURGE_OWNER, **_PURGE_REF}.items():
-            for c in set(cols):
-                try:
-                    n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {c} = ANY(:ids)"), {"ids": ids}).scalar() or 0
-                except Exception:
-                    continue
-                if n:
                     db.rollback()
-                    return JSONResponse({"error": "residual_reference",
-                                         "table": tbl, "column": c, "count": n,
-                                         "note": "rolled back — nothing deleted"},
-                                        status_code=500)
+                    return JSONResponse({"error": "ref_null_failed", "table": tbl, "column": c,
+                                         "note": "rolled back — nothing deleted"}, status_code=500)
+
         res = db.execute(text("DELETE FROM users WHERE id = ANY(:ids)"), {"ids": ids})
         deleted["users"] = res.rowcount
         remaining = db.execute(text("SELECT COUNT(*) FROM users WHERE id = ANY(:ids)"), {"ids": ids}).scalar() or 0
@@ -78504,7 +78439,6 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
     return {"applied": True, "pattern": pattern, "users_deleted": len(ids),
             "deleted_by_table": deleted,
             "note": "purge complete — matrices empty, ledger zeroed for the 611"}
-
 
 
 @app.get("/admin/api/grant-pack")
