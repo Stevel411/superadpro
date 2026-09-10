@@ -78518,6 +78518,45 @@ def al_pack_ownership(request: Request, user: User = Depends(get_current_user),
             "members": memlist}
 
 
+@app.get("/admin/api/al/upgrade-5-to-10")
+def al_upgrade_5_to_10(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Upgrade every ACTIVE $5 pack (retired tier) to the live $10 Launchpad:
+    sets pack_level=10, repoints pack_id to the $10 config, and bumps any linked
+    campaign's views_target to the $10 target. Dry-run by default; &apply=1 runs."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import CampaignPack, PackPurchase, VideoCampaign
+    apply = request.query_params.get("apply") == "1"
+    pack10 = (db.query(CampaignPack)
+                .filter(CampaignPack.level == 10, CampaignPack.is_active == True)  # noqa: E712
+                .first())
+    if not pack10:
+        return JSONResponse({"error": "no active $10 pack found in campaign_packs"}, status_code=500)
+    rows = (db.query(PackPurchase)
+              .filter(PackPurchase.pack_level == 5, PackPurchase.status == "active").all())
+    plan = [{"purchase_id": pp.id, "user_id": pp.user_id, "amount": str(pp.amount),
+             "campaign_id": pp.campaign_id} for pp in rows]
+    if not apply:
+        return {"applied": False, "count": len(rows), "target_pack_id": pack10.id,
+                "target_views": pack10.views_target, "rows": plan,
+                "note": f"DRY-RUN — would upgrade {len(rows)} $5 pack(s) to $10. Add &apply=1 to run."}
+    changed = []
+    for pp in rows:
+        pp.pack_level = 10
+        pp.pack_id = pack10.id
+        bumped = False
+        if pp.campaign_id:
+            vc = db.query(VideoCampaign).filter(VideoCampaign.id == pp.campaign_id).first()
+            if vc and (vc.views_target or 0) < (pack10.views_target or 0):
+                vc.views_target = pack10.views_target
+                bumped = True
+        changed.append({"purchase_id": pp.id, "user_id": pp.user_id, "campaign_bumped": bumped})
+    db.commit()
+    return {"applied": True, "upgraded": len(changed), "target_pack_id": pack10.id,
+            "changed": changed, "note": "$5 packs upgraded to $10 Launchpad"}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
