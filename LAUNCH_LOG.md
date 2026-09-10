@@ -9,6 +9,18 @@
 
 ---
 
+## 🗓️ 2026-09-10 (pm-3) — BOTH LAUNCH GATES CLOSED · ready for the 611
+
+**#5 payout rail — proven live.** Real approve + disperse of USDT on BNB Smart Chain from the AdvantageLife Treasury MetaMask (disperse.app). Monday flow verified end to end. BSC-USDT contract `0x55d398326f99059fF775485246999027B3197955`.
+
+**#6 test-data purge — executed; DB clean.** `GET /admin/api/al/purge-test-data` deleted **16 test accounts + 264 child rows across 30 tables** in one atomic transaction; confirming dry-run = `matched: 0`. Matrices empty, ledger zeroed. Final design builds the cascade from the **live FK graph (information_schema)**, not ORM models, so raw-SQL tables (e.g. `rotator_assignments`) are covered. Two earlier applies rolled back safe (zero rows) on under-mapped FKs — that's why it now reads the live schema. (`46e632f7b`)
+
+**Matrix payout wallet** `/matrix/payout-wallet` (`cf919257f`) — USDT-only, **BSC default + Recommended**, ETH/Tron optional; fixed the previously-dead matrix-wallet UI + wrong dashboard link; `validate_wallet` now handles `eth`. Pay-IN already BSC-default.
+
+**▶ AdvantageLife is launch-ready.** Cutover = announce + members use the claim/reset flow. Follow-ups (non-blocking): rotate the GitHub PAT; fix the stale "NOWPayments retired" line in the transition plan. Full detail: `docs/handover-2026-09-10-pm.md`.
+
+---
+
 ## 🗓️ 2026-09-10 (pm-2) — Matrix payout wallet: dedicated screen, 3 chains (BSC default)
 
 **Finding:** the matrix weekly batch pays to `user.wallet_network`/`wallet_address`, but the member UI meant to set those (Account.jsx `saveWallet`) was **never wired to a button** — matrix earners had no live way to set their payout wallet (only admin/test set it). The dashboard "Add your USDT wallet" card also pointed at `/payout-methods`, which is the **P2P** system and doesn't write those fields.
