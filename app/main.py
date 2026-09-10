@@ -3848,7 +3848,7 @@ _AL_EARNINGS_PAGE = r"""<!doctype html>
       ? '<div class="addr"><span class="net">'+esc(D.wallet.network)+'</span><span class="a">'+esc(D.wallet.masked)+'</span></div>'+
         '<div class="wnote">Your weekly USDT payout is sent here. Keep it current — payouts go to this address only.</div>'
       : '<a class="wcta" href="/payout-methods">＋ Add your USDT wallet</a>'+
-        '<div class="wnote">Add a USDT wallet (TRC20 recommended) to receive your weekly payouts.</div>';
+        '<div class="wnote">Add your USDT wallet (BEP-20 / BSC) to receive your weekly payouts.</div>';
 
     var hist = (D.history||[]).map(function(h,i){
       var paid = h.status==='paid';
@@ -58299,9 +58299,19 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         else:
             # If saving a wallet, network MUST be specified — no silent
             # ambiguity. The dispatcher needs network to route correctly.
-            if not wn or wn not in ("tron", "bsc"):
+            # AdvantageLife pays out BEP-20 (BSC) only — the weekly batch is
+            # dispersed on BSC, so a Tron payout wallet can't be paid. Enforce it.
+            from . import brand_config as _bc
+            if _bc.IS_ADVANTAGELIFE and wn == "tron":
                 return JSONResponse(
-                    {"error": "Withdrawal network is required. Choose TRC-20 (Tron) or BEP-20 (BSC)."},
+                    {"error": "AdvantageLife payouts are BEP-20 (BSC) only. Add a USDT (BSC) wallet address starting 0x."},
+                    status_code=400,
+                )
+            _allowed_nets = ("bsc",) if _bc.IS_ADVANTAGELIFE else ("tron", "bsc")
+            if not wn or wn not in _allowed_nets:
+                return JSONResponse(
+                    {"error": ("Add your USDT (BEP-20 / BSC) wallet address." if _bc.IS_ADVANTAGELIFE
+                               else "Withdrawal network is required. Choose TRC-20 (Tron) or BEP-20 (BSC).")},
                     status_code=400,
                 )
             # Validate wallet format against the chosen network
