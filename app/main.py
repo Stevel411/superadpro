@@ -78487,6 +78487,37 @@ def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
             "note": "purge complete — matrices empty, ledger zeroed for the 611"}
 
 
+@app.get("/admin/api/al/pack-ownership")
+def al_pack_ownership(request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """Read-only: exactly who owns which active campaign pack. Pack level == price,
+    so value sums are real dollars live on the platform. Breakdown by tier plus
+    the full member list (highest tier first)."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import User as _U, PackPurchase
+    rows = (db.query(PackPurchase.user_id, PackPurchase.pack_level,
+                     _U.username, _U.email, _U.access_level)
+              .join(_U, _U.id == PackPurchase.user_id)
+              .filter(PackPurchase.status == "active").all())
+    by_tier, members = {}, {}
+    for uid, lvl, uname, email, acc in rows:
+        lvl = int(lvl or 0)
+        t = by_tier.setdefault(lvl, {"tier": lvl, "count": 0, "value": 0})
+        t["count"] += 1; t["value"] += lvl
+        m = members.setdefault(uid, {"id": uid, "username": uname, "email": email,
+                                     "access_level": acc, "tiers": []})
+        m["tiers"].append(lvl)
+    memlist = list(members.values())
+    for m in memlist:
+        m["tiers"] = sorted(m["tiers"]); m["highest_tier"] = max(m["tiers"])
+    memlist.sort(key=lambda m: (-m["highest_tier"], (m["username"] or "").lower()))
+    return {"total_owners": len(members), "active_pack_rows": len(rows),
+            "total_active_value_usd": sum(t["value"] for t in by_tier.values()),
+            "by_tier": [by_tier[k] for k in sorted(by_tier)],
+            "members": memlist}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
