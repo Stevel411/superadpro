@@ -78257,6 +78257,247 @@ def al_link_orphan_campaigns(request: Request, user: User = Depends(get_current_
                      if not apply else "linked; those views now roll into pack progress")}
 
 
+# ── PRE-LAUNCH TEST-DATA PURGE (launch gate #6) ───────────────────────────
+# Removes @test* accounts and every row they created (matrix positions,
+# commissions, pack purchases, payment orders, P2P intents, campaigns, watch/
+# share state, …) so the 611 real members launch with EMPTY matrices and a
+# ZEROED ledger. Dry-run by default; destructive only with &apply=1 AND an
+# echo-back of the exact user count. The whole apply runs in ONE transaction:
+# it either fully succeeds or fully rolls back — never a half-purged DB.
+#
+# GUARDS (any failing guard blocks apply):
+#   • user id 1 (master/Steve) is NEVER in the set.
+#   • access_level='lifetime' accounts are excluded by default (a real
+#     grandfathered member could match 'test%'); &allow_lifetime=1 to override.
+#   • tree-integrity: if any REAL member's sponsor/pass-up/matrix chain hangs
+#     off a to-be-deleted account, apply is BLOCKED (would orphan the 611).
+#   • &expect_users=N must equal the resolved count (catches a set that moved
+#     under you between dry-run and apply).
+#
+# Ownership model: OWNER cols (the row belongs to a test user) → delete the
+# row. REF cols (audit/secondary: sponsor, earner, confirmer, *_by, …) → NULL
+# on any surviving row so the final users-delete can't FK-violate. Deleting is
+# only ever keyed on OWNER cols, so a real member's row can never be removed
+# because a test user is merely referenced by it.
+
+# table -> owner columns (delete row when ANY owner col is a test user)
+_PURGE_OWNER = {
+    "academy_progress": ["user_id"], "achievements": ["user_id"],
+    "activity_events": ["user_id"], "ad_assets": ["user_id"],
+    "admin_broadcasts": ["sent_by_user_id"], "ai_usage_quotas": ["user_id"],
+    "al_banner_ads": ["user_id"], "al_intent_messages": ["sender_id"],
+    "al_support_tickets": ["user_id"], "blogs": ["member_id"],
+    "brand_kits": ["user_id"], "broadcast_log": ["user_id"],
+    "coinpayments_orders": ["user_id"], "commissions": ["from_user_id"],
+    "copilot_briefings": ["user_id"], "course_commissions": ["buyer_id"],
+    "course_passup_tracker": ["user_id"], "course_progress": ["user_id"],
+    "course_purchases": ["user_id"], "crypto_payment_orders": ["user_id"],
+    "custom_domains": ["user_id"], "digital_product_affiliates": ["user_id"],
+    "digital_product_purchases": ["buyer_id"],
+    "digital_product_reviews": ["buyer_id"], "digital_products": ["creator_id"],
+    "direct_join_payments": ["user_id"], "email_sequences": ["user_id"],
+    "explainer_video_views": ["user_id"], "funnel_events": ["user_id"],
+    "funnel_leads": ["user_id"], "funnel_pages": ["user_id"],
+    "game_scores": ["user_id"], "gift_vouchers": ["gifter_user_id"],
+    "grid_plan_feedback": ["user_id"], "grid_positions": ["member_id"],
+    "grids": ["owner_id"], "lead_lists": ["user_id"],
+    "link_rotators": ["user_id"], "linkhub_links": ["user_id"],
+    "linkhub_profiles": ["user_id"], "login_events": ["user_id"],
+    "matrix_commissions": ["buyer_id"], "matrix_positions": ["user_id"],
+    "member_course_purchases": ["buyer_id"], "member_courses": ["creator_id"],
+    "member_leads": ["user_id"], "member_showcase": ["user_id"],
+    "member_stories": ["user_id"], "membership_renewals": ["user_id"],
+    "notifications": ["user_id"], "nowpayments_orders": ["user_id"],
+    "nurture_sequences": ["user_id"], "p2p_intents": ["buyer_id"],
+    "p2p_transfers": ["from_user_id"], "pack_commissions": ["buyer_id"],
+    "pack_purchases": ["user_id"], "password_reset_tokens": ["user_id"],
+    "payments": ["from_user_id"], "payout_methods": ["user_id"],
+    "pending_commissions": ["recipient_id"], "poster_generations": ["user_id"],
+    "poster_template_shares": ["sharer_user_id"], "prize_winners": ["user_id"],
+    "proseller_messages": ["user_id"], "prospects": ["user_id"],
+    "purchase_consents": ["user_id"], "sending_domains": ["user_id"],
+    "share_codes": ["owner_user_id"], "share_links": ["user_id"],
+    "short_links": ["user_id"], "signup_funnel_events": ["user_id"],
+    "step_up_balance": ["user_id"], "stripe_charges": ["user_id"],
+    "superscene_credits": ["user_id"], "superscene_orders": ["user_id"],
+    "superscene_pipelines": ["user_id"], "superscene_videos": ["user_id"],
+    "superseller_campaigns": ["user_id"], "team_messages": ["from_user_id"],
+    "team_pulse_actions": ["target_user_id"], "traffic_events": ["member_id"],
+    "video_campaigns": ["user_id"], "video_watches": ["user_id"],
+    "walletconnect_payment_orders": ["user_id"], "watch_quotas": ["user_id"],
+    "wisdom_favourites": ["user_id"], "withdrawals": ["user_id"],
+}
+# table -> reference-only columns (NULL on survivors; never a delete key)
+_PURGE_REF = {
+    "admin_repair_log": ["admin_user_id"],
+    "commissions": ["to_user_id"], "course_commissions": ["earner_id"],
+    "digital_product_purchases": ["affiliate_id"],
+    "explainer_videos": ["created_by_user_id"],
+    "gift_vouchers": ["claimed_by_user_id", "reserved_for_user_id"],
+    "marketing_asset_visits": ["signup_attributed_user_id"],
+    "matrix_commissions": ["earner_id"], "matrix_positions": ["sponsor_id"],
+    "member_course_purchases": ["sponsor_id"],
+    "member_leads": ["attribution_user_id"],
+    "onchain_orphan_transfers": ["resolved_by_user_id"],
+    "p2p_intents": ["earner_id", "confirmed_by"],
+    "p2p_transfers": ["to_user_id"], "pack_commissions": ["earner_id"],
+    "payments": ["to_user_id"], "pending_commissions": ["trigger_id"],
+    "platform_status": ["set_by_user_id"],
+    "poster_template_shares": ["converted_user_id"],
+    "prospects": ["converted_user_id"], "team_messages": ["to_user_id"],
+    "team_pulse_actions": ["sponsor_user_id"],
+    "video_campaigns": ["share_approved_by"],
+    "withdrawal_approvals": ["approved_by_user_id"],
+}
+
+
+@app.get("/admin/api/al/purge-test-data")
+def al_purge_test_data(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Pre-launch test-data purge (gate #6). Dry-run default; &apply=1 to run.
+
+    Params:
+      pattern        ILIKE match on username (default 'test%')
+      apply=1        execute (else dry-run); requires expect_users
+      expect_users=N must equal the resolved delete-set size
+      allow_lifetime=1  include access_level='lifetime' matches (default: skip)
+    """
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    q = request.query_params
+    pattern = q.get("pattern", "test%")
+    apply = q.get("apply") == "1"
+    allow_lifetime = q.get("allow_lifetime") == "1"
+
+    # 1) resolve candidates (master id=1 is NEVER a candidate)
+    cands = db.execute(text(
+        "SELECT id, username, email, access_level, created_at FROM users "
+        "WHERE username ILIKE :pat AND id <> 1 ORDER BY id"), {"pat": pattern}).fetchall()
+    skipped_lifetime = [{"id": r[0], "username": r[1], "access_level": r[3]}
+                        for r in cands if r[3] == "lifetime" and not allow_lifetime]
+    keep = [r for r in cands if not (r[3] == "lifetime" and not allow_lifetime)]
+    ids = [r[0] for r in keep]
+    users_out = [{"id": r[0], "username": r[1], "email": r[2],
+                  "access_level": r[3], "created_at": str(r[4])} for r in keep]
+
+    if not ids:
+        return {"applied": False, "pattern": pattern, "matched": 0,
+                "skipped_lifetime": skipped_lifetime,
+                "note": "no test accounts matched — nothing to purge"}
+
+    # 2) tree-integrity: any REAL member hanging off a to-be-deleted account?
+    orphan_risk = []
+    for col in ("sponsor_id", "pass_up_sponsor_id"):
+        rows = db.execute(text(
+            f"SELECT id, username, {col} FROM users "
+            f"WHERE {col} = ANY(:ids) AND id <> ALL(:ids)"), {"ids": ids}).fetchall()
+        for r in rows:
+            orphan_risk.append({"real_member_id": r[0], "username": r[1],
+                                "via": col, "points_at": r[2]})
+    mp = db.execute(text(
+        "SELECT child.user_id, child.tier FROM matrix_positions child "
+        "JOIN matrix_positions parent ON child.parent_id = parent.id "
+        "WHERE parent.user_id = ANY(:ids) AND child.user_id <> ALL(:ids)"),
+        {"ids": ids}).fetchall()
+    for r in mp:
+        orphan_risk.append({"real_member_id": r[0], "via": "matrix_parent",
+                            "tier": r[1]})
+
+    # 3) footprint counts (delete rows, keyed on OWNER cols only)
+    footprint, total_rows = {}, 0
+    for tbl, cols in _PURGE_OWNER.items():
+        where = " OR ".join(f"{c} = ANY(:ids)" for c in cols)
+        try:
+            n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {where}"),
+                           {"ids": ids}).scalar() or 0
+        except Exception as e:            # table absent on this deploy → skip
+            db.rollback(); n = 0
+            footprint[tbl] = f"skip ({type(e).__name__})"; continue
+        if n:
+            footprint[tbl] = n; total_rows += n
+
+    blocked = bool(orphan_risk)
+    if not apply:
+        return {"applied": False, "pattern": pattern, "matched": len(ids),
+                "users": users_out, "skipped_lifetime": skipped_lifetime,
+                "footprint_rows": footprint, "total_child_rows": total_rows,
+                "tree_integrity_blocked": blocked, "orphan_risk": orphan_risk,
+                "note": ("DRY-RUN. Review the user list. "
+                         + ("BLOCKED: real members hang off these accounts — fix genealogy first. "
+                            if blocked else "")
+                         + f"To execute: &apply=1&expect_users={len(ids)}"
+                         + ("&allow_lifetime=1" if allow_lifetime else ""))}
+
+    # ---- APPLY ----
+    if blocked:
+        return JSONResponse({"error": "tree_integrity_blocked",
+                             "orphan_risk": orphan_risk,
+                             "note": "real members would be orphaned; not deleting"},
+                            status_code=409)
+    try:
+        expect = int(q.get("expect_users", "-1"))
+    except ValueError:
+        expect = -1
+    if expect != len(ids):
+        return JSONResponse({"error": "expect_users_mismatch",
+                             "resolved": len(ids), "expect_users": expect,
+                             "note": f"re-tap with &expect_users={len(ids)}"},
+                            status_code=400)
+
+    deleted = {}
+    try:
+        # pre-null self-references so the deletes don't self-FK-violate
+        db.execute(text("UPDATE matrix_positions SET parent_id=NULL WHERE user_id = ANY(:ids)"), {"ids": ids})
+        db.execute(text("UPDATE users SET sponsor_id=NULL, pass_up_sponsor_id=NULL WHERE id = ANY(:ids)"), {"ids": ids})
+        # OWNER deletes (children)
+        for tbl, cols in _PURGE_OWNER.items():
+            where = " OR ".join(f"{c} = ANY(:ids)" for c in cols)
+            try:
+                res = db.execute(text(f"DELETE FROM {tbl} WHERE {where}"), {"ids": ids})
+                if res.rowcount:
+                    deleted[tbl] = res.rowcount
+            except Exception:
+                db.rollback()
+                raise
+        # REF nulls (survivors only — deleted rows are already gone)
+        for tbl, cols in _PURGE_REF.items():
+            for c in cols:
+                try:
+                    db.execute(text(f"UPDATE {tbl} SET {c}=NULL WHERE {c} = ANY(:ids)"), {"ids": ids})
+                except Exception:
+                    pass  # table/col absent on this deploy
+        # final guard: nothing may still reference the set before we drop users
+        for tbl, cols in {**_PURGE_OWNER, **_PURGE_REF}.items():
+            for c in set(cols):
+                try:
+                    n = db.execute(text(f"SELECT COUNT(*) FROM {tbl} WHERE {c} = ANY(:ids)"), {"ids": ids}).scalar() or 0
+                except Exception:
+                    continue
+                if n:
+                    db.rollback()
+                    return JSONResponse({"error": "residual_reference",
+                                         "table": tbl, "column": c, "count": n,
+                                         "note": "rolled back — nothing deleted"},
+                                        status_code=500)
+        res = db.execute(text("DELETE FROM users WHERE id = ANY(:ids)"), {"ids": ids})
+        deleted["users"] = res.rowcount
+        remaining = db.execute(text("SELECT COUNT(*) FROM users WHERE id = ANY(:ids)"), {"ids": ids}).scalar() or 0
+        if remaining:
+            db.rollback()
+            return JSONResponse({"error": "users_not_deleted", "remaining": remaining,
+                                 "note": "rolled back — nothing deleted"}, status_code=500)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": "purge_failed", "detail": str(e)[:400],
+                             "note": "rolled back — nothing deleted"}, status_code=500)
+
+    return {"applied": True, "pattern": pattern, "users_deleted": len(ids),
+            "deleted_by_table": deleted,
+            "note": "purge complete — matrices empty, ledger zeroed for the 611"}
+
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",

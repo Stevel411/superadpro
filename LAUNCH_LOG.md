@@ -9,6 +9,18 @@
 
 ---
 
+## 🗓️ 2026-09-10 (pm) — Gate #6 purge tool BUILT (dry-run verified path pending)
+
+**`GET /admin/api/al/purge-test-data`** shipped — the pre-launch test-data purge (removes @test* accounts + every row they created so the 611 launch with empty matrices + a zeroed ledger). **Dry-run by default**; destructive only with `&apply=1&expect_users=N`. Built from a static sweep of all ~90 user-FK tables (OWNER cols → delete row; audit/REF cols → NULL on survivors, never a delete key, so a real member's row can't be removed just for *referencing* a test user). One atomic transaction — fully succeeds or fully rolls back.
+
+**Guards:** master (id 1) never in set · `access_level='lifetime'` excluded by default (`&allow_lifetime=1` to override) · **tree-integrity block** if any real member's sponsor/pass-up/matrix chain hangs off a to-be-deleted account · `expect_users` echo must match · residual-reference re-check before the users delete rolls back if anything still points in.
+
+**Steve's next step (final launch gate):** run the dry-run first — `/admin/api/al/purge-test-data` (or `?secret=`) — **eyeball the user list + footprint counts**, confirm no orphan_risk, then execute with `&apply=1&expect_users=<the matched number>`. Do this LAST, right before opening to the 611.
+
+**#5 (treasury float + practice Disperse) is still Steve's to execute** — stage week-1 USDT + one practice multisend via `/admin/al/payout`.
+
+---
+
 ## 🗓️ 2026-09-10 — MATRIX LAUNCH-READY: money loop proven live; comp model + gates locked
 
 **One line:** The matrix platform is **functionally complete and proven with real money.** Only operational prep + a final test-data purge remain before opening to the 611. (HEAD `463e168`.)
