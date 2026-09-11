@@ -261,22 +261,28 @@ function ComposeTab() {
   var [body, setBody] = useState('');
   var [status, setStatus] = useState('all');
   var [country, setCountry] = useState('');
+  var [mode, setMode] = useState('audience');
+  var [specificText, setSpecificText] = useState('');
   var [audienceCount, setAudienceCount] = useState(null);
   var [showPreview, setShowPreview] = useState(false);
   var [sending, setSending] = useState(false);
   var [result, setResult] = useState(null);
   var [pollTick, setPollTick] = useState(0);
   var [confirmText, setConfirmText] = useState('');
+  var recipients = useMemo(function() {
+    return specificText.split(/[\s,;]+/).map(function(x){ return x.trim(); }).filter(Boolean);
+  }, [specificText]);
 
-  // Resolve audience count whenever filter changes
+  // Resolve audience count whenever filter or recipient list changes
   useEffect(function() {
+    if (mode === 'specific') { setAudienceCount(recipients.length); return; }
     var params = new URLSearchParams();
     params.set('status', status);
     if (country) params.set('country', country);
     apiGet('/admin/api/members-emails?' + params.toString())
       .then(function(d) { setAudienceCount(d.recipient_count); })
       .catch(function() { setAudienceCount(null); });
-  }, [status, country]);
+  }, [status, country, mode, recipients.length]);
 
   var needsConfirm = audienceCount !== null && audienceCount > 100;
   var canSend = subject.trim() && body.trim() && (!needsConfirm || confirmText === 'SEND');
@@ -306,8 +312,9 @@ function ComposeTab() {
     if (sending) return;
     setSending(true);
     setResult(null);
-    var audience = { status: status };
-    if (country) audience.country = country;
+    var audience;
+    if (mode === 'specific') { audience = { recipients: recipients }; }
+    else { audience = { status: status }; if (country) audience.country = country; }
     apiPost('/admin/api/broadcast/send', {
       subject: subject,
       body_html: body,
@@ -510,22 +517,44 @@ function ComposeTab() {
           <Users size={16} /> Audience
         </div>
 
-        <Label small>Status</Label>
-        <select value={status} onChange={function(e) { setStatus(e.target.value); }} style={selectStyle()}>
-          <option value="all">All members</option>
-          <option value="active">Active only (paid Basic)</option>
-          <option value="inactive">Inactive only</option>
-        </select>
-
-        <Label small style={{ marginTop: 14 }}>Country (ISO code, optional)</Label>
-        <input
-          type="text"
-          value={country}
-          onChange={function(e) { setCountry(e.target.value.toUpperCase().slice(0, 2)); }}
-          placeholder="GB, US, etc."
-          maxLength={2}
-          style={input()}
-        />
+        <Label small>Send to</Label>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+          <button type="button" onClick={function(){ setMode('audience'); }} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: '1px solid ' + (mode === 'audience' ? '#0ea5e9' : '#cbd5e1'), background: (mode === 'audience' ? '#f0f9ff' : '#fff'), color: (mode === 'audience' ? '#0369a1' : '#475569') }}>Audience filter</button>
+          <button type="button" onClick={function(){ setMode('specific'); }} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', border: '1px solid ' + (mode === 'specific' ? '#0ea5e9' : '#cbd5e1'), background: (mode === 'specific' ? '#f0f9ff' : '#fff'), color: (mode === 'specific' ? '#0369a1' : '#475569') }}>Specific people</button>
+        </div>
+        {mode === 'audience' ? (
+          <>
+            <Label small>Status</Label>
+            <select value={status} onChange={function(e) { setStatus(e.target.value); }} style={selectStyle()}>
+              <option value="all">All members</option>
+              <option value="active">Active only (paid Basic)</option>
+              <option value="inactive">Inactive only</option>
+            </select>
+            <Label small style={{ marginTop: 14 }}>Country (ISO code, optional)</Label>
+            <input
+              type="text"
+              value={country}
+              onChange={function(e) { setCountry(e.target.value.toUpperCase().slice(0, 2)); }}
+              placeholder="GB, US, etc."
+              maxLength={2}
+              style={input()}
+            />
+          </>
+        ) : (
+          <>
+            <Label small>Emails or usernames</Label>
+            <textarea
+              value={specificText}
+              onChange={function(e){ setSpecificText(e.target.value); }}
+              placeholder={"One per line or comma-separated:\njane@example.com\nsteve\nsuccess"}
+              rows={7}
+              style={Object.assign({}, input(), { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12.5, resize: 'vertical' })}
+            />
+            <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, lineHeight: 1.5 }}>
+              Matched by email or username. Opted-out and unknown entries are skipped — the number on the Send button is what was entered; the real matched count comes back after sending.
+            </p>
+          </>
+        )}
 
         <div style={{ marginTop: 18, padding: 14, background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, textAlign: 'center' }}>
           <div style={{ fontSize: 11, color: '#0c4a6e', fontWeight: 600, letterSpacing: 0.5, marginBottom: 4 }}>RECIPIENTS</div>

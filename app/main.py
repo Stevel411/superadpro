@@ -74743,14 +74743,24 @@ def _resolve_broadcast_recipients(db, audience_filter: dict):
         User.email_opt_out == False,       # noqa: E712
         User.is_admin == False,            # noqa: E712  -- never email admins by accident
     )
-    status = (audience_filter or {}).get("status", "all")
-    if status == "active":
-        q = q.filter(User.is_active == True)   # noqa: E712
-    elif status == "inactive":
-        q = q.filter(User.is_active == False)  # noqa: E712
-    country = (audience_filter or {}).get("country")
-    if country:
-        q = q.filter(User.country == country)
+    specific = (audience_filter or {}).get("recipients")
+    if specific:
+        # Explicit list: match by email OR username (case-insensitive). Unknown
+        # entries just don't match, so the resolved count is the real one.
+        from sqlalchemy import func as _f, or_ as _or
+        keys = [str(x).strip().lower() for x in specific if str(x).strip()]
+        if not keys:
+            return []
+        q = q.filter(_or(_f.lower(User.email).in_(keys), _f.lower(User.username).in_(keys)))
+    else:
+        status = (audience_filter or {}).get("status", "all")
+        if status == "active":
+            q = q.filter(User.is_active == True)   # noqa: E712
+        elif status == "inactive":
+            q = q.filter(User.is_active == False)  # noqa: E712
+        country = (audience_filter or {}).get("country")
+        if country:
+            q = q.filter(User.country == country)
     rows = q.order_by(User.id.asc()).all()
     # Belt-and-braces: also drop anyone on the suppression list (hard bounce,
     # complaint, or manual) so they're never attempted and counts stay honest.
