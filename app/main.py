@@ -87877,11 +87877,8 @@ def admin_member_pause(request: Request, user_id: int = 0,
 # React SPA mount points for the admin broadcast page
 @app.get("/admin/email-broadcast")
 def admin_email_broadcast_page(request: Request):
-    """Serve React SPA for the admin email broadcast tool."""
-    from . import brand_config as _bc
-    if _bc.IS_ADVANTAGELIFE:
-        from fastapi.responses import JSONResponse as _JR
-        return _JR({"error": "gone", "detail": "SuperAdPro admin tool — not part of AdvantageLife."}, status_code=410)
+    """Serve React SPA for the admin email broadcast tool. Available on
+    AdvantageLife — the sender uses the same SES path as claim/reset emails."""
     if _react_index.exists():
         return _spa_shell()
     return RedirectResponse(url="/admin", status_code=302)
