@@ -371,11 +371,21 @@ def matrix_view_tree(db, user, tier, depth=EARN_DEPTH):
                 out.append({"name": uname(c.user_id), "kind": kind,
                             "depth": d + 1, "kids": build_kids(c, d + 1)})
             else:
-                out.append({"open": True})
+                out.append(_open_slot(d + 1))
         return out
 
+    SKELETON_ROWS = 2  # show open placeholder slots down to this absolute depth
+    def _open_slot(d):
+        # Make the 3-wide matrix shape visible even before positions fill, but
+        # only for the first SKELETON_ROWS levels (absolute depth) so a partly
+        # filled tree doesn't balloon with open nodes deep down.
+        node = {"open": True}
+        if d < SKELETON_ROWS:
+            node["kids"] = [_open_slot(d + 1) for _ in range(3)]
+        return node
+
     pos = al_matrix.get_position(db, user.id, tier)
-    kids = build_kids(pos, 0) if pos else [{"open": True}, {"open": True}, {"open": True}]
+    kids = build_kids(pos, 0) if pos else [_open_slot(1) for _ in range(3)]
     return {"you": True, "active": bool(pos), "kids": kids}
 
 

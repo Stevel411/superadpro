@@ -4266,22 +4266,53 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
   .psc.active .msg{color:#0e7a44}.psc.running_low .msg{color:#b45309}.psc.grace .msg{color:#12388f}.psc.expired .msg{color:#c8102e}.psc.notowned .msg{color:var(--muted)}
   .psc .react{display:inline-block;margin-top:12px;font-weight:900;font-size:13px;border-radius:10px;padding:11px 20px;text-decoration:none;color:#fff}
   .psc.running_low .react{background:#d97706}.psc.grace .react{background:#12388f}.psc.expired .react{background:#c8102e}.psc.notowned .react{background:var(--red)}
+
+  /* ── v2: branded hero band + red accents ── */
+  .hero{background:linear-gradient(150deg,#12388f,#0a1f52 72%);border-radius:22px;padding:22px 24px;color:#fff;position:relative;overflow:hidden;margin:6px 0 16px}
+  .hero:before{content:"";position:absolute;top:-90px;right:-40px;width:300px;height:300px;background:radial-gradient(circle,rgba(200,16,46,.5),transparent 68%);pointer-events:none}
+  .hero:after{content:"";position:absolute;bottom:-120px;left:16%;width:240px;height:240px;background:radial-gradient(circle,rgba(200,16,46,.26),transparent 70%);pointer-events:none}
+  .hero .kick{display:inline-block;position:relative;font-size:10.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#fff;background:var(--red);padding:6px 13px;border-radius:100px;margin-bottom:12px;box-shadow:0 8px 20px -8px rgba(200,16,46,.8)}
+  .hero h1{position:relative;color:#fff;margin:0}
+  .hero h1 .r{color:#ff5a74}
+  .hero .uline{position:relative;width:60px;height:5px;background:var(--red);border-radius:100px;margin:12px 0 0;box-shadow:0 0 16px rgba(255,90,116,.7)}
+  .hero .sub{position:relative;color:#cdd9f5;margin:12px 0 0}
+  .hero .stats{position:relative;margin:18px 0 0}
+  .hero .st{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);box-shadow:none;display:flex;align-items:center;gap:12px}
+  .hero .st.green{background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.3)}
+  .hero .st .k{color:#aebde6}
+  .hero .st .v{color:#fff}.hero .st.green .v{color:#4ade80}
+  .hero .st .v small{color:#aebde6}
+  .hero .st .tok{width:40px;height:40px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+  .hero .st .tok.t-red{background:var(--red)}.hero .st .tok.t-cyan{background:#0ea5a3}.hero .st .tok.t-amber{background:#f5a623}.hero .st .tok.t-green{background:var(--green)}
+
+  /* ── v2: alive tree canvas ── */
+  .viewport:before{content:"";position:absolute;inset:0;opacity:.5;background-image:radial-gradient(rgba(18,56,143,.10) 1.4px,transparent 1.4px);background-size:26px 26px;pointer-events:none;z-index:0}
+  .viewport:after{content:"";position:absolute;left:50%;top:96px;transform:translate(-50%,-50%);width:340px;height:340px;background:radial-gradient(circle,rgba(200,16,46,.13),transparent 68%);pointer-events:none;z-index:0}
+  .stage{z-index:1}
+  .n.open .nc{width:30px;height:30px;border:2.5px dashed var(--open);color:#8ea2cf;font-weight:900;font-size:15px}
+  .n.open .nc:before{content:"+";opacity:.8}
+  /* ── v2: early-state invite card ── */
+  .emptyhint{left:50%;right:auto;transform:translateX(-50%);bottom:20px;background:#fff;border:2px solid var(--line);border-radius:15px;padding:13px 20px;max-width:520px;box-shadow:0 16px 34px -20px rgba(10,31,82,.45);z-index:4}
+  .emptyhint a{color:var(--red);font-weight:900;text-decoration:none;white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><a class="back" href="/dashboard">← Dashboard</a><span class="who" id="who"></span></div>
-  <h1>My Matrix</h1>
-  <p class="sub">Your network fills a separate matrix for every package. Drag to move around; zoom out for the whole shape, in to read names. Blue = your referral · green = spillover · dashed = open.</p>
-
-  <div class="stats" id="stats"></div>
+  <div class="hero">
+    <span class="kick">Earn 5 levels deep · Paid weekly</span>
+    <h1>My <span class="r">Matrix</span></h1>
+    <div class="uline"></div>
+    <p class="sub">Your network fills a separate matrix for every package. Drag to move around; zoom out for the whole shape, in to read names. Blue = your referral · green = spillover · dashed = open.</p>
+    <div class="stats" id="stats"></div>
+  </div>
   <div class="pks" id="pks"></div>
   <div class="pkgstatus" id="pkgstatus"></div>
 
   <div class="viewport" id="vp">
     <div class="legend"><span><i style="background:#12388f"></i>Referral</span><span><i style="background:#10914a"></i>Spillover</span><span><i style="background:#fff;border:2px dashed #c3d0ea"></i>Open</span></div>
     <div class="stage" id="stage"></div>
-    <div class="emptyhint" id="emptyhint" style="display:none">No one in this matrix yet — as your team activates packs, they'll appear here and spill under you.</div>
+    <div class="emptyhint" id="emptyhint" style="display:none">Your matrix is ready — the spots above fill as your team activates packs (and spillover drops from your upline). <a href="/how-matrix-pays">See how it pays →</a></div>
     <div class="zlabel" id="zlabel">100%</div>
     <div class="zoom"><button id="zin">+</button><button id="zout">−</button><button class="fit" id="zfit">Fit</button></div>
   </div>
@@ -4307,11 +4338,11 @@ _AL_MATRIX_PAGE = r"""<!doctype html>
 
   function renderStats(s){
     document.getElementById('stats').innerHTML=[
-      ['Positions filled', s.filled+'<small>/363</small>'],
-      ['Your front line', s.front+'<small>/3</small>'],
-      ['Spillover received', String(s.spillover)],
-      ['Earned (all matrices)', money(s.earned), true]
-    ].map(function(x){return '<div class="st'+(x[2]?' green':'')+'"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div>';}).join('');
+      ['Positions filled', s.filled+'<small>/363</small>', false, '\u25f1', 't-red'],
+      ['Your front line', s.front+'<small>/3</small>', false, '3', 't-cyan'],
+      ['Spillover received', String(s.spillover), false, '\u2193', 't-amber'],
+      ['Earned (all matrices)', money(s.earned), true, '$', 't-green']
+    ].map(function(x){return '<div class="st'+(x[2]?' green':'')+'"><div class="tok '+x[4]+'">'+x[3]+'</div><div><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div></div>';}).join('');
   }
   function renderPacks(){
     document.getElementById('pks').innerHTML=INIT.packages.map(function(p){
