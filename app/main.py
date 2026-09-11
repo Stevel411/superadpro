@@ -78557,6 +78557,42 @@ def al_upgrade_5_to_10(request: Request, user: User = Depends(get_current_user),
             "changed": changed, "note": "$5 packs upgraded to $10 Launchpad"}
 
 
+@app.get("/admin/api/al/member-team")
+def al_member_team(request: Request, user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    """Read-only: a member's original team (the sponsor genealogy carried over
+    from SuperAdPro). Returns upline, direct referrals, and full downline size
+    via the same recursive CTE the member dashboard uses. Pass ?username= or ?id=."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    from .database import User as _U
+    q = request.query_params
+    uname = (q.get("username") or "").strip()
+    uid_q = (q.get("id") or "").strip()
+    m = None
+    if uid_q.isdigit():
+        m = db.query(_U).filter(_U.id == int(uid_q)).first()
+    elif uname:
+        m = db.query(_U).filter(_U.username.ilike(uname)).first()
+    else:
+        return JSONResponse({"error": "provide ?username= or ?id="}, status_code=400)
+    if not m:
+        return {"found": False, "query": uname or uid_q}
+    sponsor = db.query(_U).filter(_U.id == m.sponsor_id).first() if m.sponsor_id else None
+    directs = db.query(_U).filter(_U.sponsor_id == m.id).order_by(_U.id.asc()).all()
+    desc = compute_descendant_counts(db, m.id)
+    return {
+        "found": True, "id": m.id, "username": m.username, "email": m.email,
+        "access_level": m.access_level,
+        "sponsor": ({"id": sponsor.id, "username": sponsor.username} if sponsor else None),
+        "direct_referrals": len(directs),
+        "total_downline": desc.get("total"),
+        "active_downline": desc.get("active"),
+        "inactive_downline": desc.get("inactive"),
+        "direct_referral_sample": [{"id": d.id, "username": d.username} for d in directs[:40]],
+    }
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
