@@ -10719,6 +10719,14 @@ _AL_NETWORK_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8
   .sub{color:var(--muted);font-size:14px;font-weight:500;margin-bottom:18px}
   .sys{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
   .syscard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .teamcard{background:linear-gradient(155deg,#12388f,#0a1f52 72%);color:#fff;border-radius:18px;padding:22px 22px 18px;margin-bottom:18px}
+  .teamcard .tch{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#cdd9f5}
+  .teamstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+  .ts{background:rgba(255,255,255,.08);border-radius:14px;padding:14px 12px;text-align:center}
+  .ts .tv{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1}
+  .ts .tv.g{color:#4ade80}
+  .ts .tk{font-size:11px;font-weight:800;color:#cdd9f5;text-transform:uppercase;letter-spacing:.4px;margin-top:6px}
+  .tnote{font-size:12.5px;font-weight:500;color:#cdd9f5;line-height:1.55;margin-top:14px}
   .syscard.matrix{border-top:4px solid var(--navy2)}
   .syscard.p2p{border-top:4px solid var(--red)}
   .syscard .hh{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:900}
@@ -10744,6 +10752,15 @@ _AL_NETWORK_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8
   <div class="top"><a class="back" href="/dashboard">&larr; Dashboard</a><span class="who" id="who"></span></div>
   <h1>My Network</h1>
   <div class="sub">Your team and earnings across both systems. Peer-to-Peer settles directly member-to-member; Matrix commissions are paid to you weekly.</div>
+  <div class="teamcard">
+    <div class="tch">Your team</div>
+    <div class="teamstats">
+      <div class="ts"><div class="tv" id="tTotal">0</div><div class="tk">Total team</div></div>
+      <div class="ts"><div class="tv" id="tDirect">0</div><div class="tk">Direct referrals</div></div>
+      <div class="ts"><div class="tv g" id="tActive">0</div><div class="tk">With an active pack</div></div>
+    </div>
+    <div class="tnote">Your <b>total team</b> is everyone in your downline, across every level &mdash; carried over in full from before. The <b>Matrix</b> below is a separate, brand-new structure that grows as your team activates packs, so it starts fresh.</div>
+  </div>
   <div class="sys">
     <div class="syscard matrix"><div class="hh"><span class="ic">&#128376;</span> The Matrix</div>
       <div class="grid2"><div class="stat"><div class="k">Commissions earned</div><div class="v g" id="mEarn">$0.00</div></div>
@@ -10763,6 +10780,10 @@ _AL_NETWORK_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8
 <script>
   var NET={{NETWORK_DATA}}, UN="{{USERNAME}}";
   document.getElementById('who').textContent = UN ? '@'+UN : '';
+  var TEAM = NET.team || {total:0,direct:0,active:0};
+  document.getElementById('tTotal').textContent = (TEAM.total||0).toLocaleString();
+  document.getElementById('tDirect').textContent = (TEAM.direct||0).toLocaleString();
+  document.getElementById('tActive').textContent = (TEAM.active||0).toLocaleString();
   function money(x){return (x||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   document.getElementById('mEarn').textContent='$'+money(NET.matrix.earned);
@@ -10847,7 +10868,11 @@ def _al_my_network(db, user):
     refs = db.query(_U).filter(_U.sponsor_id == uid).order_by(_U.id.desc()).all()
     p_list = [{"username": _nm(r), "joined": _jd(r), "earned": round(p_perbuyer.get(r.id, 0), 2)} for r in refs]
     p_list.sort(key=lambda x: -x["earned"])
-    return {"matrix": {"earned": round(m_earned, 2), "count": len(m_list), "people": m_list},
+    _tc = compute_descendant_counts(db, uid)
+    team = {"total": int(_tc.get("total", 0)), "direct": len(p_list),
+            "active": int(_tc.get("active", 0))}
+    return {"team": team,
+            "matrix": {"earned": round(m_earned, 2), "count": len(m_list), "people": m_list},
             "p2p": {"earned": round(p_earned, 2), "count": len(p_list), "people": p_list}}
 
 
@@ -10860,7 +10885,8 @@ def my_team_page(request: Request, user: User = Depends(get_current_user), db: S
         data = _al_my_network(db, user)
     except Exception as e:
         logger.error("my-network build failed: %s", e)
-        data = {"matrix": {"earned": 0, "count": 0, "people": []},
+        data = {"team": {"total": 0, "direct": 0, "active": 0},
+                "matrix": {"earned": 0, "count": 0, "people": []},
                 "p2p": {"earned": 0, "count": 0, "people": []}}
     uname = (getattr(user, "username", None) or ((user.email or "").split("@")[0] if getattr(user, "email", None) else ""))
     html = _AL_NETWORK_PAGE.replace("{{NETWORK_DATA}}", json.dumps(data)).replace("{{USERNAME}}", uname)
@@ -39110,7 +39136,14 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
     # Recursive CTE: start with direct referrals of user_id, then iteratively
     # add descendants of each found user until no new rows. PostgreSQL
     # handles the recursion + de-dup natively.
-    sql = text("""
+    from . import brand_config as _bc
+    if getattr(_bc, "IS_ADVANTAGELIFE", False):
+        _active_exists = ("SELECT 1 FROM pack_purchases p "
+                          "WHERE p.user_id = descendants.id AND p.status = 'active'")
+    else:
+        _active_exists = ("SELECT 1 FROM grids g "
+                          "WHERE g.owner_id = descendants.id AND g.is_complete = FALSE")
+    sql = text(f"""
         WITH RECURSIVE descendants AS (
             SELECT id FROM users WHERE sponsor_id = :start_id
             UNION
@@ -39119,13 +39152,7 @@ def compute_descendant_counts(db: Session, user_id: int) -> dict:
         )
         SELECT
             COUNT(*) AS total,
-            COUNT(*) FILTER (
-                WHERE EXISTS (
-                    SELECT 1 FROM grids g
-                    WHERE g.owner_id = descendants.id
-                    AND g.is_complete = FALSE
-                )
-            ) AS active
+            COUNT(*) FILTER (WHERE EXISTS ({_active_exists})) AS active
         FROM descendants
     """)
     try:
