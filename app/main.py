@@ -78700,6 +78700,39 @@ def al_create_claim_test(request: Request, user: User = Depends(get_current_user
                     f"to run the full set-password journey."}
 
 
+@app.get("/admin/api/al/launch-pulse")
+def al_launch_pulse(request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """Read-only launch dashboard: claimed vs not, logins, new signups, pack
+    activations. Each metric is guarded so a schema quirk yields null, not 500."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+
+    def one(sql):
+        try:
+            return db.execute(text(sql)).scalar()
+        except Exception:
+            db.rollback()
+            return None
+
+    total = one("SELECT COUNT(*) FROM users WHERE id <> 1") or 0
+    claimed = one("SELECT COUNT(*) FROM users WHERE id <> 1 AND password IS NOT NULL AND password <> ''") or 0
+    out = {
+        "members_total": total,
+        "claimed": claimed,
+        "not_claimed": total - claimed,
+        "claimed_pct": (round(100.0 * claimed / total, 1) if total else 0),
+        "signups_today": one("SELECT COUNT(*) FROM users WHERE id <> 1 AND created_at::date = CURRENT_DATE"),
+        "logins_24h": one("SELECT COUNT(DISTINCT user_id) FROM login_events WHERE created_at > NOW() - INTERVAL '24 hours'"),
+        "logins_today": one("SELECT COUNT(DISTINCT user_id) FROM login_events WHERE created_at::date = CURRENT_DATE"),
+        "pack_activations_today": one("SELECT COUNT(*) FROM pack_purchases WHERE status = 'active' AND created_at::date = CURRENT_DATE"),
+        "active_pack_owners": one("SELECT COUNT(DISTINCT user_id) FROM pack_purchases WHERE status = 'active'"),
+        "active_pack_value_usd": one("SELECT COALESCE(SUM(pack_level),0) FROM pack_purchases WHERE status = 'active'"),
+    }
+    out["note"] = "Live launch pulse. Refresh anytime."
+    return out
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
