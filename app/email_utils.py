@@ -243,7 +243,21 @@ def send_commission_email(to_email, first_name, commission_type="Affiliate", fro
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 3: PASSWORD RESET
 # ═══════════════════════════════════════════════════════════════
-def send_password_reset_email(to_email, first_name, reset_url):
+def send_password_reset_email(to_email, first_name, reset_url, is_claim=False):
+    if is_claim:
+        # First-time claim (no password yet) — welcome wording, not a scary
+        # "reset" alert, so migrated members aren't spooked into not clicking.
+        _claim_hero = ('<div style="font-size:48px;margin-bottom:14px">&#128075;</div>'
+                       '<p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Welcome to ' + BRAND_NAME + ', <span style="color:#c8102e">' + first_name + '</span></p>'
+                       '<p style="margin:0;font-size:15px;color:#475569;line-height:1.7">Your account is ready &mdash; set your password below to log in for the first time. The link is valid for <strong>1 hour</strong>.</p>')
+        _claim_body = ('<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="border:2px dashed #e2e8f0;border-radius:14px;padding:28px;text-align:center">'
+                       '<p style="margin:0 0 18px;font-size:15px;color:#64748b">Click the button below to set your password:</p>'
+                       + _btn(reset_url, "Set my password &rarr;")
+                       + '<p style="margin:16px 0 0;font-size:13px;color:#94a3b8">This link expires in 1 hour</p></td></tr></table>'
+                       '<p style="margin:0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.8">If the button does not work, copy and paste this link:<br><span style="color:#c8102e;font-size:11px;word-break:break-all">' + reset_url + '</span></p>')
+        return send_email(to_email, "Welcome to " + BRAND_NAME + " \u2014 set your password",
+                          _shell("Welcome", "#ffffff", _claim_hero, _claim_body),
+                          "Welcome to " + BRAND_NAME + ", " + first_name + "! Set your password: " + reset_url + " (expires in 1 hour)")
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#128272;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">Reset your password, <span style="color:#c8102e">{first_name}</span></p><p style="margin:0;font-size:15px;color:#475569;line-height:1.7">We received a request to reset your {BRAND_NAME} password. Click the button below — it\'s only valid for <strong>1 hour</strong>.</p>'
     body = f'<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="border:2px dashed #e2e8f0;border-radius:14px;padding:28px;text-align:center"><p style="margin:0 0 18px;font-size:15px;color:#64748b">Click the button below to set your new password:</p>{_btn(reset_url, "Reset my password &rarr;")}<p style="margin:16px 0 0;font-size:13px;color:#94a3b8">This link expires in 1 hour</p></td></tr></table><table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px"><tr><td style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:14px 18px"><p style="margin:0;font-size:14px;color:#713f12;line-height:1.6"><strong>Didn\'t request this?</strong> You can safely ignore this email. Your password won\'t change unless you click the link above.</p></td></tr></table><p style="margin:0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.8">If the button doesn\'t work, copy and paste this link:<br><span style="color:#c8102e;font-size:11px;word-break:break-all">{reset_url}</span></p>'
     return send_email(to_email, f"Reset your {BRAND_NAME} password", _shell("Security", "#ffffff", hero, body), f"Hi {first_name}, reset your {BRAND_NAME} password: {reset_url} (expires in 1 hour)")

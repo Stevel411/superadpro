@@ -10435,10 +10435,12 @@ async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
         db.add(reset_token)
         db.commit()
         reset_url = f"{brand_config.BASE_URL}/reset-password?token={token}"
+        _is_claim = not (user.password or "").strip()
         send_password_reset_email(
             to_email=user.email,
             first_name=user.first_name or user.username,
             reset_url=reset_url,
+            is_claim=_is_claim,
         )
     return {"success": True, "message": "If that email is registered, a reset link has been sent."}
 @app.post("/api/reset-password")
