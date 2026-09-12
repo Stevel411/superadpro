@@ -78665,6 +78665,39 @@ def al_member_team(request: Request, user: User = Depends(get_current_user),
     }
 
 
+@app.get("/admin/api/al/create-claim-test")
+def al_create_claim_test(request: Request, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """ADMIN: create ONE clean, never-claimed test member (empty password, like a
+    migrated member) so the /claim -> set-password -> login journey can be tested
+    end to end in an inbox you control. Idempotent by email. Purge after with
+    ?pattern=claimtest%. Params: ?email= ?username= (sensible defaults)."""
+    if not _academy_admin_ok(request, user):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    import time
+    q = request.query_params
+    email = (q.get("email") or "stevelawsonmarketing+claimtest@gmail.com").strip()
+    username = (q.get("username") or "claimtest").strip()
+    existing = db.query(User).filter(User.email.ilike(email)).first()
+    if existing:
+        return {"exists": True, "id": existing.id, "username": existing.username,
+                "email": existing.email,
+                "note": f"Already exists. Go to /claim and enter {existing.email}."}
+    if db.query(User).filter(User.username.ilike(username)).first():
+        username = f"{username}{int(time.time())}"
+    ts = int(time.time())
+    u = User(username=username, email=email, password="", is_active=False,
+             access_level="free", sponsor_id=1, pass_up_sponsor_id=1,
+             created_at=datetime.utcnow())
+    if hasattr(User, "referral_code"):
+        u.referral_code = f"{username}{ts}"
+    db.add(u)
+    db.commit()
+    return {"created": True, "id": u.id, "username": u.username, "email": u.email,
+            "note": f"Go to https://www.advantagelife.club/claim and enter {u.email} "
+                    f"to run the full set-password journey."}
+
+
 @app.get("/admin/api/grant-pack")
 def admin_api_grant_pack(
     usernames: str = "",
