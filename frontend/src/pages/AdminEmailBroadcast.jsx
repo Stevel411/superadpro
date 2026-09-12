@@ -262,7 +262,9 @@ function ComposeTab() {
   var [status, setStatus] = useState('all');
   var [country, setCountry] = useState('');
   var [mode, setMode] = useState('audience');
-  var [specificText, setSpecificText] = useState('');
+  var [searchTerm, setSearchTerm] = useState('');
+  var [selected, setSelected] = useState([]);
+  var [allMembers, setAllMembers] = useState([]);
   var [audienceCount, setAudienceCount] = useState(null);
   var [showPreview, setShowPreview] = useState(false);
   var [sending, setSending] = useState(false);
@@ -270,8 +272,29 @@ function ComposeTab() {
   var [pollTick, setPollTick] = useState(0);
   var [confirmText, setConfirmText] = useState('');
   var recipients = useMemo(function() {
-    return specificText.split(/[\s,;]+/).map(function(x){ return x.trim(); }).filter(Boolean);
-  }, [specificText]);
+    return selected.map(function(m){ return m.email || m.username; });
+  }, [selected]);
+  var searchResults = useMemo(function() {
+    var t = searchTerm.trim().toLowerCase();
+    if (!t) return [];
+    var chosen = {};
+    selected.forEach(function(m){ chosen[m.email || m.username] = true; });
+    return allMembers.filter(function(m){
+      if (chosen[m.email || m.username]) return false;
+      return (m.email || '').toLowerCase().indexOf(t) !== -1
+          || (m.username || '').toLowerCase().indexOf(t) !== -1
+          || (m.first_name || '').toLowerCase().indexOf(t) !== -1;
+    }).slice(0, 8);
+  }, [searchTerm, allMembers, selected]);
+  useEffect(function() {
+    if (mode === 'specific' && allMembers.length === 0) {
+      apiGet('/admin/api/members-emails?status=all')
+        .then(function(d){ setAllMembers((d && d.members) || []); })
+        .catch(function(){});
+    }
+  }, [mode]);
+  function addMember(m){ setSelected(function(p){ return p.concat([m]); }); setSearchTerm(''); }
+  function removeMember(key){ setSelected(function(p){ return p.filter(function(m){ return (m.email || m.username) !== key; }); }); }
 
   // Resolve audience count whenever filter or recipient list changes
   useEffect(function() {
@@ -542,16 +565,43 @@ function ComposeTab() {
           </>
         ) : (
           <>
-            <Label small>Emails or usernames</Label>
-            <textarea
-              value={specificText}
-              onChange={function(e){ setSpecificText(e.target.value); }}
-              placeholder={"One per line or comma-separated:\njane@example.com\nsteve\nsuccess"}
-              rows={7}
-              style={Object.assign({}, input(), { fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 12.5, resize: 'vertical' })}
+            <Label small>Search members</Label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={function(e){ setSearchTerm(e.target.value); }}
+              placeholder="Type a name, username or email…"
+              style={input()}
             />
-            <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 6, lineHeight: 1.5 }}>
-              Matched by email or username. Opted-out and unknown entries are skipped — the number on the Send button is what was entered; the real matched count comes back after sending.
+            {searchResults.length > 0 && (
+              <div style={{ marginTop: 6, border: '1px solid #e5e7eb', borderRadius: 8, maxHeight: 240, overflowY: 'auto', background: '#fff', boxShadow: '0 10px 24px -12px rgba(15,23,42,.25)' }}>
+                {searchResults.map(function(m){
+                  return (
+                    <div key={m.email || m.username} onClick={function(){ addMember(m); }}
+                      style={{ padding: '8px 11px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9' }}
+                      onMouseDown={function(e){ e.preventDefault(); }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>@{m.username}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.email}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {selected.length > 0 && (
+              <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {selected.map(function(m){
+                  var key = m.email || m.username;
+                  return (
+                    <span key={key} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1e40af', borderRadius: 20, padding: '4px 10px', fontSize: 12, fontWeight: 700 }}>
+                      @{m.username}
+                      <span onClick={function(){ removeMember(key); }} style={{ cursor: 'pointer', fontWeight: 900, fontSize: 14, lineHeight: 1 }}>×</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+            <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 10, lineHeight: 1.5 }}>
+              Search by name, username or email and tap to add. {selected.length} selected. Opted-out members are skipped on send.
             </p>
           </>
         )}
