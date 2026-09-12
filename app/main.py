@@ -74625,13 +74625,17 @@ def _ensure_unsubscribe_token(db, user) -> str:
 
 def _build_broadcast_footer(unsubscribe_url: str) -> str:
     """Standard compliance footer appended to every broadcast email."""
+    from . import brand_config as _bc
+    _brand = _bc.BRAND_NAME
+    _tag = ("AdvantageLife \u2014 Advertising & Rewards Platform" if _bc.IS_ADVANTAGELIFE
+            else f"{_brand} \u2014 AI Marketing & Advertising Platform")
     return (
         f'<div style="margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;'
         f'font-size:12px;color:#94a3b8;text-align:center;line-height:1.6;font-family:Helvetica Neue,Arial,sans-serif;">'
-        f'You\'re receiving this because you\'re a SuperAdPro member.<br>'
+        f'You\'re receiving this because you\'re a member of {_brand}.<br>'
         f'<a href="{unsubscribe_url}" style="color:#94a3b8;text-decoration:underline;">Unsubscribe from broadcast emails</a> '
         f'(you\'ll still receive transactional emails like password resets and commission notifications).<br>'
-        f'<span style="color:#cbd5e1;">SuperAdPro — AI Marketing & Advertising Platform</span>'
+        f'<span style="color:#cbd5e1;">{_tag}</span>'
         f'</div>'
     )
 
